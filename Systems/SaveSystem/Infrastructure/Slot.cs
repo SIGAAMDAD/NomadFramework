@@ -70,6 +70,7 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure {
 		===============
 		*/
 		public void Dispose() {
+			Sections.Clear();
 		}
 
 		/*

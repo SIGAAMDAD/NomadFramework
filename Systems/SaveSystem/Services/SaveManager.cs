@@ -22,6 +22,7 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using NomadCore.Abstractions.Services;
+using NomadCore.Infrastructure;
 using NomadCore.Systems.SaveSystem.Infrastructure;
 using NomadCore.Systems.SaveSystem.Interfaces;
 using NomadCore.Utilities;
@@ -42,6 +43,7 @@ namespace NomadCore.Systems.SaveSystem.Services {
 
 	public sealed class SaveManager : ISaveService {
 		private readonly List<Slot> Slots = new List<Slot>();
+		private readonly ILoggerService? Logger = ServiceRegistry.Get<ILoggerService>();
 
 		/*
 		===============
@@ -60,7 +62,13 @@ namespace NomadCore.Systems.SaveSystem.Services {
 		/// 
 		/// </summary>
 		public void Initialize() {
-			var files = System.IO.Directory.GetFiles();
+			Logger?.PrintLine( "SaveManager.Initialize: creating save file cache..." );
+			var files = System.IO.Directory.GetFiles( FilepathCache.SavePath.OSPath, "ngd" );
+			Logger?.PrintLine( $"...Found {files.Length} save files" );
+
+			for ( int i = 0; i < files.Length; i++ ) {
+				Slots.Add( new Slot( i ) );
+			}
 		}
 
 		/*
