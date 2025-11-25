@@ -21,7 +21,7 @@
     <ProjectReference Include="..\Core\Core.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EventSystem\EventSystem.csproj" />
+    <ProjectReference Include="..\EventSystem\EventSystem\EventSystem.csproj" />
   </ItemGroup>
 
 </Project>

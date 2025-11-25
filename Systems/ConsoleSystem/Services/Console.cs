@@ -25,14 +25,10 @@ using Godot;
 using NomadCore.Abstractions.Services;
 using NomadCore.Infrastructure;
 using NomadCore.Interfaces;
-using NomadCore.Systems.ConsoleSystem.Events;
 using NomadCore.Systems.ConsoleSystem.Infrastructure;
 using NomadCore.Systems.ConsoleSystem.Infrastructure.Sinks;
 using NomadCore.Systems.ConsoleSystem.Interfaces;
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace NomadCore.Systems.ConsoleSystem.Services {
 	/*
@@ -51,10 +47,6 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 	/// </remarks>
 
 	public sealed partial class Console : IConsoleService, IConsoleEvents {
-		private readonly ICommandLine CommandLine;
-
-		private static readonly ConcurrentDictionary<string, ConsoleCommand> CommandCache = new ConcurrentDictionary<string, ConsoleCommand>();
-
 		public IGameEvent ConsoleOpened => _consoleOpened;
 		private readonly IGameEvent _consoleOpened;
 
@@ -89,20 +81,23 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 			_consoleClosed = eventBus.CreateEvent( nameof( ConsoleClosed ) );
 			_historyPrev = eventBus.CreateEvent( nameof( HistoryPrev ) );
 			_historyNext = eventBus.CreateEvent( nameof( HistoryNext ) );
-			_autoComplete = eventBus.CreateEvent( nameof( AutoComplete) );
+			_autoComplete = eventBus.CreateEvent( nameof( AutoComplete ) );
 			_pageUp = eventBus.CreateEvent( nameof( PageUp ) );
 			_pageDown = eventBus.CreateEvent( nameof( PageDown ) );
 
 			ICommandBuilder commandBuilder = new GodotCommandBuilder( eventBus, this );
+			GodotConsole console = new GodotConsole( commandBuilder, this );
+			var commandLine = ServiceRegistry.Register<ICommandLine>( new CommandLine( commandBuilder, this, eventBus ) );
 			ServiceRegistry.Register<ILoggerService>(
-				new LoggerService( CommandLine, [
+				new LoggerService( commandLine, [
 					new GodotSink(),
 					new FileSink(),
-					new InGameSink( new GodotConsole( commandBuilder, this ), commandBuilder, this )
+					new InGameSink( console, commandBuilder, this )
 				] )
 			);
 			var history = new History( commandBuilder, eventBus, this );
-			ServiceRegistry.Register<ICommandLine>( new CommandLine( commandBuilder, this, eventBus ) );
+
+			rootNode.CallDeferred( Node.MethodName.AddChild, console );
 		}
 
 		/*

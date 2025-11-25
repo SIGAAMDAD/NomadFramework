@@ -85,8 +85,8 @@ namespace NomadCore.Infrastructure {
 		/// <typeparam name="T"></typeparam>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public static T Get<T>() where T : IGameService {
-			return (T)Services[ typeof( T ) ];
+		public static T? Get<T>() where T : IGameService {
+			return Services.TryGetValue( typeof( T ), out IGameService? value ) ? (T)value : default;
 		}
 
 		/*
