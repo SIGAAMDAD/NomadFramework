@@ -38,14 +38,6 @@ namespace NomadCore.Systems.ConsoleSystem.Interfaces.Abstractions {
 	public abstract class SinkBase : ILoggerSink {
 		public abstract void Print( string message );
 		public abstract void Clear();
-
-		/*
-		===============
-		CheckMessageLevel
-		===============
-		*/
-		protected static bool CheckMessageLevel( LogLevel level ) {
-			return Config.LogDepth < level;
-		}
+		public abstract void Flush();
 	};
 };

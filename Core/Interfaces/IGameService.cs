@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad AGPL Source Code
 Copyright (C) 2025 Noah Van Til
@@ -21,39 +21,9 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-using NomadCore.Interfaces;
-using NomadCore.Utilities;
-
-namespace NomadCore.Abstractions.Services {
-	/*
-	===================================================================================
-	
-	ICVarSystemService
-	
-	===================================================================================
-	*/
-	/// <summary>
-	/// 
-	/// </summary>
-	
-	public interface ICVarSystemService : IGameService {
-		public void Register( in ICVar? cvar );
-		public ICVar<T> Register<T>( CVarCreateInfo<T> createInfo );
-		public void Unregister( in ICVar? cvar );
-
-		public bool CVarExists( string? name );
-
-		public ICVar<T>? GetCVar<T>( string? name );
-		public ICVar GetCVar( string? name );
-		public ICVar[] GetCVars();
-		public ICVar<T>[] GetCVarsWithValueType<T>();
-		public ICVar[] GetCVarsInGroup( string? groupName );
-
-		public bool GroupExists( string? groupName );
-
-		public void Restart();
-
-		public void Load( string? configFile );
-		public void Save( string? configFile );
+namespace NomadCore.Interfaces {
+	public interface IGameService {
+		public void Initialize();
+		public void Shutdown();
 	};
 };

@@ -22,6 +22,7 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using NomadCore.Abstractions.Services;
+using NomadCore.Infrastructure;
 using NomadCore.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -51,22 +52,19 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Infrastructure {
 		/// 
 		/// </summary>
 		/// <param name="configFile"></param>
-		/// <param name="system"></param>
-		/// <param name="console"></param>
 		/// <param name="groups"></param>
-		public ConfigFileWriter( string? configFile, ICVarSystemService? system, IConsoleService? console, in HashSet<CVarGroup>? groups ) {
+		public ConfigFileWriter( string? configFile, in HashSet<CVarGroup>? groups ) {
 			ArgumentException.ThrowIfNullOrEmpty( configFile );
-			ArgumentNullException.ThrowIfNull( system );
 			ArgumentNullException.ThrowIfNull( groups );
-			ArgumentNullException.ThrowIfNull( console );
+
+			var logger = ServiceRegistry.Get<ILoggerService>();
 
 			if ( groups.Count <= 0 ) {
-				console.PrintWarning( "ConfigFileWriter: no CVar groups provided" );
+				logger?.PrintWarning( "ConfigFileWriter: no CVar groups provided" );
 				return;
 			}
 
-			CVarSystem = system;
-			Console = console;
+			CVarSystem = ServiceRegistry.Get<ICVarSystemService>();
 
 			try {
 				string? directory = System.IO.Path.GetDirectoryName( configFile );
@@ -83,7 +81,8 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Infrastructure {
 					}
 				}
 			} catch ( Exception e ) {
-				console.PrintError( $"...Error writing configuration file {configFile}: {e.Message}" );
+				Writer?.Close();
+				logger?.PrintError( $"...Error writing configuration file {configFile}: {e.Message}" );
 			}
 		}
 

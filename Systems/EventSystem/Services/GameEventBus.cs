@@ -103,8 +103,7 @@ namespace NomadCore.Systems.EventSystem.Services {
 
 		private readonly Func<object, HashSet<IGameEvent>> HashSetFactory;
 
-		private IConsoleService? Console = ServiceRegistry.Resolve<IConsoleService>();
-		private static GameEventBus Instance;
+		private readonly ILoggerService? Logger = ServiceRegistry.Get<ILoggerService>();
 
 		/*
 		===============
@@ -112,10 +111,8 @@ namespace NomadCore.Systems.EventSystem.Services {
 		===============
 		*/
 		public GameEventBus() {
-			SubscriptionSetFactory = new Func<IGameEvent, EventSubscriptionSet>( ( e ) => new EventSubscriptionSet( e, Console ) );
+			SubscriptionSetFactory = new Func<IGameEvent, EventSubscriptionSet>( ( e ) => new EventSubscriptionSet( e ) );
 			HashSetFactory = new Func<object, HashSet<IGameEvent>>( ( s ) => new HashSet<IGameEvent>() );
-
-			Instance = this;
 		}
 
 		/*
@@ -190,26 +187,6 @@ namespace NomadCore.Systems.EventSystem.Services {
 		/// <param name="target"></param>
 		/// <param name="method"></param>
 		/// <exception cref="ArgumentException"></exception>
-		/// <exception cref="InvalidOperationException"></exception>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public static void ConnectSignal( object? source, StringName? signalName, object? target, Action? method ) {
-			ArgumentNullException.ThrowIfNull( Instance );
-			Instance.ConnectSignal( source as GodotObject, signalName, target as GodotObject, method );
-		}
-
-		/*
-		===============
-		ConnectSignal
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="source"></param>
-		/// <param name="signalName"></param>
-		/// <param name="target"></param>
-		/// <param name="method"></param>
-		/// <exception cref="ArgumentException"></exception>
 		/// <exception cref="ArgumentNullException"></exception>
 		/// <exception cref="InvalidOperationException"></exception>
 		public void ConnectSignal( GodotObject? source, StringName? signalName, GodotObject? target, Callable? method ) {
@@ -238,27 +215,6 @@ namespace NomadCore.Systems.EventSystem.Services {
 			connectionList.Add( new ConnectionInfo( source, signalName, method ) );
 
 			HookGodotObjectCleanup( source );
-		}
-
-		/*
-		===============
-		ConnectSignal
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="source"></param>
-		/// <param name="signalName"></param>
-		/// <param name="target"></param>
-		/// <param name="method"></param>
-		/// <exception cref="ArgumentException"></exception>
-		/// <exception cref="ArgumentNullException"></exception>
-		/// <exception cref="InvalidOperationException"></exception>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public static void ConnectSignal( object? source, StringName? signalName, object? target, Callable? method ) {
-			ArgumentNullException.ThrowIfNull( Instance );
-			Instance.ConnectSignal( source as GodotObject, signalName, target as GodotObject, method );
 		}
 
 		/*
@@ -301,7 +257,7 @@ namespace NomadCore.Systems.EventSystem.Services {
 			EventSubscriptionSet? subscriptionSet = EventCache.GetOrAdd( eventHandler, SubscriptionSetFactory );
 			ArgumentNullException.ThrowIfNull( subscriptionSet );
 
-			Console?.PrintLine( $"GameEventBus.Subscribe: subscribed to event '{eventHandler.Name}' with callback '{callback.Method.Name}'..." );
+			Logger?.PrintLine( $"GameEventBus.Subscribe: subscribed to event '{eventHandler.Name}' with callback '{callback.Method.Name}'..." );
 			subscriptionSet.AddSubscription( subscriber, callback );
 
 			HashSet<IGameEvent>? events = SubscriberToEvents.GetOrAdd( subscriber, HashSetFactory );
@@ -334,26 +290,6 @@ namespace NomadCore.Systems.EventSystem.Services {
 			ArgumentNullException.ThrowIfNull( callback );
 
 			eventHandler.Subscribe( subscriber, callback );
-		}
-
-		/*
-		===============
-		Subscribe
-		===============
-		*/
-		/// <summary>
-		/// Hooks the <paramref name="callback"/> to the event <paramref name="eventHandler"/>.
-		/// </summary>
-		/// <param name="subscriber"></param>
-		/// <param name="eventHandler"></param>
-		/// <param name="callback"></param>
-		/// <exception cref="ArgumentNullException"></exception>
-		/// <exception cref="ArgumentException"></exception>
-		/// <exception cref="KeyNotFoundException"></exception>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public static void Subscribe<TEvent, TCallback>( object? subscriber, TEvent? eventHandler, TCallback? callback ) {
-			ArgumentNullException.ThrowIfNull( Instance );
-			Instance.Subscribe( subscriber, eventHandler as IGameEvent, callback as IGameEvent.EventCallback );
 		}
 
 		/*
@@ -411,25 +347,6 @@ namespace NomadCore.Systems.EventSystem.Services {
 
 		/*
 		===============
-		Unsubscribe
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="subscriber"></param>
-		/// <param name="eventHandler"></param>
-		/// <param name="callback"></param>
-		/// <exception cref="ArgumentException"></exception>
-		/// <exception cref="KeyNotFoundException"></exception>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public static void Unsubscribe<TEvent, TCallback>( object? subscriber, TEvent? eventHandler, TCallback? callback ) {
-			ArgumentNullException.ThrowIfNull( Instance );
-			Instance.Unsubscribe( subscriber, eventHandler as IGameEvent, callback as IGameEvent.EventCallback );
-		}
-
-		/*
-		===============
 		Publish
 		===============
 		*/
@@ -472,33 +389,6 @@ namespace NomadCore.Systems.EventSystem.Services {
 
 		/*
 		===============
-		Publish
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="eventHandler"></param>
-		/// <param name="args"></param>
-		/// <param name="singleThreaded"></param>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public static void Publish<TEvent, TArgs>( TEvent? eventHandler, in TArgs args ) {
-			ArgumentNullException.ThrowIfNull( Instance );
-			Instance.Publish( eventHandler as IGameEvent, (IEventArgs)args );
-		}
-
-		/*
-		===============
-		SetConsoleService
-		===============
-		*/
-		public void SetConsoleService( IConsoleService? console ) {
-			ArgumentNullException.ThrowIfNull( console );
-			Console = console;
-		}
-
-		/*
-		===============
 		CreateEvent
 		===============
 		*/
@@ -524,20 +414,19 @@ namespace NomadCore.Systems.EventSystem.Services {
 		/// 
 		/// </summary>
 		/// <param name="obj"></param>
-		public static void CleanupSubscriber( object? obj ) {
-			ArgumentNullException.ThrowIfNull( Instance );
+		public void CleanupSubscriber( object? obj ) {
 			ArgumentNullException.ThrowIfNull( obj );
 
-			if ( Instance.SubscriberToEvents.TryRemove( obj, out HashSet<IGameEvent>? events ) ) {
+			if ( SubscriberToEvents.TryRemove( obj, out HashSet<IGameEvent>? events ) ) {
 				foreach ( var eventHandler in events ) {
-					if ( Instance.EventCache.TryGetValue( eventHandler, out var subscriptionSet ) ) {
+					if ( EventCache.TryGetValue( eventHandler, out var subscriptionSet ) ) {
 						subscriptionSet.RemoveAllForSubscriber( obj );
 					}
 				}
 			}
 			if ( obj is GodotObject godotObject ) {
 				DisconnectAllForGodotObject( godotObject );
-				Instance.GodotConnections.TryRemove( godotObject, out _ );
+				GodotConnections.TryRemove( godotObject, out _ );
 			}
 		}
 

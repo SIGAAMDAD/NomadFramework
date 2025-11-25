@@ -106,6 +106,18 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure {
 
 		/*
 		===============
+		Flush
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public override void Flush() {
+		}
+
+		/*
+		===============
 		OnScrollToBottom
 		===============
 		*/

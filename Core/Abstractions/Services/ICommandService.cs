@@ -24,8 +24,10 @@ terms, you may contact me via email at nyvantil@gmail.com.
 using NomadCore.Interfaces;
 
 namespace NomadCore.Abstractions.Services {
-	public interface ICommandService {
+	public interface ICommandService : IGameService {
 		public void RegisterCommand( IConsoleCommand command );
 		public bool CommandExists( string command );
+		public IConsoleCommand GetCommand( string command );
+		public bool TryGetCommand( string name, out IConsoleCommand command );
 	};
 };

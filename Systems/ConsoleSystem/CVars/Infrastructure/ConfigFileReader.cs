@@ -22,6 +22,7 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using NomadCore.Abstractions.Services;
+using NomadCore.Infrastructure;
 using System;
 
 namespace NomadCore.Systems.ConsoleSystem.CVars.Infrastructure {
@@ -48,14 +49,12 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Infrastructure {
 		/// 
 		/// </summary>
 		/// <param name="configFile"></param>
-		/// <param name="console"></param>
-		public ConfigFileReader( string? configFile, IConsoleService? console ) {
+		public ConfigFileReader( string? configFile ) {
 			ArgumentException.ThrowIfNullOrEmpty( configFile );
-			ArgumentNullException.ThrowIfNull( console );
 
-			console.PrintLine( $"Loading configuration file {configFile}..." );
+			ServiceRegistry.Get<ILoggerService>()?.PrintLine( $"Loading configuration file {configFile}..." );
 
-			Loader = new IniLoader( configFile, console );
+			Loader = new IniLoader( configFile );
 		}
 
 		/*

@@ -23,6 +23,8 @@ terms, you may contact me via email at nyvantil@gmail.com.
 
 using System.Collections.Generic;
 using System;
+using NomadCore.Abstractions.Services;
+using NomadCore.Infrastructure;
 
 namespace NomadCore.Systems.ConsoleSystem.CVars {
 	/*
@@ -40,6 +42,9 @@ namespace NomadCore.Systems.ConsoleSystem.CVars {
 		public readonly string Name = name;
 		public readonly HashSet<string> Cvars = new HashSet<string>();
 
+		private readonly ILoggerService Logger = ServiceRegistry.Get<ILoggerService>();
+		private readonly ICVarSystemService CVarSystem = ServiceRegistry.Get<ICVarSystemService>();
+
 		/*
 		===============
 		Add
@@ -52,8 +57,10 @@ namespace NomadCore.Systems.ConsoleSystem.CVars {
 		public void Add( string? name ) {
 			ArgumentException.ThrowIfNullOrEmpty( name );
 
-			if ( !Cvars.Add( name ) ) {
-				ConsoleSystem.
+			if ( !CVarSystem.CVarExists( name ) ) {
+				Logger?.PrintError( $"CVarGroup.Add: cvar '{name}' doesn't exist" );
+			} else if ( !Cvars.Add( name ) ) {
+				Logger?.PrintError( $"CVarGroup.Add: cvar '{name}' already added to group '{Name}'" );
 			}
 		}
 	};

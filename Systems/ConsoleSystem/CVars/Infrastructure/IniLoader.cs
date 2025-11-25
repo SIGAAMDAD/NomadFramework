@@ -23,6 +23,7 @@ terms, you may contact me via email at nyvantil@gmail.com.
 
 using Microsoft.Extensions.Configuration.Ini;
 using NomadCore.Abstractions.Services;
+using NomadCore.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -51,20 +52,20 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Infrastructure {
 		/// 
 		/// </summary>
 		/// <param name="configFile"></param>
-		/// <param name="console"></param>
-		public IniLoader( string? configFile, IConsoleService? console ) {
+		public IniLoader( string? configFile ) {
 			ArgumentException.ThrowIfNullOrEmpty( configFile );
-			ArgumentNullException.ThrowIfNull( console );
+
+			var logger = ServiceRegistry.Get<ILoggerService>();
 
 			try {
 				using FileStream fileStream = new FileStream( configFile, FileMode.Open, FileAccess.Read );
 
 				IniData = IniStreamConfigurationProvider.Read( fileStream );
 				if ( IniData == null ) {
-					console.PrintError( $"IniLoader: error parsing ini data from configuration file '{configFile}'" );
+					logger?.PrintError( $"IniLoader: error parsing ini data from configuration file '{configFile}'" );
 				}
 			} catch ( Exception e ) {
-				console.PrintError( $"IniLoader: Error opening configuration file '{configFile}: {e.Message}" );
+				logger?.PrintError( $"IniLoader: Error opening configuration file '{configFile}: {e.Message}" );
 			}
 		}
 
@@ -163,7 +164,7 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Infrastructure {
 				value = data;
 				return true;
 			}
-			value = "";
+			value = String.Empty;
 			return false;
 		}
 	};

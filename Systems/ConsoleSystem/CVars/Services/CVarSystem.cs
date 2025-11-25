@@ -22,7 +22,6 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using NomadCore.Abstractions.Services;
-using NomadCore.Enums;
 using NomadCore.Interfaces;
 using NomadCore.Utilities;
 using NomadCore.Systems.ConsoleSystem.CVars.Infrastructure;
@@ -31,6 +30,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using NomadCore.Infrastructure;
 
 namespace NomadCore.Systems.ConsoleSystem.CVars {
 	/*
@@ -48,30 +48,23 @@ namespace NomadCore.Systems.ConsoleSystem.CVars {
 		private readonly ConcurrentDictionary<string, ICVar> Cvars = new ConcurrentDictionary<string, ICVar>( StringComparer.OrdinalIgnoreCase );
 		private readonly HashSet<CVarGroup> Groups = new HashSet<CVarGroup>();
 
-		private readonly IGameEventBusService EventBus;
-		private readonly IConsoleService Console;
+		private IGameEventBusService EventBus;
+		private ILoggerService Logger = ServiceRegistry.Get<ILoggerService>();
 
 		/*
 		===============
-		CVarSystem
+		Initialize
 		===============
 		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="eventBus"></param>
-		public CVarSystem( IGameEventBusService? eventBus ) {
-			ArgumentNullException.ThrowIfNull( eventBus );
-
-			EventBus = eventBus;
+		public void Initialize() {
 		}
 
 		/*
 		===============
-		Dispose
+		Shutdown
 		===============
 		*/
-		public void Dispose() {
+		public void Shutdown() {
 		}
 
 		/*
@@ -102,7 +95,7 @@ namespace NomadCore.Systems.ConsoleSystem.CVars {
 		/// <typeparam name="T">The internal type of the cvar's value.</typeparam>
 		/// <param name="createInfo">The cvar's creation info.</param>
 		/// <returns></returns>
-		public ICVar<T>? Register<T>( CVarCreateInfo<T> createInfo ) {
+		public ICVar<T> Register<T>( CVarCreateInfo<T> createInfo ) {
 			if ( Cvars.TryGetValue( createInfo.Name, out ICVar? var ) ) {
 				if ( var is ICVar<T> value ) {
 					return value;
@@ -113,7 +106,7 @@ namespace NomadCore.Systems.ConsoleSystem.CVars {
 			ICVar<T> cvar = new CVar<T>( this, EventBus, createInfo );
 			Cvars.TryAdd( createInfo.Name, cvar );
 
-			Console.PrintLine( $"CVarSystem.Register: registered CVar '{createInfo.Name}' with default value {createInfo.DefaultValue} and flags {createInfo.Flags}." );
+			Logger?.PrintLine( $"CVarSystem.Register: registered CVar '{createInfo.Name}' with default value {createInfo.DefaultValue} and flags {createInfo.Flags}." );
 
 			return cvar;
 		}
@@ -133,7 +126,7 @@ namespace NomadCore.Systems.ConsoleSystem.CVars {
 			try {
 				Cvars.TryRemove( new KeyValuePair<string, ICVar>( cvar.Name, cvar ) );
 			} catch ( Exception e ) {
-				Console.PrintError( $"CVarSystem.RemoveCVar: error removing cached CVar {cvar.Name} - {e.Message}" );
+				Logger?.PrintError( $"CVarSystem.RemoveCVar: error removing cached CVar {cvar.Name} - {e.Message}" );
 			}
 		}
 
@@ -172,7 +165,7 @@ namespace NomadCore.Systems.ConsoleSystem.CVars {
 			}
 			Groups.Add( group );
 
-			Console.PrintLine( $"CVarSystem.AddGroup: Added CVar group {group.Name}." );
+			Logger?.PrintLine( $"CVarSystem.AddGroup: Added CVar group {group.Name}." );
 		}
 
 		/*
@@ -217,20 +210,6 @@ namespace NomadCore.Systems.ConsoleSystem.CVars {
 
 		/*
 		===============
-		ResetAll
-		===============
-		*/
-		/// <summary>
-		/// Resets all CVars within this group to their default values
-		/// </summary>
-		public void ResetAll() {
-			foreach ( var cvar in Cvars.Values ) {
-				cvar.Reset();
-			}
-		}
-
-		/*
-		===============
 		Save
 		===============
 		*/
@@ -244,7 +223,7 @@ namespace NomadCore.Systems.ConsoleSystem.CVars {
 
 			// ensure we block all access
 			lock ( Cvars ) {
-				ConfigFileWriter writer = new ConfigFileWriter( configFile, this, Console, Groups );
+				ConfigFileWriter writer = new ConfigFileWriter( configFile, Groups );
 			}
 		}
 
@@ -262,13 +241,13 @@ namespace NomadCore.Systems.ConsoleSystem.CVars {
 
 			// make sure we actually have something to load
 			if ( Cvars == null || Cvars.IsEmpty ) {
-				Console.PrintLine( "CVarSystem.Load: no cvars yet." );
+				Logger?.PrintLine( "CVarSystem.Load: no cvars yet." );
 				return;
 			}
 
 			// ensure we block all access
 			lock ( Cvars ) {
-				ConfigFileReader reader = new ConfigFileReader( configFile, Console );
+				ConfigFileReader reader = new ConfigFileReader( configFile );
 
 				foreach ( var group in Groups ) {
 					foreach ( var cvar in group.Cvars ) {
@@ -360,5 +339,22 @@ namespace NomadCore.Systems.ConsoleSystem.CVars {
 		public void Restart() {
 			throw new NotImplementedException();
 		}
+
+		public bool CVarExists( string? name ) {
+			throw new NotImplementedException();
+		}
+
+		ICVar<T>? ICVarSystemService.GetCVar<T>( string? name ) {
+			throw new NotImplementedException();
+		}
+
+		public ICVar GetCVar( string? name ) {
+			throw new NotImplementedException();
+		}
+
+		ICVar<T>[] ICVarSystemService.GetCVarsWithValueType<T>() {
+			throw new NotImplementedException();
+		}
+
 	};
 };

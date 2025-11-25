@@ -97,5 +97,17 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure.Sinks {
 		public override void Clear() {
 			Writer?.BaseStream.SetLength( 0 );
 		}
+
+		/*
+		===============
+		Flush
+		===============
+		*/
+		/// <summary>
+		/// Flushes the contents of the stream writer to the logfile.
+		/// </summary>
+		public override void Flush() {
+			Writer?.Flush();
+		}
 	};
 };

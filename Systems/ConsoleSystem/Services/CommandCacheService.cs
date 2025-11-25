@@ -22,11 +22,11 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using NomadCore.Abstractions.Services;
+using NomadCore.Infrastructure;
 using NomadCore.Interfaces;
 using NomadCore.Systems.ConsoleSystem.Infrastructure;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace NomadCore.Systems.ConsoleSystem.Services {
@@ -41,8 +41,37 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 	/// 
 	/// </summary>
 	
-	public sealed class CommandCacheService  : ICommandService {
+	public sealed class CommandCacheService : ICommandService {
 		private readonly ConcurrentDictionary<string, IConsoleCommand> Commands = new ConcurrentDictionary<string, IConsoleCommand>();
+
+		/*
+		===============
+		CommandCacheServices
+		===============
+		*/
+		public CommandCacheService() {
+			RegisterCommand( new ConsoleCommand(
+				name: "cmdlist",
+				callback: OnListCommands,
+				description: "Prints all available commands to the console."
+			) );
+		}
+		
+		/*
+		===============
+		Initialize
+		===============
+		*/
+		public void Initialize() {
+		}
+
+		/*
+		===============
+		Shutdown
+		===============
+		*/
+		public void Shutdown() {
+		}
 
 		/*
 		===============
@@ -53,6 +82,7 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 		/// Registers a command into the global cache
 		/// </summary>
 		/// <param name="command">The command that's being added to the global cache.</param>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void RegisterCommand( IConsoleCommand command ) {
 			Commands[ command.Name ] = command;
 		}
@@ -85,7 +115,7 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 		/// <param name="command"></param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public bool TryGetCommand( string name, out IConsoleCommand? command ) {
+		public bool TryGetCommand( string name, out IConsoleCommand command ) {
 			return Commands.TryGetValue( name, out command );
 		}
 
@@ -103,6 +133,24 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 		public bool CommandExists( string command ) {
 			ArgumentException.ThrowIfNullOrEmpty( command );
 			return Commands.ContainsKey( command );
+		}
+
+		/*
+		===============
+		OnListCommands
+		===============
+		*/
+		/// <summary>
+		/// Lists all commands currently stored in <see cref="Commands"/>.
+		/// </summary>
+		/// <param name="args"></param>
+		private void OnListCommands( in ICommandExecutedEventData args ) {
+			IConsoleCommand[] commandList = [ .. Commands.Values ];
+			
+			var logger = ServiceRegistry.Get<ILoggerService>();
+			for ( int i = 0; i < commandList.Length; i++ ) {
+				logger.PrintLine( $"{commandList[ i ].Name}: {commandList[ i ].Description}" );
+			}
 		}
 	};
 };

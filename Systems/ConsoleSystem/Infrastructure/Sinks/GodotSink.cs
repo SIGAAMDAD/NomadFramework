@@ -65,5 +65,17 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure.Sinks {
 		public override void Clear() {
 			Console.Clear();
 		}
+
+		/*
+		===============
+		Flush
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public override void Flush() {
+		}
 	};
 };

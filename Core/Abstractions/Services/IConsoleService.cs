@@ -21,6 +21,8 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
+using NomadCore.Interfaces;
+
 namespace NomadCore.Abstractions.Services {
 	/*
 	===================================================================================
@@ -30,14 +32,9 @@ namespace NomadCore.Abstractions.Services {
 	===================================================================================
 	*/
 	/// <summary>
-	/// The ConsoleSystem's service interface.
+	/// The ConsoleSystem's service interface. Basically the console's bootstrapper.
 	/// </summary>
 	
-	public interface IConsoleService {
-		public void PrintLine<TString>( TString message ) where TString : notnull;
-		public void PrintError<TString>( TString message ) where TString : notnull;
-		public void PrintWarning<TString>( TString message ) where TString : notnull;
-		public void PrintDebug<TString>( TString message ) where TString : notnull;
-		public void ExecuteCommand<TString>( TString command ) where TString : notnull;
+	public interface IConsoleService : IGameService {
 	};
 };

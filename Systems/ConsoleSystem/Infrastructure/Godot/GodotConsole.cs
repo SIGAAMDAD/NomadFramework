@@ -22,7 +22,9 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using Godot;
+using NomadCore.Abstractions.Services;
 using NomadCore.Infrastructure;
+using NomadCore.Interfaces;
 using NomadCore.Systems.ConsoleSystem.Events;
 using NomadCore.Systems.ConsoleSystem.Interfaces;
 using System;
@@ -48,9 +50,6 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure {
 		[Export]
 		public bool PauseEnabled { get; private set; } = false;
 
-		private readonly ConsoleCommand Quit;
-		private readonly ConsoleCommand Exit;
-
 		private readonly IConsoleEvents Events;
 		private readonly GodotCommandBuilder CommandBuilder;
 
@@ -68,8 +67,8 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure {
 			Events = events;
 			CommandBuilder = (GodotCommandBuilder)builder;
 
-			Quit = new ConsoleCommand( "quit", OnQuit, "Closes the game application." );
-			Exit = new ConsoleCommand( "exit", OnQuit, "Exits the running application." );
+			ServiceRegistry.Get<ICommandService>().RegisterCommand( new ConsoleCommand( "quit", OnQuit, "Closes the game application." ) );
+			ServiceRegistry.Get<ICommandService>().RegisterCommand( new ConsoleCommand( "exit", OnQuit, "Exits the running application." ) );
 		}
 
 		/*
@@ -148,7 +147,7 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure {
 		/// 
 		/// </summary>
 		/// <param name="args"></param>
-		private void OnQuit( in CommandExecutedEventData args ) {
+		private void OnQuit( in ICommandExecutedEventData args ) {
 			GetTree().Quit();
 		}
 

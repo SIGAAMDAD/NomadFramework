@@ -37,37 +37,51 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure {
 	/// 
 	/// </summary>
 
-	public readonly struct ConsoleCommand : IDisposable {
-		public readonly string Name;
-		public readonly string Description;
-		public readonly IGameEvent<CommandExecutedEventData>.GenericEventCallback Callback;
+	public readonly struct ConsoleCommand : IConsoleCommand {
+		public string Name => _name;
+		private readonly string _name;
 
-		public ConsoleCommand( string? name, IGameEvent<CommandExecutedEventData>.GenericEventCallback? callback ) {
+		public string Description => _description;
+		private readonly string _description;
+
+		public IGameEvent<ICommandExecutedEventData>.GenericEventCallback Callback => _callback;
+		private readonly IGameEvent<ICommandExecutedEventData>.GenericEventCallback _callback;
+
+		/*
+		===============
+		ConsoleCommand
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="name"></param>
+		/// <param name="callback"></param>
+		public ConsoleCommand( string? name, IGameEvent<ICommandExecutedEventData>.GenericEventCallback? callback ) {
 			ArgumentException.ThrowIfNullOrEmpty( name );
 			ArgumentNullException.ThrowIfNull( callback );
 
-			Name = name;
-			Callback = callback;
-			Description = String.Empty;
-		}
-
-		public ConsoleCommand( string? name, IGameEvent<CommandExecutedEventData>.GenericEventCallback? callback, string? description )
-			: this( name, callback )
-		{
-			ArgumentException.ThrowIfNullOrEmpty( description );
-			Description = description;
+			_name = name;
+			_callback = callback;
+			_description = String.Empty;
 		}
 
 		/*
 		===============
-		Dispose
+		ConsoleCommand
 		===============
 		*/
 		/// <summary>
-		/// Removes the command from the console system.
+		/// 
 		/// </summary>
-		public void Dispose() {
-			//Console.RemoveCommand( this );
+		/// <param name="name"></param>
+		/// <param name="callback"></param>
+		/// <param name="description"></param>
+		public ConsoleCommand( string? name, IGameEvent<ICommandExecutedEventData>.GenericEventCallback? callback, string? description )
+			: this( name, callback )
+		{
+			ArgumentException.ThrowIfNullOrEmpty( description );
+			_description = description;
 		}
 	};
 };

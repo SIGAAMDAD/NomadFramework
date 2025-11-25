@@ -26,13 +26,10 @@ public sealed partial class NomadBootstrapper : Node {
 	/// </summary>
 	public override void _Ready() {
 		base._Ready();
-
-		GD.Print( "Initializing Backend..." );
 		
 		IConsoleService console = ServiceRegistry.Register<IConsoleService>( new Console() );
 		IGameEventBusService eventBus = ServiceRegistry.Register<IGameEventBusService>( new GameEventBus() );
-		ServiceRegistry.Register<ICVarSystemService>( new CVarSystem() );
-		
-		GetTree().Root.CallDeferred( Window.MethodName.AddChild, ConsoleSystem );
+
+		ServiceRegistry.InitializeAll();
 	}
 };

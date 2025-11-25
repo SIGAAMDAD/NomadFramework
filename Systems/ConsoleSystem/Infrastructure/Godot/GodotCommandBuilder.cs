@@ -135,7 +135,6 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure {
 			//			ResetAutocomplete();
 			Clear();
 			CallDeferred( LineEdit.MethodName.Clear );
-			OnScrollToBottom( in eventData, in args );
 
 			if ( newText.Trim().Length > 0 ) {
 				ParseLineInput( newText );

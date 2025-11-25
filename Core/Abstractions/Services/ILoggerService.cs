@@ -21,13 +21,13 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
+using NomadCore.Interfaces;
+
 namespace NomadCore.Abstractions.Services {
-	public interface ILoggerService {
+	public interface ILoggerService : IGameService {
 		public void PrintLine( string? message );
 		public void PrintDebug( string? message );
 		public void PrintWarning( string? message );
 		public void PrintError( string? message );
-
-		public void Clear();
 	};
 };

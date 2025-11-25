@@ -22,6 +22,7 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using NomadCore.Abstractions.Services;
+using NomadCore.Infrastructure;
 using NomadCore.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -55,25 +56,22 @@ namespace NomadCore.Systems.EventSystem.Infrastructure {
 		};
 
 		/// <summary>
-		/// The number of pumps before initiating a purge
+		/// The number of pumps before initiating a purge.
 		/// </summary>
 		private const int CLEANUP_INTERVAL = 30;
 
 		/// <summary>
-		/// 
+		/// The event that we're handling.
 		/// </summary>
 		public readonly IGameEvent? Event;
 
-		private readonly IConsoleService Console;
+		private readonly ILoggerService Logger = ServiceRegistry.Get<ILoggerService>();
 
 		private readonly List<WeakSubscription> Subscriptions = new List<WeakSubscription>();
 		private int CleanupCounter = 0;
 
 		private readonly List<IGameEvent> Friends = new List<IGameEvent>();
-
-		private readonly object Lock = new object();
-
-		// perhaps... use only the readerwriter lock?
+		
 		private readonly ReaderWriterLockSlim PumpLock = new ReaderWriterLockSlim();
 
 		/*
@@ -86,11 +84,10 @@ namespace NomadCore.Systems.EventSystem.Infrastructure {
 		/// </summary>
 		/// <param name="eventData">The event to use.</param>
 		/// <exception cref="ArgumentNullException">Thrown if <paramref name="eventData"/> is null.</exception>
-		public EventSubscriptionSet( IGameEvent? eventData, IConsoleService console ) {
+		public EventSubscriptionSet( IGameEvent? eventData ) {
 			ArgumentNullException.ThrowIfNull( eventData );
 
 			Event = eventData;
-			Console = console;
 		}
 
 		/*
@@ -102,9 +99,7 @@ namespace NomadCore.Systems.EventSystem.Infrastructure {
 		/// Clears all the subscriptions within this set.
 		/// </summary>
 		public void Dispose() {
-			lock ( Lock ) {
-				Subscriptions.Clear();
-			}
+			Subscriptions.Clear();
 		}
 
 		/*
@@ -122,13 +117,17 @@ namespace NomadCore.Systems.EventSystem.Infrastructure {
 			ArgumentNullException.ThrowIfNull( subscriber );
 			ArgumentNullException.ThrowIfNull( callback );
 
-			lock ( Lock ) {
+			PumpLock.EnterWriteLock();
+			try {
 				if ( ContainsCallback( subscriber, callback, out _ ) ) {
-					Console?.PrintError( $"EventSubscriptionSet.CheckForDuplicateSubscription: duplicate subscription from '{subscriber.GetType().Name}'" );
+					Logger?.PrintError( $"EventSubscriptionSet.CheckForDuplicateSubscription: duplicate subscription from '{subscriber.GetType().Name}'" );
 					return;
 				}
 				Subscriptions.Add( new WeakSubscription( subscriber, callback ) );
-				Console?.PrintLine( $"EventSubscriptionSet.AddSubsription: added subscription from '{subscriber.GetType().Name}'" );
+				Logger?.PrintLine( $"EventSubscriptionSet.AddSubsription: added subscription from '{subscriber.GetType().Name}'" );
+			}
+			finally {
+				PumpLock.ExitWriteLock();
 			}
 		}
 
@@ -148,13 +147,17 @@ namespace NomadCore.Systems.EventSystem.Infrastructure {
 			ArgumentNullException.ThrowIfNull( subscriber );
 			ArgumentNullException.ThrowIfNull( callback );
 
-			lock ( Lock ) {
+			PumpLock.EnterWriteLock();
+			try {
 				if ( !ContainsCallback( subscriber, callback, out int index ) ) {
-					Console?.PrintWarning( $"EventSubscriptionSet.RemoveSubscription: subscription not found from '{subscriber.GetType().Name}'" );
+					Logger?.PrintWarning( $"EventSubscriptionSet.RemoveSubscription: subscription not found from '{subscriber.GetType().Name}'" );
 					return;
 				}
-				Console?.PrintLine( $"EventSubscriptionSet.RemoveSubscription: removed subscription from '{subscriber.GetType().Name}'" );
+				Logger?.PrintLine( $"EventSubscriptionSet.RemoveSubscription: removed subscription from '{subscriber.GetType().Name}'" );
 				Subscriptions.RemoveAt( index );
+			}
+			finally {
+				PumpLock.ExitWriteLock();
 			}
 		}
 
@@ -179,7 +182,7 @@ namespace NomadCore.Systems.EventSystem.Infrastructure {
 						removed++;
 					}
 				}
-				Console?.PrintLine( $"EventSubscriptionSet.RemoveAllForSubscriber: removed {removed} subscriptions for '{subscriber.GetType().Name}'" );
+				Logger?.PrintLine( $"EventSubscriptionSet.RemoveAllForSubscriber: removed {removed} subscriptions for '{subscriber.GetType().Name}'" );
 			}
 			finally {
 				PumpLock.ExitWriteLock();
@@ -234,7 +237,7 @@ namespace NomadCore.Systems.EventSystem.Infrastructure {
 				try {
 					subscription.Callback.Invoke( in Event, in args );
 				} catch ( Exception e ) {
-					Console?.PrintError( $"EventSubscriptionSet.Pump: exception thrown in callback - {e}" );
+					Logger?.PrintError( $"EventSubscriptionSet.Pump: exception thrown in callback - {e}" );
 				}
 			}
 		}
@@ -256,7 +259,7 @@ namespace NomadCore.Systems.EventSystem.Infrastructure {
 
 			int removed = initialCount - Subscriptions.Count;
 			if ( removed > 0 ) {
-				Console?.PrintLine( $"EventSubscriptionSet.CleanupDeadSubscriptions: removed {removed} dangling subscriptions" );
+				Logger?.PrintLine( $"EventSubscriptionSet.CleanupDeadSubscriptions: removed {removed} dangling subscriptions" );
 			}
 			PumpLock.ExitWriteLock();
 		}

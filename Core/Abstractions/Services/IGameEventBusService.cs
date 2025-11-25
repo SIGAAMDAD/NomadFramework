@@ -50,7 +50,7 @@ namespace NomadCore.Abstractions.Services {
 		public void ConnectSignal( GodotObject? source, StringName? signalName, GodotObject? target, Action? method );
 		public void ConnectSignal( GodotObject? source, StringName? signalName, GodotObject? target, Callable? method );
 
-		public void SetConsoleService( IConsoleService? console );
+		public void CleanupSubscriber( object? subscriber );
 
 		public IGameEvent CreateEvent( string? name );
 		public IGameEvent<TArgs> CreateEvent<TArgs>( string? name ) where TArgs : IEventArgs;

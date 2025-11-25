@@ -25,8 +25,6 @@ using NomadCore.Abstractions.Services;
 using NomadCore.Enums;
 using NomadCore.Infrastructure;
 using NomadCore.Interfaces;
-using NomadCore.Utilities;
-using NomadCore.Systems.ConsoleSystem.CVars.Services;
 using NomadCore.Systems.ConsoleSystem.Events;
 using NomadCore.Systems.ConsoleSystem.Interfaces;
 using System;
@@ -64,6 +62,30 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure {
 
 			commandLine.TextEntered.Subscribe( this, OnTextEntered );
 			Sinks = sinks;
+		}
+
+		/*
+		===============
+		Initialize
+		===============
+		*/
+		/// <summary>
+		/// Initializes the logging systems
+		/// </summary>
+		public void Initialize() {
+			ServiceRegistry.Get<ICommandService>().RegisterCommand( new ConsoleCommand( "clear", OnClear, "Clears the console." ) );
+			ServiceRegistry.Get<ICommandService>().RegisterCommand( new ConsoleCommand( "echo", OnEcho, "Prints a string to the console." ) );
+		}
+
+		/*
+		===============
+		Shutdown
+		===============
+		*/
+		public void Shutdown() {
+			for ( int i = 0; i < Sinks.Length; i++ ) {
+				Sinks[ i ].Flush();
+			}
 		}
 
 		/*
@@ -147,13 +169,14 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure {
 
 		/*
 		===============
-		Clear
+		OnClear
 		===============
 		*/
 		/// <summary>
-		/// Clears all sinks in the logger.
+		/// 
 		/// </summary>
-		public void Clear() {
+		/// <param name="args"></param>
+		private void OnClear( in ICommandExecutedEventData args ) {
 			for ( int i = 0; i < Sinks.Length; i++ ) {
 				Sinks[ i ].Clear();
 			}
@@ -161,9 +184,28 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure {
 
 		/*
 		===============
+		OnEcho
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="args"></param>
+		private void OnEcho( in ICommandExecutedEventData args ) {
+			PrintLine( ServiceRegistry.Get<ICommandLine>().GetArgumentAt( 0 ) );
+		}
+
+		/*
+		===============
 		OnTextEntered
 		===============
 		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="eventData"></param>
+		/// <param name="args"></param>
+		/// <exception cref="InvalidCastException"></exception>
 		private void OnTextEntered( in IGameEvent eventData, in IEventArgs args ) {
 			if ( args is TextEnteredEventData textEntered ) {
 				PrintLine( $"> {textEntered.Text}" );

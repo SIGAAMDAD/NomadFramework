@@ -123,7 +123,7 @@ namespace NomadCore.Systems.EventSystem.Common {
 		/// </summary>
 		/// <param name="eventArgs"></param>
 		public void Publish( IEventArgs eventArgs ) {
-			GameEventBus.Publish( this, in eventArgs );
+			Publish( this, in eventArgs );
 		}
 
 		/*

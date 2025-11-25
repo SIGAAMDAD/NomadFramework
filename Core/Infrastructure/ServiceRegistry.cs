@@ -21,6 +21,8 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
+using Godot;
+using NomadCore.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -38,7 +40,7 @@ namespace NomadCore.Infrastructure {
 	/// </summary>
 	
 	public static class ServiceRegistry {
-		private static readonly Dictionary<Type, object> Services = new Dictionary<Type, object>();
+		private static readonly Dictionary<Type, IGameService> Services = new Dictionary<Type, IGameService>();
 
 		/*
 		===============
@@ -52,7 +54,7 @@ namespace NomadCore.Infrastructure {
 		/// <param name="service"></param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public static T Register<T>( T service ) where T : class {
+		public static T Register<T>( T service ) where T : IGameService {
 			Services[ typeof( T ) ] = service;
 			return service;
 		}
@@ -68,7 +70,7 @@ namespace NomadCore.Infrastructure {
 		/// <typeparam name="T"></typeparam>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public static T Resolve<T>() where T : class {
+		public static T Resolve<T>() where T : IGameService {
 			return (T)Services[ typeof( T ) ];
 		}
 
@@ -83,7 +85,7 @@ namespace NomadCore.Infrastructure {
 		/// <typeparam name="T"></typeparam>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public static T Get<T>() where T : IDisposable {
+		public static T Get<T>() where T : IGameService {
 			return (T)Services[ typeof( T ) ];
 		}
 
@@ -98,8 +100,22 @@ namespace NomadCore.Infrastructure {
 		/// <typeparam name="T"></typeparam>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public static bool HasService<T>() where T : IDisposable {
+		public static bool HasService<T>() where T : IGameService {
 			return Services.ContainsKey( typeof( T ) );
+		}
+
+		/*
+		===============
+		InitializeAll
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		public static void InitializeAll() {
+			foreach ( var service in Services ) {
+				service.Value.Initialize();
+			}
 		}
 	};
 };

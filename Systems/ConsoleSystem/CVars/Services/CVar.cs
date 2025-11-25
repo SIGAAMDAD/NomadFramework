@@ -21,7 +21,7 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-using NomadCore.EventSystem;
+using NomadCore.Systems.EventSystem;
 using Godot;
 using NomadCore.Enums;
 using NomadCore.Interfaces;

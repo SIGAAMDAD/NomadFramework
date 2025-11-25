@@ -44,6 +44,8 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 	/// </summary>
 
 	internal sealed class CommandLine : ICommandLine {
+		public int ArgumentCount => CommandBuilder.ArgumentCount;
+
 		private readonly ICommandBuilder CommandBuilder;
 
 		//
@@ -85,12 +87,60 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 
 		/*
 		===============
+		Initialize
+		===============
+		*/
+		public void Initialize() {
+		}
+
+		/*
+		===============
+		Shutdown
+		===============
+		*/
+		public void Shutdown() {
+		}
+
+		/*
+		===============
 		ExecuteCommand
 		===============
 		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="text"></param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void ExecuteCommand( string? text ) {
 			ArgumentException.ThrowIfNullOrEmpty( text );
+		}
+
+		/*
+		===============
+		GetArgumentAt
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="index"></param>
+		/// <returns></returns>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public string GetArgumentAt( int index ) {
+			return CommandBuilder.GetArgumentAt( index );
+		}
+
+		/*
+		===============
+		GetArguments
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		public string[] GetArguments() {
+			return CommandBuilder.GetArgs();
 		}
 
 		/*
@@ -104,7 +154,9 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 		/// <param name="textEntered"></param>
 		private void OnCommandExecuted( in TextEnteredEventData textEntered ) {
 			string textCommand = CommandBuilder.ArgumentCount > 0 ? CommandBuilder.GetArgumentAt( 0 ) : String.Empty;
-			if ( !string.IsNullOrEmpty( textCommand ) && Console.TryGetCommand( textCommand, out ConsoleCommand consoleCommand ) ) {
+
+			var commandCache = ServiceRegistry.Get<ICommandService>();
+			if ( !string.IsNullOrEmpty( textCommand ) && commandCache.TryGetCommand( textCommand, out IConsoleCommand consoleCommand ) ) {
 				string[] arguments = CommandBuilder.GetArgs();
 
 				try {

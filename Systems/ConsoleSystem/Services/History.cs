@@ -30,6 +30,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using NomadCore.Systems.ConsoleSystem.Interfaces;
+using NomadCore.Infrastructure;
 
 namespace NomadCore.Systems.ConsoleSystem {
 	/*
@@ -57,7 +58,7 @@ namespace NomadCore.Systems.ConsoleSystem {
 		public IGameEvent<HistoryNextEventData> HistoryNext => _historyNext;
 		private readonly IGameEvent<HistoryNextEventData> _historyNext;
 
-		private readonly IConsoleService Console;
+		private readonly ILoggerService Logger;
 
 		/*
 		===============
@@ -71,13 +72,12 @@ namespace NomadCore.Systems.ConsoleSystem {
 		/// <param name="eventBus"></param>
 		/// <param name="console"></param>
 		/// <param name="events"></param>
-		public History( ICommandBuilder? builder, IGameEventBusService? eventBus, IConsoleService? console, IConsoleEvents? events ) {
+		public History( ICommandBuilder? builder, IGameEventBusService? eventBus, IConsoleEvents? events ) {
 			ArgumentNullException.ThrowIfNull( builder );
 			ArgumentNullException.ThrowIfNull( eventBus );
-			ArgumentNullException.ThrowIfNull( console );
 			ArgumentNullException.ThrowIfNull( events );
 
-			Console = console;
+			Logger = ServiceRegistry.Get<ILoggerService>();
 
 			builder.TextEntered.Subscribe( this, OnTextEntered );
 
@@ -129,14 +129,14 @@ namespace NomadCore.Systems.ConsoleSystem {
 		/// Saves the console history list to <see cref="CONSOLE_HISTORY_FILE"/>.
 		/// </summary>
 		private void SaveHistory() {
-			Console.PrintLine( "History.SaveHistory: writing command line history to disk..." );
+			Logger?.PrintLine( "History.SaveHistory: writing command line history to disk..." );
 			try {
 				using StreamWriter writer = new StreamWriter( HistoryPath );
 				foreach ( var history in ConsoleHistory ) {
 					writer.WriteLine( history );
 				}
 			} catch ( Exception e ) {
-				Console.PrintError( $"History.SaveHistory: couldn't write console command history data to file '{HistoryPath}'! Exception: {e}" );
+				Logger?.PrintError( $"History.SaveHistory: couldn't write console command history data to file '{HistoryPath}'! Exception: {e}" );
 			}
 		}
 
