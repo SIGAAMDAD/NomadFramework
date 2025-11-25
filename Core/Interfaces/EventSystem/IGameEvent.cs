@@ -21,12 +21,12 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-using NomadCore.Enums;
+using NomadCore.Enums.EventSystem;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace NomadCore.Interfaces {
+namespace NomadCore.Interfaces.EventSystem {
 	/*
 	===================================================================================
 	

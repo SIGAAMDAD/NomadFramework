@@ -22,8 +22,10 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using Godot;
+using NomadCore.Interfaces.EntitySystem;
 using NomadCore.Systems.EntitySystem.Common;
 using NomadCore.Utilities;
+using System;
 
 namespace NomadCore.Systems.EntitySystem.Infrastructure {
 	/*
@@ -37,15 +39,22 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure {
 	/// 
 	/// </summary>
 	
-	internal sealed class EntityManager : System {
-		private readonly ObjectPool<Entity> EntityPool = new ObjectPool<Entity>( () => new Entity() );
+	internal sealed class EntityManager : ComponentSystem {
+		private readonly EntityPool EntityPool = new EntityPool();
+		private readonly Node2D EntityNode;
 
 		/*
 		===============
-		EntityManage
+		EntityManager
 		===============
 		*/
-		public EntityManager() {
+		public EntityManager( Node? rootNode ) {
+			ArgumentNullException.ThrowIfNull( rootNode );
+
+			EntityNode = new Node2D() {
+				Name = nameof( EntityNode )
+			};
+			rootNode.AddChild( EntityNode );
 		}
 
 		/*
@@ -54,6 +63,34 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure {
 		===============
 		*/
 		public override void Update( float delta ) {
+		}
+
+		/*
+		===============
+		Create
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="area"></param>
+		/// <returns></returns>
+		public IEntity Create( Area2D area ) {
+			return (IEntity)EntityPool.Rent( EntityNode, area );
+		}
+
+		/*
+		===============
+		Create
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="body"></param>
+		/// <returns></returns>
+		public IEntity Create( CharacterBody2D body ) {
+			return (IEntity)EntityPool.Rent( EntityNode, body );
 		}
 	};
 };

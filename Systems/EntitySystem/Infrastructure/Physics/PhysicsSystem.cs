@@ -21,6 +21,10 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
+using Godot;
+using NomadCore.Systems.EntitySystem.Services;
+using System;
+
 namespace NomadCore.Systems.EntitySystem.Infrastructure.Physics {
 	/*
 	===================================================================================
@@ -33,13 +37,22 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Physics {
 	/// 
 	/// </summary>
 	
-	public sealed class PhysicsSystem : System {
+	public sealed class PhysicsSystem : ComponentSystem {
+		private readonly AreaSystem AreaSystem;
+
+		public PhysicsSystem( Rid worldSpace, EntityComponentSystem? system ) {
+			ArgumentNullException.ThrowIfNull( system );
+
+			AreaSystem = new AreaSystem( worldSpace, system );
+		}
+
 		/*
 		===============
 		Update
 		===============
 		*/
 		public override void Update( float delta ) {
+			AreaSystem.Update( delta );
 		}
 	};
 };

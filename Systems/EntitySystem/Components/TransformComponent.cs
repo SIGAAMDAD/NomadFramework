@@ -25,7 +25,7 @@ using Godot;
 using NomadCore.Systems.EntitySystem.Interfaces;
 
 namespace NomadCore.Systems.EntitySystem.Components {
-	public struct TransformComponent : IComponent {
+	public sealed class TransformComponent : IComponent {
 		public Vector2 Scale;
 		public Vector2 Position;
 		public float Rotation;

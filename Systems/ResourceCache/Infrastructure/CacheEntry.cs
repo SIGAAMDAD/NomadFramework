@@ -21,7 +21,9 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-using NomadCore.Enums;
+using NomadCore.Enums.ResourceCache;
+using NomadCore.Interfaces.ResourceCache;
+using NomadCore.Utilities;
 using System;
 using System.Diagnostics;
 
@@ -37,7 +39,10 @@ namespace NomadCore.Systems.ResourceCache.Infrastructure {
 	/// 
 	/// </summary>
 	
-	internal sealed class CacheEntry<TResource> where TResource : Godot.Resource {
+	internal sealed class CacheEntry<TResource> : ICacheEntry where TResource : Godot.Resource {
+		public Godot.Resource StreamedResource => Resource;
+
+		public FilePath Path { get; set; }
 		public TResource Resource { get; set; }
 		public int ReferenceCount { get; set; }
 		public long MemorySize { get; set; }

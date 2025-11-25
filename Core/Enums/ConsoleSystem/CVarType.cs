@@ -21,15 +21,18 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-namespace NomadCore.Enums {
+namespace NomadCore.Enums.ConsoleSystem {
 	/// <summary>
-	/// 
+	/// A CVar's internal type.
 	/// </summary>
-	public enum EventThreadingPolicy : byte {
-		MainThread,         // always dispatch to Godot's main thread
-		ThreadPool,         // use a .NET ThreadPool
-		Background,         // use dedicated background thread
-		PublisherThread,    // execute on whatever thread publishes
-		Custom
+	public enum CVarType : byte {
+		UInt,		// 32-bit unsigned integer
+		Int,		// 32-bit signed integer
+		Decimal,	// 32-bit float
+		String,
+		Boolean,
+		NodePath,	// a godot node path
+
+		Count
 	};
 };

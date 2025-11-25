@@ -21,10 +21,10 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-using NomadCore.Systems.EventSystem;
 using Godot;
-using NomadCore.Enums;
-using NomadCore.Interfaces;
+using NomadCore.Enums.ConsoleSystem;
+using NomadCore.Interfaces.ConsoleSystem;
+using NomadCore.Interfaces.EventSystem;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;

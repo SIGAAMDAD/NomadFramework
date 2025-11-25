@@ -21,47 +21,20 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
+using Godot;
 using System;
-using NomadCore.Enums;
 
-namespace NomadCore.Interfaces {
-	/*
-	===================================================================================
-	
-	ICvar
-	
-	===================================================================================
-	*/
-	/// <summary>
-	/// 
-	/// </summary>
-	
-	public interface ICVar {
-		public string? Name { get; }
-		public string? Description { get; }
-		public CVarType Type { get; }
-		public CVarFlags Flags { get; }
+namespace NomadCore.Interfaces.EntitySystem {
+	public interface IEntity : IDisposable {
+		public int Id { get; }
+		public Node2D Node { get; }
 
-		public bool IsSaved { get; }
-		public bool IsReadOnly { get; }
-		public bool IsUserCreated { get; }
-		public bool IsHidden { get; }
-
-		public Type ValueType { get; }
-
-		public float GetDecimalValue();
-		public int GetIntegerValue();
-		public uint GetUIntegerValue();
-		public string GetStringValue();
-		public bool GetBooleanValue();
-
-		public void Reset();
-		public void SetFromString( string value );
-	};
-	public interface ICVar<T> : ICVar {
-		public T Value { get; set; }
-		public T DefaultValue { get; }
-
-		public IGameEvent<ICVarValueChangedEventData<T>> ValueChanged { get; }
+		public T AddComponent<T>() where T : struct, IComponent;
+		public void RemoveComponent<T>() where T : struct, IComponent;
+		public T GetComponent<T>() where T : struct, IComponent;
+		public bool TryGetComponent<T>( out T? component ) where T : struct, IComponent;
+		public int GetComponentCount();
+		public T GetComponentAtIndex<T>( int index ) where T : struct, IComponent;
+		public T[] GetComponents<T>() where T : struct, IComponent;
 	};
 };

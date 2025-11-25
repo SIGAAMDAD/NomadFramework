@@ -22,7 +22,7 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using NomadCore.Infrastructure.Events;
-using NomadCore.Interfaces;
+using NomadCore.Interfaces.EventSystem;
 using System;
 using System.Threading;
 using System.Threading.Tasks;

@@ -23,9 +23,9 @@ terms, you may contact me via email at nyvantil@gmail.com.
 
 using Godot;
 using NomadCore.Abstractions.Services;
-using NomadCore.Enums;
+using NomadCore.Enums.ConsoleSystem;
 using NomadCore.Infrastructure;
-using NomadCore.Interfaces;
+using NomadCore.Interfaces.ConsoleSystem;
 using NomadCore.Systems.ConsoleSystem.Interfaces.Abstractions;
 using NomadCore.Utilities;
 using System;

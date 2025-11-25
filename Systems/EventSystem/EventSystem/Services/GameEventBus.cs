@@ -24,7 +24,7 @@ terms, you may contact me via email at nyvantil@gmail.com.
 using Godot;
 using NomadCore.Abstractions.Services;
 using NomadCore.Infrastructure;
-using NomadCore.Interfaces;
+using NomadCore.Interfaces.EventSystem;
 using NomadCore.Systems.EventSystem.Common;
 using NomadCore.Systems.EventSystem.Infrastructure;
 using System;

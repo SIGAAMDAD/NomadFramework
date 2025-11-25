@@ -26,13 +26,14 @@ using System;
 namespace NomadCore.Systems.EntitySystem.Interfaces {
 	public interface IEntity : IDisposable {
 		public int Id { get; }
+		public IPhysicsBody PhysicsBody { get; }
 
-		public T AddComponent<T>() where T : struct, IComponent;
-		public void RemoveComponent<T>() where T : struct, IComponent;
-		public T GetComponent<T>() where T : struct, IComponent;
-		public bool TryGetComponent<T>( out T? component ) where T : struct, IComponent;
+		public T AddComponent<T>() where T : IComponent, new();
+		public void RemoveComponent<T>() where T : IComponent, new();
+		public T GetComponent<T>() where T : IComponent, new();
+		public bool TryGetComponent<T>( out T? component ) where T : IComponent, new();
 		public int GetComponentCount();
-		public T GetComponentAtIndex<T>( int index ) where T : struct, IComponent;
-		public T[] GetComponents<T>() where T : struct, IComponent;
+		public T GetComponentAtIndex<T>( int index ) where T : IComponent, new();
+		public T[] GetComponents<T>() where T : IComponent, new();
 	};
 };

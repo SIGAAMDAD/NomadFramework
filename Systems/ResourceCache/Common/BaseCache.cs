@@ -22,7 +22,7 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using NomadCore.Abstractions.Services;
-using NomadCore.Interfaces;
+using NomadCore.Interfaces.EventSystem;
 using NomadCore.Systems.ResourceCache.Infrastructure;
 using NomadCore.Systems.ResourceCache.Enums;
 using System;
@@ -35,7 +35,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using NomadCore.Infrastructure.Events;
 using NomadCore.Systems.EventSystem.Common;
-using NomadCore.Enums;
+using NomadCore.Enums.ResourceCache;
 using NomadCore.Infrastructure;
 
 namespace NomadCore.Systems.ResourceCache.Common {

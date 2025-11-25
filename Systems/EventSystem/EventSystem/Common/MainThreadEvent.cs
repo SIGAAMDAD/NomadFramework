@@ -22,8 +22,8 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using Godot;
-using NomadCore.Enums;
-using NomadCore.Interfaces;
+using NomadCore.Enums.EventSystem;
+using NomadCore.Interfaces.EventSystem;
 using System.Runtime.CompilerServices;
 
 namespace NomadCore.Systems.EventSystem.Common {

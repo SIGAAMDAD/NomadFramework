@@ -21,7 +21,25 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-namespace NomadCore.Interfaces {
-	public interface ICommandExecutedEventData : IEventArgs {
+using Godot;
+using NomadCore.Interfaces;
+using NomadCore.Interfaces.EntitySystem;
+
+namespace NomadCore.Abstractions.Services {
+	/*
+	===================================================================================
+	
+	IEntityService
+	
+	===================================================================================
+	*/
+	/// <summary>
+	/// 
+	/// </summary>
+	
+	public interface IEntityService : IGameService {
+		public IEntity[] GetEntities();
+		public IEntity Create( Area2D owner );
+		public IEntity Create( CharacterBody2D owner );
 	};
 };

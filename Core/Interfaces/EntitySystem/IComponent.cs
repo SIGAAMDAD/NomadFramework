@@ -21,10 +21,7 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-namespace NomadCore.Interfaces {
-	public interface IConsoleCommand {
-		public string Name { get; }
-		public string Description { get; }
-		public IGameEvent<ICommandExecutedEventData>.GenericEventCallback Callback { get; }
+namespace NomadCore.Interfaces.EntitySystem {
+	public interface IComponent {
 	};
 };

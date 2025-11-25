@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad AGPL Source Code
 Copyright (C) 2025 Noah Van Til
@@ -21,20 +21,28 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-namespace NomadCore.Interfaces {
+using NomadCore.Enums.Audio;
+using NomadCore.Interfaces;
+using NomadCore.Interfaces.Audio;
+using NomadCore.Interfaces.ConsoleSystem;
+using NomadCore.Interfaces.EntitySystem;
+
+namespace NomadCore.Abstractions.Services {
 	/*
 	===================================================================================
 	
-	IEventArgs
+	IAudioService
 	
 	===================================================================================
 	*/
 	/// <summary>
-	/// The base interface that all event argument structures must inherit from. It is highly advised to do
-	/// a check on the IEventArgs in the callback and throw a <see cref="System.InvalidCastException"/> when
-	/// the type isn't what was expected.
+	/// 
 	/// </summary>
 
-	public interface IEventArgs {
+	public interface IAudioService : IGameService {
+		public ICVar<float> SoundVolume { get; }
+		public ICVar<float> MusicVolume { get; }
+
+		public IAudioSource CreateSource( SourceType type );
 	};
 };

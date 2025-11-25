@@ -21,12 +21,45 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-namespace NomadCore.Enums {
-	public enum ResourceLoadState : byte {
-		Queued,
-		Loading,
-		Processing,
-		Complete,
-		Failed
+using Godot;
+using NomadCore.Enums.Audio;
+using NomadCore.Interfaces.EntitySystem;
+using System.Runtime.CompilerServices;
+
+namespace NomadCore.Systems.Audio.Infrastructure.Godot {
+	/*
+	===================================================================================
+	
+	GodotWorldAudioSource
+	
+	===================================================================================
+	*/
+	/// <summary>
+	/// Handles 2D spatial audio sources.
+	/// </summary>
+	
+	internal sealed class GodotWorldAudioSource : AudioSourceBase {
+		private readonly AudioStreamPlayer2D _streamNode;
+
+		public GodotWorldAudioSource( SourceType type )
+			: base( type )
+		{
+			_streamNode = new AudioStreamPlayer2D() {
+				Name = nameof( GodotWorldAudioSource ),
+				VolumeDb = _volume
+			};
+		}
+
+		/*
+		===============
+		GetStreamNode
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		protected override Node GetStreamNode() => StreamNode;
 	};
 };

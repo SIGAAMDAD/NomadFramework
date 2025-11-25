@@ -21,7 +21,10 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-namespace NomadCore.Systems.Audio.Interfaces {
-	public interface IAudioWorldSource {
+using NomadCore.Interfaces.EntitySystem;
+
+namespace NomadCore.Interfaces.Audio {
+	public interface IAudioWorldSource : IAudioSource {
+		public IEntity Entity { get; }
 	};
 };

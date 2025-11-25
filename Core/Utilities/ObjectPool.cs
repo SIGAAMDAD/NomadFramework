@@ -36,7 +36,7 @@ namespace NomadCore.Utilities {
 	/// 
 	/// </summary>
 
-	public sealed class ObjectPool<T> : IDisposable where T : IDisposable {
+	public class ObjectPool<T> : IDisposable where T : IDisposable {
 		public int AvailableCount => AvailableObjects.Count;
 
 		public int TotalCount => _currentSize;

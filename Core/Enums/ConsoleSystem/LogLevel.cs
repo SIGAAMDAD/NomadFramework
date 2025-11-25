@@ -21,14 +21,13 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-namespace NomadCore.Enums {
-	/// <summary>
-	/// The reason for why a cached resource is being removed from memory/.
-	/// </summary>
-	public enum UnloadReason : byte {
-		Manual,
-		CacheFull,
-		ReferenceCountZero,
-		Dispose
+namespace NomadCore.Enums.ConsoleSystem {
+	public enum LogLevel : byte {
+		Error,
+		Warning,
+		Info,
+		Debug,
+
+		Count
 	};
 };

@@ -22,10 +22,9 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using NomadCore.Abstractions.Services;
-using NomadCore.Interfaces;
+using NomadCore.Interfaces.ConsoleSystem;
 using NomadCore.Utilities;
 using NomadCore.Systems.ConsoleSystem.CVars.Infrastructure;
-using NomadCore.Systems.ConsoleSystem.CVars.Services;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;

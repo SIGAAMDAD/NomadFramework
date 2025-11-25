@@ -21,18 +21,20 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-namespace NomadCore.Enums {
+namespace NomadCore.Interfaces.EventSystem {
+	/*
+	===================================================================================
+	
+	IEventArgs
+	
+	===================================================================================
+	*/
 	/// <summary>
-	/// A CVar's internal type.
+	/// The base interface that all event argument structures must inherit from. It is highly advised to do
+	/// a check on the IEventArgs in the callback and throw a <see cref="System.InvalidCastException"/> when
+	/// the type isn't what was expected.
 	/// </summary>
-	public enum CVarType : byte {
-		UInt,		// 32-bit unsigned integer
-		Int,		// 32-bit signed integer
-		Decimal,	// 32-bit float
-		String,
-		Boolean,
-		NodePath,	// a godot node path
 
-		Count
+	public interface IEventArgs {
 	};
 };

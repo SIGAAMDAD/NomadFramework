@@ -21,8 +21,8 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-using NomadCore.Enums;
-using NomadCore.Interfaces;
+using NomadCore.Enums.ResourceCache;
+using NomadCore.Interfaces.EventSystem;
 
 namespace NomadCore.Infrastructure.Events {
 	/*

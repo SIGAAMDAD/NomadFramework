@@ -23,6 +23,7 @@ terms, you may contact me via email at nyvantil@gmail.com.
 
 using Godot;
 using NomadCore.Interfaces;
+using NomadCore.Interfaces.EventSystem;
 using System;
 
 namespace NomadCore.Abstractions.Services {

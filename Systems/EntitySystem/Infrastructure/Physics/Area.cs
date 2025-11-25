@@ -23,7 +23,7 @@ terms, you may contact me via email at nyvantil@gmail.com.
 
 using Godot;
 using NomadCore.Systems.EntitySystem.Events;
-using NomadCore.Systems.EventSystem.Common;
+using NomadCore.Systems.EntitySystem.Interfaces;
 using System;
 using System.Collections.Generic;
 
@@ -39,9 +39,7 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Physics {
 	/// 
 	/// </summary>
 	
-	public sealed class Area {
-		private static readonly Rid Space;
-
+	public sealed class Area : IPhysicsBody {
 		public uint CollisionLayer {
 			get => _collisionLayer;
 			set {
@@ -49,7 +47,7 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Physics {
 					return;
 				}
 				_collisionLayer = value;
-				PhysicsServer2D.AreaSetCollisionLayer( AreaRID, _collisionLayer );
+				PhysicsServer2D.AreaSetCollisionLayer( _areaRID, _collisionLayer );
 			}
 		}
 		private uint _collisionLayer;
@@ -61,12 +59,14 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Physics {
 					return;
 				}
 				_collisionMask = value;
-				PhysicsServer2D.AreaSetCollisionMask( AreaRID, _collisionMask );
+				PhysicsServer2D.AreaSetCollisionMask( _areaRID, _collisionMask );
 			}
 		}
 		private uint _collisionMask;
 
-		public Rid AreaRID { get; private set; }
+		public Rid Rid => _areaRID;
+		private readonly Rid _areaRID;
+
 		public HashSet<Rid> OverlappingBodies { get; private set; }
 		public HashSet<Rid> OverlappingAreas { get; private set; }
 
@@ -76,8 +76,8 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Physics {
 		public Transform2D Transform => _transform;
 		private Transform2D _transform;
 
-		public readonly GameEvent<AreaEnteredEventData> AreaEntered = new GameEvent<AreaEnteredEventData>( nameof( AreaEntered ) );
-		public readonly GameEvent<AreaExitedEventData> AreaExited = new GameEvent<AreaExitedEventData>( nameof( AreaExited ) );
+		public readonly AreaEntered AreaEntered = new AreaEntered();
+		public readonly AreaExited AreaExited = new AreaExited();
 
 		/*
 		===============
@@ -85,7 +85,7 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Physics {
 		===============
 		*/
 		private Area( Rid areaRid ) {
-			AreaRID = areaRid;
+			_areaRID = areaRid;
 			
 			_collisionLayer = PhysicsServer2D.AreaGetCollisionLayer( areaRid );
 			_collisionMask = PhysicsServer2D.AreaGetCollisionMask( areaRid );
@@ -106,12 +106,9 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Physics {
 		public static Area Convert( Area2D area ) {
 			Rid areaRid = PhysicsServer2D.AreaCreate();
 
-			uint collisionLayer = area.CollisionLayer;
-			uint collisionMask = area.CollisionMask;
-
 			PhysicsServer2D.AreaSetSpace( areaRid, area.GetWorld2D().Space );
-			PhysicsServer2D.AreaSetCollisionLayer( areaRid, collisionLayer );
-			PhysicsServer2D.AreaSetCollisionMask( areaRid, collisionMask );
+			PhysicsServer2D.AreaSetCollisionLayer( areaRid, area.CollisionLayer );
+			PhysicsServer2D.AreaSetCollisionMask( areaRid, area.CollisionMask );
 			PhysicsServer2D.AreaSetParam( areaRid, PhysicsServer2D.AreaParameter.AngularDamp, area.AngularDamp );
 			PhysicsServer2D.AreaSetParam( areaRid, PhysicsServer2D.AreaParameter.AngularDampOverrideMode, (long)area.AngularDampSpaceOverride );
 			PhysicsServer2D.AreaSetParam( areaRid, PhysicsServer2D.AreaParameter.Gravity, area.Gravity );
@@ -203,6 +200,7 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Physics {
 		/// <summary>
 		/// 
 		/// </summary>
+		/// <param name="areaRid"></param>
 		/// <param name="children"></param>
 		private static void AddShapesToArea( Rid areaRid, Godot.Collections.Array<Node> children ) {
 			int count = children.Count;

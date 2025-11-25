@@ -23,7 +23,7 @@ terms, you may contact me via email at nyvantil@gmail.com.
 
 using Godot;
 using NomadCore.Abstractions.Services;
-using NomadCore.Interfaces;
+using NomadCore.Interfaces.EventSystem;
 using NomadCore.Systems.ConsoleSystem.Events;
 using NomadCore.Systems.ConsoleSystem.Interfaces;
 using NomadCore.Systems.ConsoleSystem.Services;

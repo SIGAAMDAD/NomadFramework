@@ -22,7 +22,6 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using NomadCore.Enums;
-using Steamworks;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;

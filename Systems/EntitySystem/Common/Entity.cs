@@ -21,7 +21,14 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
+using Godot;
+using NomadCore.Abstractions.Services;
+using NomadCore.Infrastructure;
+using NomadCore.Interfaces.Audio;
+using NomadCore.Enums.Audio;
+using NomadCore.Systems.EntitySystem.Infrastructure.Physics;
 using NomadCore.Systems.EntitySystem.Interfaces;
+using NomadCore.Systems.EntitySystem.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,19 +50,56 @@ namespace NomadCore.Systems.EntitySystem.Common {
 	/// </remarks>
 	/// <param name="id"></param>
 
-	public partial class Entity : PoolableObject, IEntity {
+	public partial class Entity : IEntity, IDisposable {
 		public int Id => _id;
 		private readonly int _id;
 
+		public Node2D Node => _node;
+		private readonly Node2D _node;
+
+		public readonly IPhysicsBody PhysicsBody;
+
+		public readonly IAudioSource AudioPlayer;
+
 		protected readonly Dictionary<Type, IComponent> Components = new Dictionary<Type, IComponent>();
+		protected readonly EntityComponentSystem? Service = (EntityComponentSystem?)ServiceRegistry.Get<IEntityService>();
 
 		/*
 		===============
 		Entity
 		===============
 		*/
-		public Entity() {
-			_id = GetHashCode();
+		private Entity( Node2D entityNode, int hashCode ) {
+			_id = hashCode;
+
+			_node = new Node2D() {
+				Name = $"Entity{_id}"
+			};
+			entityNode.CallDeferred( Node2D.MethodName.AddChild, _node );
+
+			AudioPlayer = ServiceRegistry.Get<IAudioService>().CreateSource( SourceType.Entity );
+		}
+
+		/*
+		===============
+		Entity
+		===============
+		*/
+		internal Entity( Node2D entityNode, Area2D area )
+			: this( entityNode, area.GetPath().GetHashCode() )
+		{
+			PhysicsBody = Area.Convert( area );
+		}
+
+		/*
+		===============
+		Entity
+		===============
+		*/
+		internal Entity( Node2D entityNode, CharacterBody2D characterBody2D )
+			: this( entityNode, characterBody2D.GetPath().GetHashCode() )
+		{
+			PhysicsBody = Body.Convert( this, characterBody2D );
 		}
 
 		/*
@@ -63,7 +107,7 @@ namespace NomadCore.Systems.EntitySystem.Common {
 		Dispose
 		===============
 		*/
-		public override void Dispose() {
+		public void Dispose() {
 			Components.Clear();
 		}
 
@@ -78,7 +122,7 @@ namespace NomadCore.Systems.EntitySystem.Common {
 		/// <typeparam name="T"></typeparam>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public T AddComponent<T>() where T : struct, IComponent {
+		public T AddComponent<T>() where T : IComponent, new() {
 			Type type = typeof( T );
 			if ( Components.TryGetValue( type, out var component ) ) {
 				return (T)component;
@@ -99,7 +143,7 @@ namespace NomadCore.Systems.EntitySystem.Common {
 		/// <typeparam name="T"></typeparam>
 		/// <exception cref="KeyNotFoundException"></exception>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public void RemoveComponent<T>() where T : struct, IComponent {
+		public void RemoveComponent<T>() where T : IComponent, new() {
 			Type type = typeof( T );
 			if ( !Components.ContainsKey( type ) ) {
 				throw new KeyNotFoundException( $"Component {type} doesn't exist" );
@@ -119,13 +163,13 @@ namespace NomadCore.Systems.EntitySystem.Common {
 		/// <returns></returns>
 		/// <exception cref="KeyNotFoundException"></exception>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public T GetComponent<T>() where T : struct, IComponent {
-			return Components.TryGetValue( typeof( T ), out var component ) ?
-					(T)component
-				:
-					throw new KeyNotFoundException( $"Component {typeof( T )} doesn't exist" );
+		public T GetComponent<T>() where T : IComponent, new() {
+			if ( Components.TryGetValue( typeof( T ), out var component ) ) {
+				return (T)component;
+			}
+			return default;
 		}
-		
+
 		/*
 		===============
 		TryGetComponent
@@ -167,7 +211,7 @@ namespace NomadCore.Systems.EntitySystem.Common {
 		/// <param name="index"></param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public T GetComponentAtIndex<T>( int index ) where T : struct, IComponent {
+		public T GetComponentAtIndex<T>( int index ) where T : IComponent, new() {
 			return (T)Components.ElementAt( index ).Value;
 		}
 
@@ -181,7 +225,7 @@ namespace NomadCore.Systems.EntitySystem.Common {
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <returns></returns>
-		public T[] GetComponents<T>() where T : struct, IComponent {
+		public T[] GetComponents<T>() where T : IComponent, new() {
 			List<T> components = new List<T>();
 			Type type = typeof( T );
 			foreach ( var component in Components ) {

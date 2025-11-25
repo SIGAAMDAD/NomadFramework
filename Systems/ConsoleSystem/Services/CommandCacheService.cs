@@ -23,7 +23,7 @@ terms, you may contact me via email at nyvantil@gmail.com.
 
 using NomadCore.Abstractions.Services;
 using NomadCore.Infrastructure;
-using NomadCore.Interfaces;
+using NomadCore.Interfaces.ConsoleSystem;
 using NomadCore.Systems.ConsoleSystem.Infrastructure;
 using System;
 using System.Collections.Concurrent;

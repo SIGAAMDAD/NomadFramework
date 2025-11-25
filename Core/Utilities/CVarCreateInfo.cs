@@ -21,7 +21,7 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-using NomadCore.Enums;
+using NomadCore.Enums.ConsoleSystem;
 using System;
 
 namespace NomadCore.Utilities {

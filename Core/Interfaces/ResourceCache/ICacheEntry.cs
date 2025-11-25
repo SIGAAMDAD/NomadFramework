@@ -21,13 +21,12 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-namespace NomadCore.Enums {
-	public enum LogLevel : byte {
-		Error,
-		Warning,
-		Info,
-		Debug,
+using NomadCore.Utilities;
 
-		Count
+namespace NomadCore.Interfaces.ResourceCache {
+	public interface ICacheEntry {
+		public FilePath Path { get; }
+		public int ReferenceCount { get; }
+		public Godot.Resource StreamedResource { get; }
 	};
 };

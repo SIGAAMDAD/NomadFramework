@@ -22,6 +22,11 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using Godot;
+using NomadCore.Abstractions.Services;
+using NomadCore.Interfaces.EntitySystem;
+using NomadCore.Systems.EntitySystem.Infrastructure;
+using NomadCore.Systems.EntitySystem.Infrastructure.Physics;
+using System;
 
 namespace NomadCore.Systems.EntitySystem.Services {
 	/*
@@ -34,7 +39,95 @@ namespace NomadCore.Systems.EntitySystem.Services {
 	/// <summary>
 	/// 
 	/// </summary>
-	
-	public sealed partial class EntityComponentSystem : Node {
+
+	public sealed partial class EntityComponentSystem : Node, IEntityService {
+		private readonly EntityManager Manager;
+		private readonly PhysicsSystem Physics;
+
+		/*
+		===============
+		EntityComponentSystem
+		===============
+		*/
+		public EntityComponentSystem( Node? rootNode ) {
+			ArgumentNullException.ThrowIfNull( rootNode );
+
+			Manager = new EntityManager( rootNode );
+			Physics = new PhysicsSystem( rootNode.GetViewport().World2D.Space, this );
+		}
+
+		/*
+		===============
+		Initialize
+		===============
+		*/
+		public void Initialize() {
+		}
+
+		/*
+		===============
+		Shutdown
+		===============
+		*/
+		public void Shutdown() {
+		}
+
+		/*
+		===============
+		Create
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="owner"></param>
+		/// <returns></returns>
+		public IEntity Create( Area2D owner ) {
+			return Manager.Create( owner );
+		}
+
+		/*
+		===============
+		Create
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="owner"></param>
+		/// <returns></returns>
+		public IEntity Create( CharacterBody2D owner ) {
+			return Manager.Create( owner );
+		}
+
+		/*
+		===============
+		GetEntities
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		public IEntity[] GetEntities() {
+			return null;
+		}
+
+		/*
+		===============
+		_Process
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="delta"></param>
+		public override void _Process( double delta ) {
+			base._Process( delta );
+
+			float deltaTime = (float)delta;
+			Manager.Update( deltaTime );
+			Physics.Update( deltaTime );
+		}
 	};
 };

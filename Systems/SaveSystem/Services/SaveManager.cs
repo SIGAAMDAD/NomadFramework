@@ -23,11 +23,11 @@ terms, you may contact me via email at nyvantil@gmail.com.
 
 using NomadCore.Abstractions.Services;
 using NomadCore.Infrastructure;
-using NomadCore.Interfaces;
+using NomadCore.Interfaces.ConsoleSystem;
 using NomadCore.Systems.SaveSystem.Infrastructure;
 using NomadCore.Interfaces.SaveSystem;
 using NomadCore.Utilities;
-using NomadCore.Enums;
+using NomadCore.Enums.ConsoleSystem;
 using System;
 using System.Collections.Generic;
 using NomadCore.Systems.SaveSystem.Interfaces;

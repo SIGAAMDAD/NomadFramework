@@ -35,10 +35,10 @@ namespace NomadCore.Systems.ResourceCache.Enums {
 	/// 
 	/// </summary>
 	
-	public class CachePolicy {
+	public sealed class CachePolicy {
 		public static CachePolicy Default => new CachePolicy();
 
-		public long MaxMemorySize { get; set; } = 1024 * 1024 * 512; // 512MB default
+		public long MaxMemorySize { get; set; } = 512 * 1024 * 1024; // 512MB default
 		public int MaxResourceCount { get; set; } = 1000;
 		public bool PreloadDependencies { get; set; } = true;
 		public EvictionPolicy EvictionPolicy { get; set; } = EvictionPolicy.LRU;

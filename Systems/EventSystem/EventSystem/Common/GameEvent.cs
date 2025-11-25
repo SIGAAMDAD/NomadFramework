@@ -22,15 +22,14 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using NomadCore.Abstractions.Services;
-using NomadCore.Enums;
+using NomadCore.Enums.EventSystem;
 using NomadCore.Infrastructure;
-using NomadCore.Interfaces;
+using NomadCore.Interfaces.EventSystem;
 using NomadCore.Systems.EventSystem.Services;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 

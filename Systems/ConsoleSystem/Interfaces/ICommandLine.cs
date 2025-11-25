@@ -21,6 +21,7 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
+using NomadCore.Interfaces.EventSystem;
 using NomadCore.Interfaces;
 using NomadCore.Systems.ConsoleSystem.Events;
 
