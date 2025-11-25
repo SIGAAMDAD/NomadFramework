@@ -21,10 +21,15 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-using NomadCore.Systems.SaveSystem.Interfaces;
+using NomadCore.Infrastructure;
+using NomadCore.Interfaces.SaveSystem;
+using NomadCore.Systems.SaveSystem.Events;
 using NomadCore.Systems.SaveSystem.Infrastructure.Sections;
+using NomadCore.Systems.SaveSystem.Infrastructure.Streams;
+using NomadCore.Systems.SaveSystem.Interfaces;
 using System;
 using System.Collections.Concurrent;
+using System.IO;
 
 namespace NomadCore.Systems.SaveSystem.Infrastructure {
 	/*
@@ -45,8 +50,10 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure {
 		private readonly int _index;
 
 		public ISaveSection? this[ string name ] => GetSection( name );
-		
+
 		private readonly ConcurrentDictionary<string, ISaveSection> Sections = new ConcurrentDictionary<string, ISaveSection>();
+
+		private ISaveFileStream FileStream;
 
 		/*
 		===============
@@ -119,7 +126,28 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure {
 		/// 
 		/// </summary>
 		public void Save() {
-			using Streams.SaveStreamWriter writer = new Streams.SaveStreamWriter( Filepath );
+			using ( FileStream = new SaveStreamWriter( Filepath ) ) {
+				Sections.Clear();
+
+				var events = ServiceRegistry.Get<ISaveEvents>();
+				events.SaveStarted.Publish( new SaveStartedEventData( this ) );
+			}
+		}
+
+		/*
+		===============
+		CreateSection
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="name"></param>
+		/// <returns></returns>
+		public ISectionWriter CreateSection( string name ) {
+			ArgumentException.ThrowIfNullOrEmpty( name );
+
+			return (ISectionWriter)Sections.GetOrAdd( name, ( name ) => new SectionWriter( FileStream, name ) );
 		}
 	};
 };

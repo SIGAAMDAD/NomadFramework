@@ -21,7 +21,9 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-namespace EntitySystem.Components {
+using NomadCore.Systems.EntitySystem.Interfaces;
+
+namespace NomadCore.Systems.EntitySystem.Components {
 	public struct EntityID : IComponent {
 		public int ID;
 		public string Name;

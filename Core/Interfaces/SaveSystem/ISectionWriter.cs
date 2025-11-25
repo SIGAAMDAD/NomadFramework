@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad AGPL Source Code
 Copyright (C) 2025 Noah Van Til
@@ -21,21 +21,20 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-namespace EntitySystem.Physics {
+namespace NomadCore.Interfaces.SaveSystem {
 	/*
 	===================================================================================
 	
-	PhysicsSystem
+	ISectionWriter
 	
 	===================================================================================
 	*/
 	/// <summary>
 	/// 
 	/// </summary>
-	
-	public sealed class PhysicsSystem : System {
-		public override void Update( float delta ) {
-			
-		}
+
+	public interface ISectionWriter : ISaveSection {
+		public void SetField<T>( string? name, T value );
+		public bool FieldExists( string? name );
 	};
 };

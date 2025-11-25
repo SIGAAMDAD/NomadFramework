@@ -43,6 +43,6 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure.Fields.Serializers {
 		public Type DataType => typeof( ushort );
 
 		public void Serialize( SaveStreamWriter stream, ushort value ) => stream.Write( value );
-		public FieldValue Deserialize( SaveReaderStream stream ) => new FieldValue( stream.ReadUInt16() );
+		public FieldValue Deserialize( SaveReaderStream stream ) => new FieldValue( stream.Read<ushort>() );
 	};
 };

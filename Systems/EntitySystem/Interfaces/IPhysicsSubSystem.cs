@@ -21,11 +21,9 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-namespace EntitySystem {
-	public sealed class ComponentSystem : System {
-		private readonly StructPool<IComponent> MemoryPool = new StructPool<IComponent>();
-		
-		public override void Update( float delta ) {
-		}
+namespace NomadCore.Systems.EntitySystem.Interfaces {
+	internal interface IPhysicsSubSystem {
+		public void Update( float delta );
+		public void Shutdown();
 	};
 };

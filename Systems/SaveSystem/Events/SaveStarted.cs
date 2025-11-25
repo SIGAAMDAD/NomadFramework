@@ -22,13 +22,14 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using NomadCore.Interfaces;
+using NomadCore.Interfaces.SaveSystem;
 using NomadCore.Systems.EventSystem.Common;
 using System.Runtime.InteropServices;
 
 namespace NomadCore.Systems.SaveSystem.Events {
 	[StructLayout( LayoutKind.Sequential, Pack = 1 )]
-	public readonly struct SaveStartedEventData( int slot ) : IEventArgs {
-		public readonly int Slot = slot;
+	public readonly struct SaveStartedEventData( ISaveSlot slot ) : IEventArgs {
+		public readonly ISaveSlot Slot = slot;
 	};
 
 	/*
@@ -42,9 +43,6 @@ namespace NomadCore.Systems.SaveSystem.Events {
 	/// 
 	/// </summary>
 	
-	public sealed class SaveStarted : GameEvent<SaveStartedEventData> {
-		public SaveStarted()
-			: base( nameof( SaveStarted ) )
-		{ }
+	public sealed class SaveStarted() : GameEvent<SaveStartedEventData>( nameof( SaveStarted ) ) {
 	};
 };

@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad AGPL Source Code
 Copyright (C) 2025 Noah Van Til
@@ -21,28 +21,20 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-using NomadCore.Interfaces;
-using NomadCore.Interfaces.SaveSystem;
-using NomadCore.Systems.EventSystem.Common;
-using System.Runtime.InteropServices;
-
-namespace NomadCore.Systems.SaveSystem.Events {
-	[StructLayout( LayoutKind.Sequential, Pack = 1 )]
-	public readonly struct SaveCompletedEventData( ISaveSlot slot ) : IEventArgs {
-		public readonly ISaveSlot Slot = slot;
-	};
-	
+namespace NomadCore.Interfaces.SaveSystem {
 	/*
 	===================================================================================
 	
-	SaveCompleted
+	ISectionReader
 	
 	===================================================================================
 	*/
 	/// <summary>
 	/// 
 	/// </summary>
-	
-	public sealed class SaveCompleted() : GameEvent<SaveCompletedEventData>( nameof( SaveCompleted ) ) {
+
+	public interface ISectionReader : ISaveSection {
+		public T? GetField<T>( string? name );
+		public bool TryGetField<T>( string? name, out T? value );
 	};
 };

@@ -21,7 +21,11 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-namespace EntitySystem.Components {
+
+
+using NomadCore.Systems.EntitySystem.Interfaces;
+
+namespace NomadCore.Systems.EntitySystem.Components {
 	public struct HealthComponent : IComponent {
 		public float Health;
 		public float MaxHealth;

@@ -21,20 +21,7 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-namespace NomadCore.Systems.SaveSystem.Interfaces {
-	/*
-	===================================================================================
-	
-	ISaveSection
-	
-	===================================================================================
-	*/
-	/// <summary>
-	/// Represents a high level save section that can be interfaced with
-	/// </summary>
-	
-	public interface ISaveSection {
-		public string? Name { get; }
-		public int FieldCount { get; }
+namespace NomadCore.Systems.EntitySystem.Interfaces {
+	public interface IComponent {
 	};
 };

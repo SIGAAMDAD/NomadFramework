@@ -22,6 +22,7 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using NomadCore.Enums;
+using Steamworks;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -56,8 +57,6 @@ namespace NomadCore.Infrastructure {
 
 			[FieldOffset( 0 )] public float Float32;
 			[FieldOffset( 0 )] public double Float64;
-
-			[FieldOffset( 0 )] public string? String;
 		};
 
 		private static readonly IReadOnlyDictionary<Type, AnyType> SystemTypeToAnyType = new Dictionary<Type, AnyType>() {
@@ -70,7 +69,6 @@ namespace NomadCore.Infrastructure {
 			{ typeof( ushort ), AnyType.UInt16 },
 			{ typeof( uint ), AnyType.UInt32 },
 			{ typeof( ulong ), AnyType.UInt64 },
-			{ typeof( string ), AnyType.String },
 			{ typeof( float ), AnyType.Float32 },
 			{ typeof( double ), AnyType.Float64 }
 		};
@@ -84,7 +82,6 @@ namespace NomadCore.Infrastructure {
 			{ AnyType.UInt16, typeof( ushort ) },
 			{ AnyType.UInt32, typeof( uint ) },
 			{ AnyType.UInt64, typeof( ulong ) },
-			{ AnyType.String, typeof( string ) },
 			{ AnyType.Float32, typeof( float ) },
 			{ AnyType.Float64, typeof( double ) }
 		};
@@ -102,7 +99,6 @@ namespace NomadCore.Infrastructure {
 		public Any( ulong u64 ) => Value = new Union { UInt64 = u64 };
 		public Any( float f32 ) => Value = new Union { Float32 = f32 };
 		public Any( double f64 ) => Value = new Union { Float64 = f64 };
-		public Any( string? str ) => Value = new Union { String = str };
 
 		public static implicit operator bool( Any value ) => value.Value.Boolean;
 		public static implicit operator sbyte( Any value ) => value.Value.Int8;
@@ -115,7 +111,32 @@ namespace NomadCore.Infrastructure {
 		public static implicit operator ulong( Any value ) => value.Value.UInt64;
 		public static implicit operator float( Any value ) => value.Value.Float32;
 		public static implicit operator double( Any value ) => value.Value.Float64;
-		public static implicit operator string?( Any value ) => value.Value.String;
+
+		/*
+		===============
+		From
+		===============
+		*/
+		/// <summary>
+		/// Creates an Any object from the provided primitive value.
+		/// </summary>
+		/// <typeparam name="T">The type of the value</typeparam>
+		/// <returns>A new Any object</returns>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public static Any From<T>( T value ) where T : unmanaged => value switch {
+			bool b => new Any( b ),
+			sbyte i8 => new Any( i8 ),
+			short i16 => new Any( i16 ),
+			int i32 => new Any( i32 ),
+			long i64 => new Any( i64 ),
+			byte u8 => new Any( u8 ),
+			ushort u16 => new Any( u16 ),
+			uint u32 => new Any( u32 ),
+			ulong u64 => new Any( u64 ),
+			float f32 => new Any( f32 ),
+			double f64 => new Any( f64 ),
+			_ => throw new InvalidCastException( $"An Any object cannot hold a value of type {typeof( T )}" )
+		};
 
 		/*
 		===============
@@ -138,7 +159,6 @@ namespace NomadCore.Infrastructure {
 			Type t when t == typeof( ushort ) => (T)(object)Value.UInt16,
 			Type t when t == typeof( uint ) => (T)(object)Value.UInt32,
 			Type t when t == typeof( ulong ) => (T)(object)Value.UInt64,
-			Type t when t == typeof( string ) => (T?)(object?)Value.String,
 			Type t when t == typeof( float ) => (T)(object)Value.Float32,
 			Type t when t == typeof( double ) => (T)(object)Value.Float64,
 		};

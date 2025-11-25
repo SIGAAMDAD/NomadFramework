@@ -21,28 +21,13 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-using NomadCore.Interfaces;
-using NomadCore.Interfaces.SaveSystem;
-using NomadCore.Systems.EventSystem.Common;
-using System.Runtime.InteropServices;
+using NomadCore.Infrastructure;
 
-namespace NomadCore.Systems.SaveSystem.Events {
-	[StructLayout( LayoutKind.Sequential, Pack = 1 )]
-	public readonly struct SaveCompletedEventData( ISaveSlot slot ) : IEventArgs {
-		public readonly ISaveSlot Slot = slot;
-	};
-	
-	/*
-	===================================================================================
-	
-	SaveCompleted
-	
-	===================================================================================
-	*/
-	/// <summary>
-	/// 
-	/// </summary>
-	
-	public sealed class SaveCompleted() : GameEvent<SaveCompletedEventData>( nameof( SaveCompleted ) ) {
+namespace NomadCore.Systems.EntitySystem.Interfaces {
+	public interface IEntityStat : IComponent {
+		public Any Value { get; set; }
+		public Any MinValue { get; set; }
+		public Any MaxValue { get; set; }
+		public Any BaseValue { get; }
 	};
 };

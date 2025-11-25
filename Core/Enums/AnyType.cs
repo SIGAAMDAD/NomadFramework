@@ -37,7 +37,6 @@ namespace NomadCore.Enums {
 		UInt64,
 		Float32,
 		Float64,
-		String,
 
 		Count
 	};

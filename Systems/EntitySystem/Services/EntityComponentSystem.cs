@@ -21,13 +21,13 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-using System;
+using Godot;
 
-namespace NomadCore.Systems.SaveSystem.Interfaces {
+namespace NomadCore.Systems.EntitySystem.Services {
 	/*
 	===================================================================================
 	
-	ISaveSlot
+	EntityComponentSystem
 	
 	===================================================================================
 	*/
@@ -35,13 +35,6 @@ namespace NomadCore.Systems.SaveSystem.Interfaces {
 	/// 
 	/// </summary>
 	
-	public interface ISaveSlot : IDisposable {
-		public int Index { get; }
-
-		public ISaveSection? this[ string name ] { get; }
-
-		public ISaveSection? GetSection( string? name );
-		public void Load();
-		public void Save();
+	public sealed partial class EntityComponentSystem : Node {
 	};
 };

@@ -22,12 +22,19 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using NomadCore.Interfaces;
+using NomadCore.Interfaces.SaveSystem;
 
 namespace NomadCore.Abstractions.Services {
 	public interface ISaveService : IGameService {
-		public bool SlotExists( int slot );
+		public int ActiveSlot { get; }
+		public int SlotCount { get; }
 
-		public void Save( int slot );
-		public void Load( int slot );
+		public bool SlotExists( int slot );
+		public ISaveSlot GetSlot( int slot );
+
+		public void DeleteSlot( ISaveSlot slot );
+		public void DeleteSlot( int slot );
+
+		public void CreateSlot();
 	};
 };

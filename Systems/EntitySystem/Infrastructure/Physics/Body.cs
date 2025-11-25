@@ -22,9 +22,10 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using Godot;
+using NomadCore.Systems.EntitySystem.Common;
 using System;
 
-namespace EntitySystem.Physics {
+namespace NomadCore.Systems.EntitySystem.Infrastructure.Physics {
 	/*
 	===================================================================================
 	

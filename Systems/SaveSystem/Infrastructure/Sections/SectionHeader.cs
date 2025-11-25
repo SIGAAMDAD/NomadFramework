@@ -62,12 +62,12 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure.Sections {
 				throw new IOException( $"Section name corrupt or too long ({name.Length})" );
 			}
 
-			int fieldCount = stream.ReadInt32();
+			int fieldCount = stream.Read<int>();
 			if ( fieldCount <= 0 ) {
 				throw new FailedSectionLoadException( name, new System.Exception( "field count is corrupt" ) );
 			}
 
-			return new SectionHeader( name, fieldCount, stream.ReadUInt64() );
+			return new SectionHeader( name, fieldCount, stream.Read<ulong>() );
 		}
 	};
 };

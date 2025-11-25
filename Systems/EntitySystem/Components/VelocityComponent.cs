@@ -22,8 +22,9 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using Godot;
+using NomadCore.Systems.EntitySystem.Interfaces;
 
-namespace EntitySystem.Components {
+namespace NomadCore.Systems.EntitySystem.Components {
 	public struct VelocityComponent : IComponent {
 		public Vector2 Velocity;
 		public float MaxVelocity;

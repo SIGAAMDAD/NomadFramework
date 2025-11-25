@@ -21,7 +21,27 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-namespace EntitySystem {
-	public interface IComponent {
+using NomadCore.Interfaces;
+using NomadCore.Systems.EventSystem.Common;
+using System.Runtime.InteropServices;
+
+namespace NomadCore.Systems.SaveSystem.Events {
+	[StructLayout( LayoutKind.Sequential, Pack = 1 )]
+	public readonly struct SlotDeletedEventData( int slot ) : IEventArgs {
+		public readonly int Slot = slot;
+	};
+
+	/*
+	===================================================================================
+	
+	SlotDeleted
+	
+	===================================================================================
+	*/
+	/// <summary>
+	/// 
+	/// </summary>
+		
+	public sealed class SlotDeleted() : GameEvent<SlotDeletedEventData>( nameof( SlotDeleted ) ) {
 	};
 };

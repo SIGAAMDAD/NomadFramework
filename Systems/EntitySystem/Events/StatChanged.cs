@@ -21,16 +21,31 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-using System.Collections.Generic;
+using NomadCore.Infrastructure;
+using NomadCore.Interfaces;
+using NomadCore.Systems.EntitySystem.Common;
+using NomadCore.Systems.EventSystem.Common;
+using System.Runtime.InteropServices;
 
-namespace EntitySystem {
-	internal sealed class EntityManager : System {
-		private readonly ObjectPool<Entity> EntityPool = new ObjectPool<Entity>( () => new Entity() );
+namespace NomadCore.Systems.EntitySystem.Events {
+	[StructLayout( LayoutKind.Sequential, Pack = 1 )]
+	public readonly struct StatChangedEventData( Entity entity, string name, Any value ) : IEventArgs {
+		public readonly Entity Entity = entity;
+		public readonly string Name = name;
+		public readonly Any Value = value;
+	};
 
-		public EntityManager() {
-		}
-
-		public override void Update( float delta ) {
-		}
+	/*
+	===================================================================================
+	
+	StatChanged
+	
+	===================================================================================
+	*/
+	/// <summary>
+	/// 
+	/// </summary>
+	
+	public sealed class StatChanged() : GameEvent<StatChangedEventData>( nameof( StatChanged ) ) {
 	};
 };

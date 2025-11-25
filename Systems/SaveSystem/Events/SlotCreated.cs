@@ -21,21 +21,27 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-using Godot;
+using NomadCore.Interfaces;
+using NomadCore.Systems.EventSystem.Common;
+using System.Runtime.InteropServices;
 
-namespace EntitySystem {
+namespace NomadCore.Systems.SaveSystem.Events {
+	[StructLayout( LayoutKind.Sequential, Pack = 1 )]
+	public readonly struct SlotCreatedEventData( int slot ) : IEventArgs {
+		public readonly int Slot = slot;
+	};
+
 	/*
 	===================================================================================
 	
-	EntityComponentSystem
+	SlotCreated
 	
 	===================================================================================
 	*/
 	/// <summary>
 	/// 
 	/// </summary>
-	
-	public sealed partial class EntityComponentSystem : Node {
 		
+	public sealed class SlotCreated() : GameEvent<SlotCreatedEventData>( nameof( SlotCreated ) ) {
 	};
 };

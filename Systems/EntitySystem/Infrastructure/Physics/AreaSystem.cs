@@ -21,11 +21,14 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-using EntitySystem.Events;
 using Godot;
+using NomadCore.Systems.EntitySystem.Common;
+using NomadCore.Systems.EntitySystem.Events;
+using NomadCore.Systems.EntitySystem.Services;
+using NomadCore.Utilities;
 using System.Collections.Generic;
 
-namespace EntitySystem.Physics {
+namespace NomadCore.Systems.EntitySystem.Infrastructure.Physics {
 	/*
 	===================================================================================
 	
@@ -37,7 +40,7 @@ namespace EntitySystem.Physics {
 	/// 
 	/// </summary>
 	
-	internal sealed class AreaSystem : PhysicsSubSystem {
+	internal sealed class AreaSystem( Rid space, EntityComponentSystem system ) : PhysicsSubSystem( space, system ) {
 		private sealed class OverlapSet : PoolableObject {
 			public readonly HashSet<Entity> Data = new HashSet<Entity>();
 
@@ -49,10 +52,6 @@ namespace EntitySystem.Physics {
 
 		private readonly Dictionary<Entity, OverlapSet> CurrentOverlaps = new Dictionary<Entity, OverlapSet>();
 		private readonly ObjectPool<OverlapSet> OverlapPool = new ObjectPool<OverlapSet>( () => new OverlapSet() );
-
-		public AreaSystem( Rid space, EntityComponentSystem system )
-			: base( space, system )
-		{ }
 
 		/*
 		===============

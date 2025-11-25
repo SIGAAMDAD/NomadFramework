@@ -23,11 +23,15 @@ terms, you may contact me via email at nyvantil@gmail.com.
 
 using NomadCore.Abstractions.Services;
 using NomadCore.Infrastructure;
+using NomadCore.Interfaces;
 using NomadCore.Systems.SaveSystem.Infrastructure;
-using NomadCore.Systems.SaveSystem.Interfaces;
+using NomadCore.Interfaces.SaveSystem;
 using NomadCore.Utilities;
+using NomadCore.Enums;
 using System;
 using System.Collections.Generic;
+using NomadCore.Systems.SaveSystem.Interfaces;
+using NomadCore.Systems.SaveSystem.Events;
 
 namespace NomadCore.Systems.SaveSystem.Services {
 	/*
@@ -41,9 +45,34 @@ namespace NomadCore.Systems.SaveSystem.Services {
 	/// 
 	/// </summary>
 
-	public sealed class SaveManager : ISaveService {
+	public sealed class SaveManager : ISaveService, ISaveEvents {
+		public int SlotCount => Slots.Count;
+		public int ActiveSlot => SlotIndex.Value;
+
 		private readonly List<Slot> Slots = new List<Slot>();
 		private readonly ILoggerService? Logger = ServiceRegistry.Get<ILoggerService>();
+		private readonly ICVar<int> SlotIndex;
+
+		public LoadFailed LoadFailed => _loadFailed;
+		private readonly LoadFailed _loadFailed = new LoadFailed();
+
+		public LoadStarted LoadStarted => _loadStarted;
+		private readonly LoadStarted _loadStarted = new LoadStarted();
+		
+		public SaveCompleted SaveCompleted => _saveCompleted;
+		private readonly SaveCompleted _saveCompleted = new SaveCompleted();
+
+		public SaveFailed SaveFailed => _saveFailed;
+		private readonly SaveFailed _saveFailed = new SaveFailed();
+
+		public SaveStarted SaveStarted => _saveStarted;
+		private readonly SaveStarted _saveStarted = new SaveStarted();
+
+		public SlotCreated SlotCreated => _slotCreated;
+		private readonly SlotCreated _slotCreated = new SlotCreated();
+
+		public SlotDeleted SlotDeleted => _slotDeleted;
+		private readonly SlotDeleted _slotDeleted = new SlotDeleted();
 
 		/*
 		===============
@@ -51,6 +80,16 @@ namespace NomadCore.Systems.SaveSystem.Services {
 		===============
 		*/
 		public SaveManager() {
+			SlotIndex = ServiceRegistry.Get<ICVarSystemService>().Register(
+				new CVarCreateInfo<int>(
+					name: "game.SlotIndex",
+					defaultValue: 0,
+					description: "The current save slot index.",
+					flags: CVarFlags.Archive | CVarFlags.Hidden,
+					validator: ( slot ) => slot > 0 && slot < Slots.Count
+				)
+			);
+			ServiceRegistry.Register<ISaveEvents>( this );
 		}
 
 		/*
@@ -80,6 +119,13 @@ namespace NomadCore.Systems.SaveSystem.Services {
 		/// 
 		/// </summary>
 		public void Shutdown() {
+			_loadFailed.Dispose();
+			_loadStarted.Dispose();
+			_saveCompleted.Dispose();
+			_saveFailed.Dispose();
+			_saveStarted.Dispose();
+			_slotCreated.Dispose();
+			_slotDeleted.Dispose();
 		}
 
 		/*
@@ -87,6 +133,12 @@ namespace NomadCore.Systems.SaveSystem.Services {
 		GetSlot
 		===============
 		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="slot"></param>
+		/// <returns></returns>
+		/// <exception cref="ArgumentOutOfRangeException"></exception>
 		public ISaveSlot GetSlot( int slot ) {
 			if ( slot < 0 || slot > Slots.Count ) {
 				throw new ArgumentOutOfRangeException( nameof( slot ) );
@@ -94,30 +146,6 @@ namespace NomadCore.Systems.SaveSystem.Services {
 
 			ISaveSlot current = Slots[ slot ];
 			return current;
-		}
-
-		/*
-		===============
-		Load
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="slot"></param>
-		public void Load( int slot ) {
-		}
-
-		/*
-		===============
-		Save
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="slot"></param>
-		public void Save( int slot ) {
 		}
 
 		/*
@@ -132,6 +160,51 @@ namespace NomadCore.Systems.SaveSystem.Services {
 		/// <returns></returns>
 		public bool SlotExists( int slot ) {
 			return GetSlot( slot ) != null;
+		}
+
+		/*
+		===============
+		DeleteSlot
+		===============
+		*/
+		/// <summary>
+		/// Deletes the provided slot
+		/// </summary>
+		/// <param name="slot"></param>
+		public void DeleteSlot( ISaveSlot slot ) {
+			ArgumentNullException.ThrowIfNull( slot );
+
+			Logger?.PrintLine( $"SaveManager.Delete: removing save slot {slot.Index}..." );
+			Slots.Remove( (Slot)slot );
+			_slotDeleted.PublishAsync( new SlotDeletedEventData( slot.Index ) );
+		}
+
+		/*
+		===============
+		DeleteSlot
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="slot"></param>
+		public void DeleteSlot( int slot ) {
+			Logger?.PrintLine( $"SaveManager.Delete: removing save slot {slot}..." );
+			Slots.RemoveAt( slot );
+			_slotDeleted.PublishAsync( new SlotDeletedEventData( slot ) );
+		}
+
+		/*
+		===============
+		CreateSlot
+		===============
+		*/
+		/// <summary>
+		/// Creates a new save slot.
+		/// </summary>
+		public void CreateSlot() {
+			Slots.Add( new Slot( SlotIndex.Value++ ) );
+			_slotCreated.PublishAsync( new SlotCreatedEventData( SlotIndex.Value ) );
 		}
 	};
 };

@@ -58,7 +58,7 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure {
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public static SaveHeader Load( in SaveReaderStream stream ) {
-			return new SaveHeader( stream.ReadUInt32(), stream.ReadUInt32(), stream.ReadUInt32(), stream.ReadInt32(), stream.ReadUInt64() );
+			return new SaveHeader( stream.Read<uint>(), stream.Read<uint>(), stream.Read<uint>(), stream.Read<int>(), stream.Read<ulong>() );
 		}
 
 		/*

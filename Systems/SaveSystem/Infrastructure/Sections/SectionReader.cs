@@ -23,10 +23,10 @@ terms, you may contact me via email at nyvantil@gmail.com.
 
 using NomadCore.Abstractions.Services;
 using NomadCore.Infrastructure;
+using NomadCore.Interfaces.SaveSystem;
 using NomadCore.Systems.SaveSystem.Enums;
 using NomadCore.Systems.SaveSystem.Errors;
 using NomadCore.Systems.SaveSystem.Infrastructure.Fields;
-using NomadCore.Systems.SaveSystem.Interfaces;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -64,12 +64,11 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure.Sections {
 		===============
 		*/
 		public SectionReader( Streams.SaveReaderStream stream ) {
-			SectionHeader header = SectionHeader.Load( stream );
-
+			var header = SectionHeader.Load( stream );
 			_name = header.Name;
 			_fieldCount = header.FieldCount;
 
-			LoadFields( stream, in header );
+			LoadFields( stream );
 		}
 
 		/*
@@ -310,11 +309,10 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure.Sections {
 		/// 
 		/// </summary>
 		/// <param name="reader"></param>
-		/// <param name="header"></param>
 		/// <exception cref="FailedSectionLoadException">Throws if the section failed to load.</exception>
-		private void LoadFields( in Streams.SaveReaderStream reader, in SectionHeader header ) {
+		private void LoadFields( in Streams.SaveReaderStream reader ) {
 			try {
-				for ( int i = 0; i < header.FieldCount; i++ ) {
+				for ( int i = 0; i < _fieldCount; i++ ) {
 					var field = SaveField.Read( Name, i, reader );
 					if ( !_fields.TryAdd( field.Name, field ) ) {
 						Logger?.PrintError( $"Section.LoadFields: failed to add field {field.Name} to cache." );

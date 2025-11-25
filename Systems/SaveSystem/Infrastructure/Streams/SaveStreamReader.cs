@@ -42,23 +42,23 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure.Streams {
 	/// Reads strings in <see cref="Encoding.UTF8"/> format.
 	/// </remarks>
 
-	internal ref struct SaveReaderStream : ISaveFileStream {
+	internal sealed class SaveReaderStream : ISaveFileStream {
 		/// <summary>
 		/// The length of the stream (the file's size).
 		/// </summary>
-		public readonly int Length => _length;
+		public int Length => _length;
 		private readonly int _length = 0;
 
 		/// <summary>
 		/// The current offset in the buffer.
 		/// </summary>
-		public readonly int Position => _position;
+		public int Position => _position;
 		private int _position = 0;
 
 		/// <summary>
 		/// The buffer the stream reads from.
 		/// </summary>
-		public readonly byte[]? Buffer => _buffer;
+		public byte[]? Buffer => _buffer;
 		private readonly byte[] _buffer;
 
 		/*
@@ -94,7 +94,7 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure.Streams {
 		/// <summary>
 		/// Releases the read stream buffer's memory.
 		/// </summary>
-		public readonly void Dispose() {
+		public void Dispose() {
 			if ( _buffer != null ) {
 				ArrayPool<byte>.Shared.Return( _buffer );
 			}
@@ -146,138 +146,6 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure.Streams {
 
 		/*
 		===============
-		ReadInt8
-		===============
-		*/
-		/// <summary>
-		/// Reads a 8 bit signed integer from the save file stream.
-		/// </summary>
-		/// <returns></returns>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public sbyte ReadInt8() => ReadPrimitive<sbyte>();
-
-		/*
-		===============
-		ReadInt16
-		===============
-		*/
-		/// <summary>
-		/// Reads a 16 bit signed integer from the save file stream.
-		/// </summary>
-		/// <returns></returns>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public short ReadInt16() => ReadPrimitive<short>();
-
-		/*
-		===============
-		ReadInt32
-		===============
-		*/
-		/// <summary>
-		/// Reads a 32 bit signed integer from the save file stream.
-		/// </summary>
-		/// <returns></returns>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public int ReadInt32() => ReadPrimitive<int>();
-
-		/*
-		===============
-		ReadInt64
-		===============
-		*/
-		/// <summary>
-		/// Reads a 64 bit signed integer from the save file stream.
-		/// </summary>
-		/// <returns></returns>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public long ReadInt64() => ReadPrimitive<long>();
-
-		/*
-		===============
-		ReadUInt8
-		===============
-		*/
-		/// <summary>
-		/// Reads an 8 bit unsigned integer from the save file stream.
-		/// </summary>
-		/// <returns></returns>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public byte ReadUInt8() => ReadPrimitive<byte>();
-
-		/*
-		===============
-		ReadUInt16
-		===============
-		*/
-		/// <summary>
-		/// Reads a 16 bit unsigned integer from the save file stream.
-		/// </summary>
-		/// <returns></returns>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public ushort ReadUInt16() => ReadPrimitive<ushort>();
-
-		/*
-		===============
-		ReadUInt32
-		===============
-		*/
-		/// <summary>
-		/// Reads a 32 bit unsigned integer from the save file stream.
-		/// </summary>
-		/// <returns></returns>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public uint ReadUInt32() => ReadPrimitive<uint>();
-
-		/*
-		===============
-		ReadUInt64
-		===============
-		*/
-		/// <summary>
-		/// Reads a 64 bit unsigned integer from the save file stream.
-		/// </summary>
-		/// <returns></returns>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public ulong ReadUInt64() => ReadPrimitive<ulong>();
-
-		/*
-		===============
-		ReadFloat
-		===============
-		*/
-		/// <summary>
-		/// Reads a 32 bit floating point value from the save file stream.
-		/// </summary>
-		/// <returns></returns>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public float ReadFloat() => ReadPrimitive<float>();
-
-		/*
-		===============
-		ReadDouble
-		===============
-		*/
-		/// <summary>
-		/// Reads a 64 bit floating point value from the save file stream.
-		/// </summary>
-		/// <returns></returns>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public double ReadDouble() => ReadPrimitive<double>();
-
-		/*
-		===============
-		ReadBoolean
-		===============
-		*/
-		/// <summary>
-		/// Reads an 8 bit boolean value from the save file stream.
-		/// </summary>
-		/// <returns></returns>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public bool ReadBoolean() => ReadPrimitive<bool>();
-
-		/*
-		===============
 		Read7BitEncodedInt
 		===============
 		*/
@@ -292,7 +160,7 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure.Streams {
 			byte b;
 
 			do {
-				b = ReadUInt8();
+				b = Read<byte>();
 				value |= ( b & 0x7F ) << shift;
 				shift += 7;
 				if ( shift > 35 ) {
@@ -352,7 +220,7 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure.Streams {
 		/// </summary>
 		/// <param name="size"></param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		private readonly void CheckRead( int size ) {
+		private void CheckRead( int size ) {
 			if ( Position + size >= _buffer.Length ) {
 				throw new System.IO.EndOfStreamException( "End of save reader stream hit!" );
 			}
@@ -360,7 +228,7 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure.Streams {
 
 		/*
 		===============
-		ReadPrimitive
+		Read
 		===============
 		*/
 		/// <summary>
@@ -369,7 +237,7 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure.Streams {
 		/// <typeparam name="T"></typeparam>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		private T ReadPrimitive<T>() where T : unmanaged {
+		public T Read<T>() where T : unmanaged {
 			int sizeOfData = Marshal.SizeOf<T>();
 
 			CheckRead( sizeOfData );

@@ -21,9 +21,17 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-namespace EntitySystem.Physics {
-	internal interface IPhysicsSubSystem {
-		public void Update( float delta );
-		public void Shutdown();
+using NomadCore.Interfaces;
+using NomadCore.Systems.SaveSystem.Events;
+
+namespace NomadCore.Systems.SaveSystem.Interfaces {
+	public interface ISaveEvents : IGameService {
+		public LoadFailed LoadFailed { get; }
+		public LoadStarted LoadStarted { get; }
+		public SaveCompleted SaveCompleted { get; }
+		public SaveFailed SaveFailed { get; }
+		public SaveStarted SaveStarted { get; }
+		public SlotCreated SlotCreated { get; }
+		public SlotDeleted SlotDeleted { get; }
 	};
 };

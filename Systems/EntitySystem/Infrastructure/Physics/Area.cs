@@ -21,12 +21,13 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-using EventSystem;
 using Godot;
+using NomadCore.Systems.EntitySystem.Events;
+using NomadCore.Systems.EventSystem.Common;
 using System;
 using System.Collections.Generic;
 
-namespace EntitySystem.Physics {
+namespace NomadCore.Systems.EntitySystem.Infrastructure.Physics {
 	/*
 	===================================================================================
 	
@@ -75,8 +76,8 @@ namespace EntitySystem.Physics {
 		public Transform2D Transform => _transform;
 		private Transform2D _transform;
 
-		public readonly GameEvent AreaEntered = new GameEvent( nameof( AreaEntered ) );
-		public readonly GameEvent AreaExited = new GameEvent( nameof( AreaExited ) );
+		public readonly GameEvent<AreaEnteredEventData> AreaEntered = new GameEvent<AreaEnteredEventData>( nameof( AreaEntered ) );
+		public readonly GameEvent<AreaExitedEventData> AreaExited = new GameEvent<AreaExitedEventData>( nameof( AreaExited ) );
 
 		/*
 		===============

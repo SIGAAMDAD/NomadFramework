@@ -52,6 +52,9 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure.Fields.Serializers {
 			Register( new ShortSerializer() );
 			Register( new IntSerializer() );
 			Register( new LongSerializer() );
+			Register( new FloatSerializer() );
+			Register( new DoubleSerializer() );
+			Register( new StringSerializer() );
 		}
 
 		/*

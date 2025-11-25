@@ -21,21 +21,16 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-using NomadCore.Interfaces;
-using NomadCore.Interfaces.SaveSystem;
-using NomadCore.Systems.EventSystem.Common;
-using System.Runtime.InteropServices;
+using System;
+using NomadCore.Systems.SaveSystem.Enums;
+using NomadCore.Systems.SaveSystem.Interfaces;
+using NomadCore.Systems.SaveSystem.Infrastructure.Streams;
 
-namespace NomadCore.Systems.SaveSystem.Events {
-	[StructLayout( LayoutKind.Sequential, Pack = 1 )]
-	public readonly struct SaveCompletedEventData( ISaveSlot slot ) : IEventArgs {
-		public readonly ISaveSlot Slot = slot;
-	};
-	
+namespace NomadCore.Systems.SaveSystem.Infrastructure.Fields.Serializers {
 	/*
 	===================================================================================
 	
-	SaveCompleted
+	FloatSerializer
 	
 	===================================================================================
 	*/
@@ -43,6 +38,11 @@ namespace NomadCore.Systems.SaveSystem.Events {
 	/// 
 	/// </summary>
 	
-	public sealed class SaveCompleted() : GameEvent<SaveCompletedEventData>( nameof( SaveCompleted ) ) {
+	internal sealed class FloatSerializer : IFieldSerializer<float> {
+		public FieldType FieldType => FieldType.Float;
+		public Type DataType => typeof( float );
+
+		public void Serialize( SaveStreamWriter stream, float value ) => stream.Write( value );
+		public FieldValue Deserialize( SaveReaderStream stream ) => new FieldValue( stream.Read<float>() );
 	};
 };

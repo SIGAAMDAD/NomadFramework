@@ -21,10 +21,12 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-using EventSystem;
+using NomadCore.Interfaces;
+using NomadCore.Systems.EntitySystem.Common;
+using NomadCore.Systems.EventSystem.Common;
 using System.Runtime.InteropServices;
 
-namespace EntitySystem.Events {
+namespace NomadCore.Systems.EntitySystem.Events {
 	[StructLayout( LayoutKind.Sequential, Pack = 1 )]
 	public readonly struct AreaExitedEventData( Entity entity, Entity overlappingEntity ) : IEventArgs {
 		public readonly Entity Entity = entity;
@@ -42,9 +44,6 @@ namespace EntitySystem.Events {
 	/// 
 	/// </summary>
 	
-	public sealed class AreaExited : GameEvent<AreaExitedEventData> {
-		public AreaExited()
-			: base( nameof( AreaExited ) )
-		{ }
+	public sealed class AreaExited() : GameEvent<AreaExitedEventData>( nameof( AreaExited )) {
 	};
 };

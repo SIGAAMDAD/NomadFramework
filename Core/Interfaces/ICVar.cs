@@ -59,7 +59,7 @@ namespace NomadCore.Interfaces {
 		public void SetFromString( string value );
 	};
 	public interface ICVar<T> : ICVar {
-		public T Value { get; }
+		public T Value { get; set; }
 		public T DefaultValue { get; }
 
 		public IGameEvent<ICVarValueChangedEventData<T>> ValueChanged { get; }

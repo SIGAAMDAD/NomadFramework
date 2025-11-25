@@ -41,16 +41,16 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure.Streams {
 	/// An abstracted interface to manage writing a save file to a filestream.
 	/// </summary>
 	
-	internal ref struct SaveStreamWriter( string filepath ) : ISaveFileStream {
+	internal sealed class SaveStreamWriter( string filepath ) : ISaveFileStream {
 		// hard limit of 128 MiB
 		private const int MAX_CAPACITY = 128 * 1024 * 1024;
 
-		public readonly int Position => _position;
+		public int Position => _position;
 		private int _position = 0;
 
-		public readonly int Length => _position;
+		public int Length => _position;
 
-		public readonly byte[]? Buffer => _buffer;
+		public byte[]? Buffer => _buffer;
 		private byte[] _buffer;
 		
 		private readonly long DiskSpaceRemaining = GetFreeDiskSpace( filepath );

@@ -43,6 +43,6 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure.Fields.Serializers {
 		public Type DataType => typeof( ulong );
 
 		public void Serialize( SaveStreamWriter stream, ulong value ) => stream.Write( value );
-		public FieldValue Deserialize( SaveReaderStream stream ) => new FieldValue( stream.ReadUInt64() );
+		public FieldValue Deserialize( SaveReaderStream stream ) => new FieldValue( stream.Read<ulong>() );
 	};
 };

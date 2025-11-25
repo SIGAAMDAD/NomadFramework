@@ -21,11 +21,15 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-namespace NomadCore.Systems.SaveSystem.Interfaces {
+using Godot;
+using NomadCore.Systems.EntitySystem.Common;
+using NomadCore.Utilities;
+
+namespace NomadCore.Systems.EntitySystem.Infrastructure {
 	/*
 	===================================================================================
 	
-	ISectionReader
+	EntityManager
 	
 	===================================================================================
 	*/
@@ -33,8 +37,23 @@ namespace NomadCore.Systems.SaveSystem.Interfaces {
 	/// 
 	/// </summary>
 	
-	public interface ISectionReader : ISaveSection {
-		public T? GetField<T>( string? name );
-		public bool TryGetField<T>( string? name, out T? value );
+	internal sealed class EntityManager : System {
+		private readonly ObjectPool<Entity> EntityPool = new ObjectPool<Entity>( () => new Entity() );
+
+		/*
+		===============
+		EntityManage
+		===============
+		*/
+		public EntityManager() {
+		}
+
+		/*
+		===============
+		Update
+		===============
+		*/
+		public override void Update( float delta ) {
+		}
 	};
 };

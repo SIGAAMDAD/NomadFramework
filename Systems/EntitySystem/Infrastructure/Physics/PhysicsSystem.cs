@@ -21,9 +21,25 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-namespace NomadCore.Systems.SaveSystem.Interfaces {
-	public interface ISectionWriter : ISaveSection {
-		public void SetField<T>( string? name, in T value );
-		public bool FieldExists( string? name );
+namespace NomadCore.Systems.EntitySystem.Infrastructure.Physics {
+	/*
+	===================================================================================
+	
+	PhysicsSystem
+	
+	===================================================================================
+	*/
+	/// <summary>
+	/// 
+	/// </summary>
+	
+	public sealed class PhysicsSystem : System {
+		/*
+		===============
+		Update
+		===============
+		*/
+		public override void Update( float delta ) {
+		}
 	};
 };

@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad AGPL Source Code
 Copyright (C) 2025 Noah Van Til
@@ -21,11 +21,19 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-namespace EntitySystem {
-	public interface IEntityStat {
-		public object Value { set; get; }
-		public object MinValue { set; get; }
-		public object MaxValue { set; get; }
-		public object BaseValue { get; }
+namespace NomadCore.Systems.EntitySystem.Enums {
+	internal enum EntityStateValueType : sbyte {
+		Int8,
+		Int16,
+		Int32,
+		Int64,
+		UInt8,
+		UInt16,
+		UInt32,
+		UInt64,
+		Float32,
+		Float64,
+
+		Count
 	};
 };

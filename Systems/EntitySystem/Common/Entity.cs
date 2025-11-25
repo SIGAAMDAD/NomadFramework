@@ -21,12 +21,13 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
+using NomadCore.Systems.EntitySystem.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
-namespace EntitySystem {
+namespace NomadCore.Systems.EntitySystem.Common {
 	/*
 	===================================================================================
 	
@@ -42,10 +43,29 @@ namespace EntitySystem {
 	/// </remarks>
 	/// <param name="id"></param>
 
-	public abstract class Entity( int id ) : PoolableObject {
-		public readonly int Id = id;
+	public partial class Entity : PoolableObject, IEntity {
+		public int Id => _id;
+		private readonly int _id;
 
 		protected readonly Dictionary<Type, IComponent> Components = new Dictionary<Type, IComponent>();
+
+		/*
+		===============
+		Entity
+		===============
+		*/
+		public Entity() {
+			_id = GetHashCode();
+		}
+
+		/*
+		===============
+		Dispose
+		===============
+		*/
+		public override void Dispose() {
+			Components.Clear();
+		}
 
 		/*
 		===============
@@ -58,7 +78,7 @@ namespace EntitySystem {
 		/// <typeparam name="T"></typeparam>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public virtual T AddComponent<T>() where T : struct, IComponent {
+		public T AddComponent<T>() where T : struct, IComponent {
 			Type type = typeof( T );
 			if ( Components.TryGetValue( type, out var component ) ) {
 				return (T)component;
@@ -79,7 +99,7 @@ namespace EntitySystem {
 		/// <typeparam name="T"></typeparam>
 		/// <exception cref="KeyNotFoundException"></exception>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public virtual void RemoveComponent<T>() where T : struct, IComponent {
+		public void RemoveComponent<T>() where T : struct, IComponent {
 			Type type = typeof( T );
 			if ( !Components.ContainsKey( type ) ) {
 				throw new KeyNotFoundException( $"Component {type} doesn't exist" );
@@ -99,7 +119,7 @@ namespace EntitySystem {
 		/// <returns></returns>
 		/// <exception cref="KeyNotFoundException"></exception>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public virtual T GetComponent<T>() where T : struct, IComponent {
+		public T GetComponent<T>() where T : struct, IComponent {
 			return Components.TryGetValue( typeof( T ), out var component ) ?
 					(T)component
 				:
@@ -131,7 +151,7 @@ namespace EntitySystem {
 		/// </summary>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public virtual int GetComponentCount() {
+		public int GetComponentCount() {
 			return Components.Count;
 		}
 		
@@ -147,7 +167,7 @@ namespace EntitySystem {
 		/// <param name="index"></param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public virtual T GetComponentAtIndex<T>( int index ) where T : struct, IComponent {
+		public T GetComponentAtIndex<T>( int index ) where T : struct, IComponent {
 			return (T)Components.ElementAt( index ).Value;
 		}
 
@@ -161,7 +181,7 @@ namespace EntitySystem {
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <returns></returns>
-		public virtual T[] GetComponents<T>() where T : struct, IComponent {
+		public T[] GetComponents<T>() where T : struct, IComponent {
 			List<T> components = new List<T>();
 			Type type = typeof( T );
 			foreach ( var component in Components ) {

@@ -21,28 +21,18 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-using NomadCore.Interfaces;
-using NomadCore.Interfaces.SaveSystem;
-using NomadCore.Systems.EventSystem.Common;
-using System.Runtime.InteropServices;
+using System;
 
-namespace NomadCore.Systems.SaveSystem.Events {
-	[StructLayout( LayoutKind.Sequential, Pack = 1 )]
-	public readonly struct SaveCompletedEventData( ISaveSlot slot ) : IEventArgs {
-		public readonly ISaveSlot Slot = slot;
-	};
-	
-	/*
-	===================================================================================
-	
-	SaveCompleted
-	
-	===================================================================================
-	*/
-	/// <summary>
-	/// 
-	/// </summary>
-	
-	public sealed class SaveCompleted() : GameEvent<SaveCompletedEventData>( nameof( SaveCompleted ) ) {
+namespace NomadCore.Systems.EntitySystem.Interfaces {
+	public interface IEntity : IDisposable {
+		public int Id { get; }
+
+		public T AddComponent<T>() where T : struct, IComponent;
+		public void RemoveComponent<T>() where T : struct, IComponent;
+		public T GetComponent<T>() where T : struct, IComponent;
+		public bool TryGetComponent<T>( out T? component ) where T : struct, IComponent;
+		public int GetComponentCount();
+		public T GetComponentAtIndex<T>( int index ) where T : struct, IComponent;
+		public T[] GetComponents<T>() where T : struct, IComponent;
 	};
 };

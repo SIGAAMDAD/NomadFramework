@@ -21,8 +21,70 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-namespace NomadCore.Systems.SaveSystem.Sections {
-	internal sealed class SectionWriter {
-		
+using NomadCore.Abstractions.Services;
+using NomadCore.Infrastructure;
+using NomadCore.Interfaces.SaveSystem;
+using NomadCore.Systems.SaveSystem.Infrastructure.Fields;
+using NomadCore.Systems.SaveSystem.Infrastructure.Streams;
+using System;
+using System.Collections.Generic;
+
+namespace NomadCore.Systems.SaveSystem.Infrastructure.Sections {
+	/*
+	===================================================================================
+	
+	SectionWriter
+	
+	===================================================================================
+	*/
+	/// <summary>
+	/// 
+	/// </summary>
+	
+	internal sealed class SectionWriter( ISaveFileStream fileStream, string name ) : ISectionWriter {
+		public string? Name => name;
+
+		public int FieldCount => _fields.Count;
+
+		public HashSet<string> Fields => _fields;
+		private readonly HashSet<string> _fields = new HashSet<string>();
+
+		private readonly ILoggerService? Logger = ServiceRegistry.Get<ILoggerService>();
+		private readonly SaveStreamWriter Writer = (SaveStreamWriter)fileStream;
+
+		/*
+		===============
+		FieldExists
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="name"></param>
+		/// <returns></returns>
+		public bool FieldExists( string? name ) {
+			ArgumentException.ThrowIfNullOrEmpty( name );
+			return _fields.Contains( name );
+		}
+
+		/*
+		===============
+		SetField
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="name"></param>
+		/// <param name="value"></param>
+		public void SetField<T>( string? name, T value ) {
+			ArgumentException.ThrowIfNullOrEmpty( name );
+			if ( !_fields.Contains( name ) ) {
+				SaveField.Write( Name, name, value, Writer );
+			} else {
+				Logger?.PrintWarning( $"SectionWriter.SetField: field '{name}' already exists!" );
+			}
+		}
 	};
 };

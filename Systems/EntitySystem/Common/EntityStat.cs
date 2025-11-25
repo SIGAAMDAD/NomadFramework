@@ -21,7 +21,10 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-namespace EntitySystem {
+using NomadCore.Infrastructure;
+using NomadCore.Systems.EntitySystem.Interfaces;
+
+namespace NomadCore.Systems.EntitySystem.Common {
 	/*
 	===================================================================================
 	
@@ -45,35 +48,35 @@ namespace EntitySystem {
 		/// <summary>
 		/// The maximum value allowed for the stat
 		/// </summary>
-		public object MaxValue {
+		public Any MaxValue {
 			readonly get => _maxValue;
-			set => _maxValue = (T)value;
+			set => _maxValue = value;
 		}
-		private T _maxValue = maxValue;
+		private Any _maxValue = Any.From( maxValue );
 
 		/// <summary>
 		/// The maximum value allowed for the stats
 		/// </summary>
-		public object MinValue {
+		public Any MinValue {
 			readonly get => _minValue;
-			set => _minValue = (T)value;
+			set => _minValue = value;
 		}
-		private T _minValue = minValue;
+		private Any _minValue = Any.From( minValue );
 
 		/// <summary>
 		/// The base value loaded or determined at compile time
 		/// </summary>
-		public readonly object BaseValue => _baseValue;
-		private readonly T _baseValue = value;
+		public readonly Any BaseValue => _baseValue;
+		private readonly Any _baseValue = Any.From( value );
 
 		/// <summary>
 		/// The value that can be changed and the value that is read at runtime
 		/// </summary>
-		public object Value {
+		public Any Value {
 			readonly get => _value;
-			set => _value = (T)value;
+			set => _value = value;
 		}
-		private T _value = value;
+		private Any _value = Any.From( value );
 
 		/*
 		===============

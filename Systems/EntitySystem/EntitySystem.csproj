@@ -13,9 +13,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ConsoleSystem\ConsoleSystem.csproj" />
-    <ProjectReference Include="..\CVars\CVars.csproj" />
-    <ProjectReference Include="..\Core\Core.csproj" />
-    <ProjectReference Include="..\EventSystem\EventSystem.csproj" />
+    <ProjectReference Include="..\..\Core\Core.csproj" />
+    <ProjectReference Include="..\EventSystem\EventSystem\EventSystem.csproj" />
 	<ProjectReference Include="..\SaveSystem\SaveSystem.csproj" />
   </ItemGroup>
 

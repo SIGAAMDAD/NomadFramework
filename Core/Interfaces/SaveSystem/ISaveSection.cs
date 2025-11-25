@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad AGPL Source Code
 Copyright (C) 2025 Noah Van Til
@@ -21,21 +21,20 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-namespace EntitySystem {
+namespace NomadCore.Interfaces.SaveSystem {
 	/*
 	===================================================================================
 	
-	System
+	ISaveSection
 	
 	===================================================================================
 	*/
 	/// <summary>
-	/// 
+	/// Represents a high level save section that can be interfaced with
 	/// </summary>
-	
-	public abstract class System {
-		public virtual void Initiatilize() {
-		}
-		public abstract void Update( float delta );
+
+	public interface ISaveSection {
+		public string? Name { get; }
+		public int FieldCount { get; }
 	};
 };

@@ -53,6 +53,25 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure.Fields {
 
 		/*
 		===============
+		Write
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="section"></param>
+		/// <param name="name"></param>
+		/// <param name="value"></param>
+		/// <param name="stream"></param>
+		public static void Write<T>( string section, string name, T value, Streams.SaveStreamWriter stream ) {
+			stream.Write( name );
+			stream.Write( FieldValue.GetFieldType<T>() );
+			FieldSerializerRegistry.GetSerializer<T>().Serialize( stream, value );
+		}
+
+		/*
+		===============
 		Read
 		===============
 		*/
@@ -70,7 +89,7 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure.Fields {
 				throw new FieldCorruptException( section, index, stream.Position, $"Field name length corrupted (0 or string overflow, {name.Length} bytes)" );
 			}
 
-			FieldType type = (FieldType)stream.ReadUInt8();
+			FieldType type = stream.Read<FieldType>();
 			if ( type < FieldType.Int8 || type >= FieldType.Count ) {
 				throw new FieldCorruptException( section, index, stream.Position, $"Field type '{type}' isn't valid" );
 			}

@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad AGPL Source Code
 Copyright (C) 2025 Noah Van Til
@@ -21,19 +21,13 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-namespace EntitySystem {
-	internal enum EntityStateValueType : sbyte {
-		Int8,
-		Int16,
-		Int32,
-		Int64,
-		UInt8,
-		UInt16,
-		UInt32,
-		UInt64,
-		Float32,
-		Float64,
-
-		Count
+namespace NomadCore.Systems.EntitySystem.Interfaces {
+	public interface IStatService {
+		public void SetStatValue<T>( string statName, T newValue ) where T : unmanaged;
+		public void SetStatMaxValue<T>( string statName, T maxValue ) where T : unmanaged;
+		public void SetStatMinValue<T>( string statName, T minValue ) where T : unmanaged;
+		public T GetStatValue<T>( string? statName ) where T : unmanaged;
+		public T GetStatMaxValue<T>( string? statName ) where T : unmanaged;
+		public T GetStatMinValue<T>( string? statName ) where T : unmanaged;
 	};
 };

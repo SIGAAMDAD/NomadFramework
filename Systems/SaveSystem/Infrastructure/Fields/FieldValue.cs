@@ -134,6 +134,33 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure.Fields {
 
 		/*
 		===============
+		From
+		===============
+		*/
+		/// <summary>
+		/// Creates an FieldValue object from the provided primitive value.
+		/// </summary>
+		/// <typeparam name="T">The type of the value</typeparam>
+		/// <returns>A new FieldValue object</returns>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public static FieldValue From<T>( T value ) => value switch {
+			bool b => new FieldValue( b ),
+			sbyte i8 => new FieldValue( i8 ),
+			short i16 => new FieldValue( i16 ),
+			int i32 => new FieldValue( i32 ),
+			long i64 => new FieldValue( i64 ),
+			byte u8 => new FieldValue( u8 ),
+			ushort u16 => new FieldValue( u16 ),
+			uint u32 => new FieldValue( u32 ),
+			ulong u64 => new FieldValue( u64 ),
+			float f32 => new FieldValue( f32 ),
+			double f64 => new FieldValue( f64 ),
+			string str => new FieldValue( str ),
+			_ => throw new InvalidCastException( $"A FieldValue object cannot hold a value of type {typeof( T )}" )
+		};
+
+		/*
+		===============
 		GetFieldType
 		===============
 		*/
