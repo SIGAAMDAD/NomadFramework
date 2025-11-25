@@ -22,7 +22,6 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using Godot;
-using CVars;
 using EventSystem;
 using System;
 using SaveSystem.Streams;
@@ -66,44 +65,37 @@ namespace SaveSystem {
 
 		public readonly List<SaveSlot> Slots = new List<SaveSlot>();
 
-		public static readonly CVar<int> LastSaveSlot = new CVar<int>(
-			name: "gameplay.LastSaveSlot",
-			defaultValue: 0,
-			description: "The current save slot index, DO NOT MODIFY.",
-			flags: CVarFlags.Archive
-		);
-
 		private static SaveManager Instance;
 
 		/// <summary>
 		/// 
 		/// </summary>
-		public readonly IGameEvent SaveGameBegin;
+		public readonly GameEvent SaveGameBegin = new GameEvent( nameof( SaveGameBegin ) );
 
 		/// <summary>
 		/// 
 		/// </summary>
-		public readonly IGameEvent SaveGameEnd;
+		public readonly GameEvent SaveGameEnd = new GameEvent( nameof( SaveGameEnd ) );
 
 		/// <summary>
 		/// 
 		/// </summary>
-		public readonly IGameEvent LoadGameBegin;
+		public readonly GameEvent LoadGameBegin = new GameEvent( nameof( LoadGameBegin ) );
 
 		/// <summary>
 		/// 
 		/// </summary>
-		public readonly IGameEvent LoadGameEnd;
+		public readonly GameEvent LoadGameEnd = new GameEvent( nameof( LoadGameEnd ) );
 
 		/// <summary>
 		/// Event that fires when we're writing objects to the save file.
 		/// </summary>
-		public readonly IGameEvent SaveSectionNodes;
+		public readonly GameEvent SaveSectionNodes = new GameEvent( nameof( SaveSectionNodes ) );
 
 		/// <summary>
 		/// Event that fires when we're loading objects from the save file.
 		/// </summary>
-		public readonly IGameEvent LoadSectionNodes;
+		public readonly GameEvent LoadSectionNodes = new GameEvent( nameof( LoadSectionNodes ) );
 
 		/*
 		===============
@@ -113,25 +105,16 @@ namespace SaveSystem {
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="console"></param>
-		/// <param name="eventBus"></param>
-		public SaveManager( IConsoleService? console, IGameEventBusService? eventBus, ICVarSystem? cvarSystem ) {
-			ArgumentNullException.ThrowIfNull( console );
-			ArgumentNullException.ThrowIfNull( eventBus );
-			ArgumentNullException.ThrowIfNull( cvarSystem );
-
-			SaveGameBegin = eventBus.CreateEvent( nameof( SaveGameBegin ) );
-			SaveGameEnd = eventBus.CreateEvent( nameof( SaveGameEnd ) );
-			LoadGameBegin = eventBus.CreateEvent( nameof( LoadGameBegin ) );
-			LoadGameEnd = eventBus.CreateEvent( nameof( LoadGameEnd ) );
-			SaveSectionNodes = eventBus.CreateEvent( nameof( SaveSectionNodes ) );
-			LoadSectionNodes = eventBus.CreateEvent( nameof( LoadSectionNodes ) );
-
+		public SaveManager() {
 			Instance = this;
 
-			LoadSaveSlots( console );
+			LoadSaveSlots();
 
-			LastSaveSlot.Register();
+			Config.LastSaveSlot.Register();
+			Config.MaxBackups.Register();
+			Config.VersionMajor.Register();
+			Config.VersionMajor.Register();
+			Config.VersionPatch.Register();
 		}
 
 		/*
@@ -161,17 +144,18 @@ namespace SaveSystem {
 			Instance.SaveGameBegin.Publish( EmptyEventArgs.Args );
 
 			try {
-				SaveSlot current = Instance.Slots[ LastSaveSlot.Value ];
+				SaveSlot current = Instance.Slots[ Config.LastSaveSlot ];
 
 				using SaveWriterStream stream = new SaveWriterStream( new System.IO.FileStream( current.Filepath, System.IO.FileMode.CreateNew ) );
-				current.SaveHeader( stream );
+				SaveSlot.SaveHeader( stream, new DataChecksum(), false );
 
 				Instance.SaveSectionNodes.Publish( new SaveSectionNodesEventData( current ) );
 				foreach ( var section in current.Sections ) {
-					using SaveSectionWriter writer = new SaveSectionWriter( section.Key, section.Value, stream );
+					SaveSectionWriter writer = new SaveSectionWriter( section.Key, section.Value, stream );
 				}
 
-				current.SaveHeader( stream, 0, new DataChecksum( stream ) );
+				SaveSlot.SaveHeader( stream, new DataChecksum( stream ), true );
+				current.CreateBackup();
 			} catch ( Exception ) {
 			}
 
@@ -195,9 +179,13 @@ namespace SaveSystem {
 			Instance.LoadGameBegin.Publish( EmptyEventArgs.Args );
 
 			try {
-				LastSaveSlot.Set( slot );
+				Config.LastSaveSlot.Value = slot;
 				SaveSlot current = Instance.Slots[ slot ];
-			} catch ( Exception ) {
+
+				if ( SaveSlot.ValidateSaveFile( current.Filepath, out var header ) ) {
+				}
+			} catch ( Exception e ) {
+				ConsoleSystem.Console.PrintError( $"SaveManager.Load: exception thrown while loading save data - {e}" );
 			}
 
 			Instance.LoadGameEnd.Publish( EmptyEventArgs.Args );
@@ -234,10 +222,10 @@ namespace SaveSystem {
 		/// <summary>
 		/// 
 		/// </summary>
-		private void LoadSaveSlots( IConsoleService console ) {
+		private void LoadSaveSlots() {
 			string[] slots = System.IO.Directory.GetFiles( ProjectSettings.GlobalizePath( SaveSlot.SAVE_DIRECTORY ) );
 			for ( int i = 0; i < slots.Length; i++ ) {
-				Slots.Add( new SaveSlot( i, console ) );
+				Slots.Add( new SaveSlot( i ) );
 			}
 		}
 	};

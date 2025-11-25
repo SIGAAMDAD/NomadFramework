@@ -36,15 +36,13 @@ namespace SaveSystem {
 	/// Loads a save file's data into RAM.
 	/// </summary>
 
-	public sealed class SaveInfoLoad {
+	internal sealed class SaveInfoLoad {
 		/// <summary>
 		/// The amount of sections in the save file.
 		/// </summary>
 		public int SectionCount => SectionCache.Count;
 
 		public readonly ConcurrentDictionary<string, SaveSectionReader?> SectionCache = new ConcurrentDictionary<string, SaveSectionReader?>();
-
-		private readonly IConsoleService Console;
 
 		/*
 		===============
@@ -54,11 +52,9 @@ namespace SaveSystem {
 		/// <summary>
 		/// 
 		/// </summary>
-		public SaveInfoLoad( string? filePath, IConsoleService? console ) {
-			ArgumentNullException.ThrowIfNull( console );
+		public SaveInfoLoad( string? filePath ) {
 			ArgumentException.ThrowIfNullOrEmpty( filePath );
 
-			Console = console;
 			Load( filePath );
 		}
 
@@ -78,7 +74,7 @@ namespace SaveSystem {
 			if ( SectionCache.TryGetValue( name, out SaveSectionReader? value ) ) {
 				return value;
 			}
-			Console.PrintError( $"SaveInfoLoad.GetSection: failed to find save section '{name}'!" );
+			ConsoleSystem.Console.PrintError( $"SaveInfoLoad.GetSection: failed to find save section '{name}'!" );
 			return null;
 		}
 
@@ -118,9 +114,9 @@ namespace SaveSystem {
 				string name = stream.ReadString();
 				ArgumentException.ThrowIfNullOrEmpty( name );
 
-				Console.PrintLine( $"SaveInfoLoad.LoadSections: loading save section '{name}'..." );
-				SectionCache.TryAdd( name, new SaveSectionReader( stream, Console ) );
-				Console.PrintLine( "...Done" );
+				ConsoleSystem.Console.PrintLine( $"SaveInfoLoad.LoadSections: loading save section '{name}'..." );
+				SectionCache.TryAdd( name, new SaveSectionReader( stream ) );
+				ConsoleSystem.Console.PrintLine( "...Done" );
 			}
 		}
 
@@ -136,18 +132,18 @@ namespace SaveSystem {
 		/// <param name="sectionCount"></param>
 		/// <returns></returns>
 		/// <exception cref="System.IO.InvalidDataException"></exception>
-		private bool LoadHeader( Streams.SaveReaderStream reader, out int sectionCount ) {
+		private static bool LoadHeader( Streams.SaveReaderStream reader, out int sectionCount ) {
 			sectionCount = 0;
 
 			if ( reader.ReadUInt64() != SaveSlot.MAGIC ) {
-				Console.PrintError( "ArchiveSystem.LoadGame: save data has invalid magic in header!" );
+				ConsoleSystem.Console.PrintError( "SaveManager.LoadGame: save data has invalid magic in header!" );
 				return false;
 			}
 			reader.ReadString();
 
 			sectionCount = reader.ReadInt32();
 			if ( sectionCount < 0 ) {
-				Console.PrintError( "ArchiveSystem.LoadGame: save data section count isn't valid!" );
+				ConsoleSystem.Console.PrintError( "SaveManager.LoadGame: save data section count isn't valid!" );
 				return false;
 			}
 
@@ -156,7 +152,7 @@ namespace SaveSystem {
 			int position = reader.Position;
 			DataChecksum checksum = new DataChecksum( reader );
 			if ( checksum.Checksum != crc64 ) {
-				throw new System.IO.InvalidDataException( "crc64 present in save file does not match the generated one!" );
+				throw new System.IO.InvalidDataException( "Crc64 present in save file does not match the generated one!" );
 			}
 			reader.Seek( position, System.IO.SeekOrigin.Begin );
 

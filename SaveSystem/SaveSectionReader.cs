@@ -24,6 +24,7 @@ terms, you may contact me via email at nyvantil@gmail.com.
 using Godot;
 using System;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Runtime.CompilerServices;
 
 namespace SaveSystem {
@@ -36,20 +37,20 @@ namespace SaveSystem {
 	*/
 
 	/// <summary>
-	/// <para>The dedicated class for reading dictionary style "sections" froms the current savefile</para>
+	/// <para>The dedicated class for reading dictionary style "sections" froms the current savefile.</para>
 	/// 
 	/// <para>NOTE: reading from loaded save section can be multithreaded since we are loading all values
 	/// into RAM from disk before applying gamestate.</para>
 	/// 
-	/// <para>exceptions are caught in ArchiveSystem.LoadGame</para>
+	/// <para>exceptions are caught in ArchiveSystem.LoadGame.</para>
 	/// 
 	/// <para>the default stream is ArchiveSystem.SaveReader, but for the sake of testing, it uses
-	/// dependency injection in the constructor</para>
+	/// dependency injection in the constructor.</para>
 	/// </summary>
-	public readonly struct SaveSectionReader : IDisposable {
+	
+	internal readonly struct SaveSectionReader {
 		private readonly Streams.SaveReaderStream Reader;
 		private readonly ConcurrentDictionary<string, SaveField?> FieldList;
-		private readonly IConsoleService Console;
 
 		/*
 		===============
@@ -62,41 +63,46 @@ namespace SaveSystem {
 		/// <param name="reader"></param>
 		/// <exception cref="InvalidOperationException"></exception>
 		/// <exception cref="Exception"></exception>
-		public SaveSectionReader( Streams.SaveReaderStream reader, IConsoleService? console ) {
-			ArgumentNullException.ThrowIfNull( reader );
-			ArgumentNullException.ThrowIfNull( console );
-
-			Console = console;
+		public SaveSectionReader( Streams.SaveReaderStream reader ) {
 			Reader = reader;
 
 			int fieldCount = Reader.ReadInt32();
 			FieldList = new ConcurrentDictionary<string, SaveField?>( 1, fieldCount );
 
-			Console.PrintLine( $"...Got {fieldCount} fields." );
+			ConsoleSystem.Console.PrintLine( $"...Got {fieldCount} fields." );
 
 			for ( int i = 0; i < fieldCount; i++ ) {
 				string name = Reader.ReadString();
-
 				if ( name.Length <= 0 ) {
 					throw new Exception( $"SaveField at offset {Reader.Position} has invalid name (length <= 0)" );
 				}
-				if ( !FieldList.TryAdd( name, new SaveField( Reader ) ) ) {
+				if ( !FieldList.TryAdd( name, new SaveField( reader ) ) ) {
 					throw new InvalidOperationException( $"A duplicate of SaveField {name} was found in savefile, aborting" );
 				}
-				Console.PrintLine( $"...loaded field \"{name}\"" );
+				ConsoleSystem.Console.PrintLine( $"...loaded field \"{name}\"" );
 			}
 		}
 
 		/*
 		===============
-		Dispose
+		Load
 		===============
 		*/
 		/// <summary>
 		/// 
 		/// </summary>
-		public void Dispose() {
-			FieldList?.Clear();
+		/// <typeparam name="T"></typeparam>
+		/// <param name="name"></param>
+		/// <returns></returns>
+		public readonly T Load<T>( string? name ) {
+			ArgumentException.ThrowIfNullOrEmpty( name );
+
+			SaveField? field = LoadField( name, FieldValue.GetFieldType<T>() );
+			if ( field.HasValue && field.Value.Value is T value ) {
+				return value;
+			}
+
+			return default;
 		}
 
 		/*
@@ -110,9 +116,7 @@ namespace SaveSystem {
 		/// <param name="name"></param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public readonly sbyte LoadSByte( string? name ) {
-			return UnboxField<sbyte>( name, FieldType.Int8 );
-		}
+		public readonly sbyte LoadSByte( string? name ) => Load<sbyte>( name );
 
 		/*
 		===============
@@ -125,9 +129,7 @@ namespace SaveSystem {
 		/// <param name="name"></param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public readonly short LoadShort( string name ) {
-			return UnboxField<short>( name, FieldType.Int16 );
-		}
+		public readonly short LoadShort( string? name ) => Load<short>( name );
 
 		/*
 		===============
@@ -140,9 +142,7 @@ namespace SaveSystem {
 		/// <param name="name"></param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public readonly int LoadInt( string? name ) {
-			return UnboxField<int>( name, FieldType.Int32 );
-		}
+		public readonly int LoadInt( string? name ) => Load<int>( name );
 
 		/*
 		===============
@@ -155,9 +155,7 @@ namespace SaveSystem {
 		/// <param name="name"></param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public readonly long LoadLong( string? name ) {
-			return UnboxField<long>( name, FieldType.Int64 );
-		}
+		public readonly long LoadLong( string? name ) => Load<long>( name );
 
 		/*
 		===============
@@ -170,9 +168,7 @@ namespace SaveSystem {
 		/// <param name="name"></param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public readonly byte LoadByte( string? name ) {
-			return UnboxField<byte>( name, FieldType.UInt8 );
-		}
+		public readonly byte LoadByte( string? name ) => Load<byte>( name );
 
 		/*
 		===============
@@ -180,14 +176,12 @@ namespace SaveSystem {
 		===============
 		*/
 		/// <summary>
-		/// Loads an sbyte from the loaded save section
+		/// Loads a ushort from the loaded save section
 		/// </summary>
 		/// <param name="name"></param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public readonly ushort LoadUShort( string? name ) {
-			return UnboxField<ushort>( name, FieldType.UInt16 );
-		}
+		public readonly ushort LoadUShort( string? name ) => Load<ushort>( name );
 
 		/*
 		===============
@@ -200,9 +194,7 @@ namespace SaveSystem {
 		/// <param name="name"></param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public readonly uint LoadUInt( string? name ) {
-			return UnboxField<uint>( name, FieldType.UInt32 );
-		}
+		public readonly uint LoadUInt( string? name ) => Load<uint>( name );
 
 		/*
 		===============
@@ -210,14 +202,12 @@ namespace SaveSystem {
 		===============
 		*/
 		/// <summary>
-		/// Loads an sbyte from the loaded save section
+		/// Loads a ulong from the loaded save section
 		/// </summary>
 		/// <param name="name"></param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public readonly ulong LoadULong( string? name ) {
-			return UnboxField<ulong>( name, FieldType.UInt64 );
-		}
+		public readonly ulong LoadULong( string? name ) => Load<ulong>( name );
 
 		/*
 		===============
@@ -230,9 +220,7 @@ namespace SaveSystem {
 		/// <param name="name"></param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public readonly float LoadFloat( string? name ) {
-			return UnboxField<float>( name, FieldType.Float );
-		}
+		public readonly float LoadFLoat( string? name ) => Load<float>( name );
 
 		/*
 		===============
@@ -245,11 +233,9 @@ namespace SaveSystem {
 		/// <param name="name"></param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public readonly double LoadDouble( string? name ) {
-			return UnboxField<double>( name, FieldType.Double );
-		}
+		public readonly double LoadDouble( string? name ) => Load<double>( name );
 
-		/*  fff
+		/*
 		===============
 		LoadString
 		===============
@@ -260,9 +246,7 @@ namespace SaveSystem {
 		/// <param name="name"></param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public readonly string LoadString( string? name ) {
-			return UnboxField<string>( name, FieldType.String );
-		}
+		public readonly string LoadString( string? name ) => Load<string>( name );
 
 		/*
 		===============
@@ -270,14 +254,12 @@ namespace SaveSystem {
 		===============
 		*/
 		/// <summary>
-		/// Loads a boolean from the loaded save section
+		/// Loads a bool from the loaded save section
 		/// </summary>
 		/// <param name="name"></param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public readonly bool LoadBoolean( string? name ) {
-			return UnboxField<bool>( name, FieldType.Boolean );
-		}
+		public readonly bool LoadBoolean( string? name ) => Load<bool>( name );
 
 		/*
 		===============
@@ -285,14 +267,12 @@ namespace SaveSystem {
 		===============
 		*/
 		/// <summary>
-		/// :oads a Godot.Vector2 from the loaded save section
+		/// Loads a Vector2 from the loaded save section
 		/// </summary>
 		/// <param name="name"></param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public readonly Vector2 LoadVector2( string? name ) {
-			return UnboxField<Vector2>( name, FieldType.Vector2 );
-		}
+		public readonly Vector2 LoadVector2( string? name ) => Load<Vector2>( name );
 
 		/*
 		===============
@@ -300,119 +280,12 @@ namespace SaveSystem {
 		===============
 		*/
 		/// <summary>
-		/// Loads a Godot.Vector2I from the loaded save section
+		/// Loads a Vector2I from the loaded save section
 		/// </summary>
 		/// <param name="name"></param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public readonly Vector2I LoadVector2I( string? name ) {
-			return UnboxField<Vector2I>( name, FieldType.Vector2I );
-		}
-
-		/*
-		===============
-		LoadIntList
-		===============
-		*/
-		/// <summary>
-		/// Loads an int[] from the loaded save section
-		/// </summary>
-		/// <param name="name"></param>
-		/// <returns></returns>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public readonly int[] LoadIntList( string? name ) {
-			return UnboxField<int[]>( name, FieldType.IntList );
-		}
-
-		/*
-		===============
-		LoadUIntList
-		===============
-		*/
-		/// <summary>
-		/// Loads a uint[] from the loaded save section
-		/// </summary>
-		/// <param name="name"></param>
-		/// <returns></returns>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public readonly uint[] LoadList( string? name ) {
-			return UnboxField<uint[]>( name, FieldType.UIntList );
-		}
-
-		/*
-		===============
-		LoadFloatList
-		===============
-		*/
-		/// <summary>
-		/// Loads a float[] from the loaded save section
-		/// </summary>
-		/// <param name="name"></param>
-		/// <returns></returns>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public readonly float[] LoadFloatList( string? name ) {
-			return UnboxField<float[]>( name, FieldType.FloatList );
-		}
-
-		/*
-		===============
-		LoadStringList
-		===============
-		*/
-		/// <summary>
-		/// Loads a string[] from the loaded save section
-		/// </summary>
-		/// <param name="name"></param>
-		/// <returns></returns>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public readonly string[] LoadStringList( string? name ) {
-			return UnboxField<string[]>( name, FieldType.StringList );
-		}
-
-		/*
-		===============
-		LoadByteArray
-		===============
-		*/
-		/// <summary>
-		/// Loads a byte[] from the loaded save section
-		/// </summary>
-		/// <param name="name"></param>
-		/// <returns></returns>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public readonly byte[] LoadByteArray( string? name ) {
-			return UnboxField<byte[]>( name, FieldType.ByteArray );
-		}
-
-		/*
-		===============
-		LoadArray
-		===============
-		*/
-		/// <summary>
-		/// Loads a Godot.Collections.Array from the loaded save section
-		/// </summary>
-		/// <param name="name"></param>
-		/// <returns></returns>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public readonly Godot.Collections.Array LoadArray( string? name ) {
-			return UnboxField<Godot.Collections.Array>( name, FieldType.Array );
-		}
-
-		/*
-		===============
-		LoadDictionary
-		===============
-		*/
-		/// <summary>
-		/// Loads a Godot.Collections.Dictionary from the loaded save section
-		/// </summary>
-		/// <param name="name"></param>
-		/// <returns></returns>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public readonly Godot.Collections.Dictionary LoadDictionary( string? name ) {
-			return UnboxField<Godot.Collections.Dictionary>( name, FieldType.Dictionary );
-		}
+		public readonly Vector2I LoadVector2I( string? name ) => Load<Vector2I>( name );
 
 		/*
 		===============
@@ -426,44 +299,23 @@ namespace SaveSystem {
 		/// <param name="type">The type of the field</param>
 		/// <returns>The loaded field, or empty if not found</returns>
 		/// <exception cref="InvalidCastException">Thrown if <paramref name="type"/> doesn't match what's found in the save data</exception>
-		private readonly SaveField? LoadField( string? name, FieldType type ) {
-			ArgumentException.ThrowIfNullOrEmpty( name );
-			ArgumentNullException.ThrowIfNull( FieldList );
-
+		private readonly SaveField? LoadField( string name, FieldType type ) {
 			if ( FieldList.TryGetValue( name, out SaveField? field ) ) {
 				if ( !field.HasValue ) {
-					throw new ArgumentNullException( nameof( field ) );
+					ConsoleSystem.Console.PrintError( $"SaveField {name} has a null value in cache!" );
+					return null;
 				}
 
 				// if the provided type and the loaded type are the same
 				return field.Value.Type != type ?
-						field
+						throw new InvalidCastException( $"SaveField {name} from savefile isn't the same type as {type}" )
 					:
-						throw new InvalidCastException( $"SaveField {name} from savefile isn't the same type as {type}" );
+						field;
 			}
 
 			// not the end of the world, just a missing field, so apply the default value
-			Console.PrintError( $"...couldn't find save field {name}" );
-			return new SaveField();
-		}
-
-		/*
-		===============
-		UnboxField
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="name"></param>
-		/// <param name="type"></param>
-		/// <returns></returns>
-		/// <exception cref="InvalidCastException"></exception>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		private readonly T UnboxField<T>( string? name, FieldType type ) {
-			SaveField? boxed = LoadField( name, type );
-			return boxed != null && boxed.Value.Value is T value ? value : throw new InvalidCastException( $"FieldType {type} doesn't match the save data type!" );
+			ConsoleSystem.Console.PrintError( $"...couldn't find save field {name}" );
+			return null;
 		}
 	};
 };

@@ -36,7 +36,7 @@ namespace SaveSystem.Streams {
 	/// 
 	/// </summary>
 
-	public abstract class SaveStream : IDisposable {
+	internal abstract class SaveStream : IDisposable {
 		/// <summary>
 		/// The current offset of the buffer. Basically a pointer without the pointer.
 		/// </summary>

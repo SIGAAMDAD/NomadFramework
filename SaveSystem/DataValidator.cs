@@ -40,7 +40,7 @@ namespace SaveSystem {
 	/// a stream writer, then we just calculate the checksum.
 	/// </summary>
 
-	public readonly struct DataChecksum {
+	internal readonly ref struct DataChecksum {
 		/// <summary>
 		/// The calculated checksum.
 		/// </summary>

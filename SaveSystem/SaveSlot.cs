@@ -21,13 +21,13 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-
 using Godot;
 using System;
 using SaveSystem.Streams;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 
 namespace SaveSystem {
 	/*
@@ -42,15 +42,15 @@ namespace SaveSystem {
 	/// </summary>
 
 	public sealed class SaveSlot {
-		public const ulong MAGIC = 0xFFEAD4546B727449;
-		public static readonly string SAVE_DIRECTORY = "user://SaveData";
+		internal const ulong MAGIC = 0xFFEAD4546B727449;
+		internal static readonly string SAVE_DIRECTORY = "user://SaveData";
 
-		public readonly int Slot;
-		public readonly string Filepath;
+		internal readonly int Slot;
+		internal readonly string Filepath;
 
-		public readonly ConcurrentDictionary<string, Dictionary<string, object>> Sections = new ConcurrentDictionary<string, Dictionary<string, object>>();
+		internal ConcurrentDictionary<string, List<SaveField>> Sections = new ConcurrentDictionary<string, List<SaveField>>();
 
-		private readonly IConsoleService Console;
+		private int BackupCount = 0;
 
 		/*
 		===============
@@ -61,10 +61,7 @@ namespace SaveSystem {
 		/// 
 		/// </summary>
 		/// <param name="slot"></param>
-		public SaveSlot( int slot, IConsoleService? console ) {
-			ArgumentNullException.ThrowIfNull( console );
-
-			Console = console;
+		internal SaveSlot( int slot ) {
 			Slot = slot;
 
 			try {
@@ -72,7 +69,8 @@ namespace SaveSystem {
 			} catch ( Exception ) {
 			}
 
-			Filepath = ProjectSettings.GlobalizePath( $"{SAVE_DIRECTORY}/GameData_{Slot}.ngd" );
+			BackupCount = GetNumBackups();
+			Filepath = FilepathCache.GetSlotPath( Slot );
 		}
 
 		/*
@@ -83,7 +81,7 @@ namespace SaveSystem {
 		/// <summary>
 		/// Deletes the save slot's file (the associated data).
 		/// </summary>
-		public void Delete() {
+		internal void Delete() {
 			System.IO.File.Delete( Filepath );
 		}
 
@@ -96,13 +94,13 @@ namespace SaveSystem {
 		/// 
 		/// </summary>
 		/// <param name="name"></param>
-		public void Create( string? name ) {
+		internal void Create( string? name ) {
 			ArgumentException.ThrowIfNullOrEmpty( name );
 
 			using System.IO.FileStream stream = new System.IO.FileStream( Filepath, System.IO.FileMode.Create );
 			using SaveWriterStream writer = new SaveWriterStream( stream );
 
-			SaveHeader( writer );
+			SaveHeader( writer, new DataChecksum(), false );
 		}
 
 		/*
@@ -114,14 +112,14 @@ namespace SaveSystem {
 		/// 
 		/// </summary>
 		/// <param name="reader"></param>
-		public void LoadHeader( SaveReaderStream? reader = null ) {
+		internal void LoadHeader( SaveReaderStream? reader = null ) {
 			if ( reader == null ) {
 				using System.IO.FileStream stream = new System.IO.FileStream( Filepath, System.IO.FileMode.Open );
 				reader = new SaveReaderStream( stream );
 			}
 
 			if ( reader.ReadUInt64() != MAGIC ) {
-				Console.PrintError( "SaveSlot.LoadHeader: save data has invalid identifier in header!" );
+				ConsoleSystem.Console.PrintError( "SaveSlot.LoadHeader: save data has invalid identifier in header!" );
 				return;
 			}
 
@@ -134,11 +132,18 @@ namespace SaveSystem {
 		SaveHeader
 		===============
 		*/
-		public void SaveHeader( SaveWriterStream writer, int sectionCount = 0, DataChecksum? checksum = null ) {
+		/// <summary>
+		/// Writes the save file header
+		/// </summary>
+		/// <param name="writer"></param>
+		/// <param name="checksum"></param>
+		/// <param name="hasChecksum"></param>
+		/// <param name="sectionCount"></param>
+		internal static void SaveHeader( SaveWriterStream writer, DataChecksum checksum, bool hasChecksum, int sectionCount = 0 ) {
 			writer.Write( MAGIC );
 			writer.Write( 0 );
-			if ( checksum.HasValue ) {
-				writer.Write( checksum.Value.Checksum );
+			if ( hasChecksum ) {
+				writer.Write( checksum.Checksum );
 			} else {
 				// write a placeholder
 				writer.Write( 0 );
@@ -156,7 +161,7 @@ namespace SaveSystem {
 		/// <param name="name"></param>
 		/// <param name="fields"></param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public void AddSection( string? name, Dictionary<string, object>? fields ) {
+		public void AddSection( string? name, List<SaveField>? fields ) {
 			ArgumentException.ThrowIfNullOrEmpty( name );
 			ArgumentNullException.ThrowIfNull( fields );
 
@@ -174,10 +179,163 @@ namespace SaveSystem {
 		/// <param name="name"></param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public Dictionary<string, object>? GetSection( string? name ) {
+		public List<SaveField>? GetSection( string? name ) {
 			ArgumentException.ThrowIfNullOrEmpty( name );
 
-			return Sections.TryGetValue( name, out Dictionary<string, object>? value ) ? value : null;
+			return Sections.TryGetValue( name, out List<SaveField>? value ) ? value : null;
+		}
+
+		/*
+		===============
+		ValidateSaveFile
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="filepath"></param>
+		/// <param name="header"></param>
+		/// <returns></returns>
+		internal static bool ValidateSaveFile( string? filepath, out SaveHeader header ) {
+			ArgumentException.ThrowIfNullOrEmpty( filepath );
+
+			header = new SaveHeader();
+			try {
+				using System.IO.FileStream stream = new System.IO.FileStream( filepath, System.IO.FileMode.Open, System.IO.FileAccess.Read );
+				using System.IO.BinaryReader reader = new System.IO.BinaryReader( stream );
+
+				header.Magic = reader.ReadUInt64();
+				if ( header.Magic != MAGIC ) {
+					return false;
+				}
+
+				header.VersionMajor = reader.ReadUInt32();
+				header.VersionMinor = reader.ReadUInt32();
+				header.VersionPatch = reader.ReadUInt32();
+
+				header.SectionCount = reader.ReadUInt32();
+
+				header.Timestamp = reader.ReadInt64();
+				header.Checksum = reader.ReadUInt64();
+
+				if ( header.VersionMajor > SaveManager.VersionMajor ) {
+					return false;
+				}
+				if ( header.SectionCount == 0 || header.SectionCount > 100000 ) {
+					return false;
+				}
+				if ( header.Timestamp < 0 || header.Timestamp > DateTime.Now.AddYears( 1 ).Ticks ) {
+					return false;
+				}
+				return true;
+			} catch {
+				return false;
+			}
+		}
+
+		/*
+		===============
+		CreateBackup
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		internal void CreateBackup() {
+			if ( BackupCount >= SaveManager.MaxBackups ) {
+				return;
+			}
+			for ( int i = SaveManager.MaxBackups - 1; i > 0; i-- ) {
+				string oldBackup = FilepathCache.GetBackupPath( Slot, i );
+				string newBackup = FilepathCache.GetBackupPath( Slot, i + 1 );
+
+				if ( System.IO.File.Exists( oldBackup ) ) {
+					if ( System.IO.File.Exists( newBackup ) ) {
+						System.IO.File.Delete( newBackup );
+					}
+					System.IO.File.Move( oldBackup, newBackup );
+				}
+			}
+
+			string lastestBackup = FilepathCache.GetBackupPath( Slot, 0 );
+			System.IO.File.Copy( Filepath, lastestBackup, true );
+		}
+
+		/*
+		===============
+		ToJson
+		===============
+		*/
+		public bool ToJson( string? output ) {
+			ArgumentException.ThrowIfNullOrEmpty( output );
+
+			try {
+				using System.IO.FileStream stream = new System.IO.FileStream( output, System.IO.FileMode.CreateNew, System.IO.FileAccess.Write );
+				using System.IO.StreamWriter writer = new System.IO.StreamWriter( stream );
+				writer.Write( JsonSerializer.Serialize( Sections ) );
+			} catch {
+				return false;
+			}
+			return true;
+		}
+
+		/*
+		===============
+		FromJson
+		===============
+		*/
+		public bool FromJson( string? input ) {
+			ArgumentException.ThrowIfNullOrEmpty( input );
+
+			try {
+				var dict = JsonSerializer.Deserialize<ConcurrentDictionary<string, List<SaveField>>>(
+					new System.IO.FileStream( input, System.IO.FileMode.Open, System.IO.FileAccess.Read )
+				);
+				ArgumentNullException.ThrowIfNull( dict );
+				Sections = dict;
+			} catch {
+				return false;
+			}
+			return true;
+		}
+
+		/*
+		===============
+		RestoreBackup
+		===============
+		*/
+		internal bool RestoreBackup( int backupIndex ) {
+			string backupPath = FilepathCache.GetBackupPath( Slot, backupIndex );
+			string primaryPath = Filepath;
+
+			if ( System.IO.File.Exists( backupPath ) && ValidateSaveFile( backupPath, out _ ) ) {
+				System.IO.File.Copy( backupPath, primaryPath, true );
+				return true;
+			}
+			return false;
+		}
+		
+		/*
+		===============
+		GetNumBackups
+		===============
+		*/
+		/// <summary>
+		/// Counts the number of backups associated with the current save file.
+		/// </summary>
+		private int GetNumBackups() {
+			int backupCount = 0;
+
+			string[] files = System.IO.Directory.GetFiles( ProjectSettings.GlobalizePath( $"{SAVE_DIRECTORY}" ) );
+			for ( int b = 0; b < SaveManager.MaxBackups; b++ ) {
+				string path = $"GameData_{Slot}.ngd.backup{b}";
+				for ( int i = 0; i < files.Length; i++ ) {
+					if ( string.Equals( files[ i ], path ) ) {
+						backupCount++;
+					}
+				}
+			}
+			return backupCount;
 		}
 	};
 };

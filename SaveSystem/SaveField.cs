@@ -22,6 +22,7 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using Godot;
+using SaveSystem.Streams;
 using System;
 
 namespace SaveSystem {
@@ -45,7 +46,17 @@ namespace SaveSystem {
 		/// <summary>
 		/// 
 		/// </summary>
-		public readonly object? Value { get; } = null;
+		public readonly FieldValue Value { get; }
+
+		/*
+		===============
+		SaveField
+		===============
+		*/
+		public SaveField( FieldType type, FieldValue value ) {
+			Type = type;
+			Value = value;
+		}
 
 		/*
 		===============
@@ -57,31 +68,24 @@ namespace SaveSystem {
 		/// </summary>
 		/// <param name="reader">The stream to read from</param>
 		/// <exception cref="IndexOutOfRangeException">Thrown if the loaded <see cref="FieldType"/> isn't valid</exception>
-		public SaveField( Streams.SaveReaderStream reader ) {
+		internal SaveField( SaveReaderStream? reader ) {
 			ArgumentNullException.ThrowIfNull( reader );
 
 			Type = (FieldType)reader.ReadUInt32();
 			Value = Type switch {
-				FieldType.Int8 => reader.ReadInt8(),
-				FieldType.Int16 => reader.ReadInt16(),
-				FieldType.Int32 => reader.ReadInt32(),
-				FieldType.Int64 => reader.ReadInt64(),
-				FieldType.UInt8 => reader.ReadUInt8(),
-				FieldType.UInt16 => reader.ReadUInt16(),
-				FieldType.UInt32 => reader.ReadUInt32(),
-				FieldType.UInt64 => reader.ReadUInt64(),
-				FieldType.Boolean => reader.ReadBoolean(),
-				FieldType.Float => reader.ReadFloat(),
-				FieldType.Double => reader.ReadDouble(),
-				FieldType.Vector2 => FieldLoader.LoadVector2( reader ),
-				FieldType.Vector2I => FieldLoader.LoadVector2I( reader ),
-				FieldType.IntList => FieldLoader.LoadArray<int>( reader, value => reader.ReadInt32() ),
-				FieldType.UIntList => FieldLoader.LoadArray<uint>( reader, value => reader.ReadUInt32() ),
-				FieldType.FloatList => FieldLoader.LoadArray<float>( reader, value => reader.ReadFloat() ),
-				FieldType.StringList => FieldLoader.LoadArray<string>( reader, value => reader.ReadString() ),
-				FieldType.ByteArray => FieldLoader.LoadByteArray( reader ),
-				FieldType.Array => FieldLoader.LoadGodotArray( reader ),
-				FieldType.Dictionary => FieldLoader.LoadGodotDictionary( reader ),
+				FieldType.Int8 => new FieldValue( reader.ReadInt8() ),
+				FieldType.Int16 => new FieldValue( reader.ReadInt16() ),
+				FieldType.Int32 => new FieldValue( reader.ReadInt32() ),
+				FieldType.Int64 => new FieldValue( reader.ReadInt64() ),
+				FieldType.UInt8 => new FieldValue( reader.ReadUInt8() ),
+				FieldType.UInt16 => new FieldValue( reader.ReadUInt16() ),
+				FieldType.UInt32 => new FieldValue( reader.ReadUInt32() ),
+				FieldType.UInt64 => new FieldValue( reader.ReadUInt64() ),
+				FieldType.Boolean => new FieldValue( reader.ReadBoolean() ),
+				FieldType.Float => new FieldValue( reader.ReadFloat() ),
+				FieldType.Double => new FieldValue( reader.ReadDouble() ),
+				FieldType.Vector2 => new FieldValue( FieldLoader.LoadVector2( reader ) ),
+				FieldType.Vector2I => new FieldValue( FieldLoader.LoadVector2I( reader ) ),
 				_ => throw new IndexOutOfRangeException( $"invalid FieldType in savefile - {Type}" )
 			};
 		}
@@ -98,25 +102,20 @@ namespace SaveSystem {
 		public SaveField( FieldType type ) {
 			Type = type;
 			Value = Type switch {
-				FieldType.Int8 => (sbyte)0,
-				FieldType.Int16 => (short)0,
-				FieldType.Int32 => (int)0,
-				FieldType.Int64 => (long)0,
-				FieldType.UInt8 => (byte)0,
-				FieldType.UInt16 => (ushort)0,
-				FieldType.UInt32 => (uint)0,
-				FieldType.UInt64 => (ulong)0,
-				FieldType.Float => (float)0.0f,
-				FieldType.Double => (double)0.0f,
-				FieldType.String => "",
-				FieldType.Vector2 => Vector2.Zero,
-				FieldType.Vector2I => Vector2I.Zero,
-				FieldType.Boolean => false,
-				FieldType.IntList => Array.Empty<int>(),
-				FieldType.FloatList => Array.Empty<float>(),
-				FieldType.ByteArray => Array.Empty<byte>(),
-				FieldType.Array => new Godot.Collections.Array(),
-				FieldType.Dictionary => new Godot.Collections.Dictionary(),
+				FieldType.Int8 => new FieldValue( (sbyte)0 ),
+				FieldType.Int16 => new FieldValue( (short)0 ),
+				FieldType.Int32 => new FieldValue( 0 ),
+				FieldType.Int64 => new FieldValue( (long)0 ),
+				FieldType.UInt8 => new FieldValue( (byte)0 ),
+				FieldType.UInt16 => new FieldValue( (ushort)0 ),
+				FieldType.UInt32 => new FieldValue( (uint)0 ),
+				FieldType.UInt64 => new FieldValue( (ulong)0 ),
+				FieldType.Float => new FieldValue( (float)0.0f ),
+				FieldType.Double => new FieldValue( (double)0.0f ),
+				FieldType.String => new FieldValue( String.Empty ),
+				FieldType.Vector2 => new FieldValue( Vector2.Zero ),
+				FieldType.Vector2I => new FieldValue( Vector2I.Zero ),
+				FieldType.Boolean => new FieldValue( false ),
 				_ => throw new IndexOutOfRangeException( $"invalid FieldType in savefile - {Type}" )
 			};
 		}

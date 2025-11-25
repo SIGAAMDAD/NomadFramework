@@ -42,7 +42,7 @@ namespace SaveSystem.Streams {
 	/// Reads strings in <see cref="Encoding.UTF8"/> format.
 	/// </remarks>
 
-	public sealed class SaveReaderStream : SaveStream {
+	internal sealed class SaveReaderStream : SaveStream {
 		/// <summary>
 		/// The length of the stream (the file's size).
 		/// </summary>
@@ -273,7 +273,7 @@ namespace SaveSystem.Streams {
 		public string ReadString() {
 			int byteCount = Read7BitEncodedInt();
 			CheckRead( byteCount );
-			string value = Encoding.UTF8.GetString( new ReadOnlySpan<byte>( ref _buffer[ Position ] ).Slice( Position, byteCount ) );
+			string value = Encoding.UTF8.GetString( _buffer, Position, byteCount );
 			Position += value.Length;
 			return value;
 		}

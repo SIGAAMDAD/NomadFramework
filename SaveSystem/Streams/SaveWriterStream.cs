@@ -42,7 +42,7 @@ namespace SaveSystem.Streams {
 	/// Writes strings in <see cref="Encoding.UTF8"/> format.
 	/// </remarks>
 
-	public sealed class SaveWriterStream : SaveStream {
+	internal sealed class SaveWriterStream : SaveStream {
 		private readonly System.IO.FileStream Stream;
 
 		/*
@@ -72,13 +72,13 @@ namespace SaveSystem.Streams {
 		/// Dumps the buffer to the stream.
 		/// </summary>
 		public override void Dispose() {
-			base.Dispose();
-
 			if ( Buffer != null ) {
-				Stream.Write( Buffer );
-				Stream.Dispose();
+				Stream.Write( Buffer, 0, Position );
 				ArrayPool<byte>.Shared.Return( Buffer );
+				Buffer = null;
 			}
+			Stream?.Dispose();
+			base.Dispose();
 		}
 
 		/*
@@ -233,15 +233,26 @@ namespace SaveSystem.Streams {
 		/// 
 		/// </summary>
 		/// <param name="value"></param>
-		public void Write( string value ) {
-			ArgumentNullException.ThrowIfNull( value );
+		public void Write( string? value ) {
 			ArgumentNullException.ThrowIfNull( Buffer );
+			ArgumentNullException.ThrowIfNull( value );
 
-			int byteCount = Encoding.UTF8.GetByteCount( value );
-			Write7BitEncodedInt( byteCount );
+			const int STACK_ALLOC_THRESHOLD = 256;
+			int maxByteCount = Encoding.UTF8.GetMaxByteCount( value.Length );
 
-			EnsureCapacity( byteCount );
-			Position += Encoding.UTF8.GetBytes( value, 0, value.Length, Buffer, Position );
+			if ( maxByteCount <= STACK_ALLOC_THRESHOLD ) {
+				Span<byte> tempBuffer = stackalloc byte[ maxByteCount ];
+				int actualByteCount = Encoding.UTF8.GetBytes( value, tempBuffer );
+				Write7BitEncodedInt( actualByteCount );
+				EnsureCapacity( actualByteCount );
+				tempBuffer[ ..actualByteCount ].CopyTo( Buffer.AsSpan( Position ) );
+				Position += actualByteCount;
+			} else {
+				int byteCount = Encoding.UTF8.GetByteCount( value );
+				Write7BitEncodedInt( byteCount );
+				EnsureCapacity( byteCount );
+				Position += Encoding.UTF8.GetBytes( value, 0, value.Length, Buffer, Position );
+			}
 		}
 
 		/*
@@ -270,7 +281,7 @@ namespace SaveSystem.Streams {
 		/// <param name="value"></param>
 		/// <param name="offset"></param>
 		/// <param name="length"></param>
-		public void Write( byte[] value, int offset, int length ) {
+		public void Write( byte[]? value, int offset, int length ) {
 			ArgumentNullException.ThrowIfNull( Buffer );
 			ArgumentNullException.ThrowIfNull( value );
 			ArgumentOutOfRangeException.ThrowIfLessThan( offset, 0 );
@@ -381,7 +392,7 @@ namespace SaveSystem.Streams {
 					return driveInfo.AvailableFreeSpace;
 				}
 			} catch ( Exception ) {
-//				ConsoleSystem.Console.PrintError( $"ArchiveSystem.GetFreeDiskSpace: error getting remaining disk space in drive {path}" );
+				ConsoleSystem.Console.PrintError( $"SaveWriterStream.GetFreeDiskSpace: error getting remaining disk space in drive {path}" );
 			}
 			return -1;
 		}

@@ -41,16 +41,6 @@ namespace SaveSystem {
 		Vector2,
 		Vector2I,
 
-		IntList,
-		UIntList,
-		FloatList,
-		StringList,
-		ByteArray,
-
-		// internal godot types
-		Array,
-		Dictionary,
-
 		Count
 	};
 };
