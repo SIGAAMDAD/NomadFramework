@@ -23,12 +23,17 @@ terms, you may contact me via email at nyvantil@gmail.com.
 
 using Godot;
 using NomadCore.Enums.Audio;
+using NomadCore.Infrastructure.Events;
+using NomadCore.Interfaces.EventSystem;
 
 namespace NomadCore.Interfaces.Audio {
 	public interface IAudioSource {
 		public float Volume { get; }
 		public AudioSourceStatus Status { get; }
+		public IAudioStream Stream { get; }
 		public Node StreamNode { get; }
+
+		public IGameEvent<AudioStreamFinished> Finished { get; }
 
 		public void PlaySound( IAudioStream stream, bool looping = false );
 		public void Stop();

@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad AGPL Source Code
 Copyright (C) 2025 Noah Van Til
@@ -21,30 +21,13 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-using NomadCore.Enums.Audio;
-using NomadCore.Interfaces;
 using NomadCore.Interfaces.Audio;
-using NomadCore.Interfaces.ConsoleSystem;
+using NomadCore.Interfaces.EventSystem;
+using System.Runtime.InteropServices;
 
-namespace NomadCore.Abstractions.Services {
-	/*
-	===================================================================================
-	
-	IAudioService
-	
-	===================================================================================
-	*/
-	/// <summary>
-	/// 
-	/// </summary>
-
-	public interface IAudioService : IGameService {
-		public ICVar<float> SoundVolume { get; }
-		public ICVar<float> MusicVolume { get; }
-
-		public IAudioSource CreateSource( SourceType type );
-
-		public void StartMenuMusic( IAudioStream stream, IAudioStream? intro = null );
-		public void StopMenuMusic();
+namespace NomadCore.Infrastructure.Events {
+	[StructLayout( LayoutKind.Sequential, Pack = 1 )]
+	public readonly struct AudioStreamFinished( IAudioSource source ) : IEventArgs {
+		public readonly IAudioSource Source = source;
 	};
 };

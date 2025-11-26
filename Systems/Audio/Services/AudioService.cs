@@ -25,6 +25,7 @@ using NomadCore.Abstractions.Services;
 using NomadCore.Enums.Audio;
 using NomadCore.Enums.ConsoleSystem;
 using NomadCore.Infrastructure;
+using NomadCore.Infrastructure.Events;
 using NomadCore.Interfaces.Audio;
 using NomadCore.Interfaces.ConsoleSystem;
 using NomadCore.Systems.Audio.Infrastructure.Godot;
@@ -52,6 +53,8 @@ namespace NomadCore.Systems.Audio.Services {
 		private readonly ICVar<bool> SoundOn;
 		private readonly ICVar<bool> MusicOn;
 
+		private readonly IAudioSource MenuStream;
+
 		/*
 		===============
 		AudioService
@@ -75,6 +78,8 @@ namespace NomadCore.Systems.Audio.Services {
 					flags: CVarFlags.Archive
 				)
 			);
+
+			MenuStream = CreateSource( SourceType.Music );
 		}
 
 		/*
@@ -91,6 +96,24 @@ namespace NomadCore.Systems.Audio.Services {
 		===============
 		*/
 		public void Shutdown() {
+		}
+
+		/*
+		===============
+		StartMenuMusic
+		===============
+		*/
+		public void StartMenuMusic( IAudioStream stream, IAudioStream? intro = null ) {
+			MenuStream.PlaySound( stream, true );
+		}
+
+		/*
+		===============
+		StopMenuMusic
+		===============
+		*/
+		public void StopMenuMusic() {
+			MenuStream.Stop();
 		}
 
 		/*

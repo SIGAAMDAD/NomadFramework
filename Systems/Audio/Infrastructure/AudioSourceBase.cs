@@ -25,8 +25,10 @@ using Godot;
 using NomadCore.Abstractions.Services;
 using NomadCore.Enums.Audio;
 using NomadCore.Infrastructure;
+using NomadCore.Infrastructure.Events;
 using NomadCore.Interfaces.Audio;
 using NomadCore.Interfaces.ConsoleSystem;
+using NomadCore.Interfaces.EventSystem;
 using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.Marshalling;
@@ -59,11 +61,15 @@ namespace NomadCore.Systems.Audio.Infrastructure {
 		public SourceType Type => _type;
 		protected readonly SourceType _type = SourceType.UI;
 
+		public IAudioStream? Stream => _stream;
+		protected IAudioStream? _stream;
+
 		public Node StreamNode => GetStreamNode();
 
-		protected IAudioStream? Stream;
-
 		protected readonly IAudioService? Service = ServiceRegistry.Get<IAudioService>();
+
+		public IGameEvent<AudioStreamFinished> Finished => _finished;
+		protected readonly IGameEvent<AudioStreamFinished> _finished;
 
 		/*
 		===============
@@ -88,7 +94,10 @@ namespace NomadCore.Systems.Audio.Infrastructure {
 			_volume = Mathf.LinearToDb( volumeConfig.Value );
 
 			_type = type;
-			Stream = null;
+			_stream = null;
+
+			var eventBus = ServiceRegistry.Get<IGameEventBusService>();
+			_finished = eventBus.CreateEvent<AudioStreamFinished>( nameof( Finished ) );
 		}
 
 		/*
@@ -104,7 +113,7 @@ namespace NomadCore.Systems.Audio.Infrastructure {
 		public virtual void PlaySound( IAudioStream stream, bool looping = false ) {
 			ArgumentNullException.ThrowIfNull( stream );
 
-			Stream = stream;
+			_stream = stream;
 			_status = looping ? AudioSourceStatus.Looping : AudioSourceStatus.Playing;
 		}
 
@@ -118,7 +127,7 @@ namespace NomadCore.Systems.Audio.Infrastructure {
 		/// </summary>
 		public virtual void Stop() {
 			_status = AudioSourceStatus.Stopped;
-			Stream = null;
+			_stream = null;
 		}
 
 		/*

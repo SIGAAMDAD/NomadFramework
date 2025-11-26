@@ -116,6 +116,22 @@ namespace NomadCore.Systems.ResourceCache.Common {
 
 		/*
 		===============
+		Initialize
+		===============
+		*/
+		public void Initialize() {
+		}
+		
+		/*
+		===============
+		Shutdown
+		===============
+		*/
+		public void Shutdown() {
+		}
+
+		/*
+		===============
 		Dispose
 		===============
 		*/

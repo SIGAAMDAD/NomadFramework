@@ -22,6 +22,7 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using NomadCore.Infrastructure.Events;
+using NomadCore.Interfaces;
 using NomadCore.Interfaces.EventSystem;
 using System;
 using System.Threading;
@@ -39,7 +40,7 @@ namespace NomadCore.Abstractions.Services {
 	/// 
 	/// </summary>
 	
-	public interface IResourceCacheService<TResource> where TResource : Godot.Resource, IDisposable {
+	public interface IResourceCacheService<TResource> where TResource : Godot.Resource, IGameService {
 		public IGameEvent<ResourceLoadedEventData<TResource>> ResourceLoaded { get; }
 		public IGameEvent<ResourceUnloadedEventData<TResource>> ResourceUnloaded { get; }
 

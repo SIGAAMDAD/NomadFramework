@@ -22,7 +22,9 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using Godot;
+using NomadCore.Abstractions.Services;
 using NomadCore.Enums.Audio;
+using NomadCore.Infrastructure;
 using NomadCore.Interfaces.Audio;
 using System.Runtime.CompilerServices;
 
@@ -64,6 +66,10 @@ namespace NomadCore.Systems.Audio.Infrastructure.Godot {
 			base.PlaySound( stream, looping );
 
 			_streamNode.Stream = (AudioStream)stream.StreamedResource;
+			if ( looping ) {
+				var eventBus = ServiceRegistry.Get<IGameEventBusService>();
+				eventBus.ConnectSignal( _streamNode, AudioStreamPlayer.SignalName.Finished, _streamNode, OnLoopStream );
+			}
 			_streamNode.Play();
 		}
 
@@ -92,5 +98,14 @@ namespace NomadCore.Systems.Audio.Infrastructure.Godot {
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		protected override Node GetStreamNode() => _streamNode;
+
+		/*
+		===============
+		OnLoopStream
+		===============
+		*/
+		private void OnLoopStream() {
+			PlaySound( _stream );
+		}
 	};
 };
