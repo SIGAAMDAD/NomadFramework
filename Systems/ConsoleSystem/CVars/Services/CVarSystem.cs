@@ -31,6 +31,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using NomadCore.Infrastructure;
 using NomadCore.Systems.ConsoleSystem.CVars.Common;
+using System.Diagnostics;
 
 namespace NomadCore.Systems.ConsoleSystem.CVars.Services {
 	/*
@@ -45,26 +46,15 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Services {
 	/// </summary>
 
 	public sealed class CVarSystem : ICVarSystemService {
-		private readonly ConcurrentDictionary<string, ICVar> Cvars = new ConcurrentDictionary<string, ICVar>( StringComparer.OrdinalIgnoreCase );
-		private readonly HashSet<CVarGroup> Groups = new HashSet<CVarGroup>();
+		private readonly ConcurrentDictionary<string, ICVar> _cvars = new ConcurrentDictionary<string, ICVar>( StringComparer.OrdinalIgnoreCase );
+		private readonly HashSet<CVarGroup> _groups = new HashSet<CVarGroup>();
 
-		private readonly IGameEventBusService EventBus = ServiceRegistry.Get<IGameEventBusService>();
-		private readonly ILoggerService Logger = ServiceRegistry.Get<ILoggerService>();
+		private readonly IGameEventBusService _eventBus;
+		private readonly ILoggerService _logger;
 
-		/*
-		===============
-		Initialize
-		===============
-		*/
-		public void Initialize() {
-		}
-
-		/*
-		===============
-		Shutdown
-		===============
-		*/
-		public void Shutdown() {
+		public CVarSystem( IGameEventBusService eventBus, ILoggerService logger ) {
+			_eventBus = eventBus;
+			_logger = logger;
 		}
 
 		/*
@@ -75,12 +65,13 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Services {
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <typeparam name="T"></typeparam>
 		/// <param name="cvar"></param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public void Register( in ICVar? cvar ) {
-			if ( !Cvars.ContainsKey( cvar.Name ) ) {
-				Cvars.TryAdd( cvar.Name, cvar );
+		public void Register( in ICVar cvar ) {
+			ArgumentNullException.ThrowIfNull( cvar );
+
+			if ( !_cvars.ContainsKey( cvar.Name ) ) {
+				_cvars.TryAdd( cvar.Name, cvar );
 			}
 		}
 
@@ -96,17 +87,17 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Services {
 		/// <param name="createInfo">The cvar's creation info.</param>
 		/// <returns></returns>
 		public ICVar<T> Register<T>( CVarCreateInfo<T> createInfo ) {
-			if ( Cvars.TryGetValue( createInfo.Name, out ICVar? var ) ) {
+			if ( _cvars.TryGetValue( createInfo.Name, out ICVar? var ) ) {
 				if ( var is ICVar<T> value ) {
 					return value;
 				}
 				throw new InvalidOperationException( $"CVar {createInfo.Name} found in CVarSystem cache isn't a valid CVar object!" );
 			}
 
-			ICVar<T> cvar = new CVar<T>( this, EventBus, createInfo );
-			Cvars.TryAdd( createInfo.Name, cvar );
+			ICVar<T> cvar = new CVar<T>( _eventBus, in createInfo );
+			_cvars.TryAdd( createInfo.Name, cvar );
 
-			Logger?.PrintLine( $"CVarSystem.Register: registered CVar '{createInfo.Name}' with default value {createInfo.DefaultValue} and flags {createInfo.Flags}." );
+			_logger.PrintLine( $"CVarSystem.Register: registered CVar '{createInfo.Name}' with default value {createInfo.DefaultValue} and flags {createInfo.Flags}." );
 
 			return cvar;
 		}
@@ -120,31 +111,14 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Services {
 		/// Removes the given CVar from the cache.
 		/// </summary>
 		/// <param name="cvar">The cvar to remove</param>
-		public void Unregister( in ICVar? cvar ) {
+		public void Unregister( in ICVar cvar ) {
 			ArgumentNullException.ThrowIfNull( cvar );
 
 			try {
-				Cvars.TryRemove( new KeyValuePair<string, ICVar>( cvar.Name, cvar ) );
+				_cvars.TryRemove( new KeyValuePair<string, ICVar>( cvar.Name, cvar ) );
 			} catch ( Exception e ) {
-				Logger?.PrintError( $"CVarSystem.RemoveCVar: error removing cached CVar {cvar.Name} - {e.Message}" );
+				_logger.PrintError( $"CVarSystem.RemoveCVar: error removing cached CVar {cvar.Name} - {e.Message}" );
 			}
-		}
-
-		/*
-		===============
-		GetCVar
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="name"></param>
-		/// <returns></returns>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public ICVar? GetCVar<T>( string? name ) {
-			ArgumentException.ThrowIfNullOrEmpty( name );
-
-			return Cvars.TryGetValue( name, out ICVar? cvar ) ? cvar as CVar<T> : null;
 		}
 
 		/*
@@ -160,12 +134,12 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Services {
 		public void AddGroup( in CVarGroup? group ) {
 			ArgumentNullException.ThrowIfNull( group );
 
-			if ( Groups.Contains( group ) ) {
+			if ( _groups.Contains( group ) ) {
 				throw new InvalidOperationException( $"CVarGroup {group.Name} added twice" );
 			}
-			Groups.Add( group );
+			_groups.Add( group );
 
-			Logger?.PrintLine( $"CVarSystem.AddGroup: Added CVar group {group.Name}." );
+			_logger.PrintLine( $"CVarSystem.AddGroup: Added CVar group {group.Name}." );
 		}
 
 		/*
@@ -181,7 +155,7 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Services {
 		public ICVar? Find( string? name ) {
 			ArgumentException.ThrowIfNullOrEmpty( name );
 
-			return Cvars.TryGetValue( name, out ICVar? cvar ) ? cvar : null;
+			return _cvars.TryGetValue( name, out ICVar? cvar ) ? cvar : null;
 		}
 
 		/*
@@ -199,7 +173,7 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Services {
 		public bool TryFind<T>( string? name, out CVar<T>? cvar ) {
 			ArgumentException.ThrowIfNullOrEmpty( name );
 
-			if ( Cvars.TryGetValue( name, out ICVar? var ) && var is CVar<T> typedVar ) {
+			if ( _cvars.TryGetValue( name, out ICVar? var ) && var is CVar<T> typedVar ) {
 				cvar = typedVar;
 				return true;
 			}
@@ -219,11 +193,11 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Services {
 		/// <param name="configFile">The file to write .ini values tos</param>
 		public void Save( string? configFile ) {
 			ArgumentException.ThrowIfNullOrEmpty( configFile );
-			ArgumentNullException.ThrowIfNull( Cvars );
+			ArgumentNullException.ThrowIfNull( _cvars );
 
 			// ensure we block all access
-			lock ( Cvars ) {
-				ConfigFileWriter writer = new ConfigFileWriter( configFile, Groups );
+			lock ( _cvars ) {
+				ConfigFileWriter writer = new ConfigFileWriter( configFile, _groups );
 			}
 		}
 
@@ -240,18 +214,18 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Services {
 			ArgumentException.ThrowIfNullOrEmpty( configFile );
 
 			// make sure we actually have something to load
-			if ( Cvars == null || Cvars.IsEmpty ) {
-				Logger?.PrintLine( "CVarSystem.Load: no cvars yet." );
+			if ( _cvars == null || _cvars.IsEmpty ) {
+				_logger?.PrintLine( "CVarSystem.Load: no cvars yet." );
 				return;
 			}
 
 			// ensure we block all access
-			lock ( Cvars ) {
-				ConfigFileReader reader = new ConfigFileReader( configFile );
+			lock ( _cvars ) {
+				ConfigFileReader reader = new ConfigFileReader( _logger, configFile );
 
-				foreach ( var group in Groups ) {
+				foreach ( var group in _groups ) {
 					foreach ( var cvar in group.Cvars ) {
-						ICVar var = Cvars[ cvar ];
+						ICVar var = _cvars[ cvar ];
 						if ( reader.TryGetValue( cvar, out string? value ) ) {
 							ArgumentException.ThrowIfNullOrEmpty( value );
 
@@ -272,30 +246,7 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Services {
 		/// </summary>
 		/// <returns></returns>
 		public ICVar[] GetCVars() {
-			return [ .. Cvars.Values ];
-		}
-
-		/*
-		===============
-		GetCVarsWithValueType
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <returns></returns>
-		public ICVar[] GetCVarsWithValueType<T>() {
-			List<ICVar> cvars = new List<ICVar>();
-			Type type = typeof( T );
-
-			foreach ( var cvar in Cvars ) {
-				if ( cvar.Value.ValueType == type ) {
-					cvars.Add( cvar.Value );
-				}
-			}
-
-			return [ .. cvars ];
+			return [ .. _cvars.Values ];
 		}
 
 		/*
@@ -308,9 +259,18 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Services {
 		/// </summary>
 		/// <param name="groupName"></param>
 		/// <returns></returns>
-		public ICVar[] GetCVarsInGroup( string? groupName ) {
-			List<ICVar> cvars = new List<ICVar>();
+		public ICVar[]? GetCVarsInGroup( string groupName ) {
+			if ( !GetCVarGroup( groupName, out CVarGroup? group ) ) {
+				return null;
+			}
+			ArgumentNullException.ThrowIfNull( group );
 
+			List<ICVar> cvars = new List<ICVar>();
+			foreach ( var cvarName in group.Cvars ) {
+				if ( _cvars.TryGetValue( cvarName, out var cvar ) ) {
+					cvars.Add( cvar );
+				}
+			}
 			return [ .. cvars ];
 		}
 
@@ -324,8 +284,15 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Services {
 		/// </summary>
 		/// <param name="groupName"></param>
 		/// <returns></returns>
-		public bool GroupExists( string? groupName ) {
-			throw new NotImplementedException();
+		public bool GroupExists( string groupName ) {
+			ArgumentException.ThrowIfNullOrEmpty( groupName );
+
+			foreach ( var group in _groups ) {
+				if ( string.Equals( group.Name, groupName ) ) {
+					return true;
+				}
+			}
+			return false;
 		}
 
 		/*
@@ -337,24 +304,100 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Services {
 		/// 
 		/// </summary>
 		public void Restart() {
-			throw new NotImplementedException();
+			_logger.PrintLine( "CVarSystem.Restart: resetting all cvars..." );
+			foreach ( var cvar in _cvars ) {
+				cvar.Value.Reset();
+			}
 		}
 
+		/*
+		===============
+		CVarExists
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="name"></param>
+		/// <returns></returns>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public bool CVarExists( string? name ) {
-			throw new NotImplementedException();
+			ArgumentException.ThrowIfNullOrEmpty( name );
+			return _cvars.ContainsKey( name );
 		}
 
-		ICVar<T>? ICVarSystemService.GetCVar<T>( string? name ) {
-			throw new NotImplementedException();
+		/*
+		===============
+		GetCVar
+		===============
+		*/
+		public ICVar<T>? GetCVar<T>( string? name ) {
+			ArgumentException.ThrowIfNullOrEmpty( name );
+
+			if ( !_cvars.TryGetValue( name, out var cvar ) ) {
+				_logger.PrintError( $"CVarSystem.GetCVar: no cvar found for name '{name}'!" );
+				return null;
+			}
+			return cvar is ICVar<T> typedVar ? typedVar : throw new InvalidCastException( $"CVar '{name}' value type isn't '{typeof( T )}'" );
 		}
 
-		public ICVar GetCVar( string? name ) {
-			throw new NotImplementedException();
+		/*
+		===============
+		GetCVar
+		===============
+		*/
+		public ICVar? GetCVar( string? name ) {
+			ArgumentException.ThrowIfNullOrEmpty( name );
+
+			if ( !_cvars.TryGetValue( name, out var cvar ) ) {
+				_logger.PrintError( $"CVarSystem.GetCVar: no cvar found for name '{name}'!" );
+				return null;
+			}
+			return cvar;
 		}
 
-		ICVar<T>[] ICVarSystemService.GetCVarsWithValueType<T>() {
-			throw new NotImplementedException();
+		/*
+		===============
+		GetCVarsWithValueType
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		public ICVar<T>[] GetCVarsWithValueType<T>() {
+			List<ICVar<T>> cvars = new List<ICVar<T>>();
+
+			foreach ( var cvar in _cvars ) {
+				if ( cvar.Value is ICVar<T> typedVar ) {
+					cvars.Add( typedVar );
+				}
+			}
+
+			return [ .. cvars ];
 		}
 
+		/*
+		===============
+		GetCVarGroup
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="name"></param>
+		/// <param name="group"></param>
+		/// <returns></returns>
+		private bool GetCVarGroup( string name, out CVarGroup? group ) {
+			group = null;
+			foreach ( var value in _groups ) {
+				if ( string.Equals( value.Name, name ) ) {
+					group = value;
+					return true;
+				}
+			}
+			return false;
+		}
 	};
 };

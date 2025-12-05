@@ -48,13 +48,14 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Infrastructure {
 		/// <summary>
 		/// 
 		/// </summary>
+		/// <param name="logger"></param>
 		/// <param name="configFile"></param>
-		public ConfigFileReader( string? configFile ) {
+		public ConfigFileReader( ILoggerService logger, string? configFile ) {
 			ArgumentException.ThrowIfNullOrEmpty( configFile );
 
 			ServiceRegistry.Get<ILoggerService>()?.PrintLine( $"Loading configuration file {configFile}..." );
 
-			Loader = new IniLoader( configFile );
+			Loader = new IniLoader( configFile, logger );
 		}
 
 		/*

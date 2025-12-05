@@ -38,8 +38,8 @@ namespace NomadCore.Interfaces.ConsoleSystem {
 	/// </summary>
 	
 	public interface ICVar {
-		public string? Name { get; }
-		public string? Description { get; }
+		public string Name { get; }
+		public string Description { get; }
 		public CVarType Type { get; }
 		public CVarFlags Flags { get; }
 

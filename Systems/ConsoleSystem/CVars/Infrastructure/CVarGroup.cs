@@ -42,8 +42,8 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Infrastructure {
 		public readonly string Name = name;
 		public readonly HashSet<string> Cvars = new HashSet<string>();
 
-		private readonly ILoggerService Logger = ServiceRegistry.Get<ILoggerService>();
-		private readonly ICVarSystemService CVarSystem = ServiceRegistry.Get<ICVarSystemService>();
+		private readonly ILoggerService _logger = ServiceRegistry.Get<ILoggerService>();
+		private readonly ICVarSystemService _cvarSystem = ServiceRegistry.Get<ICVarSystemService>();
 
 		/*
 		===============
@@ -57,10 +57,10 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Infrastructure {
 		public void Add( string? name ) {
 			ArgumentException.ThrowIfNullOrEmpty( name );
 
-			if ( !CVarSystem.CVarExists( name ) ) {
-				Logger?.PrintError( $"CVarGroup.Add: cvar '{name}' doesn't exist" );
+			if ( !_cvarSystem.CVarExists( name ) ) {
+				_logger.PrintError( $"CVarGroup.Add: cvar '{name}' doesn't exist" );
 			} else if ( !Cvars.Add( name ) ) {
-				Logger?.PrintError( $"CVarGroup.Add: cvar '{name}' already added to group '{Name}'" );
+				_logger.PrintError( $"CVarGroup.Add: cvar '{name}' already added to group '{Name}'" );
 			}
 		}
 	};

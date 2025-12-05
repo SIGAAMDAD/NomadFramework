@@ -38,23 +38,23 @@ namespace NomadCore.Abstractions.Services {
 	/// </summary>
 	
 	public interface ICVarSystemService : IGameService {
-		public void Register( in ICVar? cvar );
+		public void Register( in ICVar cvar );
 		public ICVar<T> Register<T>( CVarCreateInfo<T> createInfo );
-		public void Unregister( in ICVar? cvar );
+		public void Unregister( in ICVar cvar );
 
 		public bool CVarExists( string? name );
 
-		public ICVar<T>? GetCVar<T>( string? name );
-		public ICVar GetCVar( string? name );
-		public ICVar[] GetCVars();
-		public ICVar<T>[] GetCVarsWithValueType<T>();
-		public ICVar[] GetCVarsInGroup( string? groupName );
+		public ICVar<T>? GetCVar<T>( string name );
+		public ICVar? GetCVar( string name );
+		public ICVar[]? GetCVars();
+		public ICVar<T>[]? GetCVarsWithValueType<T>();
+		public ICVar[]? GetCVarsInGroup( string groupName );
 
-		public bool GroupExists( string? groupName );
+		public bool GroupExists( string groupName );
 
 		public void Restart();
 
-		public void Load( string? configFile );
-		public void Save( string? configFile );
+		public void Load( string configFile );
+		public void Save( string configFile );
 	};
 };
