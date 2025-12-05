@@ -25,7 +25,10 @@ using Godot;
 using NomadCore.Abstractions.Services;
 using NomadCore.Enums.Audio;
 using NomadCore.Infrastructure;
+using NomadCore.Infrastructure.Events;
 using NomadCore.Interfaces.Audio;
+using NomadCore.Systems.Audio.Common.Events;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace NomadCore.Systems.Audio.Infrastructure.Godot {
@@ -42,6 +45,11 @@ namespace NomadCore.Systems.Audio.Infrastructure.Godot {
 	
 	internal sealed class GodotAudioSource : AudioSourceBase {
 		private readonly AudioStreamPlayer _streamNode;
+		private readonly List<AudioStreamPlayback> _streamPlaybacks = new List<AudioStreamPlayback>();
+		private AudioServer.PlaybackType _playbackType = AudioServer.PlaybackType.Default;
+
+		public readonly StreamFinished StreamFinished = new StreamFinished();
+
 
 		public GodotAudioSource( SourceType type )
 			: base( type )
@@ -85,6 +93,20 @@ namespace NomadCore.Systems.Audio.Infrastructure.Godot {
 			base.Stop();
 
 			_streamNode.Stop();
+		}
+
+		public void Update( float deltaTime ) {
+			int removed = 0;
+			for ( int i = 0; i < _streamPlaybacks.Count; i++ ) {
+				AudioStreamPlayback playback = _streamPlaybacks[ i ];
+				if ( RefCounted.IsInstanceValid( playback ) && !playback.IsPlaying() ) {
+					_streamPlaybacks.RemoveAt( i );
+					removed++;
+				}
+			}
+			if ( removed > 0 ) {
+				Finished.Publish( new AudioStreamFinished() );
+			}
 		}
 
 		/*

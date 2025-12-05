@@ -103,19 +103,5 @@ namespace NomadCore.Infrastructure {
 		public static bool HasService<T>() where T : IGameService {
 			return Services.ContainsKey( typeof( T ) );
 		}
-
-		/*
-		===============
-		InitializeAll
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		public static void InitializeAll() {
-			foreach ( var service in Services ) {
-				service.Value.Initialize();
-			}
-		}
 	};
 };

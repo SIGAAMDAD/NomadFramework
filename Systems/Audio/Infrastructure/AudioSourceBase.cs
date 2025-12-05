@@ -31,7 +31,6 @@ using NomadCore.Interfaces.ConsoleSystem;
 using NomadCore.Interfaces.EventSystem;
 using System;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices.Marshalling;
 
 namespace NomadCore.Systems.Audio.Infrastructure {
 	/*

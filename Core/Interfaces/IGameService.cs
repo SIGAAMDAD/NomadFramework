@@ -23,7 +23,5 @@ terms, you may contact me via email at nyvantil@gmail.com.
 
 namespace NomadCore.Interfaces {
 	public interface IGameService {
-		public void Initialize();
-		public void Shutdown();
 	};
 };

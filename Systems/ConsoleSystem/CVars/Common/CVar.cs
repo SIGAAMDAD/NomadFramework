@@ -55,11 +55,6 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Common {
 			private readonly T _value = value;
 		};
 
-		public T TypedValue {
-			get => _value;
-			set => Value = value;
-		}
-
 		/// <summary>
 		/// The current value of the CVar.
 		/// </summary>
@@ -131,7 +126,7 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Common {
 		/// <summary>
 		/// Validator function for custom validation
 		/// </summary>
-		private readonly Func<T, bool>? Validator;
+		private readonly Func<T, bool>? _validator;
 
 		/*
 		===============
@@ -141,14 +136,11 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Common {
 		/// <summary>
 		/// Constructs a cvar
 		/// </summary>
-		/// <param name="cvarSystem"></param>
 		/// <param name="createInfo"></param>
 		/// <exception cref="ArgumentException">Thrown if <paramref name="name"/> is invalid as a CVar name</exception>
 		/// <exception cref="InvalidOperationException">Thrown if <paramref name="defaultValue"/> is an invalid CVar value type</exception>
-		internal CVar( ICVarSystemService? cvarSystem, IGameEventBusService? eventBus, in CVarCreateInfo<T> createInfo ) {
-			if ( !( typeof( T ) == typeof( int ) || typeof( T ) == typeof( bool ) || typeof( T ).IsEnum
-				|| typeof( T ) == typeof( string ) || typeof( T ) == typeof( float ) ) )
-			{
+		internal CVar( IGameEventBusService eventBus, in CVarCreateInfo<T> createInfo ) {
+			if ( !IsValidCVarType( typeof( T ) ) ) {
 				throw new InvalidCastException( nameof( T ) );
 			}
 
@@ -167,16 +159,8 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Common {
 			_type = DetermineType( Value );
 			_valueChanged = eventBus.CreateEvent<ICVarValueChangedEventData<T>>( nameof( ValueChanged ) );
 
-			Validator = createInfo.Validator;
+			_validator = createInfo.Validator;
 			Description = createInfo.Description ?? String.Empty;
-		}
-
-		/*
-		===============
-		Register
-		===============
-		*/
-		public void Register() {
 		}
 
 		/*
@@ -189,7 +173,7 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Common {
 		/// </summary>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void Reset() {
-			Value = DefaultValue;
+			Value = _defaultValue;
 		}
 
 		/*
@@ -236,7 +220,7 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Common {
 		/// <returns>The <see cref="Value"/> in string format.</returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public string GetStringValue() {
-			return TypedValue?.ToString() ?? "";
+			return Value?.ToString() ?? String.Empty;
 		}
 
 		/*
@@ -301,6 +285,22 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Common {
 
 		/*
 		===============
+		GetValue
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <typeparam name="T1"></typeparam>
+		/// <returns></returns>
+		/// <exception cref="NotImplementedException"></exception>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public T1 GetValue<T1>() {
+			throw new NotImplementedException();
+		}
+
+		/*
+		===============
 		operator T
 		===============
 		*/
@@ -325,7 +325,7 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Common {
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		private bool ValidateValue( T value ) {
-			return Validator == null || Validator.Invoke( value );
+			return _validator == null || _validator.Invoke( value );
 		}
 
 		/*
@@ -462,6 +462,21 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Common {
 				return CVarType.Boolean;
 			}
 			return CVarType.Count;
+		}
+
+		/*
+		===============
+		IsValidCVarType
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="type"></param>
+		/// <returns></returns>
+		private static bool IsValidCVarType( Type type ) {
+			return type == typeof( int ) || type == typeof( uint ) || type == typeof( float )
+				|| type == typeof( string ) || type == typeof( bool ) || type.IsEnum;
 		}
 	};
 };

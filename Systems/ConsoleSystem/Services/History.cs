@@ -32,6 +32,7 @@ using System.Linq;
 using NomadCore.Systems.ConsoleSystem.Interfaces;
 using NomadCore.Infrastructure;
 using NomadCore.Systems.ConsoleSystem.CVars.Common;
+using NomadCore.Utilities;
 
 namespace NomadCore.Systems.ConsoleSystem {
 	/*
@@ -46,12 +47,12 @@ namespace NomadCore.Systems.ConsoleSystem {
 	/// </summary>
 
 	internal sealed class History : IHistory {
-		private static readonly string CONSOLE_HISTORY_FILE = "user://history.txt";
+		private const string CONSOLE_HISTORY_FILE = "user://history.txt";
 		private const int CONSOLE_HISTORY_MAX = 32;
 
-		private readonly Queue<string> ConsoleHistory = new Queue<string>();
-		private readonly string HistoryPath;
-		private int HistoryIndex = 0;
+		private readonly Queue<string> _consoleHistory = new Queue<string>();
+		private readonly FilePath _historyPath;
+		private int _historyIndex = 0;
 
 		public IGameEvent<HistoryPrevEventData> HistoryPrev => _historyPrev;
 		private readonly IGameEvent<HistoryPrevEventData> _historyPrev;
@@ -59,7 +60,7 @@ namespace NomadCore.Systems.ConsoleSystem {
 		public IGameEvent<HistoryNextEventData> HistoryNext => _historyNext;
 		private readonly IGameEvent<HistoryNextEventData> _historyNext;
 
-		private readonly ILoggerService Logger;
+		private readonly ILoggerService _logger;
 
 		/*
 		===============
@@ -70,15 +71,16 @@ namespace NomadCore.Systems.ConsoleSystem {
 		/// 
 		/// </summary>
 		/// <param name="builder"></param>
+		/// <param name="logger"></param>
 		/// <param name="eventBus"></param>
-		/// <param name="console"></param>
 		/// <param name="events"></param>
-		public History( ICommandBuilder? builder, IGameEventBusService? eventBus, IConsoleEvents? events ) {
+		public History( ICommandBuilder builder, ILoggerService logger, IGameEventBusService eventBus, IConsoleEvents events ) {
 			ArgumentNullException.ThrowIfNull( builder );
 			ArgumentNullException.ThrowIfNull( eventBus );
 			ArgumentNullException.ThrowIfNull( events );
+			ArgumentNullException.ThrowIfNull( logger );
 
-			Logger = ServiceRegistry.Get<ILoggerService>();
+			_logger = logger;
 
 			builder.TextEntered.Subscribe( this, OnTextEntered );
 
@@ -88,7 +90,7 @@ namespace NomadCore.Systems.ConsoleSystem {
 			_historyPrev = eventBus.CreateEvent<HistoryPrevEventData>( nameof( HistoryPrev ) );
 			_historyNext = eventBus.CreateEvent<HistoryNextEventData>( nameof( HistoryNext ) );
 
-			HistoryPath = ProjectSettings.GlobalizePath( CONSOLE_HISTORY_FILE );
+			_historyPath = new FilePath( CONSOLE_HISTORY_FILE, NomadCore.Enums.PathType.User );
 
 			LoadHistory();
 		}
@@ -102,9 +104,9 @@ namespace NomadCore.Systems.ConsoleSystem {
 		/// Clears the console history buffer and deletes the history file.
 		/// </summary>
 		public void Clear() {
-			ConsoleHistory.Clear();
-			HistoryIndex = 0;
-			File.Delete( HistoryPath );
+			_consoleHistory.Clear();
+			_historyIndex = 0;
+			File.Delete( _historyPath.OSPath );
 		}
 
 		/*
@@ -130,14 +132,15 @@ namespace NomadCore.Systems.ConsoleSystem {
 		/// Saves the console history list to <see cref="CONSOLE_HISTORY_FILE"/>.
 		/// </summary>
 		private void SaveHistory() {
-			Logger?.PrintLine( "History.SaveHistory: writing command line history to disk..." );
+			_logger?.PrintLine( "History.SaveHistory: writing command line history to disk..." );
 			try {
-				using StreamWriter writer = new StreamWriter( HistoryPath );
-				foreach ( var history in ConsoleHistory ) {
+				using StreamWriter writer = new StreamWriter( _historyPath.OSPath );
+				foreach ( var history in _consoleHistory ) {
 					writer.WriteLine( history );
 				}
 			} catch ( Exception e ) {
-				Logger?.PrintError( $"History.SaveHistory: couldn't write console command history data to file '{HistoryPath}'! Exception: {e}" );
+				_logger?.PrintError( $"History.SaveHistory: couldn't write console command history data to file '{_historyPath}'! Exception: {e}" );
+				throw;
 			}
 		}
 
@@ -150,10 +153,10 @@ namespace NomadCore.Systems.ConsoleSystem {
 		/// 
 		/// </summary>
 		private void OnHistoryPrev( in IGameEvent eventData, in IEventArgs args ) {
-			if ( HistoryIndex > 0 ) {
-				HistoryIndex--;
-				if ( HistoryIndex >= 0 ) {
-					HistoryPrev.Publish( new HistoryPrevEventData( ConsoleHistory.ElementAt( HistoryIndex ) ) );
+			if ( _historyIndex > 0 ) {
+				_historyIndex--;
+				if ( _historyIndex >= 0 ) {
+					HistoryPrev.Publish( new HistoryPrevEventData( _consoleHistory.ElementAt( _historyIndex ) ) );
 				}
 			}
 		}
@@ -167,9 +170,9 @@ namespace NomadCore.Systems.ConsoleSystem {
 		/// 
 		/// </summary>
 		private void OnHistoryNext( in IGameEvent eventData, in IEventArgs args ) {
-			if ( HistoryIndex < ConsoleHistory.Count ) {
-				HistoryIndex++;
-				HistoryNext.Publish( new HistoryNextEventData( HistoryIndex < ConsoleHistory.Count, ConsoleHistory.ElementAt( HistoryIndex ) ) );
+			if ( _historyIndex < _consoleHistory.Count ) {
+				_historyIndex++;
+				HistoryNext.Publish( new HistoryNextEventData( _historyIndex < _consoleHistory.Count, _consoleHistory.ElementAt( _historyIndex ) ) );
 			}
 		}
 
@@ -200,11 +203,11 @@ namespace NomadCore.Systems.ConsoleSystem {
 		/// </summary>
 		/// <param name="text"></param>
 		private void AddInputHistory( string text ) {
-			if ( ConsoleHistory.Count >= CONSOLE_HISTORY_MAX ) {
-				ConsoleHistory.Dequeue();
+			if ( _consoleHistory.Count >= CONSOLE_HISTORY_MAX ) {
+				_consoleHistory.Dequeue();
 			}
-			ConsoleHistory.Enqueue( text );
-			HistoryIndex = ConsoleHistory.Count;
+			_consoleHistory.Enqueue( text );
+			_historyIndex = _consoleHistory.Count;
 		}
 	};
 };

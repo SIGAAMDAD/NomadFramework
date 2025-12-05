@@ -43,20 +43,20 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure.Sinks {
 	/// 
 	/// </summary>
 
-	public sealed class FileSink : SinkBase {
-		private readonly System.IO.StreamWriter? Writer = null;
+	internal sealed class FileSink : SinkBase {
+		private readonly System.IO.StreamWriter? _writer = null;
 
 		/*
 		===============
 		FileSink
 		===============
 		*/
-		public FileSink() {
-			ICVar<string> logfile = ServiceRegistry.Get<ICVarSystemService>().Register(
+		public FileSink( ICVarSystemService cvarSystem ) {
+			ICVar<string> logfile = cvarSystem.Register(
 				new CVarCreateInfo<string>(
 					name: "console.LogFile",
 					defaultValue: "user://debug.log",
-					description: "",
+					description: "The path to the console's logging file.",
 					flags: CVarFlags.Archive | CVarFlags.Developer,
 					validator: ( file ) => file.Length > 0
 				)
@@ -64,11 +64,13 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure.Sinks {
 
 			try {
 				using System.IO.FileStream stream = new System.IO.FileStream( logfile.Value, System.IO.FileMode.CreateNew, System.IO.FileAccess.Write );
-				Writer = new System.IO.StreamWriter( stream );
+				_writer = new System.IO.StreamWriter( stream );
 			} catch ( Exception e ) {
-				Writer?.Close();
+				_writer?.Close();
 				GD.PrintErr( $"FileSink: failed to create log file {logfile.Value} - {e.Message}" );
+				throw;
 			}
+			GD.Print( "Sucessfully opened logfile." );
 		}
 
 		/*
@@ -82,7 +84,7 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure.Sinks {
 		/// <param name="message"></param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public override void Print( string message ) {
-			Writer?.WriteAsync( message );
+			_writer?.WriteAsync( message );
 		}
 
 		/*
@@ -94,7 +96,7 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure.Sinks {
 		/// Clears the file stream.
 		/// </summary>
 		public override void Clear() {
-			Writer?.BaseStream.SetLength( 0 );
+			_writer?.BaseStream.SetLength( 0 );
 		}
 
 		/*
@@ -106,7 +108,7 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure.Sinks {
 		/// Flushes the contents of the stream writer to the logfile.
 		/// </summary>
 		public override void Flush() {
-			Writer?.Flush();
+			_writer?.Flush();
 		}
 	};
 };

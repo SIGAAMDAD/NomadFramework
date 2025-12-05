@@ -28,7 +28,6 @@ using NomadCore.Interfaces.EventSystem;
 using NomadCore.Systems.EventSystem.Common;
 using NomadCore.Systems.EventSystem.Infrastructure;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -84,45 +83,23 @@ namespace NomadCore.Systems.EventSystem.Services {
 		/// <summary>
 		/// The collection/container for all events
 		/// </summary>
-		private readonly ConcurrentDictionary<IGameEvent, EventSubscriptionSet> EventCache = new ConcurrentDictionary<IGameEvent, EventSubscriptionSet>();
+		private readonly ConditionalWeakTable<IGameEvent, EventSubscriptionSet> _eventCache = new();
 
 		/// <summary>
 		/// The container for all scene based events
 		/// </summary>
-		private readonly ConcurrentDictionary<object, HashSet<IGameEvent>> SubscriberToEvents = new ConcurrentDictionary<object, HashSet<IGameEvent>>();
+		private readonly ConditionalWeakTable<object, HashSet<IGameEvent>> _subscriberToEvents = new();
 
 		/// <summary>
 		/// 
 		/// </summary>
-		private readonly ConcurrentDictionary<GodotObject, List<ConnectionInfo>> GodotConnections = new ConcurrentDictionary<GodotObject, List<ConnectionInfo>>();
+		private readonly ConditionalWeakTable<GodotObject, List<ConnectionInfo>> _godotConnections = new();
 
 		/// <summary>
 		/// 
 		/// </summary>
-		private readonly Func<IGameEvent, EventSubscriptionSet> SubscriptionSetFactory = new Func<IGameEvent, EventSubscriptionSet>( ( e ) => new EventSubscriptionSet( e ) );
-		private readonly Func<object, HashSet<IGameEvent>> HashSetFactory = new Func<object, HashSet<IGameEvent>>( ( s ) => new HashSet<IGameEvent>() );
-
-		/*
-		===============
-		Initialize
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		public void Initialize() {
-		}
-
-		/*
-		===============
-		Shutdown
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		public void Shutdown() {
-		}
+		private readonly Func<IGameEvent, EventSubscriptionSet> _subscriptionSetFactory = new( ( e ) => new EventSubscriptionSet( e ) );
+		private readonly Func<object, HashSet<IGameEvent>> _hashSetFactory = new( ( s ) => new HashSet<IGameEvent>() );
 
 		/*
 		===============
@@ -134,8 +111,14 @@ namespace NomadCore.Systems.EventSystem.Services {
 		/// </summary>
 		/// <param name="owner"></param>
 		/// <param name="friend"></param>
-		public static void BindEventFriend( IGameEvent? owner, IGameEvent? friend ) {
+		public void BindEventFriend( IGameEvent? owner, IGameEvent? friend ) {
 			ArgumentNullException.ThrowIfNull( owner );
+			ArgumentNullException.ThrowIfNull( friend );
+
+			if ( !_eventCache.TryGetValue( owner, out var subscriptionSet ) ) {
+				return;
+			}
+			subscriptionSet.BindEventFriend( friend );
 		}
 
 		/*
@@ -166,13 +149,7 @@ namespace NomadCore.Systems.EventSystem.Services {
 			}
 
 			string callableKey = $"{target.GetInstanceId()}:{method.Method.Name}";
-
-			if ( !GodotConnections.TryGetValue( source, out List<ConnectionInfo>? connectionList ) ) {
-				connectionList = new List<ConnectionInfo>();
-				if ( !GodotConnections.TryAdd( source, connectionList ) ) {
-
-				}
-			}
+			var connectionList = _godotConnections.GetOrAdd( source, s => new List<ConnectionInfo>() );
 			ArgumentNullException.ThrowIfNull( connectionList );
 
 			Callable callable = Callable.From( method );
@@ -212,12 +189,7 @@ namespace NomadCore.Systems.EventSystem.Services {
 				throw new InvalidOperationException( $"GodotObject {source.GetType().FullName} doesn't have signal {signalName}" );
 			}
 
-			if ( !GodotConnections.TryGetValue( source, out List<ConnectionInfo>? connectionList ) ) {
-				connectionList = new List<ConnectionInfo>();
-				if ( !GodotConnections.TryAdd( source, connectionList ) ) {
-
-				}
-			}
+			var connectionList = _godotConnections.GetOrAdd( source, s => new List<ConnectionInfo>() );
 			ArgumentNullException.ThrowIfNull( connectionList );
 			source.Connect( signalName, method.Value );
 
@@ -263,13 +235,13 @@ namespace NomadCore.Systems.EventSystem.Services {
 			ArgumentNullException.ThrowIfNull( eventHandler );
 			ArgumentNullException.ThrowIfNull( callback );
 
-			EventSubscriptionSet? subscriptionSet = EventCache.GetOrAdd( eventHandler, SubscriptionSetFactory );
+			EventSubscriptionSet? subscriptionSet = _eventCache.GetOrAdd( eventHandler, _subscriptionSetFactory );
 			ArgumentNullException.ThrowIfNull( subscriptionSet );
 
 			ServiceRegistry.Get<ILoggerService>()?.PrintLine( $"GameEventBus.Subscribe: subscribed to event '{eventHandler.Name}' with callback '{callback.Method.Name}'..." );
 			subscriptionSet.AddSubscription( subscriber, callback );
 
-			HashSet<IGameEvent>? events = SubscriberToEvents.GetOrAdd( subscriber, HashSetFactory );
+			HashSet<IGameEvent>? events = _subscriberToEvents.GetOrAdd( subscriber, _hashSetFactory );
 			ArgumentNullException.ThrowIfNull( events );
 			lock ( events ) {
 				events.Add( eventHandler );
@@ -319,14 +291,14 @@ namespace NomadCore.Systems.EventSystem.Services {
 			ArgumentNullException.ThrowIfNull( eventHandler );
 			ArgumentNullException.ThrowIfNull( callback );
 
-			if ( EventCache.TryGetValue( eventHandler, out EventSubscriptionSet? subscriptionSet ) ) {
+			if ( _eventCache.TryGetValue( eventHandler, out EventSubscriptionSet? subscriptionSet ) ) {
 				subscriptionSet.RemoveSubscription( subscriber, callback );
 
-				if ( SubscriberToEvents.TryGetValue( subscriber, out HashSet<IGameEvent>? events ) ) {
+				if ( _subscriberToEvents.TryGetValue( subscriber, out HashSet<IGameEvent>? events ) ) {
 					lock ( events ) {
 						events.Remove( eventHandler );
 						if ( events.Count == 0 ) {
-							SubscriberToEvents.TryRemove( subscriber, out _ );
+							_subscriberToEvents.Remove( subscriber, out _ );
 						}
 					}
 				}
@@ -426,16 +398,16 @@ namespace NomadCore.Systems.EventSystem.Services {
 		public void CleanupSubscriber( object? obj ) {
 			ArgumentNullException.ThrowIfNull( obj );
 
-			if ( SubscriberToEvents.TryRemove( obj, out HashSet<IGameEvent>? events ) ) {
+			if ( _subscriberToEvents.Remove( obj, out HashSet<IGameEvent>? events ) ) {
 				foreach ( var eventHandler in events ) {
-					if ( EventCache.TryGetValue( eventHandler, out var subscriptionSet ) ) {
+					if ( _eventCache.TryGetValue( eventHandler, out var subscriptionSet ) ) {
 						subscriptionSet.RemoveAllForSubscriber( obj );
 					}
 				}
 			}
 			if ( obj is GodotObject godotObject ) {
 				DisconnectAllForGodotObject( godotObject );
-				GodotConnections.TryRemove( godotObject, out _ );
+				_godotConnections.Remove( godotObject, out _ );
 			}
 		}
 
@@ -449,7 +421,7 @@ namespace NomadCore.Systems.EventSystem.Services {
 		/// </summary>
 		/// <param name="obj"></param>
 		private void DisconnectAllForGodotObject( GodotObject obj ) {
-			if ( GodotConnections.TryGetValue( obj, out List<ConnectionInfo>? connections ) ) {
+			if ( _godotConnections.TryGetValue( obj, out List<ConnectionInfo>? connections ) ) {
 				var logger = ServiceRegistry.Get<ILoggerService>();
 				for ( int i = 0; i < connections.Count; i++ ) {
 					if ( connections[ i ].Source != null ) {
@@ -461,7 +433,7 @@ namespace NomadCore.Systems.EventSystem.Services {
 						connections[ i ].Source.Disconnect( connections[ i ].SignalName, connections[ i ].Callable );
 					}
 				}
-				if ( !GodotConnections.TryRemove( new KeyValuePair<GodotObject, List<ConnectionInfo>>( obj, connections ) ) ) {
+				if ( !_godotConnections.Remove( obj ) ) {
 					logger?.PrintWarning( "GameEventBus.DisconnectAllForGodotObject: Connections.TryRemove failed!" );
 				}
 			}
@@ -473,7 +445,7 @@ namespace NomadCore.Systems.EventSystem.Services {
 		===============
 		*/
 		/// <summary>
-		/// Fetches a <see cref="EventSubscriptionSet"/> from the <see cref="EventCache"/>, if it doesn't exist, just return.
+		/// Fetches a <see cref="EventSubscriptionSet"/> from the <see cref="_eventCache"/>, if it doesn't exist, just return.
 		/// </summary>
 		/// <param name="eventHandler"></param>
 		/// <param name="subscriptionSet"></param>
@@ -482,7 +454,7 @@ namespace NomadCore.Systems.EventSystem.Services {
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		private bool GetSubscriptionSet( IGameEvent eventHandler, out EventSubscriptionSet? subscriptionSet ) {
-			return EventCache.TryGetValue( eventHandler, out subscriptionSet );
+			return _eventCache.TryGetValue( eventHandler, out subscriptionSet );
 		}
 
 		/*

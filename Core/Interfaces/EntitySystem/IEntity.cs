@@ -21,20 +21,23 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-using Godot;
 using System;
 
 namespace NomadCore.Interfaces.EntitySystem {
 	public interface IEntity : IDisposable {
 		public int Id { get; }
-		public Node2D Node { get; }
 
-		public T AddComponent<T>() where T : struct, IComponent;
+		public IPhysicsEntity PhysicsBody { get; }
+		public IRenderEntity RenderEntity { get; }
+
+		/*
+		public ref T AddComponent<T>() where T : struct, IComponent;
 		public void RemoveComponent<T>() where T : struct, IComponent;
-		public T GetComponent<T>() where T : struct, IComponent;
+		public ref T GetComponent<T>() where T : struct, IComponent;
 		public bool TryGetComponent<T>( out T? component ) where T : struct, IComponent;
 		public int GetComponentCount();
-		public T GetComponentAtIndex<T>( int index ) where T : struct, IComponent;
+		public ref T GetComponentAtIndex<T>( int index ) where T : struct, IComponent;
 		public T[] GetComponents<T>() where T : struct, IComponent;
+		*/
 	};
 };

@@ -12,7 +12,7 @@ NomadBootstrapper
 ===================================================================================
 */
 /// <summary>
-/// Use as 
+/// 
 /// </summary>
 
 public sealed partial class NomadBootstrapper : Node {
@@ -27,8 +27,9 @@ public sealed partial class NomadBootstrapper : Node {
 	public override void _Ready() {
 		base._Ready();
 		
-		IConsoleService console = ServiceRegistry.Register<IConsoleService>( new Console() );
+		ICvarSystemService cvarSystem = ServiceRegistry.Register<ICVarSystemService>( new CVarSystemService() );
 		IGameEventBusService eventBus = ServiceRegistry.Register<IGameEventBusService>( new GameEventBus() );
+		IConsoleService console = ServiceRegistry.Register<IConsoleService>( new Console( GetTree().Root, cvarSystem, eventBus ) );
 
 		ServiceRegistry.InitializeAll();
 	}

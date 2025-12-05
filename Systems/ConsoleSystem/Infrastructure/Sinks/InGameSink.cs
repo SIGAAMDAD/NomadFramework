@@ -41,7 +41,7 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure {
 	/// </summary>
 
 	public sealed class InGameSink : SinkBase {
-		private readonly RichTextLabel RichLabel;
+		private readonly RichTextLabel _richLabel;
 
 		/*
 		===============
@@ -59,8 +59,8 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure {
 			ArgumentNullException.ThrowIfNull( builder );
 			ArgumentNullException.ThrowIfNull( events );
 
-			RichLabel = new RichTextLabel() {
-				Name = nameof( RichLabel ),
+			_richLabel = new RichTextLabel() {
+				Name = nameof( _richLabel ),
 				SelectionEnabled = true,
 				ContextMenuEnabled = true,
 				BbcodeEnabled = true,
@@ -68,8 +68,8 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure {
 				AnchorRight = 1.0f,
 				AnchorBottom = 0.5f
 			};
-			RichLabel.CallDeferred( RichTextLabel.MethodName.AddThemeStyleboxOverride, "normal", new StyleBoxFlat() { BgColor = new Color( 0.0f, 0.0f, 0.0f, 0.84f ) } );
-			node.CallDeferred( Control.MethodName.AddChild, RichLabel );
+			_richLabel.CallDeferred( RichTextLabel.MethodName.AddThemeStyleboxOverride, "normal", new StyleBoxFlat() { BgColor = new Color( 0.0f, 0.0f, 0.0f, 0.84f ) } );
+			node.CallDeferred( Control.MethodName.AddChild, _richLabel );
 
 			builder.TextEntered.Subscribe( this, OnScrollToBottom );
 			events.ConsoleOpened.Subscribe( this, OnScrollToBottom );
@@ -88,7 +88,7 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure {
 		/// <param name="message"></param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public override void Print( string message ) {
-			RichLabel.CallDeferred( RichTextLabel.MethodName.AppendText, message );
+			_richLabel.CallDeferred( RichTextLabel.MethodName.AppendText, message );
 		}
 
 		/*
@@ -101,7 +101,7 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure {
 		/// </summary>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public override void Clear() {
-			RichLabel.CallDeferred( RichTextLabel.MethodName.Clear );
+			_richLabel.CallDeferred( RichTextLabel.MethodName.Clear );
 		}
 
 		/*
@@ -127,7 +127,7 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure {
 		/// <param name="eventData"></param>
 		/// <param name="args"></param>
 		private void OnScrollToBottom( in IGameEvent eventData, in IEventArgs args ) {
-			VScrollBar scroll = RichLabel.GetVScrollBar();
+			VScrollBar scroll = _richLabel.GetVScrollBar();
 			scroll.Value = scroll.MaxValue - scroll.Page;
 		}
 
@@ -142,10 +142,10 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure {
 		/// <param name="eventData"></param>
 		/// <param name="args"></param>
 		private void OnPageUp( in IGameEvent eventData, in IEventArgs args ) {
-			VScrollBar scroll = RichLabel.GetVScrollBar();
-			Tween tween = RichLabel.CreateTween();
+			VScrollBar scroll = _richLabel.GetVScrollBar();
+			Tween tween = _richLabel.CreateTween();
 			tween.TweenProperty( scroll, "value", scroll.Value - ( scroll.Page - scroll.Page * 0.1f ), 0.1f );
-			RichLabel.GetViewport().SetInputAsHandled();
+			_richLabel.GetViewport().SetInputAsHandled();
 		}
 
 		/*
@@ -159,10 +159,10 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure {
 		/// <param name="eventData"></param>
 		/// <param name="args"></param>
 		private void OnPageDown( in IGameEvent eventData, in IEventArgs args ) {
-			VScrollBar scroll = RichLabel.GetVScrollBar();
-			Tween tween = RichLabel.CreateTween();
+			VScrollBar scroll = _richLabel.GetVScrollBar();
+			Tween tween = _richLabel.CreateTween();
 			tween.TweenProperty( scroll, "value", scroll.Value + ( scroll.Page - scroll.Page * 0.1f ), 0.1f );
-			RichLabel.GetViewport().SetInputAsHandled();
+			_richLabel.GetViewport().SetInputAsHandled();
 		}
 	};
 };

@@ -27,11 +27,7 @@ using NomadCore.Infrastructure;
 using NomadCore.Interfaces.EventSystem;
 using NomadCore.Systems.EventSystem.Services;
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace NomadCore.Systems.EventSystem.Common {
 	/*
@@ -73,7 +69,11 @@ namespace NomadCore.Systems.EventSystem.Common {
 
 		public EventThreadingPolicy ThreadingPolicy => EventThreadingPolicy.MainThread;
 
-		private readonly IGameEventBusService EventBus = ServiceRegistry.Get<IGameEventBusService>();
+		internal IGameEventBusService EventBus => _eventBus;
+		private readonly IGameEventBusService _eventBus = ServiceRegistry.Get<IGameEventBusService>();
+
+		internal ILoggerService Logger => _logger;
+		protected readonly ILoggerService _logger = ServiceRegistry.Get<ILoggerService>();
 
 		/*
 		===============
@@ -89,6 +89,13 @@ namespace NomadCore.Systems.EventSystem.Common {
 			ArgumentException.ThrowIfNullOrEmpty( name );
 
 			_name = name;
+
+			if ( _logger == null ) {
+				throw new Exception( "ILoggerService must be registered before creating any GameEvents!" );
+			}
+			if ( _eventBus == null ) {
+				throw new Exception( "IGameEventBusService must be registered before creating any GameEvents!" );
+			}
 		}
 
 		/*
@@ -127,7 +134,7 @@ namespace NomadCore.Systems.EventSystem.Common {
 		/// </summary>
 		/// <param name="eventArgs"></param>
 		public void Publish( IEventArgs eventArgs ) {
-			EventBus.Publish( this, in eventArgs );
+			_eventBus.Publish( this, in eventArgs );
 		}
 
 		/*
@@ -144,7 +151,7 @@ namespace NomadCore.Systems.EventSystem.Common {
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void Subscribe( object? subscriber, IGameEvent.EventCallback? callback ) {
 			ArgumentNullException.ThrowIfNull( callback );
-			EventBus.Subscribe( subscriber, this, callback );
+			_eventBus.Subscribe( subscriber, this, callback );
 		}
 
 		/*
@@ -161,179 +168,9 @@ namespace NomadCore.Systems.EventSystem.Common {
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void Unsubscribe( object? subscriber, IGameEvent.EventCallback? callback ) {
 			ArgumentNullException.ThrowIfNull( callback );
-			EventBus.Unsubscribe( subscriber, this, callback );
+			_eventBus.Unsubscribe( subscriber, this, callback );
 		}
 
-		public virtual EventThreadingPolicy GetDefaultThreadingPolicy() => EventThreadingPolicy.MainThread;
-	};
-
-	/*
-	===================================================================================
-	
-	GameEvent<TArgs>
-	
-	===================================================================================
-	*/
-	/// <summary>
-	/// 
-	/// </summary>
-	/// <typeparam name="TArgs">The type of <see cref="TypedEventArgs"/> that'll be used with this event type.</typeparam>
-	/// <remarks>
-	/// Creates a new GameEvent object with the debugging alias of <paramref name="name"/>.
-	/// </remarks>
-	/// <param name="name">The name of the event, should be unique.</param>
-	/// <exception cref="ArgumentException">Thrown if name is null or empty.</exception>
-
-
-
-	public class GameEvent<TArgs>( string? name ) : IGameEvent<TArgs> where TArgs : IEventArgs {
-		/// <summary>
-		/// The name of the event.
-		/// </summary>
-		public string? Name => NonGenericEvent.Name;
-		public EventThreadingPolicy ThreadingPolicy => EventThreadingPolicy.MainThread;
-
-		private readonly GameEvent NonGenericEvent = new GameEvent( name );
-		private readonly ConcurrentDictionary<object, List<IGameEvent<TArgs>.GenericEventCallback>> TypedSubscriptions = new ConcurrentDictionary<object, List<IGameEvent<TArgs>.GenericEventCallback>>();
-		private readonly ConcurrentDictionary<object, List<Func<TArgs, CancellationToken, Task>>> AsyncSubscriptions = new ConcurrentDictionary<object, List<Func<TArgs, CancellationToken, Task>>>();
-
-		/*
-		===============
-		Subscribe
-		===============
-		*/
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="subscriber"></param>
-		/// <param name="callback"></param>
-		/// <exception cref="InvalidCastException"></exception>
-		public virtual void Subscribe( object? subscriber, IGameEvent<TArgs>.GenericEventCallback? callback ) {
-			ArgumentNullException.ThrowIfNull( subscriber );
-			ArgumentNullException.ThrowIfNull( callback );
-
-			var subscriptions = TypedSubscriptions.GetOrAdd( subscriber, _ => new List<IGameEvent<TArgs>.GenericEventCallback>() );
-			lock ( subscriptions ) {
-				subscriptions.Add( callback );
-			}
-
-			NonGenericEvent.Subscribe( subscriber, ( in IGameEvent eventData, in IEventArgs args ) => {
-				if ( args is TArgs typedArgs ) {
-					callback.Invoke( typedArgs );
-				} else {
-					throw new InvalidCastException( nameof( args ) );
-				}
-			} );
-		}
-
-		/*
-		===============
-		Subscribe
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="subscriber"></param>
-		/// <param name="asyncCallback"></param>
-		public void Subscribe( object? subscriber, Func<TArgs, CancellationToken, Task>? asyncCallback ) {
-			ArgumentNullException.ThrowIfNull( subscriber );
-			ArgumentNullException.ThrowIfNull( asyncCallback );
-
-			var subscriptions = AsyncSubscriptions.GetOrAdd( subscriber, _ => new List<Func<TArgs, CancellationToken, Task>>() );
-			lock ( subscriptions ) {
-				subscriptions.Add( asyncCallback );
-			}
-		}
-
-		/*
-		===============
-		Unsubscribe
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="subscriber"></param>
-		/// <param name="callback"></param>
-		public virtual void Unsubscribe( object? subscriber, IGameEvent<TArgs>.GenericEventCallback? callback ) {
-			ArgumentNullException.ThrowIfNull( subscriber );
-			ArgumentNullException.ThrowIfNull( callback );
-
-			if ( TypedSubscriptions.TryGetValue( subscriber, out List<IGameEvent<TArgs>.GenericEventCallback> subscriptions ) ) {
-				lock ( subscriptions ) {
-					subscriptions.Remove( callback );
-					if ( subscriptions.Count == 0 ) {
-						TypedSubscriptions.TryRemove( subscriber, out _ );
-					}
-				}
-			}
-			NonGenericEvent.Unsubscribe( subscriber, null );
-		}
-
-		/*
-		===============
-		Publish
-		===============
-		*/
-		public virtual void Publish( TArgs eventArgs ) {
-			NonGenericEvent.Publish( eventArgs );
-		}
-
-		/*
-		===============
-		PublishAsync
-		===============
-		*/
-		public Task PublishAsync( TArgs eventArgs, CancellationToken cancellationToken = default ) {
-			List<Task> tasks = new List<Task>();
-			return Task.WhenAll( tasks );
-		}
-
-		/*
-		===============
-		Subscribe
-		===============
-		*/
-		void IGameEvent.Subscribe( object? subscriber, IGameEvent.EventCallback? callback ) {
-			NonGenericEvent.Subscribe( subscriber, callback );
-		}
-
-		/*
-		===============
-		Unsubscribe
-		===============
-		*/
-		void IGameEvent.Unsubscribe( object? subscriber, IGameEvent.EventCallback? callback ) {
-			NonGenericEvent.Unsubscribe( subscriber, callback );
-		}
-
-		/*
-		===============
-		Publish
-		===============
-		*/
-		void IGameEvent.Publish( IEventArgs args ) {
-			NonGenericEvent.Publish( args );
-		}
-
-		/*
-		===============
-		Dispose
-		===============
-		*/
-		public virtual void Dispose() {
-			foreach ( var subscriptionList in TypedSubscriptions.Values ) {
-				subscriptionList.Clear();
-			}
-			TypedSubscriptions.Clear();
-			NonGenericEvent.Dispose();
-
-			GC.SuppressFinalize( this );
-		}
-
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public virtual EventThreadingPolicy GetDefaultThreadingPolicy() => EventThreadingPolicy.MainThread;
 	};
 };

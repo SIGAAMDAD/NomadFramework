@@ -25,7 +25,7 @@ using NomadCore.Interfaces.EventSystem;
 using System;
 using System.Runtime.CompilerServices;
 
-namespace NomadCore.Systems.EventSystem.Utilities {
+namespace NomadCore.Systems.EventSystem.Extensions {
 	/*
 	===================================================================================
 	
@@ -64,9 +64,9 @@ namespace NomadCore.Systems.EventSystem.Utilities {
 		}
 
 		private sealed class EventUnsubscriber( Action unsubscribe ) : IDisposable {
-			private readonly Action Unsubscribe = unsubscribe;
+			private readonly Action _unsubscribe = unsubscribe;
 
-			public void Dispose() => Unsubscribe?.Invoke();
+			public void Dispose() => _unsubscribe?.Invoke();
 		};
 	};
 };

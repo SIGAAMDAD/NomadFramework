@@ -25,6 +25,7 @@ using Godot;
 using Steamworks;
 using System;
 using NomadCore.Systems.Steam;
+using NomadCore.Abstractions.Services;
 
 namespace NomadCore.Systems.LobbySystem.Server {
 	/*
@@ -44,10 +45,7 @@ namespace NomadCore.Systems.LobbySystem.Server {
 		internal readonly VoiceChat ProximityChat;
 		internal readonly VoteSystem VoteSystem;
 
-		/// <summary>
-		/// The primary synchronization thread that we are handling ready commands on
-		/// </summary>
-		private System.Threading.Thread WaitThread;
+		private readonly ILoggerService _logger;
 
 		/*
 		===============
@@ -57,11 +55,13 @@ namespace NomadCore.Systems.LobbySystem.Server {
 		/// <summary>
 		/// 
 		/// </summary>
-		public ServerManager() {
+		public ServerManager( ILoggerService logger ) {
 			EntityManager = new EntityManager();
 			ProximityChat = new VoiceChat( this );
 			MessageHandler = new MessageHandler();
 			VoteSystem = new VoteSystem( this );
+
+			_logger = logger;
 		}
 
 		/*

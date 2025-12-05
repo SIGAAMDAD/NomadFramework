@@ -42,7 +42,7 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 	/// </summary>
 	
 	public sealed class CommandCacheService : ICommandService {
-		private readonly ConcurrentDictionary<string, IConsoleCommand> Commands = new ConcurrentDictionary<string, IConsoleCommand>();
+		private readonly ConcurrentDictionary<string, IConsoleCommand> _commands = new ConcurrentDictionary<string, IConsoleCommand>();
 
 		/*
 		===============
@@ -53,24 +53,8 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 			RegisterCommand( new ConsoleCommand(
 				name: "cmdlist",
 				callback: OnListCommands,
-				description: "Prints all available commands to the console."
+				description: "Prints all available _commands to the console."
 			) );
-		}
-		
-		/*
-		===============
-		Initialize
-		===============
-		*/
-		public void Initialize() {
-		}
-
-		/*
-		===============
-		Shutdown
-		===============
-		*/
-		public void Shutdown() {
 		}
 
 		/*
@@ -84,7 +68,7 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 		/// <param name="command">The command that's being added to the global cache.</param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void RegisterCommand( IConsoleCommand command ) {
-			Commands[ command.Name ] = command;
+			_commands[ command.Name ] = command;
 		}
 
 		/*
@@ -100,7 +84,7 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public IConsoleCommand GetCommand( string command ) {
 			ArgumentException.ThrowIfNullOrEmpty( command );
-			return Commands[ command ];
+			return _commands[ command ];
 		}
 
 		/*
@@ -116,7 +100,8 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public bool TryGetCommand( string name, out IConsoleCommand command ) {
-			return Commands.TryGetValue( name, out command );
+			ArgumentException.ThrowIfNullOrEmpty( name );
+			return _commands.TryGetValue( name, out command );
 		}
 
 		/*
@@ -132,22 +117,22 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public bool CommandExists( string command ) {
 			ArgumentException.ThrowIfNullOrEmpty( command );
-			return Commands.ContainsKey( command );
+			return _commands.ContainsKey( command );
 		}
 
 		/*
 		===============
-		OnListCommands
+		OnList_commands
 		===============
 		*/
 		/// <summary>
-		/// Lists all commands currently stored in <see cref="Commands"/>.
+		/// Lists all _commands currently stored in <see cref="_commands"/>.
 		/// </summary>
 		/// <param name="args"></param>
 		private void OnListCommands( in ICommandExecutedEventData args ) {
-			IConsoleCommand[] commandList = [ .. Commands.Values ];
+			IConsoleCommand[] commandList = [ .. _commands.Values ];
 			
-			var logger = ServiceRegistry.Get<ILoggerService>();
+			var logger = ServiceRegistry.Get<ILoggerService>() ?? throw new ArgumentNullException( "Logger service hasn't been instantiated!" );
 			for ( int i = 0; i < commandList.Length; i++ ) {
 				logger.PrintLine( $"{commandList[ i ].Name}: {commandList[ i ].Description}" );
 			}

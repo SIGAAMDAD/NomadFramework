@@ -38,7 +38,7 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure.Sinks {
 	/// 
 	/// </summary>
 	
-	public sealed class GodotSink : SinkBase {
+	internal sealed class GodotSink : SinkBase {
 		/*
 		===============
 		Print

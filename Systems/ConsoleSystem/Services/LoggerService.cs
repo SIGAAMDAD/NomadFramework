@@ -26,7 +26,6 @@ using NomadCore.Enums.ConsoleSystem;
 using NomadCore.Infrastructure;
 using NomadCore.Interfaces.ConsoleSystem;
 using NomadCore.Interfaces.EventSystem;
-using NomadCore.Systems.ConsoleSystem.CVars.Common;
 using NomadCore.Systems.ConsoleSystem.Events;
 using NomadCore.Systems.ConsoleSystem.Interfaces;
 using System;
@@ -44,9 +43,9 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure {
 	/// 
 	/// </summary>
 
-	public sealed class LoggerService : ILoggerService {
-		private readonly ILoggerSink[] Sinks;
-		private readonly CVar<LogLevel>? LogDepth;
+	internal sealed class LoggerService : IDisposable, ILoggerService {
+		private readonly ILoggerSink[] _sinks;
+		private readonly ICVar<LogLevel> _logDepth;
 
 		/*
 		===============
@@ -58,37 +57,27 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure {
 		/// </summary>
 		/// <param name="commandLine"></param>
 		/// <param name="sinks"></param>
-		public LoggerService( ICommandLine? commandLine, ILoggerSink[]? sinks ) {
+		public LoggerService( ICommandLine commandLine, ICommandService commandService, ICVarSystemService cvarSystem, ILoggerSink[] sinks ) {
 			ArgumentNullException.ThrowIfNull( commandLine );
 			ArgumentNullException.ThrowIfNull( sinks );
 
 			commandLine.TextEntered.Subscribe( this, OnTextEntered );
-			Sinks = sinks;
+			_sinks = sinks;
 
-			LogDepth = (CVar<LogLevel>?)ServiceRegistry.Get<ICVarSystemService>().GetCVar<LogLevel>( "console.LogLevel" );
+			_logDepth = cvarSystem.GetCVar<LogLevel>( "console.LogLevel" );
+
+			commandService.RegisterCommand( new ConsoleCommand( "clear", OnClear, "Clears the console." ) );
+			commandService.RegisterCommand( new ConsoleCommand( "echo", OnEcho, "Prints a string to the console." ) );
 		}
 
 		/*
 		===============
-		Initialize
+		Dispose
 		===============
 		*/
-		/// <summary>
-		/// Initializes the logging systems
-		/// </summary>
-		public void Initialize() {
-			ServiceRegistry.Get<ICommandService>().RegisterCommand( new ConsoleCommand( "clear", OnClear, "Clears the console." ) );
-			ServiceRegistry.Get<ICommandService>().RegisterCommand( new ConsoleCommand( "echo", OnEcho, "Prints a string to the console." ) );
-		}
-
-		/*
-		===============
-		Shutdown
-		===============
-		*/
-		public void Shutdown() {
-			for ( int i = 0; i < Sinks.Length; i++ ) {
-				Sinks[ i ].Flush();
+		public void Dispose() {
+			for ( int i = 0; i < _sinks.Length; i++ ) {
+				_sinks[ i ].Dispose();
 			}
 		}
 
@@ -103,11 +92,11 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure {
 		/// <param name="message"></param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		private void PrintMessage( LogLevel level, string message ) {
-			if ( level > LogDepth ) {
+			if ( level > _logDepth.Value ) {
 				return;
 			}
-			for ( int i = 0; i < Sinks.Length; i++ ) {
-				Sinks[ i ].Print( message );
+			for ( int i = 0; i < _sinks.Length; i++ ) {
+				_sinks[ i ].Print( message );
 			}
 		}
 
@@ -181,8 +170,8 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure {
 		/// </summary>
 		/// <param name="args"></param>
 		private void OnClear( in ICommandExecutedEventData args ) {
-			for ( int i = 0; i < Sinks.Length; i++ ) {
-				Sinks[ i ].Clear();
+			for ( int i = 0; i < _sinks.Length; i++ ) {
+				_sinks[ i ].Clear();
 			}
 		}
 

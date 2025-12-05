@@ -21,7 +21,7 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-using NomadCore.Enums;
+using System;
 
 namespace NomadCore.Systems.ConsoleSystem.Interfaces.Abstractions {
 	/*
@@ -39,5 +39,18 @@ namespace NomadCore.Systems.ConsoleSystem.Interfaces.Abstractions {
 		public abstract void Print( string message );
 		public abstract void Clear();
 		public abstract void Flush();
+
+		/*
+		===============
+		Dispose
+		===============
+		*/
+		/// <summary>
+		/// Flushes the sink.
+		/// </summary>
+		public virtual void Dispose() {
+			Flush();
+			GC.SuppressFinalize( this );
+		}
 	};
 };

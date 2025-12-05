@@ -21,8 +21,10 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
+using System;
+
 namespace NomadCore.Systems.ConsoleSystem.Interfaces {
-	public interface ILoggerSink {
+	internal interface ILoggerSink : IDisposable {
 		public void Print( string message );
 		public void Clear();
 		public void Flush();

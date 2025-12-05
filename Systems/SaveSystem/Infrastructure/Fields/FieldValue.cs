@@ -61,7 +61,7 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure.Fields {
 			[FieldOffset( 0 )] public string? String;
 		};
 
-		private static readonly IReadOnlyDictionary<Type, FieldType> SystemTypeToFieldType = new Dictionary<Type, FieldType>() {
+		private static readonly IReadOnlyDictionary<Type, FieldType> _systemTypeToFieldType = new Dictionary<Type, FieldType>() {
 			{ typeof( bool ), FieldType.Boolean },
 			{ typeof( sbyte ), FieldType.Int8 },
 			{ typeof( short ), FieldType.Int16 },
@@ -75,7 +75,7 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure.Fields {
 			{ typeof( float ), FieldType.Float },
 			{ typeof( double ), FieldType.Double }
 		};
-		private static readonly IReadOnlyDictionary<FieldType, Type> FieldTypeToSystemType = new Dictionary<FieldType, Type>() {
+		private static readonly IReadOnlyDictionary<FieldType, Type> _fieldTypeToSystemType = new Dictionary<FieldType, Type>() {
 			{ FieldType.Boolean, typeof( bool ) },
 			{ FieldType.Int8, typeof( sbyte ) },
 			{ FieldType.Int16, typeof( short ) },
@@ -90,20 +90,20 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure.Fields {
 			{ FieldType.Double, typeof( double ) }
 		};
 
-		private readonly Union Value;
+		private readonly Union _value;
 
-		public FieldValue( bool b ) => Value = new Union { Boolean = b };
-		public FieldValue( sbyte i8 ) => Value = new Union { Int8 = i8 };
-		public FieldValue( short i16 ) => Value = new Union { Int16 = i16 };
-		public FieldValue( int i32 ) => Value = new Union { Int32 = i32 };
-		public FieldValue( long i64 ) => Value = new Union { Int64 = i64 };
-		public FieldValue( byte u8 ) => Value = new Union { UInt8 = u8 };
-		public FieldValue( ushort u16 ) => Value = new Union { UInt16 = u16 };
-		public FieldValue( uint u32 ) => Value = new Union { UInt32 = u32 };
-		public FieldValue( ulong u64 ) => Value = new Union { UInt64 = u64 };
-		public FieldValue( float f32 ) => Value = new Union { Float32 = f32 };
-		public FieldValue( double f64 ) => Value = new Union { Float64 = f64 };
-		public FieldValue( string? str ) => Value = new Union { String = str };
+		public FieldValue( bool b ) => _value = new Union { Boolean = b };
+		public FieldValue( sbyte i8 ) => _value = new Union { Int8 = i8 };
+		public FieldValue( short i16 ) => _value = new Union { Int16 = i16 };
+		public FieldValue( int i32 ) => _value = new Union { Int32 = i32 };
+		public FieldValue( long i64 ) => _value = new Union { Int64 = i64 };
+		public FieldValue( byte u8 ) => _value = new Union { UInt8 = u8 };
+		public FieldValue( ushort u16 ) => _value = new Union { UInt16 = u16 };
+		public FieldValue( uint u32 ) => _value = new Union { UInt32 = u32 };
+		public FieldValue( ulong u64 ) => _value = new Union { UInt64 = u64 };
+		public FieldValue( float f32 ) => _value = new Union { Float32 = f32 };
+		public FieldValue( double f64 ) => _value = new Union { Float64 = f64 };
+		public FieldValue( string? str ) => _value = new Union { String = str };
 
 		/*
 		===============
@@ -117,18 +117,18 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure.Fields {
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public T? GetValue<T>() => typeof( T ) switch {
-			Type t when t == typeof( bool ) => (T)(object)Value.Boolean,
-			Type t when t == typeof( sbyte ) => (T)(object)Value.Int8,
-			Type t when t == typeof( short ) => (T)(object)Value.Int16,
-			Type t when t == typeof( int ) => (T)(object)Value.Int32,
-			Type t when t == typeof( long ) => (T)(object)Value.Int64,
-			Type t when t == typeof( byte ) => (T)(object)Value.UInt8,
-			Type t when t == typeof( ushort ) => (T)(object)Value.UInt16,
-			Type t when t == typeof( uint ) => (T)(object)Value.UInt32,
-			Type t when t == typeof( ulong ) => (T)(object)Value.UInt64,
-			Type t when t == typeof( string ) => (T?)(object?)Value.String,
-			Type t when t == typeof( float ) => (T)(object)Value.Float32,
-			Type t when t == typeof( double ) => (T)(object)Value.Float64,
+			Type t when t == typeof( bool ) => (T)(object)_value.Boolean,
+			Type t when t == typeof( sbyte ) => (T)(object)_value.Int8,
+			Type t when t == typeof( short ) => (T)(object)_value.Int16,
+			Type t when t == typeof( int ) => (T)(object)_value.Int32,
+			Type t when t == typeof( long ) => (T)(object)_value.Int64,
+			Type t when t == typeof( byte ) => (T)(object)_value.UInt8,
+			Type t when t == typeof( ushort ) => (T)(object)_value.UInt16,
+			Type t when t == typeof( uint ) => (T)(object)_value.UInt32,
+			Type t when t == typeof( ulong ) => (T)(object)_value.UInt64,
+			Type t when t == typeof( string ) => (T?)(object?)_value.String,
+			Type t when t == typeof( float ) => (T)(object)_value.Float32,
+			Type t when t == typeof( double ) => (T)(object)_value.Float64,
 			_ => throw new InvalidCastException( $"Field type of '{typeof( T )}' is not supported" )
 		};
 
@@ -172,7 +172,7 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure.Fields {
 		/// <exception cref="InvalidCastException"></exception>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public static Type GetFieldType( FieldType type ) =>
-			FieldTypeToSystemType.TryGetValue( type, out Type value ) ? value : throw new InvalidCastException( $"Invalid field type {type}" );
+			_fieldTypeToSystemType.TryGetValue( type, out Type value ) ? value : throw new InvalidCastException( $"Invalid field type {type}" );
 
 		/*
 		===============
@@ -186,6 +186,6 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure.Fields {
 		/// <returns></returns>
 		/// <exception cref="InvalidCastException"></exception>
 		public static FieldType GetFieldType<T>() =>
-			SystemTypeToFieldType.TryGetValue( typeof( T ), out FieldType type ) ? type : throw new InvalidCastException( $"Invalid field type {typeof( T )}" );
+			_systemTypeToFieldType.TryGetValue( typeof( T ), out FieldType type ) ? type : throw new InvalidCastException( $"Invalid field type {typeof( T )}" );
 	};
 };

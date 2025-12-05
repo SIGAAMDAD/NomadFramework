@@ -73,7 +73,7 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 		Console
 		===============
 		*/
-		public Console( Node? rootNode, IGameEventBusService? eventBus ) {
+		public Console( Node rootNode, ICVarSystemService cvarSystem, IGameEventBusService eventBus ) {
 			ArgumentNullException.ThrowIfNull( rootNode );
 			ArgumentNullException.ThrowIfNull( eventBus );
 
@@ -85,35 +85,20 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 			_pageUp = eventBus.CreateEvent( nameof( PageUp ) );
 			_pageDown = eventBus.CreateEvent( nameof( PageDown ) );
 
-			ICommandBuilder commandBuilder = new GodotCommandBuilder( eventBus, this );
-			GodotConsole console = new GodotConsole( commandBuilder, this );
+			var commandBuilder = new GodotCommandBuilder( eventBus, this );
+			var commandService = ServiceRegistry.Register<ICommandService>( new CommandCacheService() );
+			var console = new GodotConsole( commandBuilder, this );
 			var commandLine = ServiceRegistry.Register<ICommandLine>( new CommandLine( commandBuilder, this, eventBus ) );
-			ServiceRegistry.Register<ILoggerService>(
-				new LoggerService( commandLine, [
+			var logger = ServiceRegistry.Register<ILoggerService>(
+				new LoggerService( commandLine, commandService, cvarSystem, [
 					new GodotSink(),
-					new FileSink(),
+					new FileSink( cvarSystem ),
 					new InGameSink( console, commandBuilder, this )
 				] )
 			);
-			var history = new History( commandBuilder, eventBus, this );
+			var history = new History( commandBuilder, logger, eventBus, this );
 
 			rootNode.CallDeferred( Node.MethodName.AddChild, console );
-		}
-
-		/*
-		===============
-		Initialize
-		===============
-		*/
-		public void Initialize() {
-		}
-
-		/*
-		===============
-		Shutdown
-		===============
-		*/
-		public void Shutdown() {
 		}
 	};
 };

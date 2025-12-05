@@ -60,7 +60,7 @@ namespace NomadCore.Systems.LobbySystem.Server {
 			}
 		};
 
-		private static readonly Dictionary<CSteamID, ConnectionSecurity> SecurityStates = new Dictionary<CSteamID, ConnectionSecurity>();
+		private static readonly Dictionary<CSteamID, ConnectionSecurity> _securityStates = new Dictionary<CSteamID, ConnectionSecurity>();
 		private static readonly byte[] HMacKey = new byte[ 16 ];
 
 		public PacketSecurity() {
@@ -97,9 +97,9 @@ namespace NomadCore.Systems.LobbySystem.Server {
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public static bool ProcessIncomingMessage( in ReadOnlySpan<byte> data, CSteamID senderId ) {
-			if ( !SecurityStates.TryGetValue( senderId, out ConnectionSecurity state ) ) {
+			if ( !_securityStates.TryGetValue( senderId, out ConnectionSecurity state ) ) {
 				state = new ConnectionSecurity();
-				SecurityStates.Add( senderId, state );
+				_securityStates.Add( senderId, state );
 			}
 			return ExceedsLimit( ref state );
 		}

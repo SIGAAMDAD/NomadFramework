@@ -44,17 +44,16 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 	/// </summary>
 
 	internal sealed class CommandLine : ICommandLine {
-		public int ArgumentCount => CommandBuilder.ArgumentCount;
+		public int ArgumentCount => _commandBuilder.ArgumentCount;
 
-		private readonly ICommandBuilder CommandBuilder;
-		private readonly ILoggerService? Logger = ServiceRegistry.Get<ILoggerService>();
+		private readonly ICommandBuilder _commandBuilder;
 
 		//
 		// autocomplete
 		//
-		private readonly List<string> Suggestions = new List<string>();
-		private int CurrentSuggest = 0;
-		private bool Suggesting = false;
+		private readonly List<string> _suggestions = new List<string>();
+		private int _currentSuggest = 0;
+		private bool _suggesting = false;
 
 		public IGameEvent<TextEnteredEventData> TextEntered => _textEntered;
 		private readonly IGameEvent<TextEnteredEventData> _textEntered;
@@ -70,12 +69,12 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 		CommandLine
 		===============
 		*/
-		public CommandLine( ICommandBuilder? builder, IConsoleEvents? events, IGameEventBusService? eventBus ) {
+		public CommandLine( ICommandBuilder builder, IConsoleEvents events, IGameEventBusService eventBus ) {
 			ArgumentNullException.ThrowIfNull( builder );
 			ArgumentNullException.ThrowIfNull( events );
 			ArgumentNullException.ThrowIfNull( eventBus );
 
-			CommandBuilder = builder;
+			_commandBuilder = builder;
 
 			_textEntered = eventBus.CreateEvent<TextEnteredEventData>( nameof( TextEntered ) );
 			_unknownCommand = eventBus.CreateEvent<CommandExecutedEventData>( nameof( UnknownCommand ) );
@@ -84,22 +83,6 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 			events.ConsoleClosed.Subscribe( this, OnConsoleClosed );
 
 			builder.TextEntered.Subscribe( this, OnCommandExecuted );
-		}
-
-		/*
-		===============
-		Initialize
-		===============
-		*/
-		public void Initialize() {
-		}
-
-		/*
-		===============
-		Shutdown
-		===============
-		*/
-		public void Shutdown() {
 		}
 
 		/*
@@ -128,7 +111,7 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public string GetArgumentAt( int index ) {
-			return CommandBuilder.GetArgumentAt( index );
+			return _commandBuilder.GetArgumentAt( index );
 		}
 
 		/*
@@ -141,7 +124,7 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 		/// </summary>
 		/// <returns></returns>
 		public string[] GetArguments() {
-			return CommandBuilder.GetArgs();
+			return _commandBuilder.GetArgs();
 		}
 
 		/*
@@ -154,21 +137,27 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 		/// </summary>
 		/// <param name="textEntered"></param>
 		private void OnCommandExecuted( in TextEnteredEventData textEntered ) {
-			string textCommand = CommandBuilder.ArgumentCount > 0 ? CommandBuilder.GetArgumentAt( 0 ) : String.Empty;
+			string textCommand = _commandBuilder.ArgumentCount > 0 ? _commandBuilder.GetArgumentAt( 0 ) : String.Empty;
 
 			var commandCache = ServiceRegistry.Get<ICommandService>();
+			ArgumentNullException.ThrowIfNull( commandCache );
+
+			var logger = ServiceRegistry.Get<ILoggerService>();
+			ArgumentNullException.ThrowIfNull( logger );
+
 			if ( !string.IsNullOrEmpty( textCommand ) && commandCache.TryGetCommand( textCommand, out IConsoleCommand consoleCommand ) ) {
-				string[] arguments = CommandBuilder.GetArgs();
+				var arguments = _commandBuilder.GetArgs();
 
 				try {
 					consoleCommand.Callback.Invoke( new CommandExecutedEventData( consoleCommand, arguments ) );
-					TextEntered.Publish( new CommandExecutedEventData( consoleCommand, arguments ) );
+					_textEntered.Publish( new CommandExecutedEventData( consoleCommand, arguments ) );
 				} catch ( Exception ex ) {
-					Logger?.PrintError( $"Error executing command: {ex.Message}" );
+					logger.PrintError( $"CommandLine.OnCommandExecuted: error executing command - {ex.Message}" );
+					throw;
 				}
 			} else if ( !string.IsNullOrEmpty( textCommand ) ) {
-				UnknownCommand.Publish( EmptyEventArgs.Args );
-				Logger?.PrintError( "Command not found." );
+				_unknownCommand.Publish( EmptyEventArgs.Args );
+				logger.PrintWarning( $"CommandLine.OnCommandExecuted: command '{textCommand}' not found." );
 			}
 		}
 
@@ -196,9 +185,9 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 		/// </summary>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		private void ResetAutocomplete() {
-			Suggestions.Clear();
-			CurrentSuggest = 0;
-			Suggesting = false;
+			_suggestions.Clear();
+			_currentSuggest = 0;
+			_suggesting = false;
 		}
 
 		/*

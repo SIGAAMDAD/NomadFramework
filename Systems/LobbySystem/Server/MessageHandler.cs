@@ -32,6 +32,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using NomadCore.Systems.Steam;
+using NomadCore.Abstractions.Services;
 
 namespace NomadCore.Systems.LobbySystem.Server {
 	/*
@@ -46,22 +47,7 @@ namespace NomadCore.Systems.LobbySystem.Server {
 	/// </summary>
 
 	public sealed class MessageHandler {
-		[StructLayout( LayoutKind.Sequential, Pack = 1 )]
-		public readonly struct ClientDataReceivedEventData( CSteamID senderId, in ClientDataPacket packet ) : IEventArgs {
-			public readonly ulong SenderId = (ulong)senderId;
-			public readonly ClientDataPacket Packet = packet;
-		};
-		[StructLayout( LayoutKind.Sequential, Pack = 1 )]
-		public readonly struct ServerSyncReceivedEventData( CSteamID senderId, in ServerSyncPacket packet ) : IEventArgs {
-			public readonly ulong SenderId = (ulong)senderId;
-			public readonly ServerSyncPacket Packet = packet;
-		};
-		[StructLayout( LayoutKind.Sequential, Pack = 1 )]
-		public readonly struct GameStateSyncReceivedEventData( ulong senderId, int stateObjectID, System.IO.BinaryReader? packetReader ) : IEventArgs {
-			public readonly ulong SenderId = senderId;
-			public readonly System.IO.BinaryReader? PacketReader = packetReader;
-			public readonly int StateObjectID = stateObjectID;
-		};
+		
 		[StructLayout( LayoutKind.Sequential, Pack = 1 )]
 		public readonly struct ServerCommandReceivedEventData( ulong senderId, CommandType commandType ) : IEventArgs {
 			public readonly ulong SenderId = senderId;
@@ -110,13 +96,14 @@ namespace NomadCore.Systems.LobbySystem.Server {
 
 		private readonly NetworkMessageBufferPool Pool = new NetworkMessageBufferPool();
 
-		private int NetworkRunning = 0;
+		private int _networkRunning = 0;
 		private readonly System.Threading.Thread? NetworkThread;
-		private readonly object NetworkLock = new object();
 		private readonly System.IO.MemoryStream? PacketStream = null;
 		private readonly System.IO.BinaryReader? PacketReader = null;
 
-		private readonly Queue<IncomingMessage> MessageQueue = new Queue<IncomingMessage>();
+		private readonly Queue<IncomingMessage> _messageQueue = new Queue<IncomingMessage>();
+
+		private readonly ILoggerService _logger;
 
 		private readonly IntPtr[] Messages = new IntPtr[ PACKET_READ_LIMIT ];
 
@@ -132,12 +119,14 @@ namespace NomadCore.Systems.LobbySystem.Server {
 		/// <summary>
 		/// 
 		/// </summary>
-		public MessageHandler() {
-			NetworkRunning = 1;
+		public MessageHandler( ILoggerService logger ) {
+			_networkRunning = 1;
 			NetworkThread = new System.Threading.Thread( NetworkThreadProcess ) {
 				Priority = System.Threading.ThreadPriority.Highest
 			};
 			NetworkThread.Start();
+
+			_logger = logger;
 		}
 
 		/*
@@ -149,7 +138,7 @@ namespace NomadCore.Systems.LobbySystem.Server {
 		/// Cleans up any unmanaged resources and the networking thread
 		/// </summary>
 		~MessageHandler() {
-			System.Threading.Interlocked.Exchange( ref NetworkRunning, 1 );
+			System.Threading.Interlocked.Exchange( ref _networkRunning, 1 );
 			if ( NetworkThread.IsAlive ) {
 				NetworkThread.Join( 1000 );
 			}
@@ -518,7 +507,7 @@ namespace NomadCore.Systems.LobbySystem.Server {
 			const double FRAME_TIME_MS = 1000.0f / FRAME_LIMIT;
 			Stopwatch frameTimer = new Stopwatch();
 
-			while ( NetworkRunning == 1 ) {
+			while ( _networkRunning == 1 ) {
 				frameTimer.Restart();
 
 				try {

@@ -40,7 +40,7 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Infrastructure {
 	/// Loads key-value pairs from .ini files, specifically configuration files
 	/// </summary>
 
-	public sealed class IniLoader {
+	internal sealed class IniLoader {
 		private readonly IDictionary<string, string?>? IniData;
 
 		/*
@@ -52,10 +52,9 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Infrastructure {
 		/// 
 		/// </summary>
 		/// <param name="configFile"></param>
-		public IniLoader( string? configFile ) {
+		/// <param name="logger"></param>
+		public IniLoader( string? configFile, ILoggerService logger ) {
 			ArgumentException.ThrowIfNullOrEmpty( configFile );
-
-			var logger = ServiceRegistry.Get<ILoggerService>();
 
 			try {
 				using FileStream fileStream = new FileStream( configFile, FileMode.Open, FileAccess.Read );

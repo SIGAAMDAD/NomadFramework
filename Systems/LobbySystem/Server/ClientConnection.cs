@@ -27,6 +27,8 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using NomadCore.Systems.Steam;
 using System;
+using NomadCore.Abstractions.Services;
+using NomadCore.Interfaces.EventSystem;
 
 namespace NomadCore.Systems.LobbySystem.Server {
 	/*
@@ -53,7 +55,9 @@ namespace NomadCore.Systems.LobbySystem.Server {
 
 		public delegate void ProcessIncomingPacket( in ReadOnlySpan<byte> buffer, CSteamID senderId );
 
-		private SteamNetworkingIdentity Identity;
+		private SteamNetworkingIdentity _identity;
+
+		private readonly ILoggerService _logger;
 
 		/*
 		===============
@@ -63,8 +67,11 @@ namespace NomadCore.Systems.LobbySystem.Server {
 		/// <summary>
 		/// Creates a connection with all other lobby members present
 		/// </summary>
-		public ClientConnection() {
+		public ClientConnection( ILoggerService logger ) {
+			ArgumentNullException.ThrowIfNull( logger );
+
 			ConnectToLobbyMembers();
+			_logger = logger;
 
 			ConnectionManager.ConnectionStatusChanged.Subscribe( this, OnConnectionStatusChanged );
 		}
@@ -81,9 +88,9 @@ namespace NomadCore.Systems.LobbySystem.Server {
 		public void Close( string? reason = "Leaving Lobby" ) {
 			ArgumentException.ThrowIfNullOrEmpty( reason );
 
-			ConsoleSystem.Console.PrintLine( $"ClientConnection.Close: closing connection for reason of '{reason}'." );
+			_logger.PrintLine( $"ClientConnection.Close: closing connection for reason of '{reason}'." );
 			if ( !SteamNetworkingSockets.CloseConnection( Connection, 0, reason, false ) ) {
-				ConsoleSystem.Console.PrintWarning( $"ClientConnection.Close: SteamNetworkingSockets.CloseConnection returned false." );
+				_logger.PrintWarning( $"ClientConnection.Close: SteamNetworkingSockets.CloseConnection returned false." );
 			}
 		}
 
@@ -100,12 +107,10 @@ namespace NomadCore.Systems.LobbySystem.Server {
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void PollMessages( in IntPtr[] messages, ProcessIncomingPacket? callback ) {
 			int messageCount = SteamNetworkingSockets.ReceiveMessagesOnConnection( Connection, messages, messages.Length );
-			CSteamID senderId;
-			ReadOnlySpan<byte> buffer;
 
 			for ( int i = 0; i < messageCount; i++ ) {
 				try {
-					ProcessPacketBuffer( out buffer, in messages[ i ], out senderId );
+					ProcessPacketBuffer( out ReadOnlySpan<byte> buffer, in messages[ i ], out CSteamID senderId );
 					callback?.Invoke( in buffer, senderId );
 				}
 				finally {
@@ -132,10 +137,10 @@ namespace NomadCore.Systems.LobbySystem.Server {
 				// skip if already connected or connecting
 				switch ( Status ) {
 					case ConnectionStatus.Connected:
-						ConsoleSystem.Console.PrintLine( $"ClientConnection.ConnectToLobbyMembers: already connected to '{user.UserName}'" );
+						_logger.PrintLine( $"ClientConnection.ConnectToLobbyMembers: already connected to '{user.UserName}'" );
 						break;
 					case ConnectionStatus.Pending:
-						ConsoleSystem.Console.PrintLine( $"ClientConnection.ConnectToLobbyMembers: already connecting to '{user.UserName}'" );
+						_logger.PrintLine( $"ClientConnection.ConnectToLobbyMembers: already connecting to '{user.UserName}'" );
 						break;
 					case ConnectionStatus.None:
 						EstablishP2PClientConnection( in user );
@@ -173,16 +178,16 @@ namespace NomadCore.Systems.LobbySystem.Server {
 		/// </summary>
 		/// <param name="user"></param>
 		private void EstablishP2PClientConnection( in User user ) {
-			Identity = new SteamNetworkingIdentity();
-			Identity.SetSteamID( user.UserID );
+			_identity = new SteamNetworkingIdentity();
+			_identity.SetSteamID( user.UserID );
 
-			Connection = SteamNetworkingSockets.ConnectP2P( ref Identity, 0, ConnectionManager.SocketOptions.Length, ConnectionManager.SocketOptions );
+			Connection = SteamNetworkingSockets.ConnectP2P( ref _identity, 0, ConnectionManager.SocketOptions.Length, ConnectionManager.SocketOptions );
 			if ( Connection != HSteamNetConnection.Invalid ) {
 				Status = ConnectionStatus.Pending;
-				ConsoleSystem.Console.PrintLine( $"ClientConnection.ConnectToLobbyMembers: connecting to {user.UserName}." );
+				_logger.PrintLine( $"ClientConnection.ConnectToLobbyMembers: connecting to {user.UserName}." );
 			} else {
 				Status = ConnectionStatus.Disconnected;
-				ConsoleSystem.Console.PrintError( $"ClientConnection.ConnectToLobbyMembers: failed to create connection with client {user.UserName}!" );
+				_logger.PrintError( $"ClientConnection.ConnectToLobbyMembers: failed to create connection with client {user.UserName}!" );
 			}
 		}
 
@@ -199,22 +204,22 @@ namespace NomadCore.Systems.LobbySystem.Server {
 		/// <exception cref="InvalidOperationException"></exception>
 		/// <exception cref="ArgumentOutOfRangeException"></exception>
 		/// <exception cref="InvalidCastException"></exception>
-		private void OnConnectionStatusChanged( in IGameEvent? eventData, in IEventArgs? args ) {
-			if ( args is ConnectionManager.ConnectionStatusChangedEventData connection ) {
-				string remoteName = SteamFriends.GetFriendPersonaName( connection.RemoteID );
-				ConsoleSystem.Console.PrintLine( $"ClientConnection.OnConnectionStatusChanged: client '{remoteName}' connection status changed to '{connection.Status}'" );
+		private void OnConnectionStatusChanged( in ConnectionStatusChangedEventData args ) {
+			if ( args is  connection ) {
+				string remoteName = SteamFriends.GetFriendPersonaName( args.RemoteID );
+				_logger.PrintLine( $"ClientConnection.OnConnectionStatusChanged: client '{remoteName}' connection status changed to '{connection.Status}'" );
 
-				switch ( connection.Status ) {
+				switch ( args.Status ) {
 					case ConnectionStatus.Connected:
-						HandleConnectionStatusChangedConnected( connection.RemoteID, remoteName, in connection.Connection );
+						HandleConnectionStatusChangedConnected( args.RemoteID, remoteName, in args.Connection );
 						break;
 					case ConnectionStatus.Pending:
-						HandleConnectionStatusChangedConnecting( connection.RemoteID, remoteName, in connection.Connection );
+						HandleConnectionStatusChangedConnecting( args.RemoteID, remoteName, in args.Connection );
 						break;
 					case ConnectionStatus.Disconnected:
 						throw new InvalidOperationException( "ConnectionStatus.Disconnected provided but not using the proper event args!" );
 					default:
-						throw new ArgumentOutOfRangeException( nameof( connection.Status ) );
+						throw new ArgumentOutOfRangeException( nameof( args.Status ) );
 				}
 				Status = connection.Status;
 			} else if ( args is ConnectionManager.ConnectionClosedEventData closedData ) {
@@ -224,13 +229,16 @@ namespace NomadCore.Systems.LobbySystem.Server {
 			}
 		}
 
+		private void OnConnectionClosed( in ConnectionClosed ) {
+		}
+
 		/*
 		===============
 		HandleConnectionStatusChangedConnected
 		===============
 		*/
 		private void HandleConnectionStatusChangedConnected( CSteamID remoteId, string? remoteName, in HSteamNetConnection connection ) {
-			ConsoleSystem.Console.PrintLine( $"ClientConnection.HandleConnectionStatusChangedConnected: successfully connected to peer {remoteName}" );
+			_logger.PrintLine( $"ClientConnection.HandleConnectionStatusChangedConnected: successfully connected to peer {remoteName}" );
 		}
 
 		/*
@@ -247,20 +255,20 @@ namespace NomadCore.Systems.LobbySystem.Server {
 		private void HandleConnectionStatusChangedConnecting( CSteamID remoteId, string? remoteName, in HSteamNetConnection connection ) {
 			ArgumentException.ThrowIfNullOrEmpty( remoteName );
 
-			ConsoleSystem.Console.PrintLine( $"ClientConnection.HandleConnectionStatusChangedConnecting: incoming connection request from {remoteName}" );
+			_logger.PrintLine( $"ClientConnection.HandleConnectionStatusChangedConnecting: incoming connection request from {remoteName}" );
 
 			if ( Status != ConnectionStatus.Pending ) {
 				if ( SteamNetworkingSockets.AcceptConnection( connection ) == EResult.k_EResultOK ) {
 					Status = ConnectionStatus.Connected;
-					ConsoleSystem.Console.PrintLine( "ClientConnection.HandleConnectionStatusChangedConnecting: accepted incoming connection" );
+					_logger.PrintLine( "ClientConnection.HandleConnectionStatusChangedConnecting: accepted incoming connection" );
 				} else {
 					Status = ConnectionStatus.Disconnected;
-					ConsoleSystem.Console.PrintError( "ClientConnection.HandleConnectionStatusChangedConnecting: failed to accept incoming connection!" );
+					_logger.PrintError( "ClientConnection.HandleConnectionStatusChangedConnecting: failed to accept incoming connection!" );
 					Close( "Connectection accept failed" );
 				}
 			} else {
 				Status = ConnectionStatus.Disconnected;
-				ConsoleSystem.Console.PrintLine( "[STEAM] Ignoring outgoing connection request (we initiated it)" );
+				_logger.PrintLine( "[STEAM] Ignoring outgoing connection request (we initiated it)" );
 			}
 		}
 
@@ -279,8 +287,8 @@ namespace NomadCore.Systems.LobbySystem.Server {
 			ArgumentException.ThrowIfNullOrEmpty( remoteName );
 			ArgumentException.ThrowIfNullOrEmpty( debugMessage );
 
-			ConsoleSystem.Console.PrintLine( $"ConnectionManager.HandleConnectionStatusChangedDisconnected: connection closed with {remoteName}" );
-			ConsoleSystem.Console.PrintLine( $"ConnectionManager.HandleConnectionStatusChangedDisconnected: reason: {debugMessage}" );
+			_logger.PrintLine( $"ConnectionManager.HandleConnectionStatusChangedDisconnected: connection closed with {remoteName}" );
+			_logger.PrintLine( $"ConnectionManager.HandleConnectionStatusChangedDisconnected: reason: {debugMessage}" );
 
 			if ( Status == ConnectionStatus.Connected ) {
 				SteamNetworkingSockets.CloseConnection( connection, 0, debugMessage, false );

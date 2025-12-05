@@ -55,6 +55,7 @@ namespace NomadCore.Interfaces.ConsoleSystem {
 		public uint GetUIntegerValue();
 		public string GetStringValue();
 		public bool GetBooleanValue();
+		public T GetValue<T>();
 
 		public void Reset();
 		public void SetFromString( string value );
