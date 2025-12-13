@@ -24,7 +24,8 @@ terms, you may contact me via email at nyvantil@gmail.com.
 using NomadCore.Abstractions.Services;
 using NomadCore.Infrastructure;
 using NomadCore.Interfaces.ConsoleSystem;
-using NomadCore.Systems.SaveSystem.Infrastructure.Streams;
+using NomadCore.Systems.SaveSystem.Domain.Models.ValueObjects;
+using NomadCore.Systems.SaveSystem.Infrastructure.Serialization.Streams;
 using System.Runtime.CompilerServices;
 
 namespace NomadCore.Systems.SaveSystem.Infrastructure {
@@ -58,7 +59,13 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure {
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public static SaveHeader Load( in SaveReaderStream stream ) {
-			return new SaveHeader( stream.Read<uint>(), stream.Read<uint>(), stream.Read<uint>(), stream.Read<int>(), stream.Read<ulong>() );
+			return new SaveHeader(
+				stream.Read<uint>(),
+				stream.Read<uint>(),
+				stream.Read<uint>(),
+				stream.Read<int>(),
+				stream.Read<ulong>()
+			);
 		}
 
 		/*
@@ -66,16 +73,10 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure {
 		Write
 		===============
 		*/
-		public static void Write( Slot slot, SaveStreamWriter stream ) {
-			var cvarSystem = ServiceRegistry.Get<ICVarSystemService>();
-
-			ICVar<uint>? versionMajor = cvarSystem.GetCVar<uint>( "game.versionMajor" );
-			ICVar<uint>? versionMinor = cvarSystem.GetCVar<uint>( "game.versionMinor" );
-			ICVar<uint>? versionPatch = cvarSystem.GetCVar<uint>( "game.versionPatch" );
-
-			stream.Write( versionMajor.Value );
-			stream.Write( versionMinor.Value );
-			stream.Write( versionPatch.Value );
+		public static void Write( Slot slot, SaveStreamWriter stream, GameVersion version ) {
+			stream.Write( version.Major );
+			stream.Write( version.Minor );
+			stream.Write( version.Patch );
 		}
 	};
 };

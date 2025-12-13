@@ -21,15 +21,20 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
+using NomadCore.Abstractions.Services;
 using NomadCore.Infrastructure;
+using NomadCore.Interfaces;
+using NomadCore.Interfaces.Common;
 using NomadCore.Interfaces.SaveSystem;
 using NomadCore.Systems.SaveSystem.Events;
 using NomadCore.Systems.SaveSystem.Infrastructure.Sections;
 using NomadCore.Systems.SaveSystem.Infrastructure.Streams;
 using NomadCore.Systems.SaveSystem.Interfaces;
+using NomadCore.Utilities;
 using System;
 using System.Collections.Concurrent;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace NomadCore.Systems.SaveSystem.Infrastructure {
 	/*
@@ -43,17 +48,22 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure {
 	/// 
 	/// </summary>
 	
-	public sealed class Slot : ISaveSlot {
-		public readonly string Filepath;
+	internal sealed class Slot : ISaveSlot {
+		public readonly FilePath Filepath;
 		
-		public int Index => _index;
+		public int Id => _index;
 		private readonly int _index;
+
+		public int Version => 0;
+
+		public DateTime ModifiedAt => _lastWriteTime;
+		private DateTime _lastWriteTime;
 
 		public ISaveSection? this[ string name ] => GetSection( name );
 
-		private readonly ConcurrentDictionary<string, ISaveSection> Sections = new ConcurrentDictionary<string, ISaveSection>();
+		private readonly ConcurrentDictionary<string, ISaveSection> _sections = new ConcurrentDictionary<string, ISaveSection>();
 
-		private ISaveFileStream FileStream;
+		private ISaveFileStream _fileStream;
 
 		/*
 		===============
@@ -64,11 +74,11 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure {
 		/// 
 		/// </summary>
 		/// <param name="index"></param>
-		public Slot( int index ) {
+		public Slot( ILoggerService logger, int index ) {
 			ArgumentOutOfRangeException.ThrowIfLessThan( index, 0, nameof( index ) );
 
 			_index = index;
-			Filepath = FilepathCache.GetSlotPath( index );
+			Filepath = new FilePath( FilepathCache.GetSlotPath( index ), NomadCore.Enums.PathType.User );
 		}
 
 		/*
@@ -77,7 +87,18 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure {
 		===============
 		*/
 		public void Dispose() {
-			Sections.Clear();
+			_sections.Clear();
+		}
+
+		/*
+		===============
+		Equals
+		===============
+		*/
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public bool Equals( IEntity<int>? other ) {
+			ArgumentNullException.ThrowIfNull( other );
+			return _index == other.Id;
 		}
 
 		/*
@@ -92,7 +113,7 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure {
 		/// <returns></returns>
 		public ISaveSection? GetSection( string? name ) {
 			ArgumentException.ThrowIfNullOrEmpty( name );
-			return Sections.TryGetValue( name, out var section ) ? section : null;
+			return _sections.TryGetValue( name, out var section ) ? section : null;
 		}
 
 		/*
@@ -104,14 +125,14 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure {
 		/// 
 		/// </summary>
 		public void Load() {
-			using Streams.SaveReaderStream reader = new Streams.SaveReaderStream( Filepath );
+			using Streams.SaveReaderStream reader = new Streams.SaveReaderStream( Filepath.OSPath );
 
 			var header = SaveHeader.Load( reader );
 
 			for ( int i = 0; i < header.SectionCount; i++ ) {
 				var section = new SectionReader( reader );
 				try {
-					Sections.TryAdd( section.Name, section );
+					_sections.TryAdd( section.Name, section );
 				} catch ( Exception e ) {
 				}
 			}
@@ -126,8 +147,8 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure {
 		/// 
 		/// </summary>
 		public void Save() {
-			using ( FileStream = new SaveStreamWriter( Filepath ) ) {
-				Sections.Clear();
+			using ( _fileStream = new SaveStreamWriter( Filepath.OSPath ) ) {
+				_sections.Clear();
 
 				var events = ServiceRegistry.Get<ISaveEvents>();
 				events.SaveStarted.Publish( new SaveStartedEventData( this ) );
@@ -147,7 +168,7 @@ namespace NomadCore.Systems.SaveSystem.Infrastructure {
 		public ISectionWriter CreateSection( string name ) {
 			ArgumentException.ThrowIfNullOrEmpty( name );
 
-			return (ISectionWriter)Sections.GetOrAdd( name, ( name ) => new SectionWriter( FileStream, name ) );
+			return (ISectionWriter)_sections.GetOrAdd( name, ( name ) => new SectionWriter( _fileStream, name ) );
 		}
 	};
 };

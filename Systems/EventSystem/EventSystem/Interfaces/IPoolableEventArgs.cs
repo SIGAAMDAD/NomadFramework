@@ -21,7 +21,7 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-using NomadCore.Interfaces.EventSystem;
+using NomadCore.Domain.Models.Interfaces;
 
 namespace NomadCore.Systems.EventSystem.Interfaces {
 	public interface IPoolableEventArgs : IEventArgs {

@@ -22,15 +22,15 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using Godot;
-using NomadCore.Enums.ConsoleSystem;
+using NomadCore.Domain.Events;
+using NomadCore.Domain.Models.ValueObjects;
+using NomadCore.GameServices;
 using NomadCore.Interfaces.ConsoleSystem;
 using NomadCore.Interfaces.EventSystem;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using NomadCore.Abstractions.Services;
-using NomadCore.Utilities;
 
 namespace NomadCore.Systems.ConsoleSystem.CVars.Common {
 	/*
@@ -46,15 +46,6 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Common {
 	/// </summary>
 
 	public sealed class CVar<T> : ICVar<T> {
-		[StructLayout( LayoutKind.Sequential, Pack = 1 )]
-		public readonly struct CVarValueChangedEventData( CVar<T> cvar, T value ) : ICVarValueChangedEventData<T> {
-			public ICVar<T> CVar => _cvar;
-			private readonly CVar<T> _cvar = cvar;
-
-			public T Value => _value;
-			private readonly T _value = value;
-		};
-
 		/// <summary>
 		/// The current value of the CVar.
 		/// </summary>
@@ -82,8 +73,8 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Common {
 		/// <summary>
 		/// Event triggered the <see cref="Value"/> changes
 		/// </summary>
-		public IGameEvent<ICVarValueChangedEventData<T>> ValueChanged => _valueChanged;
-		private readonly IGameEvent<ICVarValueChangedEventData<T>> _valueChanged;
+		public IGameEvent<CVarValueChangedEventData<T>> ValueChanged => _valueChanged;
+		private readonly IGameEvent<CVarValueChangedEventData<T>> _valueChanged;
 
 		public Type ValueType => typeof( T );
 

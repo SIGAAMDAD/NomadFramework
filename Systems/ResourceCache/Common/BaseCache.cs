@@ -21,8 +21,6 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-using NomadCore.Abstractions.Services;
-using NomadCore.Interfaces.EventSystem;
 using System;
 using System.Linq;
 using System.Collections.Concurrent;
@@ -30,15 +28,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using NomadCore.Infrastructure.Events;
-using NomadCore.Systems.EventSystem.Common;
-using NomadCore.Enums.ResourceCache;
-using NomadCore.Infrastructure;
-using NomadCore.Systems.ResourceCache.Infrastructure;
 using NomadCore.Systems.ResourceCache.Enums;
+using NomadCore.GameServices;
+using NomadCore.Domain.Models.ValueObjects;
+using NomadCore.Domain.Models.Interfaces;
+using NomadCore.Systems.ResourceCache.Domain.Models.ValueObjects;
+using NomadCore.Systems.ResourceCache.Domain.Models.Entities;
+using NomadCore.Systems.ResourceCache.Application.Interfaces;
+using NomadCore.Domain.Events;
 
-namespace NomadCore.Systems.Resource_cache.Common {
+namespace NomadCore.Systems.ResourceCache.Common {
 	/*
 	===================================================================================
 	
@@ -47,20 +46,20 @@ namespace NomadCore.Systems.Resource_cache.Common {
 	===================================================================================
 	*/
 	/// <summary>
-	/// 
+	/// The base caching type for all resources.
 	/// </summary>
 	
-	public class BaseCache<TResource> : IResourceCacheService<TResource> where TResource : Godot.Resource {
-		public static BaseCache<TResource> Instance => _instance.Value;
-		private static readonly Lazy<BaseCache<TResource>> _instance = new Lazy<BaseCache<TResource>>( () => new BaseCache<TResource>() );
-
+	public class BaseCache<TResource, TId> : IResourceCacheService<TId>
+		where TResource : IDisposable
+		where TId : IEquatable<TId>
+	{
 		public CacheStatistics Statistics => new CacheStatistics {
-			CacheHits = CacheHits,
-			CacheMisses = CacheMisses,
-			TotalLoaded = TotalLoaded,
+			CacheHits = _cacheHits,
+			CacheMisses = _cacheMisses,
+			TotalLoaded = _totalLoaded,
 			MemoryUsage = _currentMemorySize,
 			ActiveReferences = _cache.Values.Count( entry => entry.ReferenceCount > 0 ),
-			AverageLoadTime = TotalLoaded > 0 ? TimeSpan.FromTicks( TotalLoadTime.Ticks / TotalLoaded ) : TimeSpan.Zero
+			AverageLoadTime = _totalLoaded > 0 ? TimeSpan.FromTicks( _totalLoadTime.Ticks / _totalLoaded ) : TimeSpan.Zero
 		};
 
 		public CachePolicy Policy {
@@ -83,51 +82,49 @@ namespace NomadCore.Systems.Resource_cache.Common {
 
 		public int Count => _cache.Count;
 
-		public IGameEvent<ResourceLoadedEventData<TResource>> ResourceLoaded => _resourceLoaded;
-		private readonly GameEvent<ResourceLoadedEventData<TResource>> _resourceLoaded = new GameEvent<ResourceLoadedEventData<TResource>>( nameof( _resourceLoaded ) );
+		public IGameEvent<ResourceLoadedEventData<TId>> ResourceLoaded => _resourceLoaded;
+		private readonly IGameEvent<ResourceLoadedEventData<TId>> _resourceLoaded;
 
-		public IGameEvent<ResourceUnloadedEventData<TResource>> ResourceUnloaded => _resourceUnloaded;
-		private readonly GameEvent<ResourceUnloadedEventData<TResource>> _resourceUnloaded = new GameEvent<ResourceUnloadedEventData<TResource>>( nameof( _resourceUnloaded ) );
+		public IGameEvent<ResourceUnloadedEventData<TId>> ResourceUnloaded => _resourceUnloaded;
+		private readonly IGameEvent<ResourceUnloadedEventData<TId>> _resourceUnloaded;
 
-		public IGameEvent<ResourceLoadFailedEventData> ResourceLoadFailed => _resourceLoadFailed;
-		private readonly GameEvent<ResourceLoadFailedEventData> _resourceLoadFailed = new GameEvent<ResourceLoadFailedEventData>( nameof( _resourceLoadFailed ) );
+		public IGameEvent<ResourceLoadFailedEventData<TId>> ResourceLoadFailed => _resourceLoadFailed;
+		private readonly IGameEvent<ResourceLoadFailedEventData<TId>> _resourceLoadFailed;
 
-		private readonly ConcurrentDictionary<string, CacheEntry<TResource>> _cache = new ConcurrentDictionary<string, CacheEntry<TResource>>();
-		private readonly ReaderWriterLockSlim CacheLock = new ReaderWriterLockSlim();
+		private readonly ConcurrentDictionary<TId, CacheEntry<TResource, TId>> _cache = new();
+		private readonly ReaderWriterLockSlim _cacheLock = new ReaderWriterLockSlim();
 
-		private long _currentMemorySize = 0;
-		private long CacheHits = 0;
-		private long CacheMisses = 0;
-		private long TotalLoaded = 0;
-		private TimeSpan TotalLoadTime = TimeSpan.Zero;
+		private int _currentMemorySize = 0;
+		private int _cacheHits = 0;
+		private int _cacheMisses = 0;
+		private int _totalLoaded = 0;
+		private int _totalUnloaded = 0;
+		private TimeSpan _totalLoadTime = TimeSpan.Zero;
 
 		private readonly Timer _cleanupTimer;
 
-		private readonly ILoggerService? _logger = ServiceRegistry.Get<ILoggerService>();
+		private readonly ILoggerService? _logger;
+
+		private readonly IResourceLoader<TResource, TId> _loader;
 
 		/*
 		===============
 		BaseCache
 		===============
 		*/
-		protected BaseCache() {
-			_cleanupTimer = new Timer( _ => ClearUnused(), null, TimeSpan.FromMinutes( 1 ), TimeSpan.FromMinutes( 1 ) );
-		}
+		public BaseCache( ILoggerService logger, IGameEventRegistryService eventFactory, IResourceLoader<TResource, TId> loader ) {
+			ArgumentNullException.ThrowIfNull( logger );
+			ArgumentNullException.ThrowIfNull( eventFactory );
+			ArgumentNullException.ThrowIfNull( loader );
 
-		/*
-		===============
-		Initialize
-		===============
-		*/
-		public void Initialize() {
-		}
-		
-		/*
-		===============
-		Shutdown
-		===============
-		*/
-		public void Shutdown() {
+			_logger = logger;
+			_loader = loader;
+
+			_resourceLoaded = eventFactory.GetEvent<ResourceLoadedEventData<TId>>( nameof( ResourceLoaded ) );
+			_resourceUnloaded = eventFactory.GetEvent<ResourceUnloadedEventData<TId>>( nameof( ResourceUnloaded ) );
+			_resourceLoadFailed = eventFactory.GetEvent<ResourceLoadFailedEventData<TId>>( nameof( ResourceLoadFailed ) );
+
+			_cleanupTimer = new Timer( _ => ClearUnused(), null, TimeSpan.FromMinutes( 1 ), TimeSpan.FromMinutes( 1 ) );
 		}
 
 		/*
@@ -138,15 +135,17 @@ namespace NomadCore.Systems.Resource_cache.Common {
 		/// <summary>
 		/// 
 		/// </summary>
-		public void Dispose() {
+		public virtual void Dispose() {
 			_cleanupTimer?.Dispose();
 			UnloadAll();
 
-			ResourceLoaded?.Dispose();
-			ResourceUnloaded?.Dispose();
-			ResourceLoadFailed?.Dispose();
+			_resourceLoaded?.Dispose();
+			_resourceUnloaded?.Dispose();
+			_resourceLoadFailed?.Dispose();
 
-			CacheLock?.Dispose();
+			_cacheLock?.Dispose();
+
+			GC.SuppressFinalize( this );
 		}
 
 		/*
@@ -158,21 +157,26 @@ namespace NomadCore.Systems.Resource_cache.Common {
 		/// 
 		/// </summary>
 		public void ClearUnused() {
-			CacheLock.EnterWriteLock();
-			try {
-				var toRemove = _cache.Where( kvp => kvp.Value.ReferenceCount == 0 ).ToList();
+			_logger?.PrintDebug( $"BaseCache.ClearUnused: removing unused entries..." );
 
+			int removedCount  = 0;
+			_cacheLock.EnterWriteLock();
+			try {
+				var toRemove = _cache.Where( kvp => kvp.Value.ReferenceCount == 0 );
 				foreach ( var kvp in toRemove ) {
-					if ( _cache.TryRemove( kvp.Key, out CacheEntry<TResource>? entry ) ) {
+					if ( _cache.TryRemove( kvp.Key, out CacheEntry<TResource, TId>? entry ) ) {
+						removedCount++;
 						_currentMemorySize -= entry.MemorySize;
-						ResourceUnloaded.Publish( new ResourceUnloadedEventData<TResource>( kvp.Key, entry.Resource, entry.MemorySize, UnloadReason.ReferenceCountZero ) );
+						ResourceUnloaded.Publish( new ResourceUnloadedEventData<TId>( kvp.Key, entry.MemorySize, UnloadReason.ReferenceCountZero ) );
 						entry.Resource.Dispose();
 					}
 				}
 			}
 			finally {
-				CacheLock.ExitWriteLock();
+				_cacheLock.ExitWriteLock();
 			}
+
+			Interlocked.Add( ref _totalUnloaded, removedCount );
 		}
 
 		/*
@@ -183,28 +187,90 @@ namespace NomadCore.Systems.Resource_cache.Common {
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="path"></param>
+		/// <param name="id"></param>
 		/// <returns></returns>
 		/// <exception cref="ArgumentException"></exception>
-		public TResource? GetCached( string? path ) {
-			if ( string.IsNullOrEmpty( path ) ) {
-				throw new ArgumentException( "Path cannot be null or empty", nameof( path ) );
-			}
-
-			CacheLock.EnterReadLock();
+		public ICacheEntry<TId> GetCached( TId id ) {
+			_cacheLock.EnterReadLock();
 			try {
-				if ( _cache.TryGetValue( path, out var entry ) ) {
-					Interlocked.Increment( ref CacheHits );
-					UpdateAccessStats( entry );
-					return entry.Resource;
+				if ( _cache.TryGetValue( id, out var entry ) ) {
+					Interlocked.Increment( ref _cacheHits );
+					entry.UpdateAccessStats();
+					return entry;
 				}
 			}
 			finally {
-				CacheLock.ExitReadLock();
+				_cacheLock.ExitReadLock();
 			}
 
-			Interlocked.Increment( ref CacheMisses );
-			return LoadAndCacheResource( path );
+			Interlocked.Increment( ref _cacheMisses );
+			var cacheEntry = LoadAndCacheResource( id );
+			if ( cacheEntry == null ) {
+				_logger?.PrintError( $"BaseCache.GetCached: failed to load resource '{id}'" );
+			}
+			return cacheEntry;
+		}
+
+		/*
+		===============
+		TryGetById
+		===============
+		*/
+		/// <summary>
+		/// s
+		/// </summary>
+		/// <param name="id"></param>
+		/// <param name="entity"></param>
+		/// <returns></returns>
+		public bool TryGetById( TId id, out ICacheEntry<TId>? entity ) {
+			return TryGetCached( id, out entity );
+		}
+
+		/*
+		===============
+		GetById
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="id"></param>
+		/// <returns></returns>
+		public ICacheEntry<TId>? GetById( TId id ) {
+			return GetCached( id );
+		}
+
+		/*
+		===============
+		GetByIdAsync
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="id"></param>
+		/// <param name="ct"></param>
+		/// <returns></returns>
+		public async ValueTask<ICacheEntry<TId>?> GetByIdAsync( TId id, CancellationToken ct = default ) {
+			return await GetCachedAsync( id, null, ct );
+		}
+
+		/*
+		===============
+		GetByIds
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="ids"></param>
+		/// <returns></returns>
+		public IEnumerable<ICacheEntry<TId>> GetByIds( ReadOnlySpan<TId> ids ) {
+			ICacheEntry<TId>[] cached = new ICacheEntry<TId>[ ids.Length ];
+			for ( int i = 0; i < ids.Length; i++ ) {
+				cached[ i ] = GetCached( ids[ i ] );
+			}
+			return cached;
 		}
 
 		/*
@@ -215,28 +281,30 @@ namespace NomadCore.Systems.Resource_cache.Common {
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="path"></param>
+		/// <param name="id"></param>
 		/// <param name="progress"></param>
+		/// <param name="ct"></param>
 		/// <returns></returns>
-		/// <exception cref="ArgumentException"></exception>
-		public async Task<TResource> GetCachedAsync( string? path, IProgress<ResourceLoadProgressEventData>? progress = null, CancellationToken cancellationToken = default ) {
-			if ( string.IsNullOrEmpty( path ) ) {
-				throw new ArgumentException( "Path cannot be null or empty", nameof( path ) );
-			}
+		public async ValueTask<ICacheEntry<TId>> GetCachedAsync( TId id, IProgress<ResourceLoadProgressEventData<TId>>? progress = null, CancellationToken ct = default ) {
+			ct.ThrowIfCancellationRequested();
 
-			CacheLock.EnterReadLock();
+			_cacheLock.EnterReadLock();
 			try {
-				if ( _cache.TryGetValue( path, out CacheEntry<TResource>? entry ) && entry.LoadState == ResourceLoadState.Complete ) {
-					Interlocked.Increment( ref CacheHits );
-					UpdateAccessStats( entry );
-					return entry.Resource;
+				if ( _cache.TryGetValue( id, out CacheEntry<TResource, TId>? entry ) && entry.LoadState == ResourceLoadState.Complete ) {
+					Interlocked.Increment( ref _cacheHits );
+					entry.UpdateAccessStats();
+					return entry;
 				}
 			}
 			finally {
-				CacheLock.ExitReadLock();
+				_cacheLock.ExitReadLock();
 			}
 
-			return await LoadAndCacheResourceAsync( path, progress, cancellationToken );
+			var cacheEntry = await LoadAndCacheResourceAsync( id, progress, ct );
+			if ( cacheEntry == null ) {
+				_logger?.PrintError( $"BaseCache.GetCachedAsync: failed to load resource '{id}'!" );
+			}
+			return cacheEntry;
 		}
 
 		/*
@@ -247,21 +315,17 @@ namespace NomadCore.Systems.Resource_cache.Common {
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="path"></param>
-		public void AddReference( string? path ) {
-			if ( string.IsNullOrEmpty( path ) ) {
-				return;
-			}
-
-			CacheLock.EnterWriteLock();
+		/// <param name="id"></param>
+		public void AddReference( TId id ) {
+			_cacheLock.EnterWriteLock();
 			try {
-				if ( _cache.TryGetValue( path, out CacheEntry<TResource>? entry ) ) {
+				if ( _cache.TryGetValue( id, out CacheEntry<TResource, TId>? entry ) ) {
 					entry.ReferenceCount++;
-					UpdateAccessStats( entry );
+					entry.UpdateAccessStats();
 				}
 			}
 			finally {
-				CacheLock.ExitWriteLock();
+				_cacheLock.ExitWriteLock();
 			}
 		}
 
@@ -270,17 +334,18 @@ namespace NomadCore.Systems.Resource_cache.Common {
 		GetReferenceCount
 		===============
 		*/
-		public int GetReferenceCount( string? path ) {
-			if ( string.IsNullOrEmpty( path ) ) {
-				return 0;
-			}
-
-			CacheLock.EnterReadLock();
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="id"></param>
+		/// <returns></returns>
+		public int GetReferenceCount( TId id ) {
+			_cacheLock.EnterReadLock();
 			try {
-				return _cache.TryGetValue( path, out CacheEntry<TResource>? entry ) ? entry.ReferenceCount : 0;
+				return _cache.TryGetValue( id, out CacheEntry<TResource, TId>? entry ) ? entry.ReferenceCount : 0;
 			}
 			finally {
-				CacheLock.ExitReadLock();
+				_cacheLock.ExitReadLock();
 			}
 		}
 
@@ -292,25 +357,21 @@ namespace NomadCore.Systems.Resource_cache.Common {
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="path"></param>
-		public void ReleaseReference( string? path ) {
-			if ( string.IsNullOrEmpty( path ) ) {
-				return;
-			}
-
-			CacheLock.EnterReadLock();
+		/// <param name="id"></param>
+		public void ReleaseReference( TId id ) {
+			_cacheLock.EnterReadLock();
 			try {
-				if ( _cache.TryGetValue( path, out CacheEntry<TResource>? entry ) ) {
+				if ( _cache.TryGetValue( id, out CacheEntry<TResource, TId>? entry ) ) {
 					entry.ReferenceCount = Math.Min( 0, entry.ReferenceCount - 1 );
-					if ( entry.ReferenceCount == 0 && ( DateTime.UtcNow - entry.LastAccessTime ) > _policy.UnloadUnusedAfter ) {
-						CacheLock.ExitReadLock();
-						Unload( path );
+					if ( entry.ReferenceCount == 0 && ( DateTime.UtcNow - entry.AccessStats.LastAccessTime ) > _policy.UnloadUnusedAfter ) {
+						_cacheLock.ExitReadLock();
+						Unload( id );
 						return; // is this necessary?
 					}
 				}
 			}
 			finally {
-				CacheLock.ExitReadLock();
+				_cacheLock.ExitReadLock();
 			}
 		}
 
@@ -322,13 +383,9 @@ namespace NomadCore.Systems.Resource_cache.Common {
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="path"></param>
-		/// <exception cref="ArgumentException"></exception>
-		public void Preload( string? path ) {
-			if ( string.IsNullOrEmpty( path ) ) {
-				throw new ArgumentException( "Path cannot be null or empty", nameof( path ) );
-			}
-			LoadAndCacheResource( path );
+		/// <param name="id"></param>
+		public void Preload( TId id ) {
+			LoadAndCacheResource( id );
 		}
 
 		/*
@@ -339,12 +396,13 @@ namespace NomadCore.Systems.Resource_cache.Common {
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="paths"></param>
-		public void Preload( params string[] paths ) {
-			for ( int i = 0; i < paths.Length; i++ ) {
-				if ( !string.IsNullOrEmpty( paths[ i ] ) && !_cache.ContainsKey( paths[ i ] ) ) {
-					_ = Task.Run( () => LoadAndCacheResourceAsync( paths[ i ] ) );
+		/// <param name="ids"></param>
+		public void Preload( IEnumerable<TId> ids ) {
+			foreach ( var id in ids ) {
+				if ( _cache.ContainsKey( id ) ) {
+					continue;
 				}
+				_ = Task.Run( () => LoadAndCacheResourceAsync( id ) );
 			}
 		}
 
@@ -356,15 +414,19 @@ namespace NomadCore.Systems.Resource_cache.Common {
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="paths"></param>
+		/// <param name="ids"></param>
 		/// <returns></returns>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public async Task PreloadAsync( params string[] paths ) {
-			var loadTasks = paths
-				.Where( path => !string.IsNullOrEmpty( path ) && !_cache.ContainsKey( path ) )
-				.Select( path => LoadAndCacheResourceAsync( path ) );
+		public async ValueTask PreloadAsync( IEnumerable<TId> ids, CancellationToken ct = default ) {
+			ct.ThrowIfCancellationRequested();
 
-			await Task.WhenAll( loadTasks );
+			List<Task> tasks = new List<Task>();
+			foreach ( var id in ids ) {
+				if ( _cache.ContainsKey( id ) ) {
+					continue;
+				}
+				tasks.Add( LoadAndCacheResourceAsync( id, null, ct ) );
+			}
+			await Task.WhenAll( tasks );
 		}
 
 		/*
@@ -375,30 +437,26 @@ namespace NomadCore.Systems.Resource_cache.Common {
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="path"></param>
+		/// <param name="id"></param>
 		/// <param name="resource"></param>
 		/// <returns></returns>
-		public bool TryGetCached( string? path, out TResource resource ) {
+		public bool TryGetCached( TId id, out ICacheEntry<TId>? resource ) {
 			resource = null;
 
-			if ( string.IsNullOrEmpty( path ) ) {
-				return false;
-			}
-
-			CacheLock.EnterWriteLock();
+			_cacheLock.EnterWriteLock();
 			try {
-				if ( _cache.TryGetValue( path, out var entry ) ) {
-					Interlocked.Increment( ref CacheHits );
-					UpdateAccessStats( entry );
-					resource = entry.Resource;
+				if ( _cache.TryGetValue( id, out var entry ) ) {
+					Interlocked.Increment( ref _cacheHits );
+					entry.UpdateAccessStats();
+					resource = entry;
 					return true;
 				}
 			}
 			finally {
-				CacheLock.ExitWriteLock();
+				_cacheLock.ExitWriteLock();
 			}
 
-			Interlocked.Increment( ref CacheMisses );
+			Interlocked.Increment( ref _cacheMisses );
 			return false;
 		}
 
@@ -407,21 +465,21 @@ namespace NomadCore.Systems.Resource_cache.Common {
 		Unload
 		===============
 		*/
-		public void Unload( string? path ) {
-			if ( string.IsNullOrEmpty( path ) ) {
-				return;
-			}
-
-			CacheLock.EnterWriteLock();
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="id"></param>
+		public void Unload( TId id ) {
+			_cacheLock.EnterWriteLock();
 			try {
-				if ( _cache.TryRemove( path, out var entry ) ) {
+				if ( _cache.TryRemove( id, out var entry ) ) {
 					_currentMemorySize -= entry.MemorySize;
-					Interlocked.Increment( ref TotalLoaded );
-					ResourceUnloaded.Publish( new ResourceUnloadedEventData<TResource>( path, entry.Resource, entry.MemorySize, UnloadReason.Manual ) );
+					Interlocked.Increment( ref _totalLoaded );
+					ResourceUnloaded.Publish( new ResourceUnloadedEventData<TId>( id, entry.MemorySize, UnloadReason.Manual ) );
 				}
 			}
 			finally {
-				CacheLock.ExitWriteLock();
+				_cacheLock.ExitWriteLock();
 			}
 		}
 
@@ -434,15 +492,15 @@ namespace NomadCore.Systems.Resource_cache.Common {
 		/// 
 		/// </summary>
 		public void UnloadAll() {
-			CacheLock.EnterWriteLock();
+			_cacheLock.EnterWriteLock();
 			try {
 				foreach ( var kvp in _cache ) {
-					ResourceUnloaded.Publish( new ResourceUnloadedEventData<TResource>( kvp.Key, kvp.Value.Resource, kvp.Value.MemorySize, UnloadReason.Manual ) );
+					ResourceUnloaded.Publish( new ResourceUnloadedEventData<TId>( kvp.Key, kvp.Value.MemorySize, UnloadReason.Manual ) );
 					kvp.Value.Resource.Dispose();
 				}
 			}
 			finally {
-				CacheLock.ExitWriteLock();
+				_cacheLock.ExitWriteLock();
 			}
 		}
 
@@ -459,72 +517,39 @@ namespace NomadCore.Systems.Resource_cache.Common {
 				return;
 			}
 
-			CacheLock.EnterWriteLock();
+			_cacheLock.EnterWriteLock();
 			try {
 				var candidates = _cache.Where( kvp => kvp.Value.ReferenceCount == 0 ).ToList();
-				if ( !candidates.Any() ) {
+				if ( candidates.Count == 0 ) {
 					return;
 				}
 
-				IEnumerable<KeyValuePair<string, CacheEntry<TResource>>> sortedCandidates = _policy.EvictionPolicy switch {
-					EvictionPolicy.LRU => candidates.OrderBy( kvp => kvp.Value.LastAccessTime ),
-					EvictionPolicy.LFU => candidates.OrderBy( kvp => kvp.Value.AccessCount ),
+				IEnumerable<KeyValuePair<TId, CacheEntry<TResource, TId>>> sortedCandidates = _policy.EvictionPolicy switch {
+					EvictionPolicy.LRU => candidates.OrderBy( kvp => kvp.Value.AccessStats.LastAccessTime ),
+					EvictionPolicy.LFU => candidates.OrderBy( kvp => kvp.Value.AccessStats.AccessCount ),
 					EvictionPolicy.SizeBased => candidates.OrderByDescending( kvp => kvp.Value.MemorySize ),
-					_ => candidates.OrderByDescending( kvp => kvp.Value.LastAccessTime )
+					_ => candidates.OrderByDescending( kvp => kvp.Value.AccessStats.LastAccessTime )
 				};
 
+				int removedCount = 0;
 				foreach ( var candidate in sortedCandidates ) {
 					if ( _currentMemorySize <= _policy.MaxMemorySize && _cache.Count <= _policy.MaxResourceCount ) {
 						break;
 					}
 					if ( _cache.TryRemove( candidate.Key, out var entry ) ) {
+						removedCount++;
 						_currentMemorySize -= entry.MemorySize;
-						ResourceUnloaded.Publish( new ResourceUnloadedEventData<TResource>(
-							candidate.Key, entry.Resource, entry.MemorySize, UnloadReason.CacheFull
+						ResourceUnloaded.Publish( new ResourceUnloadedEventData<TId>(
+							candidate.Key, entry.MemorySize, UnloadReason.CacheFull
 						) );
 						entry.Resource.Dispose();
 					}
 				}
+				Interlocked.Add( ref _totalUnloaded, removedCount );
 			}
 			finally {
-				CacheLock.ExitWriteLock();
+				_cacheLock.ExitWriteLock();
 			}
-		}
-
-		/*
-		===============
-		LoadResourceAsync
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="path"></param>
-		/// <param name="typeHint"></param>
-		/// <param name="useSubThreads"></param>
-		/// <param name="cacheMode"></param>
-		/// <returns></returns>
-		private async Task<TResource> LoadResourceAsync( string path, string typeHint = "", bool useSubThreads = false, Godot.ResourceLoader.CacheMode cacheMode = Godot.ResourceLoader.CacheMode.Reuse ) {
-			Godot.Error requestError = Godot.ResourceLoader.LoadThreadedRequest( path, typeHint, useSubThreads, cacheMode );
-			if ( requestError != Godot.Error.Ok ) {
-				_logger?.PrintError( $"Base_cache.LoadResourceAsync: load_threaded_request failed with error code '{requestError}'" );
-				return default;
-			}
-
-			Godot.ResourceLoader.ThreadLoadStatus status = Godot.ResourceLoader.ThreadLoadStatus.Failed;
-			Godot.SceneTree sceneTree = (Godot.SceneTree)Godot.Engine.GetMainLoop();
-
-			do {
-				if ( status == Godot.ResourceLoader.ThreadLoadStatus.InProgress ) {
-					await sceneTree.ToSignal( sceneTree, Godot.SceneTree.SignalName.ProcessFrame );
-				}
-				status = Godot.ResourceLoader.LoadThreadedGetStatus( path );
-			} while ( status == Godot.ResourceLoader.ThreadLoadStatus.InProgress );
-
-			if ( status != Godot.ResourceLoader.ThreadLoadStatus.Loaded ) {
-				_logger?.PrintError( $"Base_cache.LoadResourceAsync: resource '{path}' failed to load with status '{status}'" );
-			}
-			return status == Godot.ResourceLoader.ThreadLoadStatus.Loaded ? (TResource?)Godot.ResourceLoader.LoadThreadedGet( path ) : default;
 		}
 
 		/*
@@ -535,23 +560,21 @@ namespace NomadCore.Systems.Resource_cache.Common {
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="path"></param>
+		/// <param name="id"></param>
 		/// <returns></returns>
-		private TResource? LoadAndCacheResource( string path ) {
+		private ICacheEntry<TId>? LoadAndCacheResource( TId id ) {
 			Stopwatch loadTimer = Stopwatch.StartNew();
-
 			try {
-				TResource resource = Godot.ResourceLoader.Load<TResource>( path );
-				if ( resource == null ) {
-					_logger?.PrintError( $"Base_cache.LoadAndCacheResource: failed to load resource '{path}'" );
+				var result = _loader.Load.Invoke( id );
+				if ( result.IsFailure ) {
+					_logger?.PrintError( $"BaseCache.LoadAndCacheResource: failed to load resource '{id}'" );
 					return null;
 				}
 
-				long memorySize = CalculateMemorySize( resource );
-				CacheResource( path, resource, memorySize, loadTimer.Elapsed );
-
-				return resource;
+				int memorySize = CalculateMemorySize( result.Value );
+				return CacheResource( id, result.Value, memorySize, loadTimer.Elapsed );
 			} catch ( Exception e ) {
+				_logger?.PrintError( $"BaseCache.LoadAndCacheResource: exception thrown while loading resource '{id}' - {e}" );
 				loadTimer.Stop();
 				throw;
 			}
@@ -565,37 +588,31 @@ namespace NomadCore.Systems.Resource_cache.Common {
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="path"></param>
+		/// <param name="id"></param>
 		/// <param name="progress"></param>
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
-		private async Task<TResource> LoadAndCacheResourceAsync( string path, IProgress<ResourceLoadProgressEventData> progress = null, CancellationToken cancellationToken = default ) {
-			CacheEntry<TResource> entry = new CacheEntry<TResource> { LoadState = ResourceLoadState.Loading };
-			Cache[ path ] = entry;
-
-			progress?.Report( new ResourceLoadProgressEventData( path, 0.0f, ResourceLoadState.Queued ) );
+		private async Task<ICacheEntry<TId>?> LoadAndCacheResourceAsync( TId id, IProgress<ResourceLoadProgressEventData<TId>>? progress = null, CancellationToken ct = default ) {
+			progress?.Report( new ResourceLoadProgressEventData<TId>( id, 0.0f, ResourceLoadState.Queued ) );
 
 			Stopwatch loadTimer = Stopwatch.StartNew();
 			try {
-				TResource resource = await LoadResourceAsync( path );
-				cancellationToken.ThrowIfCancellationRequested();
+				var result = await _loader.LoadAsync( id, ct );
+				ct.ThrowIfCancellationRequested();
 
-				if ( resource == null ) {
-					_logger?.PrintError( $"Base_cache.LoadAndCacheResourceAsync: failed to load resource '{path}'" );
+				if ( result.IsFailure ) {
+					_logger?.PrintError( $"Base_cache.LoadAndCacheResourceAsync: failed to load resource '{id}'" );
 					return null;
 				}
-				progress?.Report( new ResourceLoadProgressEventData( path, 0.0f, ResourceLoadState.Processing ) );
+				progress?.Report( new ResourceLoadProgressEventData<TId>( id, 0.0f, ResourceLoadState.Processing ) );
 
-				long memorySize = CalculateMemorySize( resource );
-				CacheResource( path, resource, memorySize, loadTimer.Elapsed );
-
-				return resource;
+				int memorySize = CalculateMemorySize( result.Value );
+				return CacheResource( id, result.Value, memorySize, loadTimer.Elapsed );
 			} catch ( Exception e ) {
 				loadTimer.Stop();
 
-				_cache.TryRemove( path, out _ );
-				ResourceLoadFailed.Publish( new ResourceLoadFailedEventData( path, e.Message, e ) );
-
+				_cache.TryRemove( id, out _ );
+				ResourceLoadFailed.Publish( new ResourceLoadFailedEventData<TId>( id, e.Message, e ) );
 				throw;
 			}
 		}
@@ -608,34 +625,31 @@ namespace NomadCore.Systems.Resource_cache.Common {
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="path"></param>
+		/// <param name="id"></param>
 		/// <param name="resource"></param>
 		/// <param name="memorySize"></param>
 		/// <param name="loadTime"></param>
-		private void CacheResource( string path, TResource resource, long memorySize, TimeSpan loadTime ) {
-			CacheLock.EnterWriteLock();
+		private ICacheEntry<TId> CacheResource( TId id, TResource resource, int memorySize, TimeSpan loadTime ) {
+			_cacheLock.EnterWriteLock();
 			try {
-				CacheEntry<TResource> entry = new CacheEntry<TResource> {
-					Resource = resource,
-					ReferenceCount = 1,
-					MemorySize = memorySize,
-					LastAccessTime = DateTime.UtcNow,
-					AccessCount = 1,
-					LoadState = ResourceLoadState.Complete
-				};
+				CacheEntry<TResource, TId> entry = new CacheEntry<TResource, TId>(
+					id, resource, memorySize, loadTime, ResourceLoadState.Complete
+				);
 
-				_cache[ path ] = entry;
+				_cache[ id ] = entry;
 				_currentMemorySize += memorySize;
-				Interlocked.Increment( ref TotalLoaded );
-				TotalLoadTime += loadTime;
+				Interlocked.Increment( ref _totalLoaded );
+				_totalLoadTime += loadTime;
 
-				ResourceLoaded.Publish( new ResourceLoadedEventData<TResource>( path, resource, loadTime, memorySize ) );
+				ResourceLoaded.Publish( new ResourceLoadedEventData<TId>( id, loadTime, memorySize ) );
 
 				// flush the cache if needed
 				EvictIfNeeded();
+
+				return entry;
 			}
 			finally {
-				CacheLock.ExitWriteLock();
+				_cacheLock.ExitWriteLock();
 			}
 		}
 
@@ -644,18 +658,8 @@ namespace NomadCore.Systems.Resource_cache.Common {
 		CalculateMemorySize
 		===============
 		*/
-		protected virtual long CalculateMemorySize( TResource resource ) {
+		protected virtual int CalculateMemorySize( TResource resource ) {
 			return 0;
-		}
-
-		/*
-		===============
-		UpdateAccessStats
-		===============
-		*/
-		private void UpdateAccessStats( CacheEntry<TResource> entry ) {
-			entry.LastAccessTime = DateTime.UtcNow;
-			entry.AccessCount++;
 		}
 	};
 };

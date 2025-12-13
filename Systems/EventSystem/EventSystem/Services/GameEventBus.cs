@@ -22,11 +22,8 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using Godot;
-using NomadCore.Abstractions.Services;
-using NomadCore.Infrastructure;
-using NomadCore.Interfaces.EventSystem;
-using NomadCore.Systems.EventSystem.Common;
-using NomadCore.Systems.EventSystem.Infrastructure;
+using NomadCore.Domain.Models.Interfaces;
+using NomadCore.GameServices;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -65,25 +62,17 @@ namespace NomadCore.Systems.EventSystem.Services {
 			ConnectionInfo
 			===============
 			*/
-			public ConnectionInfo( GodotObject? source, StringName? signalName, Callable? callable ) {
+			public ConnectionInfo( GodotObject source, StringName signalName, Callable callable ) {
 				if ( signalName == null || signalName.IsEmpty ) {
 					throw new ArgumentException( "signalName is null or empty" );
 				}
 				ArgumentNullException.ThrowIfNull( source );
-				if ( !callable.HasValue ) {
-					throw new ArgumentNullException( nameof( callable ) );
-				}
 
 				Source = source;
 				SignalName = signalName;
-				Callable = callable.Value;
+				Callable = callable;
 			}
 		};
-
-		/// <summary>
-		/// The collection/container for all events
-		/// </summary>
-		private readonly ConditionalWeakTable<IGameEvent, EventSubscriptionSet> _eventCache = new();
 
 		/// <summary>
 		/// The container for all scene based events
@@ -95,31 +84,7 @@ namespace NomadCore.Systems.EventSystem.Services {
 		/// </summary>
 		private readonly ConditionalWeakTable<GodotObject, List<ConnectionInfo>> _godotConnections = new();
 
-		/// <summary>
-		/// 
-		/// </summary>
-		private readonly Func<IGameEvent, EventSubscriptionSet> _subscriptionSetFactory = new( ( e ) => new EventSubscriptionSet( e ) );
 		private readonly Func<object, HashSet<IGameEvent>> _hashSetFactory = new( ( s ) => new HashSet<IGameEvent>() );
-
-		/*
-		===============
-		BindEventFriend
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="owner"></param>
-		/// <param name="friend"></param>
-		public void BindEventFriend( IGameEvent? owner, IGameEvent? friend ) {
-			ArgumentNullException.ThrowIfNull( owner );
-			ArgumentNullException.ThrowIfNull( friend );
-
-			if ( !_eventCache.TryGetValue( owner, out var subscriptionSet ) ) {
-				return;
-			}
-			subscriptionSet.BindEventFriend( friend );
-		}
 
 		/*
 		===============
@@ -175,15 +140,12 @@ namespace NomadCore.Systems.EventSystem.Services {
 		/// <exception cref="ArgumentException"></exception>
 		/// <exception cref="ArgumentNullException"></exception>
 		/// <exception cref="InvalidOperationException"></exception>
-		public void ConnectSignal( GodotObject? source, StringName? signalName, GodotObject? target, Callable? method ) {
+		public void ConnectSignal( GodotObject source, StringName signalName, GodotObject target, Callable method ) {
 			ArgumentNullException.ThrowIfNull( source );
 			ArgumentNullException.ThrowIfNull( target );
 
 			if ( signalName == null || signalName.IsEmpty ) {
 				throw new ArgumentException( "signalName is null or empty" );
-			}
-			if ( !method.HasValue ) {
-				throw new ArgumentNullException( nameof( method ) );
 			}
 			if ( !source.HasSignal( signalName ) ) {
 				throw new InvalidOperationException( $"GodotObject {source.GetType().FullName} doesn't have signal {signalName}" );
@@ -191,270 +153,39 @@ namespace NomadCore.Systems.EventSystem.Services {
 
 			var connectionList = _godotConnections.GetOrAdd( source, s => new List<ConnectionInfo>() );
 			ArgumentNullException.ThrowIfNull( connectionList );
-			source.Connect( signalName, method.Value );
+			source.Connect( signalName, method );
 
 			connectionList.Add( new ConnectionInfo( source, signalName, method ) );
 
 			HookGodotObjectCleanup( source );
 		}
 
-		/*
-		===============
-		ReleaseDanglingDelegates
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="event"></param>
-		public static void ReleaseDanglingDelegates( Delegate @event ) {
-			if ( @event == null ) {
-				return;
-			}
-			Delegate[] invocations = @event.GetInvocationList();
-			for ( int i = 0; i < invocations.Length; i++ ) {
-				Delegate.Remove( @event, invocations[ i ] );
-			}
+		public void Subscribe<TArgs>( object subscriber, IGameEvent<TArgs> @event, IGameEvent<TArgs>.EventCallback callback ) where TArgs : IEventArgs {
+			throw new NotImplementedException();
 		}
 
-		/*
-		===============
-		Subscribe
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <typeparam name="TEvent"></typeparam>
-		/// <typeparam name="TCallback"></typeparam>
-		/// <param name="subscriber"></param>
-		/// <param name="eventHandler"></param>
-		/// <param name="callback"></param>
-		public void Subscribe( object? subscriber, IGameEvent? eventHandler, IGameEvent.EventCallback? callback ) {
-			ArgumentNullException.ThrowIfNull( subscriber );
-			ArgumentNullException.ThrowIfNull( eventHandler );
-			ArgumentNullException.ThrowIfNull( callback );
-
-			EventSubscriptionSet? subscriptionSet = _eventCache.GetOrAdd( eventHandler, _subscriptionSetFactory );
-			ArgumentNullException.ThrowIfNull( subscriptionSet );
-
-			ServiceRegistry.Get<ILoggerService>()?.PrintLine( $"GameEventBus.Subscribe: subscribed to event '{eventHandler.Name}' with callback '{callback.Method.Name}'..." );
-			subscriptionSet.AddSubscription( subscriber, callback );
-
-			HashSet<IGameEvent>? events = _subscriberToEvents.GetOrAdd( subscriber, _hashSetFactory );
-			ArgumentNullException.ThrowIfNull( events );
-			lock ( events ) {
-				events.Add( eventHandler );
-			}
-
-			if ( subscriber is GodotObject godotObject ) {
-				HookGodotObjectCleanup( godotObject );
-			}
+		public void SubscribeAsync<TArgs>( object subscriber, IGameEvent<TArgs> @event, IGameEvent<TArgs>.AsyncCallback asyncCallback ) where TArgs : IEventArgs {
+			throw new NotImplementedException();
 		}
 
-		/*
-		===============
-		Subscribe
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <typeparam name="TArgs"></typeparam>
-		/// <param name="subscriber"></param>
-		/// <param name="eventHandler"></param>
-		/// <param name="callback"></param>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public void Subscribe<TArgs>( object? subscriber, IGameEvent<TArgs>? eventHandler, IGameEvent<TArgs>.GenericEventCallback? callback ) where TArgs : IEventArgs {
-			ArgumentNullException.ThrowIfNull( subscriber );
-			ArgumentNullException.ThrowIfNull( eventHandler );
-			ArgumentNullException.ThrowIfNull( callback );
-
-			eventHandler.Subscribe( subscriber, callback );
+		public void Unsubscribe<TArgs>( object subscriber, IGameEvent<TArgs> @event, IGameEvent<TArgs>.EventCallback callback ) where TArgs : IEventArgs {
+			throw new NotImplementedException();
 		}
 
-		/*
-		===============
-		Unsubscribe
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <typeparam name="TEvent"></typeparam>
-		/// <typeparam name="TCallback"></typeparam>
-		/// <param name="subscriber"></param>
-		/// <param name="eventHandler"></param>
-		/// <param name="callback"></param>
-		public void Unsubscribe( object? subscriber, IGameEvent? eventHandler, IGameEvent.EventCallback? callback ) {
-			ArgumentNullException.ThrowIfNull( subscriber );
-			ArgumentNullException.ThrowIfNull( eventHandler );
-			ArgumentNullException.ThrowIfNull( callback );
-
-			if ( _eventCache.TryGetValue( eventHandler, out EventSubscriptionSet? subscriptionSet ) ) {
-				subscriptionSet.RemoveSubscription( subscriber, callback );
-
-				if ( _subscriberToEvents.TryGetValue( subscriber, out HashSet<IGameEvent>? events ) ) {
-					lock ( events ) {
-						events.Remove( eventHandler );
-						if ( events.Count == 0 ) {
-							_subscriberToEvents.Remove( subscriber, out _ );
-						}
-					}
-				}
-			}
+		public void UnsubscribeAsync<TArgs>( object subscriber, IGameEvent<TArgs> @event, IGameEvent<TArgs>.AsyncCallback asyncCallback ) where TArgs : IEventArgs {
+			throw new NotImplementedException();
 		}
 
-		/*
-		===============
-		Unsubscribe
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <typeparam name="TArgs"></typeparam>
-		/// <param name="subscriber"></param>
-		/// <param name="eventHandler"></param>
-		/// <param name="callback"></param>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public void Unsubscribe<TArgs>( object? subscriber, IGameEvent<TArgs>? eventHandler, IGameEvent<TArgs>.GenericEventCallback? callback ) where TArgs : IEventArgs {
-			ArgumentNullException.ThrowIfNull( subscriber );
-			ArgumentNullException.ThrowIfNull( eventHandler );
-			ArgumentNullException.ThrowIfNull( callback );
-
-			eventHandler.Unsubscribe( subscriber, callback );
+		public void DisconnectSignal( GodotObject source, StringName signalName ) {
+			throw new NotImplementedException();
 		}
 
-		/*
-		===============
-		Publish
-		===============
-		*/
-		/// <summary>
-		/// Publishes an event of name <paramref name="eventHandler"/> to all subscribed components.
-		/// </summary>
-		/// <param name="eventHandler">The event to publish.</param>
-		/// <param name="args"></param>
-		/// <param name="singleThreaded"></param>
-		/// <exception cref="ArgumentNullException">Thrown if <paramref name="eventHandler"/> is null.</exception>
-		public void Publish( IGameEvent? eventHandler, in IEventArgs args ) {
-			ArgumentNullException.ThrowIfNull( eventHandler );
-
-			if ( !GetSubscriptionSet( eventHandler, out EventSubscriptionSet? subscriptionSet ) ) {
-				// no subscriptions
-				return;
-			}
-			ArgumentNullException.ThrowIfNull( subscriptionSet );
-
-			// pump it! LOUDER!
-			subscriptionSet.Pump( args );
+		public void CleanupSubscriber( object subscriber ) {
+			throw new NotImplementedException();
 		}
 
-		/*
-		===============
-		Publish
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <typeparam name="TArgs"></typeparam>
-		/// <param name="eventHandler"></param>
-		/// <param name="args"></param>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public void Publish<TArgs>( IGameEvent<TArgs>? eventHandler, in TArgs args ) where TArgs : IEventArgs {
-			ArgumentNullException.ThrowIfNull( eventHandler );
-			eventHandler.Publish( args );
-		}
-
-		/*
-		===============
-		CreateEvent
-		===============
-		*/
-		public IGameEvent CreateEvent( string? name ) {
-			return new GameEvent( name );
-		}
-
-		/*
-		===============
-		CreateEvent
-		===============
-		*/
-		public IGameEvent<TArgs> CreateEvent<TArgs>( string? name ) where TArgs : IEventArgs {
-			return new GameEvent<TArgs>( name );
-		}
-
-		/*
-		===============
-		CleanupSubscriber
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="obj"></param>
-		public void CleanupSubscriber( object? obj ) {
-			ArgumentNullException.ThrowIfNull( obj );
-
-			if ( _subscriberToEvents.Remove( obj, out HashSet<IGameEvent>? events ) ) {
-				foreach ( var eventHandler in events ) {
-					if ( _eventCache.TryGetValue( eventHandler, out var subscriptionSet ) ) {
-						subscriptionSet.RemoveAllForSubscriber( obj );
-					}
-				}
-			}
-			if ( obj is GodotObject godotObject ) {
-				DisconnectAllForGodotObject( godotObject );
-				_godotConnections.Remove( godotObject, out _ );
-			}
-		}
-
-		/*
-		===============
-		DisconnectAllForGodotObjects
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="obj"></param>
-		private void DisconnectAllForGodotObject( GodotObject obj ) {
-			if ( _godotConnections.TryGetValue( obj, out List<ConnectionInfo>? connections ) ) {
-				var logger = ServiceRegistry.Get<ILoggerService>();
-				for ( int i = 0; i < connections.Count; i++ ) {
-					if ( connections[ i ].Source != null ) {
-						logger?.PrintDebug(
-							string.Format( "Disconnected signal {0} from GodotObject {1} to GodotObject {2}"
-								, connections[ i ].SignalName, connections[ i ].Source.GetType().FullName,
-								obj.GetType().FullName )
-						);
-						connections[ i ].Source.Disconnect( connections[ i ].SignalName, connections[ i ].Callable );
-					}
-				}
-				if ( !_godotConnections.Remove( obj ) ) {
-					logger?.PrintWarning( "GameEventBus.DisconnectAllForGodotObject: Connections.TryRemove failed!" );
-				}
-			}
-		}
-
-		/*
-		===============
-		GetSubscriptionSet
-		===============
-		*/
-		/// <summary>
-		/// Fetches a <see cref="EventSubscriptionSet"/> from the <see cref="_eventCache"/>, if it doesn't exist, just return.
-		/// </summary>
-		/// <param name="eventHandler"></param>
-		/// <param name="subscriptionSet"></param>
-		/// <exception cref="ArgumentException"></exception>
-		/// <exception cref="ArgumentNullException"></exception>
-		/// <returns></returns>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		private bool GetSubscriptionSet( IGameEvent eventHandler, out EventSubscriptionSet? subscriptionSet ) {
-			return _eventCache.TryGetValue( eventHandler, out subscriptionSet );
+		public void Dispose() {
+			throw new NotImplementedException();
 		}
 
 		/*
