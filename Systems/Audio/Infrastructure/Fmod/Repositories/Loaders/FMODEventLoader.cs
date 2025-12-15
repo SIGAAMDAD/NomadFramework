@@ -22,6 +22,8 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using NomadCore.Domain.Models.ValueObjects;
+using NomadCore.GameServices;
+using NomadCore.Systems.Audio.Domain.Models.ValueObjects;
 using NomadCore.Systems.Audio.Infrastructure.Fmod.Models.ValueObjects;
 using NomadCore.Systems.Audio.Infrastructure.Fmod.Repositories;
 using NomadCore.Systems.Audio.Infrastructure.Fmod.Services;
@@ -40,14 +42,11 @@ namespace NomadCore.Systems.Audio.Infrastructure.Fmod {
 	/// <summary>
 	/// 
 	/// </summary>
-	
-	internal sealed class FMODEventLoader( FMODSystemService fmodSystem, FMODGuidRepository guidRepository ) : IResourceLoader<FMODEventResource, FMODEventId> {
-		public IResourceLoader<FMODEventResource, FMODEventId>.LoadCallback Load => LoadEvent;
-		public IResourceLoader<FMODEventResource, FMODEventId>.LoadAsyncCallback LoadAsync => LoadEventAsync;
 
-		private readonly FMODSystemService _fmodSystem = fmodSystem;
-		private readonly FMODGuidRepository _guidRepository = guidRepository;
-		
+	internal sealed class FMODEventLoader( FMODSystemService fmodSystem, FMODGuidRepository guidRepository, ILoggerService logger ) : IResourceLoader<FMODEventResource, EventId> {
+		public IResourceLoader<FMODEventResource, EventId>.LoadCallback Load => LoadEvent;
+		public IResourceLoader<FMODEventResource, EventId>.LoadAsyncCallback LoadAsync => LoadEventAsync;
+
 		/*
 		===============
 		LoadEvent
@@ -58,13 +57,17 @@ namespace NomadCore.Systems.Audio.Infrastructure.Fmod {
 		/// </summary>
 		/// <param name="id"></param>
 		/// <returns></returns>
-		private Result<FMODEventResource> LoadEvent( FMODEventId id ) {
-			FMODValidator.ValidateCall( _fmodSystem.StudioSystem.getEventByID( id.Value, out var eventDescription ) );
-			FMODValidator.ValidateCall( eventDescription.getPath( out var path ) );
+		private Result<FMODEventResource> LoadEvent( EventId id ) {
+			try {
+				var guid = guidRepository.GetEventGuid( id );
+				FMODValidator.ValidateCall( fmodSystem.StudioSystem.getEventByID( guid.Value, out var eventDescription ) );
+				logger.PrintLine( $"FMODEventLoader.LoadEvent: loaded event '{id.Name}'" );
 
-			_guidRepository.AddEventId( path, id );
-
-			return Result<FMODEventResource>.Success( new FMODEventResource( eventDescription ) );
+				return Result<FMODEventResource>.Success( new FMODEventResource( eventDescription ) );
+			} catch ( FMODException e ) {
+				logger.PrintError( $"FMODEventLoader.LoadEvent: failed to load event '{id.Name}' - {e.Error}" );
+				throw;
+			}
 		}
 
 		/*
@@ -78,15 +81,21 @@ namespace NomadCore.Systems.Audio.Infrastructure.Fmod {
 		/// <param name="id"></param>
 		/// <param name="ct"></param>
 		/// <returns></returns>
-		private async Task<Result<FMODEventResource>> LoadEventAsync( FMODEventId id, CancellationToken ct = default ) {
-			ct.ThrowIfCancellationRequested();
+		private async Task<Result<FMODEventResource>> LoadEventAsync( EventId id, CancellationToken ct = default ) {
+			try {
+				ct.ThrowIfCancellationRequested();
 
-			FMODValidator.ValidateCall( _fmodSystem.StudioSystem.getEventByID( id.Value, out var eventDescription ) );
-			FMODValidator.ValidateCall( eventDescription.getPath( out var path ) );
+				var guid = guidRepository.GetEventGuid( id );
 
-			_guidRepository.AddEventId( path, id );
+				FMODValidator.ValidateCall( fmodSystem.StudioSystem.getEventByID( guid.Value, out var eventDescription ) );
+				
+				logger.PrintLine( $"FMODEventLoader.LoadEventAsync: loaded event '{id.Name}'" );
 
-			return Result<FMODEventResource>.Success( new FMODEventResource( eventDescription ) );
+				return Result<FMODEventResource>.Success( new FMODEventResource( eventDescription ) );
+			} catch ( FMODException e ) {
+				logger.PrintError( $"FMODEventLoader.LoadEventAsync: failed to load event '{id.Name}' - {e.Error}" );
+				throw;
+			}
 		}
 	};
 };

@@ -63,6 +63,9 @@ namespace NomadCore.Systems.Audio.Infrastructure.Fmod.Models.ValueObjects {
 		===============
 		*/
 		public FMOD.Studio.PLAYBACK_STATE GetPlaybackState() {
+			if ( !_instance.isValid() ) {
+				return FMOD.Studio.PLAYBACK_STATE.STOPPED;
+			}
 			FMODValidator.ValidateCall( _instance.getPlaybackState( out var state ) );
 			return state;
 		}

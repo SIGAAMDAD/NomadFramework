@@ -48,6 +48,7 @@ namespace NomadCore.Systems.Audio.Infrastructure.Startup {
 
 			var listener = registry.RegisterSingleton<IListenerService>( new FMODListenerService( logger, system ) );
 			var channelRepository = new FMODChannelRepository( logger, cvarSystem, listener, system.EventRepository, system.GuidRepository );
+			registry.RegisterSingleton<IChannelRepository>( channelRepository );
 			registry.RegisterSingleton<IAudioSourceFactory>( new FMODAudioSourceFactory( channelRepository ) );
 		}
 	};

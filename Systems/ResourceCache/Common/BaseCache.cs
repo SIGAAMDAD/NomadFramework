@@ -402,7 +402,7 @@ namespace NomadCore.Systems.ResourceCache.Common {
 				if ( _cache.ContainsKey( id ) ) {
 					continue;
 				}
-				_ = Task.Run( () => LoadAndCacheResourceAsync( id ) );
+				LoadAndCacheResource( id );
 			}
 		}
 

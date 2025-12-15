@@ -42,13 +42,13 @@ namespace NomadCore.Systems.Audio.Infrastructure.Fmod.Repositories {
 	/// </summary>
 
 	internal sealed class FMODGuidRepository : IDisposable {
-		private sealed class GUIDCache<TGuid, TId>( Func<InternString, TId> factory )
+		private sealed class GUIDCache<TGuid, TId>( Func<string, TId> factory )
 			where TGuid : IValueObject<TGuid>
 			where TId : IValueObject<TId>
 		{
 			private readonly Dictionary<TGuid, TId> _guids = new Dictionary<TGuid, TId>();
 			private readonly Dictionary<TId, TGuid> _reverseLookup = new Dictionary<TId, TGuid>();
-			private readonly Func<InternString, TId> _factory = factory;
+			private readonly Func<string, TId> _factory = factory;
 
 			public TGuid this[ TId id ] => _reverseLookup[ id ];
 			public TId this[ TGuid guid ] => _guids[ guid ];
@@ -59,8 +59,7 @@ namespace NomadCore.Systems.Audio.Infrastructure.Fmod.Repositories {
 			===============
 			*/
 			public void Add( string path, TGuid guid ) {
-				var key = StringPool.Intern( path );
-				var id = _factory.Invoke( key );
+				var id = _factory.Invoke( path );
 
 				_guids[ guid ] = id;
 				_reverseLookup[ id ] = guid;

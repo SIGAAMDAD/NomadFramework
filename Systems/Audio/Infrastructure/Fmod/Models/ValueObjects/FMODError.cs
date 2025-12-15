@@ -21,20 +21,12 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
+using NomadCore.Domain.Models.Interfaces;
 using NomadCore.Domain.Models.ValueObjects;
 
 namespace NomadCore.Systems.Audio.Infrastructure.Fmod.Models.ValueObjects {
-	internal record FMODError : Result<FMOD.RESULT> {
-		protected FMODError( Result<FMOD.RESULT> original )
-			: base( original )
-		{ }
-
-		protected FMODError( FMOD.RESULT value )
-			: base( value )
-		{ }
-
-		protected FMODError( Error error )
-			: base( error )
-		{ }
+	internal record FMODError( string message, ErrorType type ) : IError {
+		public string Message => message;
+		public ErrorType Type => type;
 	};
 };

@@ -24,6 +24,7 @@ terms, you may contact me via email at nyvantil@gmail.com.
 #define FMOD_LOGGING
 
 using NomadCore.GameServices;
+using NomadCore.Infrastructure.Collections;
 using NomadCore.Infrastructure.ServiceRegistry.Interfaces;
 using NomadCore.Systems.Audio.Application.Interfaces;
 using NomadCore.Systems.Audio.Domain.Models.ValueObjects;
@@ -78,8 +79,8 @@ namespace NomadCore.Systems.Audio.Infrastructure.Fmod.Services {
 
 		private readonly ILoggerService _logger;
 
-		public IResourceCacheService<FMODEventId> EventRepository => _eventRepository;
-		private readonly IResourceCacheService<FMODEventId> _eventRepository;
+		public IResourceCacheService<EventId> EventRepository => _eventRepository;
+		private readonly IResourceCacheService<EventId> _eventRepository;
 
 		private readonly IResourceCacheService<BankId> _bankRepository;
 		
@@ -113,15 +114,18 @@ namespace NomadCore.Systems.Audio.Infrastructure.Fmod.Services {
 			FMODValidator.ValidateCall( _studioSystem.getCoreSystem( out _system ) );
 
 			_guidRepository = new FMODGuidRepository();
-			_eventRepository = new FMODEventRepository( _logger, eventFactory, this, _guidRepository );
 			_bankRepository = new FMODBankRepository( _logger, eventFactory, this, _guidRepository );
+			_eventRepository = new FMODEventRepository( _logger, eventFactory, this, _guidRepository );
 
 			_logger.PrintLine( $"FMODSystemService: initializing FMOD sound system..." );
 
 			FMODCVarRegistry.Register( cvarSystem );
 			ConfigureFMODDevice( cvarSystem );
 
-			_system.setCallback( OnAudioOutputDeviceListChanged, FMOD.SYSTEM_CALLBACK_TYPE.DEVICELISTCHANGED );
+			FMODValidator.ValidateCall( _system.setCallback( OnAudioOutputDeviceListChanged, FMOD.SYSTEM_CALLBACK_TYPE.DEVICELISTCHANGED ) );
+
+			_bankRepository.Preload( [ new BankId( "Master.strings.bank" ), new BankId( "Master.bank" ) ] );
+			_eventRepository.PreloadAsync( [ new EventId( "event:/ui/button_focused" ), new EventId( "event:/ui/button_pressed" ) ] );
 		}
 
 		/*
@@ -152,8 +156,8 @@ namespace NomadCore.Systems.Audio.Infrastructure.Fmod.Services {
 		===============
 		*/
 		public void Update( float deltaTime ) {
-			_system.update();
 			_studioSystem.update();
+			_system.update();
 		}
 
 		/*

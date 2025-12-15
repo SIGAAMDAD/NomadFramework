@@ -30,7 +30,7 @@ namespace NomadCore.Systems.Audio.Domain.Interfaces {
 	public interface IAudioSource {
 		public Vector2 Positon { get; set; }
 		public float Volume { get; set; }
-		public InternString Category { get; }
+		public string Category { get; }
 
 		public AudioSourceStatus Status { get; }
 

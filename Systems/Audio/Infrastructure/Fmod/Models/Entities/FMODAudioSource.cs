@@ -26,7 +26,6 @@ using NomadCore.Systems.Audio.Domain.Interfaces;
 using NomadCore.Systems.Audio.Domain.Models.ValueObjects;
 using Godot;
 using NomadCore.Systems.Audio.Infrastructure.Fmod.Repositories;
-using NomadCore.Infrastructure.Collections;
 
 namespace NomadCore.Systems.Audio.Infrastructure.Fmod.Models.Entities {
 	/*
@@ -40,7 +39,7 @@ namespace NomadCore.Systems.Audio.Infrastructure.Fmod.Models.Entities {
 	/// A source of audio, an "emitter" in a sense.
 	/// </summary>
 	
-	internal sealed class FMODAudioSource( FMODChannelRepository channelRepository, InternString category ) : IAudioSource {
+	internal sealed class FMODAudioSource( FMODChannelRepository channelRepository, string category ) : IAudioSource {
 		public Vector2 Positon {
 			get => _position;
 			set {
@@ -65,7 +64,7 @@ namespace NomadCore.Systems.Audio.Infrastructure.Fmod.Models.Entities {
 		}
 		private float _volume = 0.0f;
 
-		public InternString Category => category;
+		public string Category => category;
 
 		public AudioSourceStatus Status => _status;
 		private AudioSourceStatus _status = AudioSourceStatus.Stopped;
@@ -73,7 +72,7 @@ namespace NomadCore.Systems.Audio.Infrastructure.Fmod.Models.Entities {
 		private FMODChannel? _channel;
 
 		public void PlaySound( EventId id, float priority = 0.5f ) {
-			_channel = channelRepository.AllocateChannel( id, _position, StringPool.FromInterned( category ), priority, false );
+			_channel = channelRepository.AllocateChannel( id, _position, category, priority, false );
 		}
 	};
 };

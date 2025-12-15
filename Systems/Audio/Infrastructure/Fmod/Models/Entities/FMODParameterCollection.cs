@@ -69,7 +69,7 @@ namespace NomadCore.Systems.Audio.Infrastructure.Fmod.Models.Entities {
 		/// <param name="id"></param>
 		/// <returns></returns>
 		public float GetParameter( in ParameterId id ) {
-			_instance.getParameterByName( StringPool.FromInterned( id.Value ), out float value );
+			_instance.getParameterByName( id.Name, out float value );
 			return value;
 		}
 
