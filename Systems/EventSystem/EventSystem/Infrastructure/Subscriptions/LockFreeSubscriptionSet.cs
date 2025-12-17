@@ -43,7 +43,8 @@ namespace NomadCore.Systems.EventSystem.Infrastructure.Subscriptions {
 	/// </summary>
 
 	internal sealed class LockFreeSubscriptionSet<TArgs>( IGameEvent<TArgs> eventData, ILoggerService logger, int cleanupInterval = 100 ) : ISubscriptionSet<TArgs>
-		where TArgs : IEventArgs {
+		where TArgs : IEventArgs
+	{
 		/// <summary>
 		/// The number of pumps before initiating a purge.
 		/// </summary>
@@ -55,7 +56,6 @@ namespace NomadCore.Systems.EventSystem.Infrastructure.Subscriptions {
 		private int _cleanupCounter = 0;
 
 		private readonly HashSet<WeakReference<IGameEvent>> _friends = new HashSet<WeakReference<IGameEvent>>();
-		private readonly ReaderWriterLockSlim _pumpLock = new ReaderWriterLockSlim();
 
 		/*
 		===============
@@ -81,10 +81,10 @@ namespace NomadCore.Systems.EventSystem.Infrastructure.Subscriptions {
 		public void BindEventFriend( IGameEvent friend ) {
 			var refEvent = new WeakReference<IGameEvent>( friend );
 			if ( _friends.Contains( refEvent ) ) {
-				_logger?.PrintWarning( $"EventSubscriptionSet.BindEventFriend: event '{eventData.DebugName}' already has friendship with event '{friend.DebugName}'" );
+				_logger?.PrintWarning( $"LockFreeSubscriptionSet.BindEventFriend: event '{eventData.DebugName}' already has friendship with event '{friend.DebugName}'" );
 			}
 
-			_logger?.PrintLine( $"EventSubscriptionSet.BindEventFriend: friendship created between events '{eventData.DebugName}' and '{friend.DebugName}'" );
+			_logger?.PrintLine( $"LockFreeSubscriptionSet.BindEventFriend: friendship created between events '{eventData.DebugName}' and '{friend.DebugName}'" );
 			_friends.Add( refEvent );
 		}
 
@@ -137,7 +137,7 @@ namespace NomadCore.Systems.EventSystem.Infrastructure.Subscriptions {
 			ArgumentNullException.ThrowIfNull( subscriber );
 			ArgumentNullException.ThrowIfNull( callback );
 
-			_genericSubscriptions.RemoveSubscription( _genericSubscriptions, callback );
+			_genericSubscriptions.RemoveSubscription( subscriber, callback );
 		}
 
 		/*

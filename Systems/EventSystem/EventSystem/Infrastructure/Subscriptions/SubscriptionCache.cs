@@ -26,6 +26,7 @@ using NomadCore.GameServices;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Security.Principal;
 
 namespace NomadCore.Systems.EventSystem.Infrastructure.Subscriptions {
 	/*
@@ -77,15 +78,15 @@ namespace NomadCore.Systems.EventSystem.Infrastructure.Subscriptions {
 		/// <param name="callback"></param>
 		public void AddSubscription( object subscriber, TCallback callback ) {
 			if ( ContainsCallback( subscriber, callback, out _ ) ) {
-				logger?.PrintError( $"EventSubscriptionSet.AddSubscription: duplicate subscription from '{subscriber.GetType().Name}'" );
+				logger?.PrintError( $"SubscriptionCache.AddSubscription: duplicate subscription from '{subscriber.GetType().Name}'" );
 				return;
 			}
 
 			int index = _subscriptions.Count;
 			_subscriptions.Add( new WeakSubscription<TArgs, TCallback>( subscriber, callback ) );
-			logger?.PrintLine( $"EventSubscriptionSet.AddSubscription: added subscription from '{subscriber.GetType().Name}'" );
+			logger?.PrintLine( $"SubscriptionCache.AddSubscription: added subscription from '{subscriber.GetType().Name}'" );
 
-			int key = RuntimeHelpers.GetHashCode( subscriber );
+			int key = subscriber.GetHashCode();
 			if ( _indexMap.TryGetValue( key, out List<int>? indices ) ) {
 				indices.Add( index );
 			} else {
@@ -105,10 +106,10 @@ namespace NomadCore.Systems.EventSystem.Infrastructure.Subscriptions {
 		/// <param name="callback"></param>
 		public void RemoveSubscription( object subscriber, TCallback callback ) {
 			if ( !ContainsCallback( subscriber, callback, out int index ) ) {
-				logger?.PrintWarning( $"EventSubscriptionSet.RemoveSubscription: subscription not found from '{subscriber.GetType().Name}'" );
+				logger?.PrintWarning( $"SubscriptionCache.RemoveSubscription: subscription not found from '{subscriber.GetType().Name}'" );
 				return;
 			}
-			logger?.PrintLine( $"EventSubscriptionSet.RemoveSubscription: removed subscription from '{subscriber.GetType().Name}'" );
+			logger?.PrintLine( $"SubscriptionCache.RemoveSubscription: removed subscription from '{subscriber.GetType().Name}'" );
 			RemoveAtIndexInternal( index, subscriber );
 		}
 
@@ -131,7 +132,7 @@ namespace NomadCore.Systems.EventSystem.Infrastructure.Subscriptions {
 					removed++;
 				}
 			}
-			logger?.PrintLine( $"EventSubscriptionSet.RemoveAllForSubscriber: removed {removed} subscriptions for '{subscriber.GetType().Name}'" );
+			logger?.PrintLine( $"SubscriptionCache.RemoveAllForSubscriber: removed {removed} subscriptions for '{subscriber.GetType().Name}'" );
 		}
 
 		/*
@@ -146,7 +147,7 @@ namespace NomadCore.Systems.EventSystem.Infrastructure.Subscriptions {
 			_indexMap.Clear();
 			for ( int i = 0; i < _subscriptions.Count; i++ ) {
 				if ( _subscriptions[ i ].Subscriber.TryGetTarget( out object? subscriber ) ) {
-					int key = RuntimeHelpers.GetHashCode( subscriber );
+					int key = subscriber.GetHashCode();
 					if ( _indexMap.TryGetValue( key, out List<int>? indices ) ) {
 						indices.Add( i );
 					} else {
@@ -174,7 +175,7 @@ namespace NomadCore.Systems.EventSystem.Infrastructure.Subscriptions {
 
 			int removed = initialCount - _subscriptions.Count;
 			if ( removed > 0 ) {
-				logger?.PrintLine( $"EventSubscriptionSet.CleanupDeadSubscriptions: removed {removed} dangling subscriptions" );
+				logger?.PrintLine( $"SubscriptionCache.CleanupDeadSubscriptions: removed {removed} dangling subscriptions" );
 				RebuildIndexMap();
 			}
 		}
@@ -193,14 +194,15 @@ namespace NomadCore.Systems.EventSystem.Infrastructure.Subscriptions {
 		/// <returns></returns>
 		public bool ContainsCallback( object subscriber, TCallback callback, out int index ) {
 			index = -1;
-			int key = RuntimeHelpers.GetHashCode( subscriber );
+			int key = subscriber.GetHashCode();
 			if ( _indexMap.TryGetValue( key, out List<int>? candidates ) ) {
 				for ( int i = 0; i < candidates.Count; i++ ) {
 					int idx = candidates[ i ];
 					if ( idx >= 0 && idx < _subscriptions.Count ) {
 						WeakSubscription<TArgs, TCallback> subscription = _subscriptions[ idx ];
-						if ( subscription.Subscriber.TryGetTarget( out object? existing ) && existing == subscriber
-							&& subscription.Callback.TryGetTarget( out TCallback? caller ) && caller == callback ) {
+						if ( subscription.Subscriber.TryGetTarget( out object? existing ) && existing.Equals( subscriber )
+							&& subscription.Callback.TryGetTarget( out TCallback? caller ) && caller.Equals( callback ) )
+						{
 							index = idx;
 							return true;
 						}
@@ -232,7 +234,7 @@ namespace NomadCore.Systems.EventSystem.Infrastructure.Subscriptions {
 				_subscriptions[ index ] = swapped;
 
 				if ( swapped.Subscriber.TryGetTarget( out object? swappedSubscriber ) ) {
-					int swappedKey = RuntimeHelpers.GetHashCode( swappedSubscriber );
+					int swappedKey = swappedSubscriber.GetHashCode();
 					if ( _indexMap.TryGetValue( swappedKey, out List<int>? swappedIndices ) ) {
 						int swappedIdx = swappedIndices.IndexOf( lastIndex );
 						if ( swappedIdx >= 0 ) {
@@ -245,7 +247,7 @@ namespace NomadCore.Systems.EventSystem.Infrastructure.Subscriptions {
 			_subscriptions.RemoveAt( lastIndex );
 
 			// update the map
-			int key = RuntimeHelpers.GetHashCode( subscriber );
+			int key = subscriber.GetHashCode();
 			if ( _indexMap.TryGetValue( key, out List<int>? indices ) ) {
 				indices.Remove( lastIndex );
 				if ( indices.Count == 0 ) {
