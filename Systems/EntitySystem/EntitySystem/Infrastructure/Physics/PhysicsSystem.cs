@@ -22,6 +22,7 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using Godot;
+using NomadCore.Systems.EntitySystem.Interfaces;
 
 namespace NomadCore.Systems.EntitySystem.Infrastructure.Physics {
 	/*
@@ -41,7 +42,7 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Physics {
 
 		public readonly int MaxSteps;
 
-		private readonly AreaSystem _areaSystem;
+		private readonly IPhysicsSubSystem _areaSystem;
 
 		public PhysicsSystem( Rid worldSpace ) {
 			_worldSpaceRid = worldSpace;

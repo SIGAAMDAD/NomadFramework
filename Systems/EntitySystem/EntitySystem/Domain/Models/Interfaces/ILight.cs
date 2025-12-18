@@ -22,11 +22,9 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using Godot;
-using NomadCore.Interfaces.Common;
-using NomadCore.Systems.EntitySystem.Domain.Models.ValueObjects;
 
 namespace NomadCore.Systems.EntitySystem {
-	public interface ILight : IAggregateRoot<LightId> {
+	public interface ILight {
 		public bool ShadowsEnabled { get; set; }
 		public Light2D.ShadowFilterEnum ShadowFilterType { get; set; }
 		public float ShadowFilterSmooth { get; set; }

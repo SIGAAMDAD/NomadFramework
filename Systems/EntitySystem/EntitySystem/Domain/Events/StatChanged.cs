@@ -27,8 +27,8 @@ using NomadCore.Infrastructure.Collections;
 
 namespace NomadCore.Systems.EntitySystem.Domain.Events {
 	public readonly record struct StatChangedEventData(
-		IGameEntity entity,
-		InternString name,
-		Any value
+		IGameEntity Entity,
+		InternString Name,
+		Any Value
 	) : IEventArgs;
 };

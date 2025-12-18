@@ -87,7 +87,7 @@ namespace NomadCore.Systems.EntitySystem.Services {
 			_owner = owner;
 			_stats = stats;
 
-			_statChanged = eventFactory.GetEvent<StatChangedEventData>( nameof( StatChanged ), "EntitySystem:StatManager" );
+			_statChanged = eventFactory.GetEvent<StatChangedEventData>( EventConstants.STAT_CHANGED_EVENT );
 		}
 
 		/*
@@ -108,6 +108,8 @@ namespace NomadCore.Systems.EntitySystem.Services {
 				_stats.Add( statName, newStat );
 			} else if ( stat is IEntityStat<T> typedStat ) {
 				typedStat.Value = newValue;
+			} else {
+				throw new InvalidCastException( (string)statName );
 			}
 		}
 
@@ -124,12 +126,13 @@ namespace NomadCore.Systems.EntitySystem.Services {
 		public void SetStatMaxValue<T>( InternString statName, T maxValue )
 			where T : unmanaged
 		{
-			string name = SceneStringPool.FromInterned( statName );
 			if ( !_stats.TryGetValue( statName, out IEntityStat? stat ) ) {
-				throw new KeyNotFoundException( name );
+				throw new KeyNotFoundException( (string)statName );
 			}
 			if ( stat is IEntityStat<T> typedStat ) {
 				typedStat.MaxValue = maxValue;
+			} else {
+				throw new InvalidCastException( (string)statName );
 			}
 		}
 
@@ -146,12 +149,13 @@ namespace NomadCore.Systems.EntitySystem.Services {
 		public void SetStatMinValue<T>( InternString statName, T minValue )
 			where T : unmanaged
 		{
-			string name = SceneStringPool.FromInterned( statName );
 			if ( !_stats.TryGetValue( statName, out IEntityStat? stat ) ) {
-				throw new KeyNotFoundException( name );
+				throw new KeyNotFoundException( (string)statName );
 			}
 			if ( stat is IEntityStat<T> typedStat ) {
 				typedStat.MinValue = minValue;
+			} else {
+				throw new InvalidCastException( (string)statName );
 			}
 		}
 
@@ -168,14 +172,13 @@ namespace NomadCore.Systems.EntitySystem.Services {
 		public T GetStatValue<T>( InternString statName )
 			where T : unmanaged
 		{
-			string name = SceneStringPool.FromInterned( statName );
 			if ( !_stats.TryGetValue( statName, out IEntityStat? stat ) ) {
-				throw new KeyNotFoundException( name );
+				throw new KeyNotFoundException( (string)statName );
 			}
 			if ( stat is IEntityStat<T> typedStat ) {
 				return typedStat.MaxValue;
 			}
-			throw new InvalidCastException( name );
+			throw new InvalidCastException( (string)statName );
 		}
 
 		/*
@@ -191,7 +194,7 @@ namespace NomadCore.Systems.EntitySystem.Services {
 		public T GetStatMaxValue<T>( InternString statName )
 			where T : unmanaged
 		{
-			string name = SceneStringPool.FromInterned( statName );
+			string name = (string)statName;
 			if ( !_stats.TryGetValue( statName, out IEntityStat? stat ) ) {
 				throw new KeyNotFoundException( name );
 			}
@@ -214,7 +217,7 @@ namespace NomadCore.Systems.EntitySystem.Services {
 		public T GetStatMinValue<T>( InternString statName )
 			where T : unmanaged
 		{
-			string name = SceneStringPool.FromInterned( statName );
+			string name = (string)statName;
 			if ( !_stats.TryGetValue( statName, out IEntityStat? stat ) ) {
 				throw new KeyNotFoundException( name );
 			}

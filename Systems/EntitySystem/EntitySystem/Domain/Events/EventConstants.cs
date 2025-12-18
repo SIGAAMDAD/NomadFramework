@@ -21,12 +21,18 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-using NomadCore.Domain.Models.Interfaces;
-using NomadCore.Systems.EntitySystem.Domain.Models.Interfaces;
+using NomadCore.Infrastructure.Collections;
 
 namespace NomadCore.Systems.EntitySystem.Domain.Events {
-	public readonly record struct RenderEntityVisibilityChangedEventArgs(
-		IRenderEntity Entity,
-		bool Visible
-	) : IEventArgs;
+	public static class EventConstants {
+		public static readonly InternString ANIMATION_CHANGED_EVENT = new( "EntitySystem:AnimationChanged" );
+		public static readonly InternString ANIMATION_FINISHED_EVENT = new( "EntitySystem:AnimationFinished" );
+		public static readonly InternString ANIMATION_LOOP_EVENT = new( "EntitySystem:AnimationLoop" );
+		public static readonly InternString AREA_ENTERED_EVENT = new( "EntitySystem:AreaEntered" );
+		public static readonly InternString AREA_EXITED_EVENT = new( "EntitySystem:AreaExited" ) ;
+		public static readonly InternString ENTITY_VISIBILITY_CHANGED_EVENT = new( "EntitySystem:EntityVisibilityChanged" );
+		public static readonly InternString FRAME_CHANGED_EVENT = new( "EntitySystem:FrameChanged" );
+		public static readonly InternString NAVIGATION_DESTINATION_REACHED_EVENT = new( "EntitySystem:NavigationDestinationReached" );
+		public static readonly InternString STAT_CHANGED_EVENT = new( "EntitySystem:StatChanged" );
+	};
 };

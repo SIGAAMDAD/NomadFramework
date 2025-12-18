@@ -29,6 +29,7 @@ using NomadCore.Infrastructure.ServiceRegistry.Interfaces;
 using NomadCore.Interfaces;
 using NomadCore.Systems.ConsoleSystem.Events;
 using NomadCore.Systems.ConsoleSystem.Infrastructure;
+using NomadCore.Systems.ConsoleSystem.Infrastructure.Collections;
 using NomadCore.Systems.ConsoleSystem.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -44,7 +45,7 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 	===================================================================================
 	*/
 	/// <summary>
-	/// 
+	/// Handles the process of logging.
 	/// </summary>
 
 	public sealed class LoggerService : IDisposable, ILoggerService {
@@ -70,7 +71,15 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 			_ = Task.Run( LoggerThreadAsync );
 
 			var cvarSystem = locator.GetService<ICVarSystemService>();
-//			_logDepth = cvarSystem.GetCVar<LogLevel>( "console.LogLevel" ) ?? throw new Exception( "Missing CVar 'console.LogLevel'" );
+			_logDepth = cvarSystem.Register(
+				new CVarCreateInfo<LogLevel>(
+					Name: new( "console.LogLevel" ),
+					DefaultValue: LogLevel.Info,
+					Description: new( "The verbosity of the logger." ),
+					Flags: CVarFlags.Archive,
+					Validator: value => value >= LogLevel.Error && value < LogLevel.Count
+				)
+			);
 		}
 
 		/*

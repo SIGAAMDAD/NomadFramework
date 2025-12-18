@@ -28,7 +28,6 @@ using System;
 using NomadCore.Systems.EntitySystem.Domain.Events;
 using NomadCore.Systems.EntitySystem.Domain.Models.ValueObjects;
 using NomadCore.Interfaces.Common;
-using NomadCore.Systems.EntitySystem.Application.Interfaces;
 using NomadCore.Systems.EntitySystem.Domain.Models.Interfaces;
 
 namespace NomadCore.Systems.EntitySystem.Infrastructure.Rendering {
@@ -47,11 +46,11 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Rendering {
 		public bool Visible {
 			get => _visible;
 			set {
-				if ( _visible == value ) {
+				if ( _visible == value || _owner.TryGetTarget( out var owner ) ) {
 					return;
 				}
 				_visible = value;
-				_visibilityChanged.PublishAsync( new RenderEntityVisibilityChangedEventArgs( this, value ) );
+				_visibilityChanged.PublishAsync( new EntityVisibilityChangedEventData( owner, value ) );
 				RenderingServer.CanvasItemSetVisible( _canvasItemRid, _visible );
 			}
 		}
@@ -110,17 +109,8 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Rendering {
 
 		protected readonly WeakReference<IGameEntity> _owner;
 
-		public IGameEvent<RenderEntityVisibilityChangedEventArgs> VisibilityChanged => _visibilityChanged;
-
-		public RenderEntityId Id => throw new NotImplementedException();
-
-		public DateTime CreatedAt => throw new NotImplementedException();
-
-		public DateTime? ModifiedAt => throw new NotImplementedException();
-
-		public int Version => throw new NotImplementedException();
-
-		protected readonly IGameEvent<RenderEntityVisibilityChangedEventArgs> _visibilityChanged;
+		public IGameEvent<EntityVisibilityChangedEventData> VisibilityChanged => _visibilityChanged;
+		protected readonly IGameEvent<EntityVisibilityChangedEventData> _visibilityChanged;
 
 		/*
 		===============
@@ -130,7 +120,7 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Rendering {
 		public ServerRenderEntity( IGameEventRegistryService eventFactory, IGameEntity owner, CanvasItem canvasItem ) {
 			_owner = new WeakReference<IGameEntity>( owner );
 
-			_visibilityChanged = eventFactory.GetEvent<RenderEntityVisibilityChangedEventArgs>( nameof( VisibilityChanged ), "EntitySystem:ServerRenderEntity" );
+			_visibilityChanged = eventFactory.GetEvent<EntityVisibilityChangedEventData>( EventConstants.ENTITY_VISIBILITY_CHANGED_EVENT );
 
 			_zindex = canvasItem.ZIndex;
 			_modulate = canvasItem.Modulate;
@@ -161,18 +151,7 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Rendering {
 		===============
 		*/
 		public virtual void Update( float deltaTime ) {
-		}
-
-		/*
-		===============
-		Draw
-		===============
-		*/
-		public virtual void Draw( float deltaTime ) {
-		}
-
-		public bool Equals( IEntity<RenderEntityId>? other ) {
-			throw new NotImplementedException();
+			RenderingServer.CanvasItemClear( _canvasItemRid );
 		}
 	};
 };

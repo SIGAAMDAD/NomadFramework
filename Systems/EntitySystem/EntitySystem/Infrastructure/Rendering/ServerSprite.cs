@@ -24,7 +24,6 @@ terms, you may contact me via email at nyvantil@gmail.com.
 using Godot;
 using NomadCore.Domain.Models.Interfaces;
 using NomadCore.GameServices;
-using NomadCore.Systems.EntitySystem.Application.Interfaces;
 using NomadCore.Systems.EntitySystem.Infrastructure.Rendering;
 
 namespace NomadCore.Infrastructure.Rendering {
@@ -68,7 +67,7 @@ namespace NomadCore.Infrastructure.Rendering {
 		Draw
 		===============
 		*/
-		public override void Draw( float deltaTime ) {
+		public override void Update( float deltaTime ) {
 			GetRects( out Rect2 srcRect, out Rect2 dstRect, out bool filterClipEnabled );
 			RenderingServer.CanvasItemAddTextureRectRegion( _canvasItemRid, dstRect, _texture.GetRid(), srcRect, Colors.White, false, filterClipEnabled );
 		}

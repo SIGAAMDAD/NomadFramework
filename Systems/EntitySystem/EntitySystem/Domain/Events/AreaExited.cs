@@ -25,7 +25,7 @@ using NomadCore.Domain.Models.Interfaces;
 
 namespace NomadCore.Systems.EntitySystem.Domain.Events {
 	public readonly record struct AreaExitedEventData(
-		IGameEntity entity,
-		IGameEntity overlappingEntity
+		IGameEntity Entity,
+		IGameEntity OverlappingEntity
 	) : IEventArgs;
 };

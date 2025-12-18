@@ -23,9 +23,6 @@ terms, you may contact me via email at nyvantil@gmail.com.
 
 using Godot;
 using NomadCore.GameServices;
-using NomadCore.Interfaces.Common;
-using NomadCore.Systems.EntitySystem.Application.Interfaces;
-using NomadCore.Systems.EntitySystem.Common;
 using NomadCore.Systems.EntitySystem.Domain;
 using System;
 using System.Collections.Concurrent;
@@ -83,7 +80,7 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure {
 
 			if ( _currentSize < _maxSize ) {
 				_currentSize++;
-				return new Entity( _eventFactory, entityNode, area, sprite );
+				return new Entity( _eventFactory, area, sprite );
 			}
 			throw new InvalidOperationException( "Object pool exhausted and maximum size reached" );
 		}
@@ -111,7 +108,7 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure {
 
 			if ( _currentSize < _maxSize ) {
 				_currentSize++;
-				return new Entity( _eventFactory, entityNode, body, animatedSprite );
+				return new Entity( _eventFactory, body, animatedSprite );
 			}
 			throw new InvalidOperationException( "Object pool exhausted and maximum size reached" );
 		}

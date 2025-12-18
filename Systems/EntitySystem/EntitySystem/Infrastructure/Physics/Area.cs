@@ -60,6 +60,7 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Physics {
 		/// <summary>
 		/// 
 		/// </summary>
+		/// <param name="eventFactory"></param>
 		/// <param name="owner"></param>
 		/// <param name="area"></param>
 		public Area( IGameEventRegistryService eventFactory, IGameEntity owner, Area2D area )
@@ -71,8 +72,8 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Physics {
 			_physicsSpace = area.GetWorld2D().Space;
 			PhysicsServer2D.AreaSetSpace( _physicsRid, _physicsSpace );
 
-			_areaEntered = eventFactory.GetEvent<AreaEnteredEventData>( nameof( AreaEnteredEventData ) );
-			_areaExited = eventFactory.GetEvent<AreaExitedEventData>( nameof( AreaExitedEventData ) );
+			_areaEntered = eventFactory.GetEvent<AreaEnteredEventData>( EventConstants.AREA_ENTERED_EVENT );
+			_areaExited = eventFactory.GetEvent<AreaExitedEventData>( EventConstants.AREA_EXITED_EVENT );
 
 			area.CallDeferred( Area2D.MethodName.QueueFree );
 		}

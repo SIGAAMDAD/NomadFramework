@@ -22,7 +22,6 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
@@ -81,33 +80,6 @@ namespace NomadCore.Infrastructure.Collections {
 				_current._idToString[ id ] = new string( str );
 			}
 			return new InternString( id );
-		}
-
-		/*
-		===============
-		Intern
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="str"></param>
-		/// <param name="id"></param>
-		internal static void Intern( ReadOnlySpan<char> str, ref int id ) {
-			if ( str.IsEmpty ) {
-				id = 0;
-				return;
-			}
-
-			lock ( _current._stringToIds ) {
-				ref int internedId = ref CollectionsMarshal.GetValueRefOrAddDefault( _current._stringToIds, new string( str ), out bool exists );
-				if ( !exists ) {
-					id = string.GetHashCode( str );
-					_current._idToString[ id ] = new string( str );
-				} else {
-					id = internedId;
-				}
-			}
 		}
 
 		/*

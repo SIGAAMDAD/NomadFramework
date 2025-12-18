@@ -141,7 +141,7 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Navigation {
 		public Agent( IGameEventRegistryService eventFactory, IGameEntity owner, NavigationAgent2D agent ) {
 			_owner = new WeakReference<IGameEntity>( owner );
 
-			_navigationDestinationReached = eventFactory.GetEvent<NavigationDestinationReachedEventData>( nameof( NavigationDestinationReachedEventData ) );
+			_navigationDestinationReached = eventFactory.GetEvent<NavigationDestinationReachedEventData>( EventConstants.NAVIGATION_DESTINATION_REACHED_EVENT );
 
 			_agentRid = NavigationServer2D.AgentCreate();
 

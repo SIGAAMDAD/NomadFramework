@@ -22,7 +22,6 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using Godot;
-using NomadCore.Domain.Models.Interfaces;
 using NomadCore.Domain.Models.ValueObjects;
 using NomadCore.GameServices;
 using NomadCore.Infrastructure.Collections;
@@ -70,7 +69,7 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure {
 				BbcodeEnabled = true,
 				ScrollFollowing = true,
 				AnchorRight = 1.0f,
-				AnchorBottom = 0.5f
+				AnchorBottom = 0.5f,
 			};
 			_richLabel.CallDeferred( RichTextLabel.MethodName.AddThemeStyleboxOverride, "normal", new StyleBoxFlat() { BgColor = new Color( 0.0f, 0.0f, 0.0f, 0.84f ) } );
 			node.CallDeferred( Control.MethodName.AddChild, _richLabel );

@@ -45,6 +45,8 @@ namespace NomadCore.Systems.EventSystem.Domain {
 			_owner = owner;
 			_signalName = signalName;
 			_callback = callback;
+
+			owner.Connect( signalName, callback );
 		}
 
 		~GodotSubscription() {

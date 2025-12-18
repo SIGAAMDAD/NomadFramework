@@ -23,19 +23,17 @@ terms, you may contact me via email at nyvantil@gmail.com.
 
 using Godot;
 using NomadCore.Domain.Models.Interfaces;
-using NomadCore.Interfaces.Common;
 using NomadCore.Systems.EntitySystem.Domain.Events;
-using NomadCore.Systems.EntitySystem.Domain.Models.ValueObjects;
 using System;
 
 namespace NomadCore.Systems.EntitySystem.Domain.Models.Interfaces {
-	public interface IRenderEntity : IDisposable, IEntity<RenderEntityId> {
+	public interface IRenderEntity : IDisposable {
 		public bool Visible { get; set; }
 		public uint VisibilityLayer { get; set; }
 		public int ZIndex { get; set; }
 		public int LightMask { get; set; }
 		public Color Modulate { get; set; }
 
-		public IGameEvent<RenderEntityVisibilityChangedEventArgs> VisibilityChanged { get; }
+		public IGameEvent<EntityVisibilityChangedEventData> VisibilityChanged { get; }
 	};
 };

@@ -25,6 +25,7 @@ using NomadCore.Domain.Models.Interfaces;
 
 namespace NomadCore.Systems.EntitySystem.Domain.Events {
 	public readonly record struct EntityVisibilityChangedEventData(
-		IGameEntity entity
+		IGameEntity Entity,
+		bool Value
 	) : IEventArgs;
 };

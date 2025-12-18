@@ -22,7 +22,6 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using Godot;
-using NomadCore.GameServices;
 using System.Collections.Generic;
 
 namespace NomadCore.Systems.EntitySystem.Infrastructure.Navigation {

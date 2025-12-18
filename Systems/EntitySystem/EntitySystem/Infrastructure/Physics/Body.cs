@@ -98,24 +98,49 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Physics {
 			MoveAndSlide( deltaTime, owner );
 		}
 
+		/*
+		===============
+		SetCollisionLayer
+		===============
+		*/
 		protected override void SetCollisionLayer( uint collisionLayer ) {
 			PhysicsServer2D.BodySetCollisionLayer( _physicsRid, collisionLayer );
 		}
 
+		/*
+		===============
+		SetCollisionMask
+		===============
+		*/
 		protected override void SetCollisionMask( uint collisionMask ) {
 			PhysicsServer2D.BodySetCollisionMask( _physicsRid, collisionMask );
 		}
 
+		/*
+		===============
+		SetCollisionPriority
+		===============
+		*/
 		protected override void SetCollisionPriority( float collisionPriority ) {
 			PhysicsServer2D.BodySetCollisionPriority( _physicsRid, collisionPriority );
 		}
 
+		/*
+		===============
+		SetTransform
+		===============
+		*/
 		protected override void SetTransform( Transform2D transform ) {
 			for ( int i = 0; i < _shapes.Count; i++ ) {
 				PhysicsServer2D.BodySetShapeTransform( _shapes[ i ], i, transform );
 			}
 		}
 
+		/*
+		===============
+		MoveAndSlide
+		===============
+		*/
 		private void MoveAndSlide( float deltaTime, IGameEntity owner ) {
 			_isOnFloor = false;
 			_isOnWall = false;
@@ -153,7 +178,12 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Physics {
 				ulong colliderId = result.GetColliderId();
 			}
 		}
-
+		
+		/*
+		===============
+		UpdateCollisionStates
+		===============
+		*/
 		private void UpdateCollisionStates( Vector2 normal ) {
 			float floorAngle = MathF.Acos( normal.Dot( Vector2.Up ) );
 		}

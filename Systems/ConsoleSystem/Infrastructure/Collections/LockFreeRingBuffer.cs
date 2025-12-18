@@ -23,7 +23,7 @@ terms, you may contact me via email at nyvantil@gmail.com.
 
 using System.Threading;
 
-namespace NomadCore.Systems.ConsoleSystem.Infrastructure {
+namespace NomadCore.Systems.ConsoleSystem.Infrastructure.Collections {
 	/*
 	===================================================================================
 	

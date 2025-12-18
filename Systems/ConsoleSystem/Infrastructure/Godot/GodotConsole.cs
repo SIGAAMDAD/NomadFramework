@@ -31,7 +31,7 @@ using NomadCore.Systems.ConsoleSystem.Interfaces;
 using System;
 using System.Runtime.CompilerServices;
 
-namespace NomadCore.Systems.ConsoleSystem.Infrastructure {
+namespace NomadCore.Systems.ConsoleSystem.Infrastructure.Godot {
 	/*
 	===================================================================================
 	
@@ -79,6 +79,8 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure {
 
 			commands.RegisterCommand( new ConsoleCommand( "quit", OnQuit, "Closes the game application." ) );
 			commands.RegisterCommand( new ConsoleCommand( "exit", OnQuit, "Exits the running application." ) );
+
+			AddThemeFontOverride( "SourceCodePro-ExtraLight", ResourceLoader.Load<Font>( "res://Assets/Fonts/SourceCodePro-ExtraLight.ttf" ) );
 		}
 
 		/*

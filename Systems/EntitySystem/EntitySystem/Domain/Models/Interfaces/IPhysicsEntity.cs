@@ -22,8 +22,7 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using Godot;
-using NomadCore.Interfaces.Common;
-using NomadCore.Systems.EntitySystem.Domain.Models.ValueObjects;
+using NomadCore.Domain.Models.Interfaces;
 using System;
 
 namespace NomadCore.Systems.EntitySystem.Domain.Models.Interfaces {
@@ -38,7 +37,7 @@ namespace NomadCore.Systems.EntitySystem.Domain.Models.Interfaces {
 	/// 
 	/// </summary>
 	
-	public interface IPhysicsEntity : IDisposable, IEntity<PhysicsEntityId> {
+	public interface IPhysicsEntity : IDisposable, IComponent {
 		public Rid BodyRid { get; }
 		public uint CollisionLayer { get; }
 		public uint CollisionMask { get; }

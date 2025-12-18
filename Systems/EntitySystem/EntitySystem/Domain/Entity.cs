@@ -37,7 +37,6 @@ using NomadCore.Systems.EntitySystem.Infrastructure.Rendering;
 using NomadCore.Systems.EntitySystem.Domain.Models.ValueObjects;
 using NomadCore.Systems.EntitySystem.Application.Interfaces;
 using NomadCore.Systems.EntitySystem.Infrastructure;
-using Steamworks;
 
 namespace NomadCore.Systems.EntitySystem.Domain {
 	/*
@@ -86,8 +85,8 @@ namespace NomadCore.Systems.EntitySystem.Domain {
 		Entity
 		===============
 		*/
-		private Entity( IGameEventRegistryService eventFactory, Node2D entityNode, int hashCode ) {
-			_id = new EntityId( hashCode, SceneStringPool.Intern( $"Entity{hashCode}" ) );
+		private Entity( IGameEventRegistryService eventFactory, int hashCode ) {
+			_id = new EntityId( hashCode, StringPool.Intern( $"Entity{hashCode}" ) );
 			_stats = new StatManager( this, eventFactory, new Dictionary<InternString, IEntityStat>() );
 		}
 
@@ -99,11 +98,10 @@ namespace NomadCore.Systems.EntitySystem.Domain {
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="entityNode"></param>
 		/// <param name="area"></param>
 		/// <param name="sprite"></param>
-		internal Entity( IGameEventRegistryService eventFactory, Node2D entityNode, Area2D area, Sprite2D sprite )
-			: this( eventFactory, entityNode, area.GetPath().GetHashCode() )
+		internal Entity( IGameEventRegistryService eventFactory, Area2D area, Sprite2D sprite )
+			: this( eventFactory, area.GetPath().GetHashCode() )
 		{
 			_body = new Area( eventFactory, this, area );
 			_renderEntity = new ServerSprite( eventFactory, this, sprite );
@@ -117,11 +115,10 @@ namespace NomadCore.Systems.EntitySystem.Domain {
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="entityNode"></param>
 		/// <param name="characterBody"></param>
 		/// <param name="animatedSprite"></param>
-		internal Entity( IGameEventRegistryService eventFactory, Node2D entityNode, CharacterBody2D characterBody, AnimatedSprite2D animatedSprite )
-			: this( eventFactory, entityNode, characterBody.GetPath().GetHashCode() )
+		internal Entity( IGameEventRegistryService eventFactory, CharacterBody2D characterBody, AnimatedSprite2D animatedSprite )
+			: this( eventFactory, characterBody.GetPath().GetHashCode() )
 		{
 			_body = new Body( this, characterBody );
 			_renderEntity = new AnimationEntity( eventFactory, this, animatedSprite );

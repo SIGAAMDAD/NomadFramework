@@ -22,13 +22,13 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using Godot;
-using NomadCore.Domain.Models.Interfaces;
 using NomadCore.Domain.Models.ValueObjects;
 using NomadCore.GameServices;
 using NomadCore.Infrastructure.Collections;
 using NomadCore.Infrastructure.ServiceRegistry.Interfaces;
 using NomadCore.Systems.ConsoleSystem.CVars.Services;
 using NomadCore.Systems.ConsoleSystem.Infrastructure.Sinks;
+using NomadCore.Systems.ConsoleSystem.Infrastructure.Godot;
 using NomadCore.Systems.ConsoleSystem.Interfaces;
 using NomadCore.Systems.ConsoleSystem.Services;
 using System;

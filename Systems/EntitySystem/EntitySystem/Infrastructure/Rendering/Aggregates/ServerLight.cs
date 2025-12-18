@@ -42,15 +42,6 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Rendering {
 		public LightId Id => _lightRid;
 		protected readonly LightId _lightRid;
 
-		public DateTime CreatedAt => _createdAt;
-		private readonly DateTime _createdAt = DateTime.UtcNow;
-
-		public DateTime? ModifiedAt => _modifiedAt;
-		private DateTime _modifiedAt;
-
-		public int Version => _version;
-		private int _version = 0;
-
 		public bool Enabled {
 			get => _enabled;
 			set {
@@ -58,8 +49,6 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Rendering {
 					return;
 				}
 				_enabled = value;
-				_modifiedAt = DateTime.UtcNow;
-				_version++;
 				RenderingServer.CanvasLightSetEnabled( _lightRid.Value, _enabled );
 			}
 		}
@@ -72,8 +61,6 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Rendering {
 					return;
 				}
 				_height = value;
-				_modifiedAt = DateTime.UtcNow;
-				_version++;
 				RenderingServer.CanvasLightSetHeight( _lightRid.Value, _height );
 			}
 		}
@@ -86,8 +73,6 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Rendering {
 					return;
 				}
 				_shadowsEnabled = value;
-				_modifiedAt = DateTime.UtcNow;
-				_version++;
 				RenderingServer.CanvasLightSetShadowEnabled( _lightRid.Value, _shadowsEnabled );
 			}
 		}
@@ -100,8 +85,6 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Rendering {
 					return;
 				}
 				_shadowFilterType = value;
-				_modifiedAt = DateTime.UtcNow;
-				_version++;
 				RenderingServer.CanvasLightSetShadowFilter( _lightRid.Value, (RenderingServer.CanvasLightShadowFilter)_shadowFilterType  );
 			}
 		}
@@ -114,8 +97,6 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Rendering {
 					return;
 				}
 				_shadowFilterSmooth = value;
-				_modifiedAt = DateTime.UtcNow;
-				_version++;
 				RenderingServer.CanvasLightSetShadowSmooth( _lightRid.Value, _shadowFilterSmooth );
 			}
 		}
@@ -128,8 +109,6 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Rendering {
 					return;
 				}
 				_energy = value;
-				_modifiedAt = DateTime.UtcNow;
-				_version++;
 				RenderingServer.CanvasLightSetEnergy( _lightRid.Value, _energy );
 			}
 		}
@@ -142,8 +121,6 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Rendering {
 					return;
 				}
 				_color = value;
-				_modifiedAt = DateTime.UtcNow;
-				_version++;
 				RenderingServer.CanvasLightSetColor( _lightRid.Value, _color );
 			}
 		}
@@ -181,15 +158,6 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Rendering {
 				RenderingServer.FreeRid( _lightRid.Value );
 			}
 			GC.SuppressFinalize( this );
-		}
-
-		/*
-		===============
-		Equals
-		===============
-		*/
-		public bool Equals( IEntity<LightId>? other ) {
-			return other?.Id == _lightRid;
 		}
 	};
 };

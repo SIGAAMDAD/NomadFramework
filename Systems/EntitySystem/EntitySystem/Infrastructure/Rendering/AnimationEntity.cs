@@ -100,15 +100,15 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Rendering {
 		public AnimationEntity( IGameEventRegistryService eventFactory, IGameEntity owner, AnimatedSprite2D animatedSprite )
 			: base( eventFactory, owner, animatedSprite )
 		{
-			_animation = SceneStringPool.Intern( animatedSprite.Animation );
+			_animation = new( animatedSprite.Animation );
 
-			_animationChanged = eventFactory.GetEvent<AnimationChangedEventData>( nameof( AnimationChanged ) );
-			_animationFinished = eventFactory.GetEvent<AnimationFinishedEventData>( nameof( AnimationFinished ) );
-			_animationLooped = eventFactory.GetEvent<AnimationLoopedEventData>( nameof( AnimationLooped ) );
-			_frameChanged = eventFactory.GetEvent<FrameChangedEventData>( nameof( FrameChanged ) );
+			_animationChanged = eventFactory.GetEvent<AnimationChangedEventData>( EventConstants.ANIMATION_CHANGED_EVENT );
+			_animationFinished = eventFactory.GetEvent<AnimationFinishedEventData>( EventConstants.ANIMATION_FINISHED_EVENT );
+			_animationLooped = eventFactory.GetEvent<AnimationLoopedEventData>( EventConstants.ANIMATION_LOOP_EVENT );
+			_frameChanged = eventFactory.GetEvent<FrameChangedEventData>( EventConstants.FRAME_CHANGED_EVENT );
 
 			ref var animationComponent = ref owner.GetOrAddComponent<AnimationStateComponent>();
-			animationComponent.CurrentAnimation = SceneStringPool.Intern( animatedSprite.Animation );
+			animationComponent.CurrentAnimation = new( animatedSprite.Animation );
 
 			string[] animationNames = animatedSprite.SpriteFrames.GetAnimationNames();
 			int animationCount = animationNames.Length;
@@ -127,7 +127,7 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Rendering {
 					);
 				}
 
-				_animations[ SceneStringPool.Intern( animationName ) ] = new AnimationData(
+				_animations[ new( animationName ) ] = new AnimationData(
 					spriteFrames.GetAnimationLoop( animationName ),
 					(float)spriteFrames.GetAnimationSpeed( animationName ),
 					frameCount,
@@ -138,8 +138,8 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Rendering {
 			_currentFrame = animatedSprite.Frame;
 			_offset = animatedSprite.Offset;
 
-			if ( _animations.ContainsKey( SceneStringPool.Intern( animatedSprite.Autoplay ) ) ) {
-				Play( SceneStringPool.Intern( animatedSprite.Autoplay ) );
+			if ( _animations.ContainsKey( new( animatedSprite.Autoplay ) ) ) {
+				Play( new( animatedSprite.Autoplay ) );
 			}
 			animatedSprite.CallDeferred( AnimatedSprite2D.MethodName.QueueFree );
 		}
@@ -216,18 +216,34 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Rendering {
 				return;
 			}
 
+			CalculateAnimation( deltaTime, animation );
+			Draw( deltaTime, animation );
+		}
+
+		/*
+		===============
+		CalculateAnimation
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="deltaTime"></param>
+		/// <param name="animation"></param>
+		private void CalculateAnimation( float deltaTime, AnimationData animation ) {
 			float remaining = deltaTime;
 			int i = 0;
 			while ( remaining > 0.0f ) {
 				float speed = animation.Speed * _speedScale * _customSpeedScale * _frameSpeedScale;
 				float absSpeed = MathF.Abs( speed );
-
+				
 				if ( speed == 0.0f ) {
 					return;
 				}
 
 				int frameCount = animation.FrameCount;
 				int lastFrame = frameCount - 1;
+
 				if ( Math.Sign( speed ) == -1 ) {
 					if ( _frameProgress >= 1.0f ) {
 						if ( _currentFrame >= lastFrame ) {
@@ -272,8 +288,7 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Rendering {
 					_frameProgress = toProcess * absSpeed;
 					remaining -= toProcess;
 				}
-				i++;
-				if ( i > frameCount ) {
+				if ( i++ > frameCount ) {
 					return; // prevents freezing if toProcess is each time much less than remaining 
 				}
 			}
@@ -284,10 +299,7 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Rendering {
 		Draw
 		===============
 		*/
-		public override void Draw( float deltaTime ) {
-			if ( !_animations.TryGetValue( _animation, out var animation ) ) {
-				return;
-			}
+		private void Draw( float deltaTime, AnimationData animation ) {
 			if ( !_owner.TryGetTarget( out var owner ) ) {
 				return;
 			}

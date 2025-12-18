@@ -25,8 +25,6 @@ using Godot;
 using NomadCore.Domain.Models.Interfaces;
 using System;
 using NomadCore.Systems.EntitySystem.Domain.Models.Interfaces;
-using NomadCore.Systems.EntitySystem.Domain.Models.ValueObjects;
-using NomadCore.Interfaces.Common;
 
 namespace NomadCore.Systems.EntitySystem.Infrastructure.Physics {
 	/*
@@ -93,15 +91,6 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Physics {
 		protected bool _active = true;
 
 		public Rid BodyRid => _physicsRid;
-
-		public PhysicsEntityId Id => throw new NotImplementedException();
-
-		public DateTime CreatedAt => throw new NotImplementedException();
-
-		public DateTime? ModifiedAt => throw new NotImplementedException();
-
-		public int Version => throw new NotImplementedException();
-
 		protected readonly Rid _physicsRid;
 
 		protected WeakReference<IGameEntity> _owner;
@@ -149,9 +138,5 @@ namespace NomadCore.Systems.EntitySystem.Infrastructure.Physics {
 		protected abstract void SetCollisionMask( uint collisionMask );
 		protected abstract void SetCollisionPriority( float collisionPriority );
 		protected abstract void SetTransform( Transform2D transform );
-
-		public bool Equals( IEntity<PhysicsEntityId>? other ) {
-			return other?.Id == Id;
-		}
 	};
 };
