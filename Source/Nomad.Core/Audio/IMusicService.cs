@@ -21,15 +21,38 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-using NomadCore.Systems.Audio.Domain.Models.ValueObjects;
-
-namespace NomadCore.Systems.Audio.Domain.Interfaces
+namespace Nomad.Audio.Abstractions
 {
+    /// <summary>
+    ///
+    /// </summary>
     public interface IMusicService
     {
+        /// <summary>
+        ///
+        /// </summary>
         bool IsPlaying { get; }
 
-        void PlayTheme(EventId name);
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="name"></param>
+        void PlayTheme(string name);
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="name"></param>
+        void AddLoopingTrack(string name);
+
+        /// <summary>
+        ///
+        /// </summary>
+        void ClearLoopingTracks();
+
+        /// <summary>
+        ///
+        /// </summary>
         void Stop();
-    };
-};
+    }
+}

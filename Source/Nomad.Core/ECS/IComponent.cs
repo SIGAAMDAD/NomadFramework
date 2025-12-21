@@ -21,13 +21,12 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-using NomadCore.Domain.Models.Interfaces;
-
-namespace Nomad.Core.CVars
+namespace Nomad.Core.ECS
 {
-    public readonly record struct CVarValueChangedEventArgs<T>(
-        ICVar<T> CVar,
-        T Value
-    ) : IEventArgs
-    { };
-};
+    /// <summary>
+    ///
+    /// </summary>
+    public interface IComponent
+    {
+    }
+}

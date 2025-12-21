@@ -28,13 +28,13 @@ namespace Nomad.Core.CVars
 {
     /*
 	===================================================================================
-	
+
 	CVarCreateInfo
-	
+
 	===================================================================================
 	*/
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <typeparam name="T">The CVar's value type.</typeparam>
 
@@ -45,4 +45,4 @@ namespace Nomad.Core.CVars
         CVarFlags Flags = CVarFlags.None,
         Func<T, bool>? Validator = null
     );
-};
+}

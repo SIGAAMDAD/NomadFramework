@@ -21,16 +21,17 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-using NomadCore.Systems.Audio.Domain.Models.ValueObjects;
-
 namespace NomadCore.Systems.Audio.Domain.Interfaces
 {
+    /// <summary>
+    ///
+    /// </summary>
     public interface IParameterCollection
     {
         int ParameterCount { get; }
 
-        void SetParameter(in ParameterId id, float value);
-        float GetParameter(in ParameterId id);
-        bool ParameterExists(in ParameterId id);
-    };
-};
+        void SetParameter(string id, float value);
+        float GetParameter(string id);
+        bool ParameterExists(string id);
+    }
+}

@@ -34,5 +34,5 @@ namespace Nomad.Core.Collections
         Count,
 
         Default = Scene
-    };
-};
+    }
+}

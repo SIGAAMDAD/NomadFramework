@@ -13,10 +13,20 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System.Collections.Generic;
+
 namespace Nomad.Core.Audio
 {
-    public interface IAudioSystem
+    /// <summary>
+    ///
+    /// </summary>
+    public interface IAudioDevice
     {
-        void Update(float deltaTime);
+        /// <summary>
+        ///
+        /// </summary>
+        string AudioDriver { get; }
+
+        IEnumerable<string> GetAudioDrivers();
     }
 }

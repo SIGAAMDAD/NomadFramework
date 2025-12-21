@@ -21,18 +21,41 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-using NomadCore.Interfaces;
 using System;
 
-namespace NomadCore.Systems.Audio.Domain.Interfaces
+namespace Nomad.Core.Audio
 {
-    public interface IListenerService : IDisposable, IGameService
+    /// <summary>
+    ///
+    /// </summary>
+    public interface IListenerService : IDisposable
     {
+        /// <summary>
+        /// The current number of active listeners
+        /// </summary>
         int ListenerCount { get; }
+
+        /// <summary>
+        ///
+        /// </summary>
         IListener? ActiveListener { get; }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
         IListener AddListener();
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="listener"></param>
+        /// <returns></returns>
         IListener SetActiveListener(IListener listener);
+
+        /// <summary>
+        ///
+        /// </summary>
         void ClearListeners();
-    };
-};
+    }
+}

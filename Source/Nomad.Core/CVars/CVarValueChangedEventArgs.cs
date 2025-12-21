@@ -21,9 +21,10 @@ terms, you may contact me via email at nyvantil@gmail.com.
 ===========================================================================
 */
 
-namespace Nomad.Core.Abstractions
+namespace Nomad.Core.CVars
 {
-    public interface IComponent
-    {
-    }
+    public readonly record struct CVarValueChangedEventArgs<T>(
+        ICVar<T> CVar,
+        T Value
+    );
 }

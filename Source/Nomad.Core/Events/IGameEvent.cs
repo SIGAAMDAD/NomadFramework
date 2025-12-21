@@ -35,9 +35,9 @@ namespace Nomad.Core.Events
 
     /*
 	===================================================================================
-	
+
 	IGameEvent
-	
+
 	===================================================================================
 	*/
     /// <summary>
@@ -72,5 +72,5 @@ namespace Nomad.Core.Events
         void Unsubscribe(object subscriber, EventCallback callback);
         Task PublishAsync(TArgs eventArgs, CancellationToken ct = default);
         void Publish(in TArgs eventArgs);
-    };
-};
+    }
+}

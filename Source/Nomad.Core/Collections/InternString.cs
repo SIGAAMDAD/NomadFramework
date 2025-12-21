@@ -29,13 +29,13 @@ namespace Nomad.Core.Util
 {
     /*
 	===================================================================================
-	
+
 	InternString
-	
+
 	===================================================================================
 	*/
     /// <summary>
-    /// 
+    ///
     /// </summary>
 
     public readonly struct InternString : IEquatable<InternString>
@@ -64,5 +64,5 @@ namespace Nomad.Core.Util
 
         public static bool operator ==(InternString left, InternString right) => left._id == right._id;
         public static bool operator !=(InternString left, InternString right) => left._id != right._id;
-    };
-};
+    }
+}

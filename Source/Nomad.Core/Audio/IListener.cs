@@ -24,7 +24,7 @@ terms, you may contact me via email at nyvantil@gmail.com.
 using NomadCore.Domain.Models.Interfaces;
 using Godot;
 
-namespace NomadCore.Systems.Audio.Domain.Interfaces
+namespace Nomad.Core.Audio
 {
     public interface IListener : IComponent
     {

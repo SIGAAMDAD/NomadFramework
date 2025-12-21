@@ -27,13 +27,6 @@ using System;
 
 namespace Nomad.Core.CVars
 {
-    /*
-	===================================================================================
-
-	ICvar
-
-	===================================================================================
-	*/
     /// <summary>
     ///
     /// </summary>
@@ -60,13 +53,33 @@ namespace Nomad.Core.CVars
         T GetValue<T>();
 
         void Reset();
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="value"></param>
         void SetFromString(string value);
-    };
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface ICVar<T> : ICVar
     {
+        /// <summary>
+        ///
+        /// </summary>
         T Value { get; set; }
+
+        /// <summary>
+        ///
+        /// </summary>
         T DefaultValue { get; }
 
-        IGameEvent<CVarValueChangedEventData<T>> ValueChanged { get; }
+        /// <summary>
+        ///
+        /// </summary>
+        IGameEvent<CVarValueChangedEventArgs<T>> ValueChanged { get; }
     }
 }
