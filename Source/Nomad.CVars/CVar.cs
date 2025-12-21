@@ -1,3 +1,5 @@
+// |
+
 /*
 ===========================================================================
 The Nomad Framework
@@ -13,7 +15,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.Core.CVars
-{
+namespace Nomad.Core.CVars {
 
 }
