@@ -15,8 +15,15 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Core.Audio
 {
+    /// <summary>
+    ///
+    /// </summary>
     public interface IAudioSystem
     {
+        /// <summary>
+        /// Updates the audio system.
+        /// </summary>
+        /// <param name="deltaTime"></param>
         void Update(float deltaTime);
     }
 }

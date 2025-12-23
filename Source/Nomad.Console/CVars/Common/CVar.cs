@@ -22,11 +22,6 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using Godot;
-using NomadCore.Domain.Events;
-using NomadCore.Domain.Models.Interfaces;
-using NomadCore.Domain.Models.ValueObjects;
-using NomadCore.GameServices;
-using NomadCore.Infrastructure.Collections;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -124,7 +119,7 @@ namespace NomadCore.Systems.ConsoleSystem.CVars.Common {
 		===============
 		*/
 		/// <summary>
-		/// Constructs a cvar
+		/// Constructs a cvar.
 		/// </summary>
 		/// <param name="createInfo"></param>
 		/// <exception cref="ArgumentException">Thrown if <paramref name="name"/> is invalid as a CVar name</exception>
