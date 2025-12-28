@@ -22,9 +22,13 @@ namespace Nomad.Audio.ValueObjects
     ///
     /// </summary>
     /// <param name="value"></param>
-    public readonly struct BankHandle(int value) : IValueObject<BankHandle>
+    public readonly struct BankHandle(uint value) : IValueObject<BankHandle>
     {
-        private readonly int _value = value;
+        private readonly uint _value = value;
+
+        public static readonly BankHandle Invalid = new(0);
+
+        public bool IsValid => (_value & 0x00FFFFFF) != 0;
 
         /// <summary>
         ///
@@ -32,9 +36,8 @@ namespace Nomad.Audio.ValueObjects
         /// <param name="other"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Equals(BankHandle other)
-        {
-            return other._value == _value;
-        }
+        public bool Equals(BankHandle other) => other._value == _value;
+
+        public static implicit operator uint(BankHandle handle) => handle._value;
     }
 }

@@ -16,6 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Collections.Generic;
 using Nomad.Audio.Fmod.Private.Entities;
+using Nomad.Audio.Fmod.ValueObjects;
 using Nomad.Audio.ValueObjects;
 using Nomad.Core.Util;
 using Steamworks;
@@ -42,7 +43,8 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		public ChannelGroupHandle AmbientGroup => _ambientChannel;
 		private readonly ChannelGroupHandle _ambientChannel;
 
-		private readonly Dictionary<uint, FMODChannelGroup> _categories;
+		public Dictionary<uint, SoundCategory> Categories => _categories;
+		private readonly Dictionary<uint, SoundCategory> _categories;
 		private readonly FMOD.Studio.System _system;
 
 		/*
@@ -57,36 +59,36 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		public FMODBusRepository( FMOD.Studio.System system ) {
 			_system = system;
 
-			_categories = new Dictionary<uint, FMODChannelGroup>();
+			_categories = new Dictionary<uint, SoundCategory>();
 
 			CreateChannelGroup(
-				new SoundCategory {
-					Name = "SoundCategory:UI",
-					MaxSimultaneous = 4,
-					PriorityScale = 1.5f,
-					StealProtectionTime = 0.2f,
-					AllowStealingFromSameCategory = false
-				},
+				new SoundCategoryCreateInfo(
+					Name: "SoundCategory:UI",
+					MaxSimultaneous: 4,
+					PriorityScale: 1.5f,
+					StealProtectionTime: 0.2f,
+					AllowStealingFromSameCategory: false
+				),
 				out _uiChannel
 			);
 			CreateChannelGroup(
-				new SoundCategory {
-					Name = "SoundCategory:Music",
-					MaxSimultaneous = 2,
-					PriorityScale = 2.0f,
-					StealProtectionTime = 1.5f,
-					AllowStealingFromSameCategory = false
-				},
+				new SoundCategoryCreateInfo(
+					Name: "SoundCategory:Music",
+					MaxSimultaneous: 2,
+					PriorityScale: 2.0f,
+					StealProtectionTime: 1.5f,
+					AllowStealingFromSameCategory: false
+				),
 				out _musicChannel
 			);
 			CreateChannelGroup(
-				new SoundCategory {
-					Name = "SoundCategory:Ambient",
-					MaxSimultaneous = 10,
-					PriorityScale = 0.8f,
-					StealProtectionTime = 0.8f,
-					AllowStealingFromSameCategory = true
-				},
+				new SoundCategoryCreateInfo(
+					Name: "SoundCategory:Ambient",
+					MaxSimultaneous: 10,
+					PriorityScale: 0.8f,
+					StealProtectionTime: 0.8f,
+					AllowStealingFromSameCategory: true
+				),
 				out _ambientChannel
 			);
 		}
@@ -101,7 +103,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// </summary>
 		public void Dispose() {
 			foreach ( var category in _categories ) {
-				category.Value?.Dispose();
+				category.Value.ChannelGroup?.Dispose();
 			}
 			_categories.Clear();
 		}
@@ -117,7 +119,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// <param name="category"></param>
 		/// <param name="group"></param>
 		/// <returns></returns>
-		public AudioResult CreateChannelGroup( SoundCategory category, out ChannelGroupHandle group ) {
+		public AudioResult CreateChannelGroup( SoundCategoryCreateInfo category, out ChannelGroupHandle group ) {
 			uint hash = category.Name.HashFileName();
 			group = new( hash );
 
@@ -125,7 +127,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 				return AudioResult.Success;
 			}
 
-			_categories[ hash ] = new FMODChannelGroup( category, _system );
+			_categories[ hash ] = new( category, _system );
 			return AudioResult.Success;
 		}
 
@@ -154,21 +156,6 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 
 		/*
 		===============
-		GetSoundCategoryFromGroup
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="name"></param>
-		/// <param name="group"></param>
-		/// <returns></returns>
-		public AudioResult GetSoundCategoryFromGroup( ReadOnlyMemory<char> name, out SoundCategory group ) {
-			return AudioResult.Success;
-		}
-
-		/*
-		===============
 		SetChannelGroupVolume
 		===============
 		*/
@@ -182,8 +169,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			if ( !_categories.TryGetValue( group, out var category ) ) {
 				return AudioResult.Error_InvalidParameter;
 			}
-
-			category.Volume = volume;
+			category.ChannelGroup.Volume = volume;
 			return AudioResult.Success;
 		}
 
@@ -202,8 +188,44 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			if ( !_categories.TryGetValue( group, out var category ) ) {
 				return AudioResult.Error_InvalidParameter;
 			}
+			category.ChannelGroup.Pitch = pitch;
+			return AudioResult.Success;
+		}
 
-			category.Pitch = pitch;
+		/*
+		===============
+		SetChannelGroupMute
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="group"></param>
+		/// <param name="mute"></param>
+		/// <returns></returns>
+		public AudioResult SetChannelGroupMute( ChannelGroupHandle group, bool mute ) {
+			if ( !_categories.TryGetValue( group, out var category ) ) {
+				return AudioResult.Error_InvalidParameter;
+			}
+			category.ChannelGroup.Muted = mute;
+			return AudioResult.Success;
+		}
+
+		/*
+		===============
+		StopChannelGroup
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="group"></param>
+		/// <returns></returns>
+		public AudioResult StopChannelGroup( ChannelGroupHandle group ) {
+			if ( !_categories.TryGetValue( group, out var category ) ) {
+				return AudioResult.Error_InvalidParameter;
+			}
+			category.ChannelGroup.StopAllEvents();
 			return AudioResult.Success;
 		}
 	};

@@ -15,22 +15,79 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Collections.Generic;
-using Nomad.Audio.Fmod.Private.Repositories.Loaders;
-using Nomad.Audio.Fmod.Private.Services;
 using Nomad.Audio.Fmod.Private.ValueObjects;
 using Nomad.Audio.ValueObjects;
-using Nomad.Core.Events;
 using Nomad.Core.Logger;
-using Nomad.ResourceCache;
+using Nomad.Core.Util;
 
 namespace Nomad.Audio.Fmod.Private.Repositories {
-	internal sealed class FMODEventRepository : IDisposable {
+	/*
+	===================================================================================
+
+	FMODEventRepository
+
+	===================================================================================
+	*/
+	/// <summary>
+	///
+	/// </summary>
+
+	internal sealed class FMODEventRepository( ILoggerService logger, FMOD.Studio.System system ) : IDisposable {
 		private readonly Dictionary<EventHandle, FMODEventResource> _eventCache = new();
 
-		public FMODEventRepository() {
+		/*
+		===============
+		Dispose
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		public void Dispose() {
+			_eventCache.Clear();
 		}
 
-		public void Dispose() {
+		/*
+		===============
+		CreateEvent
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="assetPath"></param>
+		/// <param name="eventHandle"></param>
+		/// <returns></returns>
+		public AudioResult CreateEvent( string assetPath, out EventHandle eventHandle ) {
+			eventHandle = new( assetPath.HashFileName() );
+			if ( _eventCache.TryGetValue( eventHandle, out _ ) ) {
+				return AudioResult.Success;
+			}
+
+			FMODValidator.ValidateCall( system.getEvent( assetPath, out var eventDescription ) );
+			_eventCache.Add( eventHandle, new( eventDescription ) );
+			return AudioResult.Success;
+		}
+
+		/*
+		===============
+		GetEventDescription
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="eventHandle"></param>
+		/// <param name="description"></param>
+		/// <returns></returns>
+		public AudioResult GetEventDescription( EventHandle eventHandle, out FMOD.Studio.EventDescription description ) {
+			if ( !_eventCache.TryGetValue( eventHandle, out var resource ) ) {
+				description = new( IntPtr.Zero );
+				return AudioResult.Error_ResourceNotFound;
+			}
+
+			description = resource.Handle;
+			return AudioResult.Success;
 		}
 	};
 };

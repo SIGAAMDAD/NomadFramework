@@ -13,7 +13,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System.Runtime.CompilerServices;
 using Nomad.Core.Abstractions;
 
 namespace Nomad.Audio.ValueObjects
@@ -22,21 +21,13 @@ namespace Nomad.Audio.ValueObjects
     ///
     /// </summary>
     /// <param name="value"></param>
-    public readonly struct ChannelGroupHandle(uint value) : IValueObject<ChannelGroupHandle>
+    public readonly record struct ChannelGroupHandle(uint value) : IValueObject<ChannelGroupHandle>
     {
         private readonly uint _value = value;
 
-        public static ChannelGroupHandle Invalid = new ChannelGroupHandle(0);
+        public static readonly ChannelGroupHandle Invalid = new(0);
 
         public bool IsValid => (_value & 0x00FFFFFF) != 0;
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Equals(ChannelGroupHandle other) => other._value == _value;
 
         public static implicit operator uint(ChannelGroupHandle handle) => handle._value;
     }

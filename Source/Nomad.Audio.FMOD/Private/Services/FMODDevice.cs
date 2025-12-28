@@ -31,9 +31,6 @@ using Nomad.Core.Exceptions;
 using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
 using Nomad.CVars;
-using Nomad.ResourceCache;
-using FMOD;
-using Nomad.Audio.Fmod.Private.Entities;
 
 namespace Nomad.Audio.Fmod.Private.Services {
 	/*
@@ -54,7 +51,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		private readonly FMODSystemHandle _systemHandle;
 		private readonly ILoggerService _logger;
 
-		public IResourceCacheService<FMODEventResource, EventId> EventRepository => _eventRepository;
+		public FMODEventRepository EventRepository => _eventRepository;
 		private readonly FMODEventRepository _eventRepository;
 
 		private readonly FMODBusRepository _busRepository;
@@ -149,6 +146,16 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			return _bankRepository.LoadBank( bankPath, out bank );
 		}
 
+		/*
+		===============
+		UnloadBank
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="bank"></param>
+		/// <returns></returns>
 		public AudioResult UnloadBank( BankHandle bank ) {
 			return _bankRepository.UnloadBank( bank );
 		}
@@ -257,7 +264,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		/// <param name="category"></param>
 		/// <param name="group"></param>
 		/// <returns></returns>
-		public AudioResult CreateChannelGroup( SoundCategory category, out ChannelGroupHandle group ) {
+		public AudioResult CreateChannelGroup( SoundCategoryCreateInfo category, out ChannelGroupHandle group ) {
 			return _busRepository.CreateChannelGroup( category, out group );
 		}
 
@@ -287,6 +294,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		/// <param name="group"></param>
 		/// <returns></returns>
 		public AudioResult StopChannelGroup( ChannelGroupHandle group ) {
+			return _busRepository.StopChannelGroup( group );
 		}
 
 		/*
@@ -294,8 +302,29 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		SetChannelGroupVolume
 		===============
 		*/
-		public AudioResult SetChannelGroupVolume( ChannelGroupHandle group, float value ) {
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="group"></param>
+		/// <param name="volume"></param>
+		/// <returns></returns>
+		public AudioResult SetChannelGroupVolume( ChannelGroupHandle group, float volume ) {
+			return _busRepository.SetChannelGroupVolume( group, volume );
+		}
 
+		/*
+		===============
+		SetChannelGroupMute
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="group"></param>
+		/// <param name="mute"></param>
+		/// <returns></returns>
+		public AudioResult SetChannelGroupMute( ChannelGroupHandle group, bool mute ) {
+			return _busRepository.SetChannelGroupMute( group, mute );
 		}
 
 		/*

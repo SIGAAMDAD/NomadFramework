@@ -29,8 +29,6 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 	/// </summary>
 
 	internal sealed class FMODChannelGroup : IDisposable {
-		public readonly SoundCategory Category;
-
 		public float Volume {
 			get => _volume;
 			set {
@@ -92,8 +90,8 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 		/// </summary>
 		/// <param name="category"></param>
 		/// <param name="system">The core FMOD system.</param>
-		public FMODChannelGroup( SoundCategory category, FMOD.Studio.System system ) {
-			system.getBus( category.Name, out _bus );
+		public FMODChannelGroup( SoundCategoryCreateInfo category, FMOD.Studio.System system ) {
+			FMODValidator.ValidateCall( system.getBus( category.Name, out _bus ) );
 			FMODValidator.ValidateCall( _bus.getChannelGroup( out _group ) );
 		}
 
@@ -126,6 +124,18 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 			}
 
 			GC.SuppressFinalize( this );
+		}
+
+		/*
+		===============
+		StopAllEvents
+		===============
+		*/
+		/// <summary>
+		/// Stops all events that are controlled by this sound category.
+		/// </summary>
+		public void StopAllEvents() {
+			FMODValidator.ValidateCall( _bus.stopAllEvents( FMOD.Studio.STOP_MODE.ALLOWFADEOUT ) );
 		}
 	};
 };

@@ -15,9 +15,9 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using Godot;
 using System;
-using FMOD.Studio;
 using Nomad.Audio.ValueObjects;
 using Nomad.Audio.Fmod.Entities;
+using Nomad.Audio.Fmod.ValueObjects;
 
 namespace Nomad.Audio.Fmod.Private.Entities {
 	/*
@@ -32,16 +32,13 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 	/// </summary>
 
 	internal sealed class FMODChannel : IDisposable {
-		public FMODChannelResource Instance;
-		public Vector2 Position;
+		public FMODChannelResource Instance = new();
 		public float BasePriority;
 		public float CurrentPriority;
 		public float StartTime;
 		public int ChannelId;
-		public ChannelGroupHandle Category;
+		public SoundCategory Category;
 		public float LastStolenTime = 0.0f;
-
-		public ChannelGroupHandle Group;
 
 		public float Volume {
 			get => _volume;

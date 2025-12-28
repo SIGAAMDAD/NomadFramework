@@ -22,9 +22,13 @@ namespace Nomad.Audio.ValueObjects
     ///
     /// </summary>
     /// <param name="value"></param>
-    public readonly struct EventHandle(int value) : IValueObject<EventHandle>
+    public readonly struct EventHandle(uint value) : IValueObject<EventHandle>
     {
-        private readonly int _value = value;
+        private readonly uint _value = value;
+
+        public static readonly EventHandle Invalid = new EventHandle(0);
+
+        public bool IsValid => (_value & 0x00FFFFFF) != 0;
 
         /// <summary>
         ///
@@ -32,9 +36,8 @@ namespace Nomad.Audio.ValueObjects
         /// <param name="other"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Equals(EventHandle other)
-        {
-            return other._value == _value;
-        }
+        public bool Equals(EventHandle other) => other._value == _value;
+
+        public static implicit operator uint(EventHandle handle) => handle._value;
     }
 }
