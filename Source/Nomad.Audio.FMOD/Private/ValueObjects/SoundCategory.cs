@@ -1,0 +1,37 @@
+/*
+===========================================================================
+The Nomad Framework
+Copyright (C) 2025 Noah Van Til
+
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v2. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+This software is provided "as is", without warranty of any kind,
+express or implied, including but not limited to the warranties
+of merchantability, fitness for a particular purpose and noninfringement.
+===========================================================================
+*/
+
+using Nomad.Audio.Fmod.Private.Entities;
+using Nomad.Audio.ValueObjects;
+using Nomad.Core.Abstractions;
+using Nomad.Core.Util;
+
+namespace Nomad.Audio.Fmod.ValueObjects {
+	/*
+	===================================================================================
+
+	SoundCategory
+
+	===================================================================================
+	*/
+	/// <summary>
+	///
+	/// </summary>
+
+	internal record SoundCategory( SoundCategoryCreateInfo Config, FMOD.Studio.System System ) : IValueObject<SoundCategory> {
+		public readonly FMODChannelGroup ChannelGroup = new( Config, System );
+		public readonly ChannelGroupHandle Handle = new( Config.Name.HashFileName() );
+	};
+};
