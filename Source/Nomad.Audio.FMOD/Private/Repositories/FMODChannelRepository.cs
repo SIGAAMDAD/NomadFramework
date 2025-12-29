@@ -16,7 +16,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using Godot;
 using Nomad.Audio.Fmod.Entities;
 using Nomad.Audio.Fmod.Private.Entities;
-using Nomad.Audio.Fmod.Private.Exceptions;
 using Nomad.Audio.Fmod.Private.ValueObjects;
 using Nomad.Audio.Fmod.ValueObjects;
 using Nomad.Audio.Interfaces;
@@ -24,9 +23,7 @@ using Nomad.Audio.ValueObjects;
 using Nomad.Core;
 using Nomad.Core.Exceptions;
 using Nomad.Core.Logger;
-using Nomad.Core.Util;
 using Nomad.CVars;
-using Nomad.ResourceCache;
 using NomadCore.Utilities;
 using System;
 using System.Collections.Generic;
@@ -64,10 +61,13 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		private float _frequencyPenalty = 0.4f;
 		private float _minTimeBetweenChannelSteals = 0.1f;
 
-		private int _maxChannels = 0;
 		private float _distanceFalloffStart = 50.0f;
 		private float _distanceFalloffEnd = 100.0f;
+		private float _distanceFalloffLerp = 0.0f;
 		private float _effectsVolume = 0.0f;
+
+		private readonly ICVar<int> _maxChannels;
+		private readonly ICVar<int> _maxActiveChannels;
 
 		private readonly FMODEventRepository _eventRepository;
 		private readonly FMODGuidRepository _guidRepository;
@@ -87,12 +87,14 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			_listenerService = listenerService;
 			_busRepository = busRepository;
 
+			_maxActiveChannels = cvarSystem.GetCVar<int>( Constants.CVars.Audio.MAX_ACTIVE_CHANNELS ) ?? throw new CVarMissing( Constants.CVars.Audio.MAX_ACTIVE_CHANNELS );
+			_maxChannels = cvarSystem.GetCVar<int>( Constants.CVars.Audio.MAX_CHANNELS ) ?? throw new CVarMissing( Constants.CVars.Audio.MAX_CHANNELS );
 			InitConfig( cvarSystem );
 
-			_allocatedChannels = new List<FMODChannel>( _maxChannels );
-			_freeChannelIds = new Queue<int>( _maxChannels );
+			_allocatedChannels = new List<FMODChannel>( _maxActiveChannels.Value );
+			_freeChannelIds = new Queue<int>( _maxActiveChannels.Value );
 
-			for ( int i = 0; i < _maxChannels; i++ ) {
+			for ( int i = 0; i < _maxActiveChannels.Value; i++ ) {
 				_freeChannelIds.Enqueue( i );
 			}
 			_eventRepository = eventRepository;
@@ -120,10 +122,11 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		///
 		/// </summary>
 		/// <param name="eventDescription"></param>
+		/// <param name="position"></param>
 		/// <param name="config"></param>
 		/// <param name="channel"></param>
 		/// <returns></returns>
-		public AudioResult TriggerEvent( FMOD.Studio.EventDescription eventDescription, Vector2 position, SoundCategory config, out ChannelHandle channel ) {
+		public AudioResult TriggerEvent( FMODEventResource eventDescription, Vector2 position, SoundCategory config, out ChannelHandle channel ) {
 			int soundsInCategory = CountSoundsInCategory( config.Handle );
 			if ( soundsInCategory >= config.Config.MaxSimultaneous ) {
 				if ( !config.Config.AllowStealingFromSameCategory ) {
@@ -132,66 +135,33 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 					return AudioResult.Success;
 				}
 			}
-			IntPtr eventHandle = eventDescription.handle;
+			IntPtr eventHandle = eventDescription.Handle.handle;
+			float startTime = Time.GetTicksMsec() / 1000.0f;
 
-			float actualPriority = CalculateActualPriority( eventHandle, position, 0.5f, config );
-			int channelId = AllocateChannelId( eventHandle, position, actualPriority, config, false );
+			float actualPriority = CalculateActualPriority( startTime, eventHandle, position, 0.5f, config );
+			int channelId = AllocateChannelId( startTime, actualPriority, config.Handle );
 			if ( channelId == INVALID_CHANNEL ) {
-				FMODValidator.ValidateCall( eventDescription.getPath( out var path ) );
+				FMODValidator.ValidateCall( eventDescription.Handle.getPath( out var path ) );
 				_logger.PrintError( $"Couldn't allocate a channel for sound event '{path}'!" );
 				channel = new( 0 );
 				return AudioResult.Error_DeviceError;
 			}
 
-			var instance = CreateSoundInstance( eventDescription, position, channelId );
+			CreateSoundInstance( eventDescription, position, out var instance );
 			channel = new( channelId );
 
+			FMODChannel resource = _channelPool.Rent();
+			resource.Instance = instance;
+			resource.StartTime = startTime;
+			resource.BasePriority = 0.5f;
+			resource.CurrentPriority = actualPriority;
+			resource.ChannelId = channelId;
+			resource.IsEssential = false;
+
+			_allocatedChannels.Add( resource );
+			UpdateLastPlayTime( eventHandle, startTime );
+
 			return AudioResult.Success;
-		}
-
-		/*
-		===============
-		AllocateChannel
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="eventDescription"></param>
-		/// <param name="position"></param>
-		/// <param name="config"></param>
-		/// <param name="basePriority"></param>
-		/// <param name="isEssential"></param>
-		/// <returns></returns>
-		public FMODChannel? AllocateChannel( FMODEventResource eventDescription, Vector2 position,
-			SoundCategory config, float basePriority = 0.5f,
-			bool isEssential = false )
-		{
-			IntPtr eventHandle = eventDescription.Handle.handle;
-
-			float actualPriority = CalculateActualPriority( eventHandle, position, basePriority, config );
-			int channelId = AllocateChannelId( eventHandle, position, actualPriority, config.Handle, isEssential );
-
-			if ( channelId == INVALID_CHANNEL ) {
-				_logger.PrintError( $"Couldn't allocate a channel for sound event '{config.Config.Name}'!" );
-				return null;
-			}
-
-			CreateSoundInstance( eventDescription, position, channelId, out var instance );
-
-			var channel = _channelPool.Rent();
-			channel.Instance = instance;
-			channel.Category = config;
-			channel.BasePriority = basePriority;
-			channel.CurrentPriority = actualPriority;
-			channel.StartTime = Time.GetTicksMsec() / 1000.0f;
-			channel.IsEssential = isEssential;
-			channel.ChannelId = channelId;
-
-			_allocatedChannels.Add( channel );
-			UpdateLastPlayTime( id );
-
-			return channel;
 		}
 
 		/*
@@ -203,8 +173,8 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		///
 		/// </summary>
 		/// <param name="eventHandle"></param>
-		public void UpdateLastPlayTime( IntPtr eventHandle ) {
-			_lastPlayTimes[ eventHandle ] = Time.GetTicksMsec() / 1000.0f;
+		public void UpdateLastPlayTime( IntPtr eventHandle, float startTime ) {
+			_lastPlayTimes[ eventHandle ] = startTime;
 		}
 
 		/*
@@ -303,17 +273,18 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// <summary>
 		///
 		/// </summary>
+		/// <param name="startTime"></param>
 		/// <param name="eventHandle"></param>
 		/// <param name="position"></param>
 		/// <param name="basePriority"></param>
 		/// <param name="category"></param>
 		/// <returns></returns>
-		private float CalculateActualPriority( IntPtr eventHandle, Vector2 position, float basePriority, SoundCategory category ) {
+		private float CalculateActualPriority( float startTime, IntPtr eventHandle, Vector2 position, float basePriority, SoundCategory category ) {
 			float distance = position.DistanceTo( _listenerService.ActiveListener );
 			float distanceFactor = CalculateDistanceFactor( distance );
 
 			// prevent spamming
-			float timePenalty = CalculateTimePenalty( eventHandle );
+			float timePenalty = CalculateTimePenalty( eventHandle, startTime );
 
 			float frequencyPenalty = CalculateFrequencyPenalty( eventHandle );
 
@@ -348,7 +319,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			// TODO: precompute
 
 			// LERP it
-			float t = (distance - _distanceFalloffStart) / (_distanceFalloffEnd / _distanceFalloffStart);
+			float t = ( distance - _distanceFalloffStart ) / _distanceFalloffLerp;
 			return 1.0f - t * 0.5f;
 		}
 
@@ -362,18 +333,18 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// </summary>
 		/// <param name="id"></param>
 		/// <returns></returns>
-		private float CalculateTimePenalty( IntPtr eventHandle ) {
+		private float CalculateTimePenalty( IntPtr eventHandle, float startTime ) {
 			if ( !_lastPlayTimes.TryGetValue( eventHandle, out float lastTime ) ) {
 				return 0.0f;
 			}
-			float timeSinceLast = Time.GetTicksMsec() / 1000.0f - lastTime;
+			float timeSinceLast = startTime - lastTime;
 			float protectionTime = 0.5f;
 
 			// less penality if enough time has passed
 			if ( timeSinceLast > protectionTime ) {
 				return 0.0f;
 			}
-			return 1.0f - (timeSinceLast / protectionTime);
+			return 1.0f - ( timeSinceLast / protectionTime );
 		}
 
 		/*
@@ -396,23 +367,21 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 
 		/*
 		===============
-		AllocateChannel
+		AllocateChannelId
 		===============
 		*/
 		/// <summary>
 		///
 		/// </summary>
-		/// <param name="id"></param>
-		/// <param name="position"></param>
+		/// <param name="currentTime"></param>
 		/// <param name="priority"></param>
 		/// <param name="category"></param>
-		/// <param name="isEssential"></param>
 		/// <returns></returns>
-		private int AllocateChannelId( IntPtr eventHandle, Vector2 position, float priority, ChannelGroupHandle category, bool isEssential ) {
+		private int AllocateChannelId( float currentTime, float priority, ChannelGroupHandle category ) {
 			if ( _freeChannelIds.Count > 0 ) {
 				return _freeChannelIds.Dequeue();
 			}
-			return StealChannel( eventHandle, position, priority, category, isEssential );
+			return StealChannel( currentTime, priority, category );
 		}
 
 		/*
@@ -423,16 +392,13 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// <summary>
 		///
 		/// </summary>
-		/// <param name="eventHandle"></param>
-		/// <param name="position"></param>
+		/// <param name="currentTime"></param>
 		/// <param name="priority"></param>
 		/// <param name="category"></param>
-		/// <param name="isEssential"></param>
 		/// <returns></returns>
-		private int StealChannel( IntPtr eventHandle, Vector2 position, float priority, ChannelGroupHandle category, bool isEssential ) {
+		private int StealChannel( float currentTime, float priority, ChannelGroupHandle category ) {
 			float bestStealScore = float.MinValue;
 			FMODChannel? bestCandidate = null;
-			float currentTime = Time.GetTicksMsec() / 1000.0f;
 
 			for ( int i = 0; i < _allocatedChannels.Count; i++ ) {
 				var sound = _allocatedChannels[ i ];
@@ -451,7 +417,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 				}
 
 				// calc steal score
-				float stealScore = CalculateStealScore( sound, priority, category );
+				float stealScore = CalculateStealScore( currentTime, sound, priority, category );
 				if ( stealScore > bestStealScore ) {
 					bestStealScore = stealScore;
 					bestCandidate = sound;
@@ -476,11 +442,12 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// <summary>
 		///
 		/// </summary>
+		/// <param name="currentTime"></param>
 		/// <param name="candidate"></param>
 		/// <param name="newPriority"></param>
 		/// <param name="category"></param>
 		/// <returns></returns>
-		private float CalculateStealScore( FMODChannel candidate, float newPriority, ChannelGroupHandle category ) {
+		private float CalculateStealScore( float currentTime, FMODChannel candidate, float newPriority, ChannelGroupHandle category ) {
 			float distance = candidate.Instance.Position.DistanceTo( _listenerService.ActiveListener );
 			float priorityDiff = newPriority - candidate.CurrentPriority;
 			float ageFactor = Math.Min( candidate.Age / 5.0f, 1.0f );
@@ -495,7 +462,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 
 			score *= category == candidate.Category.Handle ? 0.5f : 1.0f;
 
-			float timeSinceLastStolen = Time.GetTicksMsec() / 1000.0f - candidate.LastStolenTime;
+			float timeSinceLastStolen = currentTime - candidate.LastStolenTime;
 			if ( timeSinceLastStolen < 1.0f ) {
 				score *= timeSinceLastStolen;
 			}
@@ -514,10 +481,12 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// </summary>
 		/// <param name="stolenEventId"></param>
 		private void UpdateStealStatistics( IntPtr stolenEventId ) {
-			if ( !_consecutiveStealCounts.ContainsKey( stolenEventId ) ) {
-				_consecutiveStealCounts[ stolenEventId ] = 0;
+			if ( _consecutiveStealCounts.TryGetValue( stolenEventId, out int stealCount ) ) {
+				stealCount++;
+			} else {
+				stealCount = 0;
 			}
-			_consecutiveStealCounts[ stolenEventId ]++;
+			_consecutiveStealCounts[ stolenEventId ] = stealCount;
 			_shouldDecay = true;
 		}
 
@@ -532,8 +501,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		private void DecayStealCounts() {
 			foreach ( var kvp in _consecutiveStealCounts ) {
 				int stealCount = _consecutiveStealCounts[ kvp.Key ];
-				stealCount = Math.Min( 0, stealCount - 1 );
-				if ( stealCount == 0 ) {
+				if ( stealCount-- <= 0 ) {
 					_consecutiveStealCounts.Remove( kvp.Key );
 				}
 			}
@@ -570,15 +538,13 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// <summary>
 		///
 		/// </summary>
-		/// <param name="id"></param>
+		/// <param name="resource"></param>
 		/// <param name="position"></param>
-		/// <param name="channelId"></param>
 		/// <param name="instance"></param>
-		/// <returns></returns>
-		private void CreateSoundInstance( FMODEventResource resource, Vector2 position, int channelId, out FMODChannelResource instance ) {
+		private void CreateSoundInstance( FMODEventResource resource, Vector2 position, out FMODChannelResource instance ) {
 			resource.CreateInstance( out instance );
 			instance.Position = position;
-			instance.Volume = _effectsVolume / 10.0f;
+			instance.Volume = _effectsVolume;
 			FMODValidator.ValidateCall( instance.instance.setCallback( SoundFinishedCallback, FMOD.Studio.EVENT_CALLBACK_TYPE.STOPPED | FMOD.Studio.EVENT_CALLBACK_TYPE.START_FAILED ) );
 			FMODValidator.ValidateCall( instance.instance.start() );
 		}
@@ -672,15 +638,23 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			_distanceWeight = distanceWeight.Value;
 			distanceWeight.ValueChanged.Subscribe( this, OnDistanceWeightValueChanged );
 
-			var maxChannels = cvarSystem.GetCVar<int>( Constants.CVars.Audio.MAX_CHANNELS ) ?? throw new CVarMissing( Constants.CVars.Audio.MAX_CHANNELS );
+			_maxActiveChannels.ValueChanged.Subscribe( this, OnMaxChannelsValueChanged );
+			ValidateMaxActiveChannels();
+		}
 
-			var maxActiveChannels = cvarSystem.GetCVar<int>( Constants.CVars.Audio.MAX_ACTIVE_CHANNELS ) ?? throw new CVarMissing( Constants.CVars.Audio.MAX_ACTIVE_CHANNELS );
-			_maxChannels = maxActiveChannels.Value;
-			maxActiveChannels.ValueChanged.Subscribe( this, OnMaxChannelsValueChanged );
-			if ( maxActiveChannels.Value > maxChannels.Value ) {
-				_logger.PrintError( $"FMODChannelRepository: maxActiveChannels cannot be larger than maxChannels, resetting both..." );
-				maxActiveChannels.Reset();
-				maxChannels.Reset();
+		/*
+		===============
+		ValidateMaxActiveChannels
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		private void ValidateMaxActiveChannels() {
+			if ( _maxActiveChannels.Value > _maxChannels.Value ) {
+				_logger.PrintError( $"FMODChannelRepository.ValidateMaxActiveChannels: maxActiveChannels cannot be larger than maxChannels, resetting both..." );
+				_maxActiveChannels.Reset();
+				_maxChannels.Reset();
 			}
 		}
 
@@ -689,8 +663,12 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		OnMaxChannelsValueChanged
 		===============
 		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="args"></param>
 		private void OnMaxChannelsValueChanged( in CVarValueChangedEventArgs<int> args ) {
-			_maxChannels = args.NewValue;
+			ValidateMaxActiveChannels();
 		}
 
 		/*
@@ -698,6 +676,10 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		OnMaxChannelsValueChanged
 		===============
 		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="args"></param>
 		private void OnEffectsVolumeChanged( in CVarValueChangedEventArgs<float> args ) {
 			_effectsVolume = args.NewValue / 10.0f;
 		}
@@ -725,7 +707,8 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// </summary>
 		/// <param name="args"></param>
 		private void OnDistanceFalloffEndValueChanged( in CVarValueChangedEventArgs<float> args ) {
-			_distanceFalloffEnd = args.NewValue;
+			_distanceFalloffEnd = args.NewValue;_distanceFalloffLerp = _distanceFalloffEnd / _distanceFalloffStart;
+			_distanceFalloffLerp = _distanceFalloffEnd / _distanceFalloffStart;
 		}
 
 		/*
@@ -739,6 +722,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// <param name="args"></param>
 		private void OnDistanceFalloffStartValueChanged( in CVarValueChangedEventArgs<float> args ) {
 			_distanceFalloffStart = args.NewValue;
+			_distanceFalloffLerp = _distanceFalloffEnd / _distanceFalloffStart;
 		}
 
 		/*

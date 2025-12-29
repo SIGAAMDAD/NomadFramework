@@ -13,21 +13,17 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Nomad.Audio.Entities;
-using Nomad.Audio.ValueObjects;
-using Nomad.Core.Abstractions;
-using System;
+using Godot;
 
-namespace Nomad.Audio.Interfaces
+namespace Nomad.Rendering.Tools
 {
     /// <summary>
     ///
     /// </summary>
-    public interface IAudioBank : IDisposable, IAggregateRoot<BankId>
+    [Tool]
+    public sealed class Lightmapper2D : Node
     {
-        /// <summary>
-        /// The bank's current state
-        /// </summary>
-        BankState Status { get; }
+        [Export]
+        public TileMapLayer TileMap;
     }
 }

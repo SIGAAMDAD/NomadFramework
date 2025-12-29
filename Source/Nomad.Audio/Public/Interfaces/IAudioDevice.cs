@@ -41,7 +41,7 @@ namespace Nomad.Audio.Interfaces
 
         AudioResult SetParameterValue(EventHandle eventHandle, string parameterName, float value);
 
-        AudioResult CreateChannelGroup(SoundCategory category, out ChannelGroupHandle group);
+        AudioResult CreateChannelGroup(SoundCategoryCreateInfo category, out ChannelGroupHandle group);
         AudioResult GetChannelGroup(string groupname, out ChannelGroupHandle group);
         AudioResult StopChannelGroup(ChannelGroupHandle group);
         AudioResult SetChannelGroupVolume(ChannelGroupHandle group, float value);

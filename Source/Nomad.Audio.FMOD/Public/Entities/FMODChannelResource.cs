@@ -22,13 +22,13 @@ namespace Nomad.Audio.Fmod.Entities
     /// <summary>
     ///
     /// </summary>
-    internal record struct FMODChannelResource : IDisposable, IValueObject<FMODChannelResource>
+    internal record struct FMODChannelResource(FMOD.Studio.EventInstance instance) : IDisposable, IValueObject<FMODChannelResource>
     {
         public readonly FMOD.Studio.PLAYBACK_STATE PlaybackState
         {
             get
             {
-                FMODValidator.ValidateCall(_instance.getPlaybackState(out FMOD.Studio.PLAYBACK_STATE state));
+                FMODValidator.ValidateCall(instance.getPlaybackState(out FMOD.Studio.PLAYBACK_STATE state));
                 return state;
             }
         }
@@ -36,24 +36,24 @@ namespace Nomad.Audio.Fmod.Entities
         {
             get
             {
-                FMODValidator.ValidateCall(_instance.getListenerMask(out uint mask));
+                FMODValidator.ValidateCall(instance.getListenerMask(out uint mask));
                 return mask;
             }
             set
             {
-                FMODValidator.ValidateCall(_instance.setListenerMask(value));
+                FMODValidator.ValidateCall(instance.setListenerMask(value));
             }
         }
         public Vector2 Position
         {
             get
             {
-                FMODValidator.ValidateCall(_instance.get3DAttributes(out FMOD.ATTRIBUTES_3D attributes));
+                FMODValidator.ValidateCall(instance.get3DAttributes(out FMOD.ATTRIBUTES_3D attributes));
                 return new Vector2() { X = attributes.position.x, Y = attributes.position.y };
             }
             set
             {
-                FMODValidator.ValidateCall(_instance.set3DAttributes(
+                FMODValidator.ValidateCall(instance.set3DAttributes(
                     new FMOD.ATTRIBUTES_3D
                     {
                         position = new FMOD.VECTOR
@@ -70,24 +70,24 @@ namespace Nomad.Audio.Fmod.Entities
         {
             get
             {
-                FMODValidator.ValidateCall(_instance.getVolume(out float volume));
+                FMODValidator.ValidateCall(instance.getVolume(out float volume));
                 return volume;
             }
             set
             {
-                FMODValidator.ValidateCall(_instance.setVolume(value));
+                FMODValidator.ValidateCall(instance.setVolume(value));
             }
         }
         public readonly float Pitch
         {
             get
             {
-                FMODValidator.ValidateCall(_instance.getPitch(out float pitch));
+                FMODValidator.ValidateCall(instance.getPitch(out float pitch));
                 return pitch;
             }
             set
             {
-                FMODValidator.ValidateCall(_instance.setPitch(value));
+                FMODValidator.ValidateCall(instance.setPitch(value));
             }
         }
 
@@ -95,7 +95,7 @@ namespace Nomad.Audio.Fmod.Entities
         {
             get
             {
-                FMODValidator.ValidateCall(_instance.getMemoryUsage(out FMOD.Studio.MEMORY_USAGE memoryUsage));
+                FMODValidator.ValidateCall(instance.getMemoryUsage(out FMOD.Studio.MEMORY_USAGE memoryUsage));
                 return memoryUsage;
             }
         }
@@ -103,37 +103,30 @@ namespace Nomad.Audio.Fmod.Entities
         {
             get
             {
-                FMODValidator.ValidateCall(_instance.getDescription(out FMOD.Studio.EventDescription description));
+                FMODValidator.ValidateCall(instance.getDescription(out FMOD.Studio.EventDescription description));
                 return description;
             }
         }
-        public bool IsPlaying => PlaybackState == FMOD.Studio.PLAYBACK_STATE.PLAYING;
-
-        private FMOD.Studio.EventInstance _instance;
-
-        public FMODChannelResource(FMOD.Studio.EventInstance instance)
-        {
-            _instance = instance;
-        }
+        public readonly bool IsPlaying => PlaybackState == FMOD.Studio.PLAYBACK_STATE.PLAYING;
 
         /// <summary>
         /// Clears the unmanaged FMOD EventInstance.
         /// </summary>
         public readonly void Dispose()
         {
-            if (_instance.isValid())
+            if (instance.isValid())
             {
-                FMODValidator.ValidateCall(_instance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE));
+                FMODValidator.ValidateCall(instance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE));
 
                 // ensure we unhook the callback (causes a seggy if its not done)
-                FMODValidator.ValidateCall(_instance.setCallback(null, FMOD.Studio.EVENT_CALLBACK_TYPE.STOPPED | FMOD.Studio.EVENT_CALLBACK_TYPE.START_FAILED));
+                FMODValidator.ValidateCall(instance.setCallback(null, FMOD.Studio.EVENT_CALLBACK_TYPE.STOPPED | FMOD.Studio.EVENT_CALLBACK_TYPE.START_FAILED));
 
-                FMODValidator.ValidateCall(_instance.release());
-                _instance.clearHandle();
+                FMODValidator.ValidateCall(instance.release());
+                instance.clearHandle();
             }
         }
 
-        public static bool operator ==(FMODChannelResource resource, FMOD.Studio.EventInstance eventInstance) => resource._instance.handle == eventInstance.handle;
-        public static bool operator !=(FMODChannelResource resource, FMOD.Studio.EventInstance eventInstance) => resource._instance.handle != eventInstance.handle;
+        public static bool operator ==(FMODChannelResource resource, FMOD.Studio.EventInstance eventInstance) => resource.instance.handle == eventInstance.handle;
+        public static bool operator !=(FMODChannelResource resource, FMOD.Studio.EventInstance eventInstance) => resource.instance.handle != eventInstance.handle;
     };
 };

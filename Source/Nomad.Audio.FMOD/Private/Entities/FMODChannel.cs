@@ -15,7 +15,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using Godot;
 using System;
-using Nomad.Audio.ValueObjects;
 using Nomad.Audio.Fmod.Entities;
 using Nomad.Audio.Fmod.ValueObjects;
 
