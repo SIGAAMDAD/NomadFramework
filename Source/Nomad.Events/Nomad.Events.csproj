@@ -25,6 +25,7 @@
     <PackageReference Include="Godot.NET.Sdk" Version="4.5.1" />
     <PackageReference Include="Godot.SourceGenerators" Version="4.5.1" />
     <PackageReference Include="GodotSharp" Version="4.5.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Ini" Version="10.0.1" />
   </ItemGroup>
 
   <ItemGroup>

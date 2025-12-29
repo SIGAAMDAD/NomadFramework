@@ -18,7 +18,9 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Text;
+using Nomad.Core.ServiceRegistry.Interfaces;
+using Nomad.CVars;
+using Nomad.Core.Logger;
 
 namespace Nomad.Logger.Private {
 	/*

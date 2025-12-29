@@ -13,11 +13,10 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using NomadCore.Systems.ConsoleSystem.Infrastructure;
+using NomadCore.Systems.ConsoleSystem.Events;
 
-namespace NomadCore.Systems.ConsoleSystem.Events {
-	public readonly record struct CommandExecutedEventArgs(
-		ConsoleCommand Command,
-		int ArgumentCount
-	);
+namespace Nomad.Console.Interfaces {
+	public interface IHistory {
+		public void OnTextEntered( in TextEnteredEventArgs args );
+	};
 };
