@@ -26,12 +26,10 @@ using Nomad.Audio.Fmod.Private.ValueObjects;
 using Nomad.Audio.Interfaces;
 using Nomad.Audio.ValueObjects;
 using Nomad.Core;
-using Nomad.Core.Events;
 using Nomad.Core.Exceptions;
 using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
 using Nomad.CVars;
-using Nomad.Audio.Fmod.ValueObjects;
 
 namespace Nomad.Audio.Fmod.Private.Services {
 	/*
@@ -46,6 +44,8 @@ namespace Nomad.Audio.Fmod.Private.Services {
 	/// </summary>
 
 	internal sealed class FMODDevice : IAudioDevice {
+		public string AudioDriver => new( _driverRepository.Drivers[ _driverRepository.DriverIndex ].Name.ToArray() );
+
 		public FMOD.Studio.System StudioSystem => _systemHandle.StudioSystem;
 		public FMOD.System System => _systemHandle.System;
 
@@ -364,6 +364,11 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			return _busRepository.SetChannelGroupPitch( group, pitch );
 		}
 
+		/*
+		===============
+		SetListenerPosition
+		===============
+		*/
 		public AudioResult SetListenerPosition( int listenerIndex, Vector2 position ) {
 			_listener.SetListenerPosition( listenerIndex, position );
 			return AudioResult.Success;

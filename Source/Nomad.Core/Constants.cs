@@ -66,6 +66,7 @@ namespace Nomad.Core
                 public const string MAX_FPS = "display.MaxFps";
                 public const string SEPARATE_RENDERING_THREAD = "r.SeparateRenderingThread";
                 public const string VSYNC_MODE = "display.VSyncMode";
+                public const string MONITOR = "display.Monitor";
             }
             public static partial class Accessibility
             {

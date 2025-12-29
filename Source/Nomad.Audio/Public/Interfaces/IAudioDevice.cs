@@ -25,6 +25,8 @@ namespace Nomad.Audio.Interfaces
     /// </summary>
     public interface IAudioDevice : IDisposable
     {
+        string AudioDriver { get; }
+
         IEnumerable<string> GetAudioDrivers();
 
         void Update(float deltaTime);
