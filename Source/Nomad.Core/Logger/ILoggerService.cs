@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using Nomad.Core.ServiceRegistry.Interfaces;
 
 namespace Nomad.Core.Logger
 {
@@ -30,5 +31,15 @@ namespace Nomad.Core.Logger
 
         void Print(in ILoggerCategory category, in string message);
         void PrintLine(in ILoggerCategory category, in string message);
+        void PrintDebug(in ILoggerCategory category, in string message);
+        void PrintWarning(in ILoggerCategory category, in string message);
+        void PrintError(in ILoggerCategory category, in string message);
+
+        void Clear();
+
+        void InitConfig(IServiceLocator locator);
+        void AddSink(ILoggerSink sink);
+
+        ILoggerCategory CreateCategory(in string name, LogLevel level, bool enabled);
     }
 }

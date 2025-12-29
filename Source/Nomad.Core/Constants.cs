@@ -110,6 +110,16 @@ namespace Nomad.Core
                 public const string CVAR_VALUE_CHANGED_EVENT = "CVarSystem:CVarValueChanged";
             }
         }
+        public static class Commands
+        {
+            public static partial class Console
+            {
+                public const string ECHO_COMMAND = "echo";
+                public const string CLEAR_COMMAND = "clear";
+                public const string EXIT_COMMAND = "exit";
+                public const string QUIT_COMMAND = "quit";
+            }
+        }
         public static class Audio
         {
             public const int MAX_AUDIO_CHANNELS = 512;

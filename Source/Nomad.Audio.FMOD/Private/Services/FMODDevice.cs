@@ -31,6 +31,7 @@ using Nomad.Core.Exceptions;
 using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
 using Nomad.CVars;
+using Nomad.Audio.Fmod.ValueObjects;
 
 namespace Nomad.Audio.Fmod.Private.Services {
 	/*
@@ -62,6 +63,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 
 		private readonly FMODListenerService _listener;
 		private readonly FMODDriverRepository _driverRepository;
+		private readonly FMODChannelRepository _channelRepository;
 
 		/*
 		===============
@@ -71,7 +73,6 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		public FMODDevice( IServiceLocator locator, IServiceRegistry registry ) {
 			_logger = locator.GetService<ILoggerService>();
 
-			var eventFactory = locator.GetService<IGameEventRegistryService>();
 			var cvarSystem = locator.GetService<ICVarSystemService>();
 
 			FMODCVarRegistry.Register( cvarSystem );
@@ -83,8 +84,9 @@ namespace Nomad.Audio.Fmod.Private.Services {
 
 			_guidRepository = new FMODGuidRepository();
 			_bankRepository = new FMODBankRepository( _logger, cvarSystem, _systemHandle.StudioSystem, _guidRepository );
-			_eventRepository = new FMODEventRepository( _logger, eventFactory, this, _guidRepository );
+			_eventRepository = new FMODEventRepository( _logger, _systemHandle.StudioSystem );
 			_busRepository = new FMODBusRepository( _systemHandle.StudioSystem );
+			_channelRepository = new FMODChannelRepository( _logger, cvarSystem, _listener, _eventRepository, _guidRepository, _busRepository );
 
 			_logger.PrintLine( $"FMODDevice: initializing FMOD sound system..." );
 		}
@@ -98,6 +100,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			_logger.PrintLine( "FMODDevice.Dispose: shutting down FMOD sound system..." );
 
 			_listener?.Dispose();
+			_channelRepository?.Dispose();
 			_eventRepository?.Dispose();
 			_bankRepository?.Dispose();
 			_guidRepository?.Dispose();
@@ -166,6 +169,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		===============
 		*/
 		public AudioResult CreateEvent( string assetPath, out EventHandle eventHandle ) {
+			return _eventRepository.CreateEvent( assetPath, out eventHandle );
 		}
 
 		/*
@@ -177,9 +181,17 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		///
 		/// </summary>
 		/// <param name="eventHandle"></param>
+		/// <param name="config"></param>
 		/// <param name="channel"></param>
 		/// <returns></returns>
-		public AudioResult TriggerEvent( EventHandle eventHandle, out ChannelHandle channel ) {
+		public AudioResult TriggerEvent( EventHandle eventHandle, ChannelGroupHandle group, out ChannelHandle channel ) {
+			var result = _eventRepository.GetEventDescription( eventHandle, out var resource );
+			if ( result != AudioResult.Success ) {
+				channel = new( 0 );
+				return result;
+			}
+			var soundConfig = _busRepository.GetSoundCategory( group );
+			return _channelRepository.TriggerEvent( resource, Vector2.Zero, soundConfig, out channel );
 		}
 
 		/*
@@ -194,6 +206,9 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		/// <param name="volume"></param>
 		/// <returns></returns>
 		public AudioResult SetChannelVolume( ChannelHandle channel, float volume ) {
+			var resource = _channelRepository.GetChannel( channel );
+			resource.Volume = volume;
+			return AudioResult.Success;
 		}
 
 		/*
@@ -208,6 +223,9 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		/// <param name="pitch"></param>
 		/// <returns></returns>
 		public AudioResult SetChannelPitch( ChannelHandle channel, float pitch ) {
+			var resource = _channelRepository.GetChannel( channel );
+			resource.Pitch = pitch;
+			return AudioResult.Success;
 		}
 
 		/*
@@ -222,6 +240,13 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		/// <param name="status"></param>
 		/// <returns></returns>
 		public AudioResult GetChannelStatus( ChannelHandle channel, out ChannelStatus status ) {
+			var resource = _channelRepository.GetChannel( channel );
+			status = resource.Instance.PlaybackState switch {
+				FMOD.Studio.PLAYBACK_STATE.PLAYING or FMOD.Studio.PLAYBACK_STATE.STARTING => ChannelStatus.Playing,
+				FMOD.Studio.PLAYBACK_STATE.STOPPED or FMOD.Studio.PLAYBACK_STATE.STOPPING => ChannelStatus.Stopped,
+				FMOD.Studio.PLAYBACK_STATE.SUSTAINING => ChannelStatus.Looping
+			};
+			return AudioResult.Success;
 		}
 
 		/*
@@ -235,6 +260,9 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		/// <param name="channel"></param>
 		/// <returns></returns>
 		public AudioResult StopChannel( ChannelHandle channel ) {
+			var resource = _channelRepository.GetChannel( channel );
+			resource.Instance.instance.stop( FMOD.Studio.STOP_MODE.ALLOWFADEOUT );
+			return AudioResult.Success;
 		}
 
 		/*

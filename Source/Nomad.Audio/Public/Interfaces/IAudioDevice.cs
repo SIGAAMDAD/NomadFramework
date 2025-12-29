@@ -33,7 +33,7 @@ namespace Nomad.Audio.Interfaces
         AudioResult UnloadBank(BankHandle bank);
 
         AudioResult CreateEvent(string assetPath, out EventHandle eventHandle);
-        AudioResult TriggerEvent(EventHandle eventHandle, out ChannelHandle channel);
+        AudioResult TriggerEvent(EventHandle eventHandle, ChannelGroupHandle group, out ChannelHandle channel);
         AudioResult SetChannelVolume(ChannelHandle channel, float volume);
         AudioResult SetChannelPitch(ChannelHandle channel, float pitch);
         AudioResult GetChannelStatus(ChannelHandle channel, out ChannelStatus status);

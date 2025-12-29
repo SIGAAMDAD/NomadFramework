@@ -13,10 +13,12 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using NomadCore.Systems.ConsoleSystem.Events;
+using Nomad.Console.Events;
 
-namespace Nomad.Console.Interfaces {
-	public interface IHistory {
-		public void OnTextEntered( in TextEnteredEventArgs args );
-	};
-};
+namespace Nomad.Console.Interfaces
+{
+    public interface IHistory
+    {
+        void OnTextEntered(in TextEnteredEventArgs args);
+    }
+}

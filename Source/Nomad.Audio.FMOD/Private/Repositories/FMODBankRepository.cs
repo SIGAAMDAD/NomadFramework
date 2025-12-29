@@ -81,7 +81,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// <param name="bank"></param>
 		/// <returns></returns>
 		public AudioResult LoadBank( string bankPath, out BankHandle bank ) {
-			bank = new( bankPath.GetHashCode() );
+			bank = new( bankPath.HashFileName() );
 
 			if ( _cache.TryGetValue( bank, out var resource ) ) {
 				return AudioResult.Success;

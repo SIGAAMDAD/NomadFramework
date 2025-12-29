@@ -14,17 +14,18 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using Godot;
+using Nomad.Console.Events;
+using Nomad.Console.Interfaces;
+using Nomad.Console.Private.Services;
+using Nomad.Core;
 using Nomad.Core.Events;
-using NomadCore.Systems.ConsoleSystem.Events;
-using NomadCore.Systems.ConsoleSystem.Interfaces;
-using NomadCore.Systems.ConsoleSystem.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace NomadCore.Systems.ConsoleSystem.Infrastructure.Godot {
+namespace Nomad.Console.Private.Godot {
 	/*
 	===================================================================================
 	
@@ -44,8 +45,8 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure.Godot {
 		private readonly List<string> _arguments = new List<string>();
 		private readonly StringBuilder _commandBuilder = new StringBuilder();
 
-		public IGameEvent<TextEnteredEventData> TextEntered => _textEntered;
-		private readonly IGameEvent<TextEnteredEventData> _textEntered;
+		public IGameEvent<TextEnteredEventArgs> TextEntered => _textEntered;
+		private readonly IGameEvent<TextEnteredEventArgs> _textEntered;
 
 		/*
 		===============
@@ -58,10 +59,10 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure.Godot {
 
 			_eventBus = eventBus;
 
-			_textEntered = eventFactory.GetEvent<TextEnteredEventData>( new( Constants.Events.Console.TEXT_ENTERED_EVENT ) );
+			_textEntered = eventFactory.GetEvent<TextEnteredEventArgs>( Constants.Events.Console.TEXT_ENTERED_EVENT );
 
-			eventFactory.GetEvent<EmptyEventArgs>( new( Constants.Events.Console.CONSOLE_OPENED_EVENT ) ).Subscribe( this, OnConsoleOpened );
-			eventFactory.GetEvent<EmptyEventArgs>( new( Constants.Events.Console.CONSOLE_CLOSED_EVENT ) ).Subscribe( this, OnConsoleClosed );
+			eventFactory.GetEvent<EmptyEventArgs>( Constants.Events.Console.CONSOLE_OPENED_EVENT ).Subscribe( this, OnConsoleOpened );
+			eventFactory.GetEvent<EmptyEventArgs>( Constants.Events.Console.CONSOLE_CLOSED_EVENT ).Subscribe( this, OnConsoleClosed );
 		}
 
 		/*
@@ -93,7 +94,7 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure.Godot {
 		/// 
 		/// </summary>
 		/// <param name="args"></param>
-		public void OnHistoryPrev( in HistoryPrevEventData args ) {
+		public void OnHistoryPrev( in HistoryPrevEventArgs args ) {
 			//ResetAutocomplete();
 			Text = args.Text;
 		}
@@ -107,7 +108,7 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure.Godot {
 		/// 
 		/// </summary>
 		/// <param name="args"></param>
-		public void OnHistoryNext( in HistoryNextEventData args ) {
+		public void OnHistoryNext( in HistoryNextEventArgs args ) {
 			if ( !args.EndReached ) {
 				Text = args.Text;
 				CaretColumn = Text.Length;
@@ -130,7 +131,7 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure.Godot {
 
 			if ( newText.Trim().Length > 0 ) {
 				ParseLineInput( newText );
-				TextEntered.Publish( new TextEnteredEventData() );
+				TextEntered.Publish( new TextEnteredEventArgs() );
 			}
 		}
 

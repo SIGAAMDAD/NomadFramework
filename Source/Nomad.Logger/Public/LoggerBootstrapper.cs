@@ -13,27 +13,28 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.Audio.Interfaces
+using Nomad.Core.Logger;
+using Nomad.Core.ServiceRegistry.Interfaces;
+using Nomad.CVars;
+using Nomad.Logger.Private.Sinks;
+
+namespace Nomad.Logger
 {
     /// <summary>
     ///
     /// </summary>
-    public interface IMusicService
+    public static class LoggerBootstrapper
     {
         /// <summary>
         ///
         /// </summary>
-        bool IsPlaying { get; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="name"></param>
-        void PlayTheme(string assetPath);
-
-        /// <summary>
-        ///
-        /// </summary>
-        void StopTheme();
+        /// <param name="serviceRegistry"></param>
+        /// <param name="locator"></param>
+        public static void Initialize(IServiceRegistry serviceRegistry, IServiceLocator locator)
+        {
+            var logger = serviceRegistry.RegisterSingleton<ILoggerService>(new LoggerService());
+            logger.AddSink(new FileSink(locator.GetService<ICVarSystemService>()));
+            logger.AddSink(new ConsoleSink());
+        }
     }
 }

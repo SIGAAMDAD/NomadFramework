@@ -14,10 +14,13 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using NomadCore.Systems.ConsoleSystem.Infrastructure;
+using Nomad.Console.ValueObjects;
 
 namespace Nomad.Console.Interfaces
 {
+    /// <summary>
+    ///
+    /// </summary>
     public interface ICommandService : IDisposable
     {
         void RegisterCommand(ConsoleCommand command);

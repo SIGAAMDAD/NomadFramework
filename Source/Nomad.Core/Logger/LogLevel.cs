@@ -43,3 +43,4 @@ namespace Nomad.Core.Logger
         Count
     }
 }
+

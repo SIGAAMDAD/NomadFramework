@@ -13,16 +13,15 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
-using Nomad.Audio.Interfaces;
-using Nomad.Audio.ValueObjects;
-using Nomad.Core.Abstractions;
+using Godot;
+using System.Runtime.CompilerServices;
+using Nomad.Core.Logger;
 
-namespace Nomad.Audio.Fmod.Private.ValueObjects {
+namespace Nomad.Logger.Private.Sinks {
 	/*
 	===================================================================================
 
-	FMODBankMetadata
+	ConsoleSink
 
 	===================================================================================
 	*/
@@ -30,25 +29,44 @@ namespace Nomad.Audio.Fmod.Private.ValueObjects {
 	///
 	/// </summary>
 
-	internal record FMODBankMetadata : IBankMetadata {
-		public DateTime LoadedAt => _createdAt;
-
-		public BankId Id => _id;
-		private readonly BankId _id;
-
-		public DateTime CreatedAt => _createdAt;
-		private readonly DateTime _createdAt = DateTime.UtcNow;
-
-		public DateTime? ModifiedAt => null;
-		public int Version => 0;
-
-		public FMODBankMetadata( BankId id ) {
-			_id = id;
-			_createdAt = DateTime.UtcNow;
+	internal sealed class ConsoleSink : SinkBase {
+		/*
+		===============
+		Print
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="message"></param>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public override void Print( in string message ) {
+			GD.PrintRich( message );
 		}
 
-		public bool Equals( IEntity<BankId>? other ) {
-			return other?.Id == Id;
+		/*
+		===============
+		Clear
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public override void Clear() {
+			System.Console.Clear();
+		}
+
+		/*
+		===============
+		Flush
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public override void Flush() {
 		}
 	};
 };

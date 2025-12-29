@@ -1,47 +1,39 @@
 /*
 ===========================================================================
-The Nomad AGPL Source Code
+The Nomad Framework
 Copyright (C) 2025 Noah Van Til
 
-The Nomad Source Code is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as published
-by the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v2. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-The Nomad Source Code is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Affero General Public License for more details.
-
-You should have received a copy of the GNU Affero General Public License
-along with The Nomad Source Code.  If not, see <http://www.gnu.org/licenses/>.
-
-If you have questions concerning this license or the applicable additional
-terms, you may contact me via email at nyvantil@gmail.com.
+This software is provided "as is", without warranty of any kind,
+express or implied, including but not limited to the warranties
+of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using NomadCore.GameServices;
-using NomadCore.Infrastructure.Collections;
-using NomadCore.Systems.ConsoleSystem.Events;
-using NomadCore.Systems.ConsoleSystem.Infrastructure;
-using NomadCore.Systems.ConsoleSystem.Interfaces;
+using Nomad.Console.Events;
+using Nomad.Console.Interfaces;
+using Nomad.Console.ValueObjects;
+using Nomad.Core.Logger;
+using Nomad.Core.Util;
 using System;
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 
-namespace NomadCore.Systems.ConsoleSystem.Services {
+namespace Nomad.Console.Private.Services {
 	/*
 	===================================================================================
-	
+
 	CommandCacheService
-	
+
 	===================================================================================
 	*/
 	/// <summary>
-	/// 
+	///
 	/// </summary>
-	
+
 	internal sealed class CommandCacheService : ICommandService {
 		private readonly ConcurrentDictionary<InternString, ConsoleCommand> _commands = new ConcurrentDictionary<InternString, ConsoleCommand>();
 		private readonly ILoggerService _logger;
@@ -60,7 +52,7 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 				description: "Prints all available commands to the console."
 			) );
 		}
-		
+
 		/*
 		===============
 		Dispose
@@ -90,7 +82,7 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="command"></param>
 		/// <returns></returns>
@@ -106,7 +98,7 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="name"></param>
 		/// <param name="command"></param>
@@ -142,9 +134,9 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 		/// Lists all _commands currently stored in <see cref="_commands"/>.
 		/// </summary>
 		/// <param name="args"></param>
-		private void OnListCommands( in CommandExecutedEventData args ) {
-			IConsoleCommand[] commandList = [ .. _commands.Values ];
-			
+		private void OnListCommands( in CommandExecutedEventArgs args ) {
+			ConsoleCommand[] commandList = [ .. _commands.Values ];
+
 			for ( int i = 0; i < commandList.Length; i++ ) {
 				_logger.PrintLine( $"{commandList[ i ].Name}: {commandList[ i ].Description}" );
 			}

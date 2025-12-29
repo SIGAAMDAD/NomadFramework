@@ -80,13 +80,29 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// <param name="eventHandle"></param>
 		/// <param name="description"></param>
 		/// <returns></returns>
-		public AudioResult GetEventDescription( EventHandle eventHandle, out FMOD.Studio.EventDescription description ) {
-			if ( !_eventCache.TryGetValue( eventHandle, out var resource ) ) {
-				description = new( IntPtr.Zero );
+		public AudioResult GetEventDescription( EventHandle eventHandle, out FMODEventResource description ) {
+			if ( !_eventCache.TryGetValue( eventHandle, out description ) ) {
 				return AudioResult.Error_ResourceNotFound;
 			}
+			return AudioResult.Success;
+		}
 
-			description = resource.Handle;
+		/*
+		===============
+		GetEventDescription
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="assetPath"></param>
+		/// <param name="description"></param>
+		/// <returns></returns>
+		public AudioResult GetEventDescription( string assetPath, out FMODEventResource description ) {
+			EventHandle eventHandle = new( assetPath.HashFileName() );
+			if ( !_eventCache.TryGetValue( eventHandle, out description ) ) {
+				return AudioResult.Error_ResourceNotFound;
+			}
 			return AudioResult.Success;
 		}
 	};

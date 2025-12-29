@@ -15,21 +15,21 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using Godot;
 using Nomad.Core.Util;
+using Nomad.Core.Logger;
 using Nomad.CVars;
-using NomadCore.Systems.ConsoleSystem.Interfaces.Abstractions;
 using System;
 using System.Runtime.CompilerServices;
 
-namespace Nomad.Console.Sinks {
+namespace Nomad.Logger.Private.Sinks {
 	/*
 	===================================================================================
-	
+
 	FileSink
-	
+
 	===================================================================================
 	*/
 	/// <summary>
-	/// 
+	///
 	/// </summary>
 
 	internal sealed class FileSink : SinkBase {
@@ -72,7 +72,7 @@ namespace Nomad.Console.Sinks {
 		/// </summary>
 		/// <param name="message"></param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public override void Print( string message ) {
+		public override void Print( in string message ) {
 			_writer?.WriteAsync( message );
 		}
 

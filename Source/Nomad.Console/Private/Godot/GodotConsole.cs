@@ -1,37 +1,29 @@
 /*
 ===========================================================================
-The Nomad AGPL Source Code
+The Nomad Framework
 Copyright (C) 2025 Noah Van Til
 
-The Nomad Source Code is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as published
-by the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v2. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-The Nomad Source Code is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Affero General Public License for more details.
-
-You should have received a copy of the GNU Affero General Public License
-along with The Nomad Source Code.  If not, see <http://www.gnu.org/licenses/>.
-
-If you have questions concerning this license or the applicable additional
-terms, you may contact me via email at nyvantil@gmail.com.
+This software is provided "as is", without warranty of any kind,
+express or implied, including but not limited to the warranties
+of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
 using Godot;
-using NomadCore.Domain.Models.Interfaces;
-using NomadCore.Domain.Models.ValueObjects;
-using NomadCore.GameServices;
-using NomadCore.Infrastructure.Collections;
-using NomadCore.Systems.ConsoleSystem.Events;
-using NomadCore.Systems.ConsoleSystem.Interfaces;
+using Nomad.Console.Events;
+using Nomad.Core.Events;
+using Nomad.Core;
 using System;
 using System.Runtime.CompilerServices;
+using Nomad.Console.Interfaces;
+using Nomad.Console.ValueObjects;
+using Nomad.Core.Logger;
 
-namespace NomadCore.Systems.ConsoleSystem.Infrastructure.Godot {
+namespace Nomad.Console.Private.Godot {
 	/*
 	===================================================================================
 	
@@ -52,34 +44,41 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure.Godot {
 		public bool PauseEnabled { get; private set; } = false;
 
 		private readonly GodotCommandBuilder _commandBuilder;
-		
-		private readonly IGameEvent<EmptyEventArgs> _consoleOpened;
-		private readonly IGameEvent<EmptyEventArgs> _consoleClosed;
-		private readonly IGameEvent<HistoryPrevEventData> _historyPrev;
-		private readonly IGameEvent<HistoryNextEventData> _historyNext;
-		private readonly IGameEvent<EmptyEventArgs> _pageDown;
-		private readonly IGameEvent<EmptyEventArgs> _pageUp;
+		private readonly ILoggerService _logger;
 
 		private bool _wasPausedAlready = false;
+
+		private readonly IGameEvent<EmptyEventArgs> _consoleOpened;
+		private readonly IGameEvent<EmptyEventArgs> _consoleClosed;
+		private readonly IGameEvent<HistoryPrevEventArgs> _historyPrev;
+		private readonly IGameEvent<HistoryNextEventArgs> _historyNext;
+		private readonly IGameEvent<EmptyEventArgs> _pageDown;
+		private readonly IGameEvent<EmptyEventArgs> _pageUp;
 
 		/*
 		===============
 		GodotConsole
 		===============
 		*/
-		public GodotConsole( ICommandBuilder builder, ICommandService commands, IGameEventRegistryService eventRegistry ) {
+		public GodotConsole( ICommandBuilder builder, ICommandService commands, ILoggerService logger, IGameEventRegistryService eventRegistry ) {
 			ArgumentNullException.ThrowIfNull( builder );
 
-			_consoleClosed = eventRegistry.GetEvent<EmptyEventArgs>( new( Constants.CONSOLE_CLOSED_EVENT ) );
-			_consoleOpened = eventRegistry.GetEvent<EmptyEventArgs>( new( Constants.CONSOLE_OPENED_EVENT ) );
-			_historyNext = eventRegistry.GetEvent<HistoryNextEventData>( new( Constants.HISTORY_NEXT_EVENT ) );
-			_historyPrev = eventRegistry.GetEvent<HistoryPrevEventData>( new( Constants.HISTORY_PREV_EVENT ) );
-			_pageDown = eventRegistry.GetEvent<EmptyEventArgs>( new( Constants.PAGE_DOWN_EVENT ) );
-			_pageUp = eventRegistry.GetEvent<EmptyEventArgs>( new( Constants.PAGE_UP_EVENT ) );
-			_commandBuilder = builder as GodotCommandBuilder ?? throw new InvalidOperationException( "Cannot create a GodotConsole without a GodotCommandBuilder!" );
+			_logger = logger;
 
-			commands.RegisterCommand( new ConsoleCommand( "quit", OnQuit, "Closes the game application." ) );
-			commands.RegisterCommand( new ConsoleCommand( "exit", OnQuit, "Exits the running application." ) );
+			_consoleClosed = eventRegistry.GetEvent<EmptyEventArgs>( Constants.Events.Console.CONSOLE_CLOSED_EVENT );
+			_consoleOpened = eventRegistry.GetEvent<EmptyEventArgs>( Constants.Events.Console.CONSOLE_OPENED_EVENT );
+			_historyNext = eventRegistry.GetEvent<HistoryNextEventArgs>( Constants.Events.Console.HISTORY_NEXT_EVENT );
+			_historyPrev = eventRegistry.GetEvent<HistoryPrevEventArgs>( Constants.Events.Console.HISTORY_PREV_EVENT );
+			_pageDown = eventRegistry.GetEvent<EmptyEventArgs>( Constants.Events.Console.PAGE_DOWN_EVENT );
+			_pageUp = eventRegistry.GetEvent<EmptyEventArgs>( Constants.Events.Console.PAGE_UP_EVENT );
+			
+			_commandBuilder = builder as GodotCommandBuilder ?? throw new InvalidOperationException( "Cannot create a GodotConsole without a GodotCommandBuilder!" );
+			_commandBuilder.TextEntered.Subscribe( this, OnTextEntered );
+
+			commands.RegisterCommand( new ConsoleCommand( Constants.Commands.Console.QUIT_COMMAND, OnQuit, "Closes the game application." ) );
+			commands.RegisterCommand( new ConsoleCommand( Constants.Commands.Console.EXIT_COMMAND, OnQuit, "Exits the running application." ) );
+			commands.RegisterCommand( new ConsoleCommand( Constants.Commands.Console.ECHO_COMMAND, OnEcho ) );
+			commands.RegisterCommand( new ConsoleCommand( Constants.Commands.Console.CLEAR_COMMAND, OnClear ) );
 
 			AddThemeFontOverride( "SourceCodePro-ExtraLight", ResourceLoader.Load<Font>( "res://Assets/Fonts/SourceCodePro-ExtraLight.ttf" ) );
 		}
@@ -160,7 +159,7 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure.Godot {
 		/// 
 		/// </summary>
 		/// <param name="args"></param>
-		private void OnQuit( in CommandExecutedEventData args ) {
+		private void OnQuit( in CommandExecutedEventArgs args ) {
 			GetTree().Quit();
 		}
 
@@ -203,10 +202,10 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure.Godot {
 				if ( Visible ) {
 					if ( keyEvent.GetPhysicalKeycodeWithModifiers() == Key.Up ) {
 						GetViewport().SetInputAsHandled();
-						_historyPrev.Publish( new HistoryPrevEventData() );
+						_historyPrev.Publish( new HistoryPrevEventArgs() );
 					} else if ( keyEvent.GetPhysicalKeycodeWithModifiers() == Key.Down ) {
 						GetViewport().SetInputAsHandled();
-						_historyNext.Publish( new HistoryNextEventData() );
+						_historyNext.Publish( new HistoryNextEventArgs() );
 					} else if ( keyEvent.GetPhysicalKeycodeWithModifiers() == Key.Pageup ) {
 						GetViewport().SetInputAsHandled();
 						_pageUp.Publish( EmptyEventArgs.Args );
@@ -219,6 +218,48 @@ namespace NomadCore.Systems.ConsoleSystem.Infrastructure.Godot {
 					}
 				}
 			}
+		}
+
+		/*
+		===============
+		OnClear
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="args"></param>
+		/// <exception cref="NotImplementedException"></exception>
+		private void OnClear( in CommandExecutedEventArgs args ) {
+			_logger.Clear();
+		}
+
+		/*
+		===============
+		OnEcho
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="args"></param>
+		/// <exception cref="NotImplementedException"></exception>
+		private void OnEcho( in CommandExecutedEventArgs args ) {
+			_logger.PrintLine( in _commandBuilder.GetArgs()[ 0 ] );
+		}
+
+		/*
+		===============
+		OnTextEntered
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="args"></param>
+		/// <exception cref="NotImplementedException"></exception>
+		private void OnTextEntered( in TextEnteredEventArgs args ) {
+			_logger.PrintLine( $"] {args.Text}" );
 		}
 	};
 };

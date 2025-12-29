@@ -25,5 +25,8 @@ namespace Nomad.Core.Logger
         string Name { get; }
         LogLevel Level { get; }
         bool Enabled { get; set; }
+
+        void QueueMessage(in string message);
+        void AddSink(in ILoggerSink sink);
     }
 }

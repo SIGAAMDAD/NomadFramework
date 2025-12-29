@@ -14,22 +14,27 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using Godot;
+using Nomad.Console.Events;
+using Nomad.Core;
+using Nomad.Core.Events;
+using Nomad.Core.Logger;
 using System;
 using System.Runtime.CompilerServices;
 
-namespace Nomad.Console.Private.Sinks {
+namespace Nomad.Console.Private.Godot {
 	/*
 	===================================================================================
-	
+
 	InGameSink
-	
+
 	===================================================================================
 	*/
 	/// <summary>
-	/// 
+	///
 	/// </summary>
 
 	internal sealed class InGameSink : SinkBase {
+		private static readonly NodePath _valueNodePath = "value";
 		private readonly RichTextLabel _richLabel;
 
 		/*
@@ -38,14 +43,13 @@ namespace Nomad.Console.Private.Sinks {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="node"></param>
 		/// <param name="builder"></param>
 		/// <param name="eventRegistry"></param>
-		public InGameSink( Node? node, ICommandBuilder? builder, IGameEventRegistryService eventRegistry ) {
+		public InGameSink( Node node, IGameEventRegistryService eventRegistry ) {
 			ArgumentNullException.ThrowIfNull( node );
-			ArgumentNullException.ThrowIfNull( builder );
 			ArgumentNullException.ThrowIfNull( eventRegistry );
 
 			_richLabel = new RichTextLabel() {
@@ -60,10 +64,9 @@ namespace Nomad.Console.Private.Sinks {
 			_richLabel.CallDeferred( RichTextLabel.MethodName.AddThemeStyleboxOverride, "normal", new StyleBoxFlat() { BgColor = new Color( 0.0f, 0.0f, 0.0f, 0.84f ) } );
 			node.CallDeferred( Control.MethodName.AddChild, _richLabel );
 
-			builder.TextEntered.Subscribe( this, OnScrollToBottom );
-			eventRegistry.GetEvent<EmptyEventArgs>( StringPool.Intern( "ConsoleOpened" ) ).Subscribe( this, OnConsoleOpened );
-			eventRegistry.GetEvent<EmptyEventArgs>( StringPool.Intern( "PageUp" ) ).Subscribe( this, OnPageUp );
-			eventRegistry.GetEvent<EmptyEventArgs>( StringPool.Intern( "PageDown" ) ).Subscribe( this, OnPageDown );
+			eventRegistry.GetEvent<EmptyEventArgs>( Constants.Events.Console.CONSOLE_CLOSED_EVENT ).Subscribe( this, OnConsoleOpened );
+			eventRegistry.GetEvent<EmptyEventArgs>( Constants.Events.Console.PAGE_UP_EVENT ).Subscribe( this, OnPageUp );
+			eventRegistry.GetEvent<EmptyEventArgs>( Constants.Events.Console.PAGE_DOWN_EVENT ).Subscribe( this, OnPageDown );
 		}
 
 		/*
@@ -72,11 +75,11 @@ namespace Nomad.Console.Private.Sinks {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="message"></param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public override void Print( string message ) {
+		public override void Print( in string message ) {
 			_richLabel.CallDeferred( RichTextLabel.MethodName.AppendText, message );
 		}
 
@@ -86,7 +89,7 @@ namespace Nomad.Console.Private.Sinks {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public override void Clear() {
@@ -99,7 +102,7 @@ namespace Nomad.Console.Private.Sinks {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public override void Flush() {
@@ -111,11 +114,10 @@ namespace Nomad.Console.Private.Sinks {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
-		/// <param name="eventData"></param>
 		/// <param name="args"></param>
-		private void OnScrollToBottom( in TextEnteredEventData args ) {
+		private void OnScrollToBottom( in TextEnteredEventArgs args ) {
 			VScrollBar scroll = _richLabel.GetVScrollBar();
 			scroll.Value = scroll.MaxValue - scroll.Page;
 		}
@@ -126,11 +128,11 @@ namespace Nomad.Console.Private.Sinks {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="args"></param>
 		private void OnConsoleOpened( in EmptyEventArgs args ) {
-			OnScrollToBottom( new TextEnteredEventData() );
+			OnScrollToBottom( new TextEnteredEventArgs() );
 		}
 
 		/*
@@ -139,14 +141,13 @@ namespace Nomad.Console.Private.Sinks {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
-		/// <param name="eventData"></param>
 		/// <param name="args"></param>
 		private void OnPageUp( in EmptyEventArgs args ) {
 			VScrollBar scroll = _richLabel.GetVScrollBar();
 			Tween tween = _richLabel.CreateTween();
-			tween.TweenProperty( scroll, "value", scroll.Value - ( scroll.Page - scroll.Page * 0.1f ), 0.1f );
+			tween.TweenProperty( scroll, _valueNodePath, scroll.Value - ( scroll.Page - scroll.Page * 0.1f ), 0.1f );
 			_richLabel.GetViewport().SetInputAsHandled();
 		}
 
@@ -156,14 +157,13 @@ namespace Nomad.Console.Private.Sinks {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
-		/// <param name="eventData"></param>
 		/// <param name="args"></param>
 		private void OnPageDown( in EmptyEventArgs args ) {
 			VScrollBar scroll = _richLabel.GetVScrollBar();
 			Tween tween = _richLabel.CreateTween();
-			tween.TweenProperty( scroll, "value", scroll.Value + ( scroll.Page - scroll.Page * 0.1f ), 0.1f );
+			tween.TweenProperty( scroll, _valueNodePath, scroll.Value + ( scroll.Page - scroll.Page * 0.1f ), 0.1f );
 			_richLabel.GetViewport().SetInputAsHandled();
 		}
 	};

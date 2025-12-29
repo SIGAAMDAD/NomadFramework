@@ -15,11 +15,10 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Collections.Generic;
-using Nomad.Audio.Fmod.Private.Entities;
+using System.Runtime.CompilerServices;
 using Nomad.Audio.Fmod.ValueObjects;
 using Nomad.Audio.ValueObjects;
 using Nomad.Core.Util;
-using Steamworks;
 
 namespace Nomad.Audio.Fmod.Private.Repositories {
 	/*
@@ -106,6 +105,21 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 				category.Value.ChannelGroup?.Dispose();
 			}
 			_categories.Clear();
+		}
+
+		/*
+		===============
+		GetSoundCategory
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="handle"></param>
+		/// <returns></returns>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public SoundCategory GetSoundCategory( ChannelGroupHandle handle ) {
+			return _categories[ handle ];
 		}
 
 		/*

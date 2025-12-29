@@ -27,6 +27,7 @@ using Nomad.CVars;
 using NomadCore.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Nomad.Audio.Fmod.Private.Repositories {
 	/*
@@ -47,6 +48,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 
 		// TODO: add an index hash for faster operations
 
+		private readonly Dictionary<ChannelHandle, int> _channelsIndexMap;
 		private readonly List<FMODChannel> _allocatedChannels;
 		private readonly Queue<int> _freeChannelIds;
 		private readonly Dictionary<IntPtr, float> _lastPlayTimes = new Dictionary<IntPtr, float>();
@@ -93,6 +95,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 
 			_allocatedChannels = new List<FMODChannel>( _maxActiveChannels.Value );
 			_freeChannelIds = new Queue<int>( _maxActiveChannels.Value );
+			_channelsIndexMap = new Dictionary<ChannelHandle, int>( _maxActiveChannels.Value );
 
 			for ( int i = 0; i < _maxActiveChannels.Value; i++ ) {
 				_freeChannelIds.Enqueue( i );
@@ -111,6 +114,21 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			_lastPlayTimes.Clear();
 			_consecutiveStealCounts.Clear();
 			_busRepository.Dispose();
+		}
+
+		/*
+		===============
+		GetChannel
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="channel"></param>
+		/// <returns></returns>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public FMODChannel GetChannel( ChannelHandle channel ) {
+			return _allocatedChannels[ _channelsIndexMap[ channel ] ];
 		}
 
 		/*
@@ -149,6 +167,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 
 			CreateSoundInstance( eventDescription, position, out var instance );
 			channel = new( channelId );
+			_channelsIndexMap[ channel ] = _allocatedChannels.Count;
 
 			FMODChannel resource = _channelPool.Rent();
 			resource.Instance = instance;
@@ -526,6 +545,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			_channelPool.Return( channel );
 
 			// FIXME: this is slow
+			_channelsIndexMap.Remove( new( channel.ChannelId ) );
 			_allocatedChannels.Remove( channel );
 			_freeChannelIds.Enqueue( channel.ChannelId );
 		}

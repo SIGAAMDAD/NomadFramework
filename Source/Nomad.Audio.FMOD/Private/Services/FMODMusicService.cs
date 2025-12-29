@@ -15,13 +15,13 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Collections.Generic;
+using Nomad.Audio.Fmod.Entities;
 using Nomad.Audio.Fmod.Private.Entities;
+using Nomad.Audio.Fmod.Private.Repositories;
 using Nomad.Audio.Fmod.Private.ValueObjects;
 using Nomad.Audio.Interfaces;
-using Nomad.Audio.ValueObjects;
 using Nomad.Core;
 using Nomad.CVars;
-using Nomad.ResourceCache;
 
 namespace Nomad.Audio.Fmod.Private.Services {
 	/*
@@ -36,14 +36,14 @@ namespace Nomad.Audio.Fmod.Private.Services {
 	/// </summary>
 
 	internal sealed class FMODMusicService : IMusicService {
-		public bool IsPlaying => _musicInstance.getPlaybackState( out var state ) == FMOD.RESULT.OK && state == FMOD.Studio.PLAYBACK_STATE.PLAYING;
+		public bool IsPlaying => _musicInstance.PlaybackState == FMOD.Studio.PLAYBACK_STATE.PLAYING;
 
 		private FMODEventResource _musicHandle;
-		private FMOD.Studio.EventInstance _musicInstance;
+		private FMODChannelResource _musicInstance;
 
-		private FMOD.Studio.EventInstance _queuedTheme;
+		private FMODChannelResource _queuedTheme;
 
-		private readonly IResourceCacheService<FMODEventResource, EventId> _eventRepository;
+		private readonly FMODEventRepository _eventRepository;
 		private readonly Queue<FMODChannel> _loopingTracks = new Queue<FMODChannel>();
 
 		private float _musicVolume = 0.0f;
@@ -60,7 +60,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		/// <param name="eventRepository"></param>
 		/// <param name="cvarSystem"></param>
 		/// <exception cref="Exception"></exception>
-		public FMODMusicService( IResourceCacheService<FMODEventResource, EventId> eventRepository, ICVarSystemService cvarSystem ) {
+		public FMODMusicService( FMODEventRepository eventRepository, ICVarSystemService cvarSystem ) {
 			_eventRepository = eventRepository;
 
 			var musicVolume = cvarSystem.GetCVar<float>( Constants.CVars.Audio.MUSIC_VOLUME ) ?? throw new Exception( "Missing CVar 'audio.MusicVolume'" );
@@ -80,20 +80,19 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		/// <summary>
 		///
 		/// </summary>
-		/// <param name="name"></param>
+		/// <param name="assetPath"></param>
 		/// <exception cref="InvalidCastException"></exception>
-		public void PlayTheme( EventId name ) {
+		public void PlayTheme( string assetPath ) {
 			if ( !_musicOn ) {
-				QueueTheme( name );
+				QueueTheme( assetPath );
 				// TODO: queue the requested theme to play if we enable music
 				return;
 			}
 
-			_eventRepository.GetCached( name ).Get( out var handle );
-			_musicHandle = handle;
-			FMODValidator.ValidateCall( _musicHandle.Handle.createInstance( out _musicInstance ) );
-			FMODValidator.ValidateCall( _musicInstance.setVolume( _musicVolume / 100.0f ) );
-			FMODValidator.ValidateCall( _musicInstance.start() );
+			_eventRepository.GetEventDescription( assetPath, out _musicHandle );
+			_musicHandle.CreateInstance( out _musicInstance );
+			_musicInstance.Volume = _musicVolume / 100.0f;
+			_musicInstance.instance.start();
 		}
 
 		/*
@@ -108,7 +107,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			if ( !_musicOn || !IsPlaying ) {
 				return;
 			}
-			FMODValidator.ValidateCall( _musicInstance.stop( FMOD.Studio.STOP_MODE.ALLOWFADEOUT ) );
+			_musicInstance.instance.stop( FMOD.Studio.STOP_MODE.ALLOWFADEOUT );
 		}
 
 		/*
@@ -119,11 +118,11 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		/// <summary>
 		///
 		/// </summary>
-		/// <param name="eventId"></param>
+		/// <param name="assetPath"></param>
 		/// <exception cref="InvalidCastException"></exception>
-		private void QueueTheme( EventId eventId ) {
-			_eventRepository.GetCached( eventId ).Get( out var handle );
-			FMODValidator.ValidateCall( handle.Handle.createInstance( out _queuedTheme ) );
+		private void QueueTheme( string assetPath ) {
+			_eventRepository.GetEventDescription( assetPath, out var handle );
+			handle.CreateInstance( out _queuedTheme );
 		}
 
 		/*
@@ -138,7 +137,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		private void OnMusicOnChanged( in CVarValueChangedEventArgs<bool> args ) {
 			_musicOn = args.NewValue;
 			if ( !_musicOn ) {
-				FMODValidator.ValidateCall( _musicInstance.stop( FMOD.Studio.STOP_MODE.IMMEDIATE ) );
+				FMODValidator.ValidateCall( _musicInstance.instance.stop( FMOD.Studio.STOP_MODE.IMMEDIATE ) );
 			}
 		}
 
@@ -150,7 +149,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		private void OnMusicVolumeChanged( in CVarValueChangedEventArgs<float> args ) {
 			_musicVolume = args.NewValue;
 			if ( IsPlaying ) {
-				FMODValidator.ValidateCall( _musicInstance.setVolume( _musicVolume / 100.0f ) );
+				_musicInstance.Volume = _musicVolume / 100.0f;
 			}
 		}
 	};

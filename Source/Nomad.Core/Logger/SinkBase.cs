@@ -14,17 +14,30 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using Nomad.Core.Logger;
 
-namespace Nomad.Console.Interfaces
+namespace Nomad.Core.Logger
 {
     /// <summary>
     ///
     /// </summary>
-    public interface ILoggerSink : IDisposable
+    public abstract class SinkBase : ILoggerSink
     {
-        void Print(in ILoggerCategory category, in string message);
-        void Clear();
-        void Flush();
+        public abstract void Print(in string message);
+        public abstract void Clear();
+        public abstract void Flush();
+
+        /*
+		===============
+		Dispose
+		===============
+		*/
+        /// <summary>
+        /// Flushes the sink.
+        /// </summary>
+        public virtual void Dispose()
+        {
+            Flush();
+            GC.SuppressFinalize(this);
+        }
     }
 }

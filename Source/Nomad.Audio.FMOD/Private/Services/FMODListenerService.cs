@@ -18,7 +18,6 @@ using Nomad.Audio.Interfaces;
 using Nomad.Core.Logger;
 using Godot;
 using System;
-using System.Collections.Generic;
 
 namespace Nomad.Audio.Fmod.Private.Services {
 	/*

@@ -14,21 +14,16 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using Nomad.Console.Events;
-using Nomad.Core.Events;
 
-namespace Nomad.Console.Interfaces
+namespace Nomad.Core.Logger
 {
-    public interface ICommandLineService : IDisposable
+    /// <summary>
+    ///
+    /// </summary>
+    public interface ILoggerSink : IDisposable
     {
-        int ArgumentCount { get; }
-
-        IGameEvent<TextEnteredEventArgs> TextEntered { get; }
-        IGameEvent<CommandExecutedEventArgs> UnknownCommand { get; }
-        IGameEvent<CommandExecutedEventArgs> CommandExecuted { get; }
-
-        void ExecuteCommand(string text);
-        string GetArgumentAt(int index);
-        string[] GetArguments();
-    };
-};
+        void Print(in string message);
+        void Clear();
+        void Flush();
+    }
+}

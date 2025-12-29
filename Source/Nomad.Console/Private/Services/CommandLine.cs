@@ -1,37 +1,29 @@
 /*
 ===========================================================================
-The Nomad AGPL Source Code
+The Nomad Framework
 Copyright (C) 2025 Noah Van Til
 
-The Nomad Source Code is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as published
-by the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v2. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-The Nomad Source Code is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Affero General Public License for more details.
-
-You should have received a copy of the GNU Affero General Public License
-along with The Nomad Source Code.  If not, see <http://www.gnu.org/licenses/>.
-
-If you have questions concerning this license or the applicable additional
-terms, you may contact me via email at nyvantil@gmail.com.
+This software is provided "as is", without warranty of any kind,
+express or implied, including but not limited to the warranties
+of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using NomadCore.Systems.ConsoleSystem.Events;
-using NomadCore.Systems.ConsoleSystem.Interfaces;
+using Nomad.Console.Events;
+using Nomad.Console.Interfaces;
+using Nomad.Console.ValueObjects;
+using Nomad.Core;
+using Nomad.Core.Events;
+using Nomad.Core.Logger;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using NomadCore.GameServices;
-using NomadCore.Domain.Models.Interfaces;
-using NomadCore.Domain.Models.ValueObjects;
-using NomadCore.Systems.ConsoleSystem.Infrastructure;
 
-namespace NomadCore.Systems.ConsoleSystem.Services {
+namespace Nomad.Console.Private.Services {
 	/*
 	===================================================================================
 	
@@ -59,14 +51,14 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 		private readonly ICommandService _commandService;
 		private readonly ILoggerService _logger;
 
-		public IGameEvent<TextEnteredEventData> TextEntered => _textEntered;
-		private readonly IGameEvent<TextEnteredEventData> _textEntered;
+		public IGameEvent<TextEnteredEventArgs> TextEntered => _textEntered;
+		private readonly IGameEvent<TextEnteredEventArgs> _textEntered;
 
-		public IGameEvent<CommandExecutedEventData> UnknownCommand => _unknownCommand;
-		private readonly IGameEvent<CommandExecutedEventData> _unknownCommand;
+		public IGameEvent<CommandExecutedEventArgs> UnknownCommand => _unknownCommand;
+		private readonly IGameEvent<CommandExecutedEventArgs> _unknownCommand;
 
-		public IGameEvent<CommandExecutedEventData> CommandExecuted => _commandExecuted;
-		private readonly IGameEvent<CommandExecutedEventData> _commandExecuted;
+		public IGameEvent<CommandExecutedEventArgs> CommandExecuted => _commandExecuted;
+		private readonly IGameEvent<CommandExecutedEventArgs> _commandExecuted;
 
 		/*
 		===============
@@ -82,11 +74,11 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 			_logger = logger;
 			_history = new History( builder, logger, eventFactory );
 
-			_textEntered = eventFactory.GetEvent<TextEnteredEventData>( new( Constants.TEXT_ENTERED_EVENT ) );
-			_unknownCommand = eventFactory.GetEvent<CommandExecutedEventData>( new( Constants.UNKNOWN_COMMAND_EVENT ) );
-			_commandExecuted = eventFactory.GetEvent<CommandExecutedEventData>( new( Constants.COMMAND_EXECUTED_EVENT ) );
+			_textEntered = eventFactory.GetEvent<TextEnteredEventArgs>( Constants.Events.Console.TEXT_ENTERED_EVENT );
+			_unknownCommand = eventFactory.GetEvent<CommandExecutedEventArgs>( Constants.Events.Console.UNKNOWN_COMMAND_EVENT );
+			_commandExecuted = eventFactory.GetEvent<CommandExecutedEventArgs>( Constants.Events.Console.COMMAND_EXECUTED_EVENT );
 
-			eventFactory.GetEvent<EmptyEventArgs>( new( Constants.CONSOLE_CLOSED_EVENT ) ).Subscribe( this, OnConsoleClosed );
+			eventFactory.GetEvent<EmptyEventArgs>( Constants.Events.Console.CONSOLE_CLOSED_EVENT ).Subscribe( this, OnConsoleClosed );
 
 			builder.TextEntered.Subscribe( this, OnCommandExecuted );
 		}
@@ -153,20 +145,20 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 		/// 
 		/// </summary>
 		/// <param name="textEntered"></param>
-		private void OnCommandExecuted( in TextEnteredEventData textEntered ) {
+		private void OnCommandExecuted( in TextEnteredEventArgs textEntered ) {
 			string textCommand = _commandBuilder.ArgumentCount > 0 ? _commandBuilder.GetArgumentAt( 0 ) : String.Empty;
 
 			if ( !string.IsNullOrEmpty( textCommand ) && _commandService.TryGetCommand( textCommand, out ConsoleCommand consoleCommand ) ) {
 				var arguments = _commandBuilder.GetArgs();
 
 				try {
-					_commandExecuted.PublishAsync( new CommandExecutedEventData( consoleCommand, arguments.Length ) );
+					_commandExecuted.PublishAsync( new CommandExecutedEventArgs( consoleCommand, arguments.Length ) );
 				} catch ( Exception ex ) {
 					_logger.PrintError( $"CommandLine.OnCommandExecuted: error executing command - {ex.Message}" );
 					throw;
 				}
 			} else if ( !string.IsNullOrEmpty( textCommand ) ) {
-				_unknownCommand.Publish( new CommandExecutedEventData() );
+				_unknownCommand.Publish( new CommandExecutedEventArgs() );
 				_logger.PrintWarning( $"CommandLine.OnCommandExecuted: command '{textCommand}' not found." );
 			}
 		}
@@ -179,7 +171,7 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="eventData"></param>
+		/// <param name="eventArgsCommandExecutedEventArgs"></param>
 		/// <param name="args"></param>
 		private void OnConsoleClosed( in EmptyEventArgs args ) {
 			//ResetAutocomplete();
@@ -209,7 +201,7 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 		/// I feel like this is self-explanatory
 		/// </summary>
 		/*
-		private void OnAutoComplete( in IGameEvent eventData, in IEventArgs args ) {
+		private void OnAutoComplete( in IGameEvent eventArgsCommandExecutedEventArgs, in IEventArgs args ) {
 			if ( Suggesting ) {
 				if ( CurrentSuggest < Suggestions.Count ) {
 					Text = Suggestions[ CurrentSuggest ];
@@ -248,7 +240,7 @@ namespace NomadCore.Systems.ConsoleSystem.Services {
 			}
 
 			if ( Suggestions.Count > 0 ) {
-				OnAutoComplete( in eventData, in args );
+				OnAutoComplete( in eventArgsCommandExecutedEventArgs, in args );
 			} else {
 				ResetAutocomplete();
 			}

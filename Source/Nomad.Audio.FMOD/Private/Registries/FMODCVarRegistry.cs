@@ -15,7 +15,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using Nomad.Audio.Fmod.ValueObjects;
 using Nomad.CVars;
-using Nomad.CVars.Core;
 using Nomad.Core;
 
 namespace Nomad.Audio.Fmod.Private.Registries {
@@ -43,39 +42,39 @@ namespace Nomad.Audio.Fmod.Private.Registries {
 		public static void Register( ICVarSystemService cvarSystem ) {
 			cvarSystem.Register(
 				new CVarCreateInfo<int>(
-					Name: new( Constants.CVars.Audio.FMOD.STREAM_BUFFER_SIZE ),
+					Name: Constants.CVars.Audio.FMOD.STREAM_BUFFER_SIZE,
 					DefaultValue: 12,
-					Description: new( "The size of FMOD's stream buffer in milliseconds." ),
+					Description: "The size of FMOD's stream buffer in milliseconds.",
 					Flags: CVarFlags.Archive | CVarFlags.Init,
 					Validator: value => value > 100 && value <= 5000
 				)
 			);
 			cvarSystem.Register(
 				new CVarCreateInfo<int>(
-					Name: new( Constants.CVars.Audio.FMOD.DSP_BUFFER_SIZE ),
+					Name: Constants.CVars.Audio.FMOD.DSP_BUFFER_SIZE,
 					DefaultValue: 12,
-					Description: new( "The size of FMOD's dsp buffer in MB." ),
+					Description: "The size of FMOD's dsp buffer in MB.",
 					Flags: CVarFlags.Archive | CVarFlags.Init,
 					Validator: value => value > 10 && value < 48
 				)
 			);
 			cvarSystem.Register(
 				new CVarCreateInfo<bool>(
-					Name: new( Constants.CVars.Audio.FMOD.LOGGING ),
+					Name: Constants.CVars.Audio.FMOD.LOGGING,
 #if DEBUG
 					DefaultValue: true,
 #else
 					DefaultValue: false,
 #endif
-					Description: new( "Enables a dedicated FMOD debug log." ),
+					Description: "Enables a dedicated FMOD debug log.",
 					Flags: CVarFlags.Developer | CVarFlags.ReadOnly
 				)
 			);
 			cvarSystem.Register(
 				new CVarCreateInfo<FMODBankLoadingStrategy>(
-					Name: new( Constants.CVars.Audio.FMOD.BANK_LOADING_STRATEGY ),
+					Name: Constants.CVars.Audio.FMOD.BANK_LOADING_STRATEGY,
 					DefaultValue: FMODBankLoadingStrategy.Streaming,
-					Description: new( "Sets the loading policy for how FMOD banks are handled in memory." ),
+					Description: "Sets the loading policy for how FMOD banks are handled in memory.",
 					Flags: CVarFlags.ReadOnly | CVarFlags.Archive,
 					Validator: value => value >= FMODBankLoadingStrategy.Streaming && value < FMODBankLoadingStrategy.Compressed
 				)

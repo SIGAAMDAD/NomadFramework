@@ -13,6 +13,11 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Godot;
+using Nomad.Core.Collections;
 using Nomad.Core.Logger;
 
 namespace Nomad.Logger.Private {
@@ -27,13 +32,39 @@ namespace Nomad.Logger.Private {
 	///
 	/// </summary>
 
-	internal sealed class LoggerCategory( string name, LogLevel level, bool enabled ) : ILoggerCategory {
-		public string Name => name;
-		public LogLevel Level => level;
+	internal sealed class LoggerCategory : ILoggerCategory {
+		public string Name => _name;
+		private readonly string _name;
+
+		public LogLevel Level => _level;
+		private readonly LogLevel _level;
 
 		public bool Enabled {
-			get => enabled;
-			set => enabled = value;
+			get => _enabled;
+			set => _enabled = value;
+		}
+		private bool _enabled;
+
+		private readonly List<ILoggerSink> _sinks = new List<ILoggerSink>();
+		private readonly LockFreePooledQueue<string> _messageQueue = new LockFreePooledQueue<string>( 256 );
+
+		/*
+		===============
+		LoggerCategory
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="name"></param>
+		/// <param name="level"></param>
+		/// <param name="enabled"></param>
+		public LoggerCategory( string name, LogLevel level, bool enabled ) {
+			_name = name;
+			_level = level;
+			_enabled = enabled;
+
+			_ = Task.Run( LoggerThreadAsync );
 		}
 
 		/*
@@ -45,6 +76,57 @@ namespace Nomad.Logger.Private {
 		///
 		/// </summary>
 		public void Dispose() {
+			_sinks.Clear();
+		}
+
+		/*
+		===============
+		AddSink
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="sink"></param>
+		public void AddSink( in ILoggerSink sink ) {
+			_sinks.Add( sink );
+		}
+
+		/*
+		===============
+		QueueMessage
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="message"></param>
+		public void QueueMessage( in string message ) {
+			_messageQueue.TryEnqueue( in message );
+		}
+
+		/*
+		===============
+		LoggerThreadAsync
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <returns></returns>
+		private async Task LoggerThreadAsync() {
+			try {
+				while ( true ) {
+					while ( _messageQueue.TryDequeue( out var message ) ) {
+						for ( int i = 0; i < _sinks.Count; i++ ) {
+							_sinks[ i ].Print( in message );
+						}
+					}
+					await Task.Delay( 500 );
+				}
+			} catch ( Exception e ) {
+				GD.PrintErr( $"Exception caught: {e}" );
+			}
 		}
 	};
 };

@@ -13,14 +13,10 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Nomad.Audio.Entities;
-using Nomad.Audio.Fmod.Private.Entities;
 using Nomad.Audio.Fmod.Private.Services;
 using Nomad.Audio.Fmod.Private.ValueObjects;
-using Nomad.Audio.ValueObjects;
 using Nomad.Core.Logger;
 using Nomad.Core.Util;
 using Nomad.ResourceCache;
