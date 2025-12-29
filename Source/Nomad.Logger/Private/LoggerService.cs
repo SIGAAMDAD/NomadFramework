@@ -21,13 +21,14 @@ using System.Threading.Tasks;
 using Nomad.Core.ServiceRegistry.Interfaces;
 using Nomad.CVars;
 using Nomad.Core.Logger;
+using Nomad.Console.Interfaces;
 
 namespace Nomad.Logger.Private {
 	/*
 	===================================================================================
-	
+
 	LoggerService
-	
+
 	===================================================================================
 	*/
 	/// <summary>
@@ -120,7 +121,7 @@ namespace Nomad.Logger.Private {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="message"></param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
@@ -137,7 +138,7 @@ namespace Nomad.Logger.Private {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="message"></param>
 		public void PrintLine( in string message ) {
@@ -150,7 +151,7 @@ namespace Nomad.Logger.Private {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="message"></param>
 		public void PrintDebug( in string message ) {
@@ -163,7 +164,7 @@ namespace Nomad.Logger.Private {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="message"></param>
 		public void PrintWarning( in string message ) {
@@ -176,7 +177,7 @@ namespace Nomad.Logger.Private {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="message"></param>
 		public void PrintError( in string message ) {
@@ -189,7 +190,7 @@ namespace Nomad.Logger.Private {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="args"></param>
 		private void OnClear( in CommandExecutedEventData args ) {
@@ -204,7 +205,7 @@ namespace Nomad.Logger.Private {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="args"></param>
 		private void OnEcho( in CommandExecutedEventData args ) {
@@ -217,7 +218,7 @@ namespace Nomad.Logger.Private {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="args"></param>
 		/// <exception cref="InvalidCastException"></exception>

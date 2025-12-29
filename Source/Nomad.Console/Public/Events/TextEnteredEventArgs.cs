@@ -15,7 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Console.Events
 {
-	public readonly record struct TextEnteredEventArgs(
-		string Text
-	);
+    public readonly record struct TextEnteredEventArgs(
+        string Text
+    );
 }

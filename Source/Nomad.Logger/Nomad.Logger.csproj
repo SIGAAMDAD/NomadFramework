@@ -30,7 +30,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Nomad.Core\Nomad.Core.csproj" />
     <ProjectReference Include="..\Nomad.CVars\Nomad.CVars.csproj" />
-	  <ProjectReference Include="..\Nomad.Core\Nomad.Events.csproj" />
+	  <ProjectReference Include="..\Nomad.Console\Nomad.Console.csproj" />
   </ItemGroup>
 
 </Project>

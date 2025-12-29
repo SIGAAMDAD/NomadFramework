@@ -18,11 +18,11 @@ using NomadCore.Systems.ConsoleSystem.Infrastructure;
 
 namespace Nomad.Console.Interfaces
 {
-	public interface ICommandService : IDisposable
-	{
-		void RegisterCommand(ConsoleCommand command);
-		bool CommandExists(string command);
-		ConsoleCommand GetCommand(string command);
-		bool TryGetCommand(string name, out ConsoleCommand command);
-	}
+    public interface ICommandService : IDisposable
+    {
+        void RegisterCommand(ConsoleCommand command);
+        bool CommandExists(string command);
+        ConsoleCommand GetCommand(string command);
+        bool TryGetCommand(string name, out ConsoleCommand command);
+    }
 }

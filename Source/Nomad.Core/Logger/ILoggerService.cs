@@ -22,9 +22,13 @@ namespace Nomad.Core.Logger
     /// </summary>
     public interface ILoggerService : IDisposable
     {
+        void Print(in string message);
         void PrintLine(in string message);
         void PrintDebug(in string message);
         void PrintWarning(in string message);
         void PrintError(in string message);
+
+        void Print(in ILoggerCategory category, in string message);
+        void PrintLine(in ILoggerCategory category, in string message);
     }
 }

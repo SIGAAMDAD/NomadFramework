@@ -13,10 +13,10 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace NomadCore.Systems.ConsoleSystem.Events
+namespace Nomad.Console.Events
 {
-	public readonly record struct HistoryNextEventData(
-		bool EndReached,
-		string Text
-	);
+    public readonly record struct HistoryNextEventArgs(
+        bool EndReached,
+        string Text
+    );
 }

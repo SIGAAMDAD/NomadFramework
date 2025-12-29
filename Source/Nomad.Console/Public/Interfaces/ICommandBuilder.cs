@@ -13,18 +13,24 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using Nomad.Console.Events;
 using Nomad.Core.Events;
 
-namespace Nomad.Console.Interfaces {
-	public interface ICommandBuilder {
-		public int ArgumentCount { get; }
-		
-		public IGameEvent<TextEnteredEventArgs> TextEntered { get; }
+namespace Nomad.Console.Interfaces
+{
+    /// <summary>
+    ///
+    /// </summary>
+    public interface ICommandBuilder
+    {
+        public int ArgumentCount { get; }
 
-		public string GetArgumentAt( int index );
-		public string[] GetArgs();
+        public IGameEvent<TextEnteredEventArgs> TextEntered { get; }
 
-		public void OnHistoryPrev( in HistoryPrevEventData args );
-		public void OnHistoryNext( in HistoryNextEventData args );
-	};
-};
+        public string GetArgumentAt(int index);
+        public string[] GetArgs();
+
+        public void OnHistoryPrev(in HistoryPrevEventArgs args);
+        public void OnHistoryNext(in HistoryNextEventArgs args);
+    }
+}

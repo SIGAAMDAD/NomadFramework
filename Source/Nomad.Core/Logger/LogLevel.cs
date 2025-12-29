@@ -21,29 +21,24 @@ namespace Nomad.Core.Logger
     public enum LogLevel : byte
     {
         /// <summary>
-        ///
+        /// Prints in red, indicates something went wrong.
         /// </summary>
         Error,
 
         /// <summary>
-        ///
+        /// Prints in yellow, indicates something is not right but not critical.
         /// </summary>
         Warning,
 
         /// <summary>
-        ///
+        /// Prints in white, for generic information.
         /// </summary>
         Info,
 
         /// <summary>
-        ///
+        /// Prints in blue, for state/memory tracking.
         /// </summary>
         Debug,
-
-        /// <summary>
-        /// Pedantic information.
-        /// </summary>
-        Trace,
 
         Count
     }
