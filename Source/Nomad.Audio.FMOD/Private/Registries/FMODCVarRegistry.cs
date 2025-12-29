@@ -50,12 +50,21 @@ namespace Nomad.Audio.Fmod.Private.Registries {
 				)
 			);
 			cvarSystem.Register(
-				new CVarCreateInfo<int>(
+				new CVarCreateInfo<uint>(
 					Name: Constants.CVars.Audio.FMOD.DSP_BUFFER_SIZE,
 					DefaultValue: 12,
 					Description: "The size of FMOD's dsp buffer in MB.",
 					Flags: CVarFlags.Archive | CVarFlags.Init,
 					Validator: value => value > 10 && value < 48
+				)
+			);
+			cvarSystem.Register(
+				new CVarCreateInfo<int>(
+					Name: Constants.CVars.Audio.FMOD.DSP_BUFFER_COUNT,
+					DefaultValue: 4,
+					Description: "The number of FMOD dsp buffers.",
+					Flags: CVarFlags.Archive | CVarFlags.Init,
+					Validator: value => value >= 2 && value <= 8
 				)
 			);
 			cvarSystem.Register(

@@ -35,7 +35,7 @@ namespace Nomad.Core
 
                 public const string MIN_TIME_BETWEEN_CHANNEL_STEALS = "audio.MinTimeBetweenChannelSteals";
                 public const string FREQUENCY_PENALTY = "audio.FrequencyPenalty";
-                public const string VOLUME_PENALTY = "audio.VolumePenalty";
+                public const string VOLUME_WEIGHT = "audio.VolumeWeight";
                 public const string DISTANCE_WEIGHT = "audio.DistanceWeight";
 
                 public const string SPEAKER_MODE = "audio.SpeakerMode";

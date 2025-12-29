@@ -29,7 +29,7 @@ namespace Nomad.Audio.Fmod.Private.ValueObjects {
 	/// </summary>
 
 	internal readonly record struct FMODDriverInfo(
-		ReadOnlyMemory<char> Name,
+		string Name,
 		Guid Guid,
 		int SystemRate,
 		FMOD.SPEAKERMODE SpeakerMode,

@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using System.Text;
 using Nomad.Audio.Fmod.Private.ValueObjects;
 using Nomad.Core;
 using Nomad.Core.Exceptions;
@@ -116,7 +117,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 
 			_drivers = new FMODDriverInfo[ numDrivers ];
 			for ( int i = 0; i < numDrivers; i++ ) {
-				FMODValidator.ValidateCall( _system.getDriverInfo( i, out ReadOnlyMemory<char> name, 256, out var guid, out int systemRate, out FMOD.SPEAKERMODE speakerMode, out int speakerChannels ) );
+				FMODValidator.ValidateCall( _system.getDriverInfo( i, out string name, 256, out var guid, out int systemRate, out FMOD.SPEAKERMODE speakerMode, out int speakerChannels ) );
 				_drivers[ i ] = new FMODDriverInfo( name, guid, systemRate, speakerMode, speakerChannels );
 				_logger.PrintLine( $"FMODDevice.GetAudioDriverData: found audio driver '{name}' - speakerMode = '{speakerMode}', channelCount = '{speakerChannels}'" );
 			}
@@ -134,11 +135,10 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// </summary>
 		/// <param name="args"></param>
 		private void OnAudioDriverValueChanged( in CVarValueChangedEventArgs<string> args ) {
-			ReadOnlySpan<char> span = args.NewValue;
 			int driverIndex = -1;
 
 			for ( int i = 0; i < _drivers.Length; i++ ) {
-				if ( _drivers[ i ].Name.Span.SequenceEqual( span ) ) {
+				if ( _drivers[ i ].Name.Equals( args.NewValue ) ) {
 					driverIndex = i;
 					break;
 				}

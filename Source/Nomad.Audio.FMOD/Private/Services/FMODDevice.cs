@@ -44,7 +44,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 	/// </summary>
 
 	internal sealed class FMODDevice : IAudioDevice {
-		public string AudioDriver => new( _driverRepository.Drivers[ _driverRepository.DriverIndex ].Name.ToArray() );
+		public string AudioDriver => _driverRepository.Drivers[ _driverRepository.DriverIndex ].Name;
 
 		public FMOD.Studio.System StudioSystem => _systemHandle.StudioSystem;
 		public FMOD.System System => _systemHandle.System;
@@ -85,8 +85,9 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			_guidRepository = new FMODGuidRepository();
 			_bankRepository = new FMODBankRepository( _logger, cvarSystem, _systemHandle.StudioSystem, _guidRepository );
 			_eventRepository = new FMODEventRepository( _logger, _systemHandle.StudioSystem );
-			_busRepository = new FMODBusRepository( _systemHandle.StudioSystem );
+			_busRepository = new FMODBusRepository( _bankRepository, _systemHandle.StudioSystem );
 			_channelRepository = new FMODChannelRepository( _logger, cvarSystem, _listener, _eventRepository, _guidRepository, _busRepository );
+			registry.RegisterSingleton<IChannelRepository>( _channelRepository );
 
 			_logger.PrintLine( $"FMODDevice: initializing FMOD sound system..." );
 		}
@@ -120,7 +121,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		public IEnumerable<string> GetAudioDrivers() {
 			string[] drivers = new string[ _driverRepository.Drivers.Length ];
 			for ( int i = 0; i < drivers.Length; i++ ) {
-				drivers[ i ] = new( _driverRepository.Drivers[ i ].Name.Span );
+				drivers[ i ] = _driverRepository.Drivers[ i ].Name;
 			}
 			return drivers;
 		}
@@ -394,7 +395,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 
 			var flags = FMOD.INITFLAGS.CHANNEL_DISTANCEFILTER | FMOD.INITFLAGS.CHANNEL_LOWPASS | FMOD.INITFLAGS.VOL0_BECOMES_VIRTUAL;
 
-			FMODValidator.ValidateCall( System.setStreamBufferSize( ( uint )streamBufferSize.Value, FMOD.TIMEUNIT.MS ) );
+			FMODValidator.ValidateCall( System.setStreamBufferSize( (uint)streamBufferSize.Value, FMOD.TIMEUNIT.MS ) );
 			FMODValidator.ValidateCall( System.setDSPBufferSize( dspBufferSize.Value * 1024, dspBufferCount.Value ) );
 			FMODValidator.ValidateCall( StudioSystem.initialize( maxChannels.Value, FMOD.Studio.INITFLAGS.LIVEUPDATE | FMOD.Studio.INITFLAGS.SYNCHRONOUS_UPDATE, flags, 0 ) );
 		}

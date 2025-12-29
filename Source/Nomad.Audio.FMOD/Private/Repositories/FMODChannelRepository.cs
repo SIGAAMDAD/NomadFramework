@@ -650,7 +650,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			_frequencyPenalty = frequencyPenalty.Value;
 			frequencyPenalty.ValueChanged.Subscribe( this, OnFrequencyPenaltyValueChanged );
 
-			var volumeWeight = cvarSystem.GetCVar<float>( Constants.CVars.Audio.VOLUME_PENALTY ) ?? throw new CVarMissing( Constants.CVars.Audio.VOLUME_PENALTY );
+			var volumeWeight = cvarSystem.GetCVar<float>( Constants.CVars.Audio.VOLUME_WEIGHT ) ?? throw new CVarMissing( Constants.CVars.Audio.VOLUME_WEIGHT );
 			_volumeWeight = volumeWeight.Value;
 			volumeWeight.ValueChanged.Subscribe( this, OnVolumeWeightValueChanged );
 

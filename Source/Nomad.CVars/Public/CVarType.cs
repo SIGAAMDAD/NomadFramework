@@ -76,6 +76,10 @@ namespace Nomad.CVars
             {
                 return CVarType.Boolean;
             }
+            else if (type.IsEnum)
+            {
+                return CVarType.UInt;
+            }
             return CVarType.Count;
         }
     }

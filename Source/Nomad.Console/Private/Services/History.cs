@@ -171,7 +171,7 @@ namespace Nomad.Console.Private.Services {
 		*/
 		private void LoadHistory() {
 			try {
-				using StreamReader reader = new StreamReader( CONSOLE_HISTORY_FILE );
+				using StreamReader reader = new StreamReader( FilePath.FromUserPath( CONSOLE_HISTORY_FILE ).OSPath );
 
 				string? text;
 				while ( ( text = reader.ReadLine() ) != null ) {

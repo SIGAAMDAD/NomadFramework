@@ -55,14 +55,16 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// Creates an FMODBusRepository.
 		/// </summary>
 		/// <param name="system"></param>
-		public FMODBusRepository( FMOD.Studio.System system ) {
+		public FMODBusRepository( FMODBankRepository bankRepository, FMOD.Studio.System system ) {
 			_system = system;
-
 			_categories = new Dictionary<uint, SoundCategory>();
+
+			bankRepository.LoadBank( "res://Assets/Audio/Banks/Master.bank", out _ );
+			bankRepository.LoadBank( "res://Assets/Audio/Banks/Master.strings.bank", out _ );
 
 			CreateChannelGroup(
 				new SoundCategoryCreateInfo(
-					Name: "SoundCategory:UI",
+					Name: "bus:/SoundEffects/UserInterface",
 					MaxSimultaneous: 4,
 					PriorityScale: 1.5f,
 					StealProtectionTime: 0.2f,
@@ -72,7 +74,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			);
 			CreateChannelGroup(
 				new SoundCategoryCreateInfo(
-					Name: "SoundCategory:Music",
+					Name: "bus:/Music",
 					MaxSimultaneous: 2,
 					PriorityScale: 2.0f,
 					StealProtectionTime: 1.5f,
@@ -80,6 +82,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 				),
 				out _musicChannel
 			);
+			/*
 			CreateChannelGroup(
 				new SoundCategoryCreateInfo(
 					Name: "SoundCategory:Ambient",
@@ -90,6 +93,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 				),
 				out _ambientChannel
 			);
+			*/
 		}
 
 		/*

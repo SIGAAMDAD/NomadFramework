@@ -15,7 +15,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
-using Nomad.CVars;
 using Nomad.Logger.Private.Sinks;
 
 namespace Nomad.Logger
@@ -33,7 +32,6 @@ namespace Nomad.Logger
         public static void Initialize(IServiceRegistry serviceRegistry, IServiceLocator locator)
         {
             var logger = serviceRegistry.RegisterSingleton<ILoggerService>(new LoggerService());
-            logger.AddSink(new FileSink(locator.GetService<ICVarSystemService>()));
             logger.AddSink(new ConsoleSink());
         }
     }

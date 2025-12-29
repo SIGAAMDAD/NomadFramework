@@ -57,7 +57,7 @@ namespace Nomad.Logger.Private {
 				sb.Append( message );
 				sb.Append( FormatLogColorEnd( level ) );
 				if ( addLine ) {
-					sb.Append( '\n' );
+//					sb.Append( '\n' );
 				}
 				return sb.ToString();
 			} finally {
