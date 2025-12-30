@@ -35,9 +35,9 @@ namespace Nomad.Audio.Fmod.Private.Repositories.Loaders {
 	///
 	/// </summary>
 
-	internal sealed class FMODEventLoader( FMODDevice fmodSystem, FMODGuidRepository guidRepository, ILoggerService logger ) : IResourceLoader<FMODEventResource, EventId> {
-		public LoadCallback<FMODEventResource, EventId> Load => LoadEvent;
-		public LoadAsyncCallback<FMODEventResource, EventId> LoadAsync => LoadEventAsync;
+	internal sealed class FMODEventLoader( FMODDevice fmodSystem, FMODGuidRepository guidRepository, ILoggerService logger ) : IResourceLoader<IAudioResource, string> {
+		public LoadCallback<IAudioResource, string> Load => LoadEvent;
+		public LoadAsyncCallback<IAudioResource, string> LoadAsync => LoadEventAsync;
 
 		/*
 		===============
@@ -49,15 +49,15 @@ namespace Nomad.Audio.Fmod.Private.Repositories.Loaders {
 		/// </summary>
 		/// <param name="id"></param>
 		/// <returns></returns>
-		private Result<FMODEventResource> LoadEvent( EventId id ) {
+		private Result<IAudioResource> LoadEvent( string id ) {
 			try {
 				var guid = guidRepository.GetEventGuid( id );
 				FMODValidator.ValidateCall( fmodSystem.StudioSystem.getEventByID( guid.Value, out var eventDescription ) );
-				logger.PrintLine( $"FMODEventLoader.LoadEvent: loaded event '{id.Name}'" );
+				logger.PrintLine( $"FMODEventLoader.LoadEvent: loaded event '{id}'" );
 
-				return Result<FMODEventResource>.Success( new FMODEventResource( eventDescription ) );
+				return Result<IAudioResource>.Success( new FMODEventResource( eventDescription ) );
 			} catch ( FMODException e ) {
-				logger.PrintError( $"FMODEventLoader.LoadEvent: failed to load event '{id.Name}' - {e.Error}" );
+				logger.PrintError( $"FMODEventLoader.LoadEvent: failed to load event '{id}' - {e.Error}" );
 				throw;
 			}
 		}
@@ -73,7 +73,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories.Loaders {
 		/// <param name="id"></param>
 		/// <param name="ct"></param>
 		/// <returns></returns>
-		private async Task<Result<FMODEventResource>> LoadEventAsync( EventId id, CancellationToken ct = default ) {
+		private async Task<Result<IAudioResource>> LoadEventAsync( string id, CancellationToken ct = default ) {
 			try {
 				ct.ThrowIfCancellationRequested();
 
@@ -81,11 +81,11 @@ namespace Nomad.Audio.Fmod.Private.Repositories.Loaders {
 
 				FMODValidator.ValidateCall( fmodSystem.StudioSystem.getEventByID( guid.Value, out var eventDescription ) );
 
-				logger.PrintLine( $"FMODEventLoader.LoadEventAsync: loaded event '{id.Name}'" );
+				logger.PrintLine( $"FMODEventLoader.LoadEventAsync: loaded event '{id}'" );
 
-				return Result<FMODEventResource>.Success( new FMODEventResource( eventDescription ) );
+				return Result<IAudioResource>.Success( new FMODEventResource( eventDescription ) );
 			} catch ( FMODException e ) {
-				logger.PrintError( $"FMODEventLoader.LoadEventAsync: failed to load event '{id.Name}' - {e.Error}" );
+				logger.PrintError( $"FMODEventLoader.LoadEventAsync: failed to load event '{id}' - {e.Error}" );
 				throw;
 			}
 		}

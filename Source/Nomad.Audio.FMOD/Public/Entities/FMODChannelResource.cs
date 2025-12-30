@@ -15,6 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using Godot;
+using Nomad.Audio.Interfaces;
 using Nomad.Core.Abstractions;
 
 namespace Nomad.Audio.Fmod.Entities
@@ -22,7 +23,7 @@ namespace Nomad.Audio.Fmod.Entities
     /// <summary>
     ///
     /// </summary>
-    internal record struct FMODChannelResource(FMOD.Studio.EventInstance instance) : IDisposable, IValueObject<FMODChannelResource>
+    internal record struct FMODChannelResource(FMOD.Studio.EventInstance instance) : IAudioResource, IValueObject<FMODChannelResource>
     {
         public readonly FMOD.Studio.PLAYBACK_STATE PlaybackState
         {
@@ -108,11 +109,20 @@ namespace Nomad.Audio.Fmod.Entities
             }
         }
         public readonly bool IsPlaying => PlaybackState == FMOD.Studio.PLAYBACK_STATE.PLAYING;
+        public readonly bool IsValid => instance.isValid();
+
+        /// <summary>
+        ///
+        /// </summary>
+        public readonly void Dispose()
+        {
+            Unload();
+        }
 
         /// <summary>
         /// Clears the unmanaged FMOD EventInstance.
         /// </summary>
-        public readonly void Dispose()
+        public readonly void Unload()
         {
             if (instance.isValid())
             {

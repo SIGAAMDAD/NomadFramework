@@ -17,6 +17,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Nomad.Audio.Fmod.Private.Services;
 using Nomad.Audio.Fmod.Private.ValueObjects;
+using Nomad.Audio.Interfaces;
 using Nomad.Core.Logger;
 using Nomad.Core.Util;
 using Nomad.ResourceCache;
@@ -33,9 +34,9 @@ namespace Nomad.Audio.Fmod.Private.Repositories.Loaders {
 	/// Loads FMOD banks from disk.
 	/// </summary>
 
-	internal sealed class FMODBankLoader( FMODDevice fmodSystem, FMODGuidRepository guidRepository, ILoggerService logger ) : IResourceLoader<FMODBankResource, string> {
-		public LoadCallback<FMODBankResource, string> Load => LoadBank;
-		public LoadAsyncCallback<FMODBankResource, string> LoadAsync => LoadBankAsync;
+	internal sealed class FMODBankLoader( FMODDevice fmodSystem, FMODGuidRepository guidRepository, ILoggerService logger ) : IResourceLoader<IAudioResource, string> {
+		public LoadCallback<IAudioResource, string> Load => LoadBank;
+		public LoadAsyncCallback<IAudioResource, string> LoadAsync => LoadBankAsync;
 
 		/*
 		===============
@@ -47,14 +48,14 @@ namespace Nomad.Audio.Fmod.Private.Repositories.Loaders {
 		/// </summary>
 		/// <param name="id"></param>
 		/// <returns></returns>
-		private Result<FMODBankResource> LoadBank( string path ) {
+		private Result<IAudioResource> LoadBank( string path ) {
 			try {
 				FMODValidator.ValidateCall( fmodSystem.StudioSystem.loadBankFile( FilePath.FromResourcePath( path ).OSPath, FMOD.Studio.LOAD_BANK_FLAGS.NORMAL, out var bank ) );
 				FMODValidator.ValidateCall( bank.getID( out var guid ) );
 				logger.PrintLine( $"FMODBankLoader.LoadBank: loaded bank '{path}'" );
 				guidRepository.AddBankId( path, new( guid ) );
 
-				return Result<FMODBankResource>.Success( new( bank ) );
+				return Result<IAudioResource>.Success( new FMODBankResource( bank ) );
 			} catch ( FMODException e ) {
 				logger.PrintError( $"FMODBankLoader.LoadBank: failed to load bank '{path}' - {e.Error}" );
 				throw;
@@ -72,7 +73,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories.Loaders {
 		/// <param name="id"></param>
 		/// <param name="ct"></param>
 		/// <returns></returns>
-		private async Task<Result<FMODBankResource>> LoadBankAsync( string path, CancellationToken ct = default ) {
+		private async Task<Result<IAudioResource>> LoadBankAsync( string path, CancellationToken ct = default ) {
 			try {
 				ct.ThrowIfCancellationRequested();
 
@@ -81,7 +82,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories.Loaders {
 				logger.PrintLine( $"FMODBankLoader.LoadBankAsync: loaded bank '{path}'" );
 				guidRepository.AddBankId( path, new( guid ) );
 
-				return Result<FMODBankResource>.Success( new( bank ) );
+				return Result<IAudioResource>.Success( new FMODBankResource( bank ) );
 			} catch ( FMODException e ) {
 				logger.PrintError( $"FMODBankLoader.LoadBank: failed to load bank '{path}' - {e.Error}" );
 				throw;

@@ -13,24 +13,13 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
-
 namespace Nomad.Audio.Interfaces
 {
     /// <summary>
-    ///
+    /// Manages the creation of <see cref="IAudioEmitter"/> objects.
     /// </summary>
-    /// <typeparam name="TEventId"></typeparam>
-    /// <typeparam name="TBankId"></typeparam>
-    public interface IGuidRepository<TEventId, TBankId> : IDisposable
+    public interface IEmitterFactory
     {
-        void AddEventId(string path, TEventId guid);
-        void AddBankId(string path, TBankId guid);
-
-        string GetEventId(TEventId guid);
-        string GetBankId(TBankId guid);
-
-        TEventId GetEventGuid(string id);
-        TBankId GetBankGuid(string id);
+        IAudioEmitter CreateEmitter(string category);
     }
 }

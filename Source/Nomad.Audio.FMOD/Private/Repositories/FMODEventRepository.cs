@@ -15,10 +15,15 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Collections.Generic;
+using Nomad.Audio.Fmod.Private.Repositories.Loaders;
+using Nomad.Audio.Fmod.Private.Services;
 using Nomad.Audio.Fmod.Private.ValueObjects;
+using Nomad.Audio.Interfaces;
 using Nomad.Audio.ValueObjects;
+using Nomad.Core.Events;
 using Nomad.Core.Logger;
 using Nomad.Core.Util;
+using Nomad.ResourceCache;
 
 namespace Nomad.Audio.Fmod.Private.Repositories {
 	/*
@@ -32,78 +37,8 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 	///
 	/// </summary>
 
-	internal sealed class FMODEventRepository( ILoggerService logger, FMOD.Studio.System system ) : IDisposable {
-		private readonly Dictionary<EventHandle, FMODEventResource> _eventCache = new();
-
-		/*
-		===============
-		Dispose
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		public void Dispose() {
-			_eventCache.Clear();
-		}
-
-		/*
-		===============
-		CreateEvent
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="assetPath"></param>
-		/// <param name="eventHandle"></param>
-		/// <returns></returns>
-		public AudioResult CreateEvent( string assetPath, out EventHandle eventHandle ) {
-			eventHandle = new( assetPath.HashFileName() );
-			if ( _eventCache.TryGetValue( eventHandle, out _ ) ) {
-				return AudioResult.Success;
-			}
-
-			FMODValidator.ValidateCall( system.getEvent( assetPath, out var eventDescription ) );
-			_eventCache.Add( eventHandle, new( eventDescription ) );
-			return AudioResult.Success;
-		}
-
-		/*
-		===============
-		GetEventDescription
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="eventHandle"></param>
-		/// <param name="description"></param>
-		/// <returns></returns>
-		public AudioResult GetEventDescription( EventHandle eventHandle, out FMODEventResource description ) {
-			if ( !_eventCache.TryGetValue( eventHandle, out description ) ) {
-				return AudioResult.Error_ResourceNotFound;
-			}
-			return AudioResult.Success;
-		}
-
-		/*
-		===============
-		GetEventDescription
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="assetPath"></param>
-		/// <param name="description"></param>
-		/// <returns></returns>
-		public AudioResult GetEventDescription( string assetPath, out FMODEventResource description ) {
-			EventHandle eventHandle = new( assetPath.HashFileName() );
-			if ( !_eventCache.TryGetValue( eventHandle, out description ) ) {
-				return AudioResult.Error_ResourceNotFound;
-			}
-			return AudioResult.Success;
-		}
+	internal sealed class FMODEventRepository( ILoggerService logger, IGameEventRegistryService eventFactory, FMODDevice fmodSystem )
+		: BaseCache<IAudioResource, string>( logger, eventFactory, new FMODEventLoader( fmodSystem, fmodSystem.GuidRepository, logger ) )
+	{
 	};
 };

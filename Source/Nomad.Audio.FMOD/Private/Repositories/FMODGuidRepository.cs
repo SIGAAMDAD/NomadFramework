@@ -35,13 +35,12 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 	/// </summary>
 
 	internal sealed class FMODGuidRepository : IGuidRepository<FMODEventId, FMODBankId> {
-		private sealed class GUIDCache<TGuid, TId>( Func<string, TId> factory )
+		private sealed class GUIDCache<TGuid, TId>()
 			where TGuid : IValueObject<TGuid>
-			where TId : IValueObject<TId>
+			where TId : notnull
 		{
 			private readonly Dictionary<TGuid, TId> _guids = new Dictionary<TGuid, TId>();
 			private readonly Dictionary<TId, TGuid> _reverseLookup = new Dictionary<TId, TGuid>();
-			private readonly Func<string, TId> _factory = factory;
 
 			public TGuid this[ TId id ] => _reverseLookup[ id ];
 			public TId this[ TGuid guid ] => _guids[ guid ];
@@ -51,11 +50,9 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			Add
 			===============
 			*/
-			public void Add( string path, TGuid guid ) {
-				var id = _factory.Invoke( path );
-
-				_guids[ guid ] = id;
-				_reverseLookup[ id ] = guid;
+			public void Add( TId path, TGuid guid ) {
+				_guids[ guid ] = path;
+				_reverseLookup[ path ] = guid;
 			}
 
 			/*
@@ -69,8 +66,8 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			}
 		};
 
-		private readonly GUIDCache<FMODEventId, EventId> _eventGuids = new GUIDCache<FMODEventId, EventId>( e => new EventId( new( e ) ) );
-		private readonly GUIDCache<FMODBankId, BankId> _bankGuids = new GUIDCache<FMODBankId, BankId>( b => new BankId( new( b ) ) );
+		private readonly GUIDCache<FMODEventId, string> _eventGuids = new GUIDCache<FMODEventId, string>();
+		private readonly GUIDCache<FMODBankId, string> _bankGuids = new GUIDCache<FMODBankId, string>();
 
 		private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
 
@@ -129,7 +126,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		GetEventId
 		===============
 		*/
-		public EventId GetEventId( FMODEventId guid ) {
+		public string GetEventId( FMODEventId guid ) {
 			_lock.EnterUpgradeableReadLock();
 			try {
 				return _eventGuids[ guid ];
@@ -144,7 +141,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		GetEventGuid
 		===============
 		*/
-		public FMODEventId GetEventGuid( EventId id ) {
+		public FMODEventId GetEventGuid( string id ) {
 			_lock.EnterUpgradeableReadLock();
 			try {
 				return _eventGuids[ id ];
@@ -159,7 +156,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		GetBankId
 		===============
 		*/
-		public BankId GetBankId( FMODBankId guid ) {
+		public string GetBankId( FMODBankId guid ) {
 			_lock.EnterUpgradeableReadLock();
 			try {
 				return _bankGuids[ guid ];
@@ -174,7 +171,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		GetBankGuid
 		===============
 		*/
-		public FMODBankId GetBankGuid( BankId id ) {
+		public FMODBankId GetBankGuid( string id ) {
 			_lock.EnterUpgradeableReadLock();
 			try {
 				return _bankGuids[ id ];

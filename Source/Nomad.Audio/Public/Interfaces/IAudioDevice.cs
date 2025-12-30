@@ -15,8 +15,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Collections.Generic;
-using Godot;
-using Nomad.Audio.ValueObjects;
 
 namespace Nomad.Audio.Interfaces
 {
@@ -30,26 +28,5 @@ namespace Nomad.Audio.Interfaces
         IEnumerable<string> GetAudioDrivers();
 
         void Update(float deltaTime);
-
-        AudioResult LoadBank(string bankPath, out BankHandle bank);
-        AudioResult UnloadBank(BankHandle bank);
-
-        AudioResult CreateEvent(string assetPath, out EventHandle eventHandle);
-        AudioResult TriggerEvent(EventHandle eventHandle, ChannelGroupHandle group, out ChannelHandle channel);
-        AudioResult SetChannelVolume(ChannelHandle channel, float volume);
-        AudioResult SetChannelPitch(ChannelHandle channel, float pitch);
-        AudioResult GetChannelStatus(ChannelHandle channel, out ChannelStatus status);
-        AudioResult StopChannel(ChannelHandle channel);
-
-        AudioResult SetParameterValue(EventHandle eventHandle, string parameterName, float value);
-
-        AudioResult CreateChannelGroup(SoundCategoryCreateInfo category, out ChannelGroupHandle group);
-        AudioResult GetChannelGroup(string groupname, out ChannelGroupHandle group);
-        AudioResult StopChannelGroup(ChannelGroupHandle group);
-        AudioResult SetChannelGroupVolume(ChannelGroupHandle group, float value);
-        AudioResult SetChannelGroupPitch(ChannelGroupHandle group, float pitch);
-        AudioResult SetChannelGroupMute(ChannelGroupHandle group, bool mute);
-
-        AudioResult SetListenerPosition(int listenerIndex, Vector2 position);
     }
 }

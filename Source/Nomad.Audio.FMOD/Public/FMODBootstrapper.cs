@@ -14,9 +14,9 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using Nomad.Audio.Fmod.Private.Repositories;
 using Nomad.Audio.Fmod.Private.Services;
 using Nomad.Audio.Interfaces;
-using Nomad.Core.Events;
 using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
 using Nomad.CVars;
@@ -39,16 +39,17 @@ namespace Nomad.Audio.Fmod
 
             var logger = locator.GetService<ILoggerService>();
             var cvarSystem = locator.GetService<ICVarSystemService>();
-            var eventFactory = locator.GetService<IGameEventRegistryService>();
 
             try
             {
                 var system = new FMODDevice(locator, registry);
                 var listener = new FMODListenerService(logger, system);
+                var channelRepository = new FMODChannelRepository(logger, cvarSystem, listener, system);
 
                 registry.RegisterSingleton<IAudioDevice>(system);
                 registry.RegisterSingleton<IListenerService>(listener);
                 registry.RegisterSingleton<IMusicService>(new FMODMusicService(system.EventRepository, cvarSystem));
+                registry.RegisterSingleton<IEmitterFactory>(new FMODEmitterFactory(channelRepository, channelRepository.BusRepository));
             }
             catch (FMODException e)
             {

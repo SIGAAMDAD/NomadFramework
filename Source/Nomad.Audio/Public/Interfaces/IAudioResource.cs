@@ -14,19 +14,16 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using Nomad.Audio.ValueObjects;
-using Nomad.Core.Abstractions;
 
 namespace Nomad.Audio.Interfaces
 {
     /// <summary>
-    ///
+    /// Manages a lower-level audio resource (e.g. an FMOD bank).
     /// </summary>
-    public interface IEventMetadata : IEntity<EventId>
+    public interface IAudioResource : IDisposable
     {
-        /// <summary>
-        ///
-        /// </summary>
-        DateTime LoadedAt { get; }
+        bool IsValid { get; }
+
+        void Unload();
     }
 }

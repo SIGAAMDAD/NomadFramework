@@ -13,9 +13,9 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
 using System.Runtime.CompilerServices;
 using Nomad.Audio.Fmod.Entities;
+using Nomad.Audio.Interfaces;
 
 namespace Nomad.Audio.Fmod.Private.ValueObjects {
 	/*
@@ -29,7 +29,7 @@ namespace Nomad.Audio.Fmod.Private.ValueObjects {
 	///
 	/// </summary>
 
-	internal readonly record struct FMODEventResource( FMOD.Studio.EventDescription Handle ) : IDisposable {
+	internal readonly record struct FMODEventResource( FMOD.Studio.EventDescription Handle ) : IAudioResource {
 		public bool IsValid => Handle.isValid();
 
 		/*

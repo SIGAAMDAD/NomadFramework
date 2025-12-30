@@ -36,6 +36,7 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 		public float CurrentPriority;
 		public float StartTime;
 		public int ChannelId;
+		public IntPtr Id;
 		public SoundCategory Category;
 		public float LastStolenTime = 0.0f;
 

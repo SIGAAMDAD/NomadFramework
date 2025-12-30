@@ -16,7 +16,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using Nomad.Audio.Fmod.Private.Entities;
 using Nomad.Audio.ValueObjects;
 using Nomad.Core.Abstractions;
-using Nomad.Core.Util;
 
 namespace Nomad.Audio.Fmod.ValueObjects {
 	/*
@@ -32,6 +31,5 @@ namespace Nomad.Audio.Fmod.ValueObjects {
 
 	internal record SoundCategory( SoundCategoryCreateInfo Config, FMOD.Studio.System System ) : IValueObject<SoundCategory> {
 		public readonly FMODChannelGroup ChannelGroup = new( Config, System );
-		public readonly ChannelGroupHandle Handle = new( Config.Name.HashFileName() );
 	};
 };

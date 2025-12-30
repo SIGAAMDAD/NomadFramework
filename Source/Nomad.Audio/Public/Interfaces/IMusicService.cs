@@ -29,7 +29,7 @@ namespace Nomad.Audio.Interfaces
         ///
         /// </summary>
         /// <param name="name"></param>
-        void PlayTheme(string assetPath);
+        void PlayTheme(string id);
 
         /// <summary>
         ///

@@ -13,24 +13,15 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
+using Nomad.Audio.Fmod.Private.Entities;
+using Nomad.Audio.Fmod.Private.Repositories;
+using Nomad.Audio.Interfaces;
 
-namespace Nomad.Audio.Interfaces
-{
-    /// <summary>
-    ///
-    /// </summary>
-    /// <typeparam name="TEventId"></typeparam>
-    /// <typeparam name="TBankId"></typeparam>
-    public interface IGuidRepository<TEventId, TBankId> : IDisposable
-    {
-        void AddEventId(string path, TEventId guid);
-        void AddBankId(string path, TBankId guid);
+namespace Nomad.Audio.Fmod.Private.Services {
+	internal sealed class FMODEmitterFactory( FMODChannelRepository channelRepository, FMODBusRepository busRepository ) : IEmitterFactory {
 
-        string GetEventId(TEventId guid);
-        string GetBankId(TBankId guid);
-
-        TEventId GetEventGuid(string id);
-        TBankId GetBankGuid(string id);
-    }
-}
+		public IAudioEmitter CreateEmitter( string category ) {
+			return new FMODEmitter( channelRepository, busRepository.GetSoundCategory( category ) );
+		}
+	};
+};

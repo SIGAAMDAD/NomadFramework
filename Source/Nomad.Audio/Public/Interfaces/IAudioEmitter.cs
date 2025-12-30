@@ -26,9 +26,9 @@ namespace Nomad.Audio.Interfaces
         Vector2 Positon { get; set; }
         float Volume { get; set; }
         float Pitch { get; set; }
-        ChannelGroupHandle Group { get; }
+        string Category { get; }
         ChannelStatus Status { get; }
 
-        void PlaySound(string soundPath, float priority = 0.5f);
+        void PlaySound(string id, float priority = 0.5f);
     }
 }
