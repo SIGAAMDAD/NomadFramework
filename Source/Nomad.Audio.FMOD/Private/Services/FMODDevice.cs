@@ -17,14 +17,12 @@ of merchantability, fitness for a particular purpose and noninfringement.
 #define FMOD_LOGGING
 #endif
 
-using Godot;
 using System;
 using System.Collections.Generic;
 using Nomad.Audio.Fmod.Private.Registries;
 using Nomad.Audio.Fmod.Private.Repositories;
 using Nomad.Audio.Fmod.Private.ValueObjects;
 using Nomad.Audio.Interfaces;
-using Nomad.Audio.ValueObjects;
 using Nomad.Core;
 using Nomad.Core.Exceptions;
 using Nomad.Core.Logger;
@@ -86,6 +84,10 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			_bankRepository = new FMODBankRepository( _logger, eventFactory, this );
 			_eventRepository = new FMODEventRepository( _logger, eventFactory, this );
 
+			// preload the strings bank so we get all the human-readable event names cached
+			_bankRepository.GetCached( "res://Assets/Audio/Banks/Master.strings.bank" );
+			_bankRepository.GetCached( "res://Assets/Audio/Banks/Master.bank" );
+
 			_logger.PrintLine( $"FMODDevice: initializing FMOD sound system..." );
 		}
 
@@ -102,6 +104,32 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			_bankRepository?.Dispose();
 			_guidRepository?.Dispose();
 			_systemHandle.Dispose();
+		}
+
+		/*
+		===============
+		LoadBank
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="assetPath"></param>
+		public void LoadBank( string assetPath ) {
+			_bankRepository.GetCached( assetPath );
+		}
+
+		/*
+		===============
+		UnloadBank
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="assetPath"></param>
+		public void UnloadBank( string assetPath ) {
+			_bankRepository.Unload( assetPath );
 		}
 
 		/*
@@ -151,7 +179,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			var flags = FMOD.INITFLAGS.CHANNEL_DISTANCEFILTER | FMOD.INITFLAGS.CHANNEL_LOWPASS | FMOD.INITFLAGS.VOL0_BECOMES_VIRTUAL;
 
 			FMODValidator.ValidateCall( System.setStreamBufferSize( (uint)streamBufferSize.Value, FMOD.TIMEUNIT.MS ) );
-			FMODValidator.ValidateCall( System.setDSPBufferSize( dspBufferSize.Value * 1024, dspBufferCount.Value ) );
+			FMODValidator.ValidateCall( System.setDSPBufferSize( dspBufferSize.Value, dspBufferCount.Value ) );
 			FMODValidator.ValidateCall( StudioSystem.initialize( maxChannels.Value, FMOD.Studio.INITFLAGS.LIVEUPDATE | FMOD.Studio.INITFLAGS.SYNCHRONOUS_UPDATE, flags, 0 ) );
 		}
 	};

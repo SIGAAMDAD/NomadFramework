@@ -48,6 +48,7 @@ namespace Nomad.Audio.Fmod
 
                 registry.RegisterSingleton<IAudioDevice>(system);
                 registry.RegisterSingleton<IListenerService>(listener);
+                registry.RegisterSingleton<IChannelRepository>(channelRepository);
                 registry.RegisterSingleton<IMusicService>(new FMODMusicService(system.EventRepository, cvarSystem));
                 registry.RegisterSingleton<IEmitterFactory>(new FMODEmitterFactory(channelRepository, channelRepository.BusRepository));
             }

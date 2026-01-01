@@ -28,5 +28,7 @@ namespace Nomad.Audio.Interfaces
         IEnumerable<string> GetAudioDrivers();
 
         void Update(float deltaTime);
+        void LoadBank(string assetPath);
+        void UnloadBank(string assetPath);
     }
 }

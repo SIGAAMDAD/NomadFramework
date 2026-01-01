@@ -52,11 +52,10 @@ namespace Nomad.Audio.Fmod.Private.ValueObjects {
 			}
 		}
 		private readonly FMOD.System _system;
-
-		private readonly ILoggerService _logger;
-
 		private readonly object _systemLock = new object();
-		private readonly StringBuilder _fmodDebugString = new StringBuilder( 256 );
+
+		private static ILoggerService _logger;
+		private static readonly StringBuilder _fmodDebugString = new StringBuilder( 256 );
 
 		/*
 		===============
@@ -137,7 +136,7 @@ namespace Nomad.Audio.Fmod.Private.ValueObjects {
 		/// <param name="func"></param>
 		/// <param name="message"></param>
 		/// <returns></returns>
-		private FMOD.RESULT DebugCallback( FMOD.DEBUG_FLAGS flags, nint file, int line, nint func, nint message ) {
+		private static FMOD.RESULT DebugCallback( FMOD.DEBUG_FLAGS flags, nint file, int line, nint func, nint message ) {
 			string formattedMessage = Marshal.PtrToStringAnsi( message );
 			string formattedFile = Marshal.PtrToStringAnsi( file );
 			string formattedFunc = Marshal.PtrToStringAnsi( func );

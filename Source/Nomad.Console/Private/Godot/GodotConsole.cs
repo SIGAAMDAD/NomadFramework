@@ -79,8 +79,6 @@ namespace Nomad.Console.Private.Godot {
 			commands.RegisterCommand( new ConsoleCommand( Constants.Commands.Console.EXIT_COMMAND, OnQuit, "Exits the running application." ) );
 			commands.RegisterCommand( new ConsoleCommand( Constants.Commands.Console.ECHO_COMMAND, OnEcho ) );
 			commands.RegisterCommand( new ConsoleCommand( Constants.Commands.Console.CLEAR_COMMAND, OnClear ) );
-
-			AddThemeFontOverride( "SourceCodePro-ExtraLight", ResourceLoader.Load<Font>( "res://Assets/Fonts/SourceCodePro-ExtraLight.ttf" ) );
 		}
 
 		/*
@@ -183,6 +181,7 @@ namespace Nomad.Console.Private.Godot {
 			ProcessMode = ProcessModeEnum.Always;
 
 			AddChild( _commandBuilder );
+			AddThemeFontOverride( "font", ResourceLoader.Load<Font>( "res://Assets/Fonts/SourceCodePro-ExtraLight.ttf" ) );
 		}
 
 		/*

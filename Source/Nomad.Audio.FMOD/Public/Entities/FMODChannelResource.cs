@@ -13,7 +13,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
 using Godot;
 using Nomad.Audio.Interfaces;
 using Nomad.Core.Abstractions;
@@ -54,17 +53,12 @@ namespace Nomad.Audio.Fmod.Entities
             }
             set
             {
-                FMODValidator.ValidateCall(instance.set3DAttributes(
-                    new FMOD.ATTRIBUTES_3D
-                    {
-                        position = new FMOD.VECTOR
-                        {
-                            x = value.X,
-                            y = value.Y,
-                            z = 1.0f,
-                        }
-                    }
-                ));
+                var attributes = new FMOD.ATTRIBUTES_3D();
+                attributes.position = new FMOD.VECTOR { x = value.X, y = value.Y, z = 1.0f };
+                attributes.velocity = new FMOD.VECTOR { x = 0.0f, y = 0.0f, z = 0.0f };
+                attributes.forward = new FMOD.VECTOR { x = 0.0f, y = 0.0f, z = 0.0f };
+                attributes.up = new FMOD.VECTOR { x = 0.0f, y = 0.0f, z = 0.0f };
+                FMODValidator.ValidateCall(instance.set3DAttributes(attributes));
             }
         }
         public readonly float Volume
@@ -126,11 +120,10 @@ namespace Nomad.Audio.Fmod.Entities
         {
             if (instance.isValid())
             {
-                FMODValidator.ValidateCall(instance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE));
-
                 // ensure we unhook the callback (causes a seggy if its not done)
                 FMODValidator.ValidateCall(instance.setCallback(null, FMOD.Studio.EVENT_CALLBACK_TYPE.STOPPED | FMOD.Studio.EVENT_CALLBACK_TYPE.START_FAILED));
 
+                FMODValidator.ValidateCall(instance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE));
                 FMODValidator.ValidateCall(instance.release());
                 instance.clearHandle();
             }

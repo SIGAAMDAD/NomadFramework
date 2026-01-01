@@ -53,13 +53,19 @@ namespace Nomad.Core
             }
             public static partial class Graphics
             {
+                public const string ANIMATION_QUALITY = "r.AnimationQuality";
+                public const string PARTICLE_QUALITY = "r.ParticleQuality";
+                public const string SHADOW_ATLAS_SIZE = "r.ShadowAtlasSize";
                 public const string SHADOW_FILTER_TYPE = "r.ShadowFilterType";
                 public const string SHADOW_FILTER_SMOOTH = "r.ShadowFilterSmooth";
                 public const string FORCE_VERTEX_SHADING = "r.ForceVertexShading";
                 public const string PHYSICALLY_BASED_RENDERING = "r.PhysicallyBasedRendering";
+                public const string BLOOM_ENABLED = "r.BloomEnabled";
+                public const string BAKED_LIGHTS = "r.BakedLights";
             }
             public static partial class Display
             {
+                public const string ASPECT_RATIO = "display.AspectRatio";
                 public const string WINDOW_MODE = "display.WindowMode";
                 public const string WINDOW_RESOLUTION = "display.WindowResolution";
                 public const string ANTI_ALIASING = "display.AntiAliasing";

@@ -56,9 +56,6 @@ namespace Nomad.Logger.Private {
 				sb.Append( $"[{Stopwatch.GetTimestamp()}] [{category.Name}] " );
 				sb.Append( message );
 				sb.Append( FormatLogColorEnd( level ) );
-				if ( addLine ) {
-//					sb.Append( '\n' );
-				}
 				return sb.ToString();
 			} finally {
 				_sb.Return( sb );

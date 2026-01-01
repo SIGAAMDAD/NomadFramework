@@ -15,8 +15,10 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Godot;
+using Godot.NativeInterop;
 using Nomad.Core.Collections;
 using Nomad.Core.Logger;
 
@@ -45,6 +47,8 @@ namespace Nomad.Logger.Private {
 		}
 		private bool _enabled;
 
+		private long _quitFlag = 0;
+
 		private readonly List<ILoggerSink> _sinks = new List<ILoggerSink>();
 		private readonly LockFreePooledQueue<string> _messageQueue = new LockFreePooledQueue<string>( 256 );
 
@@ -64,7 +68,9 @@ namespace Nomad.Logger.Private {
 			_level = level;
 			_enabled = enabled;
 
-			_ = Task.Run( LoggerThreadAsync );
+			var printThread = new Thread( LoggerThreadAsync );
+			printThread.IsBackground = true;
+			printThread.Start();
 		}
 
 		/*
@@ -114,7 +120,7 @@ namespace Nomad.Logger.Private {
 		///
 		/// </summary>
 		/// <returns></returns>
-		private async Task LoggerThreadAsync() {
+		private async void LoggerThreadAsync() {
 			try {
 				while ( true ) {
 					while ( _messageQueue.TryDequeue( out var message ) ) {

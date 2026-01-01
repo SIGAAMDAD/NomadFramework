@@ -18,7 +18,6 @@ using System.Threading.Tasks;
 using Nomad.Audio.Fmod.Private.Services;
 using Nomad.Audio.Fmod.Private.ValueObjects;
 using Nomad.Audio.Interfaces;
-using Nomad.Audio.ValueObjects;
 using Nomad.Core.Logger;
 using Nomad.Core.Util;
 using Nomad.ResourceCache;
@@ -51,8 +50,9 @@ namespace Nomad.Audio.Fmod.Private.Repositories.Loaders {
 		/// <returns></returns>
 		private Result<IAudioResource> LoadEvent( string id ) {
 			try {
-				var guid = guidRepository.GetEventGuid( id );
-				FMODValidator.ValidateCall( fmodSystem.StudioSystem.getEventByID( guid.Value, out var eventDescription ) );
+				FMODValidator.ValidateCall( fmodSystem.StudioSystem.getEvent( id, out var eventDescription ) );
+				FMODValidator.ValidateCall( eventDescription.getID( out var guid ) );
+				guidRepository.AddEventId( id, new( guid ) );
 				logger.PrintLine( $"FMODEventLoader.LoadEvent: loaded event '{id}'" );
 
 				return Result<IAudioResource>.Success( new FMODEventResource( eventDescription ) );
@@ -77,9 +77,9 @@ namespace Nomad.Audio.Fmod.Private.Repositories.Loaders {
 			try {
 				ct.ThrowIfCancellationRequested();
 
-				var guid = guidRepository.GetEventGuid( id );
-
-				FMODValidator.ValidateCall( fmodSystem.StudioSystem.getEventByID( guid.Value, out var eventDescription ) );
+				FMODValidator.ValidateCall( fmodSystem.StudioSystem.getEvent( id, out var eventDescription ) );
+				FMODValidator.ValidateCall( eventDescription.getID( out var guid ) );
+				guidRepository.AddEventId( id, new( guid ) );
 
 				logger.PrintLine( $"FMODEventLoader.LoadEventAsync: loaded event '{id}'" );
 

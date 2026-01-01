@@ -19,7 +19,6 @@ using Nomad.Audio.Fmod.Entities;
 using Nomad.Audio.Fmod.Private.Entities;
 using Nomad.Audio.Fmod.Private.ValueObjects;
 using Nomad.Audio.Interfaces;
-using Nomad.Audio.ValueObjects;
 using Nomad.Core;
 using Nomad.CVars;
 using Nomad.ResourceCache;
@@ -65,11 +64,11 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			_eventRepository = eventRepository;
 
 			var musicVolume = cvarSystem.GetCVar<float>( Constants.CVars.Audio.MUSIC_VOLUME ) ?? throw new Exception( "Missing CVar 'audio.MusicVolume'" );
-			musicVolume.ValueChanged.OnPublished += OnMusicVolumeChanged;
+			musicVolume.ValueChanged.Subscribe( this, OnMusicVolumeChanged );
 			_musicVolume = musicVolume.Value;
 
 			var musicOn = cvarSystem.GetCVar<bool>( Constants.CVars.Audio.MUSIC_ON ) ?? throw new Exception( "Missing CVar 'audio.MusicOn'" );
-			musicOn.ValueChanged.OnPublished += OnMusicOnChanged;
+			musicOn.ValueChanged.Subscribe( this, OnMusicOnChanged );
 			_musicOn = musicOn.Value;
 		}
 

@@ -63,6 +63,7 @@ namespace Nomad.Console.Private.Godot {
 			};
 			_richLabel.CallDeferred( RichTextLabel.MethodName.AddThemeStyleboxOverride, "normal", new StyleBoxFlat() { BgColor = new Color( 0.0f, 0.0f, 0.0f, 0.84f ) } );
 			node.CallDeferred( Control.MethodName.AddChild, _richLabel );
+			_richLabel.CallDeferred( RichTextLabel.MethodName.AddThemeFontOverride, "font", ResourceLoader.Load<Font>( "res://Assets/Fonts/SourceCodePro-ExtraLight.ttf" ) );
 
 			eventRegistry.GetEvent<EmptyEventArgs>( Constants.Events.Console.CONSOLE_CLOSED_EVENT ).Subscribe( this, OnConsoleOpened );
 			eventRegistry.GetEvent<EmptyEventArgs>( Constants.Events.Console.PAGE_UP_EVENT ).Subscribe( this, OnPageUp );
@@ -80,7 +81,7 @@ namespace Nomad.Console.Private.Godot {
 		/// <param name="message"></param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public override void Print( in string message ) {
-			_richLabel.CallDeferred( RichTextLabel.MethodName.AppendText, message );
+			_richLabel.CallDeferred( RichTextLabel.MethodName.AppendText, $"{message}\n" );
 		}
 
 		/*
