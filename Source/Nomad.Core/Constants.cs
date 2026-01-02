@@ -73,6 +73,8 @@ namespace Nomad.Core
                 public const string SEPARATE_RENDERING_THREAD = "r.SeparateRenderingThread";
                 public const string VSYNC_MODE = "display.VSyncMode";
                 public const string MONITOR = "display.Monitor";
+                public const string BRIGHTNESS = "display.Brightness";
+                public const string RESOLUTION_SCALE = "display.ResolutionScale";
             }
             public static partial class Accessibility
             {
