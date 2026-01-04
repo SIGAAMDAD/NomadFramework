@@ -178,7 +178,6 @@ namespace Nomad.Console.Private.Services {
 					AddInputHistory( text );
 				}
 			} catch ( Exception ) {
-				throw;
 			}
 		}
 
