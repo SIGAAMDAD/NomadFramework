@@ -27,6 +27,8 @@ namespace Nomad.Core
                 public const string MUSIC_VOLUME = "audio.MusicVolume";
                 public const string MUSIC_ON = "audio.MusicOn";
 
+                public const string MASTER_VOLUME = "audio.MasterVolume";
+
                 public const string MAX_CHANNELS = "audio.MaxChannels";
                 public const string MAX_ACTIVE_CHANNELS = "audio.MaxActiveChannels";
 
@@ -75,6 +77,7 @@ namespace Nomad.Core
                 public const string MONITOR = "display.Monitor";
                 public const string BRIGHTNESS = "display.Brightness";
                 public const string RESOLUTION_SCALE = "display.ResolutionScale";
+                public const string DRS_TARGET_FRAMES = "display.DRSTargetFrames";
             }
             public static partial class Accessibility
             {

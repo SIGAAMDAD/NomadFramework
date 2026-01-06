@@ -34,12 +34,20 @@ namespace Nomad.CVars.Private.Services {
 	/// Global manager for CVars
 	/// </summary>
 
-	public sealed class CVarSystem( IGameEventRegistryService eventFactory, ILoggerService logger ) : ICVarSystemService {
+	public sealed class CVarSystem : ICVarSystemService {
 		private readonly ConcurrentDictionary<InternString, ICVar> _cvars = new ConcurrentDictionary<InternString, ICVar>();
 		private readonly HashSet<CVarGroup> _groups = new HashSet<CVarGroup>();
 
-		private readonly IGameEventRegistryService _eventFactory = eventFactory;
-		private readonly ILoggerService _logger = logger;
+		private readonly IGameEventRegistryService _eventFactory;
+		private readonly ILoggerService _logger;
+
+		public CVarSystem( IGameEventRegistryService eventFactory, ILoggerService logger ) {
+			_eventFactory = eventFactory;
+			_logger = logger;
+			AddGroup( new CVarGroup( "Display", _logger, this ) );
+			AddGroup( new CVarGroup( "Graphics", _logger, this ) );
+			AddGroup( new CVarGroup( "Audio", _logger, this ) );
+		}
 
 		/*
 		===============
@@ -192,7 +200,7 @@ namespace Nomad.CVars.Private.Services {
 
 			// ensure we block all access
 			lock ( _cvars ) {
-				ConfigFileWriter writer = new ConfigFileWriter( configFile, _logger, this, _groups );
+				ConfigFileWriter writer = new ConfigFileWriter( configFile, _logger, this, _cvars.Values );
 			}
 		}
 
@@ -218,13 +226,53 @@ namespace Nomad.CVars.Private.Services {
 			lock ( _cvars ) {
 				ConfigFileReader reader = new ConfigFileReader( _logger, configFile );
 
+				/*
 				foreach ( var group in _groups ) {
 					foreach ( var cvar in group.Cvars ) {
 						ICVar var = _cvars[ cvar ];
 						if ( reader.TryGetValue( cvar, out string? value ) ) {
 							ArgumentException.ThrowIfNullOrEmpty( value );
 
-							var.SetFromString( new( value ) );
+							switch ( var.Type ) {
+								case CVarType.Boolean:
+									var.SetBooleanValue( Convert.ToBoolean( value ) );
+									break;
+								case CVarType.Int:
+									var.SetIntegerValue( Convert.ToInt32( value ) );
+									break;
+								case CVarType.UInt:
+									var.SetUIntegerValue( Convert.ToUInt32( value ) );
+									break;
+								case CVarType.Decimal:
+									var.SetDecimalValue( Convert.ToSingle( value ) );
+									break;
+								case CVarType.String:
+									var.SetStringValue( value );
+									break;`
+							}
+						}
+					}
+				}
+				*/
+				foreach ( var cvar in _cvars ) {
+					if ( reader.TryGetValue( cvar.Value.Name, out string? value ) ) {
+						_logger.PrintLine( $"Loading cvar {cvar.Value.Name} with value of '{value}'..." );
+						switch ( cvar.Value.Type ) {
+							case CVarType.Boolean:
+								cvar.Value.SetBooleanValue( Convert.ToBoolean( value ) );
+								break;
+							case CVarType.Int:
+								cvar.Value.SetIntegerValue( Convert.ToInt32( value ) );
+								break;
+							case CVarType.UInt:
+								cvar.Value.SetUIntegerValue( Convert.ToUInt32( value ) );
+								break;
+							case CVarType.Decimal:
+								cvar.Value.SetDecimalValue( Convert.ToSingle( value ) );
+								break;
+							case CVarType.String:
+								cvar.Value.SetStringValue( value );
+								break;
 						}
 					}
 				}

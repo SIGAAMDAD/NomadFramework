@@ -31,7 +31,7 @@ namespace Nomad.CVars.Private {
 	///
 	/// </summary>
 
-	internal class CVar<T> : ICVar<T> {
+	internal sealed class CVar<T> : ICVar<T> {
 		/// <summary>
 		/// The current value of the CVar.
 		/// </summary>
@@ -43,7 +43,7 @@ namespace Nomad.CVars.Private {
 				}
 				T old = _value;
 				_value = value;
-				_valueChanged.Publish( new CVarValueChangedEventArgs<T>( old, _value ) );
+				_valueChanged.Publish( new CVarValueChangedEventArgs<T>( old, value ) );
 			}
 		}
 		private T _value;
@@ -55,7 +55,7 @@ namespace Nomad.CVars.Private {
 		private readonly IGameEvent<CVarValueChangedEventArgs<T>> _valueChanged;
 
 		/// <summary>
-		/// The default value of the CVar, what it resets to/
+		/// The default value of the CVar, what it resets to.
 		/// </summary>
 		public T DefaultValue => _defaultValue;
 		private readonly T _defaultValue;
@@ -76,7 +76,7 @@ namespace Nomad.CVars.Private {
 		public string Description => _metadata.Description;
 
 		/// <summary>
-		/// The CVar's flags (permissions, abilities, capabilities)
+		/// The CVar's flags (permissions, abilities, capabilities).
 		/// </summary>
 		public CVarFlags Flags => _metadata.Flags;
 
@@ -114,7 +114,7 @@ namespace Nomad.CVars.Private {
 		/// <param name="createInfo"></param>
 		internal CVar( IGameEventRegistryService eventFactory, in CVarCreateInfo<T> createInfo ) {
 			_validator = new CVarValidator<T>( createInfo.Validator );
-			if ( !_validator.ValidateCVarType() ) {
+			if ( !CVarValidator<T>.ValidateCVarType() ) {
 				throw new InvalidCastException();
 			}
 			_metadata = new CVarMetadata(
@@ -126,7 +126,7 @@ namespace Nomad.CVars.Private {
 
 			_value = createInfo.DefaultValue;
 			_defaultValue = createInfo.DefaultValue;
-			_valueChanged = eventFactory.GetEvent<CVarValueChangedEventArgs<T>>( Constants.Events.CVars.CVAR_VALUE_CHANGED_EVENT );
+			_valueChanged = eventFactory.GetEvent<CVarValueChangedEventArgs<T>>( $"{createInfo.Name}:{Constants.Events.CVars.CVAR_VALUE_CHANGED_EVENT}" );
 		}
 
 		/*
@@ -135,7 +135,7 @@ namespace Nomad.CVars.Private {
 		===============
 		*/
 		/// <summary>
-		/// Resets the cvar's <see cref="Value"/> to the <see cref="DefaultValue"/>
+		/// Resets the cvar's <see cref="Value"/> to the <see cref="DefaultValue"/>.
 		/// </summary>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void Reset() {
@@ -172,7 +172,7 @@ namespace Nomad.CVars.Private {
 		/// <param name="value">The new value of the CVar.</param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void Set( T value ) {
-			_value = value;
+			Value = value;
 		}
 
 		/*
@@ -186,7 +186,8 @@ namespace Nomad.CVars.Private {
 		/// <returns>The <see cref="Value"/> in string format.</returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public string? GetStringValue() {
-			return Value is string stringValue ? stringValue : null;
+			ArgumentNullException.ThrowIfNull( _value );
+			return Type == CVarType.String ? Convert.ToString( _value ) : null;
 		}
 
 		/*
@@ -200,8 +201,8 @@ namespace Nomad.CVars.Private {
 		/// <returns>The <see cref="Value"/> in 32-bit integer format, 0 by default if int.TryParse failed</returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public uint GetUIntegerValue() {
-			ArgumentNullException.ThrowIfNull( Value );
-			return Value is uint uintValue ? uintValue : 0;
+			ArgumentNullException.ThrowIfNull( _value );
+			return Type == CVarType.UInt ? Convert.ToUInt32( _value ) : 0;
 		}
 
 		/*
@@ -215,8 +216,8 @@ namespace Nomad.CVars.Private {
 		/// <returns>The <see cref="Value"/> in 32-bit integer format, 0 by default if int.TryParse failed</returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public int GetIntegerValue() {
-			ArgumentNullException.ThrowIfNull( Value );
-			return Value is int intValue ? intValue : 0;
+			ArgumentNullException.ThrowIfNull( _value );
+			return Type == CVarType.Int ? Convert.ToInt32( _value ) : 0;
 		}
 
 		/*
@@ -230,8 +231,8 @@ namespace Nomad.CVars.Private {
 		/// <returns>The <see cref="Value"/> in 32-bit floating-point format, 0 by default if float.TryParse failed</returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public float GetDecimalValue() {
-			ArgumentNullException.ThrowIfNull( Value );
-			return Value is float floatValue ? floatValue : 0.0f;
+			ArgumentNullException.ThrowIfNull( _value );
+			return Type == CVarType.Decimal ? Convert.ToSingle( _value ) : 0.0f;
 		}
 
 		/*
@@ -245,8 +246,8 @@ namespace Nomad.CVars.Private {
 		/// <returns>The <see cref="Value"/> in 8-bit boolean format, false by default if bool.TryParse failed</returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public bool GetBooleanValue() {
-			ArgumentNullException.ThrowIfNull( Value );
-			return Value is bool boolValue && boolValue;
+			ArgumentNullException.ThrowIfNull( _value );
+			return Type == CVarType.Boolean ? Convert.ToBoolean( _value ) : false;
 		}
 
 		/*
@@ -281,6 +282,76 @@ namespace Nomad.CVars.Private {
 
 		/*
 		===============
+		SetIntegerValue
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="value"></param>
+		/// <exception cref="InvalidCastException"></exception>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public void SetIntegerValue( int value )
+			=> Value = Type == CVarType.Int ? (T)(object)value : throw new InvalidCastException( "Incompatible CVar cast!" );
+
+		/*
+		===============
+		SetUIntegerValue
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="value"></param>
+		/// <exception cref="InvalidCastException"></exception>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public void SetUIntegerValue( uint value )
+			=> Value = Type == CVarType.UInt ? (T)(object)value : throw new InvalidCastException( "Incompatible CVar cast!" );
+
+		/*
+		===============
+		SetBooleanValue
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="value"></param>
+		/// <exception cref="InvalidCastException"></exception>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public void SetBooleanValue( bool value )
+			=> Value = Type == CVarType.Boolean ? (T)(object)value : throw new InvalidCastException( "Incompatible CVar cast!" );
+
+		/*
+		===============
+		SetDecimalValue
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="value"></param>
+		/// <exception cref="InvalidCastException"></exception>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public void SetDecimalValue( float value )
+			=> Value = Type == CVarType.Decimal ? (T)(object)value : throw new InvalidCastException( "Incompatible CVar cast!" );
+
+		/*
+		===============
+		SetStringValue
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="value"></param>
+		/// <exception cref="InvalidCastException"></exception>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public void SetStringValue( string value )
+			=> Value = Type == CVarType.String ? (T)(object)value : throw new InvalidCastException( "Incompatible CVar cast!" );
+
+		/*
+		===============
 		ConvertStringToType
 		===============
 		*/
@@ -294,31 +365,28 @@ namespace Nomad.CVars.Private {
 		private static bool TryConvertStringToType( string value, Type targetType, out object result ) {
 			try {
 				bool output;
-				if ( targetType.IsEnum ) {
-					result = Enum.Parse( targetType, value );
-					return true;
-				} else if ( targetType == typeof( sbyte ) ) {
+				 if ( targetType == typeof( sbyte ) || targetType.IsEnum ) {
 					output = sbyte.TryParse( value, out sbyte data );
 					result = data;
-				} else if ( targetType == typeof( short ) ) {
+				} else if ( targetType == typeof( short ) || targetType.IsEnum ) {
 					output = short.TryParse( value, out short data );
 					result = data;
-				} else if ( targetType == typeof( int ) ) {
+				} else if ( targetType == typeof( int ) || targetType.IsEnum ) {
 					output = int.TryParse( value, out int data );
 					result = data;
-				} else if ( targetType == typeof( long ) ) {
+				} else if ( targetType == typeof( long ) || targetType.IsEnum ) {
 					output = long.TryParse( value, out long data );
 					result = data;
-				} else if ( targetType == typeof( byte ) ) {
+				} else if ( targetType == typeof( byte ) || targetType.IsEnum ) {
 					output = byte.TryParse( value, out byte data );
 					result = data;
-				} else if ( targetType == typeof( ushort ) ) {
+				} else if ( targetType == typeof( ushort ) || targetType.IsEnum ) {
 					output = ushort.TryParse( value, out ushort data );
 					result = data;
-				} else if ( targetType == typeof( uint ) ) {
+				} else if ( targetType == typeof( uint ) || targetType.IsEnum ) {
 					output = uint.TryParse( value, out uint data );
 					result = data;
-				} else if ( targetType == typeof( ulong ) ) {
+				} else if ( targetType == typeof( ulong ) || targetType.IsEnum ) {
 					output = ulong.TryParse( value, out ulong data );
 					result = data;
 				} else if ( targetType == typeof( float ) ) {

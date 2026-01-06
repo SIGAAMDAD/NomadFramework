@@ -60,7 +60,7 @@ namespace Nomad.Console
             eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.PAGE_DOWN_EVENT);
 
             var commandBuilder = new GodotCommandBuilder(eventBus, eventFactory);
-            var commandService = registry.RegisterSingleton<ICommandService>(new CommandCacheService(logger));
+            var commandService = registry.RegisterSingleton<ICommandService>(new CommandCacheService(logger, cvarSystem));
 
             var console = new GodotConsole(commandBuilder, commandService, logger, eventFactory);
             registry.RegisterSingleton<ICommandLineService>(new CommandLine(commandBuilder, commandService, logger, eventFactory));

@@ -82,7 +82,7 @@ namespace Nomad.Rendering.PostProcessing
         /// <summary>
         ///
         /// </summary>
-        public Pipeline()
+        public Pipeline(SubViewport viewport)
         {
             Vector2I windowSize = DisplayServer.WindowGetSize();
             _windowSize = new Vector2(windowSize.X, windowSize.Y);

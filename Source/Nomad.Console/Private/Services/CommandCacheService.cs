@@ -18,9 +18,11 @@ using Nomad.Console.Interfaces;
 using Nomad.Console.ValueObjects;
 using Nomad.Core.Logger;
 using Nomad.Core.Util;
+using Nomad.CVars;
 using System;
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace Nomad.Console.Private.Services {
 	/*
@@ -37,20 +39,31 @@ namespace Nomad.Console.Private.Services {
 	internal sealed class CommandCacheService : ICommandService {
 		private readonly ConcurrentDictionary<InternString, ConsoleCommand> _commands = new ConcurrentDictionary<InternString, ConsoleCommand>();
 		private readonly ILoggerService _logger;
+		private readonly ICVarSystemService _cvarSystem;
 
 		/*
 		===============
 		CommandCacheServices
 		===============
 		*/
-		public CommandCacheService( ILoggerService logger ) {
+		public CommandCacheService( ILoggerService logger, ICVarSystemService cvarSystem ) {
 			_logger = logger;
+			_cvarSystem = cvarSystem;
 
-			RegisterCommand( new ConsoleCommand(
-				name: "cmdlist",
-				callback: OnListCommands,
-				description: "Prints all available commands to the console."
-			) );
+			RegisterCommand(
+				new ConsoleCommand(
+					name: "cmdlist",
+					callback: OnListCommands,
+					description: "prints all available commands to the console."
+				)
+			);
+			RegisterCommand(
+				new ConsoleCommand(
+					name: "cvarlist",
+					callback: OnListCVars,
+					description: "prints all currently stored cvars."
+				)
+			);
 		}
 
 		/*
@@ -139,6 +152,39 @@ namespace Nomad.Console.Private.Services {
 
 			for ( int i = 0; i < commandList.Length; i++ ) {
 				_logger.PrintLine( $"{commandList[ i ].Name}: {commandList[ i ].Description}" );
+			}
+		}
+
+		/*
+		===============
+		OnListCVars
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="args"></param>
+		private void OnListCVars( in CommandExecutedEventArgs args ) {
+			var cvars = _cvarSystem.GetCVars();
+			var flagsSb = new StringBuilder( 64 );
+
+			_logger.PrintLine( "\n[CVARS]" );
+			for ( int i = 0; i < cvars.Length; i++ ) {
+				var cvar = cvars[ i ];
+
+				flagsSb.Clear();
+				flagsSb.Append( String.Empty );
+				if ( cvar.IsReadOnly ) {
+					flagsSb.Append( " ReadOnly" );
+				}
+				if ( cvar.IsSaved ) {
+					flagsSb.Append( " Archive" );
+				}
+				if ( cvar.IsUserCreated ) {
+					flagsSb.Append( " UserCreated" );
+				}
+
+				_logger.PrintLine( $"{cvar.Name,20}{flagsSb,32}" );
 			}
 		}
 	};

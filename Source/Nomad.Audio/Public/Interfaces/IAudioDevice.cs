@@ -25,6 +25,7 @@ namespace Nomad.Audio.Interfaces
     {
         string AudioDriver { get; }
 
+        IEnumerable<string> GetOutputDevices();
         IEnumerable<string> GetAudioDrivers();
 
         void Update(float deltaTime);

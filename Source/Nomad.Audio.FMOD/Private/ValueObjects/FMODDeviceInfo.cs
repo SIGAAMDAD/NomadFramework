@@ -20,7 +20,7 @@ namespace Nomad.Audio.Fmod.Private.ValueObjects {
 	/*
 	===================================================================================
 
-	FMODDriverInfo
+	FMODDeviceInfo
 
 	===================================================================================
 	*/
@@ -28,11 +28,11 @@ namespace Nomad.Audio.Fmod.Private.ValueObjects {
 	///
 	/// </summary>
 
-	internal readonly record struct FMODDriverInfo(
+	internal readonly record struct FMODDeviceInfo(
 		string Name,
 		Guid Guid,
 		int SystemRate,
 		FMOD.SPEAKERMODE SpeakerMode,
 		int SpeakerChannels
-	) : IValueObject<FMODDriverInfo>;
+	) : IValueObject<FMODDeviceInfo>;
 };

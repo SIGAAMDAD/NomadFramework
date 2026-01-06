@@ -150,6 +150,7 @@ namespace Nomad.Console.Private.Godot {
 			bool escaped = false;
 
 			_arguments.Clear();
+			_commandBuilder.Clear();
 
 			for ( int i = 0; i < text.Length; i++ ) {
 				char c = text[ i ];

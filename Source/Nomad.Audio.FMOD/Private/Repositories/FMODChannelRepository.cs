@@ -22,6 +22,7 @@ using Nomad.Audio.Interfaces;
 using Nomad.Core;
 using Nomad.Core.Exceptions;
 using Nomad.Core.Logger;
+using Nomad.Core.Util;
 using Nomad.CVars;
 using Nomad.ResourceCache;
 using NomadCore.Utilities;
@@ -92,8 +93,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// <param name="fmodSystem"></param>
 		/// <exception cref="CVarMissing"></exception>
 		public FMODChannelRepository( ILoggerService logger, ICVarSystemService cvarSystem, IListenerService listenerService,
-			FMODDevice fmodSystem )
-		{
+			FMODDevice fmodSystem ) {
 			_logger = logger;
 			_listenerService = listenerService;
 
@@ -145,8 +145,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// <returns></returns>
 		public FMODChannel? AllocateChannel( string id, Vector2 position,
 			SoundCategory config, float basePriority = 0.5f,
-			bool isEssential = false )
-		{
+			bool isEssential = false ) {
 			int soundsInCategory = CountSoundsInCategory( config.Config.Name );
 			if ( soundsInCategory >= config.Config.MaxSimultaneous ) {
 				if ( !config.Config.AllowStealingFromSameCategory ) {
@@ -341,7 +340,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			// TODO: precompute
 
 			// LERP it
-			float t = ( distance - _distanceFalloffStart ) / ( _distanceFalloffEnd / _distanceFalloffStart );
+			float t = (distance - _distanceFalloffStart) / (_distanceFalloffEnd / _distanceFalloffStart);
 			return 1.0f - t * 0.5f;
 		}
 
@@ -366,7 +365,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			if ( timeSinceLast > protectionTime ) {
 				return 0.0f;
 			}
-			return 1.0f - ( timeSinceLast / protectionTime );
+			return 1.0f - (timeSinceLast / protectionTime);
 		}
 
 		/*

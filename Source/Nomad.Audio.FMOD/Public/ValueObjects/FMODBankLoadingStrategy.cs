@@ -15,7 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Audio.Fmod.ValueObjects
 {
-    public enum FMODBankLoadingStrategy : byte
+    public enum FMODBankLoadingStrategy : uint
     {
         Streaming,
         Decompressed,

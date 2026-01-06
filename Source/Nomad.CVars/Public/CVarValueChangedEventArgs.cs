@@ -13,6 +13,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using Nomad.Core.Util;
+
 namespace Nomad.CVars
 {
     public readonly struct CVarValueChangedEventArgs<T>(T oldValue, T newValue)

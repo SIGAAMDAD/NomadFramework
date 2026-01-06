@@ -43,13 +43,15 @@ namespace Nomad.Audio.Fmod.Private.Services {
 	/// </summary>
 
 	internal sealed class FMODDevice : IAudioDevice {
-		public string AudioDriver => _driverRepository.Drivers[ _driverRepository.DriverIndex ].Name;
+		public int OutputDevice => _driverRepository.OutputDeviceIndex;
+		public string AudioDriver => _driverRepository.Driver;
 
 		public FMOD.Studio.System StudioSystem => _systemHandle.StudioSystem;
 		public FMOD.System System => _systemHandle.System;
 
 		private readonly FMODSystemHandle _systemHandle;
 		private readonly ILoggerService _logger;
+		private readonly ILoggerCategory _fmodCategory;
 
 		public FMODEventRepository EventRepository => _eventRepository;
 		private readonly FMODEventRepository _eventRepository;
@@ -73,6 +75,8 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			var cvarSystem = locator.GetService<ICVarSystemService>();
 			var eventFactory = locator.GetService<IGameEventRegistryService>();
 
+			_fmodCategory = _logger.CreateCategory( "FMOD", LogLevel.Info, true );
+
 			FMODCVarRegistry.Register( cvarSystem );
 			_systemHandle = new FMODSystemHandle( cvarSystem, _logger );
 			ConfigureFMODDevice( cvarSystem );
@@ -88,7 +92,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			_bankRepository.GetCached( "res://Assets/Audio/Banks/Master.strings.bank" );
 			_bankRepository.GetCached( "res://Assets/Audio/Banks/Master.bank" );
 
-			_logger.PrintLine( $"FMODDevice: initializing FMOD sound system..." );
+			_logger.PrintLine( in _fmodCategory, $"FMODDevice: initializing FMOD sound system..." );
 		}
 
 		/*
@@ -97,7 +101,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		===============
 		*/
 		public void Dispose() {
-			_logger.PrintLine( "FMODDevice.Dispose: shutting down FMOD sound system..." );
+			_logger.PrintLine( in _fmodCategory, "FMODDevice.Dispose: shutting down FMOD sound system..." );
 
 			_listener?.Dispose();
 			_eventRepository?.Dispose();
@@ -134,6 +138,25 @@ namespace Nomad.Audio.Fmod.Private.Services {
 
 		/*
 		===============
+		GetOutputDevices
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <returns></returns>
+		public IEnumerable<string> GetOutputDevices() {
+			var devices = new string[ _driverRepository.Devices.Length ];
+
+			for ( int i = 0; i < devices.Length; i++ ) {
+				devices[ i ] = _driverRepository.Devices[ i ].Name;
+			}
+
+			return devices;
+		}
+
+		/*
+		===============
 		GetAudioDrivers
 		===============
 		*/
@@ -141,13 +164,8 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		///
 		/// </summary>
 		/// <returns></returns>
-		public IEnumerable<string> GetAudioDrivers() {
-			string[] drivers = new string[ _driverRepository.Drivers.Length ];
-			for ( int i = 0; i < drivers.Length; i++ ) {
-				drivers[ i ] = _driverRepository.Drivers[ i ].Name;
-			}
-			return drivers;
-		}
+		public IEnumerable<string> GetAudioDrivers()
+			=> _driverRepository.Drivers;
 
 		/*
 		===============
@@ -173,8 +191,10 @@ namespace Nomad.Audio.Fmod.Private.Services {
 				?? throw new CVarMissing( Constants.CVars.Audio.FMOD.STREAM_BUFFER_SIZE );
 			var maxChannels = cvarSystem.GetCVar<int>( Constants.CVars.Audio.MAX_CHANNELS )
 				?? throw new CVarMissing( Constants.CVars.Audio.MAX_CHANNELS );
-			var dspBufferSize = cvarSystem.GetCVar<uint>( Constants.CVars.Audio.FMOD.DSP_BUFFER_SIZE ) ?? throw new CVarMissing( Constants.CVars.Audio.FMOD.DSP_BUFFER_SIZE );
-			var dspBufferCount = cvarSystem.GetCVar<int>( Constants.CVars.Audio.FMOD.DSP_BUFFER_COUNT ) ?? throw new CVarMissing( Constants.CVars.Audio.FMOD.DSP_BUFFER_COUNT );
+			var dspBufferSize = cvarSystem.GetCVar<uint>( Constants.CVars.Audio.FMOD.DSP_BUFFER_SIZE )
+				?? throw new CVarMissing( Constants.CVars.Audio.FMOD.DSP_BUFFER_SIZE );
+			var dspBufferCount = cvarSystem.GetCVar<int>( Constants.CVars.Audio.FMOD.DSP_BUFFER_COUNT )
+				?? throw new CVarMissing( Constants.CVars.Audio.FMOD.DSP_BUFFER_COUNT );
 
 			var flags = FMOD.INITFLAGS.CHANNEL_DISTANCEFILTER | FMOD.INITFLAGS.CHANNEL_LOWPASS | FMOD.INITFLAGS.VOL0_BECOMES_VIRTUAL;
 

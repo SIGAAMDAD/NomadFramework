@@ -152,7 +152,7 @@ namespace Nomad.Console.Private.Services {
 				var arguments = _commandBuilder.GetArgs();
 
 				try {
-					_commandExecuted.PublishAsync( new CommandExecutedEventArgs( consoleCommand, arguments.Length ) );
+					_commandExecuted.Publish( new CommandExecutedEventArgs( consoleCommand, arguments.Length ) );
 				} catch ( Exception ex ) {
 					_logger.PrintError( $"CommandLine.OnCommandExecuted: error executing command - {ex.Message}" );
 					throw;

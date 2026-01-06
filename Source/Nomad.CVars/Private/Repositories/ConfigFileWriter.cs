@@ -45,16 +45,11 @@ namespace Nomad.CVars.Private.Repositories {
 		/// <param name="logger"></param>
 		/// <param name="cvarSystem"></param>
 		/// <param name="groups"></param>
-		public ConfigFileWriter( string configFile, ILoggerService logger, ICVarSystemService cvarSystem, in HashSet<CVarGroup>? groups ) {
+		public ConfigFileWriter( string configFile, ILoggerService logger, ICVarSystemService cvarSystem, in IEnumerable<ICVar> cvars ) {
 			ArgumentException.ThrowIfNullOrEmpty( configFile );
-			ArgumentNullException.ThrowIfNull( groups );
-
-			if ( groups.Count <= 0 ) {
-				logger?.PrintWarning( "ConfigFileWriter: no CVar groups provided" );
-				return;
-			}
 
 			_cvarSystem = cvarSystem;
+			logger.PrintLine( $"ConfigFileWriter: writing cvar config...." );
 
 			try {
 				string? directory = System.IO.Path.GetDirectoryName( configFile );
@@ -65,9 +60,8 @@ namespace Nomad.CVars.Private.Repositories {
 				using System.IO.FileStream? fileStream = new System.IO.FileStream( configFile, System.IO.FileMode.Create, System.IO.FileAccess.Write );
 				using ( _writer = new System.IO.StreamWriter( fileStream ) ) {
 					WriteHeader();
-
-					foreach ( var group in groups ) {
-						WriteGroup( group );
+					foreach ( var cvar in cvars ) {
+						WriteVariable( in cvar );
 					}
 					_writer.Flush();
 				}
@@ -106,7 +100,23 @@ namespace Nomad.CVars.Private.Repositories {
 		public readonly void WriteVariable( in ICVar? cvar ) {
 			ArgumentNullException.ThrowIfNull( cvar );
 
-			_writer.WriteLine( $"{cvar.Name}={cvar.GetStringValue()}" );
+			switch ( cvar.Type ) {
+				case CVarType.Boolean:
+					_writer.WriteLine( $"{cvar.Name}={cvar.GetBooleanValue()}" );
+					break;
+				case CVarType.Int:
+					_writer.WriteLine( $"{cvar.Name}={cvar.GetIntegerValue()}" );
+					break;
+				case CVarType.UInt:
+					_writer.WriteLine( $"{cvar.Name}={cvar.GetUIntegerValue()}" );
+					break;
+				case CVarType.String:
+					_writer.WriteLine( $"{cvar.Name}={cvar.GetStringValue()}" );
+					break;
+				case CVarType.Decimal:
+					_writer.WriteLine( $"{cvar.Name}={cvar.GetDecimalValue()}" );
+					break;
+			}
 		}
 
 		/*

@@ -109,6 +109,36 @@ namespace Nomad.CVars
         /// </summary>
         /// <param name="value"></param>
         void SetFromString(string value);
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="value"></param>
+        void SetDecimalValue(float value);
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="value"></param>
+        void SetIntegerValue(int value);
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="value"></param>
+        void SetUIntegerValue(uint value);
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="value"></param>
+        void SetBooleanValue(bool value);
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="value"></param>
+        void SetStringValue(string value);
     }
 
     /// <summary>

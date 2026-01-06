@@ -78,7 +78,7 @@ namespace Nomad.CVars.Private {
 		/// <typeparam name="T"></typeparam>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public bool ValidateCVarType() =>
+		public static bool ValidateCVarType() =>
 			typeof( T ).GetCVarType() != CVarType.Count;
 
 		/*
@@ -92,7 +92,7 @@ namespace Nomad.CVars.Private {
 		/// <param name="c"></param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		private bool IsValidNameCharacter( char c ) =>
+		private static bool IsValidNameCharacter( char c ) =>
 			char.IsLetterOrDigit( c ) || c == '.' || c == '_';
 	};
 };
