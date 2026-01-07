@@ -202,7 +202,7 @@ namespace Nomad.Events.Private {
 					if ( idx >= 0 && idx < _subscriptions.Count ) {
 						WeakSubscription<TArgs, TCallback> subscription = _subscriptions[ idx ];
 						if ( subscription.Subscriber.TryGetTarget( out object? existing ) && existing.Equals( subscriber )
-							&& subscription.Callback.TryGetTarget( out TCallback? caller ) && caller.Equals( callback ) )
+							&& subscription.Callback == callback )
 						{
 							index = idx;
 							return true;
