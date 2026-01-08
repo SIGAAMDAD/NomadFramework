@@ -40,7 +40,7 @@ namespace Nomad.Events.Private {
 		where TCallback : class
 	{
 		public readonly WeakReference<object> Subscriber = new WeakReference<object>( subscriber );
-		public readonly WeakReference<TCallback> Callback = new WeakReference<TCallback>( callback );
-		public bool IsAlive => Subscriber.TryGetTarget( out _ ) && Callback.TryGetTarget( out _ );
+		public readonly TCallback Callback = callback;
+		public bool IsAlive => Subscriber.TryGetTarget( out _ );
 	};
 };

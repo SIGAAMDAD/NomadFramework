@@ -218,8 +218,8 @@ namespace Nomad.Events.Private {
 				var subscriptions = _genericSubscriptions.Subscriptions;
 				for ( int i = 0; i < subscriptions.Count; i++ ) {
 					var subscription = subscriptions[ i ];
-					if ( subscription.Subscriber.TryGetTarget( out _ ) && subscription.Callback.TryGetTarget( out var callback ) ) {
-						callback.Invoke( in args );
+					if ( subscription.IsAlive ) {
+						subscription.Callback.Invoke( in args );
 					}
 				}
 
@@ -259,8 +259,9 @@ namespace Nomad.Events.Private {
 			List<Task> tasks = new List<Task>( subscriptionCount );
 
 			for ( int i = 0; i < subscriptionCount; i++ ) {
-				if ( _asyncSubscriptions.Subscriptions[ i ].Callback.TryGetTarget( out var callback ) ) {
-					tasks.Add( Task.Run( async () => callback( args, ct ) ) );
+				var subscription = _asyncSubscriptions.Subscriptions[ i ];
+				if ( subscription.IsAlive ) {
+					tasks.Add( Task.Run( async () => subscription.Callback.Invoke( args, ct ) ) );
 				}
 			}
 
