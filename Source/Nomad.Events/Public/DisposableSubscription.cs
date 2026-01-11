@@ -35,8 +35,6 @@ namespace Nomad.Events {
 		private IGameEvent<TArgs> _event;
 		private EventCallback<TArgs> _callback;
 
-		private bool _isDisposed = false;
-
 		/*
 		===============
 		DisposableSubscription
@@ -74,13 +72,11 @@ namespace Nomad.Events {
 		/// 
 		/// </summary>
 		public void Dispose() {
-			if ( _isDisposed ) {
-				return;
-			}
+			GC.SuppressFinalize( this );
+
 			_event.Unsubscribe( this, _callback );
 			_event = null;
 			_callback = null;
-			_isDisposed = true;
 		}
 
 		/*
