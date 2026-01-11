@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -35,11 +35,18 @@ namespace Nomad.Events {
 		private IGameEvent<TArgs> _event;
 		private EventCallback<TArgs> _callback;
 
+		private bool _isDisposed = false;
+
 		/*
 		===============
 		DisposableSubscription
 		===============
 		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="handler"></param>
+		/// <param name="callback"></param>
 		public DisposableSubscription( IGameEvent<TArgs> handler, EventCallback<TArgs> callback ) {
 			handler.Subscribe( this, callback );
 			_event = handler;
@@ -51,6 +58,9 @@ namespace Nomad.Events {
 		~DisposableSubscription
 		===============
 		*/
+		/// <summary>
+		/// 
+		/// </summary>
 		~DisposableSubscription() {
 			Dispose();
 		}
@@ -60,11 +70,17 @@ namespace Nomad.Events {
 		Dispose
 		===============
 		*/
+		/// <summary>
+		/// 
+		/// </summary>
 		public void Dispose() {
+			if ( _isDisposed ) {
+				return;
+			}
 			_event.Unsubscribe( this, _callback );
 			_event = null;
 			_callback = null;
-			GC.SuppressFinalize( this );
+			_isDisposed = true;
 		}
 
 		/*
@@ -72,6 +88,10 @@ namespace Nomad.Events {
 		Publish
 		===============
 		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="eventArgs"></param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void Publish( in TArgs eventArgs ) {
 			_event.Publish( in eventArgs );

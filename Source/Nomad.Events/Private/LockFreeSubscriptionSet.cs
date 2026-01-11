@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -35,14 +35,14 @@ namespace Nomad.Events.Private {
 	internal sealed class LockFreeSubscriptionSet<TArgs>( IGameEvent<TArgs> eventData, ILoggerService logger, int cleanupInterval = 100 ) : ISubscriptionSet<TArgs>
 		where TArgs : struct
 	{
+		private readonly ILoggerService _logger = logger;
+
+		private readonly SubscriptionCache<TArgs, EventCallback<TArgs>> _genericSubscriptions = new( logger );
+
 		/// <summary>
 		/// The number of pumps before initiating a purge.
 		/// </summary>
 		private readonly int _cleanupInterval = cleanupInterval;
-
-		private readonly ILoggerService _logger = logger;
-
-		private readonly SubscriptionCache<TArgs, EventCallback<TArgs>> _genericSubscriptions = new( logger );
 		private int _cleanupCounter = 0;
 
 		private readonly HashSet<WeakReference<IGameEvent>> _friends = new HashSet<WeakReference<IGameEvent>>();

@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -33,7 +33,7 @@ namespace Nomad.Events {
 	///
 	/// </summary>
 
-	public sealed class GameEventRegistry( ILoggerService logger ) : IGameEventRegistryService {
+	internal sealed class GameEventRegistry( ILoggerService logger ) : IGameEventRegistryService {
 		private readonly ConcurrentDictionary<EventKey, IGameEvent> _eventCache = new();
 
 		/*
@@ -41,6 +41,9 @@ namespace Nomad.Events {
 		Dispose
 		===============
 		*/
+		/// <summary>
+		/// 
+		/// </summary>
 		public void Dispose() {
 			foreach ( var @event in _eventCache ) {
 				@event.Value.Dispose();
