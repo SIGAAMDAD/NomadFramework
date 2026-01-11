@@ -89,8 +89,8 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			_eventRepository = new FMODEventRepository( _logger, eventFactory, this );
 
 			// preload the strings bank so we get all the human-readable event names cached
-			_bankRepository.GetCached( "res://Assets/Audio/Banks/Master.strings.bank" );
-			_bankRepository.GetCached( "res://Assets/Audio/Banks/Master.bank" );
+			_bankRepository.GetCached( "res://Assets/Audio/Banks/Desktop/Master.strings.bank" );
+			_bankRepository.GetCached( "res://Assets/Audio/Banks/Desktop/Master.bank" );
 
 			_logger.PrintLine( in _fmodCategory, $"FMODDevice: initializing FMOD sound system..." );
 		}
