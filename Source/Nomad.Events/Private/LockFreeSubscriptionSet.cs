@@ -183,8 +183,8 @@ namespace Nomad.Events.Private {
 			int count = subscriptions.Count;
 			for ( int i = 0; i < count; i++ ) {
 				var subscription = subscriptions[ i ];
-				if ( subscription.Subscriber.TryGetTarget( out _ ) && subscription.Callback.TryGetTarget( out var callback ) ) {
-					callback.Invoke( in args );
+				if ( subscription.IsAlive ) {
+					subscription.Callback.Invoke( in args );
 				}
 			}
 
