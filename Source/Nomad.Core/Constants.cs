@@ -121,6 +121,15 @@ namespace Nomad.Core
             {
                 public const string CVAR_VALUE_CHANGED_EVENT = "CVarSystem:CVarValueChanged";
             }
+            public static partial class Rendering
+            {
+                public const string ENTITY_VISIBILITY_CHANGED_EVENT = "Rendering:EntityVisibilityChanged";
+                public const string ANIMATION_FINISHED_EVENT = "Rendering:AnimationFinished";
+                public const string ANIMATION_LOOPED_EVENT = "Rendering:AnimationLooped";
+                public const string ANIMATION_CHANGED_EVENT = "Rendering:AnimationChanged";
+                public const string FRAME_CHANGED_EVENT = "Rendering:FrameChanged";
+                public const string SPRITE_FRAMES_CHANGED_EVENT = "Rendering:SpriteFramesChanged";
+            }
         }
         public static class Commands
         {
