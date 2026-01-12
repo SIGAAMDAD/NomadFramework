@@ -59,10 +59,10 @@ namespace Nomad.Console.Private.Godot {
 
 			_eventBus = eventBus;
 
-			_textEntered = eventFactory.GetEvent<TextEnteredEventArgs>( Constants.Events.Console.TEXT_ENTERED_EVENT );
+			_textEntered = eventFactory.GetEvent<TextEnteredEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.TEXT_ENTERED_EVENT );
 
-			eventFactory.GetEvent<EmptyEventArgs>( Constants.Events.Console.CONSOLE_OPENED_EVENT ).Subscribe( this, OnConsoleOpened );
-			eventFactory.GetEvent<EmptyEventArgs>( Constants.Events.Console.CONSOLE_CLOSED_EVENT ).Subscribe( this, OnConsoleClosed );
+			eventFactory.GetEvent<EmptyEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.CONSOLE_OPENED_EVENT ).Subscribe( this, OnConsoleOpened );
+			eventFactory.GetEvent<EmptyEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.CONSOLE_CLOSED_EVENT ).Subscribe( this, OnConsoleClosed );
 		}
 
 		/*

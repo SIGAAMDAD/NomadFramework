@@ -99,30 +99,38 @@ namespace Nomad.Core
         {
             public static partial class Console
             {
-                public const string CONSOLE_OPENED_EVENT = "ConsoleSystem:ConsoleOpened";
-                public const string CONSOLE_CLOSED_EVENT = "ConsoleSystem:ConsoleClosed";
-                public const string TEXT_ENTERED_EVENT = "ConsoleSystem:TextEntered";
-                public const string HISTORY_PREV_EVENT = "ConsoleSystem:HistoryPrev";
-                public const string HISTORY_NEXT_EVENT = "ConsoleSystem:HistoryNext";
-                public const string AUTOCOMPLETE_EVENT = "ConsoleSystem:AutoComplete";
-                public const string PAGE_UP_EVENT = "ConsoleSystem:PageUp";
-                public const string PAGE_DOWN_EVENT = "ConsoleSystem:PageDown";
-                public const string UNKNOWN_COMMAND_EVENT = "ConsoleSystem:UnknownCommand";
-                public const string COMMAND_EXECUTED_EVENT = "ConsoleSystem:CommandExecuted";
+                public const string NAMESPACE = nameof(Console);
+
+                public const string CONSOLE_OPENED_EVENT = $"{NAMESPACE}:ConsoleOpened";
+                public const string CONSOLE_CLOSED_EVENT = $"{NAMESPACE}:ConsoleClosed";
+                public const string TEXT_ENTERED_EVENT = $"{NAMESPACE}:TextEntered";
+                public const string HISTORY_PREV_EVENT = $"{NAMESPACE}:HistoryPrev";
+                public const string HISTORY_NEXT_EVENT = $"{NAMESPACE}:HistoryNext";
+                public const string AUTOCOMPLETE_EVENT = $"{NAMESPACE}:AutoComplete";
+                public const string PAGE_UP_EVENT = $"{NAMESPACE}:PageUp";
+                public const string PAGE_DOWN_EVENT = $"{NAMESPACE}:PageDown";
+                public const string UNKNOWN_COMMAND_EVENT = $"{NAMESPACE}:UnknownCommand";
+                public const string COMMAND_EXECUTED_EVENT = $"{NAMESPACE}:CommandExecuted";
             }
             public static partial class ResourceCache
             {
-                public const string RESOURCE_LOADED_EVENT = "ResourceCache:ResourceLoaded";
-                public const string RESOURCE_LOAD_FAILED_EVENT = "ResourceCache:ResourceLoadFailed";
-                public const string RESOURCE_LOAD_PROGRESS_EVENT = "ResourceCache:ResourceLoadProgress";
-                public const string RESOURCE_UNLOADED_EVENT = "ResourceCache:ResourceUnloaded";
+                public const string NAMESPACE = nameof(ResourceCache);
+
+                public const string RESOURCE_LOADED_EVENT = $"{NAMESPACE}:ResourceLoaded";
+                public const string RESOURCE_LOAD_FAILED_EVENT = $"{NAMESPACE}:ResourceLoadFailed";
+                public const string RESOURCE_LOAD_PROGRESS_EVENT = $"{NAMESPACE}:ResourceLoadProgress";
+                public const string RESOURCE_UNLOADED_EVENT = $"{NAMESPACE}:ResourceUnloaded";
             }
             public static partial class CVars
             {
-                public const string CVAR_VALUE_CHANGED_EVENT = "CVarSystem:CVarValueChanged";
+                public const string NAMESPACE = nameof(CVars);
+
+                public const string CVAR_VALUE_CHANGED_EVENT = $"{NAMESPACE}:CVarValueChanged";
             }
             public static partial class Rendering
             {
+                public const string NAMESPACE = nameof(Rendering);
+
                 public const string ENTITY_VISIBILITY_CHANGED_EVENT = "Rendering:EntityVisibilityChanged";
                 public const string ANIMATION_FINISHED_EVENT = "Rendering:AnimationFinished";
                 public const string ANIMATION_LOOPED_EVENT = "Rendering:AnimationLooped";

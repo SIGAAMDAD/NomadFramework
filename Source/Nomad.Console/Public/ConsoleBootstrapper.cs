@@ -32,6 +32,12 @@ namespace Nomad.Console
     /// </summary>
     public static class ConsoleBootstrapper
     {
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="registry"></param>
+        /// <param name="rootNode"></param>
         public static void Initialize(IServiceLocator services, IServiceRegistry registry, Node rootNode)
         {
             ArgumentNullException.ThrowIfNull(rootNode);
@@ -51,13 +57,13 @@ namespace Nomad.Console
             );
             cvarSystem.Load(configFile.Value);
 
-            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.CONSOLE_OPENED_EVENT);
-            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.CONSOLE_CLOSED_EVENT);
-            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.HISTORY_PREV_EVENT);
-            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.HISTORY_NEXT_EVENT);
-            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.AUTOCOMPLETE_EVENT);
-            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.PAGE_UP_EVENT);
-            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.PAGE_DOWN_EVENT);
+            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.NAMESPACE, Constants.Events.Console.CONSOLE_OPENED_EVENT);
+            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.NAMESPACE, Constants.Events.Console.CONSOLE_CLOSED_EVENT);
+            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.NAMESPACE, Constants.Events.Console.HISTORY_PREV_EVENT);
+            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.NAMESPACE, Constants.Events.Console.HISTORY_NEXT_EVENT);
+            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.NAMESPACE, Constants.Events.Console.AUTOCOMPLETE_EVENT);
+            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.NAMESPACE, Constants.Events.Console.PAGE_UP_EVENT);
+            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.NAMESPACE, Constants.Events.Console.PAGE_DOWN_EVENT);
 
             var commandBuilder = new GodotCommandBuilder(eventBus, eventFactory);
             var commandService = registry.RegisterSingleton<ICommandService>(new CommandCacheService(logger, cvarSystem));
@@ -69,5 +75,5 @@ namespace Nomad.Console
 
             rootNode.CallDeferred(Node.MethodName.AddChild, console);
         }
-    };
-};
+    }
+}

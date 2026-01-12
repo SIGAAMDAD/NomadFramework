@@ -15,6 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Nomad.Core.Events;
 using Nomad.Core.Logger;
@@ -53,6 +54,25 @@ namespace Nomad.Events {
 
 		/*
 		===============
+		ClearEventsInNamespace
+		===============
+		*/
+		/// <summary>
+		/// Releases all events in the naming space of <paramref name="nameSpace"/>.
+		/// </summary>
+		/// <param name="nameSpace"></param>
+		public void ClearEventsInNamespace( string nameSpace ) {
+			InternString nameSpaceCmp = new( nameSpace );
+			foreach ( var @event in _eventCache ) {
+				if ( @event.Value.NameSpace == nameSpaceCmp ) {
+					@event.Value.Dispose();
+					_eventCache.Remove( @event.Key, out _ );
+				}
+			}
+		}
+
+		/*
+		===============
 		RegisterEvent
 		===============
 		*/
@@ -60,13 +80,16 @@ namespace Nomad.Events {
 		/// Registers a <see cref="IGameEvent"/> with argument parameters <typeparamref name="TArgs"/> and id <paramref name="name"/>.
 		/// </summary>
 		/// <typeparam name="TArgs">The type of <see cref="IEventArgs"/> used with the event.</typeparam>
+		/// <param name="nameSpace"></param>
 		/// <param name="name">Name of the event to register.</param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public IGameEvent<TArgs> GetEvent<TArgs>( string name )
-			where TArgs : struct {
+		public IGameEvent<TArgs> GetEvent<TArgs>( string nameSpace, string name )
+			where TArgs : struct
+		{
 			var key = new EventKey(
 				name: new( name ),
+				nameSpace: new( nameSpace ),
 				argsType: typeof( TArgs )
 			);
 
@@ -79,7 +102,7 @@ namespace Nomad.Events {
 				);
 			}
 
-			value = new GameEvent<TArgs>( key.Name, logger, EventFlags.Default );
+			value = new GameEvent<TArgs>( key.NameSpace, key.Name, logger, EventFlags.Default );
 			_eventCache.TryAdd( key, value );
 			return ( IGameEvent<TArgs> )value;
 		}
@@ -93,18 +116,20 @@ namespace Nomad.Events {
 		///
 		/// </summary>
 		/// <typeparam name="TArgs"></typeparam>
-		/// <param name="name"></param>
 		/// <param name="nameSpace"></param>
+		/// <param name="name"></param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public bool TryRemoveEvent<TArgs>( InternString name )
-			where TArgs : struct {
+		public bool TryRemoveEvent<TArgs>( string nameSpace, string name )
+			where TArgs : struct
+		{
 			var key = new EventKey(
-				name: name,
+				name: new( name ),
+				nameSpace: new( nameSpace ),
 				argsType: typeof( TArgs )
 			);
 			if ( _eventCache.TryRemove( key, out var eventObj ) ) {
-				(eventObj as IDisposable)?.Dispose();
+				( eventObj as IDisposable )?.Dispose();
 				return true;
 			}
 			return false;

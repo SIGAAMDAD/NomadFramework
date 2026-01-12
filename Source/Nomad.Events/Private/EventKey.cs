@@ -25,16 +25,18 @@ namespace Nomad.Events.Private {
 	===================================================================================
 	*/
 	/// <summary>
-	/// Represents a <see cref="GameEvent"/>'s unique identifier.
+	/// Represents a game event's unique identifier.
 	/// </summary>
 
 	internal readonly record struct EventKey : IEquatable<EventKey> {
 		public readonly InternString Name { get; }
+		public readonly InternString NameSpace { get; }
 		public readonly Type ArgsType { get; }
 		private readonly int _hashCode;
 
-		public EventKey( InternString name, Type argsType ) {
+		public EventKey( InternString name, InternString nameSpace, Type argsType ) {
 			Name = name;
+			NameSpace = nameSpace;
 			ArgsType = argsType;
 			_hashCode = HashCode.Combine(
 				name.GetHashCode(),

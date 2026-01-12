@@ -53,12 +53,16 @@ namespace Nomad.Events.Private {
 	/// </example>
 
 	public class GameEvent<TArgs> : IGameEvent<TArgs>
-		where TArgs : struct {
+		where TArgs : struct
+	{
 		/// <summary>
 		/// The name of the event.
 		/// </summary>
 		public string DebugName => _name;
 		private readonly InternString _name;
+
+		public string NameSpace => _nameSpace;
+		private readonly InternString _nameSpace;
 
 		public int Id => _hashCode;
 		private readonly int _hashCode;
@@ -82,12 +86,14 @@ namespace Nomad.Events.Private {
 		/// <summary>
 		/// Creates a new GameEvent object with the debugging alias of <paramref name="name"/>.
 		/// </summary>
+		/// <param name="nameSpace"></param>
 		/// <param name="name">The name of the event, should be unique.</param>
 		/// <param name="logger"></param>
 		/// <exception cref="ArgumentException">Thrown if name is null or empty.</exception>
-		internal GameEvent( InternString name, ILoggerService logger, EventFlags flags ) {
+		internal GameEvent( InternString nameSpace, InternString name, ILoggerService logger, EventFlags flags ) {
 			ArgumentException.ThrowIfNullOrEmpty( name );
 
+			_nameSpace = nameSpace;
 			_name = name;
 			_hashCode = HashCode.Combine( GetHashCode(), _name.GetHashCode() );
 

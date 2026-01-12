@@ -72,11 +72,11 @@ namespace Nomad.Console.Private.Services {
 
 			builder.TextEntered.Subscribe( this, OnTextEntered );
 
-			eventFactory.GetEvent<EmptyEventArgs>( Constants.Events.Console.HISTORY_PREV_EVENT ).Subscribe( this, OnHistoryPrev );
-			eventFactory.GetEvent<EmptyEventArgs>( Constants.Events.Console.HISTORY_NEXT_EVENT ).Subscribe( this, OnHistoryNext );
+			eventFactory.GetEvent<EmptyEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.HISTORY_PREV_EVENT ).Subscribe( this, OnHistoryPrev );
+			eventFactory.GetEvent<EmptyEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.HISTORY_NEXT_EVENT ).Subscribe( this, OnHistoryNext );
 
-			_historyPrev = eventFactory.GetEvent<HistoryPrevEventArgs>( Constants.Events.Console.HISTORY_PREV_EVENT );
-			_historyNext = eventFactory.GetEvent<HistoryNextEventArgs>( Constants.Events.Console.HISTORY_NEXT_EVENT );
+			_historyPrev = eventFactory.GetEvent<HistoryPrevEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.HISTORY_PREV_EVENT );
+			_historyNext = eventFactory.GetEvent<HistoryNextEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.HISTORY_NEXT_EVENT );
 
 			_historyPath = new FilePath( CONSOLE_HISTORY_FILE, PathType.User );
 

@@ -71,15 +71,6 @@ namespace Nomad.ResourceCache
 
         public int Count => _cache.Count;
 
-        public IGameEvent<ResourceLoadedEventArgs<TId>> ResourceLoaded => _resourceLoaded;
-        private readonly IGameEvent<ResourceLoadedEventArgs<TId>> _resourceLoaded;
-
-        public IGameEvent<ResourceUnloadedEventArgs<TId>> ResourceUnloaded => _resourceUnloaded;
-        private readonly IGameEvent<ResourceUnloadedEventArgs<TId>> _resourceUnloaded;
-
-        public IGameEvent<ResourceLoadFailedEventArgs<TId>> ResourceLoadFailed => _resourceLoadFailed;
-        private readonly IGameEvent<ResourceLoadFailedEventArgs<TId>> _resourceLoadFailed;
-
         private readonly Dictionary<TId, CacheEntry<TResource, TId>> _cache = new();
         private readonly ReaderWriterLockSlim _cacheLock = new ReaderWriterLockSlim();
 
@@ -97,6 +88,15 @@ namespace Nomad.ResourceCache
         private readonly ILoggerService _logger;
         private readonly IResourceLoader<TResource, TId> _loader;
 
+        public IGameEvent<ResourceLoadedEventArgs<TId>> ResourceLoaded => _resourceLoaded;
+        private readonly IGameEvent<ResourceLoadedEventArgs<TId>> _resourceLoaded;
+
+        public IGameEvent<ResourceUnloadedEventArgs<TId>> ResourceUnloaded => _resourceUnloaded;
+        private readonly IGameEvent<ResourceUnloadedEventArgs<TId>> _resourceUnloaded;
+
+        public IGameEvent<ResourceLoadFailedEventArgs<TId>> ResourceLoadFailed => _resourceLoadFailed;
+        private readonly IGameEvent<ResourceLoadFailedEventArgs<TId>> _resourceLoadFailed;
+
         /// <summary>
         ///
         /// </summary>
@@ -112,9 +112,9 @@ namespace Nomad.ResourceCache
             _logger = logger;
             _loader = loader;
 
-            _resourceLoaded = eventFactory.GetEvent<ResourceLoadedEventArgs<TId>>(new(Constants.Events.ResourceCache.RESOURCE_LOADED_EVENT));
-            _resourceUnloaded = eventFactory.GetEvent<ResourceUnloadedEventArgs<TId>>(new(Constants.Events.ResourceCache.RESOURCE_UNLOADED_EVENT));
-            _resourceLoadFailed = eventFactory.GetEvent<ResourceLoadFailedEventArgs<TId>>(new(Constants.Events.ResourceCache.RESOURCE_LOAD_FAILED_EVENT));
+            _resourceLoaded = eventFactory.GetEvent<ResourceLoadedEventArgs<TId>>(Constants.Events.ResourceCache.NAMESPACE, Constants.Events.ResourceCache.RESOURCE_LOADED_EVENT);
+            _resourceUnloaded = eventFactory.GetEvent<ResourceUnloadedEventArgs<TId>>(Constants.Events.ResourceCache.NAMESPACE, Constants.Events.ResourceCache.RESOURCE_UNLOADED_EVENT);
+            _resourceLoadFailed = eventFactory.GetEvent<ResourceLoadFailedEventArgs<TId>>(Constants.Events.ResourceCache.NAMESPACE, Constants.Events.ResourceCache.RESOURCE_LOAD_FAILED_EVENT);
 
             //_cleanupTimer = new Timer( _ => ClearUnused(), null, TimeSpan.FromMinutes( 1 ), TimeSpan.FromMinutes( 10 ) );
 

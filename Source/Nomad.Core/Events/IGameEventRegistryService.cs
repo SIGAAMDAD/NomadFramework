@@ -23,12 +23,19 @@ namespace Nomad.Core.Events
     public interface IGameEventRegistryService : IDisposable
     {
         /// <summary>
-        ///
+        /// Disposes of all events found in provided namespace.
+        /// </summary>
+        /// <param name="nameSpace"></param>
+        void ClearEventsInNamespace(string nameSpace);
+
+        /// <summary>
+        /// Creates a new <see cref="IGameEvent"/> with the provided namespace and id.
         /// </summary>
         /// <typeparam name="TArgs"></typeparam>
+        /// <param name="nameSpace"></param>
         /// <param name="name"></param>
         /// <returns></returns>
-        IGameEvent<TArgs> GetEvent<TArgs>(string name)
+        IGameEvent<TArgs> GetEvent<TArgs>(string nameSpace, string name)
             where TArgs : struct;
     }
 }

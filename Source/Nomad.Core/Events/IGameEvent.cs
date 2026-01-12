@@ -25,6 +25,7 @@ namespace Nomad.Core.Events
     public interface IGameEvent : IDisposable
     {
         string DebugName { get; }
+        string NameSpace { get; }
         int Id { get; }
     }
 

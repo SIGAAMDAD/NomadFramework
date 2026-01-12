@@ -65,9 +65,9 @@ namespace Nomad.Console.Private.Godot {
 			node.CallDeferred( Control.MethodName.AddChild, _richLabel );
 			_richLabel.CallDeferred( RichTextLabel.MethodName.AddThemeFontOverride, "font", ResourceLoader.Load<Font>( "res://Assets/Fonts/SourceCodePro-ExtraLight.ttf" ) );
 
-			eventRegistry.GetEvent<EmptyEventArgs>( Constants.Events.Console.CONSOLE_CLOSED_EVENT ).Subscribe( this, OnConsoleOpened );
-			eventRegistry.GetEvent<EmptyEventArgs>( Constants.Events.Console.PAGE_UP_EVENT ).Subscribe( this, OnPageUp );
-			eventRegistry.GetEvent<EmptyEventArgs>( Constants.Events.Console.PAGE_DOWN_EVENT ).Subscribe( this, OnPageDown );
+			eventRegistry.GetEvent<EmptyEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.CONSOLE_CLOSED_EVENT ).Subscribe( this, OnConsoleOpened );
+			eventRegistry.GetEvent<EmptyEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.PAGE_UP_EVENT ).Subscribe( this, OnPageUp );
+			eventRegistry.GetEvent<EmptyEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.PAGE_DOWN_EVENT ).Subscribe( this, OnPageDown );
 		}
 
 		/*

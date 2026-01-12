@@ -126,7 +126,7 @@ namespace Nomad.CVars.Private {
 
 			_value = createInfo.DefaultValue;
 			_defaultValue = createInfo.DefaultValue;
-			_valueChanged = eventFactory.GetEvent<CVarValueChangedEventArgs<T>>( $"{createInfo.Name}:{Constants.Events.CVars.CVAR_VALUE_CHANGED_EVENT}" );
+			_valueChanged = eventFactory.GetEvent<CVarValueChangedEventArgs<T>>( Constants.Events.Console.NAMESPACE, $"{createInfo.Name}:{Constants.Events.CVars.CVAR_VALUE_CHANGED_EVENT}" );
 		}
 
 		/*

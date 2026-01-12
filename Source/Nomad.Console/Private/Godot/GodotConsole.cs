@@ -65,12 +65,12 @@ namespace Nomad.Console.Private.Godot {
 
 			_logger = logger;
 
-			_consoleClosed = eventRegistry.GetEvent<EmptyEventArgs>( Constants.Events.Console.CONSOLE_CLOSED_EVENT );
-			_consoleOpened = eventRegistry.GetEvent<EmptyEventArgs>( Constants.Events.Console.CONSOLE_OPENED_EVENT );
-			_historyNext = eventRegistry.GetEvent<HistoryNextEventArgs>( Constants.Events.Console.HISTORY_NEXT_EVENT );
-			_historyPrev = eventRegistry.GetEvent<HistoryPrevEventArgs>( Constants.Events.Console.HISTORY_PREV_EVENT );
-			_pageDown = eventRegistry.GetEvent<EmptyEventArgs>( Constants.Events.Console.PAGE_DOWN_EVENT );
-			_pageUp = eventRegistry.GetEvent<EmptyEventArgs>( Constants.Events.Console.PAGE_UP_EVENT );
+			_consoleClosed = eventRegistry.GetEvent<EmptyEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.CONSOLE_CLOSED_EVENT );
+			_consoleOpened = eventRegistry.GetEvent<EmptyEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.CONSOLE_OPENED_EVENT );
+			_historyNext = eventRegistry.GetEvent<HistoryNextEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.HISTORY_NEXT_EVENT );
+			_historyPrev = eventRegistry.GetEvent<HistoryPrevEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.HISTORY_PREV_EVENT );
+			_pageDown = eventRegistry.GetEvent<EmptyEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.PAGE_DOWN_EVENT );
+			_pageUp = eventRegistry.GetEvent<EmptyEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.PAGE_UP_EVENT );
 			
 			_commandBuilder = builder as GodotCommandBuilder ?? throw new InvalidOperationException( "Cannot create a GodotConsole without a GodotCommandBuilder!" );
 			_commandBuilder.TextEntered.Subscribe( this, OnTextEntered );

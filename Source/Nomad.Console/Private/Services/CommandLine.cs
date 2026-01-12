@@ -74,11 +74,11 @@ namespace Nomad.Console.Private.Services {
 			_logger = logger;
 			_history = new History( builder, logger, eventFactory );
 
-			_textEntered = eventFactory.GetEvent<TextEnteredEventArgs>( Constants.Events.Console.TEXT_ENTERED_EVENT );
-			_unknownCommand = eventFactory.GetEvent<CommandExecutedEventArgs>( Constants.Events.Console.UNKNOWN_COMMAND_EVENT );
-			_commandExecuted = eventFactory.GetEvent<CommandExecutedEventArgs>( Constants.Events.Console.COMMAND_EXECUTED_EVENT );
+			_textEntered = eventFactory.GetEvent<TextEnteredEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.TEXT_ENTERED_EVENT );
+			_unknownCommand = eventFactory.GetEvent<CommandExecutedEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.UNKNOWN_COMMAND_EVENT );
+			_commandExecuted = eventFactory.GetEvent<CommandExecutedEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.COMMAND_EXECUTED_EVENT );
 
-			eventFactory.GetEvent<EmptyEventArgs>( Constants.Events.Console.CONSOLE_CLOSED_EVENT ).Subscribe( this, OnConsoleClosed );
+			eventFactory.GetEvent<EmptyEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.CONSOLE_CLOSED_EVENT ).Subscribe( this, OnConsoleClosed );
 
 			builder.TextEntered.Subscribe( this, OnCommandExecuted );
 		}
