@@ -35,9 +35,15 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 	/// </summary>
 
 	internal sealed class FMODDriverRepository : IDisposable {
+		/// <summary>
+		/// A list of all output devices available to the FMOD API.
+		/// </summary>
 		public FMODDeviceInfo[] Devices => _devices;
 		private FMODDeviceInfo[] _devices;
 
+		/// <summary>
+		/// The index of the current audio output device.
+		/// </summary>
 		public int OutputDeviceIndex {
 			get => _outputDeviceIndex;
 			set {
@@ -46,7 +52,14 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		}
 		private int _outputDeviceIndex = 0;
 
+		/// <summary>
+		/// A list of all the audio driver APIs available for usage with FMOD.
+		/// </summary>
 		public string[] Drivers => [ .. _supportedAudioDrivers.Values ];
+
+		/// <summary>
+		///
+		/// </summary>
 		public string Driver => _supportedAudioDrivers[ _audioDriver ];
 		private FMOD.OUTPUTTYPE _audioDriver;
 

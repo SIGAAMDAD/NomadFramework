@@ -17,6 +17,7 @@ using Godot;
 using System;
 using Nomad.Audio.Fmod.Entities;
 using Nomad.Audio.Fmod.ValueObjects;
+using System.Runtime.InteropServices;
 
 namespace Nomad.Audio.Fmod.Private.Entities {
 	/*

@@ -48,10 +48,7 @@ namespace NomadCore.Systems.Steam.Infrastructure {
 		private readonly CSteamID _steamId;
 
 		public SteamDataRepository( ILoggerService logger ) {
-			ESteamAPIInitResult result = SteamAPI.InitEx( out string errorMessage );
-			if ( result != ESteamAPIInitResult.k_ESteamAPIInitResult_OK ) {
-				logger.PrintError( $"SteamDataRepository: failed to initialize SteamAPI - {result}" );
-			}
+			
 
 			_userName = SteamFriends.GetPersonaName();
 			_appId = SteamUtils.GetAppID();

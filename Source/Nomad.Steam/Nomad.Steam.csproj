@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <!-- Build Configuration -->
@@ -25,12 +25,28 @@
     <PackageReference Include="Godot.NET.Sdk" Version="4.6.0-dev.6" />
     <PackageReference Include="Godot.SourceGenerators" Version="4.6.0-dev.6" />
     <PackageReference Include="GodotSharp" Version="4.6.0-dev.6" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Ini" Version="10.0.1" />
+    <PackageReference Include="Steamworks.NET" Version="2024.8.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Nomad.Core\Nomad.Core.csproj" />
-	  <ProjectReference Include="..\Nomad.Events\Nomad.Events.csproj" />
+    <ProjectReference Include="..\Nomad.Events\Nomad.Events.csproj" />
+    <ProjectReference Include="..\Nomad.Logger\Nomad.Logger.csproj" />
+    <ProjectReference Include="..\Nomad.CVars\Nomad.CVars.csproj" />
+    <ProjectReference Include="..\Nomad.EngineUtils.Godot\Nomad.EngineUtils.Godot.csproj" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <IsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">true</IsWindows>
+    <IsLinux Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">true</IsLinux>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsWindows)' == 'true'">
+    <DefineConstants>WINDOWS</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsLinux)' == 'true'">
+    <DefineConstants>LINUX</DefineConstants>
+  </PropertyGroup>
 
 </Project>

@@ -4,3 +4,4 @@ obj/
 *.cs.uid
 *.cs.doxy_temp
 Doxygen
+Documentation/
