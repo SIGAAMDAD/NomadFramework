@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -26,7 +26,7 @@ namespace Nomad.Core.Util
     /// </summary>
     public readonly record struct Any : IValueObject<Any>
     {
-        [StructLayout(LayoutKind.Explicit, Pack = 1)]
+        [StructLayout(LayoutKind.Explicit, Pack = 1, Size = 8)]
         private struct Union
         {
             [FieldOffset(0)] public bool Boolean;
@@ -43,6 +43,8 @@ namespace Nomad.Core.Util
 
             [FieldOffset(0)] public float Float32;
             [FieldOffset(0)] public double Float64;
+
+            [FieldOffset(0)] public InternString String;
         }
 
         private static readonly IReadOnlyDictionary<Type, AnyType> _systemTypeToAnyType = new Dictionary<Type, AnyType>() {
@@ -56,7 +58,8 @@ namespace Nomad.Core.Util
             { typeof( uint ), AnyType.UInt32 },
             { typeof( ulong ), AnyType.UInt64 },
             { typeof( float ), AnyType.Float32 },
-            { typeof( double ), AnyType.Float64 }
+            { typeof( double ), AnyType.Float64 },
+            { typeof( InternString ), AnyType.InternString }
         };
         private static readonly IReadOnlyDictionary<AnyType, Type> _anyTypeToSystemType = new Dictionary<AnyType, Type>() {
             { AnyType.Boolean, typeof( bool ) },
@@ -69,7 +72,8 @@ namespace Nomad.Core.Util
             { AnyType.UInt32, typeof( uint ) },
             { AnyType.UInt64, typeof( ulong ) },
             { AnyType.Float32, typeof( float ) },
-            { AnyType.Float64, typeof( double ) }
+            { AnyType.Float64, typeof( double ) },
+            { AnyType.InternString, typeof( InternString ) }
         };
 
         private readonly Union _value;
@@ -85,6 +89,7 @@ namespace Nomad.Core.Util
         public Any(ulong u64) => _value = new Union { UInt64 = u64 };
         public Any(float f32) => _value = new Union { Float32 = f32 };
         public Any(double f64) => _value = new Union { Float64 = f64 };
+        public Any(InternString str) => _value = new Union { String = str };
 
         public static implicit operator bool(Any value) => value._value.Boolean;
         public static implicit operator sbyte(Any value) => value._value.Int8;
@@ -97,6 +102,7 @@ namespace Nomad.Core.Util
         public static implicit operator ulong(Any value) => value._value.UInt64;
         public static implicit operator float(Any value) => value._value.Float32;
         public static implicit operator double(Any value) => value._value.Float64;
+        public static implicit operator InternString(Any value) => value._value.String;
 
 
         /// <summary>
@@ -118,6 +124,7 @@ namespace Nomad.Core.Util
             ulong u64 => new Any(u64),
             float f32 => new Any(f32),
             double f64 => new Any(f64),
+            InternString str => new Any(str),
             _ => throw new InvalidCastException($"An Any object cannot hold a value of type {typeof(T)}")
         };
 
@@ -140,6 +147,7 @@ namespace Nomad.Core.Util
             Type t when t == typeof(ulong) => (T)(object)_value.UInt64,
             Type t when t == typeof(float) => (T)(object)_value.Float32,
             Type t when t == typeof(double) => (T)(object)_value.Float64,
+            Type t when t == typeof(InternString) => (T)(object)_value.String,
             _ => throw new InvalidOperationException($"An any object cannot hold a value of type {typeof(T)}")
         };
 
