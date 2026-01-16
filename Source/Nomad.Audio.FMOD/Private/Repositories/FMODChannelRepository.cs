@@ -682,6 +682,14 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 
 		/*
 		===============
+		UpdateChannelVolumes
+		===============
+		*/
+		private void UpdateChannelVolumes() {
+		}
+
+		/*
+		===============
 		ValidateMaxChannels
 		===============
 		*/
@@ -708,11 +716,18 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 
 		/*
 		===============
-		OnMaxChannelsValueChanged
+		OnEffectsVolumeChanged
 		===============
 		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="args"></param>
 		private void OnEffectsVolumeChanged( in CVarValueChangedEventArgs<float> args ) {
 			_effectsVolume = args.NewValue;
+			if ( args.OldValue != args.NewValue ) {
+				UpdateChannelVolumes();
+			}
 		}
 
 		/*

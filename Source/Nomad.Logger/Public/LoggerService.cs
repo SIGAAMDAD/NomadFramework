@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -35,7 +35,7 @@ namespace Nomad.Logger
         private readonly List<ILoggerSink> _sinks = new List<ILoggerSink>();
 
         private readonly ILoggerCategory _defaultCategory = new LoggerCategory("Logger", LogLevel.Info, true);
-        private readonly ConcurrentDictionary<string, ILoggerCategory> _categories;
+        private readonly ConcurrentDictionary<string, LoggerCategory> _categories;
         private readonly MessageBuilder _messageBuilder = new MessageBuilder();
 
         /// <summary>
@@ -43,9 +43,9 @@ namespace Nomad.Logger
         /// </summary>
         public LoggerService()
         {
-            _categories = new ConcurrentDictionary<string, ILoggerCategory>
+            _categories = new ConcurrentDictionary<string, LoggerCategory>
             {
-                ["Default"] = _defaultCategory
+                ["Default"] = _defaultCategory as LoggerCategory
             };
         }
 
@@ -245,5 +245,5 @@ namespace Nomad.Logger
                 _sinks[i].Clear();
             }
         }
-    };
-};
+    }
+}

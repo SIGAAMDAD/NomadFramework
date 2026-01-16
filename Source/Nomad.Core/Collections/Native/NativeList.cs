@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -30,26 +30,52 @@ namespace NomadCore.Infrastructure.Collections
         public int Capacity => _capacity;
         private int _capacity = 0;
 
-        private readonly T* _data;
+        private readonly int _growGranularity = 2;
 
-        public NativeList(int size)
+        private T* _data;
+
+        /// <summary>
+        /// Creates a NativeList
+        /// </summary>
+        /// <param name="size"></param>
+        /// <param name="granularity"></param>
+        public NativeList(int size, int granularity = 2)
         {
             _data = (T*)NativeMemory.AlignedAlloc((nuint)(size * Marshal.SizeOf<T>()), 64);
             _length = size;
             _capacity = size;
+            _growGranularity = granularity;
         }
 
-        public void Dispose()
+        /// <summary>
+        ///
+        /// </summary>
+        public readonly void Dispose()
         {
             if (_data != null)
             {
                 NativeMemory.AlignedFree(_data);
             }
+            GC.SuppressFinalize(this);
         }
 
-        private void CheckCapacity(int newCapacity)
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="addCount"></param>
+        private void CheckCapacity(int addCount)
         {
-
+            if (_length + addCount >= _capacity)
+            {
+                _capacity *= _growGranularity;
+                void* pBuffer = NativeMemory.AlignedAlloc((nuint)(_capacity * sizeof(T)), 64);
+                if (_data != null)
+                {
+                    NativeMemory.Copy(_data, pBuffer, (nuint)(_length * sizeof(T)));
+                    NativeMemory.AlignedFree(_data);
+                }
+                _data = (T*)pBuffer;
+            }
         }
     }
 }

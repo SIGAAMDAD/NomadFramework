@@ -13,6 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System.Runtime.InteropServices;
 using Godot;
 using Nomad.Audio.Interfaces;
 using Nomad.Core.Abstractions;
@@ -22,6 +23,7 @@ namespace Nomad.Audio.Fmod.Entities
     /// <summary>
     ///
     /// </summary>
+    [StructLayout(LayoutKind.Sequential, Pack = 1, Size = 8)]
     internal record struct FMODChannelResource(FMOD.Studio.EventInstance instance) : IAudioResource, IValueObject<FMODChannelResource>
     {
         public readonly FMOD.Studio.PLAYBACK_STATE PlaybackState

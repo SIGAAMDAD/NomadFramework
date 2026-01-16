@@ -154,5 +154,9 @@ namespace Nomad.Core
             public const int MAX_AUDIO_CHANNELS = 512;
             public const int MIN_AUDIO_CHANNELS = 64;
         }
+        public static class Multiplayer
+        {
+            public const int MAX_PLAYERS = 16;
+        }
     }
 }
