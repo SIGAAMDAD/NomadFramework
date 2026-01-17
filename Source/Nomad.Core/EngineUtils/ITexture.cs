@@ -15,24 +15,15 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 
-namespace Nomad.Core.OnlineServices
+namespace Nomad.Core.EngineUtils
 {
     /// <summary>
-    ///
+    /// A universal representation of a texture object.
     /// </summary>
-    public interface IOnlinePlatformService : IDisposable
+    public interface ITexture : IDisposable
     {
-        OnlinePlatform Platform { get; }
-        string PlatformName { get; }
-        bool IsAvailable { get; }
-
-        IStatsService Stats { get; }
-        IAchievementService Achievements { get; }
-        IMultiplayerService Multiplayer { get; }
-        ICloudStorageService CloudStorage { get; }
-
-        void Initialize();
-        void RunCallbacks();
-        void Shutdown();
+        int Width { get; }
+        int Height { get; }
+        byte[] ImageBuffer { get; }
     }
 }

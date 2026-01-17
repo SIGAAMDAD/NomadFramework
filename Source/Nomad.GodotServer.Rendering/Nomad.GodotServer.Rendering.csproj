@@ -12,19 +12,23 @@
     <EnableUnsafeBinaryFormatterSerialization>false</EnableUnsafeBinaryFormatterSerialization>
     <BuildInParallel>true</BuildInParallel>
 
-    <!-- Performance -->
-    <PubishAOT>true</PubishAOT>
-    <TieredCompilation>true</TieredCompilation>
-    <Deterministic>true</Deterministic>
-    <UseSharedCompilation>true</UseSharedCompilation>
-    <Optimize>true</Optimize>
-    <SkipLocalsInit>true</SkipLocalsInit>
+    <DebugType>embedded</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+
+		<!-- Performance -->
+		<TrimMode>link</TrimMode>
+		<PublishTrimmed>true</PublishTrimmed>
+		<TieredCompilation>true</TieredCompilation>
+		<Deterministic>true</Deterministic>
+		<UseSharedCompilation>true</UseSharedCompilation>
+		<Optimize>true</Optimize>
+		<SkipLocalsInit>true</SkipLocalsInit>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Godot.NET.Sdk" Version="4.6.0-dev.6" />
-    <PackageReference Include="Godot.SourceGenerators" Version="4.6.0-dev.6" />
-    <PackageReference Include="GodotSharp" Version="4.6.0-dev.6" />
+    <PackageReference Include="Godot.NET.Sdk" Version="4.6.0-rc.1" />
+    <PackageReference Include="Godot.SourceGenerators" Version="4.6.0-rc.1" />
+    <PackageReference Include="GodotSharp" Version="4.6.0-rc.1" />
   </ItemGroup>
 
   <ItemGroup>

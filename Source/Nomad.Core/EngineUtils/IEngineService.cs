@@ -14,25 +14,19 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using Nomad.Core.Util;
 
-namespace Nomad.Core.OnlineServices
+namespace Nomad.Core.EngineUtils
 {
     /// <summary>
     ///
     /// </summary>
-    public interface IOnlinePlatformService : IDisposable
+    public interface IEngineService
     {
-        OnlinePlatform Platform { get; }
-        string PlatformName { get; }
-        bool IsAvailable { get; }
+        IDisposable CreateImage(byte[] image, int width, int height);
 
-        IStatsService Stats { get; }
-        IAchievementService Achievements { get; }
-        IMultiplayerService Multiplayer { get; }
-        ICloudStorageService CloudStorage { get; }
+        string Translate(InternString key);
 
-        void Initialize();
-        void RunCallbacks();
-        void Shutdown();
+        void Quit();
     }
 }

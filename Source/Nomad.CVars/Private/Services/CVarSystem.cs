@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -41,6 +41,16 @@ namespace Nomad.CVars.Private.Services {
 		private readonly IGameEventRegistryService _eventFactory;
 		private readonly ILoggerService _logger;
 
+		/*
+		===============
+		CVarSystem
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="eventFactory"></param>
+		/// <param name="logger"></param>
 		public CVarSystem( IGameEventRegistryService eventFactory, ILoggerService logger ) {
 			_eventFactory = eventFactory;
 			_logger = logger;
@@ -54,6 +64,9 @@ namespace Nomad.CVars.Private.Services {
 		Dispose
 		===============
 		*/
+		/// <summary>
+		///
+		/// </summary>
 		public void Dispose() {
 			_cvars.Clear();
 			_groups.Clear();
@@ -226,34 +239,6 @@ namespace Nomad.CVars.Private.Services {
 			lock ( _cvars ) {
 				ConfigFileReader reader = new ConfigFileReader( _logger, configFile );
 
-				/*
-				foreach ( var group in _groups ) {
-					foreach ( var cvar in group.Cvars ) {
-						ICVar var = _cvars[ cvar ];
-						if ( reader.TryGetValue( cvar, out string? value ) ) {
-							ArgumentException.ThrowIfNullOrEmpty( value );
-
-							switch ( var.Type ) {
-								case CVarType.Boolean:
-									var.SetBooleanValue( Convert.ToBoolean( value ) );
-									break;
-								case CVarType.Int:
-									var.SetIntegerValue( Convert.ToInt32( value ) );
-									break;
-								case CVarType.UInt:
-									var.SetUIntegerValue( Convert.ToUInt32( value ) );
-									break;
-								case CVarType.Decimal:
-									var.SetDecimalValue( Convert.ToSingle( value ) );
-									break;
-								case CVarType.String:
-									var.SetStringValue( value );
-									break;`
-							}
-						}
-					}
-				}
-				*/
 				foreach ( var cvar in _cvars ) {
 					if ( reader.TryGetValue( cvar.Value.Name, out string? value ) ) {
 						_logger.PrintLine( $"Loading cvar {cvar.Value.Name} with value of '{value}'..." );

@@ -20,8 +20,8 @@ namespace Nomad.CVars
     [AttributeUsage(AttributeTargets.Class)]
     public sealed class CVarAttribute<T>(string name, T defaultValue, string description) : Attribute
     {
-        public string Name = name;
-        public string Description = description;
-        public T DefaultValue = defaultValue;
+        public string Name => name;
+        public string Description => description;
+        public T DefaultValue => defaultValue;
     }
 }

@@ -13,26 +13,16 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
+using Nomad.Core.ServiceRegistry.Interfaces;
+using Nomad.GodotServer.Rendering.Interfaces;
 
-namespace Nomad.Core.OnlineServices
+namespace Nomad.GodotServer.Rendering
 {
-    /// <summary>
-    ///
-    /// </summary>
-    public interface IOnlinePlatformService : IDisposable
+    public static class GodotServerRenderingBootstrapper
     {
-        OnlinePlatform Platform { get; }
-        string PlatformName { get; }
-        bool IsAvailable { get; }
-
-        IStatsService Stats { get; }
-        IAchievementService Achievements { get; }
-        IMultiplayerService Multiplayer { get; }
-        ICloudStorageService CloudStorage { get; }
-
-        void Initialize();
-        void RunCallbacks();
-        void Shutdown();
+        public static void Initialize(IServiceRegistry serviceFactory, IServiceLocator locator)
+        {
+            serviceFactory.RegisterSingleton<IEntitySystemService>(new EntityService());
+        }
     }
 }

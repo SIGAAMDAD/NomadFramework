@@ -15,6 +15,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using Godot;
+using Nomad.Core.Util;
+using Nomad.Core.EngineUtils;
 
 namespace Nomad.EngineUtils
 {
@@ -33,6 +35,24 @@ namespace Nomad.EngineUtils
         public IDisposable CreateImage(byte[] image, int width, int height)
         {
             return Image.CreateFromData(width, height, false, Image.Format.Rgba8, image);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public string Translate(InternString key)
+        {
+            return TranslationServer.Translate((string)key);
+        }
+
+        /// <summary>
+        /// Quits the current running application.
+        /// </summary>
+        public void Quit()
+        {
+            OS.Kill(OS.GetProcessId());
         }
     }
 }

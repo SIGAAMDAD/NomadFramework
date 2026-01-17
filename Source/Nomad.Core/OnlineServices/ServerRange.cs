@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-The Nomad Framework
+The Nomad MPL Source Code
 Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
@@ -13,26 +13,14 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
-
 namespace Nomad.Core.OnlineServices
 {
-    /// <summary>
-    ///
-    /// </summary>
-    public interface IOnlinePlatformService : IDisposable
+    public enum ServerRange : byte
     {
-        OnlinePlatform Platform { get; }
-        string PlatformName { get; }
-        bool IsAvailable { get; }
+        LAN,
+        Friends,
+        Internet,
 
-        IStatsService Stats { get; }
-        IAchievementService Achievements { get; }
-        IMultiplayerService Multiplayer { get; }
-        ICloudStorageService CloudStorage { get; }
-
-        void Initialize();
-        void RunCallbacks();
-        void Shutdown();
+        Count
     }
 }

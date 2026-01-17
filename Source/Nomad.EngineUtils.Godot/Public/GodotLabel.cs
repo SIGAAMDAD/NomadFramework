@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-The Nomad Framework
+The Nomad MPL Source Code
 Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
@@ -13,32 +13,15 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
+using Godot;
+using Nomad.Core.EngineUtils;
 
-namespace Nomad.GodotServer.Rendering {
-	/*
-	===================================================================================
-
-	AnimationBatch
-
-	===================================================================================
-	*/
-	/// <summary>
-	///
-	/// </summary>
-
-	internal sealed class AnimationBatch : IDisposable {
-		private readonly int[] _frameIndexes;
-
-		/*
-		===============
-		Dispose
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		public void Dispose() {
-		}
-	};
-};
+namespace Nomad.EngineUtils.Godot
+{
+    public partial class GodotLabel : Label, ILabel
+    {
+        public GodotLabel()
+        {
+        }
+    }
+}

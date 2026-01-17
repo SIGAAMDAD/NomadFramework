@@ -13,14 +13,13 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System.Runtime.InteropServices;
-
-namespace Nomad.GodotServer.Rendering {
-	[StructLayout( LayoutKind.Explicit, Pack = 8, Size = 24 )]
-	internal struct EntityVisibility {
-		[FieldOffset( 0 )] public int LightMask;
-		[FieldOffset( 4 )] public uint VisibilityLayer;
-		[FieldOffset( 8 )] public sbyte ZIndex;
-		[FieldOffset( 9 )] public bool ShowBehindParent;
-	};
-};
+namespace Nomad.Core.EngineUtils
+{
+    /// <summary>
+    ///
+    /// </summary>
+    public interface ILabel : IUIComponent
+    {
+        string Text { get; set; }
+    }
+}

@@ -13,7 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.OnlineServices
+namespace Nomad.Core.OnlineServices
 {
     public interface IMultiplayerService
     {

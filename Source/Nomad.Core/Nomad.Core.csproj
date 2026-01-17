@@ -22,11 +22,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Godot.NET.Sdk" Version="4.5.1" />
-    <PackageReference Include="GodotSharp" Version="4.5.1" />
+    <PackageReference Include="Godot.NET.Sdk" Version="4.6.0-rc.1" />
+    <PackageReference Include="GodotSharp" Version="4.6.0-rc.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
-    <PackageReference Include="Steamworks.NET" Version="2024.8.0" />
     <PackageReference Include="System.IO.Hashing" Version="10.0.1" />
   </ItemGroup>
 

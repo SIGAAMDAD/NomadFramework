@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -365,28 +365,28 @@ namespace Nomad.CVars.Private {
 		private static bool TryConvertStringToType( string value, Type targetType, out object result ) {
 			try {
 				bool output;
-				 if ( targetType == typeof( sbyte ) || targetType.IsEnum ) {
+				 if ( targetType == typeof( sbyte ) ) {
 					output = sbyte.TryParse( value, out sbyte data );
 					result = data;
-				} else if ( targetType == typeof( short ) || targetType.IsEnum ) {
+				} else if ( targetType == typeof( short ) ) {
 					output = short.TryParse( value, out short data );
 					result = data;
-				} else if ( targetType == typeof( int ) || targetType.IsEnum ) {
+				} else if ( targetType == typeof( int ) ) {
 					output = int.TryParse( value, out int data );
 					result = data;
-				} else if ( targetType == typeof( long ) || targetType.IsEnum ) {
+				} else if ( targetType == typeof( long ) ) {
 					output = long.TryParse( value, out long data );
 					result = data;
-				} else if ( targetType == typeof( byte ) || targetType.IsEnum ) {
+				} else if ( targetType == typeof( byte ) ) {
 					output = byte.TryParse( value, out byte data );
 					result = data;
-				} else if ( targetType == typeof( ushort ) || targetType.IsEnum ) {
+				} else if ( targetType == typeof( ushort ) ) {
 					output = ushort.TryParse( value, out ushort data );
 					result = data;
-				} else if ( targetType == typeof( uint ) || targetType.IsEnum ) {
+				} else if ( targetType == typeof( uint ) ) {
 					output = uint.TryParse( value, out uint data );
 					result = data;
-				} else if ( targetType == typeof( ulong ) || targetType.IsEnum ) {
+				} else if ( targetType == typeof( ulong ) ) {
 					output = ulong.TryParse( value, out ulong data );
 					result = data;
 				} else if ( targetType == typeof( float ) ) {

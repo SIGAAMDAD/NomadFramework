@@ -12,57 +12,55 @@ express or implied, including but not limited to the warranties
 of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
-using System;
-using Nomad.Core.Logger;
 
-namespace Nomad.CVars.Private.Repositories {
+using System;
+using Godot;
+
+namespace Nomad.GodotServer.Rendering {
 	/*
 	===================================================================================
 
-	ConfigFileReader
+	AnimationService
 
 	===================================================================================
 	*/
 	/// <summary>
-	/// Loads configuration values from the provided .ini file
+	///
 	/// </summary>
 
-	internal readonly ref struct ConfigFileReader {
-		private readonly IniLoader Loader;
+	internal sealed class AnimationService : IDisposable {
+		private readonly struct AnimationData() {
+			public readonly int[] FrameCounts = new int[ EntityService.MAX_ENTITIES ];
+			public readonly bool[] Loops = new bool[ EntityService.MAX_ENTITIES ];
+			public readonly Rid[][] TextureRids = new Rid[ EntityService.MAX_ENTITIES ][];
+			public readonly Rect2[][] TextureRegions = new Rect2[ EntityService.MAX_ENTITIES ][];
+			public readonly float[][] FrameDurations = new float[ EntityService.MAX_ENTITIES ][];
+		};
+
+		private int _animationCount;
 
 		/*
 		===============
-		ConfigFileReader
+		Dispose
 		===============
 		*/
 		/// <summary>
 		///
 		/// </summary>
-		/// <param name="logger"></param>
-		/// <param name="configFile"></param>
-		public ConfigFileReader( ILoggerService logger, string configFile ) {
-			ArgumentException.ThrowIfNullOrEmpty( configFile );
-
-			logger.PrintLine( $"Loading configuration file {configFile}..." );
-
-			Loader = new IniLoader( configFile, logger );
+		public void Dispose() {
 		}
 
 		/*
 		===============
-		TryGetValue
+		Update
 		===============
 		*/
 		/// <summary>
 		///
 		/// </summary>
-		/// <param name="name"></param>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		public bool TryGetValue( string name, out string value ) {
-			ArgumentException.ThrowIfNullOrEmpty( name );
-
-			return Loader.LoadConfigValue( name, out value );
+		/// <param name="delta"></param>
+		public void Update( float delta ) {
+			int count = _animationCount;
 		}
 	};
 };

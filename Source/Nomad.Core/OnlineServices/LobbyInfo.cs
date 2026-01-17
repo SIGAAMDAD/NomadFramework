@@ -13,12 +13,21 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
-
-namespace Nomad.EngineUtils
+namespace Nomad.Core.OnlineServices
 {
-    public interface IEngineService
-    {
-        IDisposable CreateImage(byte[] image, int width, int height);
-    }
+    /// <summary>
+    /// Creation information for lobbies
+    /// </summary>
+    /// <param name="Name"></param>
+    /// <param name="Map"></param>
+    /// <param name="GameMode"></param>
+    /// <param name="MaxPlayers"></param>
+    /// <param name="Visibility"></param>
+    public record LobbyInfo(
+        string Name,
+        string Map,
+        string GameMode,
+        int MaxPlayers,
+        LobbyVisibility Visibility
+    );
 }

@@ -12,57 +12,55 @@ express or implied, including but not limited to the warranties
 of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
-using System;
-using Nomad.Core.Logger;
 
-namespace Nomad.CVars.Private.Repositories {
+using Godot;
+using Nomad.GodotServer.Rendering.Private.ValueObjects;
+
+namespace Nomad.GodotServer.Rendering {
 	/*
 	===================================================================================
 
-	ConfigFileReader
+	RenderSprite
 
 	===================================================================================
 	*/
 	/// <summary>
-	/// Loads configuration values from the provided .ini file
+	///
 	/// </summary>
 
-	internal readonly ref struct ConfigFileReader {
-		private readonly IniLoader Loader;
+	internal sealed class RenderSprite : RenderEntity {
+		private readonly Rid _textureRid;
+		private readonly RefCounted _texture;
 
 		/*
 		===============
-		ConfigFileReader
+		RenderSprite
 		===============
 		*/
 		/// <summary>
 		///
 		/// </summary>
-		/// <param name="logger"></param>
-		/// <param name="configFile"></param>
-		public ConfigFileReader( ILoggerService logger, string configFile ) {
-			ArgumentException.ThrowIfNullOrEmpty( configFile );
-
-			logger.PrintLine( $"Loading configuration file {configFile}..." );
-
-			Loader = new IniLoader( configFile, logger );
+		/// <param name="entityDto"></param>
+		/// <param name="sprite"></param>
+		public RenderSprite( EntityDataDto entityDto, Sprite2D sprite )
+			: base( entityDto, sprite )
+		{
+			_texture = sprite.Texture;
+			_textureRid = sprite.Texture.GetRid();
+			_texture.Reference();
 		}
 
 		/*
 		===============
-		TryGetValue
+		Dispose
 		===============
 		*/
 		/// <summary>
 		///
 		/// </summary>
-		/// <param name="name"></param>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		public bool TryGetValue( string name, out string value ) {
-			ArgumentException.ThrowIfNullOrEmpty( name );
-
-			return Loader.LoadConfigValue( name, out value );
+		public override void Dispose() {
+			_texture.Dispose();
+			base.Dispose();
 		}
 	};
 };

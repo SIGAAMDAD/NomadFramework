@@ -15,7 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System.Threading.Tasks;
 
-namespace Nomad.OnlineServices
+namespace Nomad.Core.OnlineServices
 {
     /// <summary>
     ///

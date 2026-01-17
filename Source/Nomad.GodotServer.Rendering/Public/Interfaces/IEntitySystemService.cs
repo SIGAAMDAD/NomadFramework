@@ -14,25 +14,16 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using Godot;
 
-namespace Nomad.Core.OnlineServices
+namespace Nomad.GodotServer.Rendering.Interfaces
 {
     /// <summary>
     ///
     /// </summary>
-    public interface IOnlinePlatformService : IDisposable
+    public interface IEntitySystemService : IDisposable
     {
-        OnlinePlatform Platform { get; }
-        string PlatformName { get; }
-        bool IsAvailable { get; }
-
-        IStatsService Stats { get; }
-        IAchievementService Achievements { get; }
-        IMultiplayerService Multiplayer { get; }
-        ICloudStorageService CloudStorage { get; }
-
-        void Initialize();
-        void RunCallbacks();
-        void Shutdown();
+        IRenderEntity? CreateEntity(CanvasItem item);
+        void Update(float delta);
     }
 }

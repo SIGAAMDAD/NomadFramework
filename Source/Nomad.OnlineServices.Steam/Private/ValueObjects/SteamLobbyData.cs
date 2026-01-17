@@ -12,57 +12,62 @@ express or implied, including but not limited to the warranties
 of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
-using System;
-using Nomad.Core.Logger;
 
-namespace Nomad.CVars.Private.Repositories {
+using Nomad.Core.OnlineServices;
+using Steamworks;
+
+namespace Nomad.OnlineServices.Steam {
 	/*
 	===================================================================================
 
-	ConfigFileReader
+	SteamLobbyData
 
 	===================================================================================
 	*/
 	/// <summary>
-	/// Loads configuration values from the provided .ini file
+	///
 	/// </summary>
 
-	internal readonly ref struct ConfigFileReader {
-		private readonly IniLoader Loader;
+	internal sealed class SteamLobbyData {
+		public string Name => _info.Name;
+		public string GameMode => _info.GameMode;
+		public string Map => _info.Map;
+		public int MaxPlayers => _info.MaxPlayers;
+		public LobbyVisibility Visibility => _info.Visibility;
+		private LobbyInfo _info;
+
+		public CSteamID Id => _id;
+		private readonly CSteamID _id;
 
 		/*
 		===============
-		ConfigFileReader
+		SteamLobbyData
 		===============
 		*/
 		/// <summary>
 		///
 		/// </summary>
-		/// <param name="logger"></param>
-		/// <param name="configFile"></param>
-		public ConfigFileReader( ILoggerService logger, string configFile ) {
-			ArgumentException.ThrowIfNullOrEmpty( configFile );
-
-			logger.PrintLine( $"Loading configuration file {configFile}..." );
-
-			Loader = new IniLoader( configFile, logger );
+		/// <param name="id"></param>
+		/// <param name="info"></param>
+		public SteamLobbyData( CSteamID id, LobbyInfo info ) {
+			_id = id;
+			_info = info;
 		}
 
 		/*
 		===============
-		TryGetValue
+		Update
 		===============
 		*/
 		/// <summary>
 		///
 		/// </summary>
-		/// <param name="name"></param>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		public bool TryGetValue( string name, out string value ) {
-			ArgumentException.ThrowIfNullOrEmpty( name );
-
-			return Loader.LoadConfigValue( name, out value );
+		public void Update() {
+			_info = _info with {
+				Name = SteamMatchmaking.GetLobbyData( _id, nameof( LobbyInfo.Name ) ),
+				Map = SteamMatchmaking.GetLobbyData( _id, nameof( LobbyInfo.Map ) ),
+				GameMode = SteamMatchmaking.GetLobbyData( _id, nameof( LobbyInfo.GameMode ) )
+			};
 		}
 	};
 };

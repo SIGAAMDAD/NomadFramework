@@ -12,27 +12,3 @@ express or implied, including but not limited to the warranties
 of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
-
-using System;
-
-namespace Nomad.Core.OnlineServices
-{
-    /// <summary>
-    ///
-    /// </summary>
-    public interface IOnlinePlatformService : IDisposable
-    {
-        OnlinePlatform Platform { get; }
-        string PlatformName { get; }
-        bool IsAvailable { get; }
-
-        IStatsService Stats { get; }
-        IAchievementService Achievements { get; }
-        IMultiplayerService Multiplayer { get; }
-        ICloudStorageService CloudStorage { get; }
-
-        void Initialize();
-        void RunCallbacks();
-        void Shutdown();
-    }
-}

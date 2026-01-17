@@ -15,12 +15,22 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
-using Godot;
-using Nomad.Core.Events;
+using Nomad.Core.OnlineServices;
 using Nomad.EngineUtils;
 using Steamworks;
 
 namespace Nomad.OnlineServices.Steam {
+	/*
+	===================================================================================
+
+	SteamAchievementService
+
+	===================================================================================
+	*/
+	/// <summary>
+	///
+	/// </summary>
+
 	internal sealed class SteamAchievementService : IAchievementService {
 		private record AchievementInfo(
 			string Id,
@@ -35,6 +45,9 @@ namespace Nomad.OnlineServices.Steam {
 
 		private readonly IEngineService _engineService;
 
+		private readonly CallResult<UserAchievementIconFetched_t> _userAchievementIconFetched;
+		private readonly CallResult<UserAchievementStored_t> _userAchievementStored;
+
 		/*
 		===============
 		SteamAchievementService
@@ -44,23 +57,41 @@ namespace Nomad.OnlineServices.Steam {
 		///
 		/// </summary>
 		/// <param name="engineService"></param>
-		public SteamAchievementService( IEngineService engineService ) {
+		public SteamAchievementService( IEngineService engineService,  ) {
 			_engineService = engineService;
 
 			int numAchievements = (int)SteamUserStats.GetNumAchievements();
 			_achievements = new ConcurrentDictionary<string, SteamAchievementInfo>( numAchievements, numAchievements );
 
+			_userAchievementIconFetched = CallResult<UserAchievementIconFetched_t>.Create( OnAchievementIconFetched );
+
 			for ( uint i = 0; i < numAchievements; i++ ) {
 				string name = SteamUserStats.GetAchievementName( i );
 				_achievements[ name ] = new SteamAchievementInfo( name );
 			}
+
+			SteamUserStats.RequestCurrentStats();
 		}
 
-		private void OnAchievementIconFetched( UserAchievementIconFetched_t pCallback ) {
+		/*
+		===============
+		OnAchievementIconFetched
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="pCallback"></param>
+		/// <param name="bIOFailure"></param>
+		private void OnAchievementIconFetched( UserAchievementIconFetched_t pCallback, bool bIOFailure ) {
 			if ( !_achievements.TryGetValue( pCallback.m_rgchAchievementName, out var achievementInfo ) ) {
 				return;
 			}
 			achievementInfo.SetIcon( pCallback, _engineService );
+		}
+
+		private void OnUserAchievementStored( UserAchievementStored_t pCallback ) {
+
 		}
 
 		public ValueTask LockAchievement( string achievementId ) {

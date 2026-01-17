@@ -13,22 +13,11 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Godot;
-
 namespace Nomad.GodotServer.Rendering {
-	/// <summary>
-	///
-	/// </summary>
-	/// <param name="Transform"></param>
-	/// <param name="Modulate"></param>
-	public readonly record struct UpdateData(
-		Transform2D Transform,
-		Color Modulate,
-		int ZIndex,
-
-		uint VisibilityLayer,
-		int LightMask,
-
-		bool Visible
-	);
+	internal readonly unsafe struct AnimationDataDto( int* currentFrame, float* frameTimer, float* speedScale, bool* playing ) {
+		public readonly int* CurrentFrame = currentFrame;
+		public readonly float* FrameTimer = frameTimer;
+		public readonly float* SpeedScale = speedScale;
+		public readonly bool* Playing = playing;
+	};
 };
