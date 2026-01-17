@@ -15,8 +15,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
+using Nomad.Core.EngineUtils;
 using Nomad.Core.OnlineServices;
-using Nomad.EngineUtils;
 using Steamworks;
 
 namespace Nomad.OnlineServices.Steam {
@@ -39,7 +39,7 @@ namespace Nomad.OnlineServices.Steam {
 			float MaxProgress
 		);
 
-		public bool SupporsAchievements => true;
+		public bool SupportsAchievements => true;
 
 		private readonly ConcurrentDictionary<string, SteamAchievementInfo> _achievements;
 
@@ -57,7 +57,7 @@ namespace Nomad.OnlineServices.Steam {
 		///
 		/// </summary>
 		/// <param name="engineService"></param>
-		public SteamAchievementService( IEngineService engineService,  ) {
+		public SteamAchievementService( IEngineService engineService ) {
 			_engineService = engineService;
 
 			int numAchievements = (int)SteamUserStats.GetNumAchievements();

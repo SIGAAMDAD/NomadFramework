@@ -13,17 +13,11 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
+using Nomad.Save.Interfaces;
 
-namespace Nomad.Save.ValueObjects
+namespace Nomad.Save.Events
 {
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="FileName"></param>
-    public record SaveFileMetadata(
-        SaveFileId FileName,
-        long FileSize,
-        DateTime LastAccessTime
+    public readonly record struct SaveBeginEventArgs(
+        ISaveWriterService Writer
     );
 }

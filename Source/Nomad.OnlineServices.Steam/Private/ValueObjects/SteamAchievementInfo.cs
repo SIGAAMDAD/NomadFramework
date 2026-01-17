@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-The Nomad MPL Source Code
+The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
@@ -14,8 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using Godot;
-using Nomad.EngineUtils;
+using Nomad.Core.EngineUtils;
 using Steamworks;
 
 namespace Nomad.OnlineServices.Steam {

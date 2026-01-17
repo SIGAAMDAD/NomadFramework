@@ -13,17 +13,20 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
+namespace Nomad.Save.Private.Exceptions {
+	/*
+	===================================================================================
 
-namespace Nomad.Save.ValueObjects
-{
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="FileName"></param>
-    public record SaveFileMetadata(
-        SaveFileId FileName,
-        long FileSize,
-        DateTime LastAccessTime
-    );
-}
+	SectionCorruptException
+
+	===================================================================================
+	*/
+	/// <summary>
+	///
+	/// </summary>
+
+	internal sealed class SectionCorruptException( string sectionName, int sectionIndex, int fileOffset, string message = "" ) : SaveFileCorruptException( fileOffset, message ) {
+		public readonly string SectionName = sectionName;
+		public readonly int SectionIndex = sectionIndex;
+	};
+};

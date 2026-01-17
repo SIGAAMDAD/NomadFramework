@@ -15,15 +15,24 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 
-namespace Nomad.Save.ValueObjects
-{
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="FileName"></param>
-    public record SaveFileMetadata(
-        SaveFileId FileName,
-        long FileSize,
-        DateTime LastAccessTime
-    );
-}
+namespace Nomad.Save.Private.ValueObjects {
+	/// <summary>
+	/// A save field's type
+	/// </summary>
+	public enum FieldType : byte {
+		Int8,
+		Int16,
+		Int32,
+		Int64,
+		UInt8,
+		UInt16,
+		UInt32,
+		UInt64,
+		Float,
+		Double,
+		Boolean,
+		String,
+
+		Count
+	};
+};

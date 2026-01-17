@@ -13,17 +13,12 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
-
-namespace Nomad.Save.ValueObjects
+namespace Nomad.Save.Data
 {
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="FileName"></param>
-    public record SaveFileMetadata(
-        SaveFileId FileName,
-        long FileSize,
-        DateTime LastAccessTime
-    );
+    public static class EventNames
+    {
+        public const string NAMESPACE = nameof(Save);
+
+        public const string SAVE_BEGIN_EVENT = $"{NAMESPACE}:SaveBegin";
+    }
 }

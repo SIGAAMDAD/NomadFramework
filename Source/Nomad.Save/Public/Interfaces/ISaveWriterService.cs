@@ -15,15 +15,10 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 
-namespace Nomad.Save.ValueObjects
+namespace Nomad.Save.Interfaces
 {
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="FileName"></param>
-    public record SaveFileMetadata(
-        SaveFileId FileName,
-        long FileSize,
-        DateTime LastAccessTime
-    );
+    public interface ISaveWriterService : IDisposable
+    {
+        ISaveSectionWriter AddSection(string sectionId);
+    }
 }

@@ -15,15 +15,14 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 
-namespace Nomad.Save.ValueObjects
-{
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="FileName"></param>
-    public record SaveFileMetadata(
-        SaveFileId FileName,
-        long FileSize,
-        DateTime LastAccessTime
-    );
-}
+namespace Nomad.Save.Private.ValueObjects {
+	public readonly record struct Checksum(
+		uint Value
+	) {
+		public static readonly Checksum Empty = new( 0 );
+
+		public static Checksum Compute( ReadOnlySpan<byte> data ) {
+			return new Checksum();
+		}
+	};
+};

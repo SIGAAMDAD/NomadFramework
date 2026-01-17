@@ -15,15 +15,20 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 
-namespace Nomad.Save.ValueObjects
-{
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="FileName"></param>
-    public record SaveFileMetadata(
-        SaveFileId FileName,
-        long FileSize,
-        DateTime LastAccessTime
-    );
-}
+namespace Nomad.Save.Private.Exceptions {
+	/*
+	===================================================================================
+
+	FailedSectionLoadException
+
+	===================================================================================
+	*/
+	/// <summary>
+	///
+	/// </summary>
+
+	internal sealed class FailedSectionLoadException( string sectionName, Exception exception ) : Exception {
+		public readonly string? SectionName = sectionName;
+		public readonly Exception Error = exception;
+	};
+};

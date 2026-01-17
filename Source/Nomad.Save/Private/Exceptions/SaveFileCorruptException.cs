@@ -15,15 +15,20 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 
-namespace Nomad.Save.ValueObjects
-{
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="FileName"></param>
-    public record SaveFileMetadata(
-        SaveFileId FileName,
-        long FileSize,
-        DateTime LastAccessTime
-    );
-}
+namespace Nomad.Save.Private.Exceptions {
+	/*
+	===================================================================================
+
+	SaveFileCorruptException
+
+	===================================================================================
+	*/
+	/// <summary>
+	///
+	/// </summary>
+
+	internal abstract class SaveFileCorruptException( int fileOffset, string message ) : Exception {
+		public readonly int FileOffset = fileOffset;
+		public readonly string Error = message;
+	};
+};

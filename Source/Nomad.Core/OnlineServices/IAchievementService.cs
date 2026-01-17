@@ -22,10 +22,10 @@ namespace Nomad.Core.OnlineServices
     /// </summary>
     public interface IAchievementService
     {
+        bool SupportsAchievements { get; }
+
         ValueTask UnlockAchievement(string achievementId);
         ValueTask LockAchievement(string achievementId);
         ValueTask SetAchievementProgress(string achievementId, float current, float max);
-
-        bool SupporsAchievements { get; }
     }
 }
