@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using Godot;
-using Nomad.GodotServer.Rendering.Private.ValueObjects;
 
 namespace Nomad.GodotServer.Rendering {
 	/*
@@ -42,11 +41,11 @@ namespace Nomad.GodotServer.Rendering {
 		};
 
 		private string _currentAnimation = String.Empty;
-		private float *_frameTimer;
-		private int *_currentFrame;
-		private bool *_playing;
-		private bool *_backwards;
-		private float *_speedScale;
+		private float _frameTimer = 0.0f;
+		private int _currentFrame = 0;
+		private bool _playing = false;
+		private bool _backwards = false;
+		private float _speedScale = 0.0f;
 
 		private readonly int _animationCount = 0;
 		private readonly ImmutableDictionary<string, AnimationData> _animationData;
@@ -59,17 +58,10 @@ namespace Nomad.GodotServer.Rendering {
 		/// <summary>
 		///
 		/// </summary>
-		/// <param name="entityDto"></param>
-		/// <param name="animationDto"></param>
 		/// <param name="animatedSprite"></param>
-		public RenderAnimator( EntityDataDto entityDto, AnimationDataDto animationDto, AnimatedSprite2D animatedSprite )
-			: base( entityDto, animatedSprite )
+		public RenderAnimator( AnimatedSprite2D animatedSprite )
+			: base( animatedSprite )
 		{
-			_currentFrame = animationDto.CurrentFrame;
-			_frameTimer = animationDto.FrameTimer;
-			_speedScale = animationDto.SpeedScale;
-			_playing = animationDto.Playing;
-
 			var spriteFrames = animatedSprite.SpriteFrames;
 			var animationNames = spriteFrames.GetAnimationNames();
 
@@ -113,17 +105,20 @@ namespace Nomad.GodotServer.Rendering {
 		/// </summary>
 		/// <param name="animationName"></param>
 		/// <param name="speedScale"></param>
-		public void Play( string animationName = "", float speedScale = 1.0f ) {
-
-		}
-
-		private float GetFrameProgress() {
-			if ( _currentAnimation.Length == 0 ) {
-				return 0.0f;
+		/// <param name="backwards"></param>
+		public void Play( string animationName = "", float speedScale = 1.0f, bool backwards = false ) {
+			if ( animationName.Length == 0 || animationName == _currentAnimation ) {
+				return;
 			}
+			if ( !_animationData.TryGetValue( animationName, out var animation ) ) {
+				return;
+			}
+			_currentAnimation = animationName;
+			_currentFrame = backwards ? animation.FrameCount - 1 : 0;
+			_frameTimer = 0.0f;
+			_speedScale = speedScale;
 
-			var animation = _animationData[ _currentAnimation ];
-			return *_frameTimer / animation.FrameDurations[ *_currentFrame ];
+			UpdateCurrentFrameData( in animation );
 		}
 
 		/*
@@ -135,27 +130,59 @@ namespace Nomad.GodotServer.Rendering {
 		///
 		/// </summary>
 		/// <param name="delta"></param>
-		public void Update( float delta ) {
-			if ( _currentAnimation.Length == 0 ) {
+		public override void Update( float delta ) {
+			if ( _currentAnimation.Length == 0 || !_visible ) {
 				return;
 			}
+			base.Update( delta );
 
 			var animation = _animationData[ _currentAnimation ];
 
-			float frameTimer = *_frameTimer;
-			int currentFrame = *_currentFrame;
-			frameTimer += delta * *_speedScale;
-			while ( frameTimer >= animation.FrameDurations[ currentFrame ] ) {
-				frameTimer -= animation.FrameDurations[ currentFrame ];
+			_frameTimer += delta * _speedScale;
+			while ( _frameTimer >= animation.FrameDurations[ _currentFrame ] ) {
+				_frameTimer -= animation.FrameDurations[ _currentFrame ];
 
-				if ( *_backwards ) {
-					currentFrame--;
-					if ( currentFrame < 0 ) {
-						if ( animation.Loop ) {
-
-						}
+				if ( _backwards ) {
+					_currentFrame--;
+				} else {
+					_currentFrame++;
+				}
+				if ( _currentFrame >= animation.FrameCount ) {
+					if ( animation.Loop ) {
+						_currentFrame = 0;
+					} else {
+						_currentFrame = animation.FrameCount - 1;
+						_playing = false;
+						break;
 					}
 				}
+
+				UpdateCurrentFrameData( in animation );
+			}
+		}
+
+		/*
+		===============
+		UpdateCurrentFrameData
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="animation"></param>
+		private void UpdateCurrentFrameData( in AnimationData animation ) {
+			var textureRid = animation.TextureRids[ _currentFrame ];
+			var textureRegion = animation.TextureRegions[ _currentFrame ];
+
+			if ( textureRid.IsValid ) {
+				var frameSize = textureRegion.Size;
+
+				Rect2 destRect = new Rect2(
+					-frameSize / 2,
+					frameSize
+				);
+
+				RenderingServer.CanvasItemAddTextureRectRegion( _canvasRid, destRect, textureRid, textureRegion );
 			}
 		}
 

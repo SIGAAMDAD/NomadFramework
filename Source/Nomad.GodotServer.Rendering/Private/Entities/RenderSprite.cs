@@ -43,7 +43,7 @@ namespace Nomad.GodotServer.Rendering {
 		/// <param name="entityDto"></param>
 		/// <param name="sprite"></param>
 		public RenderSprite( EntityDataDto entityDto, Sprite2D sprite )
-			: base( entityDto, sprite )
+			: base( sprite )
 		{
 			_texture = sprite.Texture;
 			_textureRid = sprite.Texture.GetRid();

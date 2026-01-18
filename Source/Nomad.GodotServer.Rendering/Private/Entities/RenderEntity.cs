@@ -31,71 +31,71 @@ namespace Nomad.GodotServer.Rendering {
 	/// </summary>
 
 	internal unsafe abstract class RenderEntity : IRenderEntity {
-		public Rid CanvasRid => *_canvasRid;
-		protected readonly Rid *_canvasRid;
-
-		public Color Modulate {
-			get => *_modulate;
-			set {
-				*_modulate = value;
-				RenderingServer.CanvasItemSetModulate( *_canvasRid, value );
-			}
-		}
-		private readonly Color* _modulate;
-
-		public int ZIndex {
-			get => *_zindex;
-			set {
-				*_zindex = value;
-				RenderingServer.CanvasItemSetZIndex( *_canvasRid, value );
-			}
-		}
-		private readonly int* _zindex;
-
-		public uint VisibilityLayer {
-			get => *_visibilityLayer;
-			set {
-				*_visibilityLayer = value;
-				RenderingServer.CanvasItemSetVisibilityLayer( *_canvasRid, value );
-			}
-		}
-		private readonly uint* _visibilityLayer;
-
-		public int LightMask {
-			get => *_lightMask;
-			set {
-				*_lightMask = value;
-				RenderingServer.CanvasItemSetLightMask( *_canvasRid, value );
-			}
-		}
-		private readonly int* _lightMask;
-
-		public Vector2 Position {
-			get => *_position;
-			set => *_position = value;
-		}
-		private readonly Vector2* _position;
-
-		public Vector2 Scale {
-			get => *_scale;
-			set => *_scale = value;
-		}
-		private readonly Vector2* _scale;
-
-		public float Rotation {
-			get => *_rotation;
-			set => *_rotation = value;
-		}
-		private readonly float* _rotation;
+		public Rid CanvasRid => _canvasRid;
+		protected readonly Rid _canvasRid;
 
 		public bool Visible {
-			get => *_visible;
+			get => _visible;
 			set {
-				*_visible = value;
-				RenderingServer.CanvasItemSetVisible( *_canvasRid, value );
+				_visible = value;
+				RenderingServer.CanvasItemSetVisible( _canvasRid, value );
 			}
 		}
-		private readonly bool* _visible;
+		protected bool _visible;
+
+		public Color Modulate {
+			get => _modulate;
+			set {
+				_modulate = value;
+				RenderingServer.CanvasItemSetModulate( _canvasRid, value );
+			}
+		}
+		protected Color _modulate;
+
+		public int ZIndex {
+			get => _zindex;
+			set {
+				_zindex = value;
+				RenderingServer.CanvasItemSetZIndex( _canvasRid, value );
+			}
+		}
+		protected int _zindex;
+
+		public uint VisibilityLayer {
+			get => _visibilityLayer;
+			set {
+				_visibilityLayer = value;
+				RenderingServer.CanvasItemSetVisibilityLayer( _canvasRid, value );
+			}
+		}
+		protected uint _visibilityLayer;
+
+		public int LightMask {
+			get => _lightMask;
+			set {
+				_lightMask = value;
+				RenderingServer.CanvasItemSetLightMask( _canvasRid, value );
+			}
+		}
+		protected int _lightMask;
+
+		public Vector2 Position {
+			get => _position;
+			set => _position = value;
+		}
+		protected Vector2 _position;
+
+		public Vector2 Scale {
+			get => _scale;
+			set => _scale = value;
+		}
+		protected Vector2 _scale;
+
+		public float Rotation {
+			get => _rotation;
+			set => _rotation = value;
+		}
+		protected float _rotation;
 
 		/*
 		===============
@@ -106,24 +106,19 @@ namespace Nomad.GodotServer.Rendering {
 		///
 		/// </summary>
 		/// <param name="canvasItem"></param>
-		public RenderEntity( EntityDataDto dto, CanvasItem canvasItem ) {
-			_position = dto.Position;
-			_scale = dto.Scale;
-			_rotation = dto.Rotation;
-			_visible = dto.Visible;
-			_canvasRid = dto.Rid;
-			_modulate = dto.Modulate;
-			_lightMask = dto.LightMask;
-			_visibilityLayer = dto.VisibilityLayer;
-			_zindex = dto.ZIndex;
+		public RenderEntity( CanvasItem canvasItem ) {
+			_canvasRid = RenderingServer.CanvasItemCreate();
 
-			*_canvasRid = RenderingServer.CanvasItemCreate();
+			var transform = canvasItem.GetTransform();
+			_position = transform.Origin;
+			_scale = transform.Scale;
+			_rotation = transform.Rotation;
 
-			RenderingServer.CanvasItemSetDefaultTextureFilter( *_canvasRid, ( RenderingServer.CanvasItemTextureFilter )canvasItem.TextureFilter );
-			RenderingServer.CanvasItemSetDefaultTextureRepeat( *_canvasRid, ( RenderingServer.CanvasItemTextureRepeat )canvasItem.TextureRepeat );
-			RenderingServer.CanvasItemSetVisibilityLayer( *_canvasRid, canvasItem.VisibilityLayer );
-			RenderingServer.CanvasItemSetDrawBehindParent( *_canvasRid, canvasItem.ShowBehindParent );
-			RenderingServer.CanvasItemSetZIndex( *_canvasRid, canvasItem.ZIndex );
+			RenderingServer.CanvasItemSetDefaultTextureFilter( _canvasRid, ( RenderingServer.CanvasItemTextureFilter )canvasItem.TextureFilter );
+			RenderingServer.CanvasItemSetDefaultTextureRepeat( _canvasRid, ( RenderingServer.CanvasItemTextureRepeat )canvasItem.TextureRepeat );
+			RenderingServer.CanvasItemSetVisibilityLayer( _canvasRid, canvasItem.VisibilityLayer );
+			RenderingServer.CanvasItemSetDrawBehindParent( _canvasRid, canvasItem.ShowBehindParent );
+			RenderingServer.CanvasItemSetZIndex( _canvasRid, canvasItem.ZIndex );
 
 			canvasItem.CallDeferred( CanvasItem.MethodName.QueueFree );
 		}
@@ -137,10 +132,26 @@ namespace Nomad.GodotServer.Rendering {
 		///
 		/// </summary>
 		public virtual void Dispose() {
-			if ( _canvasRid->IsValid ) {
-				RenderingServer.FreeRid( *_canvasRid );
+			if ( _canvasRid.IsValid ) {
+				RenderingServer.FreeRid( _canvasRid );
 			}
 			GC.SuppressFinalize( this );
+		}
+
+		/*
+		===============
+		Update
+		===============
+		*/
+		/// <summary>
+		/// Updates the base render data for a RenderEntity, does not draw anything.
+		/// </summary>
+		/// <param name="delta"></param>
+		public virtual void Update( float delta ) {
+			if ( _visible ) {
+				RenderingServer.CanvasItemClear( _canvasRid );
+				RenderingServer.CanvasItemSetTransform( _canvasRid, new Transform2D( _rotation, _scale, 0.0f, _position ) );
+			}
 		}
 	};
 };

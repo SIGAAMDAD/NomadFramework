@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-The Nomad Framework
+The Nomad MPL Source Code
 Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
@@ -13,12 +13,22 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using Godot;
+
 namespace Nomad.GodotServer.Rendering {
-	internal readonly unsafe struct AnimationDataDto( int* currentFrame, float* frameTimer, float* speedScale, bool* playing, bool* backwards ) {
-		public readonly int* CurrentFrame = currentFrame;
-		public readonly float* FrameTimer = frameTimer;
-		public readonly float* SpeedScale = speedScale;
-		public readonly bool* Playing = playing;
-		public readonly bool* Backwards = backwards;
+	/// <summary>
+	///
+	/// </summary>
+	/// <param name="frameDurations"></param>
+	/// <param name="rids"></param>
+	/// <param name="regions"></param>
+	/// <param name="loops"></param>
+	/// <param name="frameCounts"></param>
+	public unsafe readonly struct AnimationFramesData( float* frameDurations, Rid* rids, Rect2* regions, bool* loops, int* frameCounts ) {
+		public readonly float* FrameDurations = frameDurations;
+		public readonly Rid* Rids = rids;
+		public readonly Rect2* Regions = regions;
+		public readonly bool* Loops = loops;
+		public readonly int* FrameCounts = frameCounts;
 	};
 };
