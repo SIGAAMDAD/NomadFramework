@@ -24,6 +24,7 @@ namespace Nomad.GodotServer.Rendering.Interfaces
     public interface IEntitySystemService : IDisposable
     {
         IRenderEntity? CreateEntity(CanvasItem item);
+        IAnimationEntity? CreateAnimator(CanvasItem item);
         void Update(float delta);
     }
 }

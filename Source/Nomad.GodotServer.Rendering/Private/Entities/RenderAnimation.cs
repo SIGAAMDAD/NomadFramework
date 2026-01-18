@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using Godot;
+using Nomad.GodotServer.Rendering.Interfaces;
 
 namespace Nomad.GodotServer.Rendering {
 	/*
@@ -31,21 +32,30 @@ namespace Nomad.GodotServer.Rendering {
 	///
 	/// </summary>
 
-	internal unsafe sealed class RenderAnimator : RenderEntity {
-		private readonly struct AnimationData( Rid* textureRids, Rect2* textureRegions, float* frameDurations, int frameCount, bool loop ) {
+	internal unsafe sealed class RenderAnimator : RenderEntity, IAnimationEntity {
+		private readonly struct AnimationData( Rid* textureRids, Rect2* textureRegions, float* frameDurations, int frameCount, float animationSpeed, bool loop ) {
 			public readonly Rid* TextureRids = textureRids;
 			public readonly Rect2* TextureRegions = textureRegions;
 			public readonly float* FrameDurations = frameDurations;
 			public readonly int FrameCount = frameCount;
+			public readonly float AnimationSpeed = animationSpeed;
 			public readonly bool Loop = loop;
 		};
 
+		public string Animation => _currentAnimation;
 		private string _currentAnimation = String.Empty;
+
+		public bool FlipH {
+			get => _flipH;
+			set => _flipH = value;
+		}
+		private bool _flipH = false;
+
 		private float _frameTimer = 0.0f;
 		private int _currentFrame = 0;
 		private bool _playing = false;
 		private bool _backwards = false;
-		private float _speedScale = 0.0f;
+		private float _speedScale = 1.0f;
 
 		private readonly int _animationCount = 0;
 		private readonly ImmutableDictionary<string, AnimationData> _animationData;
@@ -65,6 +75,8 @@ namespace Nomad.GodotServer.Rendering {
 			var spriteFrames = animatedSprite.SpriteFrames;
 			var animationNames = spriteFrames.GetAnimationNames();
 
+			_currentAnimation = animatedSprite.Animation;
+
 			var animations = new Dictionary<string, AnimationData>( animationNames.Length );
 			for ( int i = 0; i < animationNames.Length; i++ ) {
 				var animationName = animationNames[ i ];
@@ -75,9 +87,9 @@ namespace Nomad.GodotServer.Rendering {
 				var durations = new float[ frameCount ];
 				for ( int f = 0; f < frameCount; f++ ) {
 					var texture = spriteFrames.GetFrameTexture( animationName, f );
-					rids[ i ] = texture.GetRid();
-					regions[ i ] = GetTextureRegion( texture );
-					durations[ i ] = spriteFrames.GetFrameDuration( animationName, f );
+					rids[ f ] = texture.GetRid();
+					regions[ f ] = GetTextureRegion( texture );
+					durations[ f ] = spriteFrames.GetFrameDuration( animationName, f );
 				}
 
 				fixed ( Rid* ridPtr = rids )
@@ -88,6 +100,7 @@ namespace Nomad.GodotServer.Rendering {
 						regionPtr,
 						durationsPtr,
 						frameCount,
+						(float)spriteFrames.GetAnimationSpeed( animationName ),
 						spriteFrames.GetAnimationLoop( animationName )
 					);
 				}
@@ -107,7 +120,7 @@ namespace Nomad.GodotServer.Rendering {
 		/// <param name="speedScale"></param>
 		/// <param name="backwards"></param>
 		public void Play( string animationName = "", float speedScale = 1.0f, bool backwards = false ) {
-			if ( animationName.Length == 0 || animationName == _currentAnimation ) {
+			if ( animationName.Length == 0 || _currentAnimation == animationName ) {
 				return;
 			}
 			if ( !_animationData.TryGetValue( animationName, out var animation ) ) {
@@ -116,6 +129,7 @@ namespace Nomad.GodotServer.Rendering {
 			_currentAnimation = animationName;
 			_currentFrame = backwards ? animation.FrameCount - 1 : 0;
 			_frameTimer = 0.0f;
+			_playing = true;
 			_speedScale = speedScale;
 
 			UpdateCurrentFrameData( in animation );
@@ -131,14 +145,13 @@ namespace Nomad.GodotServer.Rendering {
 		/// </summary>
 		/// <param name="delta"></param>
 		public override void Update( float delta ) {
-			if ( _currentAnimation.Length == 0 || !_visible ) {
+			if ( _currentAnimation.Length == 0 ) {
 				return;
 			}
-			base.Update( delta );
 
 			var animation = _animationData[ _currentAnimation ];
 
-			_frameTimer += delta * _speedScale;
+			_frameTimer += animation.AnimationSpeed * _speedScale * delta;
 			while ( _frameTimer >= animation.FrameDurations[ _currentFrame ] ) {
 				_frameTimer -= animation.FrameDurations[ _currentFrame ];
 
@@ -156,9 +169,8 @@ namespace Nomad.GodotServer.Rendering {
 						break;
 					}
 				}
-
-				UpdateCurrentFrameData( in animation );
 			}
+			UpdateCurrentFrameData( in animation );
 		}
 
 		/*
@@ -176,6 +188,14 @@ namespace Nomad.GodotServer.Rendering {
 
 			if ( textureRid.IsValid ) {
 				var frameSize = textureRegion.Size;
+
+				RenderingServer.CanvasItemClear( _canvasRid );
+
+				var scale = _scale;
+				if ( _flipH ) {
+					scale.X = Math.Abs( scale.X ) * -1.0f;
+				}
+				RenderingServer.CanvasItemSetTransform( _canvasRid, new Transform2D( _rotation, scale, 0.0f, _position ) );
 
 				Rect2 destRect = new Rect2(
 					-frameSize / 2,

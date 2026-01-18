@@ -142,6 +142,24 @@ namespace Nomad.GodotServer.Rendering {
 
 		/*
 		===============
+		CreateAnimator
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="canvasItem"></param>
+		/// <returns></returns>
+		/// <exception cref="InvalidOperationException"></exception>
+		public IAnimationEntity? CreateAnimator( CanvasItem canvasItem ) {
+			if ( canvasItem is AnimatedSprite2D animatedSprite ) {
+				return new RenderAnimator( animatedSprite );
+			}
+			throw new InvalidCastException();
+		}
+
+		/*
+		===============
 		Update
 		===============
 		*/

@@ -365,28 +365,28 @@ namespace Nomad.CVars.Private {
 		private static bool TryConvertStringToType( string value, Type targetType, out object result ) {
 			try {
 				bool output;
-				 if ( targetType == typeof( sbyte ) ) {
+				 if ( targetType == typeof( sbyte ) || targetType.IsEnum ) {
 					output = sbyte.TryParse( value, out sbyte data );
 					result = data;
-				} else if ( targetType == typeof( short ) ) {
+				} else if ( targetType == typeof( short ) || targetType.IsEnum ) {
 					output = short.TryParse( value, out short data );
 					result = data;
-				} else if ( targetType == typeof( int ) ) {
+				} else if ( targetType == typeof( int ) || targetType.IsEnum ) {
 					output = int.TryParse( value, out int data );
 					result = data;
-				} else if ( targetType == typeof( long ) ) {
+				} else if ( targetType == typeof( long ) || targetType.IsEnum ) {
 					output = long.TryParse( value, out long data );
 					result = data;
-				} else if ( targetType == typeof( byte ) ) {
+				} else if ( targetType == typeof( byte ) || targetType.IsEnum ) {
 					output = byte.TryParse( value, out byte data );
 					result = data;
-				} else if ( targetType == typeof( ushort ) ) {
+				} else if ( targetType == typeof( ushort ) || targetType.IsEnum ) {
 					output = ushort.TryParse( value, out ushort data );
 					result = data;
-				} else if ( targetType == typeof( uint ) ) {
+				} else if ( targetType == typeof( uint ) || targetType.IsEnum ) {
 					output = uint.TryParse( value, out uint data );
 					result = data;
-				} else if ( targetType == typeof( ulong ) ) {
+				} else if ( targetType == typeof( ulong ) || targetType.IsEnum ) {
 					output = ulong.TryParse( value, out ulong data );
 					result = data;
 				} else if ( targetType == typeof( float ) ) {

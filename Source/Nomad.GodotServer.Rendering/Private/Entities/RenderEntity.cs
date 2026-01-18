@@ -41,7 +41,7 @@ namespace Nomad.GodotServer.Rendering {
 				RenderingServer.CanvasItemSetVisible( _canvasRid, value );
 			}
 		}
-		protected bool _visible;
+		protected bool _visible = true;
 
 		public Color Modulate {
 			get => _modulate;
@@ -106,6 +106,7 @@ namespace Nomad.GodotServer.Rendering {
 		///
 		/// </summary>
 		/// <param name="canvasItem"></param>
+		/// <param name="parent"></param>
 		public RenderEntity( CanvasItem canvasItem ) {
 			_canvasRid = RenderingServer.CanvasItemCreate();
 
@@ -114,13 +115,31 @@ namespace Nomad.GodotServer.Rendering {
 			_scale = transform.Scale;
 			_rotation = transform.Rotation;
 
+			_visibilityLayer = canvasItem.VisibilityLayer;
+			_zindex = canvasItem.ZIndex;
+			_visible = canvasItem.Visible;
+			_modulate = canvasItem.Modulate;
+
+			Rid parent;
+			if ( canvasItem.GetParent() is Control control ) {
+				parent = control.GetCanvasItem();
+			} else if ( canvasItem.GetParent() is Node2D node2D ) {
+				parent = node2D.GetCanvasItem();
+			} else {
+				throw new InvalidCastException();
+			}
+
+			RenderingServer.CanvasItemSetParent( _canvasRid, parent );
 			RenderingServer.CanvasItemSetDefaultTextureFilter( _canvasRid, ( RenderingServer.CanvasItemTextureFilter )canvasItem.TextureFilter );
 			RenderingServer.CanvasItemSetDefaultTextureRepeat( _canvasRid, ( RenderingServer.CanvasItemTextureRepeat )canvasItem.TextureRepeat );
-			RenderingServer.CanvasItemSetVisibilityLayer( _canvasRid, canvasItem.VisibilityLayer );
+			RenderingServer.CanvasItemSetVisibilityLayer( _canvasRid, _visibilityLayer );
 			RenderingServer.CanvasItemSetDrawBehindParent( _canvasRid, canvasItem.ShowBehindParent );
-			RenderingServer.CanvasItemSetZIndex( _canvasRid, canvasItem.ZIndex );
+			RenderingServer.CanvasItemSetModulate( _canvasRid, _modulate );
+			RenderingServer.CanvasItemSetZIndex( _canvasRid, _zindex );
+			RenderingServer.CanvasItemSetVisible( _canvasRid, _visible );
+			RenderingServer.CanvasItemSetTransform( _canvasRid, transform );
 
-			canvasItem.CallDeferred( CanvasItem.MethodName.QueueFree );
+			canvasItem.QueueFree();
 		}
 
 		/*
@@ -148,10 +167,8 @@ namespace Nomad.GodotServer.Rendering {
 		/// </summary>
 		/// <param name="delta"></param>
 		public virtual void Update( float delta ) {
-			if ( _visible ) {
-				RenderingServer.CanvasItemClear( _canvasRid );
-				RenderingServer.CanvasItemSetTransform( _canvasRid, new Transform2D( _rotation, _scale, 0.0f, _position ) );
-			}
+			RenderingServer.CanvasItemClear( _canvasRid );
+			RenderingServer.CanvasItemSetTransform( _canvasRid, new Transform2D( _rotation, _scale, 0.0f, _position ) );
 		}
 	};
 };
