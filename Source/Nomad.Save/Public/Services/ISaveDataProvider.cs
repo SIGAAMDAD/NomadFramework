@@ -40,6 +40,6 @@ namespace Nomad.Save.Services
         ///
         /// </summary>
         /// <returns></returns>
-        Task<IReadOnlyList<SaveFileMetadata>> ListSaveFiles();
+        IReadOnlyList<SaveFileMetadata> ListSaveFiles();
     }
 }

@@ -61,7 +61,7 @@ namespace Nomad.Save.Private.Services {
 		///
 		/// </summary>
 		/// <returns></returns>
-		public async Task<IReadOnlyList<SaveFileMetadata>> ListSaveFiles() {
+		public IReadOnlyList<SaveFileMetadata> ListSaveFiles() {
 			LoadMetadata();
 			return _saveFiles;
 		}
