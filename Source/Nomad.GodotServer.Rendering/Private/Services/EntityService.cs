@@ -53,12 +53,16 @@ namespace Nomad.GodotServer.Rendering {
 
 		private readonly HotBatchData _hotBatchData = new HotBatchData();
 		private readonly ColdBatchData _coldBatchData = new ColdBatchData();
+		private readonly AnimationService _animationService = new AnimationService();
 
 		/*
 		===============
 		Dispose
 		===============
 		*/
+		/// <summary>
+		///
+		/// </summary>
 		public void Dispose() {
 			for ( int i = 0; i < _entityCount; i++ ) {
 				if ( _hotBatchData.Rids[ i ].IsValid ) {
@@ -76,8 +80,8 @@ namespace Nomad.GodotServer.Rendering {
 		///
 		/// </summary>
 		/// <returns></returns>
-		private unsafe EntityDataDto? AllocEntityIndex() {
-			int index = 0;
+		private unsafe EntityDataDto? AllocEntityIndex( out int index ) {
+			index = -1;
 			if ( _freeIndexCount > 0 ) {
 				index = _freeIndices[ --_freeIndexCount ];
 			} else if ( _freeIndexCount < MAX_ENTITIES ) {
@@ -123,14 +127,10 @@ namespace Nomad.GodotServer.Rendering {
 		public IRenderEntity? CreateEntity( CanvasItem canvasItem ) {
 			switch ( canvasItem ) {
 				case AnimatedSprite2D animatedSprite: {
-						var entityDto = AllocEntityIndex();
-						if ( !entityDto.HasValue ) {
-							return null;
-						}
-						return new RenderAnimator( entityDto.Value, animatedSprite );
+						return new RenderAnimator( animatedSprite );
 					}
 				case Sprite2D sprite: {
-						var entityDto = AllocEntityIndex();
+						var entityDto = AllocEntityIndex( out _ );
 						if ( !entityDto.HasValue ) {
 							return null;
 						}
@@ -155,12 +155,14 @@ namespace Nomad.GodotServer.Rendering {
 				fixed ( Rid* ridPtr = _hotBatchData.Rids )
 				fixed ( Vector2* positionPtr = _hotBatchData.Positions )
 				fixed ( Vector2* scalePtr = _hotBatchData.Scales )
-				fixed ( float* rotationPtr = _hotBatchData.Rotations ) {
+				fixed ( float* rotationPtr = _hotBatchData.Rotations )
+				fixed ( bool* visiblePtr = _hotBatchData.Visibilities ) {
 					for ( int i = 0; i < count; i++ ) {
 						RenderingServer.CanvasItemClear( ridPtr[ i ] );
 						RenderingServer.CanvasItemSetTransform( ridPtr[ i ], new Transform2D( rotationPtr[ i ], scalePtr[ i ], 0.0f, positionPtr[ i ] ) );
 					}
 				}
+				_animationService.Update( delta );
 			}
 		}
 	};
