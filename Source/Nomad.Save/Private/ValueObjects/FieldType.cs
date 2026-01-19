@@ -13,8 +13,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
-
 namespace Nomad.Save.Private.ValueObjects {
 	/// <summary>
 	/// A save field's type

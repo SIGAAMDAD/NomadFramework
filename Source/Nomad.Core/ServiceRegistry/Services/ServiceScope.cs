@@ -29,14 +29,12 @@ namespace Nomad.Core.ServiceRegistry.Services
 
         private readonly Dictionary<Type, object> _scopedInstance = new Dictionary<Type, object>();
 
-        /*
-		===============
-		Dispose
-		===============
-		*/
+        /// <summary>
+        ///
+        /// </summary>
         public void Dispose()
         {
-            foreach (var instance in _scopedInstance.Values)
+            foreach (object instance in _scopedInstance.Values)
             {
                 if (instance is IDisposable disposable)
                 {

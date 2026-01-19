@@ -126,8 +126,8 @@ namespace Nomad.GodotServer.Rendering {
 		/// <exception cref="InvalidOperationException"></exception>
 		public IRenderEntity? CreateEntity( CanvasItem canvasItem ) {
 			switch ( canvasItem ) {
-				case AnimatedSprite2D animatedSprite: {
-						return new RenderAnimator( animatedSprite );
+				case TextureRect textureRect: {
+						break;
 					}
 				case Sprite2D sprite: {
 						var entityDto = AllocEntityIndex( out _ );

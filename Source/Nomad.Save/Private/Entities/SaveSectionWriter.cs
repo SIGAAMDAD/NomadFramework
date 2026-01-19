@@ -47,6 +47,7 @@ namespace Nomad.Save.Private.Entities {
 		/// </summary>
 		public void Dispose() {
 			var header = new SectionHeader( name, FieldCount, Checksum.Empty.Value );
+			header.Save( writer );
 			foreach ( var field in _fields ) {
 				var serializer = FieldSerializerRegistry.GetSerializer( FieldValue.GetFieldType( field.Value.Type ) );
 				serializer.Serialize( writer, field.Value.Value );

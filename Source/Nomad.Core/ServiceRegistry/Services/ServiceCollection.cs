@@ -33,7 +33,7 @@ namespace Nomad.Core.ServiceRegistry.Services
         /// </summary>
         public void Dispose()
         {
-            foreach (var disposable in _disposables)
+            foreach (IDisposable disposable in _disposables)
             {
                 disposable.Dispose();
             }
@@ -154,7 +154,7 @@ namespace Nomad.Core.ServiceRegistry.Services
         /// <returns></returns>
         internal ServiceDescriptor GetDescriptor(Type serviceType)
         {
-            _descriptors.TryGetValue(serviceType, out var descriptor);
+            _descriptors.TryGetValue(serviceType, out ServiceDescriptor? descriptor);
             return descriptor;
         }
     };

@@ -63,16 +63,16 @@ namespace Nomad.Core.ServiceRegistry.Services
         /// <returns></returns>
         public TService CreateInstance<TService>() where TService : class
         {
-            var type = typeof(TService);
-            var constructor = GetConstructor(type);
-            var parameters = constructor.GetParameters();
+            Type type = typeof(TService);
+            ConstructorInfo constructor = GetConstructor(type);
+            ParameterInfo[] parameters = constructor.GetParameters();
 
             if (parameters.Length == 0)
             {
                 return (TService)Activator.CreateInstance(type);
             }
 
-            var args = new object[parameters.Length];
+            object[] args = new object[parameters.Length];
             for (int i = 0; i < parameters.Length; i++)
             {
                 args[i] = ResolveService(_collection.GetDescriptor(parameters[i].ParameterType));
@@ -98,7 +98,7 @@ namespace Nomad.Core.ServiceRegistry.Services
         /// <exception cref="InvalidOperationException"></exception>
         public TService GetService<TService>() where TService : class
         {
-            if (TryGetService<TService>(out var service))
+            if (TryGetService(out TService service))
             {
                 return service;
             }
@@ -188,7 +188,7 @@ namespace Nomad.Core.ServiceRegistry.Services
         private object GetOrCreateScoped(ServiceDescriptor descriptor)
         {
             Dictionary<Type, object>? scopeDict = _scopeInstances.Value;
-            if (scopeDict.TryGetValue(descriptor.ServiceType, out var instance))
+            if (scopeDict.TryGetValue(descriptor.ServiceType, out object? instance))
             {
                 return instance;
             }
@@ -223,7 +223,7 @@ namespace Nomad.Core.ServiceRegistry.Services
         /// <returns></returns>
         private object CreateInstance(Type implementationType)
         {
-            if (_factoryCache.TryGetValue(implementationType, out var factory))
+            if (_factoryCache.TryGetValue(implementationType, out Func<IServiceLocator, object>? factory))
             {
                 return factory.Invoke(this);
             }
@@ -238,29 +238,25 @@ namespace Nomad.Core.ServiceRegistry.Services
         /// <exception cref="InvalidOperationException"></exception>
         private object CreateInstanceWithReflection(Type type)
         {
-            var constructor = GetConstructor(type);
-            var parameters = constructor.GetParameters();
+            ConstructorInfo constructor = GetConstructor(type);
+            ParameterInfo[] parameters = constructor.GetParameters();
 
             if (parameters.Length == 0)
             {
-                var instance = Activator.CreateInstance(type);
+                object? instance = Activator.CreateInstance(type);
                 _collection.TrackDisposable(instance);
                 return instance;
             }
 
-            var args = new object[parameters.Length];
+            object[] args = new object[parameters.Length];
             for (int i = 0; i < parameters.Length; i++)
             {
-                var paramType = parameters[i].ParameterType;
-                var paramDescriptor = _collection.GetDescriptor(paramType);
-                if (paramDescriptor == null)
-                {
-                    throw new InvalidOperationException($"Cannot resolve parameter {paramType} for {type}");
-                }
+                Type paramType = parameters[i].ParameterType;
+                ServiceDescriptor paramDescriptor = _collection.GetDescriptor(paramType) ?? throw new InvalidOperationException($"Cannot resolve parameter {paramType} for {type}");
                 args[i] = ResolveService(paramDescriptor);
             }
 
-            var instance2 = constructor.Invoke(args);
+            object instance2 = constructor.Invoke(args);
             _collection.TrackDisposable(instance2);
             return instance2;
         }
@@ -273,7 +269,7 @@ namespace Nomad.Core.ServiceRegistry.Services
         /// <exception cref="InvalidOperationException"></exception>
         private ConstructorInfo GetConstructor(Type type)
         {
-            var constructors = type.GetConstructors();
+            ConstructorInfo[] constructors = type.GetConstructors();
             if (constructors.Length == 0)
             {
                 throw new InvalidOperationException($"No public constructor found for {type}");

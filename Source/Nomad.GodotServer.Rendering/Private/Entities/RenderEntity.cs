@@ -106,7 +106,6 @@ namespace Nomad.GodotServer.Rendering {
 		///
 		/// </summary>
 		/// <param name="canvasItem"></param>
-		/// <param name="parent"></param>
 		public RenderEntity( CanvasItem canvasItem ) {
 			_canvasRid = RenderingServer.CanvasItemCreate();
 

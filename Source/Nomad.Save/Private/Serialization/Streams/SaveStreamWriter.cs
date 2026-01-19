@@ -18,6 +18,7 @@ using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using Godot;
 using Nomad.Core.Logger;
 
 namespace Nomad.Save.Private.Serialization.Streams {
@@ -32,7 +33,7 @@ namespace Nomad.Save.Private.Serialization.Streams {
 	/// An abstracted interface to manage writing a save file to a filestream.
 	/// </summary>
 
-	internal struct SaveStreamWriter( string filepath, ILoggerService? logger ) : ISaveFileStream {
+	internal sealed class SaveStreamWriter( string filepath, ILoggerService? logger ) : ISaveFileStream {
 		// hard limit of 128 MiB
 		private const int MAX_CAPACITY = 128 * 1024 * 1024;
 		private const int STACK_ALLOC_THRESHOLD = 256;
@@ -42,8 +43,8 @@ namespace Nomad.Save.Private.Serialization.Streams {
 
 		public int Length => _position;
 
-		public byte[]? Buffer => _buffer;
-		private byte[]? _buffer;
+		public byte[] Buffer => _buffer;
+		private byte[] _buffer = new byte[ 8192 ];
 
 		/*
 		===============
@@ -55,10 +56,11 @@ namespace Nomad.Save.Private.Serialization.Streams {
 		/// </summary>
 		public void Dispose() {
 			if ( _buffer != null ) {
-				using System.IO.FileStream writer = new System.IO.FileStream( filepath, System.IO.FileMode.CreateNew, System.IO.FileAccess.Write );
+				using System.IO.FileStream writer = new System.IO.FileStream( filepath, System.IO.FileMode.Create, System.IO.FileAccess.Write );
+
+				GD.Print( $"Saving data to {filepath}, stream size is {_position}" );
 
 				writer.Write( _buffer, 0, _position );
-				ArrayPool<byte>.Shared.Return( _buffer );
 				_buffer = null;
 
 				writer?.Dispose();
@@ -83,13 +85,13 @@ namespace Nomad.Save.Private.Serialization.Streams {
 			if ( maxByteCount <= STACK_ALLOC_THRESHOLD ) {
 				Span<byte> tempBuffer = stackalloc byte[ maxByteCount ];
 				int actualByteCount = Encoding.UTF8.GetBytes( value, tempBuffer );
-				Write7BitEncodedInt( actualByteCount );
+				Write( actualByteCount );
 				EnsureCapacity( actualByteCount );
-				tempBuffer[ ..actualByteCount ].CopyTo( Buffer.AsSpan( _position ) );
+				tempBuffer[ ..actualByteCount ].CopyTo( _buffer.AsSpan( _position ) );
 				_position += actualByteCount;
 			} else {
 				int byteCount = Encoding.UTF8.GetByteCount( value );
-				Write7BitEncodedInt( byteCount );
+				Write( byteCount );
 				EnsureCapacity( byteCount );
 				_position += Encoding.UTF8.GetBytes( value, 0, value.Length, _buffer, _position );
 			}
@@ -187,7 +189,7 @@ namespace Nomad.Save.Private.Serialization.Streams {
 		/// </remarks>
 		/// <param name="required">The bytes needed to write the data.</param>
 		private void EnsureCapacity( int required ) {
-			if ( Position + required > _buffer!.Length ) {
+			if ( _position + required > _buffer.Length ) {
 				int newCapacity = _buffer.Length * 4;
 				if ( newCapacity >= MAX_CAPACITY ) {
 					throw new InvalidOperationException( $"Save file size has exceeded {MAX_CAPACITY} bytes... what the hell are you saving?" );
@@ -195,10 +197,12 @@ namespace Nomad.Save.Private.Serialization.Streams {
 					throw new System.IO.IOException( $"Out of disk space in the file drive to write a buffer of {newCapacity} bytes" );
 				}
 
-				byte[] newBuffer = ArrayPool<byte>.Shared.Rent( newCapacity );
+				byte[] newBuffer = new byte[ newCapacity ];
+
+//				byte[] newBuffer = ArrayPool<byte>.Shared.Rent( newCapacity );
 
 				System.Buffer.BlockCopy( _buffer, 0, newBuffer, 0, Position );
-				ArrayPool<byte>.Shared.Return( _buffer );
+//				ArrayPool<byte>.Shared.Return( _buffer );
 				_buffer = newBuffer;
 			}
 		}

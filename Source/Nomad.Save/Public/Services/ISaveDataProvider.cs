@@ -20,6 +20,9 @@ using Nomad.Save.ValueObjects;
 
 namespace Nomad.Save.Services
 {
+    /// <summary>
+    ///
+    /// </summary>
     public interface ISaveDataProvider : IDisposable
     {
         /// <summary>

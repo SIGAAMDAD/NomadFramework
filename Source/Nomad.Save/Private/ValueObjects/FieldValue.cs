@@ -32,7 +32,7 @@ namespace Nomad.Save.Private.ValueObjects {
 	/// </summary>
 
 	public readonly record struct FieldValue {
-		[StructLayout( LayoutKind.Explicit, Pack = 1, Size = 8 )]
+		[StructLayout( LayoutKind.Explicit, Pack = 1, Size = 16 )]
 		private struct Union {
 			[FieldOffset( 0 )] public bool Boolean;
 
@@ -49,7 +49,7 @@ namespace Nomad.Save.Private.ValueObjects {
 			[FieldOffset( 0 )] public float Float32;
 			[FieldOffset( 0 )] public double Float64;
 
-			[FieldOffset( 0 )] public string? String;
+			[FieldOffset( 8 )] public string? String;
 		};
 
 		private static readonly IReadOnlyDictionary<Type, FieldType> _systemTypeToFieldType = new Dictionary<Type, FieldType>() {

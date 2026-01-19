@@ -15,10 +15,12 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Collections.Concurrent;
+using Godot;
 using Nomad.Core.Logger;
 using Nomad.Save.Interfaces;
 using Nomad.Save.Private.Entities;
 using Nomad.Save.Private.Serialization.Streams;
+using Nomad.Save.Private.ValueObjects;
 
 namespace Nomad.Save.Private.Services {
 	/*
@@ -47,6 +49,9 @@ namespace Nomad.Save.Private.Services {
 		///
 		/// </summary>
 		public void Dispose() {
+			var header = new SaveHeader( new GameVersion( 2, 0, 1 ), _sections.Count, Checksum.Empty );
+			header.Serialize( _writer );
+
 			foreach ( var section in _sections ) {
 				section.Value.Dispose();
 			}
