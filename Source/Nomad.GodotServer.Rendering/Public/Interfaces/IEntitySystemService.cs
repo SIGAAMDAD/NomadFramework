@@ -15,6 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using Godot;
+using Nomad.Core.Events;
 
 namespace Nomad.GodotServer.Rendering.Interfaces
 {
@@ -24,7 +25,7 @@ namespace Nomad.GodotServer.Rendering.Interfaces
     public interface IEntitySystemService : IDisposable
     {
         IRenderEntity? CreateEntity(CanvasItem item);
-        IAnimationEntity? CreateAnimator(CanvasItem item);
+        IAnimationEntity? CreateAnimator(CanvasItem item, IGameEventRegistryService eventFactory);
         void Update(float delta);
     }
 }

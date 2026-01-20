@@ -13,14 +13,18 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
+using Nomad.Core.Events;
 
 namespace Nomad.GodotServer.Rendering.Interfaces
 {
-    public interface IAnimationEntity : IDisposable
+    public interface IAnimationEntity : IRenderEntity
     {
         string Animation { get; }
+        float SpeedScale { get; set; }
         bool FlipH { get; set; }
+
+        IGameEvent<EmptyEventArgs> AnimationFinished { get; }
+        IGameEvent<EmptyEventArgs> AnimationChanged { get; }
 
         void Update(float delta);
         void Play(string animationName = "", float speedScale = 1.0f, bool backwards = false);

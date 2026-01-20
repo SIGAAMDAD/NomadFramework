@@ -15,6 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using Godot;
+using Nomad.Core.Events;
 using Nomad.GodotServer.Rendering.Interfaces;
 using Nomad.GodotServer.Rendering.Private.ValueObjects;
 
@@ -149,11 +150,12 @@ namespace Nomad.GodotServer.Rendering {
 		///
 		/// </summary>
 		/// <param name="canvasItem"></param>
+		/// <param name="eventFactory"></param>
 		/// <returns></returns>
-		/// <exception cref="InvalidOperationException"></exception>
-		public IAnimationEntity? CreateAnimator( CanvasItem canvasItem ) {
+		/// <exception cref="InvalidCastException"></exception>
+		public IAnimationEntity? CreateAnimator( CanvasItem canvasItem, IGameEventRegistryService eventFactory ) {
 			if ( canvasItem is AnimatedSprite2D animatedSprite ) {
-				return new RenderAnimator( animatedSprite );
+				return new RenderAnimator( animatedSprite, eventFactory );
 			}
 			throw new InvalidCastException();
 		}
