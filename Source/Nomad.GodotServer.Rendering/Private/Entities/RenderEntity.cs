@@ -47,7 +47,6 @@ namespace Nomad.GodotServer.Rendering {
 			get => _modulate;
 			set {
 				_modulate = value;
-				RenderingServer.CanvasItemSetModulate( _canvasRid, value );
 			}
 		}
 		protected Color _modulate;
@@ -133,7 +132,7 @@ namespace Nomad.GodotServer.Rendering {
 			RenderingServer.CanvasItemSetDefaultTextureRepeat( _canvasRid, ( RenderingServer.CanvasItemTextureRepeat )canvasItem.TextureRepeat );
 			RenderingServer.CanvasItemSetVisibilityLayer( _canvasRid, _visibilityLayer );
 			RenderingServer.CanvasItemSetDrawBehindParent( _canvasRid, canvasItem.ShowBehindParent );
-			RenderingServer.CanvasItemSetModulate( _canvasRid, _modulate );
+//			RenderingServer.CanvasItemSetModulate( _canvasRid, _modulate );
 			RenderingServer.CanvasItemSetZIndex( _canvasRid, _zindex );
 			RenderingServer.CanvasItemSetVisible( _canvasRid, _visible );
 			RenderingServer.CanvasItemSetTransform( _canvasRid, transform );

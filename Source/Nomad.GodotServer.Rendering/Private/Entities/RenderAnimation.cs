@@ -18,7 +18,9 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using Godot;
+using Nomad.Core.Events;
 using Nomad.GodotServer.Rendering.Interfaces;
+using NomadCore.Domain.Models.Interfaces;
 
 namespace Nomad.GodotServer.Rendering {
 	/*
@@ -49,13 +51,25 @@ namespace Nomad.GodotServer.Rendering {
 			get => _flipH;
 			set => _flipH = value;
 		}
+
+		public float SpeedScale {
+			get => _speedScale;
+			set => _speedScale = value;
+		}
+		private float _speedScale = 1.0f;
+
+		public IGameEvent<EmptyEventArgs> AnimationFinished => _animationFinished;
+		private readonly IGameEvent<EmptyEventArgs> _animationFinished;
+
+		public IGameEvent<EmptyEventArgs> AnimationChanged => _animationChanged;
+		private readonly IGameEvent<EmptyEventArgs> _animationChanged;
+
 		private bool _flipH = false;
 
 		private float _frameTimer = 0.0f;
 		private int _currentFrame = 0;
 		private bool _playing = false;
 		private bool _backwards = false;
-		private float _speedScale = 1.0f;
 
 		private readonly int _animationCount = 0;
 		private readonly ImmutableDictionary<string, AnimationData> _animationData;
@@ -69,9 +83,12 @@ namespace Nomad.GodotServer.Rendering {
 		///
 		/// </summary>
 		/// <param name="animatedSprite"></param>
-		public RenderAnimator( AnimatedSprite2D animatedSprite )
+		public RenderAnimator( AnimatedSprite2D animatedSprite, IGameEventRegistryService eventFactory )
 			: base( animatedSprite )
 		{
+			_animationChanged = eventFactory.GetEvent<EmptyEventArgs>( nameof( IAnimationEntity ), nameof( IAnimationEntity.AnimationChanged ) );
+			_animationFinished = eventFactory.GetEvent<EmptyEventArgs>( nameof( IAnimationEntity ), nameof( IAnimationEntity.AnimationFinished ) );
+
 			var spriteFrames = animatedSprite.SpriteFrames;
 			var animationNames = spriteFrames.GetAnimationNames();
 
