@@ -63,8 +63,8 @@ namespace Nomad.Save.Private.Services {
 		///
 		/// </summary>
 		/// <returns></returns>
-		public IReadOnlyList<SaveFileMetadata> ListSaveFiles() {
-			LoadMetadata();
+		public IReadOnlyList<SaveFileMetadata> ListSaveFiles( string saveDirectory ) {
+			LoadMetadata( saveDirectory );
 			return _saveFiles;
 		}
 
@@ -116,8 +116,8 @@ namespace Nomad.Save.Private.Services {
 		/// <summary>
 		///
 		/// </summary>
-		private void LoadMetadata() {
-			var files = System.IO.Directory.GetFiles( FilePath.FromResourcePath( "user://SaveData" ).OSPath );
+		private void LoadMetadata( string saveDirectory ) {
+			var files = System.IO.Directory.GetFiles( saveDirectory );
 			_saveFiles.EnsureCapacity( files.Length );
 
 			for ( int i = 0; i < files.Length; i++ ) {

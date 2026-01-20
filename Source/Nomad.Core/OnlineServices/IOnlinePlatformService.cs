@@ -28,7 +28,6 @@ namespace Nomad.Core.OnlineServices
 
         IStatsService Stats { get; }
         IAchievementService Achievements { get; }
-        IMultiplayerService Multiplayer { get; }
         ICloudStorageService CloudStorage { get; }
 
         void Initialize();
