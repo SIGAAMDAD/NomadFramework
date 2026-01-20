@@ -16,7 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 namespace Nomad.Core.OnlineServices
 {
     /// <summary>
-    /// Creation information for lobbies
+    /// Creation information for lobbies.
     /// </summary>
     /// <param name="Name"></param>
     /// <param name="Map"></param>

@@ -15,6 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using Godot;
 using Nomad.Core.Events;
@@ -78,7 +79,11 @@ namespace Nomad.Save.Private.Services {
 		/// <param name="fileId"></param>
 		/// <returns></returns>
 		public async Task Load( SaveFileId fileId ) {
-
+			try {
+				var reader = new SaveReaderService( fileId.FileName, logger );
+			} catch ( Exception e ) {
+				GD.PushError( e );
+			}
 		}
 
 		/*

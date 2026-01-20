@@ -66,7 +66,7 @@ namespace Nomad.Save.Private.ValueObjects {
 		/// <param name="stream">The file stream to read from.</param>
 		/// <returns>A new SaveField object.</returns>
 		/// <exception cref="FieldCorruptException">Thrown if the field's data is invalid.</exception>
-		public static SaveField Read( string section, int index, SaveStreamReader stream ) {
+		public static SaveField Read( string section, int index, in SaveStreamReader stream ) {
 			string name = stream.ReadString();
 			if ( name.Length <= 0 || name.Length > MAX_FIELD_NAME_LENGTH ) {
 				throw new FieldCorruptException( section, index, stream.Position, $"Field name length corrupted (0 or string overflow, {name.Length} bytes)" );

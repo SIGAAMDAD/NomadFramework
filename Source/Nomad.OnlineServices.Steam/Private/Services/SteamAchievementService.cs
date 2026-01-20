@@ -98,8 +98,24 @@ namespace Nomad.OnlineServices.Steam {
 			throw new System.NotImplementedException();
 		}
 
-		public ValueTask SetAchievementProgress( string achievementId, float current, float max ) {
-			throw new System.NotImplementedException();
+		/*
+		===============
+		SetAchievementProgress
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="achievementId"></param>
+		/// <param name="current"></param>
+		/// <param name="max"></param>
+		/// <returns></returns>
+		public async ValueTask SetAchievementProgress( string achievementId, float current ) {
+			if ( !_achievements.TryGetValue( achievementId, out var achievementInfo ) ) {
+				return;
+			}
+
+			achievementInfo.SetAchievementProgress( current );
 		}
 
 		public ValueTask UnlockAchievement( string achievementId ) {

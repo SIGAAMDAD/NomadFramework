@@ -15,6 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Nomad.Core.OnlineServices;
 using Steamworks;
@@ -69,12 +70,6 @@ namespace Nomad.OnlineServices.Steam.Private {
 		/// </summary>
 		/// <returns></returns>
 		public ValueTask<LobbyInfo> FindLobby() {
-			HServerListRequest hRequest = SteamMatchmakingServers.RequestInternetServerList(  );
-			SteamMatchmaking.RequestLobbyList()
-
-			LobbyInfo info = new LobbyInfo();
-
-			return new ValueTask<LobbyInfo>( info );
 		}
 
 		/*

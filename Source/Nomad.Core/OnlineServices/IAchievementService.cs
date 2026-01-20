@@ -18,14 +18,35 @@ using System.Threading.Tasks;
 namespace Nomad.Core.OnlineServices
 {
     /// <summary>
-    ///
+    /// Interface for achievement services.
     /// </summary>
     public interface IAchievementService
     {
+        /// <summary>
+        /// Indicates whether the service supports achievements.
+        /// </summary>
         bool SupportsAchievements { get; }
 
+        /// <summary>
+        /// Unlocks the specified achievement.
+        /// </summary>
+        /// <param name="achievementId">The ID of the achievement to unlock.</param>
+        /// <returns></returns>
         ValueTask UnlockAchievement(string achievementId);
+
+        /// <summary>
+        /// Locks the specified achievement.
+        /// </summary>
+        /// <param name="achievementId">The ID of the achievement to lock.</param>
+        /// <returns></returns>
         ValueTask LockAchievement(string achievementId);
-        ValueTask SetAchievementProgress(string achievementId, float current, float max);
+
+        /// <summary>
+        /// Sets the progress for the specified achievement.
+        /// </summary>
+        /// <param name="achievementId">The ID of the achievement to set progress for.</param>
+        /// <param name="current">The current progress value.</param>
+        /// <returns></returns>
+        ValueTask SetAchievementProgress(string achievementId, float current);
     }
 }

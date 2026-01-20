@@ -33,6 +33,10 @@ namespace Nomad.Save.Private.ValueObjects {
 	internal readonly ref struct SectionHeader( string name, int fieldCount, ulong checksum ) {
 		private const int SECTION_NAME_MAX_LENGTH = 128;
 
+		public string Name => name;
+		public int FieldCount => fieldCount;
+		public ulong Checksum => checksum;
+
 		/*
 		===============
 		Save

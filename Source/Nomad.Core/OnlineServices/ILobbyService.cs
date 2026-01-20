@@ -18,40 +18,36 @@ using System.Threading.Tasks;
 
 namespace Nomad.Core.OnlineServices
 {
+    /// <summary>
+    /// Interface for lobby services.
+    /// </summary>
     public interface ILobbyService : IDisposable
     {
         /// <summary>
         /// Creates a new lobby with the provided parameters
         /// </summary>
-        /// <param name="lobbyInfo"></param>
+        /// <param name="lobbyInfo">The information to create the lobby with.</param>
         /// <returns></returns>
         ValueTask<bool> CreateLobby(LobbyInfo lobbyInfo);
 
         /// <summary>
         ///
         /// </summary>
-        /// <returns></returns>
-        ValueTask<bool> DeleteLobby();
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="lobbyName"></param>
-        /// <returns></returns>
+        /// <param name="lobbyName">The name of the lobby to join.</param>
+        /// <returns>True if the lobby was joined successfully, false otherwise.</returns>
         ValueTask<bool> JoinLobby(string lobbyName);
 
         /// <summary>
-        /// Leaves the current lobby
+        /// Leaves the current lobby.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>True if the lobby was left successfully, false otherwise.</returns>
         ValueTask<bool> LeaveLobby();
 
-
         /// <summary>
-        ///
+        /// Promotes a member to lobby leader.
         /// </summary>
-        /// <param name="player"></param>
-        /// <returns></returns>
+        /// <param name="player">The player to promote.</param>
+        /// <returns>True if the player was promoted successfully, false otherwise.</returns>
         ValueTask<bool> PromoteMember(PlayerId player);
     }
 }

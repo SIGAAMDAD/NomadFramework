@@ -26,7 +26,7 @@ namespace Nomad.OnlineServices.Steam {
 	===================================================================================
 	*/
 	/// <summary>
-	///
+	/// The Steam achievement information value object.
 	/// </summary>
 
 	internal sealed class SteamAchievementInfo {
@@ -66,9 +66,9 @@ namespace Nomad.OnlineServices.Steam {
 		===============
 		*/
 		/// <summary>
-		///
+		/// Creates a new SteamAchievementInfo instance.
 		/// </summary>
-		/// <param name="name"></param>
+		/// <param name="name">The name of the achievement.</param>
 		public SteamAchievementInfo( string name ) {
 			_name = name;
 			SteamUserStats.GetAchievementAndUnlockTime( _name, out _achieved, out uint unlockedTime );
@@ -92,9 +92,9 @@ namespace Nomad.OnlineServices.Steam {
 		===============
 		*/
 		/// <summary>
-		///
+		/// Sets the achievement icon from the fetched data.
 		/// </summary>
-		/// <param name="pAchievement"></param>
+		/// <param name="pAchievement">The achievement data fetched from Steam.</param>
 		public void SetIcon( UserAchievementIconFetched_t pAchievement, IEngineService service ) {
 			SteamUtils.GetImageSize( pAchievement.m_nIconHandle, out uint width, out uint height );
 
@@ -102,6 +102,33 @@ namespace Nomad.OnlineServices.Steam {
 			SteamUtils.GetImageRGBA( pAchievement.m_nIconHandle, imageBuffer, imageBuffer.Length );
 
 			IDisposable texture = service.CreateImage( imageBuffer, (int)width, (int)height );
+		}
+
+		/*
+		===============
+		SetAchievementProgress
+		===============
+		*/
+		/// <summary>
+		/// Sets a steam achievment's progress.
+		/// </summary>
+		/// <param name="value">The progress value to set.</param>
+		public void SetAchievementProgress( float value ) {
+			if ( !_progress.HasValue ) {
+				return;
+			}
+
+			_progress = new AchievementProgress {
+				MinProgress = _progress.Value.MinProgress,
+				MaxProgress = _progress.Value.MaxProgress,
+				Progress = value
+			};
+
+			SteamUserStats.IndicateAchievementProgress( _name, (uint)value, (uint)_progress.Value.MaxProgress );
+			if ( value >= _progress.Value.MaxProgress ) {
+				_achieved = true;
+				SteamUserStats.SetAchievement( _name );
+			}
 		}
 	};
 };

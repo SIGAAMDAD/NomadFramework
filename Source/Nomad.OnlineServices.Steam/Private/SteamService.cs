@@ -38,6 +38,31 @@ namespace Nomad.OnlineServices.Steam.Private {
 		private readonly SteamUserData _userData;
 		private readonly AppId_t _appId;
 
+		public OnlinePlatform Platform => OnlinePlatform.Steam;
+		public string PlatformName => nameof( OnlinePlatform.Steam );
+		public bool IsAvailable => true;
+
+		public IStatsService Stats => _statsService;
+		private readonly SteamStatsService _statsService;
+
+		public IAchievementService Achievements {
+			get {
+				throw new NotImplementedException();
+			}
+		}
+
+		public IMultiplayerService Multiplayer {
+			get {
+				throw new NotImplementedException();
+			}
+		}
+
+		public ICloudStorageService CloudStorage {
+			get {
+				throw new NotImplementedException();
+			}
+		}
+
 		/*
 		===============
 		SteamService
@@ -64,34 +89,6 @@ namespace Nomad.OnlineServices.Steam.Private {
 			_category = logger.CreateCategory( "Steam", LogLevel.Info, true );
 		}
 
-		public OnlinePlatform Platform => OnlinePlatform.Steam;
-		public string PlatformName => nameof( OnlinePlatform.Steam );
-		public bool IsAvailable => true;
-
-		public IStatsService Stats {
-			get {
-				throw new NotImplementedException();
-			}
-		}
-
-		public IAchievementService Achievements {
-			get {
-				throw new NotImplementedException();
-			}
-		}
-
-		public IMultiplayerService Multiplayer {
-			get {
-				throw new NotImplementedException();
-			}
-		}
-
-		public ICloudStorageService CloudStorage {
-			get {
-				throw new NotImplementedException();
-			}
-		}
-
 		/*
 		===============
 		Dispose
@@ -104,12 +101,32 @@ namespace Nomad.OnlineServices.Steam.Private {
 			_category.Dispose();
 		}
 
+		/*
+		===============
+		Initialize
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
 		public void Initialize() {
-			throw new NotImplementedException();
+			ESteamAPIInitResult result = SteamAPI.InitEx( out string errorMessage );
+			if ( result != ESteamAPIInitResult.k_ESteamAPIInitResult_OK ) {
+
+			}
+
 		}
 
+		/*
+		===============
+		RunCallbacks
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
 		public void RunCallbacks() {
-			throw new NotImplementedException();
+			SteamAPI.RunCallbacks();
 		}
 
 		public void Shutdown() {
