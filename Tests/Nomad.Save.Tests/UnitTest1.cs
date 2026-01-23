@@ -27,4 +27,10 @@ public class Tests
     {
         _dataProvider.Save( new( "data0.ngd" ) );
     }
+
+    [Test]
+    public void Test_LoadSaveFile()
+    {
+        _dataProvider.Load( new( "data0.ngd" ) );
+    }
 }
