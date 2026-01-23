@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -15,12 +15,10 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 using Godot;
 using Nomad.Core.Events;
 using Nomad.Core.Logger;
-using Nomad.Core.Util;
 using Nomad.Save.Data;
 using Nomad.Save.Events;
 using Nomad.Save.Services;
@@ -38,7 +36,7 @@ namespace Nomad.Save.Private.Services {
 	///
 	/// </summary>
 
-	internal sealed class SaveDataProvider( IGameEventRegistryService eventFactory, ILoggerService logger ) : ISaveDataProvider {
+	public sealed class SaveDataProvider( IGameEventRegistryService eventFactory, ILoggerService logger ) : ISaveDataProvider {
 		private readonly List<SaveFileMetadata> _saveFiles = new();
 
 		private readonly IGameEvent<SaveBeginEventArgs> _saveBegin = eventFactory.GetEvent<SaveBeginEventArgs>( EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT );

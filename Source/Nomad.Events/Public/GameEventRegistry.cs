@@ -34,7 +34,7 @@ namespace Nomad.Events {
 	///
 	/// </summary>
 
-	internal sealed class GameEventRegistry( ILoggerService logger ) : IGameEventRegistryService {
+	public sealed class GameEventRegistry( ILoggerService logger ) : IGameEventRegistryService {
 		private readonly ConcurrentDictionary<EventKey, IGameEvent> _eventCache = new();
 
 		/*

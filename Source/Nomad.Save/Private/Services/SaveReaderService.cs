@@ -47,13 +47,20 @@ namespace Nomad.Save.Private.Services {
 		/// <param name="filepath"></param>
 		/// <param name="logger"></param>
 		public SaveReaderService( string filepath, ILoggerService logger ) {
+			logger.PrintLine( $"Loading save data..." );
+
 			using var reader = new SaveStreamReader( filepath );
 			var header = SaveHeader.Deserialize( reader );
 
+			logger.PrintLine( $"...Section Count: {header.SectionCount}" );
+			logger.PrintLine( $"...Version: {header.Version}" );
+
 			for ( int i = 0; i < header.SectionCount; i++ ) {
-				var section = new SaveSectionReader( in reader );
+				var section = new SaveSectionReader( in reader, logger );
 				_sections[ section.Name ] = section;
 			}
+
+			logger.PrintLine( "...Finished loading save data" );
 		}
 
 		/*

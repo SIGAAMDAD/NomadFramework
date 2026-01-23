@@ -44,7 +44,7 @@ namespace Nomad.Save.Private.Serialization.Streams {
 		public int Length => _position;
 
 		public byte[] Buffer => _buffer;
-		private byte[] _buffer = new byte[ 8192 ];
+		private byte[] _buffer = ArrayPool<byte>.Shared.Rent( 8192 );
 
 		/*
 		===============
@@ -61,7 +61,7 @@ namespace Nomad.Save.Private.Serialization.Streams {
 				GD.Print( $"Saving data to {filepath}, stream size is {_position}" );
 
 				writer.Write( _buffer, 0, _position );
-				_buffer = null;
+				ArrayPool<byte>.Shared.Return( _buffer );
 
 				writer?.Dispose();
 			}
@@ -190,19 +190,17 @@ namespace Nomad.Save.Private.Serialization.Streams {
 		/// <param name="required">The bytes needed to write the data.</param>
 		private void EnsureCapacity( int required ) {
 			if ( _position + required > _buffer.Length ) {
-				int newCapacity = _buffer.Length * 4;
+				int newCapacity = _buffer.Length * 2;
 				if ( newCapacity >= MAX_CAPACITY ) {
 					throw new InvalidOperationException( $"Save file size has exceeded {MAX_CAPACITY} bytes... what the hell are you saving?" );
 				} else if ( newCapacity >= GetFreeDiskSpace( filepath ) ) {
 					throw new System.IO.IOException( $"Out of disk space in the file drive to write a buffer of {newCapacity} bytes" );
 				}
 
-				byte[] newBuffer = new byte[ newCapacity ];
-
-//				byte[] newBuffer = ArrayPool<byte>.Shared.Rent( newCapacity );
+				byte[] newBuffer = ArrayPool<byte>.Shared.Rent( newCapacity );
 
 				System.Buffer.BlockCopy( _buffer, 0, newBuffer, 0, Position );
-//				ArrayPool<byte>.Shared.Return( _buffer );
+				ArrayPool<byte>.Shared.Return( _buffer );
 				_buffer = newBuffer;
 			}
 		}
