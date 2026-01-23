@@ -23,8 +23,8 @@ public class Tests
     }
 
     [Test]
-    public void Test1()
+    public void Test_CreateSaveFile()
     {
-        Assert.Pass();
+        _dataProvider.Save( new( "data0.ngd" ) );
     }
 }
