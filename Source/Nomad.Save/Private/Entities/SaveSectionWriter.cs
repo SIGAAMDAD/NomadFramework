@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -49,8 +49,7 @@ namespace Nomad.Save.Private.Entities {
 			var header = new SectionHeader( name, FieldCount, Checksum.Empty.Value );
 			header.Save( writer );
 			foreach ( var field in _fields ) {
-				var serializer = FieldSerializerRegistry.GetSerializer( FieldValue.GetFieldType( field.Value.Type ) );
-				serializer.Serialize( writer, field.Value.Value );
+				SaveField.Write( name, field.Value, writer );
 			}
 		}
 

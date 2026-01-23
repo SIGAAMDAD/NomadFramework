@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -47,10 +47,10 @@ namespace Nomad.Save.Private.ValueObjects {
 		/// <param name="name"></param>
 		/// <param name="value"></param>
 		/// <param name="stream"></param>
-		public static void Write<T>( string section, string name, T value, SaveStreamWriter stream ) {
-			stream.Write( name );
-			stream.Write( FieldValue.GetFieldType<T>() );
-			FieldSerializerRegistry.GetSerializer<T>().Serialize( stream, value );
+		public static void Write( string section, SaveField field, SaveStreamWriter stream ) {
+			stream.Write( field.Name );
+			stream.Write( (byte)field.Type );
+			FieldSerializerRegistry.GetSerializer( FieldValue.GetFieldType( field.Type ) ).Serialize( stream, field.Value );
 		}
 
 		/*
@@ -68,11 +68,11 @@ namespace Nomad.Save.Private.ValueObjects {
 		/// <exception cref="FieldCorruptException">Thrown if the field's data is invalid.</exception>
 		public static SaveField Read( string section, int index, in SaveStreamReader stream ) {
 			string name = stream.ReadString();
-			if ( name.Length <= 0 || name.Length > MAX_FIELD_NAME_LENGTH ) {
+			if ( name.Length < 0 || name.Length > MAX_FIELD_NAME_LENGTH ) {
 				throw new FieldCorruptException( section, index, stream.Position, $"Field name length corrupted (0 or string overflow, {name.Length} bytes)" );
 			}
 
-			FieldType type = stream.Read<FieldType>();
+			FieldType type = (FieldType)stream.Read<byte>();
 			if ( type < FieldType.Int8 || type >= FieldType.Count ) {
 				throw new FieldCorruptException( section, index, stream.Position, $"Field type '{type}' isn't valid" );
 			}

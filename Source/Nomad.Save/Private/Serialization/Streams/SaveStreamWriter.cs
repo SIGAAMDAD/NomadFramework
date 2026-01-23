@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -58,7 +58,7 @@ namespace Nomad.Save.Private.Serialization.Streams {
 			if ( _buffer != null ) {
 				using System.IO.FileStream writer = new System.IO.FileStream( filepath, System.IO.FileMode.Create, System.IO.FileAccess.Write );
 
-				GD.Print( $"Saving data to {filepath}, stream size is {_position}" );
+				logger?.PrintLine( $"Saving data to {filepath}, stream size is {_position}" );
 
 				writer.Write( _buffer, 0, _position );
 				ArrayPool<byte>.Shared.Return( _buffer );
@@ -85,13 +85,13 @@ namespace Nomad.Save.Private.Serialization.Streams {
 			if ( maxByteCount <= STACK_ALLOC_THRESHOLD ) {
 				Span<byte> tempBuffer = stackalloc byte[ maxByteCount ];
 				int actualByteCount = Encoding.UTF8.GetBytes( value, tempBuffer );
-				Write( actualByteCount );
+				Write7BitEncodedInt( actualByteCount );
 				EnsureCapacity( actualByteCount );
 				tempBuffer[ ..actualByteCount ].CopyTo( _buffer.AsSpan( _position ) );
 				_position += actualByteCount;
 			} else {
 				int byteCount = Encoding.UTF8.GetByteCount( value );
-				Write( byteCount );
+				Write7BitEncodedInt( byteCount );
 				EnsureCapacity( byteCount );
 				_position += Encoding.UTF8.GetBytes( value, 0, value.Length, _buffer, _position );
 			}

@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -71,7 +71,7 @@ namespace Nomad.Save.Private.ValueObjects {
 			}
 
 			int fieldCount = stream.Read<int>();
-			if ( fieldCount <= 0 ) {
+			if ( fieldCount < 0 ) {
 				throw new FailedSectionLoadException( name, new System.Exception( "field count is corrupt" ) );
 			}
 

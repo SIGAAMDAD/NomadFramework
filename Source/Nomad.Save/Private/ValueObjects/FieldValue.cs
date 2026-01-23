@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -82,19 +82,93 @@ namespace Nomad.Save.Private.ValueObjects {
 		};
 
 		private readonly Union _value;
+		private readonly FieldType _type;
 
-		public FieldValue( bool b ) => _value = new Union { Boolean = b };
-		public FieldValue( sbyte i8 ) => _value = new Union { Int8 = i8 };
-		public FieldValue( short i16 ) => _value = new Union { Int16 = i16 };
-		public FieldValue( int i32 ) => _value = new Union { Int32 = i32 };
-		public FieldValue( long i64 ) => _value = new Union { Int64 = i64 };
-		public FieldValue( byte u8 ) => _value = new Union { UInt8 = u8 };
-		public FieldValue( ushort u16 ) => _value = new Union { UInt16 = u16 };
-		public FieldValue( uint u32 ) => _value = new Union { UInt32 = u32 };
-		public FieldValue( ulong u64 ) => _value = new Union { UInt64 = u64 };
-		public FieldValue( float f32 ) => _value = new Union { Float32 = f32 };
-		public FieldValue( double f64 ) => _value = new Union { Float64 = f64 };
-		public FieldValue( string? str ) => _value = new Union { String = str };
+		public FieldValue( bool b ) {
+			_value = new Union { Boolean = b };
+			_type = FieldType.Boolean;
+		}
+
+		public FieldValue( sbyte i8 ) {
+			_value = new Union { Int8 = i8 };
+			_type = FieldType.Int8;
+		}
+
+		public FieldValue( short i16 ) {
+			_value = new Union { Int16 = i16 };
+			_type = FieldType.Int16;
+		}
+
+		public FieldValue( int i32 ) {
+			_value = new Union { Int32 = i32 };
+			_type = FieldType.Int32;
+		}
+
+		public FieldValue( long i64 ) {
+			_value = new Union { Int64 = i64 };
+			_type = FieldType.Int64;
+		}
+
+		public FieldValue( byte u8 ) {
+			_value = new Union { UInt8 = u8 };
+			_type = FieldType.UInt8;
+		}
+
+		public FieldValue( ushort u16 ) {
+			_value = new Union { UInt16 = u16 };
+			_type = FieldType.UInt16;
+		}
+
+		public FieldValue( uint u32 ) {
+			_value = new Union { UInt32 = u32 };
+			_type = FieldType.UInt32;
+		}
+
+		public FieldValue( ulong u64 ) {
+			_value = new Union { UInt64 = u64 };
+			_type = FieldType.UInt64;
+		}
+
+		public FieldValue( float f32 ) {
+			_value = new Union { Float32 = f32 };
+			_type = FieldType.Float;
+		}
+
+		public FieldValue( double f64 ) {
+			_value = new Union { Float64 = f64 };
+			_type = FieldType.Double;
+		}
+
+		public FieldValue( string? str ) {
+			_value = new Union { String = str };
+			_type = FieldType.String;
+		}
+
+		/*
+		===============
+		ToString
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <returns></returns>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public override string ToString() => _type switch {
+			FieldType.Boolean => _value.Boolean.ToString(),
+			FieldType.Int8 => _value.Int8.ToString(),
+			FieldType.Int16 => _value.Int16.ToString(),
+			FieldType.Int32 => _value.Int32.ToString(),
+			FieldType.Int64 => _value.Int64.ToString(),
+			FieldType.UInt8 => _value.UInt8.ToString(),
+			FieldType.UInt16 => _value.UInt16.ToString(),
+			FieldType.UInt32 => _value.UInt32.ToString(),
+			FieldType.UInt64 => _value.UInt64.ToString(),
+			FieldType.Float => _value.Float32.ToString(),
+			FieldType.Double => _value.Float64.ToString(),
+			FieldType.String => _value.String!.ToString(),
+			_ => throw new ArgumentOutOfRangeException( nameof( _type ) )
+		};
 
 		/*
 		===============

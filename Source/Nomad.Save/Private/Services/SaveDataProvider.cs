@@ -21,6 +21,7 @@ using Nomad.Core.Events;
 using Nomad.Core.Logger;
 using Nomad.Save.Data;
 using Nomad.Save.Events;
+using Nomad.Save.Private.Exceptions;
 using Nomad.Save.Services;
 using Nomad.Save.ValueObjects;
 
@@ -79,8 +80,10 @@ namespace Nomad.Save.Private.Services {
 		public async Task Load( SaveFileId fileId ) {
 			try {
 				var reader = new SaveReaderService( fileId.FileName, logger );
+			} catch ( FieldCorruptException fieldCorrupt ) {
+				logger.PrintError( $"Field corruption - {fieldCorrupt}: {fieldCorrupt.Error}" );
 			} catch ( Exception e ) {
-				GD.PushError( e );
+				logger.PrintError( $"Exception caught - {e}" );
 			}
 		}
 
@@ -99,10 +102,8 @@ namespace Nomad.Save.Private.Services {
 				using var writer = new SaveWriterService( fileId.FileName, logger );
 
 				_saveBegin.Publish( new SaveBeginEventArgs( writer ) );
-
-				writer.Dispose();
 			} catch ( Exception e ) {
-				GD.PushError( e );
+				logger.PrintError( $"Exception caught - {e}" );
 			}
 		}
 

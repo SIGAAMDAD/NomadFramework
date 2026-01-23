@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -60,6 +60,8 @@ namespace Nomad.Save.Private.Entities {
 			for ( int i = 0; i < fieldCount; i++ ) {
 				var field = SaveField.Read( Name, i, in reader );
 				_fields[ field.Name ] = field;
+
+				logger.PrintLine( $"- Got field {field.Name}, value {field.Value}" );
 			}
 		}
 

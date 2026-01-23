@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -48,12 +48,16 @@ namespace Nomad.Save.Private.Services {
 		///
 		/// </summary>
 		public void Dispose() {
+			logger.PrintLine( $"Writing save data to {filepath}..." );
+
 			var header = new SaveHeader( new GameVersion( 2, 0, 1 ), _sections.Count, Checksum.Empty );
 			header.Serialize( _writer );
 
 			foreach ( var section in _sections ) {
 				section.Value.Dispose();
 			}
+
+			_writer.Dispose();
 		}
 
 		/*
