@@ -17,6 +17,7 @@ using System;
 using Godot;
 using Nomad.Core.Util;
 using Nomad.Core.EngineUtils;
+using Nomad.EngineUtils.Private;
 
 namespace Nomad.EngineUtils
 {
@@ -25,16 +26,19 @@ namespace Nomad.EngineUtils
     /// </summary>
     public sealed class GodotEngineService : IEngineService
     {
-        /// <summary>
-        /// Creates a new image object from the specified buffer and dimensions.
-        /// </summary>
-        /// <param name="image"></param>
-        /// <param name="width"></param>
-        /// <param name="height"></param>
-        /// <returns></returns>
-        public IDisposable CreateImage(byte[] image, int width, int height)
+        private readonly SceneTree _sceneTree;
+        private readonly Node _root;
+
+        private readonly string _installDirectory;
+        private readonly string _assetDirectory;
+
+        private readonly NotificationNode _notificationNode;
+
+        public GodotEngineService(SceneTree sceneTree)
         {
-            return Image.CreateFromData(width, height, false, Image.Format.Rgba8, image);
+            _sceneTree = sceneTree;
+            _root = (Node)sceneTree.Get(SceneTree.PropertyName.Root);
+            _notificationNode = new NotificationNode();
         }
 
         /// <summary>
@@ -47,12 +51,64 @@ namespace Nomad.EngineUtils
             return TranslationServer.Translate((string)key);
         }
 
-        /// <summary>
-        /// Quits the current running application.
-        /// </summary>
-        public void Quit()
+        public bool IsApplicationFocused()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsApplicationPaused()
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetApplicationVersion()
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetEngineVersion()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Quit(int exitCode = 0)
         {
             OS.Kill(OS.GetProcessId());
+        }
+
+        public string GetStoragePath(StorageScope scope) => scope switch
+        {
+            StorageScope.Install => ProjectSettings.GlobalizePath("res://"),
+            StorageScope.StreamingAssets => ProjectSettings.GlobalizePath("res://Assets/"),
+            StorageScope.UserData => ProjectSettings.GlobalizePath("user://"),
+            _ => ProjectSettings.GlobalizePath("user://")
+        };
+
+        public string GetStoragePath(string relativePath, StorageScope scope)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetSystemRegion()
+        {
+            return OS.GetLocale();
+        }
+
+        public void GetScreenResolution(out int width, out int height)
+        {
+            Vector2I size = DisplayServer.WindowGetSize();
+            width = size.X;
+            height = size.Y;
+        }
+
+        public void SetScreenResolution(int width, int height)
+        {
+            DisplayServer.WindowSetSize(new Vector2I(width, height));
+        }
+
+        public IDisposable CreateImageRGBA(byte[] image, int width, int height)
+        {
+            return Image.CreateFromData(width, height, false, Image.Format.Rgba8, image);
         }
     }
 }

@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="NomadFramewok.vcxproj" Id="0508df68-6254-42c5-a762-1f928276f9c0" />
+</Solution>

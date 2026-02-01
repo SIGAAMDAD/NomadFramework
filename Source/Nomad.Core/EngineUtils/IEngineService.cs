@@ -23,10 +23,75 @@ namespace Nomad.Core.EngineUtils
     /// </summary>
     public interface IEngineService
     {
-        IDisposable CreateImage(byte[] image, int width, int height);
+        /*
+        /// <summary>
+        /// Check if the application is currently focused.
+        /// </summary>
+        /// <returns></returns>
+        bool IsApplicationFocused();
+
+        /// <summary>
+        /// Check if the application is currently paused.
+        /// </summary>
+        /// <returns></returns>
+        bool IsApplicationPaused();
+        */
+
+        /// <summary>
+        /// Gets the application version string.
+        /// </summary>
+        /// <returns></returns>
+        string GetApplicationVersion();
+
+        /// <summary>
+        /// Gets the engine version string.
+        /// </summary>
+        /// <returns></returns>
+        string GetEngineVersion();
+
+        /// <summary>
+        /// Gracefully quit the application.
+        /// </summary>
+        /// <param name="exitCode">Optional exit code for the process.</param>
+        void Quit(int exitCode = 0);
+
+        /// <summary>
+        /// Get a platform-specific path for the given storage scope
+        /// </summary>
+        /// <param name="scope">The type of storage location requested</param>
+        /// <returns>Absolute path to the directory</returns>
+        string GetStoragePath(StorageScope scope);
+
+        /// <summary>
+        /// Get a path relative to a specific storage scope
+        /// </summary>
+        /// <param name="relativePath">Path relative to the scope root</param>
+        /// <param name="scope">Storage scope to resolve from</param>
+        /// <returns>Absolute combined path</returns>
+        string GetStoragePath(string relativePath, StorageScope scope);
+
+        /// <summary>
+        /// Get system region/country.
+        /// </summary>
+        /// <returns></returns>
+        string GetSystemRegion();
+
+        /// <summary>
+        /// Gets the native/desktop resolution.
+        /// </summary>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        void GetScreenResolution(out int width, out int height);
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        void SetScreenResolution(int width, int height);
+
+        IDisposable CreateImageRGBA(byte[] image, int width, int height);
 
         string Translate(InternString key);
-
-        void Quit();
     }
 }

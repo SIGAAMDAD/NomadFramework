@@ -1,40 +1,40 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<!-- Build Configuration -->
-		<TargetFramework>net10.0</TargetFramework>
-		<TargetFramework Condition=" '$(GodotTargetPlatform)' == 'android' ">net10.0</TargetFramework>
-		<EnableDynamicLoading>true</EnableDynamicLoading>
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<Nullable>annotations</Nullable>
-		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-		<EnforceCodeStyleInBuilds>true</EnforceCodeStyleInBuilds>
-		<EnableUnsafeBinaryFormatterSerialization>false</EnableUnsafeBinaryFormatterSerialization>
-		<BuildInParallel>true</BuildInParallel>
+  <PropertyGroup>
+    <!-- Build Configuration -->
+    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework Condition=" '$(GodotTargetPlatform)' == 'android' ">net10.0</TargetFramework>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>annotations</Nullable>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <EnforceCodeStyleInBuilds>true</EnforceCodeStyleInBuilds>
+    <EnableUnsafeBinaryFormatterSerialization>false</EnableUnsafeBinaryFormatterSerialization>
+    <BuildInParallel>true</BuildInParallel>
 
-		<DebugType>embedded</DebugType>
+    <DebugType>embedded</DebugType>
     <DebugSymbols>true</DebugSymbols>
 
-		<!-- Performance -->
-		<TrimMode>link</TrimMode>
-		<PublishTrimmed>true</PublishTrimmed>
-		<TieredCompilation>true</TieredCompilation>
-		<Deterministic>true</Deterministic>
-		<UseSharedCompilation>true</UseSharedCompilation>
-		<Optimize>true</Optimize>
-		<SkipLocalsInit>true</SkipLocalsInit>
-	</PropertyGroup>
+    <!-- Performance -->
+    <TrimMode>link</TrimMode>
+    <PublishTrimmed>true</PublishTrimmed>
+    <TieredCompilation>true</TieredCompilation>
+    <Deterministic>true</Deterministic>
+    <UseSharedCompilation>true</UseSharedCompilation>
+    <Optimize>true</Optimize>
+    <SkipLocalsInit>true</SkipLocalsInit>
+  </PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="Godot.NET.Sdk" Version="4.6.0-rc.1" />
-		<PackageReference Include="Godot.SourceGenerators" Version="4.6.0-rc.1" />
-		<PackageReference Include="GodotSharp" Version="4.6.0-rc.1" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Ini" Version="10.0.1" />
-	</ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Godot.NET.Sdk" Version="4.6.0" />
+    <PackageReference Include="Godot.SourceGenerators" Version="4.6.0" />
+    <PackageReference Include="GodotSharp" Version="4.6.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Ini" Version="10.0.1" />
+  </ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\Nomad.Core\Nomad.Core.csproj" />
-		<ProjectReference Include="..\Nomad.Events\Nomad.Events.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Nomad.Core\Nomad.Core.csproj" />
+    <ProjectReference Include="..\Nomad.Events\Nomad.Events.csproj" />
+  </ItemGroup>
 
 </Project>

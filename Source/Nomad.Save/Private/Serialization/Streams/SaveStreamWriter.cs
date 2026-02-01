@@ -18,7 +18,6 @@ using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
-using Godot;
 using Nomad.Core.Logger;
 
 namespace Nomad.Save.Private.Serialization.Streams {

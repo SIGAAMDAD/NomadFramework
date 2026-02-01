@@ -13,7 +13,6 @@
     <BuildInParallel>true</BuildInParallel>
 
     <!-- Performance -->
-    <PubishAOT>true</PubishAOT>
     <TieredCompilation>true</TieredCompilation>
     <Deterministic>true</Deterministic>
     <UseSharedCompilation>true</UseSharedCompilation>
@@ -22,9 +21,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Godot.NET.Sdk" Version="4.6.0-rc.1" />
-    <PackageReference Include="Godot.SourceGenerators" Version="4.6.0-rc.1" />
-    <PackageReference Include="GodotSharp" Version="4.6.0-rc.1" />
+    <PackageReference Include="Godot.NET.Sdk" Version="4.6.0" />
+    <PackageReference Include="Godot.SourceGenerators" Version="4.6.0" />
+    <PackageReference Include="GodotSharp" Version="4.6.0" />
   </ItemGroup>
 
   <ItemGroup>
