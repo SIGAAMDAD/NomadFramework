@@ -51,7 +51,7 @@ namespace Nomad.Logger.Private.Sinks {
 			);
 
 			try {
-				_writer = fileSystem.OpenWrite( $"{fileSystem.GetUserDataPath()}/{logfile.Value}" );
+				_writer = fileSystem.OpenWrite( $"{fileSystem.GetUserDataPath()}/{logfile.Value}" ) as IFileWriteStream;
 			} catch ( Exception e ) {
 				_writer?.Close();
 				Console.WriteLine( $"FileSink: failed to create log file {logfile.Value} - {e.Message}" );

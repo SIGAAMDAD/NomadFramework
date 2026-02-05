@@ -115,7 +115,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 				}
 
 				_buffer = ArrayPool<byte>.Shared.Rent( ( int )stream.Length );
-#if USE_COMPATIBILITY_EXTENSIONS
+#if NETSTANDARD2_1
 				stream.Read( _buffer, 0, (int)stream.Length );
 #else
 				stream.ReadExactly( _buffer, 0, ( int )stream.Length );

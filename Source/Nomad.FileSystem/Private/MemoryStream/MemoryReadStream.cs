@@ -499,6 +499,19 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 
 		/*
 		===============
+		ReadBoolean
+		===============
+		*/
+		/// <summary>
+		/// Reads an 8-bit value from the stream.
+		/// </summary>
+		/// <returns>The 8-bit value read from the stream</returns>
+		public bool ReadBoolean() {
+			return Read<bool>();
+		}
+
+		/*
+		===============
 		ReadString
 		===============
 		*/

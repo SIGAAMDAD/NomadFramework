@@ -62,7 +62,7 @@ namespace Nomad.CVars.Private.Repositories {
 					System.IO.Directory.CreateDirectory( directory );
 				}
 
-				using ( _writer = fileSystem.OpenWrite( configFile ) ) {
+				using ( _writer = (IFileWriteStream)fileSystem.OpenWrite( configFile ) ) {
 					WriteHeader();
 					foreach ( var cvar in cvars ) {
 						WriteVariable( in cvar );

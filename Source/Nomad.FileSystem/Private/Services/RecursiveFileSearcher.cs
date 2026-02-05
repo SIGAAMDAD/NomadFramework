@@ -36,7 +36,7 @@ namespace Nomad.FileSystem.Private.Services {
 		/// Gets all search directories in their current priority order.
 		/// </summary>
 		public IReadOnlyList<string> SearchDirectories => _searchDirectories.AsReadOnly();
-		private readonly List<string> _searchDirectories;
+		private readonly List<string> _searchDirectories = new List<string>();
 		
 		/*
 		===============

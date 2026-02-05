@@ -516,5 +516,19 @@ namespace Nomad.FileSystem.Private.FileStream {
 			ExceptionCompat.ThrowIfNull( _streamReader );
 			return _streamReader.ReadUInt16();
 		}
+
+		/*
+		===============
+		ReadBoolean
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		public bool ReadBoolean() {
+			ExceptionCompat.ThrowIfNull( _streamReader );
+			return _streamReader.ReadBoolean();
+		}
 	}
 };

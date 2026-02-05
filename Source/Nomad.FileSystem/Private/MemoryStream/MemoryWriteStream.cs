@@ -588,6 +588,19 @@ namespace Nomad.FileSystem.Private {
 
 		/*
 		===============
+		WriteBoolean
+		===============
+		*/
+		/// <summary>
+		/// Writes an 8-bit boolean value to the stream.
+		/// </summary>
+		/// <param name="value">The 8-bit boolean value to write</param>
+		public void WriteBoolean( bool value ) {
+			Write( value );
+		}
+
+		/*
+		===============
 		WriteString
 		===============
 		*/

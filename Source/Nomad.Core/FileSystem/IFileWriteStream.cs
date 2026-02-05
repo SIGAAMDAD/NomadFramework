@@ -47,7 +47,7 @@ namespace Nomad.Core.FileSystem
         /// </summary>
         /// <param name="line"></param>
         /// <returns></returns>
-        ValueTask WriteLineAsync(ReadOnlySpan<char> line);
+        ValueTask WriteLineAsync(ReadOnlyMemory<char> line);
     }
 }
 

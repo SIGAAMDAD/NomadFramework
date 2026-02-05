@@ -509,5 +509,75 @@ namespace Nomad.FileSystem.Private.FileStream {
 			ExceptionCompat.ThrowIfNull( _streamWriter );
 			_streamWriter.Write( value );
 		}
+
+		/*
+		===============
+		WriteBoolean
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="value"></param>
+		public void WriteBoolean( bool value ) {
+			ExceptionCompat.ThrowIfNull( _streamWriter );
+			_streamWriter.Write( value );
+		}
+
+		/*
+		===============
+		WriteLine
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="line"></param>
+		public void WriteLine( string line ) {
+			_streamWriter.Write( $"{line}\n" );
+		}
+
+		/*
+		===============
+		WriteLine
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="line"></param>
+		public void WriteLine( ReadOnlySpan<char> line ) {
+			_streamWriter.Write( line );
+			_streamWriter.Write( "\n" );
+		}
+
+		/*
+		===============
+		WriteLineAsync
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="line"></param>
+		/// <returns></returns>
+		public async ValueTask WriteLineAsync( string line ) {
+			_streamWriter.Write( $"{line}\n" );
+		}
+
+		/*
+		===============
+		WriteLineAsync
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="line"></param>
+		/// <returns></returns>
+		public async ValueTask WriteLineAsync( ReadOnlyMemory<char> line ) {
+			_streamWriter.Write( line.Span );
+			_streamWriter.Write( "\n" );
+		}
 	};
 };

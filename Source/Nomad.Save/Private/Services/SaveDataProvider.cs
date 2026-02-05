@@ -69,6 +69,9 @@ namespace Nomad.Save.Private.Services {
 			_category = logger.CreateCategory( "Nomad.Save", LogLevel.Info, true );
 
 			_saveFiles = new List<SaveFileMetadata>();
+
+			_readerService = new SaveReaderService( _vfs, _logger );
+			_writerService = new SaveWriterService( _vfs, _logger, _category );
 		}
 
 		/*
