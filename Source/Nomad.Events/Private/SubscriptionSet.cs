@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Nomad.Core.Compatibility;
 using Nomad.Core.Events;
 using Nomad.Core.Logger;
 
@@ -32,22 +33,41 @@ namespace Nomad.Events.Private {
 	///
 	/// </summary>
 
-	internal sealed class SubscriptionSet<TArgs>( IGameEvent<TArgs> eventData, ILoggerService logger, int cleanupInterval = 30 ) : ISubscriptionSet<TArgs>
+	internal sealed class SubscriptionSet<TArgs> : ISubscriptionSet<TArgs>
 		where TArgs : struct
 	{
 		/// <summary>
 		/// The number of pumps before initiating a purge.
 		/// </summary>
-		private readonly int _cleanupInterval = cleanupInterval;
+		private readonly int _cleanupInterval;
+		private readonly ILoggerService _logger;
+		private readonly IGameEvent<TArgs> _eventData;
 
-		private readonly ILoggerService _logger = logger;
-
-		private readonly SubscriptionCache<TArgs, EventCallback<TArgs>> _genericSubscriptions = new( logger );
-		private readonly SubscriptionCache<TArgs, AsyncEventCallback<TArgs>> _asyncSubscriptions = new( logger );
+		private readonly SubscriptionCache<TArgs, EventCallback<TArgs>> _genericSubscriptions;
+		private readonly SubscriptionCache<TArgs, AsyncEventCallback<TArgs>> _asyncSubscriptions;
 		private int _cleanupCounter = 0;
 
 		private readonly HashSet<WeakReference<IGameEvent>> _friends = new HashSet<WeakReference<IGameEvent>>();
 		private readonly ReaderWriterLockSlim _pumpLock = new ReaderWriterLockSlim();
+
+		/*
+		===============
+		SubscriptionSet
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="eventData"></param>
+		/// <param name="logger"></param>
+		/// <param name="cleanupInterval"></param>
+		public SubscriptionSet( IGameEvent<TArgs> eventData, ILoggerService logger, int cleanupInterval = 30 ) {
+			_genericSubscriptions = new SubscriptionCache<TArgs, EventCallback<TArgs>>( logger );
+			_asyncSubscriptions = new SubscriptionCache<TArgs, AsyncEventCallback<TArgs>>( logger );
+			_logger = logger;
+			_cleanupInterval = cleanupInterval;
+			_eventData = eventData;
+		}
 
 		/*
 		===============
@@ -76,10 +96,10 @@ namespace Nomad.Events.Private {
 		public void BindEventFriend( IGameEvent friend ) {
 			var refEvent = new WeakReference<IGameEvent>( friend );
 			if ( _friends.Contains( refEvent ) ) {
-				_logger?.PrintWarning( $"SubscriptionSet.BindEventFriend: event '{eventData.DebugName}' already has friendship with event '{friend.DebugName}'" );
+				_logger?.PrintWarning( $"SubscriptionSet.BindEventFriend: event '{_eventData.DebugName}' already has friendship with event '{friend.DebugName}'" );
 			}
 
-			_logger?.PrintLine( $"SubscriptionSet.BindEventFriend: friendship created between events '{eventData.DebugName}' and '{friend.DebugName}'" );
+			_logger?.PrintLine( $"SubscriptionSet.BindEventFriend: friendship created between events '{_eventData.DebugName}' and '{friend.DebugName}'" );
 			_friends.Add( refEvent );
 		}
 
@@ -95,8 +115,8 @@ namespace Nomad.Events.Private {
 		/// <param name="callback">The method that is called whenever the event triggers.</param>
 		/// <exception cref="ArgumentNullException">Thrown if <paramref name="callback"/> is null.</exception>
 		public void AddSubscription( object subscriber, EventCallback<TArgs> callback ) {
-			ArgumentNullException.ThrowIfNull( subscriber );
-			ArgumentNullException.ThrowIfNull( callback );
+			ExceptionCompat.ThrowIfNull( subscriber );
+			ExceptionCompat.ThrowIfNull( callback );
 
 			_pumpLock.EnterWriteLock();
 			try {
@@ -119,8 +139,8 @@ namespace Nomad.Events.Private {
 		/// <param name="callback">The method that is called whenever the event triggers.</param>
 		/// <exception cref="ArgumentNullException">Thrown if <paramref name="callback"/> is null.</exception>
 		public void AddSubscriptionAsync( object subscriber, AsyncEventCallback<TArgs> callback ) {
-			ArgumentNullException.ThrowIfNull( subscriber );
-			ArgumentNullException.ThrowIfNull( callback );
+			ExceptionCompat.ThrowIfNull( subscriber );
+			ExceptionCompat.ThrowIfNull( callback );
 
 			_pumpLock.EnterWriteLock();
 			try {
@@ -144,8 +164,8 @@ namespace Nomad.Events.Private {
 		/// <exception cref="ArgumentNullException">Thrown if <paramref name="callback"/> is null.</exception>
 		/// <exception cref="ArgumentOutOfRangeException">Thrown if the returned index from <see cref="ContainsCallback"/> is invalid.</exception>
 		public void RemoveSubscription( object subscriber, EventCallback<TArgs> callback ) {
-			ArgumentNullException.ThrowIfNull( subscriber );
-			ArgumentNullException.ThrowIfNull( callback );
+			ExceptionCompat.ThrowIfNull( subscriber );
+			ExceptionCompat.ThrowIfNull( callback );
 
 			_pumpLock.EnterWriteLock();
 			try {
@@ -169,8 +189,8 @@ namespace Nomad.Events.Private {
 		/// <exception cref="ArgumentNullException">Thrown if <paramref name="callback"/> is null.</exception>
 		/// <exception cref="ArgumentOutOfRangeException">Thrown if the returned index from <see cref="ContainsCallback"/> is invalid.</exception>
 		public void RemoveSubscriptionAsync( object subscriber, AsyncEventCallback<TArgs> callback ) {
-			ArgumentNullException.ThrowIfNull( subscriber );
-			ArgumentNullException.ThrowIfNull( callback );
+			ExceptionCompat.ThrowIfNull( subscriber );
+			ExceptionCompat.ThrowIfNull( callback );
 
 			_pumpLock.EnterWriteLock();
 			try {
@@ -191,7 +211,7 @@ namespace Nomad.Events.Private {
 		/// </summary>
 		/// <param name="subscriber"></param>
 		public void RemoveAllForSubscriber( object subscriber ) {
-			ArgumentNullException.ThrowIfNull( subscriber );
+			ExceptionCompat.ThrowIfNull( subscriber );
 
 			_genericSubscriptions.RemoveAllForSubscriber( subscriber );
 			_asyncSubscriptions.RemoveAllForSubscriber( subscriber );
@@ -258,6 +278,7 @@ namespace Nomad.Events.Private {
 			_logger?.PrintLine( $"SubscriptionSet.PumpAsync: publishing event {eventData.DebugName} asynchronously..." );
 #endif
 			int subscriptionCount = _asyncSubscriptions.Subscriptions.Count;
+	
 			// TODO: optimize
 			List<Task> tasks = new List<Task>( subscriptionCount );
 
@@ -268,7 +289,11 @@ namespace Nomad.Events.Private {
 				}
 			}
 
+#if USE_COMPATIBILITY_EXTENSIONS
+			Task.WaitAll( tasks.ToArray(), ct );
+#else
 			Task.WaitAll( tasks, ct );
+#endif
 		}
 
 		/*

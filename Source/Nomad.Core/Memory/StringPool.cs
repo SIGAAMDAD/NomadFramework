@@ -54,11 +54,16 @@ namespace Nomad.Core.Memory
             {
                 return InternString.Empty;
             }
-            ref int id = ref CollectionsMarshal.GetValueRefOrAddDefault(_current._stringToIds, new string(str), out bool exists);
+            string converted = new string(str);
+#if !USE_COMPATIBILITY_EXTENSIONS
+            ref int id = ref CollectionsMarshal.GetValueRefOrAddDefault(_current._stringToIds, converted, out bool exists);
             if (!exists)
+#else
+            if (!_current._stringToIds.TryGetValue(converted, out int id))
+#endif
             {
-                id = string.GetHashCode(str);
-                _current._idToString[id] = new string(str);
+                id = converted.GetHashCode();
+                _current._idToString[id] = converted;
             }
             return new InternString(id);
         }

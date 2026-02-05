@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -18,11 +18,12 @@ using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using Nomad.Console.Interfaces;
-using Nomad.Core.Util;
-using Nomad.Console.Events;
 using Nomad.Core.Events;
 using Nomad.Core.Logger;
 using Nomad.Core;
+using Nomad.Core.FileSystem;
+using Nomad.Core.Console;
+using Nomad.Core.Compatibility;
 
 namespace Nomad.Console.Private.Services {
 	/*
@@ -41,16 +42,17 @@ namespace Nomad.Console.Private.Services {
 		private const int CONSOLE_HISTORY_MAX = 32;
 
 		private readonly Queue<string> _consoleHistory = new Queue<string>();
-		private readonly FilePath _historyPath;
+		private readonly string _historyPath;
 		private int _historyIndex = 0;
+
+		private readonly ILoggerService _logger;
+		private readonly IFileSystem _fileSystem;
 
 		public IGameEvent<HistoryPrevEventArgs> HistoryPrev => _historyPrev;
 		private readonly IGameEvent<HistoryPrevEventArgs> _historyPrev;
 
 		public IGameEvent<HistoryNextEventArgs> HistoryNext => _historyNext;
 		private readonly IGameEvent<HistoryNextEventArgs> _historyNext;
-
-		private readonly ILoggerService _logger;
 
 		/*
 		===============
@@ -61,14 +63,16 @@ namespace Nomad.Console.Private.Services {
 		/// 
 		/// </summary>
 		/// <param name="builder"></param>
+		/// <param name="fileSystem"></param>
 		/// <param name="logger"></param>
 		/// <param name="eventFactory"></param>
-		public History( ICommandBuilder builder, ILoggerService logger, IGameEventRegistryService eventFactory ) {
-			ArgumentNullException.ThrowIfNull( builder );
-			ArgumentNullException.ThrowIfNull( eventFactory );
-			ArgumentNullException.ThrowIfNull( logger );
+		public History( ICommandBuilder builder, IFileSystem fileSystem, ILoggerService logger, IGameEventRegistryService eventFactory ) {
+			ExceptionCompat.ThrowIfNull( builder );
+			ExceptionCompat.ThrowIfNull( eventFactory );
+			ExceptionCompat.ThrowIfNull( logger );
 
 			_logger = logger;
+			_historyPath = $"{_fileSystem.GetUserDataPath()}/history.txt";
 
 			builder.TextEntered.Subscribe( this, OnTextEntered );
 
@@ -77,8 +81,6 @@ namespace Nomad.Console.Private.Services {
 
 			_historyPrev = eventFactory.GetEvent<HistoryPrevEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.HISTORY_PREV_EVENT );
 			_historyNext = eventFactory.GetEvent<HistoryNextEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.HISTORY_NEXT_EVENT );
-
-			_historyPath = new FilePath( CONSOLE_HISTORY_FILE, PathType.User );
 
 			LoadHistory();
 		}
@@ -94,7 +96,7 @@ namespace Nomad.Console.Private.Services {
 		public void Clear() {
 			_consoleHistory.Clear();
 			_historyIndex = 0;
-			File.Delete( _historyPath.OSPath );
+			File.Delete( _historyPath );
 		}
 
 		/*
@@ -122,7 +124,7 @@ namespace Nomad.Console.Private.Services {
 		private void SaveHistory() {
 			_logger?.PrintLine( "History.SaveHistory: writing command line history to disk..." );
 			try {
-				using StreamWriter writer = new StreamWriter( _historyPath.OSPath );
+				using StreamWriter writer = new StreamWriter( _historyPath );
 				foreach ( var history in _consoleHistory ) {
 					writer.WriteLine( history );
 				}
@@ -171,7 +173,7 @@ namespace Nomad.Console.Private.Services {
 		*/
 		private void LoadHistory() {
 			try {
-				using StreamReader reader = new StreamReader( FilePath.FromUserPath( CONSOLE_HISTORY_FILE ).OSPath );
+				using StreamReader reader = new StreamReader( _historyPath );
 
 				string? text;
 				while ( ( text = reader.ReadLine() ) != null ) {

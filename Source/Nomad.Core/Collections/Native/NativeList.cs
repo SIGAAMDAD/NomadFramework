@@ -16,26 +16,28 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Runtime.InteropServices;
 
-namespace NomadCore.Infrastructure.Collections
+#if !USE_COMPATIBILITY_EXTENSIONS
+namespace Nomad.Core.Collections.Native
 {
     /// <summary>
     ///
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public unsafe struct NativeList<T> : IDisposable where T : unmanaged
+    public unsafe struct NativeList<T> : IDisposable
+        where T : unmanaged
     {
         public int Count => _length;
-        private int _length = 0;
+        private int _length;
 
         public int Capacity => _capacity;
-        private int _capacity = 0;
+        private int _capacity;
 
-        private readonly int _growGranularity = 2;
+        private readonly int _growGranularity;
 
         private T* _data;
 
         /// <summary>
-        /// Creates a NativeList
+        /// Creates a NativeList.
         /// </summary>
         /// <param name="size"></param>
         /// <param name="granularity"></param>
@@ -79,3 +81,4 @@ namespace NomadCore.Infrastructure.Collections
         }
     }
 }
+#endif

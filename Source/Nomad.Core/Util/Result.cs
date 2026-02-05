@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -18,11 +18,11 @@ namespace Nomad.Core.Util
     /// <summary>
     ///
     /// </summary>
-    public readonly record struct Result
+    public readonly struct Result
     {
-        public bool IsSuccess { get; init; } = true;
+        public bool IsSuccess { get; init; }
+        public IError? Error { get; init; }
         public bool IsFailure => !IsSuccess;
-        public IError? Error { get; init; } = null;
 
         private Result(IError error)
         {
@@ -30,10 +30,20 @@ namespace Nomad.Core.Util
             Error = error;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public static Result Success()
         {
             return new Result();
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="error"></param>
+        /// <returns></returns>
         public static Result Failure(IError error)
         {
             return new Result(error);

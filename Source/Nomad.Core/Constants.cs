@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -101,6 +101,18 @@ namespace Nomad.Core
             {
                 public const string NAMESPACE = nameof(Console);
 
+#if USE_COMPATIBILITY_EXTENSIONS
+                public const string CONSOLE_OPENED_EVENT = NAMESPACE + ":ConsoleOpened";
+                public const string CONSOLE_CLOSED_EVENT = NAMESPACE + ":ConsoleClosed";
+                public const string TEXT_ENTERED_EVENT = NAMESPACE + ":TextEntered";
+                public const string HISTORY_PREV_EVENT = NAMESPACE + ":HistoryPrev";
+                public const string HISTORY_NEXT_EVENT = NAMESPACE + ":HistoryNext";
+                public const string AUTOCOMPLETE_EVENT = NAMESPACE + ":AutoComplete";
+                public const string PAGE_UP_EVENT = NAMESPACE + ":PageUp";
+                public const string PAGE_DOWN_EVENT = NAMESPACE + ":PageDown";
+                public const string UNKNOWN_COMMAND_EVENT = NAMESPACE + ":UnknownCommand";
+                public const string COMMAND_EXECUTED_EVENT = NAMESPACE + ":CommandExecuted";
+#else
                 public const string CONSOLE_OPENED_EVENT = $"{NAMESPACE}:ConsoleOpened";
                 public const string CONSOLE_CLOSED_EVENT = $"{NAMESPACE}:ConsoleClosed";
                 public const string TEXT_ENTERED_EVENT = $"{NAMESPACE}:TextEntered";
@@ -111,21 +123,33 @@ namespace Nomad.Core
                 public const string PAGE_DOWN_EVENT = $"{NAMESPACE}:PageDown";
                 public const string UNKNOWN_COMMAND_EVENT = $"{NAMESPACE}:UnknownCommand";
                 public const string COMMAND_EXECUTED_EVENT = $"{NAMESPACE}:CommandExecuted";
+#endif
             }
             public static partial class ResourceCache
             {
                 public const string NAMESPACE = nameof(ResourceCache);
 
+#if USE_COMPATIBILITY_EXTENSIONS
+                public const string RESOURCE_LOADED_EVENT = NAMESPACE + ":ResourceLoaded";
+                public const string RESOURCE_LOAD_FAILED_EVENT = NAMESPACE + ":ResourceLoadFailed";
+                public const string RESOURCE_LOAD_PROGRESS_EVENT = NAMESPACE + ":ResourceLoadProgress";
+                public const string RESOURCE_UNLOADED_EVENT = NAMESPACE + ":ResourceUnloaded";
+#else
                 public const string RESOURCE_LOADED_EVENT = $"{NAMESPACE}:ResourceLoaded";
                 public const string RESOURCE_LOAD_FAILED_EVENT = $"{NAMESPACE}:ResourceLoadFailed";
                 public const string RESOURCE_LOAD_PROGRESS_EVENT = $"{NAMESPACE}:ResourceLoadProgress";
                 public const string RESOURCE_UNLOADED_EVENT = $"{NAMESPACE}:ResourceUnloaded";
+#endif
             }
             public static partial class CVars
             {
                 public const string NAMESPACE = nameof(CVars);
 
+#if USE_COMPATIBILITY_EXTENSIONS
+                public const string CVAR_VALUE_CHANGED_EVENT = NAMESPACE + ":CVarValueChanged";
+#else
                 public const string CVAR_VALUE_CHANGED_EVENT = $"{NAMESPACE}:CVarValueChanged";
+#endif
             }
             public static partial class Rendering
             {

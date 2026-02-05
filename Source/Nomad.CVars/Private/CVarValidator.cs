@@ -28,7 +28,22 @@ namespace Nomad.CVars.Private {
 	///
 	/// </summary>
 
-	internal readonly struct CVarValidator<T>( Func<T, bool>? validator ) {
+	internal readonly struct CVarValidator<T> {
+		private readonly Func<T, bool>? _validator;
+
+		/*
+		===============
+		CVarValidator
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="validator"></param>
+		public CVarValidator( Func<T, bool>? validator ) {
+			_validator = validator;
+		}
+
 		/*
 		===============
 		ValidateValue
@@ -41,7 +56,7 @@ namespace Nomad.CVars.Private {
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public bool ValidateValue( T value ) {
-			return validator == null || validator.Invoke( value );
+			return _validator == null || _validator.Invoke( value );
 		}
 
 		/*

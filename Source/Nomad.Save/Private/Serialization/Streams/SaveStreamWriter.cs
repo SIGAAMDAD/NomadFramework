@@ -20,6 +20,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Nomad.Core.Logger;
 
+#if false
 namespace Nomad.Save.Private.Serialization.Streams {
 	/*
 	===================================================================================
@@ -32,7 +33,7 @@ namespace Nomad.Save.Private.Serialization.Streams {
 	/// An abstracted interface to manage writing a save file to a filestream.
 	/// </summary>
 
-	internal sealed class SaveStreamWriter( string filepath, ILoggerService? logger ) : ISaveFileStream {
+	internal sealed class SaveStreamWriter : ISaveFileStream {
 		// hard limit of 128 MiB
 		private const int MAX_CAPACITY = 128 * 1024 * 1024;
 		private const int STACK_ALLOC_THRESHOLD = 256;
@@ -44,6 +45,12 @@ namespace Nomad.Save.Private.Serialization.Streams {
 
 		public byte[] Buffer => _buffer;
 		private byte[] _buffer = ArrayPool<byte>.Shared.Rent( 8192 );
+
+		private
+
+		public SaveStreamWriter( string filepath, ILoggerService? logger ) {
+			
+		}
 
 		/*
 		===============
@@ -227,3 +234,4 @@ namespace Nomad.Save.Private.Serialization.Streams {
 		}
 	};
 };
+#endif

@@ -19,6 +19,10 @@ namespace Nomad.Save.Data
     {
         public const string NAMESPACE = nameof(Save);
 
+#if NETSTANDARD2_1
+        public const string SAVE_BEGIN_EVENT = NAMESPACE + ":SaveBegin";
+#else
         public const string SAVE_BEGIN_EVENT = $"{NAMESPACE}:SaveBegin";
+#endif
     }
 }

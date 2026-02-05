@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Nomad.Core.Events;
 using Nomad.Core;
+using Nomad.Core.Compatibility;
 
 namespace Nomad.CVars.Private {
 	/*
@@ -154,7 +155,7 @@ namespace Nomad.CVars.Private {
 		/// <exception cref="ArgumentException"></exception>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void SetFromString( string value ) {
-			ArgumentNullException.ThrowIfNull( value );
+			ExceptionCompat.ThrowIfNull( value );
 			if ( !TryConvertStringToType( value, typeof( T ), out object convertedValue ) ) {
 				throw new ArgumentException( $"Failed to convert cvar value '{value}' to type {typeof( T ).Name}" );
 			}
@@ -186,7 +187,7 @@ namespace Nomad.CVars.Private {
 		/// <returns>The <see cref="Value"/> in string format.</returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public string? GetStringValue() {
-			ArgumentNullException.ThrowIfNull( _value );
+			ExceptionCompat.ThrowIfNull( _value );
 			return Type == CVarType.String ? Convert.ToString( _value ) : null;
 		}
 
@@ -201,7 +202,7 @@ namespace Nomad.CVars.Private {
 		/// <returns>The <see cref="Value"/> in 32-bit integer format, 0 by default if int.TryParse failed</returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public uint GetUIntegerValue() {
-			ArgumentNullException.ThrowIfNull( _value );
+			ExceptionCompat.ThrowIfNull( _value );
 			return Type == CVarType.UInt ? Convert.ToUInt32( _value ) : 0;
 		}
 
@@ -216,7 +217,7 @@ namespace Nomad.CVars.Private {
 		/// <returns>The <see cref="Value"/> in 32-bit integer format, 0 by default if int.TryParse failed</returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public int GetIntegerValue() {
-			ArgumentNullException.ThrowIfNull( _value );
+			ExceptionCompat.ThrowIfNull( _value );
 			return Type == CVarType.Int ? Convert.ToInt32( _value ) : 0;
 		}
 
@@ -231,7 +232,7 @@ namespace Nomad.CVars.Private {
 		/// <returns>The <see cref="Value"/> in 32-bit floating-point format, 0 by default if float.TryParse failed</returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public float GetDecimalValue() {
-			ArgumentNullException.ThrowIfNull( _value );
+			ExceptionCompat.ThrowIfNull( _value );
 			return Type == CVarType.Decimal ? Convert.ToSingle( _value ) : 0.0f;
 		}
 
@@ -246,8 +247,8 @@ namespace Nomad.CVars.Private {
 		/// <returns>The <see cref="Value"/> in 8-bit boolean format, false by default if bool.TryParse failed</returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public bool GetBooleanValue() {
-			ArgumentNullException.ThrowIfNull( _value );
-			return Type == CVarType.Boolean ? Convert.ToBoolean( _value ) : false;
+			ExceptionCompat.ThrowIfNull( _value );
+			return Type == CVarType.Boolean && Convert.ToBoolean( _value );
 		}
 
 		/*

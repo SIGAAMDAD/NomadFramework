@@ -15,6 +15,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Core.OnlineServices
 {
-    public readonly record struct MatchMakingInfo(
+    public record MatchMakingInfo(
     );
 }

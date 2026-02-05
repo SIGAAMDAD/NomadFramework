@@ -18,7 +18,10 @@ using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using Nomad.Core.Compatibility;
+using Nomad.Core.FileSystem;
 
+#if false
 namespace Nomad.Save.Private.Serialization.Streams {
 	/*
 	===================================================================================
@@ -65,12 +68,12 @@ namespace Nomad.Save.Private.Serialization.Streams {
 		/// Exceptions such as IO or FileNotFound should be handled outside of this class.
 		/// </remarks>
 		/// <param name="filepath"></param>
-		public SaveStreamReader( string filepath ) {
-			using System.IO.FileStream stream = new System.IO.FileStream( filepath, System.IO.FileMode.Open, System.IO.FileAccess.Read );
+		public SaveStreamReader( string filepath, IFileSystem fileSystem ) {
+			using var stream = fileSystem.OpenRead( filepath );
 
-			_length = (int)( stream.Length - stream.Position );
+			_length = stream.Length - stream.Position;
 			_buffer = ArrayPool<byte>.Shared.Rent( Length );
-			stream.ReadExactly( _buffer, 0, Length );
+			stream.Read( _buffer, 0, Length );
 
 			// kill the stream now that we've read it all
 			stream.Dispose();
@@ -102,20 +105,20 @@ namespace Nomad.Save.Private.Serialization.Streams {
 		/// <param name="origin"></param>
 		/// <exception cref="ArgumentOutOfRangeException"></exception>
 		public void Seek( int position, System.IO.SeekOrigin origin ) {
-			ArgumentOutOfRangeException.ThrowIfLessThan( position, 0 );
-			ArgumentNullException.ThrowIfNull( Buffer );
+			ExceptionCompat.ThrowIfLessThan( position, 0 );
+			ExceptionCompat.ThrowIfNull( Buffer );
 
 			switch ( origin ) {
 				case System.IO.SeekOrigin.Begin:
-					ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual( position, Buffer.Length );
+					ExceptionCompat.ThrowIfGreaterThanOrEqual( position, Buffer.Length );
 					_position = position;
 					break;
 				case System.IO.SeekOrigin.Current:
-					ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual( position + Position, Buffer.Length );
+					ExceptionCompat.ThrowIfGreaterThanOrEqual( position + Position, Buffer.Length );
 					_position += position;
 					break;
 				case System.IO.SeekOrigin.End:
-					ArgumentOutOfRangeException.ThrowIfGreaterThan( position, 0 );
+					ExceptionCompat.ThrowIfGreaterThan( position, 0 );
 					_position = Buffer.Length - 1;
 					break;
 				default:
@@ -190,10 +193,10 @@ namespace Nomad.Save.Private.Serialization.Streams {
 		/// <param name="offset"></param>
 		/// <param name="length"></param>
 		public void ReadExactly( byte[] buffer, int offset, int length ) {
-			ArgumentNullException.ThrowIfNull( buffer );
-			ArgumentOutOfRangeException.ThrowIfLessThan( offset, 0 );
-			ArgumentOutOfRangeException.ThrowIfLessThan( length, 0 );
-			ArgumentOutOfRangeException.ThrowIfGreaterThan( offset + length, buffer.Length );
+			ExceptionCompat.ThrowIfNull( buffer );
+			ExceptionCompat.ThrowIfLessThan( offset, 0 );
+			ExceptionCompat.ThrowIfLessThan( length, 0 );
+			ExceptionCompat.ThrowIfGreaterThan( offset + length, buffer.Length );
 
 			CheckRead( length - offset );
 			System.Buffer.BlockCopy( _buffer, Position, buffer, offset, length );
@@ -237,3 +240,4 @@ namespace Nomad.Save.Private.Serialization.Streams {
 		}
 	};
 };
+#endif

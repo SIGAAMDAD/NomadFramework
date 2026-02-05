@@ -18,9 +18,11 @@ using System;
 namespace Nomad.Save.ValueObjects
 {
     /// <summary>
-    ///
+    /// 
     /// </summary>
     /// <param name="FileName"></param>
+    /// <param name="FileSize"></param>
+    /// <param name="LastAccessTime"></param>
     public record SaveFileMetadata(
         SaveFileId FileName,
         long FileSize,

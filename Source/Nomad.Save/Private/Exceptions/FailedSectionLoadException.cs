@@ -27,8 +27,13 @@ namespace Nomad.Save.Private.Exceptions {
 	///
 	/// </summary>
 
-	internal sealed class FailedSectionLoadException( string sectionName, Exception exception ) : Exception {
-		public readonly string? SectionName = sectionName;
-		public readonly Exception Error = exception;
+	internal sealed class FailedSectionLoadException : Exception {
+		public readonly string? SectionName;
+		public readonly Exception Error;
+
+		public FailedSectionLoadException( string sectionName, Exception exception ) {
+			SectionName = sectionName;
+			Error = exception;
+		}
 	};
 };

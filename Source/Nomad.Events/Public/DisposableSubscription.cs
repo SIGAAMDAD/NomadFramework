@@ -17,80 +17,72 @@ using System;
 using System.Runtime.CompilerServices;
 using Nomad.Core.Events;
 
-namespace Nomad.Events {
-	/*
-	===================================================================================
+namespace Nomad.Events
+{
+    /// <summary>
+    /// An automated disposable subscription.
+    /// </summary>
+    public sealed class DisposableSubscription<TArgs> : IDisposable
+        where TArgs : struct
+    {
+        private IGameEvent<TArgs> _event;
+        private EventCallback<TArgs> _callback;
 
-	DisposableSubscription
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="handler"></param>
+        /// <param name="callback"></param>
+        public DisposableSubscription(IGameEvent<TArgs> handler, EventCallback<TArgs> callback)
+        {
+            handler.Subscribe(this, callback);
+            _event = handler;
+            _callback = callback;
+        }
 
-	===================================================================================
-	*/
-	/// <summary>
-	/// An automated disposable subscription.
-	/// </summary>
+        /*
+        ===============
+        ~DisposableSubscription
+        ===============
+        */
+        /// <summary>
+        /// 
+        /// </summary>
+        ~DisposableSubscription()
+        {
+            Dispose();
+        }
 
-	public sealed class DisposableSubscription<TArgs> : IDisposable
-		where TArgs : struct
-	{
-		private IGameEvent<TArgs> _event;
-		private EventCallback<TArgs> _callback;
+        /*
+        ===============
+        Dispose
+        ===============
+        */
+        /// <summary>
+        /// 
+        /// </summary>
+        public void Dispose()
+        {
+            _event.Unsubscribe(this, _callback);
+            _event = null;
+            _callback = null;
 
-		/*
-		===============
-		DisposableSubscription
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="handler"></param>
-		/// <param name="callback"></param>
-		public DisposableSubscription( IGameEvent<TArgs> handler, EventCallback<TArgs> callback ) {
-			handler.Subscribe( this, callback );
-			_event = handler;
-			_callback = callback;
-		}
+            GC.SuppressFinalize(this);
+        }
 
-		/*
-		===============
-		~DisposableSubscription
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		~DisposableSubscription() {
-			Dispose();
-		}
-
-		/*
-		===============
-		Dispose
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		public void Dispose() {
-			GC.SuppressFinalize( this );
-
-			_event.Unsubscribe( this, _callback );
-			_event = null;
-			_callback = null;
-		}
-
-		/*
-		===============
-		Publish
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="eventArgs"></param>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public void Publish( in TArgs eventArgs ) {
-			_event.Publish( in eventArgs );
-		}
-	};
+        /*
+        ===============
+        Publish
+        ===============
+        */
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="eventArgs"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Publish(in TArgs eventArgs)
+        {
+            _event.Publish(in eventArgs);
+        }
+    };
 };

@@ -22,6 +22,7 @@ using System.Collections.Concurrent;
 using Nomad.Logger.Private;
 using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
+using Nomad.Core.Compatibility;
 
 namespace Nomad.Logger
 {
@@ -93,11 +94,11 @@ namespace Nomad.Logger
             var cvarSystem = locator.GetService<ICVarSystemService>();
             _logDepth = cvarSystem.Register(
                 new CVarCreateInfo<LogLevel>(
-                    Name: Constants.CVars.Console.CONSOLE_LOG_LEVEL,
-                    DefaultValue: LogLevel.Info,
-                    Description: "The verbosity of the logger.",
-                    Flags: CVarFlags.Archive,
-                    Validator: value => value >= LogLevel.Error && value < LogLevel.Count
+                    name: Constants.CVars.Console.CONSOLE_LOG_LEVEL,
+                    defaultValue: LogLevel.Info,
+                    description: "The verbosity of the logger.",
+                    flags: CVarFlags.Archive,
+                    validator: value => value >= LogLevel.Error && value < LogLevel.Count
                 )
             );
         }
@@ -108,7 +109,7 @@ namespace Nomad.Logger
         /// <param name="sink"></param>
         public void AddSink(ILoggerSink sink)
         {
-            ArgumentNullException.ThrowIfNull(sink);
+            ExceptionCompat.ThrowIfNull(sink);
             _sinks.Add(sink);
 
             foreach (var category in _categories)
@@ -187,7 +188,7 @@ namespace Nomad.Logger
         /// <param name="message"></param>
         public void Print(in ILoggerCategory category, in string message)
         {
-            ArgumentNullException.ThrowIfNull(category);
+            ExceptionCompat.ThrowIfNull(category);
             PrintMessage(in category, LogLevel.Info, in message, false);
         }
 
@@ -198,7 +199,7 @@ namespace Nomad.Logger
         /// <param name="message"></param>
         public void PrintLine(in ILoggerCategory category, in string message)
         {
-            ArgumentNullException.ThrowIfNull(category);
+            ExceptionCompat.ThrowIfNull(category);
             PrintMessage(in category, LogLevel.Info, in message, true);
         }
 
@@ -209,7 +210,7 @@ namespace Nomad.Logger
         /// <param name="message"></param>
         public void PrintDebug(in ILoggerCategory category, in string message)
         {
-            ArgumentNullException.ThrowIfNull(category);
+            ExceptionCompat.ThrowIfNull(category);
             PrintMessage(in category, LogLevel.Debug, in message, true);
         }
 
@@ -220,7 +221,7 @@ namespace Nomad.Logger
         /// <param name="message"></param>
         public void PrintWarning(in ILoggerCategory category, in string message)
         {
-            ArgumentNullException.ThrowIfNull(category);
+            ExceptionCompat.ThrowIfNull(category);
             PrintMessage(in category, LogLevel.Warning, in message, true);
         }
 
@@ -231,7 +232,7 @@ namespace Nomad.Logger
         /// <param name="message"></param>
         public void PrintError(in ILoggerCategory category, in string message)
         {
-            ArgumentNullException.ThrowIfNull(category);
+            ExceptionCompat.ThrowIfNull(category);
             PrintMessage(in category, LogLevel.Error, in message, true);
         }
 

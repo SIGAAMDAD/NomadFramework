@@ -2,8 +2,9 @@
 
   <PropertyGroup>
     <!-- Build Configuration -->
-    <TargetFramework>net10.0</TargetFramework>
-    <TargetFramework Condition=" '$(GodotTargetPlatform)' == 'android' ">net10.0</TargetFramework>
+    <TargetFrameworks>net10.0;netstandard2.1</TargetFrameworks>
+    <LangVersion Condition="'$(TargetFramework)' == 'net10.0'">14.0</LangVersion>
+    <LangVersion Condition="'$(TargetFramework)' == 'netstandard2.1'">9.0</LangVersion>
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Nullable>enable</Nullable>
@@ -22,18 +23,25 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Godot.NET.Sdk" Version="4.6.0" />
-    <PackageReference Include="Godot.SourceGenerators" Version="4.6.0" />
-    <PackageReference Include="GodotSharp" Version="4.6.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Nomad.Core\Nomad.Core.csproj" />
     <ProjectReference Include="..\Nomad.Events\Nomad.Events.csproj" />
     <ProjectReference Include="..\Nomad.Logger\Nomad.Logger.csproj" />
     <ProjectReference Include="..\Nomad.CVars\Nomad.CVars.csproj" />
-    <ProjectReference Include="..\Nomad.EngineUtils.Godot\Nomad.EngineUtils.Godot.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.IO.Compression" Version="4.3.0" />
+  </ItemGroup>
+
+  <!-- Framework-specific constants -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <DefineConstants>$(DefineConstants);NET10_0;USE_LATEST_FEATURES</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
+    <DefineConstants>$(DefineConstants);NETSTANDARD2_1;USE_COMPATIBILITY_EXTENSIONS;UNITY_COMPATIBLE</DefineConstants>
+    <NoWarn>$(NoWarn);CS8632;CS8600;CS8601;CS8602;CS8603;CS8604;CS8618;CS8625</NoWarn>
+  </PropertyGroup>
 
   <PropertyGroup>
     <IsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">true</IsWindows>

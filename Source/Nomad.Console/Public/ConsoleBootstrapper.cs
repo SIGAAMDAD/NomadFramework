@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -13,46 +13,43 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Godot;
 using Nomad.Core.Events;
 using Nomad.Core.ServiceRegistry.Interfaces;
 using Nomad.CVars;
-using Nomad.CVars.Private.Services;
 using Nomad.Core;
-using System;
-using Nomad.Console.Private.Godot;
 using Nomad.Console.Interfaces;
 using Nomad.Console.Private.Services;
 using Nomad.Core.Logger;
+using Nomad.Core.Compatibility;
+using Nomad.Core.Abstractions;
 
 namespace Nomad.Console
 {
     /// <summary>
     ///
     /// </summary>
-    public static class ConsoleBootstrapper
+    public class ConsoleBootstrapper : IBootstrapper
     {
         /// <summary>
-        ///
+        /// 
         /// </summary>
-        /// <param name="services"></param>
         /// <param name="registry"></param>
-        /// <param name="rootNode"></param>
-        public static void Initialize(IServiceLocator services, IServiceRegistry registry, Node rootNode)
+        /// <param name="locator"></param>
+        public void Initialize(IServiceRegistry registry, IServiceLocator locator)
         {
-            ArgumentNullException.ThrowIfNull(rootNode);
+            ExceptionCompat.ThrowIfNull(registry);
+            ExceptionCompat.ThrowIfNull(locator);
 
-            var eventFactory = services.GetService<IGameEventRegistryService>();
-            var eventBus = services.GetService<IGodotEventBusService>();
-            var logger = services.GetService<ILoggerService>();
+            var eventFactory = locator.GetService<IGameEventRegistryService>();
+            var logger = locator.GetService<ILoggerService>();
 
-            var cvarSystem = registry.RegisterSingleton<ICVarSystemService>(new CVarSystem(eventFactory, logger));
+            var cvarSystem = locator.GetService<ICVarSystemService>();
             var configFile = cvarSystem.Register(
                 new CVarCreateInfo<string>(
-                    Name: Constants.CVars.Console.DEFAULT_CONFIG_FILE,
-                    DefaultValue: "res://Assets/Config/default.ini",
-                    Description: "The default configuration file.",
-                    Flags: CVarFlags.Init | CVarFlags.ReadOnly
+                    name: Constants.CVars.Console.DEFAULT_CONFIG_FILE,
+                    defaultValue: "res://Assets/Config/default.ini",
+                    description: "The default configuration file.",
+                    flags: CVarFlags.Init | CVarFlags.ReadOnly
                 )
             );
             cvarSystem.Load(configFile.Value);
@@ -65,7 +62,7 @@ namespace Nomad.Console
             eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.NAMESPACE, Constants.Events.Console.PAGE_UP_EVENT);
             eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.NAMESPACE, Constants.Events.Console.PAGE_DOWN_EVENT);
 
-            var commandBuilder = new GodotCommandBuilder(eventBus, eventFactory);
+            var commandBuilder = new GodotCommandBuilder(eventFactory);
             var commandService = registry.RegisterSingleton<ICommandService>(new CommandCacheService(logger, cvarSystem));
 
             var console = new GodotConsole(commandBuilder, commandService, logger, eventFactory);
@@ -74,6 +71,13 @@ namespace Nomad.Console
             logger.AddSink(new InGameSink(console, eventFactory));
 
             rootNode.CallDeferred(Node.MethodName.AddChild, console);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void Shutdown()
+        {
         }
     }
 }

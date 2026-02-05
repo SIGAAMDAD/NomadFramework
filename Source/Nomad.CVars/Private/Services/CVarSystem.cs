@@ -16,8 +16,11 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using Nomad.Core.Compatibility;
 using Nomad.Core.Events;
+using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.Core.Util;
 using Nomad.CVars.Private.Repositories;
@@ -31,7 +34,7 @@ namespace Nomad.CVars.Private.Services {
 	===================================================================================
 	*/
 	/// <summary>
-	/// Global manager for CVars
+	/// Global manager for CVars.
 	/// </summary>
 
 	public sealed class CVarSystem : ICVarSystemService {
@@ -40,6 +43,7 @@ namespace Nomad.CVars.Private.Services {
 
 		private readonly IGameEventRegistryService _eventFactory;
 		private readonly ILoggerService _logger;
+		private readonly IFileSystem _fileSystem;
 
 		/*
 		===============
@@ -47,13 +51,16 @@ namespace Nomad.CVars.Private.Services {
 		===============
 		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
 		/// <param name="eventFactory"></param>
+		/// <param name="fileSystem"></param>
 		/// <param name="logger"></param>
-		public CVarSystem( IGameEventRegistryService eventFactory, ILoggerService logger ) {
+		public CVarSystem( IGameEventRegistryService eventFactory, IFileSystem fileSystem, ILoggerService logger ) {
 			_eventFactory = eventFactory;
 			_logger = logger;
+			_fileSystem = fileSystem;
+
 			AddGroup( new CVarGroup( "Display", _logger, this ) );
 			AddGroup( new CVarGroup( "Graphics", _logger, this ) );
 			AddGroup( new CVarGroup( "Audio", _logger, this ) );
@@ -83,7 +90,7 @@ namespace Nomad.CVars.Private.Services {
 		/// <param name="cvar"></param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void Register( ICVar cvar ) {
-			ArgumentNullException.ThrowIfNull( cvar );
+			ExceptionCompat.ThrowIfNull( cvar );
 
 			InternString name = new( cvar.Name );
 			if ( !_cvars.ContainsKey( name ) ) {
@@ -129,10 +136,10 @@ namespace Nomad.CVars.Private.Services {
 		/// </summary>
 		/// <param name="cvar">The cvar to remove</param>
 		public void Unregister( ICVar cvar ) {
-			ArgumentNullException.ThrowIfNull( cvar );
+			ExceptionCompat.ThrowIfNull( cvar );
 
 			try {
-				_cvars.TryRemove( new KeyValuePair<InternString, ICVar>( new( cvar.Name ), cvar ) );
+				_cvars.TryRemove( new( cvar.Name ), out _ );
 			} catch ( Exception e ) {
 				_logger.PrintError( $"CVarSystem.RemoveCVar: error removing cached CVar {cvar.Name} - {e.Message}" );
 			}
@@ -149,7 +156,7 @@ namespace Nomad.CVars.Private.Services {
 		/// <param name="group"></param>
 		/// <exception cref="InvalidOperationException"></exception>
 		public void AddGroup( in CVarGroup group ) {
-			ArgumentNullException.ThrowIfNull( group );
+			ExceptionCompat.ThrowIfNull( group );
 
 			if ( _groups.Contains( group ) ) {
 				throw new InvalidOperationException( $"CVarGroup {group.Name} added twice" );
@@ -170,7 +177,7 @@ namespace Nomad.CVars.Private.Services {
 		/// <param name="name"></param>
 		/// <returns></returns>
 		public ICVar? Find( string name ) {
-			ArgumentException.ThrowIfNullOrEmpty( name );
+			ExceptionCompat.ThrowIfNullOrEmpty( name );
 			return _cvars.TryGetValue( new( name ), out ICVar? cvar ) ? cvar : null;
 		}
 
@@ -187,7 +194,7 @@ namespace Nomad.CVars.Private.Services {
 		/// <param name="cvar"></param>
 		/// <returns></returns>
 		public bool TryFind<T>( string name, out ICVar<T>? cvar ) {
-			ArgumentException.ThrowIfNullOrEmpty( name );
+			ExceptionCompat.ThrowIfNullOrEmpty( name );
 
 			if ( _cvars.TryGetValue( new( name ), out ICVar? var ) && var is CVar<T> typedVar ) {
 				cvar = typedVar;
@@ -208,12 +215,12 @@ namespace Nomad.CVars.Private.Services {
 		/// </summary>
 		/// <param name="configFile">The file to write .ini values tos</param>
 		public void Save( string configFile ) {
-			ArgumentException.ThrowIfNullOrEmpty( configFile );
-			ArgumentNullException.ThrowIfNull( _cvars );
+			ExceptionCompat.ThrowIfNullOrEmpty( configFile );
+			ExceptionCompat.ThrowIfNull( _cvars );
 
 			// ensure we block all access
 			lock ( _cvars ) {
-				ConfigFileWriter writer = new ConfigFileWriter( configFile, _logger, this, _cvars.Values );
+				ConfigFileWriter writer = new ConfigFileWriter( configFile, _logger, this, _fileSystem, _cvars.Values );
 			}
 		}
 
@@ -227,7 +234,7 @@ namespace Nomad.CVars.Private.Services {
 		/// </summary>
 		/// <param name="configFile">The file to load .ini values from</param>
 		public void Load( string configFile ) {
-			ArgumentException.ThrowIfNullOrEmpty( configFile );
+			ExceptionCompat.ThrowIfNullOrEmpty( configFile );
 
 			// make sure we actually have something to load
 			if ( _cvars == null || _cvars.IsEmpty ) {
@@ -237,7 +244,7 @@ namespace Nomad.CVars.Private.Services {
 
 			// ensure we block all access
 			lock ( _cvars ) {
-				ConfigFileReader reader = new ConfigFileReader( _logger, configFile );
+				ConfigFileReader reader = new ConfigFileReader( _fileSystem, _logger, configFile );
 
 				foreach ( var cvar in _cvars ) {
 					if ( reader.TryGetValue( cvar.Value.Name, out string? value ) ) {
@@ -274,7 +281,7 @@ namespace Nomad.CVars.Private.Services {
 		/// </summary>
 		/// <returns></returns>
 		public ICVar[] GetCVars() {
-			return [ .. _cvars.Values ];
+			return  _cvars.Values.ToArray();
 		}
 
 		/*
@@ -291,7 +298,7 @@ namespace Nomad.CVars.Private.Services {
 			if ( !GetCVarGroup( groupName, out CVarGroup? group ) ) {
 				return null;
 			}
-			ArgumentNullException.ThrowIfNull( group );
+			ExceptionCompat.ThrowIfNull( group );
 
 			List<ICVar> cvars = new List<ICVar>();
 			foreach ( var cvarName in group.Cvars ) {
@@ -299,7 +306,7 @@ namespace Nomad.CVars.Private.Services {
 					cvars.Add( cvar );
 				}
 			}
-			return [ .. cvars ];
+			return cvars.ToArray();
 		}
 
 		/*
@@ -313,7 +320,7 @@ namespace Nomad.CVars.Private.Services {
 		/// <param name="groupName"></param>
 		/// <returns></returns>
 		public bool GroupExists( string groupName ) {
-			ArgumentException.ThrowIfNullOrEmpty( groupName );
+			ExceptionCompat.ThrowIfNullOrEmpty( groupName );
 
 			foreach ( var group in _groups ) {
 				if ( string.Equals( group.Name, groupName ) ) {
@@ -350,7 +357,7 @@ namespace Nomad.CVars.Private.Services {
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public bool CVarExists( string name ) {
-			ArgumentException.ThrowIfNullOrEmpty( name );
+			ExceptionCompat.ThrowIfNullOrEmpty( name );
 			return _cvars.ContainsKey( new( name ) );
 		}
 
@@ -359,8 +366,15 @@ namespace Nomad.CVars.Private.Services {
 		GetCVar
 		===============
 		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="name"></param>
+		/// <returns></returns>
+		/// <exception cref="InvalidCastException"></exception>
 		public ICVar<T>? GetCVar<T>( string name ) {
-			ArgumentException.ThrowIfNullOrEmpty( name );
+			ExceptionCompat.ThrowIfNullOrEmpty( name );
 
 			if ( !_cvars.TryGetValue( new( name ), out var cvar ) ) {
 				_logger.PrintError( $"CVarSystem.GetCVar: no cvar found for name '{name}'!" );
@@ -374,8 +388,13 @@ namespace Nomad.CVars.Private.Services {
 		GetCVar
 		===============
 		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="name"></param>
+		/// <returns></returns>
 		public ICVar? GetCVar( string name ) {
-			ArgumentException.ThrowIfNullOrEmpty( name );
+			ExceptionCompat.ThrowIfNullOrEmpty( name );
 
 			if ( !_cvars.TryGetValue( new( name ), out var cvar ) ) {
 				_logger.PrintError( $"CVarSystem.GetCVar: no cvar found for name '{name}'!" );
@@ -403,7 +422,7 @@ namespace Nomad.CVars.Private.Services {
 				}
 			}
 
-			return [ .. cvars ];
+			return cvars.ToArray();
 		}
 
 		/*

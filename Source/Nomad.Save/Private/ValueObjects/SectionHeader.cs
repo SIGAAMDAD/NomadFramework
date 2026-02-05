@@ -15,8 +15,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System.IO;
 using System.Runtime.CompilerServices;
+using Nomad.Core.FileSystem;
 using Nomad.Save.Private.Exceptions;
-using Nomad.Save.Private.Serialization.Streams;
 
 namespace Nomad.Save.Private.ValueObjects {
 	/*
@@ -30,12 +30,40 @@ namespace Nomad.Save.Private.ValueObjects {
 	/// Represents a save section's header containing the metadata.
 	/// </summary>
 
-	internal readonly ref struct SectionHeader( string name, int fieldCount, ulong checksum ) {
+	internal readonly ref struct SectionHeader {
 		private const int SECTION_NAME_MAX_LENGTH = 128;
 
-		public string Name => name;
-		public int FieldCount => fieldCount;
-		public ulong Checksum => checksum;
+		/// <summary>
+		/// The section's name.
+		/// </summary>
+		public readonly string Name;
+
+		/// <summary>
+		/// The amount of written primitives in the section.
+		/// </summary>
+		public readonly int FieldCount;
+
+		/// <summary>
+		/// The section's CRC64
+		/// </summary>
+		public readonly ulong Checksum;
+
+		/*
+		===============
+		SectionHeader
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="name"></param>
+		/// <param name="fieldCount"></param>
+		/// <param name="checksum"></param>
+		public SectionHeader( string name, int fieldCount, ulong checksum ) {
+			Name = name;
+			FieldCount = fieldCount;
+			Checksum = checksum;
+		}
 
 		/*
 		===============
@@ -47,10 +75,10 @@ namespace Nomad.Save.Private.ValueObjects {
 		/// </summary>
 		/// <param name="stream"></param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public void Save( in SaveStreamWriter stream ) {
-			stream.Write( name );
-			stream.Write( fieldCount );
-			stream.Write( checksum );
+		public void Save( in IWriteStream stream ) {
+			stream.WriteString( Name );
+			stream.WriteInt32( FieldCount );
+			stream.WriteUInt64( Checksum );
 		}
 
 		/*
@@ -64,18 +92,18 @@ namespace Nomad.Save.Private.ValueObjects {
 		/// <param name="stream"></param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public static SectionHeader Load( in SaveStreamReader stream ) {
+		public static SectionHeader Load( in IReadStream stream ) {
 			string name = stream.ReadString();
 			if ( name.Length <= 0 || name.Length > SECTION_NAME_MAX_LENGTH ) {
 				throw new IOException( $"Section name corrupt or too long ({name.Length})" );
 			}
 
-			int fieldCount = stream.Read<int>();
+			int fieldCount = stream.ReadInt32();
 			if ( fieldCount < 0 ) {
 				throw new FailedSectionLoadException( name, new System.Exception( "field count is corrupt" ) );
 			}
 
-			return new SectionHeader( name, fieldCount, stream.Read<ulong>() );
+			return new SectionHeader( name, fieldCount, stream.ReadUInt64() );
 		}
 	};
 };

@@ -14,7 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using Nomad.Save.Private.Serialization.Streams;
+using Nomad.Core.FileSystem;
 using Nomad.Save.Private.ValueObjects;
 
 namespace Nomad.Save.Private.Serialization.FieldSerializers {
@@ -33,8 +33,8 @@ namespace Nomad.Save.Private.Serialization.FieldSerializers {
 		public FieldType FieldType => FieldType.Float;
 		public Type DataType => typeof( float );
 
-		public void Serialize( SaveStreamWriter stream, float value ) => stream.Write( value );
-		public void Serialize( SaveStreamWriter stream, FieldValue value ) => stream.Write( value.GetValue<float>() );
-		public FieldValue Deserialize( SaveStreamReader stream ) => new FieldValue( stream.Read<float>() );
+		public void Serialize( IWriteStream stream, float value ) => stream.WriteFloat( value );
+		public void Serialize( IWriteStream stream, FieldValue value ) => stream.WriteFloat( value.GetValue<float>() );
+		public FieldValue Deserialize( IReadStream stream ) => new FieldValue( stream.ReadFloat() );
 	};
 };

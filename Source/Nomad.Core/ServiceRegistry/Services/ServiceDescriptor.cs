@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -23,19 +23,56 @@ namespace Nomad.Core.ServiceRegistry.Services
     ///
     /// </summary>
 
-    public class ServiceDescriptor(Type serviceType, Type? implementationType, ServiceLifetime lifetime, Func<IServiceLocator, object>? factory, object? instance = null) : IEquatable<ServiceDescriptor>
+    public class ServiceDescriptor : IEquatable<ServiceDescriptor>
     {
-        public Type ServiceType { get; } = serviceType;
-        public Type? ImplementationType { get; } = implementationType;
-        public ServiceLifetime Lifetime { get; } = lifetime;
-        public Func<IServiceLocator, object>? Factory { get; } = factory;
-        public readonly object? Instance = instance;
+        /// <summary>
+        /// 
+        /// </summary>
+        public Type ServiceType { get; }
 
-        /*
-		===============
-		CreateSingleton
-		===============
-		*/
+        /// <summary>
+        /// 
+        /// </summary>
+        public Type? ImplementationType { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public ServiceLifetime Lifetime { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public Func<IServiceLocator, object>? Factory { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public readonly object? Instance;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="serviceType"></param>
+        /// <param name="implementationType"></param>
+        /// <param name="lifetime"></param>
+        /// <param name="factory"></param>
+        /// <param name="instance"></param>
+        public ServiceDescriptor(Type serviceType, Type? implementationType, ServiceLifetime lifetime, Func<IServiceLocator, object>? factory, object? instance = null)
+        {
+            ServiceType = serviceType;
+            ImplementationType = implementationType;
+            Lifetime = lifetime;
+            Factory = factory;
+            Instance = instance;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TService"></typeparam>
+        /// <typeparam name="TImplementation"></typeparam>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ServiceDescriptor CreateSingleton<TService, TImplementation>()
             where TService : class
@@ -44,11 +81,12 @@ namespace Nomad.Core.ServiceRegistry.Services
             return new ServiceDescriptor(typeof(TService), typeof(TImplementation), ServiceLifetime.Singleton, null);
         }
 
-        /*
-		===============
-		CreateSingleton
-		===============
-		*/
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TService"></typeparam>
+        /// <param name="instance"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ServiceDescriptor CreateSingleton<TService>(TService instance)
             where TService : class
@@ -56,11 +94,12 @@ namespace Nomad.Core.ServiceRegistry.Services
             return new ServiceDescriptor(typeof(TService), instance.GetType(), ServiceLifetime.Singleton, null, instance);
         }
 
-        /*
-		===============
-		CreateSingleton
-		===============
-		*/
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TService"></typeparam>
+        /// <param name="factory"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ServiceDescriptor CreateSingleton<TService>(Func<IServiceLocator, TService> factory)
             where TService : class
@@ -68,11 +107,12 @@ namespace Nomad.Core.ServiceRegistry.Services
             return new ServiceDescriptor(typeof(TService), null, ServiceLifetime.Singleton, provider => factory(provider));
         }
 
-        /*
-		===============
-		CreateTransient
-		===============
-		*/
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TService"></typeparam>
+        /// <typeparam name="TImplementation"></typeparam>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ServiceDescriptor CreateTransient<TService, TImplementation>()
             where TService : class
@@ -81,11 +121,12 @@ namespace Nomad.Core.ServiceRegistry.Services
             return new ServiceDescriptor(typeof(TService), typeof(TImplementation), ServiceLifetime.Transient, null);
         }
 
-        /*
-		===============
-		CreateTransient
-		===============
-		*/
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TService"></typeparam>
+        /// <param name="factory"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ServiceDescriptor CreateTransient<TService>(Func<IServiceLocator, TService> factory)
             where TService : class
@@ -93,11 +134,12 @@ namespace Nomad.Core.ServiceRegistry.Services
             return new ServiceDescriptor(typeof(TService), null, ServiceLifetime.Transient, provider => factory(provider));
         }
 
-        /*
-		===============
-		CreateScope d
-		===============
-		*/
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TService"></typeparam>
+        /// <typeparam name="TImplementation"></typeparam>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ServiceDescriptor CreateScoped<TService, TImplementation>()
             where TService : class
@@ -106,11 +148,11 @@ namespace Nomad.Core.ServiceRegistry.Services
             return new ServiceDescriptor(typeof(TService), typeof(TImplementation), ServiceLifetime.Scoped, null);
         }
 
-        /*
-		===============
-		Equals
-		===============
-		*/
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>/
         public bool Equals(ServiceDescriptor? other)
         {
             return other is not null && other.ServiceType == ServiceType && other.ImplementationType == ImplementationType && other.Lifetime == Lifetime;

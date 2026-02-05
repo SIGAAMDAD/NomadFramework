@@ -27,12 +27,18 @@ namespace Nomad.Events.Private {
 	///
 	/// </summary>
 
-	internal sealed class WeakSubscription<TArgs, TCallback>( object subscriber, TCallback callback )
+	internal sealed class WeakSubscription<TArgs, TCallback>
 		where TArgs : struct
 		where TCallback : class
 	{
-		public readonly WeakReference<object> Subscriber = new WeakReference<object>( subscriber );
-		public readonly TCallback Callback = callback;
+		public readonly WeakReference<object> Subscriber;
+		public readonly TCallback Callback;
+		
 		public bool IsAlive => Subscriber.TryGetTarget( out _ );
+
+		public WeakSubscription( object subscriber, TCallback callback ) {
+			Subscriber = new WeakReference<object>( Subscriber );
+			Callback = callback;
+		}
 	};
 };

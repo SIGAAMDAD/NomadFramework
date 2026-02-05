@@ -15,6 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -31,7 +32,7 @@ namespace Nomad.Save.Private.ValueObjects {
 	/// Everything occupies the same memory space because it's meant to be like c++'s std::any
 	/// </summary>
 
-	public readonly record struct FieldValue {
+	public readonly struct FieldValue {
 		[StructLayout( LayoutKind.Explicit, Pack = 1, Size = 16 )]
 		private struct Union {
 			[FieldOffset( 0 )] public bool Boolean;
@@ -52,7 +53,7 @@ namespace Nomad.Save.Private.ValueObjects {
 			[FieldOffset( 8 )] public string? String;
 		};
 
-		private static readonly IReadOnlyDictionary<Type, FieldType> _systemTypeToFieldType = new Dictionary<Type, FieldType>() {
+		private static readonly ImmutableDictionary<Type, FieldType> _systemTypeToFieldType = new Dictionary<Type, FieldType>() {
 			{ typeof( bool ), FieldType.Boolean },
 			{ typeof( sbyte ), FieldType.Int8 },
 			{ typeof( short ), FieldType.Int16 },
@@ -65,8 +66,9 @@ namespace Nomad.Save.Private.ValueObjects {
 			{ typeof( string ), FieldType.String },
 			{ typeof( float ), FieldType.Float },
 			{ typeof( double ), FieldType.Double }
-		};
-		private static readonly IReadOnlyDictionary<FieldType, Type> _fieldTypeToSystemType = new Dictionary<FieldType, Type>() {
+		}.ToImmutableDictionary();
+		
+		private static readonly ImmutableDictionary<FieldType, Type> _fieldTypeToSystemType = new Dictionary<FieldType, Type>() {
 			{ FieldType.Boolean, typeof( bool ) },
 			{ FieldType.Int8, typeof( sbyte ) },
 			{ FieldType.Int16, typeof( short ) },
@@ -79,7 +81,7 @@ namespace Nomad.Save.Private.ValueObjects {
 			{ FieldType.String, typeof( string ) },
 			{ FieldType.Float, typeof( float ) },
 			{ FieldType.Double, typeof( double ) }
-		};
+		}.ToImmutableDictionary();
 
 		private readonly Union _value;
 		private readonly FieldType _type;

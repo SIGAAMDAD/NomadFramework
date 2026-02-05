@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -13,15 +13,17 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
 using System.Collections.Concurrent;
+using System;
+using Nomad.Core.Compatibility;
 
 namespace Nomad.Core.Memory
 {
     /// <summary>
     ///
     /// </summary>
-    public class BasicObjectPool<T> : IObjectPool<T> where T : new()
+    public class BasicObjectPool<T> : IObjectPool<T>
+        where T : new()
     {
         public int AvailableCount => _availableObjects.Count;
 
@@ -37,12 +39,12 @@ namespace Nomad.Core.Memory
         private bool _isDisposed = false;
 
         /// <summary>
-        ///
+        /// Basic object pool constructor.
         /// </summary>
-        /// <param name="createObject"></param>
-        /// <param name="initialSize"></param>
-        /// <param name="maxSize"></param>
-        /// <exception cref="ArgumentNullException"></exception>
+        /// <param name="createObject">The function to create new objects.</param>
+        /// <param name="initialSize">The initial number of objects to create in the pool.</param>
+        /// <param name="maxSize">The maximum number of objects that can be in the pool.</param>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="createObject"/> is null.</exception>
         public BasicObjectPool(Func<T> createObject, int initialSize = 32, int maxSize = int.MaxValue)
         {
             _availableObjects = new ConcurrentBag<T>();
@@ -59,11 +61,11 @@ namespace Nomad.Core.Memory
         /// <exception cref="InvalidOperationException"></exception>
         public T Rent()
         {
-            ObjectDisposedException.ThrowIf(_isDisposed, this);
+            ExceptionCompat.ThrowIfDisposed(_isDisposed, this);
 
             if (_availableObjects.TryTake(out T? obj))
             {
-                ArgumentNullException.ThrowIfNull(obj);
+                ExceptionCompat.ThrowIfNull(obj);
                 return obj;
             }
 
@@ -90,7 +92,7 @@ namespace Nomad.Core.Memory
                 return;
             }
 
-            ArgumentNullException.ThrowIfNull(obj);
+            ExceptionCompat.ThrowIfNull(obj);
 
             if (_availableObjects.Count < _maxSize)
             {
@@ -119,7 +121,7 @@ namespace Nomad.Core.Memory
             _isDisposed = true;
             while (_availableObjects.TryTake(out T? obj))
             {
-                ArgumentNullException.ThrowIfNull(obj);
+                ExceptionCompat.ThrowIfNull(obj);
                 if (obj is IDisposable disposable)
                 {
                     disposable.Dispose();

@@ -197,6 +197,12 @@ namespace Nomad.Core.FileSystem
         void WriteFloat64(double value);
 
         /// <summary>
+        /// Writes an 8-bit boolean value to the current stream and advances the position by 1 byte.
+        /// </summary>
+        /// <param name="value">The 8-bit boolean value to write.</param>
+        void WriteBoolean(bool value);
+
+        /// <summary>
         /// Writes a string to the current stream. The string format (length-prefixed, null-terminated, etc.)
         /// depends on the stream's implementation.
         /// </summary>

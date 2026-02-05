@@ -38,9 +38,9 @@ namespace Nomad.Core.FileSystem
         /// <summary>
         /// Opens the file stream.
         /// </summary>
-        /// <param name="filepath"></param>
-        /// <param name="openMode"></param>
-        /// <param name="accessMode"></param>
+        /// <param name="filepath">The path of the file to open.</param>
+        /// <param name="openMode">The mode to open the file with.</param>
+        /// <param name="accessMode">The access mode to open the file with.</param>
         bool Open(string filepath, System.IO.FileMode openMode, System.IO.FileAccess accessMode);
     }
 }

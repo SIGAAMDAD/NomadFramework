@@ -14,7 +14,32 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 namespace Nomad.CVars.Private {
-	internal readonly ref struct CVarConverter<T>( T defaultValue ) {
-		public readonly T DefaultValue = defaultValue;
+	/*
+	===================================================================================
+	
+	CVarConverter
+	
+	===================================================================================
+	*/
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	
+	internal readonly ref struct CVarConverter<T> {
+		public readonly T DefaultValue;
+
+		/*
+		===============
+		CVarConverter
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="defaultValue"></param>
+		public CVarConverter( T defaultValue ) {
+			DefaultValue = defaultValue;
+		}
 	};
 };

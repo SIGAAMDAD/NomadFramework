@@ -17,8 +17,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Extensions.Configuration.Ini;
+using Nomad.Core.Compatibility;
+using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
-using Nomad.Core.Util;
 
 namespace Nomad.CVars.Private.Repositories {
 	/*
@@ -33,7 +34,7 @@ namespace Nomad.CVars.Private.Repositories {
 	/// </summary>
 
 	internal readonly ref struct IniLoader {
-		private readonly IDictionary<string, string?>? IniData;
+		private readonly IDictionary<string, string?>? _iniData;
 
 		/*
 		===============
@@ -45,15 +46,17 @@ namespace Nomad.CVars.Private.Repositories {
 		/// </summary>
 		/// <param name="configFile"></param>
 		/// <param name="logger"></param>
-		public IniLoader( string configFile, ILoggerService logger ) {
-			ArgumentException.ThrowIfNullOrEmpty( configFile );
-			ArgumentNullException.ThrowIfNull( logger );
+		public IniLoader( string configFile, ILoggerService logger, IFileSystem fileSystem ) {
+			ExceptionCompat.ThrowIfNullOrEmpty( configFile );
+			ExceptionCompat.ThrowIfNull( logger );
+
+			_iniData = null;
 
 			try {
-				using FileStream fileStream = new( FilePath.FromResourcePath( configFile ).OSPath, FileMode.Open, FileAccess.Read );
+				using FileStream fileStream = new( $"{fileSystem.GetConfigPath()}/{configFile}", FileMode.Open, FileAccess.Read );
 
-				IniData = IniStreamConfigurationProvider.Read( fileStream );
-				if ( IniData == null ) {
+				_iniData = IniStreamConfigurationProvider.Read( fileStream );
+				if ( _iniData == null ) {
 					logger.PrintError( $"IniLoader: error parsing ini data from configuration file '{configFile}'" );
 				}
 			} catch ( Exception e ) {
@@ -72,11 +75,11 @@ namespace Nomad.CVars.Private.Repositories {
 		/// <param name="name">The name of the key of the configuration value</param>
 		/// <param name="value">The output value</param>
 		public bool LoadConfigValue( string name, out int value ) {
-			ArgumentNullException.ThrowIfNull( IniData );
-			ArgumentException.ThrowIfNullOrEmpty( name );
+			ExceptionCompat.ThrowIfNull( _iniData );
+			ExceptionCompat.ThrowIfNullOrEmpty( name );
 
-			if ( IniData.TryGetValue( name, out string? data ) ) {
-				ArgumentException.ThrowIfNullOrEmpty( data );
+			if ( _iniData.TryGetValue( name, out string? data ) ) {
+				ExceptionCompat.ThrowIfNullOrEmpty( data );
 				value = Convert.ToInt32( data );
 				return true;
 			}
@@ -95,11 +98,11 @@ namespace Nomad.CVars.Private.Repositories {
 		/// <param name="name">The name of the key of the configuration value</param>
 		/// <param name="value">The output value</param>
 		public bool LoadConfigValue( string name, out float value ) {
-			ArgumentNullException.ThrowIfNull( IniData );
-			ArgumentException.ThrowIfNullOrEmpty( name );
+			ExceptionCompat.ThrowIfNull( _iniData );
+			ExceptionCompat.ThrowIfNullOrEmpty( name );
 
-			if ( IniData.TryGetValue( name, out string? data ) ) {
-				ArgumentException.ThrowIfNullOrEmpty( data );
+			if ( _iniData.TryGetValue( name, out string? data ) ) {
+				ExceptionCompat.ThrowIfNullOrEmpty( data );
 				value = Convert.ToSingle( data );
 				return true;
 			}
@@ -118,14 +121,14 @@ namespace Nomad.CVars.Private.Repositories {
 		/// <param name="name">The name of the key of the configuration value</param>
 		/// <param name="value">The output value</param>
 		public bool LoadConfigValue( string name, out bool value ) {
-			ArgumentNullException.ThrowIfNull( IniData );
-			ArgumentException.ThrowIfNullOrEmpty( name );
+			ExceptionCompat.ThrowIfNull( _iniData );
+			ExceptionCompat.ThrowIfNullOrEmpty( name );
 
-			if ( IniData.TryGetValue( name, out string? data ) ) {
-				ArgumentException.ThrowIfNullOrEmpty( data );
-				value = data.Trim() switch {
-					"1" or "true" or "True" or "TRUE" or "yes" or "on" => true,
-					"0" or "false" or "False" or "FALSE" or "no" or "off" => false,
+			if ( _iniData.TryGetValue( name, out string? data ) ) {
+				ExceptionCompat.ThrowIfNullOrEmpty( data );
+				value = data.Trim().ToLower() switch {
+					"1" or "true" or "yes" or "on" => true,
+					"0" or "false" or "no" or "off" => false,
 					_ => bool.TryParse( data, out bool result ) && result
 				};
 				return true;
@@ -145,11 +148,11 @@ namespace Nomad.CVars.Private.Repositories {
 		/// <param name="name">The name of the key of the configuration value</param>
 		/// <param name="value">The output value</param>
 		public bool LoadConfigValue( string name, out string value ) {
-			ArgumentNullException.ThrowIfNull( IniData );
-			ArgumentException.ThrowIfNullOrEmpty( name );
+			ExceptionCompat.ThrowIfNull( _iniData );
+			ExceptionCompat.ThrowIfNullOrEmpty( name );
 
-			if ( IniData.TryGetValue( name, out string? data ) ) {
-				ArgumentException.ThrowIfNullOrEmpty( data );
+			if ( _iniData.TryGetValue( name, out string? data ) ) {
+				ExceptionCompat.ThrowIfNullOrEmpty( data );
 				value = data;
 				return true;
 			}

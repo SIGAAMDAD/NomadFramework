@@ -20,7 +20,11 @@ namespace Nomad.Core.Exceptions
     /// <summary>
     ///
     /// </summary>
-    public sealed class CVarMissing(string name) : Exception($"Missing CVar '{name}'")
+    public sealed class CVarMissing : Exception
     {
+        public CVarMissing(string name)
+            : base($"Missing CVar '{name}'")
+        {
+        }
     }
 }

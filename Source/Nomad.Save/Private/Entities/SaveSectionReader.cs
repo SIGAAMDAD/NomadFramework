@@ -15,8 +15,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Collections.Generic;
+using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
-using Nomad.Save.Private.Serialization.Streams;
 using Nomad.Save.Private.ValueObjects;
 
 namespace Nomad.Save.Private.Entities {
@@ -47,7 +47,7 @@ namespace Nomad.Save.Private.Entities {
 		///
 		/// </summary>
 		/// <param name="reader"></param>
-		public SaveSectionReader( in SaveStreamReader reader, ILoggerService logger ) {
+		public SaveSectionReader( in IReadStream reader, ILoggerService logger ) {
 			logger.PrintLine( "...Loading save section" );
 
 			var header = SectionHeader.Load( in reader );

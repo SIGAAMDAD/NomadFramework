@@ -13,15 +13,42 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
-using Nomad.Save.Private.Serialization.Streams;
+using Nomad.Core.FileSystem;
 
 namespace Nomad.Save.Private.ValueObjects {
-	public readonly record struct SaveHeader(
-		GameVersion Version,
-		int SectionCount,
-		Checksum Checksum
-	) : IEquatable<SaveHeader> {
+	/*
+	===================================================================================
+	
+	SaveHeader
+	
+	===================================================================================
+	*/
+	/// <summary>
+	/// 
+	/// </summary>
+	
+	public readonly struct SaveHeader {
+		public readonly GameVersion Version;
+		public readonly int SectionCount;
+		public readonly Checksum Checksum;
+
+		/*
+		===============
+		SaveHeader
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="version"></param>
+		/// <param name="sectionCount"></param>
+		/// <param name="checksum"></param>
+		public SaveHeader( GameVersion version, int sectionCount, Checksum checksum ) {
+			Version = version;
+			SectionCount = sectionCount;
+			Checksum = checksum;
+		}
+
 		/*
 		===============
 		Serialize
@@ -31,10 +58,10 @@ namespace Nomad.Save.Private.ValueObjects {
 		///
 		/// </summary>
 		/// <param name="writer"></param>
-		internal void Serialize( SaveStreamWriter writer ) {
+		internal void Serialize( IWriteStream writer ) {
 			Version.Serialize( writer );
-			writer.Write( SectionCount );
-			writer.Write( Checksum.Value );
+			writer.WriteInt32( SectionCount );
+			writer.WriteULong( Checksum.Value );
 		}
 
 		/*
@@ -47,16 +74,16 @@ namespace Nomad.Save.Private.ValueObjects {
 		/// </summary>
 		/// <param name="reader"></param>
 		/// <returns></returns>
-		internal static SaveHeader Deserialize( SaveStreamReader reader ) {;
+		internal static SaveHeader Deserialize( IReadStream reader ) {;
 			GameVersion version = GameVersion.Deserialize( reader );
-			int sectionCount = reader.Read<int>();
-			uint checksum = reader.Read<uint>();
+			int sectionCount = reader.ReadInt32();
+			ulong checksum = reader.ReadUInt64();
 
-			return new SaveHeader {
-				Version = version,
-				SectionCount = sectionCount,
-				Checksum = new Checksum { Value = checksum }
-			};
+			return new SaveHeader(
+				version: version,
+				sectionCount: sectionCount,
+				checksum: new Checksum( value: checksum )
+			);
 		}
 	};
 };

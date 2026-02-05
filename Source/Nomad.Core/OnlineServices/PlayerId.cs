@@ -15,6 +15,11 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Core.OnlineServices
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="Name"></param>
+    /// <param name="Id"></param>
     public record PlayerId(
         string Name,
         ulong Id

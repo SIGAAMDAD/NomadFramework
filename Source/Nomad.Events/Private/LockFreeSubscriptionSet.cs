@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Nomad.Core.Compatibility;
 using Nomad.Core.Events;
 using Nomad.Core.Logger;
 
@@ -32,20 +33,38 @@ namespace Nomad.Events.Private {
 	///
 	/// </summary>
 
-	internal sealed class LockFreeSubscriptionSet<TArgs>( IGameEvent<TArgs> eventData, ILoggerService logger, int cleanupInterval = 100 ) : ISubscriptionSet<TArgs>
+	internal sealed class LockFreeSubscriptionSet<TArgs> : ISubscriptionSet<TArgs>
 		where TArgs : struct
 	{
-		private readonly ILoggerService _logger = logger;
-
-		private readonly SubscriptionCache<TArgs, EventCallback<TArgs>> _genericSubscriptions = new( logger );
+		private readonly ILoggerService _logger;
+		private readonly IGameEvent<TArgs> _eventData;
+		private readonly SubscriptionCache<TArgs, EventCallback<TArgs>> _genericSubscriptions;
 
 		/// <summary>
 		/// The number of pumps before initiating a purge.
 		/// </summary>
-		private readonly int _cleanupInterval = cleanupInterval;
+		private readonly int _cleanupInterval;
 		private int _cleanupCounter = 0;
 
 		private readonly HashSet<WeakReference<IGameEvent>> _friends = new HashSet<WeakReference<IGameEvent>>();
+
+		/*
+		===============
+		LockFreeSubscriptionSet
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="eventData"></param>
+		/// <param name="logger"></param>
+		/// <param name="cleanupInterval"></param>
+		public LockFreeSubscriptionSet( IGameEvent<TArgs> eventData, ILoggerService logger, int cleanupInterval = 100 ) {
+			_logger = logger;
+			_genericSubscriptions = new SubscriptionCache<TArgs, EventCallback<TArgs>>( logger );
+			_cleanupInterval = cleanupInterval;
+			_eventData = eventData;
+		}
 
 		/*
 		===============
@@ -71,10 +90,10 @@ namespace Nomad.Events.Private {
 		public void BindEventFriend( IGameEvent friend ) {
 			var refEvent = new WeakReference<IGameEvent>( friend );
 			if ( _friends.Contains( refEvent ) ) {
-				_logger?.PrintWarning( $"LockFreeSubscriptionSet.BindEventFriend: event '{eventData.DebugName}' already has friendship with event '{friend.DebugName}'" );
+				_logger?.PrintWarning( $"LockFreeSubscriptionSet.BindEventFriend: event '{_eventData.DebugName}' already has friendship with event '{friend.DebugName}'" );
 			}
 
-			_logger?.PrintLine( $"LockFreeSubscriptionSet.BindEventFriend: friendship created between events '{eventData.DebugName}' and '{friend.DebugName}'" );
+			_logger?.PrintLine( $"LockFreeSubscriptionSet.BindEventFriend: friendship created between events '{_eventData.DebugName}' and '{friend.DebugName}'" );
 			_friends.Add( refEvent );
 		}
 
@@ -90,8 +109,8 @@ namespace Nomad.Events.Private {
 		/// <param name="callback">The method that is called whenever the event triggers.</param>
 		/// <exception cref="ArgumentNullException">Thrown if <paramref name="callback"/> is null.</exception>
 		public void AddSubscription( object subscriber, EventCallback<TArgs> callback ) {
-			ArgumentNullException.ThrowIfNull( subscriber );
-			ArgumentNullException.ThrowIfNull( callback );
+			ExceptionCompat.ThrowIfNull( subscriber );
+			ExceptionCompat.ThrowIfNull( callback );
 
 			_genericSubscriptions.AddSubscription( subscriber, callback );
 		}
@@ -124,8 +143,8 @@ namespace Nomad.Events.Private {
 		/// <exception cref="ArgumentNullException">Thrown if <paramref name="callback"/> is null.</exception>
 		/// <exception cref="ArgumentOutOfRangeException">Thrown if the returned index from <see cref="ContainsCallback"/> is invalid.</exception>
 		public void RemoveSubscription( object subscriber, EventCallback<TArgs> callback ) {
-			ArgumentNullException.ThrowIfNull( subscriber );
-			ArgumentNullException.ThrowIfNull( callback );
+			ExceptionCompat.ThrowIfNull( subscriber );
+			ExceptionCompat.ThrowIfNull( callback );
 
 			_genericSubscriptions.RemoveSubscription( subscriber, callback );
 		}
@@ -155,7 +174,7 @@ namespace Nomad.Events.Private {
 		/// </summary>
 		/// <param name="subscriber"></param>
 		public void RemoveAllForSubscriber( object subscriber ) {
-			ArgumentNullException.ThrowIfNull( subscriber );
+			ExceptionCompat.ThrowIfNull( subscriber );
 
 			_genericSubscriptions.RemoveAllForSubscriber( subscriber );
 		}

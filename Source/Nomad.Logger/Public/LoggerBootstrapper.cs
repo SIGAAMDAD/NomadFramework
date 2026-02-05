@@ -13,8 +13,11 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using Nomad.Core.Events;
+using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
+using Nomad.CVars;
 using Nomad.Logger.Private.Sinks;
 
 namespace Nomad.Logger
@@ -31,8 +34,12 @@ namespace Nomad.Logger
         /// <param name="locator"></param>
         public static void Initialize(IServiceRegistry serviceRegistry, IServiceLocator locator)
         {
+            var cvarSystem = locator.GetService<ICVarSystemService>();
+            var eventFactory = locator.GetService<IGameEventRegistryService>();
+            var fileSystem = locator.GetService<IFileSystem>();
+
             var logger = serviceRegistry.RegisterSingleton<ILoggerService>(new LoggerService());
-            logger.AddSink(new ConsoleSink());
+            logger.AddSink(new FileSink(cvarSystem, fileSystem));
         }
     }
 }

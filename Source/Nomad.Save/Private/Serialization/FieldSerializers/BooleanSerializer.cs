@@ -14,7 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using Nomad.Save.Private.Serialization.Streams;
+using Nomad.Core.FileSystem;
 using Nomad.Save.Private.ValueObjects;
 
 namespace Nomad.Save.Private.Serialization.FieldSerializers {
@@ -33,8 +33,40 @@ namespace Nomad.Save.Private.Serialization.FieldSerializers {
 		public FieldType FieldType => FieldType.Boolean;
 		public Type DataType => typeof( bool );
 
-		public void Serialize( SaveStreamWriter stream, bool value ) => stream.Write( value );
-		public void Serialize( SaveStreamWriter stream, FieldValue value ) => stream.Write( value.GetValue<bool>() );
-		public FieldValue Deserialize( SaveStreamReader stream ) => new FieldValue( stream.Read<bool>() );
+		/*
+		===============
+		Serialize
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="stream"></param>
+		/// <param name="value"></param>
+		public void Serialize( IWriteStream stream, bool value ) => stream.WriteBoolean( value );
+
+		/*
+		===============
+		Serialize
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="stream"></param>
+		/// <param name="value"></param>
+		public void Serialize( IWriteStream stream, FieldValue value ) => stream.WriteBoolean( value.GetValue<bool>() );
+
+		/*
+		===============
+		Deserialize
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="stream"></param>
+		/// <returns></returns>
+		public FieldValue Deserialize( IReadStream stream ) => new FieldValue( stream.ReadBoolean() );
 	};
 };

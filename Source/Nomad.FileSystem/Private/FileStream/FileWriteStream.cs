@@ -14,9 +14,11 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using System.Buffers;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Nomad.Core.Compatibility;
 using Nomad.Core.FileSystem;
 
 namespace Nomad.FileSystem.Private.FileStream {
@@ -56,12 +58,11 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// Initializes a new instance of the FileWriteStream class with the specified file path, mode, and access.
 		/// </summary>
 		/// <param name="filepath">The path to the file to write to.</param>
-		/// <param name="fileMode">The file mode to use when opening the file.</param>
-		/// <param name="fileAccess">The file access to use when opening the file.</param>
-		public FileWriteStream( string filepath, FileMode fileMode, FileAccess fileAccess )
-			: base( filepath, fileMode, fileAccess )
+		/// <param name="append">Whether to append to the file or overwrite it.</param>
+		public FileWriteStream( string filepath, bool append = false )
+			: base( filepath, append ? FileMode.Append : FileMode.Create, FileAccess.Write )
 		{
-			ArgumentNullException.ThrowIfNull( _fileStream );
+			ExceptionCompat.ThrowIfNull( _fileStream );
 			_streamWriter = new BinaryWriter( _fileStream );
 		}
 
@@ -105,7 +106,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <param name="offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
 		/// <param name="count">The number of bytes to be written to the current stream.</param>
 		public void Write( byte[] buffer, int offset, int count ) {
-			ArgumentNullException.ThrowIfNull( _fileStream );
+			ExceptionCompat.ThrowIfNull( _fileStream );
 			_fileStream.Write( buffer, offset, count );
 		}
 
@@ -119,7 +120,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <param name="buffer">A read-only span of bytes. This method copies the contents of the span to the current stream.</param>
 		public void Write( ReadOnlySpan<byte> buffer ) {
-			ArgumentNullException.ThrowIfNull( _fileStream );
+			ExceptionCompat.ThrowIfNull( _fileStream );
 			_fileStream.Write( buffer );
 		}
 
@@ -137,7 +138,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <param name="ct">A token to cancel the operation.</param>
 		/// <returns>A task that represents the asynchronous write operation.</returns>
 		public async ValueTask WriteAsync( byte[] buffer, int offset, int count, CancellationToken ct = default( CancellationToken ) ) {
-			ArgumentNullException.ThrowIfNull( _fileStream );
+			ExceptionCompat.ThrowIfNull( _fileStream );
 			ct.ThrowIfCancellationRequested();
 			await _fileStream.WriteAsync( buffer.AsMemory( offset, count ), ct );
 		}
@@ -154,7 +155,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <param name="ct">A token to cancel the operation.</param>
 		/// <returns>A task that represents the asynchronous write operation.</returns>
 		public async ValueTask WriteAsync( ReadOnlyMemory<byte> buffer, CancellationToken ct = default( CancellationToken ) ) {
-			ArgumentNullException.ThrowIfNull( _fileStream );
+			ExceptionCompat.ThrowIfNull( _fileStream );
 			ct.ThrowIfCancellationRequested();
 			await _fileStream.WriteAsync( buffer, ct );
 		}
@@ -169,7 +170,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <param name="value">The byte value to write.</param>
 		public void WriteByte( byte value ) {
-			ArgumentNullException.ThrowIfNull( _streamWriter );
+			ExceptionCompat.ThrowIfNull( _streamWriter );
 			_streamWriter.Write( value );
 		}
 
@@ -183,7 +184,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <param name="value">The double value to write.</param>
 		public void WriteDouble( double value ) {
-			ArgumentNullException.ThrowIfNull( _streamWriter );
+			ExceptionCompat.ThrowIfNull( _streamWriter );
 			_streamWriter.Write( value );
 		}
 
@@ -197,7 +198,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <param name="value">The float value to write.</param>
 		public void WriteFloat( float value ) {
-			ArgumentNullException.ThrowIfNull( _streamWriter );
+			ExceptionCompat.ThrowIfNull( _streamWriter );
 			_streamWriter.Write( value );
 		}
 
@@ -211,7 +212,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <param name="value">The 32-bit float value to write.</param>
 		public void WriteFloat32( float value ) {
-			ArgumentNullException.ThrowIfNull( _streamWriter );
+			ExceptionCompat.ThrowIfNull( _streamWriter );
 			_streamWriter.Write( value );
 		}
 
@@ -225,7 +226,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <param name="value">The 64-bit double value to write.</param>
 		public void WriteFloat64( double value ) {
-			ArgumentNullException.ThrowIfNull( _streamWriter );
+			ExceptionCompat.ThrowIfNull( _streamWriter );
 			_streamWriter.Write( value );
 		}
 
@@ -239,10 +240,10 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <param name="stream">The read stream to copy from.</param>
 		public void WriteFromStream( IReadStream stream ) {
-			ArgumentNullException.ThrowIfNull( stream );
-			ArgumentNullException.ThrowIfNull( _fileStream );
+			ExceptionCompat.ThrowIfNull( stream );
+			ExceptionCompat.ThrowIfNull( _fileStream );
 
-			byte[] buffer = new byte[4096];
+			byte[] buffer = ArrayPool<byte>.Shared.Rent( 4096 );
 			int bytesRead;
 			while ( ( bytesRead = stream.Read( buffer, 0, buffer.Length ) ) > 0 ) {
 				_fileStream.Write( buffer, 0, bytesRead );
@@ -261,10 +262,10 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <param name="ct">A token to cancel the operation.</param>
 		/// <returns>A task that represents the asynchronous copy operation.</returns>
 		public async ValueTask WriteFromStreamAsync( IReadStream stream, CancellationToken ct = default( CancellationToken ) ) {
-			ArgumentNullException.ThrowIfNull( stream );
-			ArgumentNullException.ThrowIfNull( _fileStream );
+			ExceptionCompat.ThrowIfNull( stream );
+			ExceptionCompat.ThrowIfNull( _fileStream );
 
-			byte[] buffer = new byte[4096];
+			byte[] buffer = ArrayPool<byte>.Shared.Rent( 4096 );
 			int bytesRead;
 			while ( ( bytesRead = await stream.ReadAsync( buffer, 0, buffer.Length, ct ) ) > 0 ) {
 				await _fileStream.WriteAsync( buffer.AsMemory( 0, bytesRead ), ct );
@@ -281,7 +282,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <param name="value">The 32-bit signed integer value to write.</param>
 		public void WriteInt( int value ) {
-			ArgumentNullException.ThrowIfNull( _streamWriter );
+			ExceptionCompat.ThrowIfNull( _streamWriter );
 			_streamWriter.Write( value );
 		}
 
@@ -295,7 +296,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <param name="value">The 16-bit signed integer value to write.</param>
 		public void WriteInt16( short value ) {
-			ArgumentNullException.ThrowIfNull( _streamWriter );
+			ExceptionCompat.ThrowIfNull( _streamWriter );
 			_streamWriter.Write( value );
 		}
 
@@ -309,7 +310,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <param name="value">The 32-bit signed integer value to write.</param>
 		public void WriteInt32( int value ) {
-			ArgumentNullException.ThrowIfNull( _streamWriter );
+			ExceptionCompat.ThrowIfNull( _streamWriter );
 			_streamWriter.Write( value );
 		}
 
@@ -323,7 +324,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <param name="value">The 64-bit signed integer value to write.</param>
 		public void WriteInt64( long value ) {
-			ArgumentNullException.ThrowIfNull( _streamWriter );
+			ExceptionCompat.ThrowIfNull( _streamWriter );
 			_streamWriter.Write( value );
 		}
 
@@ -337,7 +338,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <param name="value">The 8-bit signed integer value to write.</param>
 		public void WriteInt8( sbyte value ) {
-			ArgumentNullException.ThrowIfNull( _streamWriter );
+			ExceptionCompat.ThrowIfNull( _streamWriter );
 			_streamWriter.Write( value );
 		}
 
@@ -351,7 +352,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <param name="value">The 64-bit signed integer value to write.</param>
 		public void WriteLong( long value ) {
-			ArgumentNullException.ThrowIfNull( _streamWriter );
+			ExceptionCompat.ThrowIfNull( _streamWriter );
 			_streamWriter.Write( value );
 		}
 
@@ -365,7 +366,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <param name="value">The signed byte value to write.</param>
 		public void WriteSByte( sbyte value ) {
-			ArgumentNullException.ThrowIfNull( _streamWriter );
+			ExceptionCompat.ThrowIfNull( _streamWriter );
 			_streamWriter.Write( value );
 		}
 
@@ -379,7 +380,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <param name="value">The 16-bit signed integer value to write.</param>
 		public void WriteShort( short value ) {
-			ArgumentNullException.ThrowIfNull( _streamWriter );
+			ExceptionCompat.ThrowIfNull( _streamWriter );
 			_streamWriter.Write( value );
 		}
 
@@ -393,7 +394,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <param name="value">The single-precision float value to write.</param>
 		public void WriteSingle( float value ) {
-			ArgumentNullException.ThrowIfNull( _streamWriter );
+			ExceptionCompat.ThrowIfNull( _streamWriter );
 			_streamWriter.Write( value );
 		}
 
@@ -407,7 +408,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <param name="value">The string value to write.</param>
 		public void WriteString( string value ) {
-			ArgumentNullException.ThrowIfNull( _streamWriter );
+			ExceptionCompat.ThrowIfNull( _streamWriter );
 			_streamWriter.Write( value );
 		}
 
@@ -421,7 +422,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <param name="value">The 32-bit unsigned integer value to write.</param>
 		public void WriteUInt( uint value ) {
-			ArgumentNullException.ThrowIfNull( _streamWriter );
+			ExceptionCompat.ThrowIfNull( _streamWriter );
 			_streamWriter.Write( value );
 		}
 
@@ -435,7 +436,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <param name="value">The 16-bit unsigned integer value to write.</param>
 		public void WriteUInt16( ushort value ) {
-			ArgumentNullException.ThrowIfNull( _streamWriter );
+			ExceptionCompat.ThrowIfNull( _streamWriter );
 			_streamWriter.Write( value );
 		}
 
@@ -449,7 +450,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <param name="value">The 32-bit unsigned integer value to write.</param>
 		public void WriteUInt32( uint value ) {
-			ArgumentNullException.ThrowIfNull( _streamWriter );
+			ExceptionCompat.ThrowIfNull( _streamWriter );
 			_streamWriter.Write( value );
 		}
 
@@ -463,7 +464,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <param name="value">The 64-bit unsigned integer value to write.</param>
 		public void WriteUInt64( ulong value ) {
-			ArgumentNullException.ThrowIfNull( _streamWriter );
+			ExceptionCompat.ThrowIfNull( _streamWriter );
 			_streamWriter.Write( value );
 		}
 
@@ -477,7 +478,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <param name="value">The 8-bit unsigned integer value to write.</param>
 		public void WriteUInt8( byte value ) {
-			ArgumentNullException.ThrowIfNull( _streamWriter );
+			ExceptionCompat.ThrowIfNull( _streamWriter );
 			_streamWriter.Write( value );
 		}
 
@@ -491,7 +492,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <param name="value">The 64-bit unsigned integer value to write.</param>
 		public void WriteULong( ulong value ) {
-			ArgumentNullException.ThrowIfNull( _streamWriter );
+			ExceptionCompat.ThrowIfNull( _streamWriter );
 			_streamWriter.Write( value );
 		}
 
@@ -505,7 +506,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <param name="value">The 16-bit unsigned integer value to write.</param>
 		public void WriteUShort( ushort value ) {
-			ArgumentNullException.ThrowIfNull( _streamWriter );
+			ExceptionCompat.ThrowIfNull( _streamWriter );
 			_streamWriter.Write( value );
 		}
 	};

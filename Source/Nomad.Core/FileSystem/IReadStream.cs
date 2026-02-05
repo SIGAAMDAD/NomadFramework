@@ -204,6 +204,12 @@ namespace Nomad.Core.FileSystem
         double ReadFloat64();
 
         /// <summary>
+        /// Reads an 8-bit boolean value from the current stream and advances the position by 1 byte.
+        /// </summary>
+        /// <returns>A boolean value read from the stream.</returns>
+        bool ReadBoolean();
+
+        /// <summary>
         /// Reads a string from the current stream. The string is assumed to be length-prefixed
         /// or otherwise formatted according to the stream's implementation.
         /// </summary>

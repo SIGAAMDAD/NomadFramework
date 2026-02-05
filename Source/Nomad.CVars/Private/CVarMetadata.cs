@@ -29,15 +29,34 @@ namespace Nomad.CVars.Private {
 	/// </summary>
 
 	[StructLayout( LayoutKind.Explicit, Pack = 1, Size = 14 )]
-	internal readonly struct CVarMetadata( string name, string description, CVarFlags flags, CVarType type ) {
-		[FieldOffset( 0 )] public readonly InternString Name = new( name );
-		[FieldOffset( 4 )] public readonly InternString Description = new( description );
-		[FieldOffset( 8 )] public readonly CVarFlags Flags = flags;
-		[FieldOffset( 12 )] public readonly CVarType Type = type;
+	internal readonly struct CVarMetadata {
+		[FieldOffset( 0 )] public readonly InternString Name;
+		[FieldOffset( 4 )] public readonly InternString Description;
+		[FieldOffset( 8 )] public readonly CVarFlags Flags;
+		[FieldOffset( 12 )] public readonly CVarType Type;
 
 		public bool IsReadOnly => ( Flags & CVarFlags.ReadOnly ) != 0;
 		public bool IsHidden => ( Flags & CVarFlags.Hidden ) != 0;
 		public bool IsSaved => ( Flags & CVarFlags.Archive ) != 0;
 		public bool IsUserCreated => ( Flags & CVarFlags.UserCreated ) != 0;
+
+		/*
+		===============
+		CVarMetadata
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="name"></param>
+		/// <param name="description"></param>
+		/// <param name="flags"></param>
+		/// <param name="type"></param>
+		public CVarMetadata( string name, string description, CVarFlags flags, CVarType type ) {
+			Name = new( name );
+			Description = new( description );
+			Flags = flags;
+			Type = type;
+		}
 	};
 };

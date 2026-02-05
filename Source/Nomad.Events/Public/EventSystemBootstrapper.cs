@@ -13,38 +13,32 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System;
+using Nomad.Core.Compatibility;
 using Nomad.Core.Events;
 using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
 
-namespace Nomad.Events {
-	/*
-	===================================================================================
-	
-	EventSystemBootstrapper
-	
-	===================================================================================
-	*/
-	/// <summary>
-	/// 
-	/// </summary>
-	
-	public static class EventSystemBootstrapper {
-		/*
-		===============
-		Initialize
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="locator"></param>
-		/// <param name="registry"></param>
-		public static void Initialize( IServiceLocator locator, IServiceRegistry registry ) {
-			var logger = locator.GetService<ILoggerService>();
+namespace Nomad.Events
+{
+    /// <summary>
+    /// 
+    /// </summary>
+    public static class EventSystemBootstrapper
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="locator"></param>
+        /// <param name="registry"></param>
+        public static void Initialize(IServiceLocator locator, IServiceRegistry registry)
+        {
+            ExceptionCompat.ThrowIfNull(locator);
+            ExceptionCompat.ThrowIfNull(registry);
 
-			var eventBus = registry.RegisterSingleton<IGodotEventBusService>( new GameEventBus() );
-			registry.RegisterSingleton<IGameEventRegistryService>( new GameEventRegistry( logger ) );
-		}
-	};
+            ILoggerService logger = locator.GetService<ILoggerService>();
+
+            registry.RegisterSingleton<IGameEventRegistryService>(new GameEventRegistry(logger));
+        }
+    };
 };

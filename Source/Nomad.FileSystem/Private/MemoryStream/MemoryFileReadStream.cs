@@ -1,6 +1,6 @@
 ﻿/*
 ===========================================================================
-The Nomad MPL Source Code
+The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
@@ -30,11 +30,11 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 	///
 	/// </summary>
 
-	public sealed class MemoryFileReadStream : MemoryReadStream, IFileReadStream {
+	public sealed class MemoryFileReadStream : MemoryReadStream, IMemoryFileReadStream {
 		public string FilePath => _filepath;
-		private readonly string _filepath;
+		private string _filepath;
 
-		public bool IsOpen => true;
+		public bool IsOpen => _buffer != null;
 
 		/*
 		===============
@@ -42,14 +42,11 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		===============
 		*/
 		/// <summary>
-		///
+		/// Initializes a new instance of the MemoryFileReadStream class with the specified file path.
 		/// </summary>
-		/// <param name="filepath"></param>
+		/// <param name="filepath">The path to the file to read from.</param>
 		public MemoryFileReadStream( string filepath ) {
-			_filepath = filepath;
-			_buffer = File.ReadAllBytes( _filepath );
-			_length = _buffer.Length;
-			_position = 0;
+			Open( filepath, FileMode.Open, FileAccess.Read );
 		}
 
 		/*
@@ -61,6 +58,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		///
 		/// </summary>
 		public override void Dispose() {
+			Close();
 			base.Dispose();
 		}
 
@@ -74,14 +72,63 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <returns></returns>
 		public override async ValueTask DisposeAsync() {
+			Close();
 			await base.DisposeAsync();
 		}
 
+		/*
+		===============
+		Close
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
 		public void Close() {
+			if ( _buffer == null ) {
+				return;
+			}
+			ArrayPool<byte>.Shared.Return( _buffer );
+			_buffer = null;
 		}
 
+		/*
+		===============
+		Open
+		===============
+		*/
+		/// <summary>
+		/// Opens the memory file read stream with the specified file path, open mode, and access mode.
+		/// </summary>
+		/// <param name="filepath">The path to the file to open.</param>
+		/// <param name="openMode">The mode in which to open the file.</param>
+		/// <param name="accessMode">The access mode for the file.</param>
+		/// <returns><c>true</c> if the file was opened successfully; otherwise, <c>false.</c></returns>
 		public bool Open( string filepath, FileMode openMode, FileAccess accessMode ) {
-			return false;
+			_filepath = filepath;
+			_position = 0;
+
+			try {
+				using var stream = new System.IO.FileStream( filepath, openMode, accessMode );
+				if ( stream == null ) {
+					return false;
+				}
+
+				_buffer = ArrayPool<byte>.Shared.Rent( ( int )stream.Length );
+#if USE_COMPATIBILITY_EXTENSIONS
+				stream.Read( _buffer, 0, (int)stream.Length );
+#else
+				stream.ReadExactly( _buffer, 0, ( int )stream.Length );
+#endif
+
+				_length = ( int )stream.Length;
+
+				stream.Dispose();
+
+				return true;
+			} catch ( IOException ) {
+				return false;
+			}
 		}
 	};
 };

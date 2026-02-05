@@ -16,8 +16,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Godot;
 using Nomad.Core.Events;
+using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.Save.Data;
 using Nomad.Save.Events;
@@ -37,10 +37,39 @@ namespace Nomad.Save.Private.Services {
 	///
 	/// </summary>
 
-	public sealed class SaveDataProvider( IGameEventRegistryService eventFactory, ILoggerService logger ) : ISaveDataProvider {
-		private readonly List<SaveFileMetadata> _saveFiles = new();
+	public sealed class SaveDataProvider : ISaveDataProvider {
+		private readonly List<SaveFileMetadata> _saveFiles;
 
-		private readonly IGameEvent<SaveBeginEventArgs> _saveBegin = eventFactory.GetEvent<SaveBeginEventArgs>( EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT );
+		private readonly SaveWriterService _writerService;
+		private readonly SaveReaderService _readerService;
+
+		private readonly IFileSystem _vfs;
+
+		private readonly ILoggerService _logger;
+		private readonly ILoggerCategory _category;
+
+		private readonly IGameEvent<SaveBeginEventArgs> _saveBegin;
+
+		/*
+		===============
+		SaveDataProvider
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="eventFactory"></param>
+		/// <param name="fileSystem"></param>
+		/// <param name="logger"></param>
+		public SaveDataProvider( IGameEventRegistryService eventFactory, IFileSystem fileSystem, ILoggerService logger ) {
+			_saveBegin = eventFactory.GetEvent<SaveBeginEventArgs>( EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT );
+
+			_vfs = fileSystem;
+			_logger = logger;
+			_category = logger.CreateCategory( "Nomad.Save", LogLevel.Info, true );
+
+			_saveFiles = new List<SaveFileMetadata>();
+		}
 
 		/*
 		===============
@@ -79,11 +108,11 @@ namespace Nomad.Save.Private.Services {
 		/// <returns></returns>
 		public async Task Load( SaveFileId fileId ) {
 			try {
-				var reader = new SaveReaderService( fileId.FileName, logger );
+				_readerService.Load( fileId.FileName );
 			} catch ( FieldCorruptException fieldCorrupt ) {
-				logger.PrintError( $"Field corruption - {fieldCorrupt}: {fieldCorrupt.Error}" );
+				_logger.PrintError( $"Field corruption - {fieldCorrupt}: {fieldCorrupt.Error}" );
 			} catch ( Exception e ) {
-				logger.PrintError( $"Exception caught - {e}" );
+				_logger.PrintError( $"Exception caught - {e}" );
 			}
 		}
 
@@ -99,11 +128,11 @@ namespace Nomad.Save.Private.Services {
 		/// <returns></returns>
 		public async Task Save( SaveFileId fileId ) {
 			try {
-				using var writer = new SaveWriterService( fileId.FileName, logger );
+				_writerService.Save( fileId.FileName );
 
-				_saveBegin.Publish( new SaveBeginEventArgs( writer ) );
+				_saveBegin.Publish( new SaveBeginEventArgs( _writerService ) );
 			} catch ( Exception e ) {
-				logger.PrintError( $"Exception caught - {e}" );
+				_logger.PrintError( $"Exception caught - {e}" );
 			}
 		}
 
@@ -117,13 +146,16 @@ namespace Nomad.Save.Private.Services {
 		/// </summary>
 		private void LoadMetadata( string saveDirectory ) {
 			var files = System.IO.Directory.GetFiles( saveDirectory );
+	
+#if !NETSTANDARD2_1
 			_saveFiles.EnsureCapacity( files.Length );
+#endif
 
 			for ( int i = 0; i < files.Length; i++ ) {
 				var fileName = files[ i ];
 				System.IO.FileInfo info = new System.IO.FileInfo( fileName );
 
-				_saveFiles.Add( new SaveFileMetadata( new SaveFileId( fileName.GetBaseName() ), info.Length, info.LastAccessTime ) );
+				_saveFiles.Add( new SaveFileMetadata( new SaveFileId( fileName.Substring( fileName.LastIndexOf( System.IO.Path.PathSeparator ) ) ), info.Length, info.LastAccessTime ) );
 			}
 		}
 	};

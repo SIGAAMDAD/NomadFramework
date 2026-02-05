@@ -56,18 +56,32 @@ namespace Nomad.Core.EngineUtils
         void Quit(int exitCode = 0);
 
         /// <summary>
-        /// Get a platform-specific path for the given storage scope
+        /// 
         /// </summary>
-        /// <param name="scope">The type of storage location requested</param>
-        /// <returns>Absolute path to the directory</returns>
+        /// <param name="localpath"></param>
+        /// <returns></returns>
+        string GetOSPath(string localpath);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ospath"></param>
+        /// <returns></returns>
+        string GetLocalPath(string ospath);
+
+        /// <summary>
+        /// Get a platform-specific path for the given storage scope.
+        /// </summary>
+        /// <param name="scope">The type of storage location requested.</param>
+        /// <returns>Absolute path to the directory.</returns>
         string GetStoragePath(StorageScope scope);
 
         /// <summary>
-        /// Get a path relative to a specific storage scope
+        /// Get a path relative to a specific storage scope.
         /// </summary>
-        /// <param name="relativePath">Path relative to the scope root</param>
-        /// <param name="scope">Storage scope to resolve from</param>
-        /// <returns>Absolute combined path</returns>
+        /// <param name="relativePath">Path relative to the scope root.</param>
+        /// <param name="scope">Storage scope to resolve from.</param>
+        /// <returns>Absolute combined path.</returns>
         string GetStoragePath(string relativePath, StorageScope scope);
 
         /// <summary>
@@ -90,8 +104,26 @@ namespace Nomad.Core.EngineUtils
         /// <param name="height"></param>
         void SetScreenResolution(int width, int height);
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <returns></returns>
         IDisposable CreateImageRGBA(byte[] image, int width, int height);
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
         string Translate(InternString key);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        IConsoleObject CreateConsoleObject();
     }
 }

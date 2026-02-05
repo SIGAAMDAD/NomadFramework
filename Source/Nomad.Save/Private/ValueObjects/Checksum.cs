@@ -16,11 +16,45 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 
 namespace Nomad.Save.Private.ValueObjects {
-	public readonly record struct Checksum(
-		uint Value
-	) {
-		public static readonly Checksum Empty = new( 0 );
+	/*
+	===================================================================================
+	
+	Checksum
+	
+	===================================================================================
+	*/
+	/// <summary>
+	/// 
+	/// </summary>
+	
+	public readonly struct Checksum {
+		public static readonly Checksum Empty = new Checksum( 0 );
 
+		public readonly ulong Value;
+
+		/*
+		===============
+		Checksum
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="value"></param>
+		public Checksum( ulong value ) {
+			Value = value;
+		}
+
+		/*
+		===============
+		Compute
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="data"></param>
+		/// <returns></returns>
 		public static Checksum Compute( ReadOnlySpan<byte> data ) {
 			return new Checksum();
 		}

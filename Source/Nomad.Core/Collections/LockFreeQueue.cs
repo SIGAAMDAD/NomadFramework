@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -19,6 +19,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using Nomad.Core.Compatibility;
 
 namespace Nomad.Core.Collections
 {
@@ -30,10 +31,15 @@ namespace Nomad.Core.Collections
     /// <typeparam name="T">Type of elements in queue</typeparam>
     public class LockFreeQueue<T> : IProducerConsumerCollection<T>
     {
-        private class Node(T value = default)
+        private class Node
         {
-            public T Value = value;
+            public T Value;
             public Node Next = null;
+
+            public Node(T value = default)
+            {
+                Value = value;
+            }
         }
 
         public object SyncRoot => throw new NotSupportedException("Lock-free collections don't support SyncRoot");
@@ -83,7 +89,8 @@ namespace Nomad.Core.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Clear()
         {
-            while (TryTake(out _)) { }
+            while (TryTake(out _))
+                ;
         }
 
         /// <summary>
@@ -93,9 +100,9 @@ namespace Nomad.Core.Collections
         /// <param name="index"></param>
         public void CopyTo(T[] array, int index)
         {
-            ArgumentNullException.ThrowIfNull(array);
-            ArgumentOutOfRangeException.ThrowIfLessThan(index, 0, nameof(index));
-            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, array.Length, nameof(index));
+            ExceptionCompat.ThrowIfNull(array);
+            ExceptionCompat.ThrowIfLessThan(index, 0, nameof(index));
+            ExceptionCompat.ThrowIfGreaterThanOrEqual(index, array.Length, nameof(index));
 
             int i = index;
             Node current = _head.Next;
@@ -130,7 +137,7 @@ namespace Nomad.Core.Collections
                 list.Add(current.Value);
                 current = current.Next;
             }
-            return [.. list];
+            return list.ToArray();
         }
 
         /// <summary>

@@ -16,7 +16,7 @@ void *nomad_event_get( int hashCode, const char *pszNameSpace, const char *pszNa
 		return it.get_node()->mValue.second;
 	}
 
-	event = new GameEvent(  );
+	event = new GameEvent( hashCode, pNameSpace, pName );
 	s_eventCache.try_emplace( hashCode, event );
 
 	return event;

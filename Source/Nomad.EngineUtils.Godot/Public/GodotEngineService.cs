@@ -18,6 +18,8 @@ using Godot;
 using Nomad.Core.Util;
 using Nomad.Core.EngineUtils;
 using Nomad.EngineUtils.Private;
+using Nomad.Core.Logger;
+using Nomad.Core.Events;
 
 namespace Nomad.EngineUtils
 {
@@ -34,11 +36,58 @@ namespace Nomad.EngineUtils
 
         private readonly NotificationNode _notificationNode;
 
-        public GodotEngineService(SceneTree sceneTree)
+        private readonly ILoggerService _logger;
+        private readonly IGameEventRegistryService _eventFactory;
+
+        /*
+        ===============
+        GodotEngineService
+        ===============
+        */
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sceneTree"></param>
+        /// <param name="logger"></param>
+        /// <param name="eventFactory"></param>
+        public GodotEngineService(SceneTree sceneTree, ILoggerService logger, IGameEventRegistryService eventFactory)
         {
             _sceneTree = sceneTree;
             _root = (Node)sceneTree.Get(SceneTree.PropertyName.Root);
             _notificationNode = new NotificationNode();
+
+            _logger = logger;
+            _eventFactory = eventFactory;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ospath"></param>
+        /// <returns></returns>
+        public string GetLocalPath(string ospath)
+        {
+            return ProjectSettings.LocalizePath(ospath);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="localPath"></param>
+        /// <returns></returns>
+        public string GetOSPath(string localPath)
+        {
+            return ProjectSettings.GlobalizePath(localPath);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public IConsoleObject CreateConsoleObject()
+        {
+            var console = new GodotConsole(_root, _logger, _eventFactory);
+            return console;
         }
 
         /// <summary>

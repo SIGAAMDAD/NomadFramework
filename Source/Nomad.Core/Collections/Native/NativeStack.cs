@@ -15,6 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 
+#if !USE_COMPATIBILITY_EXTENSIONS
 namespace Nomad.Core.Collections.Native
 {
     /// <summary>
@@ -24,10 +25,10 @@ namespace Nomad.Core.Collections.Native
     public unsafe struct NativeStack<T>
         where T : unmanaged
     {
-        public int Capacity => _capacity;
+        public readonly int Capacity => _capacity;
         private readonly int _capacity;
 
-        public int Count => _length;
+        public readonly int Count => _length;
         private int _length;
 
         private readonly T* _data;
@@ -78,3 +79,4 @@ namespace Nomad.Core.Collections.Native
         }
     }
 }
+#endif

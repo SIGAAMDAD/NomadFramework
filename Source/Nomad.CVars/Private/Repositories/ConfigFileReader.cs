@@ -13,6 +13,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 using System;
+using Nomad.Core.Compatibility;
+using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 
 namespace Nomad.CVars.Private.Repositories {
@@ -36,16 +38,17 @@ namespace Nomad.CVars.Private.Repositories {
 		===============
 		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
+		/// <param name="fileSystem"></param>
 		/// <param name="logger"></param>
 		/// <param name="configFile"></param>
-		public ConfigFileReader( ILoggerService logger, string configFile ) {
-			ArgumentException.ThrowIfNullOrEmpty( configFile );
+		public ConfigFileReader( IFileSystem fileSystem, ILoggerService logger, string configFile ) {
+			ExceptionCompat.ThrowIfNullOrEmpty( configFile );
 
 			logger.PrintLine( $"Loading configuration file {configFile}..." );
 
-			Loader = new IniLoader( configFile, logger );
+			Loader = new IniLoader( configFile, logger, fileSystem );
 		}
 
 		/*
@@ -60,7 +63,7 @@ namespace Nomad.CVars.Private.Repositories {
 		/// <param name="value"></param>
 		/// <returns></returns>
 		public bool TryGetValue( string name, out string value ) {
-			ArgumentException.ThrowIfNullOrEmpty( name );
+			ExceptionCompat.ThrowIfNullOrEmpty( name );
 
 			return Loader.LoadConfigValue( name, out value );
 		}

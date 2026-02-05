@@ -15,44 +15,44 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Events
 {
-	/// <summary>
-	/// Defines the priority levels for event handling.
-	/// </summary>
-	public enum EventPriority : byte
-	{
-		/// <summary>
-		/// Very low priority.
-		/// </summary>
-		VeryLow,
+    /// <summary>
+    /// Defines the priority levels for event handling.
+    /// </summary>
+    public enum EventPriority : byte
+    {
+        /// <summary>
+        /// Very low priority.
+        /// </summary>
+        VeryLow,
 
-		/// <summary>
-		/// Low priority.
-		/// </summary>
-		Low,
+        /// <summary>
+        /// Low priority.
+        /// </summary>
+        Low,
 
-		/// <summary>
-		/// Normal priority.
-		/// </summary>
-		Normal,
+        /// <summary>
+        /// Normal priority.
+        /// </summary>
+        Normal,
 
-		/// <summary>
-		/// High priority.
-		/// </summary>
-		High,
+        /// <summary>
+        /// High priority.
+        /// </summary>
+        High,
 
-		/// <summary>
-		/// Very high priority.
-		/// </summary>
-		VeryHigh,
+        /// <summary>
+        /// Very high priority.
+        /// </summary>
+        VeryHigh,
 
-		/// <summary>
-		/// Critical priority.
-		/// </summary>
-		Critical,
+        /// <summary>
+        /// Critical priority.
+        /// </summary>
+        Critical,
 
-		/// <summary>
-		/// Number of priority levels.
-		/// </summary>
-		Count
-	}
+        /// <summary>
+        /// Number of priority levels.
+        /// </summary>
+        Count
+    }
 }

@@ -56,18 +56,6 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		===============
 		*/
 		/// <summary>
-		///
-		/// </summary>
-		/// <param name="length"></param>
-		public MemoryReadStream( int length ) {
-		}
-
-		/*
-		===============
-		MemoryReadStream
-		===============
-		*/
-		/// <summary>
 		/// Initializes a new instance of the MemoryReadStream class with the specified buffer and length.
 		/// </summary>
 		/// <param name="buffer">The byte array to read from.</param>
@@ -102,7 +90,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <param name="ct">A token to cancel the operation.</param>
 		/// <returns>A task that represents the asynchronous flush operation.</returns>
 		/// <exception cref="NotImplementedException"></exception>
-		public override ValueTask FlushAsync( CancellationToken ct = default( CancellationToken ) ) {
+		public override async ValueTask FlushAsync( CancellationToken ct = default ) {
 			throw new NotImplementedException();
 		}
 
@@ -202,8 +190,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <returns>A byte array containing the remaining data in the stream.</returns>
 		public byte[] ReadToEnd() {
 			int remaining = _length - _position;
-			byte[] result = new byte[remaining];
-			Buffer.BlockCopy(_buffer, _position, result, 0, remaining);
+			byte[] result = new byte[ remaining ];
+			Buffer.BlockCopy( _buffer, _position, result, 0, remaining );
 			_position += remaining;
 			return result;
 		}
@@ -218,9 +206,9 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <param name="cancellationToken">A token to cancel the operation.</param>
 		/// <returns>A task that represents the asynchronous read operation, containing a byte array with the remaining data.</returns>
-		public ValueTask<byte[]> ReadToEndAsync( CancellationToken cancellationToken = default( CancellationToken ) ) {
+		public async ValueTask<byte[]> ReadToEndAsync( CancellationToken cancellationToken = default( CancellationToken ) ) {
 			cancellationToken.ThrowIfCancellationRequested();
-			return new ValueTask<byte[]>(ReadToEnd());
+			return ReadToEnd();
 		}
 
 		/*
@@ -542,12 +530,12 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 
 			do {
 				b = Read<byte>();
-				value |= ( b & 0x7F ) << shift;
+				value |= (b & 0x7F) << shift;
 				shift += 7;
 				if ( shift > 35 ) {
 					throw new FormatException( "Invalid 7-bit encoded integer formatting in save file." );
 				}
-			} while ( ( b & 0x80 ) != 0 );
+			} while ( (b & 0x80) != 0 );
 
 			return value;
 		}

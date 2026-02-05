@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -13,8 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Godot;
-using Nomad.Core.Util;
+using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.CVars;
 using System;
@@ -33,33 +32,32 @@ namespace Nomad.Logger.Private.Sinks {
 	/// </summary>
 
 	public sealed class FileSink : SinkBase {
-		private readonly System.IO.StreamWriter? _writer = null;
+		private readonly IFileWriteStream? _writer = null;
 
 		/*
 		===============
 		FileSink
 		===============
 		*/
-		public FileSink( ICVarSystemService cvarSystem ) {
+		public FileSink( ICVarSystemService cvarSystem, IFileSystem fileSystem ) {
 			ICVar<string> logfile = cvarSystem.Register(
 				new CVarCreateInfo<string>(
-					Name: "console.LogFile",
-					DefaultValue: "user://debug.log",
-					Description: "The path to the console's logging file.",
-					Flags: CVarFlags.Archive | CVarFlags.Developer,
-					Validator: file => file.Length > 0
+					name: "console.LogFile",
+					defaultValue: "debug.log",
+					description: "The path to the console's logging file.",
+					flags: CVarFlags.Archive | CVarFlags.Developer,
+					validator: file => file.Length > 0
 				)
 			);
 
 			try {
-				using System.IO.FileStream stream = new System.IO.FileStream( FilePath.FromUserPath( logfile.Value ).OSPath, System.IO.FileMode.Create, System.IO.FileAccess.Write );
-				_writer = new System.IO.StreamWriter( stream );
+				_writer = fileSystem.OpenWrite( $"{fileSystem.GetUserDataPath()}/{logfile.Value}" );
 			} catch ( Exception e ) {
 				_writer?.Close();
-				GD.PrintErr( $"FileSink: failed to create log file {logfile.Value} - {e.Message}" );
+				Console.WriteLine( $"FileSink: failed to create log file {logfile.Value} - {e.Message}" );
 				throw;
 			}
-			GD.Print( "Sucessfully opened logfile." );
+			Console.WriteLine( $"Sucessfully opened logfile at {DateTime.Now}." );
 		}
 
 		/*
@@ -73,7 +71,7 @@ namespace Nomad.Logger.Private.Sinks {
 		/// <param name="message"></param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public override void Print( in string message ) {
-			_writer?.WriteAsync( message );
+			_writer?.WriteLineAsync( message );
 		}
 
 		/*
@@ -85,7 +83,7 @@ namespace Nomad.Logger.Private.Sinks {
 		/// Clears the file stream.
 		/// </summary>
 		public override void Clear() {
-			_writer?.BaseStream.SetLength( 0 );
+//			_writer.Length = 0;
 		}
 
 		/*

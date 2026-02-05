@@ -2,8 +2,8 @@
 
 using namespace Nomad::Core;
 
-GameEvent::GameEvent( int hashCode, const char *pszName )
-	: m_szName( pszName ), m_nHashCode( hashCode )
+GameEvent::GameEvent( int hashCode, const char *pszNameSpace, const char *pszName )
+	: m_szName( pszName ), m_szNameSpace( pszNameSpace ), m_nHashCode( hashCode )
 {
 	m_EventList.reserve( 72 );
 }

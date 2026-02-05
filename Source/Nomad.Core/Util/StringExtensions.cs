@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using Nomad.Core.Compatibility;
 
 namespace Nomad.Core.Util
 {
@@ -27,7 +28,7 @@ namespace Nomad.Core.Util
         /// <returns></returns>
         public static uint HashFileName(this string filename, int seed = 0)
         {
-            ArgumentException.ThrowIfNullOrEmpty(filename);
+            ExceptionCompat.ThrowIfNullOrEmpty(filename);
 
             int length = filename.Length;
             Span<byte> hash = stackalloc byte[length];

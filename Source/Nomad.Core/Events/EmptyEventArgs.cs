@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -21,11 +21,11 @@ namespace Nomad.Core.Events
     /// Represents an event callback with no arguments.
     /// </summary>
     [StructLayout(LayoutKind.Explicit, Pack = 1)]
-    public readonly record struct EmptyEventArgs
+    public readonly struct EmptyEventArgs
     {
         /// <summary>
         /// Represents no arguments.
         /// </summary>
-        public static readonly EmptyEventArgs Args = new();
+        public static readonly EmptyEventArgs Args = new EmptyEventArgs();
     }
 }

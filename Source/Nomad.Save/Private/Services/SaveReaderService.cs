@@ -15,6 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Collections.Concurrent;
+using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.Save.Private.Entities;
 using Nomad.Save.Private.Serialization.Streams;
@@ -34,7 +35,12 @@ namespace Nomad.Save.Private.Services {
 
 	internal sealed class SaveReaderService : IDisposable {
 		public int SectionCount => _sections.Count;
-		private readonly ConcurrentDictionary<string, SaveSectionReader> _sections = new();
+		private readonly ConcurrentDictionary<string, SaveSectionReader> _sections;
+
+		private readonly IFileSystem _fileSystem;
+
+		private readonly ILoggerService _logger;
+		private readonly ILoggerCategory _category;
 
 		/*
 		===============
@@ -42,25 +48,30 @@ namespace Nomad.Save.Private.Services {
 		===============
 		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
-		/// <param name="filepath"></param>
+		/// <param name="fileSystem"></param>
 		/// <param name="logger"></param>
-		public SaveReaderService( string filepath, ILoggerService logger ) {
-			logger.PrintLine( $"Loading save data..." );
+		public SaveReaderService( IFileSystem fileSystem, ILoggerService logger ) {
+			_fileSystem = fileSystem;
+			_logger = logger;
+		}
 
-			using var reader = new SaveStreamReader( filepath );
+		public void Load( string filepath ) {
+			_logger.PrintLine( $"Loading save data..." );
+
+			using var reader = _fileSystem.OpenRead( filepath );
 			var header = SaveHeader.Deserialize( reader );
 
-			logger.PrintLine( $"...Section Count: {header.SectionCount}" );
-			logger.PrintLine( $"...Version: {header.Version}" );
+			_logger.PrintLine( $"...Section Count: {header.SectionCount}" );
+			_logger.PrintLine( $"...Version: {header.Version}" );
 
 			for ( int i = 0; i < header.SectionCount; i++ ) {
-				var section = new SaveSectionReader( in reader, logger );
+				var section = new SaveSectionReader( in reader, _logger );
 				_sections[ section.Name ] = section;
 			}
 
-			logger.PrintLine( "...Finished loading save data" );
+			_logger.PrintLine( "...Finished loading save data" );
 		}
 
 		/*

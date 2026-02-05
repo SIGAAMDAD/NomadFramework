@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 namespace Nomad.Core.Events
 {
     /// <summary>
-    ///
+    /// The base game event type.
     /// </summary>
     public interface IGameEvent : IDisposable
     {
@@ -107,6 +107,7 @@ namespace Nomad.Core.Events
         /// <param name="owner"></param>
         void UnsubscribeAll(object owner);
 
+#if NET7_OR_GREATER
         /// <summary>
         /// Event subscription operator.
         /// </summary>
@@ -130,5 +131,6 @@ namespace Nomad.Core.Events
         /// </summary>
         /// <param name="callback"></param>
         void operator -=(AsyncEventCallback<TArgs> other);
+#endif
     }
 }

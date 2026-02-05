@@ -15,12 +15,29 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Core.OnlineServices
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public enum LobbyVisibility : byte
     {
+        /// <summary>
+        /// 
+        /// </summary>
         Public,
+
+        /// <summary>
+        /// 
+        /// </summary>
         Private,
+
+        /// <summary>
+        /// 
+        /// </summary>
         FriendsOnly,
 
+        /// <summary>
+        /// 
+        /// </summary>
         Count
     }
 }

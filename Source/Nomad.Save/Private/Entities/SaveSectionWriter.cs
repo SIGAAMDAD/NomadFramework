@@ -14,9 +14,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System.Collections.Generic;
+using Nomad.Core.FileSystem;
 using Nomad.Save.Interfaces;
-using Nomad.Save.Private.Serialization.FieldSerializers;
-using Nomad.Save.Private.Serialization.Streams;
 using Nomad.Save.Private.ValueObjects;
 
 namespace Nomad.Save.Private.Entities {
@@ -31,11 +30,30 @@ namespace Nomad.Save.Private.Entities {
 	///
 	/// </summary>
 
-	internal sealed class SaveSectionWriter( string name, SaveStreamWriter writer ) : ISaveSectionWriter {
-		public string Name => name;
-		public int FieldCount => _fields.Count;
+	internal sealed class SaveSectionWriter : ISaveSectionWriter {
+		public string Name => _name;
+		private readonly string _name;
 
-		private readonly Dictionary<string, SaveField> _fields = new();
+		public int FieldCount => _fields.Count;
+		private readonly Dictionary<string, SaveField> _fields;
+
+		private readonly IWriteStream _writer;
+
+		/*
+		===============
+		SaveSectionWriter
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="name"></param>
+		/// <param name="writer"></param>
+		public SaveSectionWriter( string name, IWriteStream writer ) {
+			_name = name;
+			_fields = new Dictionary<string, SaveField>();
+			_writer = writer;
+		}
 
 		/*
 		===============
@@ -46,10 +64,10 @@ namespace Nomad.Save.Private.Entities {
 		///
 		/// </summary>
 		public void Dispose() {
-			var header = new SectionHeader( name, FieldCount, Checksum.Empty.Value );
-			header.Save( writer );
+			var header = new SectionHeader( _name, FieldCount, Checksum.Empty.Value );
+			header.Save( _writer );
 			foreach ( var field in _fields ) {
-				SaveField.Write( name, field.Value, writer );
+				SaveField.Write( _name, field.Value, _writer );
 			}
 		}
 
@@ -65,6 +83,10 @@ namespace Nomad.Save.Private.Entities {
 		/// <param name="fieldId"></param>
 		/// <param name="value"></param>
 		public void AddField<T>( string fieldId, T value ) {
+			if ( _fields.ContainsKey( fieldId ) ) {
+				// FIXME: THROW
+				return;
+			}
 			_fields[ fieldId ] = new SaveField(
 				fieldId,
 				FieldValue.GetFieldType<T>(),

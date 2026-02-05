@@ -15,6 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Collections.Generic;
+using Nomad.Core.Compatibility;
 using Nomad.Core.Logger;
 
 namespace Nomad.Events.Private {
@@ -29,14 +30,28 @@ namespace Nomad.Events.Private {
 	///
 	/// </summary>
 
-	internal sealed class SubscriptionCache<TArgs, TCallback>( ILoggerService? logger ) : IDisposable
+	internal sealed class SubscriptionCache<TArgs, TCallback> : IDisposable
 		where TArgs : struct
-		where TCallback : class
-	{
+		where TCallback : class {
 		public List<WeakSubscription<TArgs, TCallback>> Subscriptions => _subscriptions;
 		private readonly List<WeakSubscription<TArgs, TCallback>> _subscriptions = new List<WeakSubscription<TArgs, TCallback>>( 64 );
 
+		private readonly ILoggerService _logger;
+
 		private readonly Dictionary<int, List<int>> _indexMap = new Dictionary<int, List<int>>( 64 );
+
+		/*
+		===============
+		SubscriptionCache
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="logger"></param>
+		public SubscriptionCache( ILoggerService logger ) {
+			_logger = logger;
+		}
 
 		/*
 		===============
@@ -67,14 +82,16 @@ namespace Nomad.Events.Private {
 		/// <param name="callback"></param>
 		public void AddSubscription( object subscriber, TCallback callback ) {
 			if ( ContainsCallback( subscriber, callback, out _ ) ) {
-				logger?.PrintError( $"SubscriptionCache.AddSubscription: duplicate subscription from '{subscriber.GetType().Name}'" );
+#if EVENT_DEBUG
+				_logger?.PrintError( $"SubscriptionCache.AddSubscription: duplicate subscription from '{subscriber.GetType().Name}'" );
+#endif
 				return;
 			}
 
 			int index = _subscriptions.Count;
 			_subscriptions.Add( new WeakSubscription<TArgs, TCallback>( subscriber, callback ) );
-#if DEBUG
-			logger?.PrintLine( $"SubscriptionCache.AddSubscription: added subscription from '{subscriber.GetType().Name}'" );
+#if EVENT_DEBUG
+			_logger?.PrintLine( $"SubscriptionCache.AddSubscription: added subscription from '{subscriber.GetType().Name}'" );
 #endif
 
 			int key = subscriber.GetHashCode();
@@ -97,11 +114,13 @@ namespace Nomad.Events.Private {
 		/// <param name="callback"></param>
 		public void RemoveSubscription( object subscriber, TCallback callback ) {
 			if ( !ContainsCallback( subscriber, callback, out int index ) ) {
-				logger?.PrintWarning( $"SubscriptionCache.RemoveSubscription: subscription not found from '{subscriber.GetType().Name}'" );
+#if EVENT_DEBUG
+				_logger?.PrintWarning( $"SubscriptionCache.RemoveSubscription: subscription not found from '{subscriber.GetType().Name}'" );
+#endif
 				return;
 			}
-#if DEBUG
-			logger?.PrintLine( $"SubscriptionCache.RemoveSubscription: removed subscription from '{subscriber.GetType().Name}'" );
+#if EVENT_DEBUG
+			_logger?.PrintLine( $"SubscriptionCache.RemoveSubscription: removed subscription from '{subscriber.GetType().Name}'" );
 #endif
 			RemoveAtIndexInternal( index, subscriber );
 		}
@@ -116,7 +135,7 @@ namespace Nomad.Events.Private {
 		/// </summary>
 		/// <param name="subscriber"></param>
 		public void RemoveAllForSubscriber( object subscriber ) {
-			ArgumentNullException.ThrowIfNull( subscriber );
+			ExceptionCompat.ThrowIfNull( subscriber );
 
 			int removed = 0;
 			for ( int i = _subscriptions.Count - 1; i >= 0; i-- ) {
@@ -125,8 +144,8 @@ namespace Nomad.Events.Private {
 					removed++;
 				}
 			}
-#if DEBUG
-			logger?.PrintLine( $"SubscriptionCache.RemoveAllForSubscriber: removed {removed} subscriptions for '{subscriber.GetType().Name}'" );
+#if EVENT_DEBUG
+			_logger?.PrintLine( $"SubscriptionCache.RemoveAllForSubscriber: removed {removed} subscriptions for '{subscriber.GetType().Name}'" );
 #endif
 		}
 
@@ -162,8 +181,8 @@ namespace Nomad.Events.Private {
 		/// </summary>
 		public void CleanupDeadSubscriptions() {
 			int initialCount = _subscriptions.Count;
-#if DEBUG
-			logger?.PrintLine( $"SubscriptionCache({typeof( TCallback )}).CleanupDeadSubscriptionsInternal: cleaning up dead subscriptions..." );
+#if EVENT_DEBUG
+			_logger?.PrintLine( $"SubscriptionCache({typeof( TCallback )}).CleanupDeadSubscriptionsInternal: cleaning up dead subscriptions..." );
 #endif
 
 			for ( int i = _subscriptions.Count - 1; i >= 0; i-- ) {
@@ -174,8 +193,8 @@ namespace Nomad.Events.Private {
 
 			int removed = initialCount - _subscriptions.Count;
 			if ( removed > 0 ) {
-#if DEBUG
-				logger?.PrintLine( $"SubscriptionCache.CleanupDeadSubscriptions: removed {removed} dangling subscriptions" );
+#if EVENT_DEBUG
+				_logger?.PrintLine( $"SubscriptionCache.CleanupDeadSubscriptions: removed {removed} dangling subscriptions" );
 #endif
 				RebuildIndexMap();
 			}
@@ -202,8 +221,7 @@ namespace Nomad.Events.Private {
 					if ( idx >= 0 && idx < _subscriptions.Count ) {
 						WeakSubscription<TArgs, TCallback> subscription = _subscriptions[ idx ];
 						if ( subscription.Subscriber.TryGetTarget( out object? existing ) && existing.Equals( subscriber )
-							&& subscription.Callback == callback )
-						{
+							&& subscription.Callback == callback ) {
 							index = idx;
 							return true;
 						}
@@ -224,7 +242,9 @@ namespace Nomad.Events.Private {
 		/// </summary>
 		private void RemoveAtIndexInternal( int index, object subscriber ) {
 			if ( index < 0 || index >= _subscriptions.Count ) {
-				logger?.PrintWarning( $"SubscriptionCache({typeof( TCallback )}).RemoveAtIndexInternal: index isn't valid - {index}" );
+#if EVENT_DEBUG
+				_logger?.PrintWarning( $"SubscriptionCache({typeof( TCallback )}).RemoveAtIndexInternal: index isn't valid - {index}" );
+#endif
 				return;
 			}
 

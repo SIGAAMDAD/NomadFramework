@@ -20,6 +20,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Nomad.Core.Compatibility;
 using Nomad.Core.FileSystem;
 using Nomad.FileSystem.Private.MemoryStream;
 
@@ -38,6 +39,7 @@ namespace Nomad.FileSystem.Private {
 	public class MemoryWriteStream : MemoryStreamBase, IWriteStream {
 		private const int MAX_CAPACITY = 1 * 1024 * 1024 * 1024;
 		private const int STACK_ALLOC_THRESHOLD = 256;
+		public const int DEFAULT_CAPACITY = 8192;
 
 		public override bool CanRead => false;
 		public override bool CanWrite => true;
@@ -74,6 +76,7 @@ namespace Nomad.FileSystem.Private {
 		public override void Dispose() {
 			if ( _buffer != null ) {
 				ArrayPool<byte>.Shared.Return( _buffer );
+				_buffer = null;
 			}
 			GC.SuppressFinalize( this );
 		}
@@ -90,6 +93,7 @@ namespace Nomad.FileSystem.Private {
 		public override async ValueTask DisposeAsync() {
 			if ( _buffer != null ) {
 				ArrayPool<byte>.Shared.Return( _buffer );
+				_buffer = null;
 			}
 			GC.SuppressFinalize( this );
 		}
@@ -115,7 +119,7 @@ namespace Nomad.FileSystem.Private {
 		/// </summary>
 		/// <param name="cancellationToken">A token to cancel the operation.</param>
 		/// <returns>A task that represents the asynchronous flush operation.</returns>
-		public override async ValueTask FlushAsync( CancellationToken cancellationToken = default( CancellationToken ) ) {
+		public override async ValueTask FlushAsync( CancellationToken cancellationToken = default ) {
 		}
 
 		/*
@@ -130,8 +134,8 @@ namespace Nomad.FileSystem.Private {
 		/// <param name="offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
 		/// <param name="count">The number of bytes to be written to the current stream.</param>
 		public void Write( byte[] buffer, int offset, int count ) {
-			ArgumentNullException.ThrowIfNull( _buffer );
-			ArgumentNullException.ThrowIfNull( buffer );
+			ExceptionCompat.ThrowIfNull( _buffer );
+			ExceptionCompat.ThrowIfNull( buffer );
 
 			EnsureCapacity( count );
 			Buffer.BlockCopy( buffer, offset, _buffer, _position, count );
@@ -148,7 +152,7 @@ namespace Nomad.FileSystem.Private {
 		/// </summary>
 		/// <param name="buffer">A read-only span of bytes. This method copies the contents of the span to the current stream.</param>
 		public void Write( ReadOnlySpan<byte> buffer ) {
-			ArgumentNullException.ThrowIfNull( _buffer );
+			ExceptionCompat.ThrowIfNull( _buffer );
 
 			int count = buffer.Length;
 			EnsureCapacity( count );
@@ -202,7 +206,7 @@ namespace Nomad.FileSystem.Private {
 		/// </summary>
 		/// <param name="value">The byte to write to the stream.</param>
 		public void WriteByte( byte value ) {
-			Write<byte>( value );
+			Write( value );
 		}
 
 		/*
@@ -215,7 +219,7 @@ namespace Nomad.FileSystem.Private {
 		/// </summary>
 		/// <param name="stream">The read stream to copy from.</param>
 		public void WriteFromStream( IReadStream stream ) {
-			ArgumentNullException.ThrowIfNull( stream );
+			ExceptionCompat.ThrowIfNull( stream );
 
 			byte[] buffer = ArrayPool<byte>.Shared.Rent( 4096 );
 			try {
@@ -240,7 +244,7 @@ namespace Nomad.FileSystem.Private {
 		/// <param name="cancellationToken">A token to cancel the operation.</param>
 		/// <returns>A task that represents the asynchronous copy operation.</returns>
 		public async ValueTask WriteFromStreamAsync( IReadStream stream, CancellationToken cancellationToken = default( CancellationToken ) ) {
-			ArgumentNullException.ThrowIfNull( stream );
+			ExceptionCompat.ThrowIfNull( stream );
 
 			byte[] buffer = ArrayPool<byte>.Shared.Rent( 4096 );
 			try {
@@ -263,8 +267,8 @@ namespace Nomad.FileSystem.Private {
 		/// </summary>
 		/// <param name="value">The string to write.</param>
 		public void Write( string? value ) {
-			ArgumentNullException.ThrowIfNull( _buffer );
-			ArgumentNullException.ThrowIfNull( value );
+			ExceptionCompat.ThrowIfNull( _buffer );
+			ExceptionCompat.ThrowIfNull( value );
 
 			int maxByteCount = Encoding.UTF8.GetMaxByteCount( value.Length );
 
@@ -293,7 +297,7 @@ namespace Nomad.FileSystem.Private {
 		/// </summary>
 		/// <param name="value">The integer value to write.</param>
 		public void Write7BitEncodedInt( int value ) {
-			ArgumentNullException.ThrowIfNull( _buffer );
+			ExceptionCompat.ThrowIfNull( _buffer );
 
 			uint uValue = (uint)value;
 			while ( uValue >= 0x80 ) {
@@ -314,7 +318,7 @@ namespace Nomad.FileSystem.Private {
 		/// <typeparam name="T">The type of the value to write.</typeparam>
 		/// <param name="value">The value to write.</param>
 		public void Write<T>( T value ) where T : unmanaged {
-			ArgumentNullException.ThrowIfNull( _buffer );
+			ExceptionCompat.ThrowIfNull( _buffer );
 
 			int sizeOfData = Marshal.SizeOf<T>();
 			EnsureCapacity( sizeOfData );
@@ -332,7 +336,7 @@ namespace Nomad.FileSystem.Private {
 		/// </summary>
 		/// <param name="value">The signed byte value to write.</param>
 		public void WriteSByte( sbyte value ) {
-			Write<sbyte>( value );
+			Write( value );
 		}
 
 		/*
@@ -345,7 +349,7 @@ namespace Nomad.FileSystem.Private {
 		/// </summary>
 		/// <param name="value">The 16-bit signed integer value to write.</param>
 		public void WriteShort( short value ) {
-			Write<short>( value );
+			Write( value );
 		}
 
 		/*
@@ -358,7 +362,7 @@ namespace Nomad.FileSystem.Private {
 		/// </summary>
 		/// <param name="value">The 32-bit signed integer value to write.</param>
 		public void WriteInt( int value ) {
-			Write<int>( value );
+			Write( value );
 		}
 
 		/*
@@ -371,7 +375,7 @@ namespace Nomad.FileSystem.Private {
 		/// </summary>
 		/// <param name="value">The 64-bit signed integer value to write.</param>
 		public void WriteLong( long value ) {
-			Write<long>( value );
+			Write( value );
 		}
 
 		/*
@@ -384,7 +388,7 @@ namespace Nomad.FileSystem.Private {
 		/// </summary>
 		/// <param name="value">The 16-bit unsigned integer value to write.</param>
 		public void WriteUShort( ushort value ) {
-			Write<ushort>( value );
+			Write( value );
 		}
 
 		/*
@@ -397,7 +401,7 @@ namespace Nomad.FileSystem.Private {
 		/// </summary>
 		/// <param name="value">The 32-bit unsigned integer value to write.</param>
 		public void WriteUInt( uint value ) {
-			Write<uint>( value );
+			Write( value );
 		}
 
 		/*
@@ -410,7 +414,7 @@ namespace Nomad.FileSystem.Private {
 		/// </summary>
 		/// <param name="value">The 64-bit unsigned integer value to write.</param>
 		public void WriteULong( ulong value ) {
-			Write<ulong>( value );
+			Write( value );
 		}
 
 		/*
@@ -423,7 +427,7 @@ namespace Nomad.FileSystem.Private {
 		/// </summary>
 		/// <param name="value">The 8-bit signed integer value to write.</param>
 		public void WriteInt8( sbyte value ) {
-			Write<sbyte>( value );
+			Write( value );
 		}
 
 		/*
@@ -436,7 +440,7 @@ namespace Nomad.FileSystem.Private {
 		/// </summary>
 		/// <param name="value">The 16-bit signed integer value to write.</param>
 		public void WriteInt16( short value ) {
-			Write<short>( value );
+			Write( value );
 		}
 
 		/*
@@ -449,7 +453,7 @@ namespace Nomad.FileSystem.Private {
 		/// </summary>
 		/// <param name="value">The 32-bit signed integer value to write.</param>
 		public void WriteInt32( int value ) {
-			Write<int>( value );
+			Write( value );
 		}
 
 		/*
@@ -462,7 +466,7 @@ namespace Nomad.FileSystem.Private {
 		/// </summary>
 		/// <param name="value">The 64-bit signed integer value to write.</param>
 		public void WriteInt64( long value ) {
-			Write<long>( value );
+			Write( value );
 		}
 
 		/*
@@ -475,7 +479,7 @@ namespace Nomad.FileSystem.Private {
 		/// </summary>
 		/// <param name="value">The 8-bit unsigned integer value to write.</param>
 		public void WriteUInt8( byte value ) {
-			Write<byte>( value );
+			Write( value );
 		}
 
 		/*
@@ -592,8 +596,8 @@ namespace Nomad.FileSystem.Private {
 		/// </summary>
 		/// <param name="value">The string to write.</param>
 		public void WriteString( string value ) {
-			ArgumentNullException.ThrowIfNull( _buffer );
-			ArgumentNullException.ThrowIfNull( value );
+			ExceptionCompat.ThrowIfNull( _buffer );
+			ExceptionCompat.ThrowIfNull( value );
 
 			int maxByteCount = Encoding.UTF8.GetMaxByteCount( value.Length );
 

@@ -15,9 +15,37 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Save.ValueObjects
 {
-    public readonly record struct SaveFileVersion(
-        uint Major,
-        uint Minor,
-        ulong Patch
-    );
+    /// <summary>
+    /// 
+    /// </summary>
+    public readonly struct SaveFileVersion
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public readonly uint Major;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public readonly uint Minor;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public readonly ulong Patch;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="major"></param>
+        /// <param name="minor"></param>
+        /// <param name="patch"></param>
+        public SaveFileVersion(uint major, uint minor, ulong patch)
+        {
+            Major = major;
+            Minor = minor;
+            Patch = patch;
+        }
+    }
 }

@@ -13,7 +13,9 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using Nomad.Core.Abstractions;
 using Nomad.Core.Events;
+using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
 using Nomad.Save.Private.Services;
@@ -21,35 +23,33 @@ using Nomad.Save.Services;
 
 namespace Nomad.Save
 {
-    /*
-    ===================================================================================
-
-    SaveBootstrapper
-
-    ===================================================================================
-    */
     /// <summary>
     ///
     /// </summary>
-
-    public static class SaveBootstrapper
+    public class SaveBootstrapper : IBootstrapper
     {
-        /*
-        ===============
-        Initialize
-        ===============
-        */
+        private ISaveDataProvider _saveProvider;
+
         /// <summary>
         ///
         /// </summary>
         /// <param name="serviceFactory"></param>
         /// <param name="locator"></param>
-        public static void Initialize(IServiceRegistry serviceFactory, IServiceLocator locator)
+        public void Initialize(IServiceRegistry serviceFactory, IServiceLocator locator)
         {
             var logger = locator.GetService<ILoggerService>();
+            var fileSystem = locator.GetService<IFileSystem>();
             var eventFactory = locator.GetService<IGameEventRegistryService>();
 
-            serviceFactory.RegisterSingleton<ISaveDataProvider>(new SaveDataProvider(eventFactory, logger));
+            _saveProvider = serviceFactory.RegisterSingleton<ISaveDataProvider>(new SaveDataProvider(eventFactory, fileSystem, logger));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void Shutdown()
+        {
+            _saveProvider.Dispose();
         }
     }
 }

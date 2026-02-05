@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -22,12 +22,21 @@ namespace Nomad.Core.ServiceRegistry.Services
     /// <summary>
     ///
     /// </summary>
-    internal sealed class ServiceScope(IServiceLocator locator) : IServiceScope
+    internal sealed class ServiceScope : IServiceScope
     {
         public IServiceLocator ServiceLocator => _locator;
-        private readonly IServiceLocator _locator = locator;
+        private readonly IServiceLocator _locator;
 
         private readonly Dictionary<Type, object> _scopedInstance = new Dictionary<Type, object>();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="locator"></param>
+        public ServiceScope(IServiceLocator locator)
+        {
+            _locator = locator;
+        }
 
         /// <summary>
         ///

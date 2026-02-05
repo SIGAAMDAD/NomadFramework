@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -13,11 +13,12 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Nomad.Console.Events;
 using Nomad.Console.Interfaces;
-using Nomad.Console.ValueObjects;
 using Nomad.Core;
+using Nomad.Core.Compatibility;
+using Nomad.Core.Console;
 using Nomad.Core.Events;
+using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using System;
 using System.Collections.Generic;
@@ -65,14 +66,22 @@ namespace Nomad.Console.Private.Services {
 		CommandLine
 		===============
 		*/
-		public CommandLine( ICommandBuilder builder, ICommandService commandService, ILoggerService logger, IGameEventRegistryService eventFactory ) {
-			ArgumentNullException.ThrowIfNull( builder );
-			ArgumentNullException.ThrowIfNull( eventFactory );
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="builder"></param>
+		/// <param name="fileSystem"></param>
+		/// <param name="commandService"></param>
+		/// <param name="logger"></param>
+		/// <param name="eventFactory"></param>
+		public CommandLine( ICommandBuilder builder, IFileSystem fileSystem, ICommandService commandService, ILoggerService logger, IGameEventRegistryService eventFactory ) {
+			ExceptionCompat.ThrowIfNull( builder );
+			ExceptionCompat.ThrowIfNull( eventFactory );
 
 			_commandBuilder = builder;
 			_commandService = commandService;
 			_logger = logger;
-			_history = new History( builder, logger, eventFactory );
+			_history = new History( builder, fileSystem, logger, eventFactory );
 
 			_textEntered = eventFactory.GetEvent<TextEnteredEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.TEXT_ENTERED_EVENT );
 			_unknownCommand = eventFactory.GetEvent<CommandExecutedEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.UNKNOWN_COMMAND_EVENT );
@@ -105,7 +114,7 @@ namespace Nomad.Console.Private.Services {
 		/// <param name="text"></param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void ExecuteCommand( string text ) {
-			ArgumentException.ThrowIfNullOrEmpty( text );
+			ExceptionCompat.ThrowIfNullOrEmpty( text );
 		}
 
 		/*

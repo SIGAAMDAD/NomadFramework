@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System;
 using Nomad.Core.Util;
 using Nomad.Core.Logger;
+using Nomad.Core.Compatibility;
 
 namespace Nomad.CVars.Private.Repositories {
 	/*
@@ -30,12 +31,29 @@ namespace Nomad.CVars.Private.Repositories {
 	///
 	/// </summary>
 
-	public sealed class CVarGroup( string name, ILoggerService logger, ICVarSystemService cvarSystem ) {
-		public readonly InternString Name = new( name );
+	public sealed class CVarGroup {
+		public readonly InternString Name;
 		public readonly HashSet<InternString> Cvars = new HashSet<InternString>();
 
-		private readonly ILoggerService _logger = logger;
-		private readonly ICVarSystemService _cvarSystem = cvarSystem;
+		private readonly ILoggerService _logger;
+		private readonly ICVarSystemService _cvarSystem;
+
+		/*
+		===============
+		CVarGroup
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="name"></param>
+		/// <param name="logger"></param>
+		/// <param name="cvarSystem"></param>
+		public CVarGroup( string name, ILoggerService logger, ICVarSystemService cvarSystem ) {
+			Name = new( name );
+			_logger = logger;
+			_cvarSystem = cvarSystem;
+		}
 
 		/*
 		===============
@@ -47,7 +65,7 @@ namespace Nomad.CVars.Private.Repositories {
 		/// </summary>
 		/// <param name="name"></param>
 		public void Add( InternString name ) {
-			ArgumentException.ThrowIfNullOrEmpty( name );
+			ExceptionCompat.ThrowIfNullOrEmpty( name );
 
 			if ( !_cvarSystem.CVarExists( name ) ) {
 				_logger.PrintError( $"CVarGroup.Add: cvar '{name}' doesn't exist!" );

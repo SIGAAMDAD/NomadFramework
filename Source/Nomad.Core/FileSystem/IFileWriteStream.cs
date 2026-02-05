@@ -13,6 +13,9 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System.Threading.Tasks;
+using System;
+
 namespace Nomad.Core.FileSystem
 {
     /// <summary>
@@ -20,6 +23,31 @@ namespace Nomad.Core.FileSystem
     /// </summary>
     public interface IFileWriteStream : IFileStream, IWriteStream
     {
+        /// <summary>
+        /// Writes a line to the file.
+        /// </summary>
+        /// <param name="line">The line to write.</param>
+        void WriteLine(string line);
+
+        /// <summary>
+        /// Writes a line to the file.
+        /// </summary>
+        /// <param name="line">The line to write.</param>
+        void WriteLine(ReadOnlySpan<char> line);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="line"></param>
+        /// <returns></returns>
+        ValueTask WriteLineAsync(string line);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="line"></param>
+        /// <returns></returns>
+        ValueTask WriteLineAsync(ReadOnlySpan<char> line);
     }
 }
 

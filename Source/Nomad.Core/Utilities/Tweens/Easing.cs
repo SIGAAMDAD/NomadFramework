@@ -125,7 +125,7 @@ namespace NomadCore.Utilities.Tweens
         };
         private readonly struct BounceOutEasing : IEasingFunction
         {
-            public static readonly BounceOutEasing Instance = new();
+            public static readonly BounceOutEasing Instance = new BounceOutEasing();
 
             public float Calculate(float t)
             {

@@ -15,10 +15,10 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Collections.Concurrent;
+using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.Save.Interfaces;
 using Nomad.Save.Private.Entities;
-using Nomad.Save.Private.Serialization.Streams;
 using Nomad.Save.Private.ValueObjects;
 
 namespace Nomad.Save.Private.Services {
@@ -33,11 +33,34 @@ namespace Nomad.Save.Private.Services {
 	///
 	/// </summary>
 
-	internal sealed class SaveWriterService( string filepath, ILoggerService logger ) : ISaveWriterService {
+	internal sealed class SaveWriterService : ISaveWriterService {
 		public int SectionCount => _sections.Count;
 
 		private readonly ConcurrentDictionary<string, SaveSectionWriter> _sections = new ConcurrentDictionary<string, SaveSectionWriter>();
-		private readonly SaveStreamWriter _writer = new SaveStreamWriter( filepath, logger );
+
+		private IWriteStream? _writer;
+
+		private readonly IFileSystem _fileSystem;
+
+		private readonly ILoggerService _logger;
+		private readonly ILoggerCategory _category;
+
+		/*
+		===============
+		SaveWriterService
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="fileSystem"></param>
+		/// <param name="logger"></param>
+		/// <param name="category"></param>
+		public SaveWriterService( IFileSystem fileSystem, ILoggerService logger, ILoggerCategory category ) {
+			_fileSystem = fileSystem;
+			_logger = logger;
+			_category = category;
+		}
 
 		/*
 		===============
@@ -48,7 +71,26 @@ namespace Nomad.Save.Private.Services {
 		///
 		/// </summary>
 		public void Dispose() {
-			logger.PrintLine( $"Writing save data to {filepath}..." );
+			_writer?.Dispose();
+		}
+
+		/*
+		===============
+		Save
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="filepath"></param>
+		public void Save( string filepath ) {
+			_writer = _fileSystem.OpenWrite( filepath );
+			if ( _writer == null ) {
+				_logger.PrintError( $"Couldn't create save file {filepath}!" );
+				return;
+			}
+
+			_logger.PrintLine( $"Writing save data to {filepath}..." );
 
 			var header = new SaveHeader( new GameVersion( 2, 0, 1 ), _sections.Count, Checksum.Empty );
 			header.Serialize( _writer );
@@ -57,7 +99,7 @@ namespace Nomad.Save.Private.Services {
 				section.Value.Dispose();
 			}
 
-			_writer.Dispose();
+			_writer?.Dispose();
 		}
 
 		/*

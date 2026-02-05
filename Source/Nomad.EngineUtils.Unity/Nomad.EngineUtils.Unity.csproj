@@ -1,0 +1,55 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="unity.props" Condition="'$(UnityBuild)' == 'true'" />
+
+  <PropertyGroup>
+    <!-- Build Configuration -->
+    <TargetFrameworks>netstandard2.1</TargetFrameworks>
+    <LangVersion>9.0</LangVersion>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>enable</Nullable>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <EnforceCodeStyleInBuilds>true</EnforceCodeStyleInBuilds>
+    <EnableUnsafeBinaryFormatterSerialization>false</EnableUnsafeBinaryFormatterSerialization>
+    <BuildInParallel>true</BuildInParallel>
+
+    <!-- Performance -->
+    <TieredCompilation>true</TieredCompilation>
+    <Deterministic>true</Deterministic>
+    <UseSharedCompilation>true</UseSharedCompilation>
+    <Optimize>true</Optimize>
+    <SkipLocalsInit>true</SkipLocalsInit>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Nomad.Core\Nomad.Core.csproj" />
+	  <ProjectReference Include="..\Nomad.Events\Nomad.Events.csproj" />
+  </ItemGroup>
+
+  <!-- Unity-specific references (only for netstandard2.1) -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1' AND Exists('$(UnityManagedPath)')">
+    <!-- Core Unity assemblies -->
+    <Reference Include="UnityEngine">
+      <HintPath>$(UnityManagedPath)\UnityEngine.dll</HintPath>
+      <Private>false</Private> <!-- Don't copy to output, Unity provides it -->
+    </Reference>
+    
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(UnityEnginePath)\UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    
+    <!-- Optional: Add more modules as needed -->
+    <Reference Include="Unity.Collections">
+      <HintPath>$(UnityEnginePath)\Unity.Collections.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    
+    <Reference Include="Unity.Mathematics">
+      <HintPath>$(UnityEnginePath)\Unity.Mathematics.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>

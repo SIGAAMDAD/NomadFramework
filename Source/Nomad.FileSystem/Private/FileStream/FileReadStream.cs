@@ -18,6 +18,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Nomad.Core.FileSystem;
+using Nomad.Core.Compatibility;
 
 namespace Nomad.FileSystem.Private.FileStream {
 	/*
@@ -56,12 +57,10 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// Initializes a new instance of the FileReadStream class with the specified file path, mode, and access.
 		/// </summary>
 		/// <param name="filepath">The path to the file to read from.</param>
-		/// <param name="fileMode">The file mode to use when opening the file.</param>
-		/// <param name="fileAccess">The file access to use when opening the file.</param>
-		public FileReadStream( string filepath, FileMode fileMode, FileAccess fileAccess )
-			: base( filepath, fileMode, fileAccess )
+		public FileReadStream( string filepath )
+			: base( filepath, FileMode.Open, FileAccess.Read )
 		{
-			ArgumentNullException.ThrowIfNull( _fileStream );
+			ExceptionCompat.ThrowIfNull( _fileStream );
 			_streamReader = new BinaryReader( _fileStream );
 		}
 
@@ -78,7 +77,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <param name="count">The maximum number of bytes to be read from the current stream.</param>
 		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many bytes are not currently available, or zero if the end of the stream has been reached.</returns>
 		public int Read( byte[] buffer, int offset, int count ) {
-			ArgumentNullException.ThrowIfNull( _fileStream );
+			ExceptionCompat.ThrowIfNull( _fileStream );
 			return _fileStream.Read( buffer, offset, count );
 		}
 
@@ -93,7 +92,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <param name="buffer">A span of bytes. When this method returns, the span contains the bytes read from the current source.</param>
 		/// <returns>The total number of bytes read into the span. This can be less than the length of the span if that many bytes are not currently available, or zero if the end of the stream has been reached.</returns>
 		public int Read( Span<byte> buffer ) {
-			ArgumentNullException.ThrowIfNull( _fileStream );
+			ExceptionCompat.ThrowIfNull( _fileStream );
 			return _fileStream.Read( buffer );
 		}
 
@@ -110,8 +109,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <param name="count">The maximum number of bytes to be read from the current stream.</param>
 		/// <param name="ct">A token to cancel the operation.</param>
 		/// <returns>A task that represents the asynchronous read operation, containing the total number of bytes read into the buffer.</returns>
-		public ValueTask<int> ReadAsync( byte[] buffer, int offset, int count, CancellationToken ct = default( CancellationToken ) ) {
-			ArgumentNullException.ThrowIfNull( _fileStream );
+		public ValueTask<int> ReadAsync( byte[] buffer, int offset, int count, CancellationToken ct = default ) {
+			ExceptionCompat.ThrowIfNull( _fileStream );
 			ct.ThrowIfCancellationRequested();
 			return _fileStream.ReadAsync( buffer.AsMemory( offset, count ), ct );
 		}
@@ -127,8 +126,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <param name="buffer">A memory buffer. When this method returns, the buffer contains the bytes read from the current source.</param>
 		/// <param name="ct">A token to cancel the operation.</param>
 		/// <returns>A task that represents the asynchronous read operation, containing the total number of bytes read into the buffer.</returns>
-		public ValueTask<int> ReadAsync( Memory<byte> buffer, CancellationToken ct = default( CancellationToken ) ) {
-			ArgumentNullException.ThrowIfNull( _fileStream );
+		public ValueTask<int> ReadAsync( Memory<byte> buffer, CancellationToken ct = default ) {
+			ExceptionCompat.ThrowIfNull( _fileStream );
 			ct.ThrowIfCancellationRequested();
 			return _fileStream.ReadAsync( buffer, ct );
 		}
@@ -143,7 +142,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <returns>A byte array containing the remaining data in the stream.</returns>
 		public byte[] ReadToEnd() {
-			ArgumentNullException.ThrowIfNull( _fileStream );
+			ExceptionCompat.ThrowIfNull( _fileStream );
 			long remaining = _fileStream.Length - _fileStream.Position;
 			if ( remaining > int.MaxValue ) {
 				throw new InvalidOperationException( "File is too large to read into a single array." );
@@ -166,8 +165,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <param name="ct">A token to cancel the operation.</param>
 		/// <returns>A task that represents the asynchronous read operation, containing a byte array with the remaining data.</returns>
-		public async ValueTask<byte[]> ReadToEndAsync( CancellationToken ct = default( CancellationToken ) ) {
-			ArgumentNullException.ThrowIfNull( _fileStream );
+		public async ValueTask<byte[]> ReadToEndAsync( CancellationToken ct = default ) {
+			ExceptionCompat.ThrowIfNull( _fileStream );
 			ct.ThrowIfCancellationRequested();
 			long remaining = _fileStream.Length - _fileStream.Position;
 			if ( remaining > int.MaxValue ) {
@@ -191,7 +190,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <returns>A byte array containing all data from the file stream.</returns>
 		public byte[] ToArray() {
-			ArgumentNullException.ThrowIfNull( _fileStream );
+			ExceptionCompat.ThrowIfNull( _fileStream );
 			long originalPosition = _fileStream.Position;
 			_fileStream.Position = 0;
 			try {
@@ -220,7 +219,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <returns>The unsigned byte value read from the stream.</returns>
 		public byte ReadByte() {
-			ArgumentNullException.ThrowIfNull( _streamReader );
+			ExceptionCompat.ThrowIfNull( _streamReader );
 			return _streamReader.ReadByte();
 		}
 
@@ -234,7 +233,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <returns>The double value read from the stream.</returns>
 		public double ReadDouble() {
-			ArgumentNullException.ThrowIfNull( _streamReader );
+			ExceptionCompat.ThrowIfNull( _streamReader );
 			return _streamReader.ReadDouble();
 		}
 
@@ -248,7 +247,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <returns>The float value read from the stream.</returns>
 		public float ReadFloat() {
-			ArgumentNullException.ThrowIfNull( _streamReader );
+			ExceptionCompat.ThrowIfNull( _streamReader );
 			return _streamReader.ReadSingle();
 		}
 
@@ -262,7 +261,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <returns>The 32-bit float value read from the stream.</returns>
 		public float ReadFloat32() {
-			ArgumentNullException.ThrowIfNull( _streamReader );
+			ExceptionCompat.ThrowIfNull( _streamReader );
 			return _streamReader.ReadSingle();
 		}
 
@@ -276,7 +275,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <returns>The 64-bit double value read from the stream.</returns>
 		public double ReadFloat64() {
-			ArgumentNullException.ThrowIfNull( _streamReader );
+			ExceptionCompat.ThrowIfNull( _streamReader );
 			return _streamReader.ReadDouble();
 		}
 
@@ -290,7 +289,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <returns>The 32-bit signed integer value read from the stream.</returns>
 		public int ReadInt() {
-			ArgumentNullException.ThrowIfNull( _streamReader );
+			ExceptionCompat.ThrowIfNull( _streamReader );
 			return _streamReader.ReadInt32();
 		}
 
@@ -304,7 +303,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <returns>The 16-bit signed integer value read from the stream.</returns>
 		public short ReadInt16() {
-			ArgumentNullException.ThrowIfNull( _streamReader );
+			ExceptionCompat.ThrowIfNull( _streamReader );
 			return _streamReader.ReadInt16();
 		}
 
@@ -318,7 +317,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <returns>The 32-bit signed integer value read from the stream.</returns>
 		public int ReadInt32() {
-			ArgumentNullException.ThrowIfNull( _streamReader );
+			ExceptionCompat.ThrowIfNull( _streamReader );
 			return _streamReader.ReadInt32();
 		}
 
@@ -332,7 +331,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <returns>The 64-bit signed integer value read from the stream.</returns>
 		public long ReadInt64() {
-			ArgumentNullException.ThrowIfNull( _streamReader );
+			ExceptionCompat.ThrowIfNull( _streamReader );
 			return _streamReader.ReadInt64();
 		}
 
@@ -346,7 +345,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <returns>The 8-bit signed integer value read from the stream.</returns>
 		public sbyte ReadInt8() {
-			ArgumentNullException.ThrowIfNull( _streamReader );
+			ExceptionCompat.ThrowIfNull( _streamReader );
 			return _streamReader.ReadSByte();
 		}
 
@@ -360,7 +359,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <returns>The 64-bit signed integer value read from the stream.</returns>
 		public long ReadLong() {
-			ArgumentNullException.ThrowIfNull( _streamReader );
+			ExceptionCompat.ThrowIfNull( _streamReader );
 			return _streamReader.ReadInt64();
 		}
 
@@ -374,7 +373,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <returns>The signed byte value read from the stream.</returns>
 		public sbyte ReadSByte() {
-			ArgumentNullException.ThrowIfNull( _streamReader );
+			ExceptionCompat.ThrowIfNull( _streamReader );
 			return _streamReader.ReadSByte();
 		}
 
@@ -388,7 +387,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <returns>The 16-bit signed integer value read from the stream.</returns>
 		public short ReadShort() {
-			ArgumentNullException.ThrowIfNull( _streamReader );
+			ExceptionCompat.ThrowIfNull( _streamReader );
 			return _streamReader.ReadInt16();
 		}
 
@@ -402,7 +401,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <returns>The single-precision float value read from the stream.</returns>
 		public float ReadSingle() {
-			ArgumentNullException.ThrowIfNull( _streamReader );
+			ExceptionCompat.ThrowIfNull( _streamReader );
 			return _streamReader.ReadSingle();
 		}
 
@@ -416,7 +415,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <returns>The string value read from the stream.</returns>
 		public string ReadString() {
-			ArgumentNullException.ThrowIfNull( _streamReader );
+			ExceptionCompat.ThrowIfNull( _streamReader );
 			return _streamReader.ReadString();
 		}
 
@@ -430,7 +429,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <returns>The 32-bit unsigned integer value read from the stream.</returns>
 		public uint ReadUInt() {
-			ArgumentNullException.ThrowIfNull( _streamReader );
+			ExceptionCompat.ThrowIfNull( _streamReader );
 			return _streamReader.ReadUInt32();
 		}
 
@@ -444,7 +443,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <returns>The 16-bit unsigned integer value read from the stream.</returns>
 		public ushort ReadUInt16() {
-			ArgumentNullException.ThrowIfNull( _streamReader );
+			ExceptionCompat.ThrowIfNull( _streamReader );
 			return _streamReader.ReadUInt16();
 		}
 
@@ -458,7 +457,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <returns>The 32-bit unsigned integer value read from the stream.</returns>
 		public uint ReadUInt32() {
-			ArgumentNullException.ThrowIfNull( _streamReader );
+			ExceptionCompat.ThrowIfNull( _streamReader );
 			return _streamReader.ReadUInt32();
 		}
 
@@ -472,7 +471,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <returns>The 64-bit unsigned integer value read from the stream.</returns>
 		public ulong ReadUInt64() {
-			ArgumentNullException.ThrowIfNull( _streamReader );
+			ExceptionCompat.ThrowIfNull( _streamReader );
 			return _streamReader.ReadUInt64();
 		}
 
@@ -486,7 +485,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <returns>The 8-bit unsigned integer value read from the stream.</returns>
 		public byte ReadUInt8() {
-			ArgumentNullException.ThrowIfNull( _streamReader );
+			ExceptionCompat.ThrowIfNull( _streamReader );
 			return _streamReader.ReadByte();
 		}
 
@@ -500,7 +499,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <returns>The 64-bit unsigned integer value read from the stream.</returns>
 		public ulong ReadULong() {
-			ArgumentNullException.ThrowIfNull( _streamReader );
+			ExceptionCompat.ThrowIfNull( _streamReader );
 			return _streamReader.ReadUInt64();
 		}
 
@@ -514,7 +513,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <returns>The 16-bit unsigned integer value read from the stream.</returns>
 		public ushort ReadUShort() {
-			ArgumentNullException.ThrowIfNull( _streamReader );
+			ExceptionCompat.ThrowIfNull( _streamReader );
 			return _streamReader.ReadUInt16();
 		}
 	}

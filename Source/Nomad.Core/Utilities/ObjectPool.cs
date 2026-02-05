@@ -37,15 +37,11 @@ namespace NomadCore.Utilities
     /// 
     /// </summary>
 
-    public class ObjectPool<T> : IDisposable where T : IDisposable, new()
+    public class ObjectPool<T> : IDisposable
+        where T : IDisposable, new()
     {
         private readonly ConcurrentBag<T> _pool = new ConcurrentBag<T>();
 
-        /*
-		===============
-		Rent
-		===============
-		*/
         /// <summary>
         /// 
         /// </summary>
@@ -59,11 +55,6 @@ namespace NomadCore.Utilities
             return new T();
         }
 
-        /*
-		===============
-		Return
-		===============
-		*/
         /// <summary>
         /// 
         /// </summary>
@@ -73,11 +64,6 @@ namespace NomadCore.Utilities
             _pool.Add(obj);
         }
 
-        /*
-		===============
-		Dispose
-		===============
-		*/
         /// <summary>
         /// 
         /// </summary>
@@ -88,6 +74,7 @@ namespace NomadCore.Utilities
                 value.Dispose();
             }
             _pool.Clear();
+            GC.SuppressFinalize(this);
         }
     };
 };

@@ -15,22 +15,72 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Save.Private.ValueObjects {
 	/// <summary>
-	/// A save field's type
+	/// A save field's type.
 	/// </summary>
 	public enum FieldType : byte {
+		/// <summary>
+		/// 
+		/// </summary>
 		Int8,
+
+		/// <summary>
+		/// 
+		/// </summary>
 		Int16,
+
+		/// <summary>
+		/// 
+		/// </summary>
 		Int32,
+
+		/// <summary>
+		/// 
+		/// </summary>
 		Int64,
+
+		/// <summary>
+		/// 
+		/// </summary>
 		UInt8,
+		
+		/// <summary>
+		/// 
+		/// </summary>
 		UInt16,
+
+		/// <summary>
+		/// 
+		/// </summary>
 		UInt32,
+
+		/// <summary>
+		/// 
+		/// </summary>
 		UInt64,
+
+		/// <summary>
+		/// 
+		/// </summary>
 		Float,
+
+		/// <summary>
+		/// 
+		/// </summary>
 		Double,
+		
+		/// <summary>
+		/// 
+		/// </summary>
 		Boolean,
+
+		/// <summary>
+		/// 
+		/// </summary>
 		String,
 
+		/// <summary>
+		/// 
+		/// </summary>
 		Count
 	};
 };

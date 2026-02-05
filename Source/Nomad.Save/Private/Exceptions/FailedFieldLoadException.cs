@@ -27,8 +27,13 @@ namespace Nomad.Save.Private.Exceptions {
 	///
 	/// </summary>
 
-	internal sealed class FailedFieldLoadException( string fieldName, Exception exception ) : Exception {
-		public readonly string? FieldName = fieldName;
-		public readonly Exception Error = exception;
+	internal sealed class FailedFieldLoadException : Exception {
+		public readonly string? FieldName;
+		public readonly Exception Error;
+
+		public FailedFieldLoadException( string fieldName, Exception exception ) {
+			FieldName = fieldName;
+			Error = exception;
+		}
 	};
 };

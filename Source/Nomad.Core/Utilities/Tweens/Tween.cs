@@ -187,12 +187,20 @@ namespace NomadCore.Utilities.Tweens
             void Update(float t);
         };
 
-        private sealed class FloatTweenProperty(Action<float> setter, float start, float end, float duration) : ITweenProperty
+        private sealed class FloatTweenProperty : ITweenProperty
         {
-            private readonly Action<float> _setter = setter;
-            private readonly float _start = start;
-            private readonly float _end = end;
-            private readonly float _duration = duration;
+            private readonly Action<float> _setter;
+            private readonly float _start;
+            private readonly float _end;
+            private readonly float _duration;
+
+            public FloatTweenProperty(Action<float> setter, float start, float end, float duration)
+            {
+                _setter = setter;
+                _start = start;
+                _end = end;
+                _duration = duration;
+            }
 
             /*
 			===============
@@ -204,14 +212,22 @@ namespace NomadCore.Utilities.Tweens
                 float value = _start + (_end - _start) * t;
                 _setter?.Invoke(value);
             }
-        };
+        }
 
-        private sealed class IntTweenProperty(Action<int> setter, int start, int end, float duration) : ITweenProperty
+        private sealed class IntTweenProperty : ITweenProperty
         {
-            private readonly Action<int> _setter = setter;
-            private readonly int _start = start;
-            private readonly int _end = end;
-            private readonly float _duration = duration;
+            private readonly Action<int> _setter;
+            private readonly int _start;
+            private readonly int _end;
+            private readonly float _duration;
+
+            public IntTweenProperty(Action<int> setter, int start, int end, float duration)
+            {
+                _setter = setter;
+                _start = start;
+                _end = end;
+                _duration = duration;
+            }
 
             /*
 			===============
@@ -224,5 +240,5 @@ namespace NomadCore.Utilities.Tweens
                 _setter?.Invoke(value);
             }
         }
-    };
-};
+    }
+}

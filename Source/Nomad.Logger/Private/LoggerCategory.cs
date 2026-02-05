@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Godot;
 using Nomad.Core.Collections;
 using Nomad.Core.Logger;
 
@@ -45,8 +44,6 @@ namespace Nomad.Logger.Private {
 			set => _enabled = value;
 		}
 		private bool _enabled;
-
-		private long _quitFlag = 0;
 
 		private readonly List<ILoggerSink> _sinks = new List<ILoggerSink>();
 		private readonly LockFreePooledQueue<string> _messageQueue = new LockFreePooledQueue<string>( 256 );
@@ -130,7 +127,7 @@ namespace Nomad.Logger.Private {
 					await Task.Delay( 500 );
 				}
 			} catch ( Exception e ) {
-				GD.PrintErr( $"Exception caught: {e}" );
+				System.Console.WriteLine( $"LoggerThreadAsync: exception caught - {e}" );
 			}
 		}
 	};

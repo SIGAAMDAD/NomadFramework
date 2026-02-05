@@ -17,6 +17,7 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Nomad.Core.Compatibility;
 
 namespace Nomad.FileSystem.Private.FileStream {
 	/*
@@ -30,7 +31,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 	/// Base implementation of a file stream.
 	/// </summary>
 
-	public abstract class FileStreamBase( string filepath, FileMode fileMode, FileAccess fileAccess ) : BaseStream {
+	public abstract class FileStreamBase : BaseStream {
 		/// <summary>
 		/// Indicates whether the stream supports seeking.
 		/// </summary>
@@ -62,7 +63,22 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <summary>
 		/// The underlying file stream.
 		/// </summary>
-		protected System.IO.FileStream? _fileStream = new System.IO.FileStream( filepath, fileMode, fileAccess );
+		protected System.IO.FileStream? _fileStream;
+
+		/*
+		===============
+		FileStreamBase
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="filepath"></param>
+		/// <param name="fileMode"></param>
+		/// <param name="fileAccess"></param>
+		public FileStreamBase( string filepath, FileMode fileMode, FileAccess fileAccess ) {
+			_fileStream = new System.IO.FileStream( filepath, fileMode, fileAccess );
+		}
 
 		/*
 		===============
@@ -120,7 +136,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// Flushes the file stream's buffer to the underlying file.
 		/// </summary>
 		public override void Flush() {
-			ArgumentNullException.ThrowIfNull( _fileStream );
+			ExceptionCompat.ThrowIfNull( _fileStream );
 			_fileStream.Flush();
 		}
 
@@ -136,7 +152,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <returns></returns>
 		/// <exception cref="NotImplementedException"></exception>
 		public override async ValueTask FlushAsync( CancellationToken ct = default( CancellationToken ) ) {
-			ArgumentNullException.ThrowIfNull( _fileStream );
+			ExceptionCompat.ThrowIfNull( _fileStream );
 			await _fileStream.FlushAsync( ct );
 		}
 
@@ -174,7 +190,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <returns></returns>
 		/// <exception cref="NotImplementedException"></exception>
 		public override int Seek( int offset, SeekOrigin origin ) {
-			ArgumentNullException.ThrowIfNull( _fileStream );
+			ExceptionCompat.ThrowIfNull( _fileStream );
 			return (int)_fileStream.Seek( offset, origin );
 		}
 	};

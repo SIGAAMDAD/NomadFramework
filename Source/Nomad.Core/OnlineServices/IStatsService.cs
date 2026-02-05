@@ -17,14 +17,50 @@ using System.Threading.Tasks;
 
 namespace Nomad.Core.OnlineServices
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public interface IStatsService
     {
+        /// <summary>
+        /// 
+        /// </summary>
         bool SupportsLeaderboards { get; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="statName"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         ValueTask SetStatInt(string statName, int value);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="statName"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         ValueTask SetStatFloat(string statName, float value);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="statName"></param>
+        /// <returns></returns>
         ValueTask<int> GetStatInt(string statName);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="statName"></param>
+        /// <returns></returns>
         ValueTask<float> GetStatFloat(string statName);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         ValueTask<bool> StoreStats();
     }
 }
