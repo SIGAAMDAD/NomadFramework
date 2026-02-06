@@ -17,7 +17,7 @@ using System;
 
 namespace Nomad.ResourceCache
 {
-    public readonly record struct CacheStatistics
+    public readonly struct CacheStatistics
     {
         public int CacheHits { get; init; }
         public int CacheMisses { get; init; }

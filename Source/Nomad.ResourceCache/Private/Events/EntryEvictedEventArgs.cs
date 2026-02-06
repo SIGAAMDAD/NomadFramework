@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -14,7 +14,22 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 namespace Nomad.ResourceCache.Private.Events {
-	public readonly record struct EntryEvictedEventArgs<TId>(
-		TId Id
-	);
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <typeparam name="TId"></typeparam>
+	public readonly struct EntryEvictedEventArgs<TId> {
+		/// <summary>
+		/// 
+		/// </summary>
+		public readonly TId Id;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="id"></param>
+		public EntryEvictedEventArgs( TId id ) {
+			Id = id;
+		}
+	};
 };

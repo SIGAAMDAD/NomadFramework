@@ -27,6 +27,8 @@ namespace Nomad.FileSystem
     /// </summary>
     public sealed class FileSystemBootstrapper : IBootstrapper
     {
+        private IFileSystem _fileSystem;
+
         /// <summary>
         /// 
         /// </summary>
@@ -37,7 +39,7 @@ namespace Nomad.FileSystem
             var engineService = locator.GetService<IEngineService>();
             var logger = locator.GetService<ILoggerService>();
 
-            var fileSystem = registry.RegisterSingleton<IFileSystem>(new FileSystemService(engineService, logger));
+            _fileSystem = registry.RegisterSingleton<IFileSystem>(new FileSystemService(engineService, logger));
         }
 
         /// <summary>
@@ -45,6 +47,7 @@ namespace Nomad.FileSystem
         /// </summary>
         public void Shutdown()
         {
+            _fileSystem.Dispose();
         }
     }
 }

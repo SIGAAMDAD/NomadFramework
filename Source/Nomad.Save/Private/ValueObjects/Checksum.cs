@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using System.IO.Hashing;
 
 namespace Nomad.Save.Private.ValueObjects {
 	/*
@@ -29,6 +30,7 @@ namespace Nomad.Save.Private.ValueObjects {
 	
 	public readonly struct Checksum {
 		public static readonly Checksum Empty = new Checksum( 0 );
+		private static readonly Crc64 _checksum64 = new Crc64();
 
 		public readonly ulong Value;
 
@@ -56,7 +58,9 @@ namespace Nomad.Save.Private.ValueObjects {
 		/// <param name="data"></param>
 		/// <returns></returns>
 		public static Checksum Compute( ReadOnlySpan<byte> data ) {
-			return new Checksum();
+			_checksum64.Reset();
+			_checksum64.Append( data );
+			return new Checksum( _checksum64.GetCurrentHashAsUInt64() );
 		}
 	};
 };
