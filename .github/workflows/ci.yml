@@ -73,8 +73,6 @@ jobs:
         # dotnet build -f net10.0 --configuration Release
         # dotnet build -f netstandard2.1 --configuration Release
     
-    - name: 🧪 Run tests for each target framework
-    
     - name: 🧪 Run tests (Linux)
       if: runner.os != 'Windows'
       shell: bash
