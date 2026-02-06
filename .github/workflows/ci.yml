@@ -1,18 +1,13 @@
 name: 🚀 CI Pipeline
 
-# WHEN to run this pipeline:
 on:
-  push:                    # When code is pushed
+  push:
     branches: [ main, develop ]
-  pull_request:            # When someone opens a PR
+  pull_request:
     branches: [ main ]
 
-# The JOBS (parallel tasks):
 jobs:
-  
-  # Job 1: Run Tests on ALL Platforms
   test:
-    # Run on 3 operating systems simultaneously
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
@@ -22,47 +17,63 @@ jobs:
     name: Test on ${{ matrix.os }} with .NET ${{ matrix.dotnet }}
     
     steps:
-    # Step 1: Checkout code
+    # Step 1: Checkout code (updated to v4)
     - name: 📥 Checkout code
       uses: actions/checkout@v4
+      timeout-minutes: 5
     
     # Step 2: Setup .NET
     - name: ⚙️ Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ matrix.dotnet }}
+      timeout-minutes: 5
     
     # Step 3: Restore dependencies
     - name: 📦 Restore packages
       run: dotnet restore
+      timeout-minutes: 5
     
     # Step 4: Build
     - name: 🔨 Build solution
       run: dotnet build --configuration Release --no-restore
+      timeout-minutes: 10
     
     # Step 5: Run tests
     - name: 🧪 Run all tests
       run: |
         # Find ALL test projects in the repo
-        find . -name "*.Tests.csproj" -o -name "*Test.csproj" | while read project; do
-          echo "📁 Testing: $project"
-          dotnet test "$project" --configuration Release --verbosity minimal --no-build
-        done
+        if [ "${{ matrix.os }}" = "windows-latest" ]; then
+          # Windows PowerShell command
+          Get-ChildItem -Path . -Recurse -Filter "*.csproj" | Where-Object { $_.Name -match "(Test|\.Tests)" } | ForEach-Object {
+            echo "📁 Testing: $($_.FullName)"
+            dotnet test $_.FullName --configuration Release --verbosity minimal --no-build
+          }
+        else
+          # Linux/Mac bash command
+          find . -name "*.Tests.csproj" -o -name "*Test.csproj" | while read project; do
+            echo "📁 Testing: $project"
+            dotnet test "$project" --configuration Release --verbosity minimal --no-build
+          done
+        fi
         
         # If no test projects found, succeed anyway
         if [ $? -eq 1 ]; then
           echo "⚠️ No test projects found"
         fi
+      timeout-minutes: 10
     
-    # Step 6: Upload test results (optional)
+    # Step 6: Upload test results (UPDATED to v4)
     - name: 📊 Upload test results
       if: always()  # Run even if tests fail
       uses: actions/upload-artifact@v4
       with:
         name: test-results-${{ matrix.os }}
         path: TestResults/
+        if-no-files-found: ignore
+      timeout-minutes: 10
   
-  # Job 2: Build & Package (runs after tests pass)
+  # Job 2: Build & Package
   build:
     needs: test  # Only run if ALL test jobs pass
     runs-on: ubuntu-latest
@@ -70,23 +81,29 @@ jobs:
     steps:
     - name: 📥 Checkout code
       uses: actions/checkout@v4
+      timeout-minutes: 5
     
     - name: ⚙️ Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '10.0.x'
+      timeout-minutes: 5
     
     - name: 🔨 Build Release
       run: |
         dotnet publish --configuration Release --output ./publish --self-contained false
+      timeout-minutes: 15
     
     - name: 📦 Package artifacts
       run: |
         cd publish
         zip -r ../release-${{ github.sha }}.zip .
+      timeout-minutes: 15
     
     - name: 🚀 Upload release
       uses: actions/upload-artifact@v4
       with:
         name: release-package
         path: release-${{ github.sha }}.zip
+        if-no-files-found: error
+      timeout-minutes: 15
