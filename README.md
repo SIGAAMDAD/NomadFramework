@@ -18,12 +18,12 @@ NomadFramework includes a comprehensive suite of subsystems intended to serve as
 - Optional commercial licensing  
 
 ### Runtime Subsystems
-- **Event System** — decoupled, high‑performance event dispatching  
-- **CVar System** — idTech‑style configuration variables  
-- **Developer Console** — runtime command execution and debugging  
-- **Custom ECS** — lightweight, cache‑friendly entity‑component system  
-- **Input System** — unified input abstraction across engines  
-- **Logging System** — structured, configurable logging  
+- **Nomad.Events** — decoupled, high‑performance event dispatching
+- **Nomad.CVars** — idTech‑style configuration variables
+- **Nomad.Console** — runtime command execution and debugging
+- **Nomad.ECS** — lightweight, cache‑friendly entity‑component system
+- **Nomad.Input** — unified input abstraction across engines, multiple binds, coyote time, etc.
+- **Nomad.Logging** — structured, configurable logging with custom sink suppoort
 
 ### Data & Persistence
 - **Nomad.Save** — deterministic serialization, versioning, and state restoration  
@@ -35,13 +35,11 @@ NomadFramework includes a comprehensive suite of subsystems intended to serve as
 - **Nomad.Audio.FMOD** — high‑quality audio pipeline support  
 
 ### Networking
-- **Matchmaking System** — lobby creation, discovery, and session management  
+- **Nomad.Lobbies** — lobby creation, discovery, and session management. Online service agnostic
 - **Nomad.OnlineServices.Steam** — engine‑agnostic Steamworks.NET abstraction layer
-- **Nomad.OnlineServices.GOG** - engine-agnostic G.O.G. abstraction layer
 
 ### Gameplay Systems
-- **Quest API** — data‑driven quest and objective logic  
-- **Nomad.Events** — reusable gameplay event definitions  
+- **Nomad.Quests** — data‑driven quest and objective logic
 
 ### Extensibility
 - Fully modular subsystem design, you can pick and choose which ones you want without the entire framework
@@ -55,8 +53,10 @@ NomadFramework includes a comprehensive suite of subsystems intended to serve as
 NomadFramework is built around a simple principle:
 
 **Never reinvent the wheel twice.**
+And truly
+**Write once, run everywhere**
 
-After years of solo development and maintaining long‑lived codebases, the framework was designed to capture the universal patterns that appear in every engine:
+This framework was designed to capture the universal patterns that appear in every engine:
 
 - CVars
 - Consoles
@@ -96,12 +96,12 @@ See [`FORMATTING.md`](./FORMATTING.md) for full details.
 
 Planned future modules include:
 
-- Additional engine bindings  
-- Advanced networking features  
-- Physics abstraction layer  
-- UI subsystem  
-- Scripting integration  
-- Asset pipeline tools  
+- Save corruption & migration handling
+- Event priority queues
+- GOG/Epic support
+- Additional engine bindings (Unreal, MonoGame)
+- Advanced networking features
+- Physics abstraction layer
 
 ---
 
