@@ -74,28 +74,24 @@ jobs:
         # dotnet build -f netstandard2.1 --configuration Release
     
     - name: 🧪 Run tests for each target framework
+          - name: 🧪 Run tests (Linux)
+      if: runner.os == 'Linux'
+      shell: bash
       run: |
         echo "Testing with .NET ${{ matrix.dotnet-version }} on ${{ matrix.os }}"
-        
-        # Find test projects
-        if [ "${{ matrix.os }}" = "Windows" ]; then
-          # Windows PowerShell
-          $testProjects = Get-ChildItem -Path . -Recurse -Filter "*Test*.csproj"
-          foreach ($proj in $testProjects) {
-            echo "Testing: $($proj.Name)"
-            
-            # Test with the installed .NET version
-            dotnet test $proj.FullName --configuration Release --no-build
-            
-            # You can also test specific frameworks:
-            # dotnet test $proj.FullName -f net10.0 --configuration Release
-            # dotnet test $proj.FullName -f netstandard2.1 --configuration Release
-          }
-        else
-          # Linux
-          find . -name "*Test*.csproj" | while read project; do
-            echo "Testing: $(basename $project)"
-            dotnet test "$project" --configuration Release --no-build
-          done
-        fi
+        find . -name "*Test*.csproj" | while read project; do
+          echo "Testing: $(basename $project)"
+          dotnet test "$project" --configuration Release --no-build
+        done
+
+    - name: 🧪 Run tests (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        echo "Testing with .NET ${{ matrix.dotnet-version }} on ${{ matrix.os }}"
+        $testProjects = Get-ChildItem -Path . -Recurse -Filter "*Test*.csproj"
+        foreach ($proj in $testProjects) {
+          echo "Testing: $($proj.Name)"
+          dotnet test $proj.FullName --configuration Release --no-build
+        }
       timeout-minutes: 15
