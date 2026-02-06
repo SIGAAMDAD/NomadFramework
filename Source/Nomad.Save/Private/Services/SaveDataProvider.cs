@@ -16,11 +16,13 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Nomad.Core.Compatibility;
 using Nomad.Core.Events;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.Save.Data;
 using Nomad.Save.Events;
+using Nomad.Save.Interfaces;
 using Nomad.Save.Private.Exceptions;
 using Nomad.Save.Services;
 using Nomad.Save.ValueObjects;
@@ -40,8 +42,8 @@ namespace Nomad.Save.Private.Services {
 	public sealed class SaveDataProvider : ISaveDataProvider {
 		private readonly List<SaveFileMetadata> _saveFiles;
 
-		private readonly SaveWriterService _writerService;
-		private readonly SaveReaderService _readerService;
+		private readonly ISaveWriterService _writerService;
+		private readonly ISaveReaderService _readerService;
 
 		private readonly IFileSystem _vfs;
 
@@ -49,6 +51,7 @@ namespace Nomad.Save.Private.Services {
 		private readonly ILoggerCategory _category;
 
 		private readonly IGameEvent<SaveBeginEventArgs> _saveBegin;
+		private readonly IGameEvent<LoadBeginEventArgs> _loadBegin;
 
 		/*
 		===============
@@ -62,7 +65,12 @@ namespace Nomad.Save.Private.Services {
 		/// <param name="fileSystem"></param>
 		/// <param name="logger"></param>
 		public SaveDataProvider( IGameEventRegistryService eventFactory, IFileSystem fileSystem, ILoggerService logger ) {
+			ExceptionCompat.ThrowIfNull( eventFactory );
+			ExceptionCompat.ThrowIfNull( fileSystem );
+			ExceptionCompat.ThrowIfNull( logger );
+
 			_saveBegin = eventFactory.GetEvent<SaveBeginEventArgs>( EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT );
+			_loadBegin = eventFactory.GetEvent<LoadBeginEventArgs>( EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT );
 
 			_vfs = fileSystem;
 			_logger = logger;
@@ -83,6 +91,11 @@ namespace Nomad.Save.Private.Services {
 		///
 		/// </summary>
 		public void Dispose() {
+			_readerService.Dispose();
+			_writerService.Dispose();
+
+			_saveBegin.Dispose();
+			_loadBegin.Dispose();
 		}
 
 		/*
@@ -112,6 +125,8 @@ namespace Nomad.Save.Private.Services {
 		public async Task Load( SaveFileId fileId ) {
 			try {
 				_readerService.Load( fileId.FileName );
+
+				_loadBegin.Publish( new LoadBeginEventArgs( _readerService ) );
 			} catch ( FieldCorruptException fieldCorrupt ) {
 				_logger.PrintError( $"Field corruption - {fieldCorrupt}: {fieldCorrupt.Error}" );
 			} catch ( Exception e ) {

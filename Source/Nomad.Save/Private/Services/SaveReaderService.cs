@@ -17,6 +17,7 @@ using System;
 using System.Collections.Concurrent;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
+using Nomad.Save.Interfaces;
 using Nomad.Save.Private.Entities;
 using Nomad.Save.Private.Serialization.Streams;
 using Nomad.Save.Private.ValueObjects;
@@ -33,7 +34,7 @@ namespace Nomad.Save.Private.Services {
 	///
 	/// </summary>
 
-	internal sealed class SaveReaderService : IDisposable {
+	internal sealed class SaveReaderService : ISaveReaderService {
 		public int SectionCount => _sections.Count;
 		private readonly ConcurrentDictionary<string, SaveSectionReader> _sections;
 
@@ -55,13 +56,35 @@ namespace Nomad.Save.Private.Services {
 		public SaveReaderService( IFileSystem fileSystem, ILoggerService logger ) {
 			_fileSystem = fileSystem;
 			_logger = logger;
+			_sections = new ConcurrentDictionary<string, SaveSectionReader>();
 		}
 
-		public void Load( string filepath ) {
+		/*
+		===============
+		Dispose
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		public void Dispose() {
+			_sections.Clear();
+		}
+
+		/*
+		===============
+		Load
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="filepath"></param>
+		void ISaveReaderService.Load( string filepath ) {
 			_logger.PrintLine( $"Loading save data..." );
 
 			using var reader = _fileSystem.OpenRead( filepath );
-			var header = SaveHeader.Deserialize( reader );
+			var header = SaveHeader.Deserialize( reader, out bool magicMatches );
 
 			_logger.PrintLine( $"...Section Count: {header.SectionCount}" );
 			_logger.PrintLine( $"...Version: {header.Version}" );
@@ -76,14 +99,19 @@ namespace Nomad.Save.Private.Services {
 
 		/*
 		===============
-		Dispose
+		FindSection
 		===============
 		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
-		public void Dispose() {
-			_sections.Clear();
+		/// <param name="sectionName"></param>
+		/// <returns></returns>
+		public ISaveSectionReader? FindSection( string sectionName ) {
+			if ( !_sections.TryGetValue( sectionName, out var section ) ) {
+				return null;
+			}
+			return section;
 		}
 	};
 };

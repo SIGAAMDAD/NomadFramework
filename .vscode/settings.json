@@ -1,0 +1,6 @@
+{
+    "git.autofetch": true,
+    "git.enableSmartCommit": true,
+    "git.postCommitCommand": "sync",
+    "git.autoRepositoryDetection": "openEditors"
+}

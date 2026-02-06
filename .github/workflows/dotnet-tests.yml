@@ -1,0 +1,92 @@
+name: 🚀 CI Pipeline
+
+# WHEN to run this pipeline:
+on:
+  push:                    # When code is pushed
+    branches: [ main, develop ]
+  pull_request:            # When someone opens a PR
+    branches: [ main ]
+
+# The JOBS (parallel tasks):
+jobs:
+  
+  # Job 1: Run Tests on ALL Platforms
+  test:
+    # Run on 3 operating systems simultaneously
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        dotnet: ['10.0.x']
+    
+    runs-on: ${{ matrix.os }}
+    name: Test on ${{ matrix.os }} with .NET ${{ matrix.dotnet }}
+    
+    steps:
+    # Step 1: Checkout code
+    - name: 📥 Checkout code
+      uses: actions/checkout@v3
+    
+    # Step 2: Setup .NET
+    - name: ⚙️ Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: ${{ matrix.dotnet }}
+    
+    # Step 3: Restore dependencies
+    - name: 📦 Restore packages
+      run: dotnet restore
+    
+    # Step 4: Build
+    - name: 🔨 Build solution
+      run: dotnet build --configuration Release --no-restore
+    
+    # Step 5: Run tests
+    - name: 🧪 Run all tests
+      run: |
+        # Find ALL test projects in the repo
+        find . -name "*.Tests.csproj" -o -name "*Test.csproj" | while read project; do
+          echo "📁 Testing: $project"
+          dotnet test "$project" --configuration Release --verbosity minimal --no-build
+        done
+        
+        # If no test projects found, succeed anyway
+        if [ $? -eq 1 ]; then
+          echo "⚠️ No test projects found"
+        fi
+    
+    # Step 6: Upload test results (optional)
+    - name: 📊 Upload test results
+      if: always()  # Run even if tests fail
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results-${{ matrix.os }}
+        path: TestResults/
+  
+  # Job 2: Build & Package (runs after tests pass)
+  build:
+    needs: test  # Only run if ALL test jobs pass
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v3
+    
+    - name: ⚙️ Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '10.0.x'
+    
+    - name: 🔨 Build Release
+      run: |
+        dotnet publish --configuration Release --output ./publish --self-contained false
+    
+    - name: 📦 Package artifacts
+      run: |
+        cd publish
+        zip -r ../release-${{ github.sha }}.zip .
+    
+    - name: 🚀 Upload release
+      uses: actions/upload-artifact@v3
+      with:
+        name: release-package
+        path: release-${{ github.sha }}.zip

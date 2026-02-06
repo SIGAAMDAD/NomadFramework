@@ -39,7 +39,7 @@ namespace Nomad.EngineUtils.Private {
 		public int ArgumentCount => _arguments.Count;
 
 		private readonly List<string> _arguments = new List<string>();
-		private readonly StringBuilder _commandBuilder = new StringBuilder();
+		private readonly StringBuilder _commandBuilder = new StringBuilder( 1024 );
 
 		public IGameEvent<TextEnteredEventArgs> TextEntered => _textEntered;
 		private readonly IGameEvent<TextEnteredEventArgs> _textEntered;

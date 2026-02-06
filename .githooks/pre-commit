@@ -1,38 +1,25 @@
-# This is a PowerShell script for Windows Git hooks
-Write-Host "Running pre-commit tests..." -ForegroundColor Cyan
-
-# Get the solution file
-$solution = Get-ChildItem -Filter *.slnx | Select-Object -First 1
-if (-not $solution) {
-    Write-Host "No .sln file found. Skipping tests." -ForegroundColor Yellow
-    exit 0
-}
-
-# Restore packages
-Write-Host "Restoring NuGet packages..." -ForegroundColor Gray
-& dotnet restore $solution.FullName
-if ($LASTEXITCODE -ne 0) { 
-    Write-Host "❌ Package restore failed" -ForegroundColor Red
+#!/usr/bin/env bash 
+ 
+echo "🚀 Running pre-commit tests..." 
+ 
+if ! command -v dotnet > /dev/null 2>&1; then 
+  echo "❌ .NET SDK not found" 
+  exit 1 
+fi 
+ 
+if [ -d "Tests" ]; then 
+  cd Tests 
+  dotnet test --configuration Release --verbosity minimal 
+ 
+  if [ $? -ne 0 ]; then 
+    echo "❌ Tests failed!" 
+    echo "Use: git commit --no-verify to skip" 
     exit 1 
-}
-
-# Build solution
-Write-Host "Building solution..." -ForegroundColor Gray
-& dotnet build $solution.FullName --configuration Debug --no-restore --verbosity minimal
-if ($LASTEXITCODE -ne 0) { 
-    Write-Host "❌ Build failed" -ForegroundColor Red
-    exit 1 
-}
-
-# Run tests
-Write-Host "Running tests..." -ForegroundColor Gray
-& dotnet test $solution.FullName --configuration Debug --no-build --verbosity normal
-
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "❌ Tests failed! Commit aborted." -ForegroundColor Red
-    Write-Host "To skip tests: git commit --no-verify" -ForegroundColor Yellow
-    exit 1
-}
-
-Write-Host "✅ All tests passed!" -ForegroundColor Green
-exit 0
+  else 
+    echo "✅ Tests passed!" 
+    exit 0 
+  fi 
+else 
+  echo "⚠️  No Tests/ directory found" 
+  exit 0 
+fi 

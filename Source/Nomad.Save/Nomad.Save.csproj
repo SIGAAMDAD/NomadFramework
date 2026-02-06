@@ -35,6 +35,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Nomad.Core\Nomad.Core.csproj" />
     <ProjectReference Include="..\Nomad.Events\Nomad.Events.csproj" />
+    <ProjectReference Include="..\Nomad.CVars\Nomad.CVars.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

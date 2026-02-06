@@ -15,8 +15,10 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Collections.Generic;
+using Nomad.Core.Compatibility;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
+using Nomad.Save.Interfaces;
 using Nomad.Save.Private.ValueObjects;
 
 namespace Nomad.Save.Private.Entities {
@@ -31,12 +33,14 @@ namespace Nomad.Save.Private.Entities {
 	///
 	/// </summary>
 
-	internal sealed class SaveSectionReader : IDisposable {
+	internal sealed class SaveSectionReader : ISaveSectionReader {
 		public string Name { get; private set; }
 
 		public int FieldCount => _fields.Count;
 
-		private readonly Dictionary<string, SaveField> _fields = new();
+		private readonly Dictionary<string, SaveField> _fields;
+
+		private readonly ILoggerService _logger;
 
 		/*
 		===============
@@ -44,10 +48,13 @@ namespace Nomad.Save.Private.Entities {
 		===============
 		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
 		/// <param name="reader"></param>
+		/// <param name="logger"></param>
 		public SaveSectionReader( in IReadStream reader, ILoggerService logger ) {
+			_fields = new Dictionary<string, SaveField>();
+			
 			logger.PrintLine( "...Loading save section" );
 
 			var header = SectionHeader.Load( in reader );
@@ -63,6 +70,8 @@ namespace Nomad.Save.Private.Entities {
 
 				logger.PrintLine( $"- Got field {field.Name}, value {field.Value}" );
 			}
+
+			_logger = logger;
 		}
 
 		/*
@@ -75,6 +84,30 @@ namespace Nomad.Save.Private.Entities {
 		/// </summary>
 		public void Dispose() {
 			_fields.Clear();
+		}
+
+		/*
+		===============
+		GetField
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="fieldName"></param>
+		/// <returns></returns>
+		public T GetField<T>( string fieldName ) {
+			ExceptionCompat.ThrowIfNullOrEmpty( fieldName );
+			
+			T value = default;
+			if ( _fields.TryGetValue( fieldName, out var field ) ) {
+				if ( FieldValue.GetFieldType<T>() != field.Type ) {
+					throw new InvalidCastException( "Field type found in file does not match the requested type" );
+				}
+				value = field.Value.GetValue<T>();
+			}
+			return value;
 		}
 	};
 };

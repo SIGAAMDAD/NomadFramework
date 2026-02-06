@@ -13,18 +13,27 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.Save.Data
-{
-    public static class EventNames
-    {
-        public const string NAMESPACE = nameof(Save);
+using Nomad.Save.Interfaces;
 
-#if NETSTANDARD2_1
-        public const string SAVE_BEGIN_EVENT = NAMESPACE + ":SaveBegin";
-        public const string LOAD_BEGIN_EVENT = NAMESPACE + ":LoadBegin";
-#else
-        public const string SAVE_BEGIN_EVENT = $"{NAMESPACE}:SaveBegin";
-        public const string LOAD_BEGIN_EVENT = $"{NAMESPACE}:LoadBegin";
-#endif
+namespace Nomad.Save.Events
+{
+    /// <summary>
+    /// 
+    /// </summary>
+    public readonly struct LoadBeginEventArgs
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public readonly ISaveReaderService Reader;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="reader"></param>
+        public LoadBeginEventArgs(ISaveReaderService reader)
+        {
+            Reader = reader;
+        }
     }
 }

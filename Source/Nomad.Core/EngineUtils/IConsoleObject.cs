@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using Nomad.Core.Console;
 
 namespace Nomad.Core.EngineUtils
 {
@@ -23,10 +24,9 @@ namespace Nomad.Core.EngineUtils
     public interface IConsoleObject : IDisposable
     {
         /// <summary>
-        /// Adds a new string line to the console's buffer.
+        /// 
         /// </summary>
-        /// <param name="message"></param>
-        void PrintString(in string message);
+        ICommandBuilder CommandBuilder { get; }
 
         /// <summary>
         /// Clears the console of all messages.

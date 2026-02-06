@@ -17,10 +17,20 @@ using Nomad.Save.Interfaces;
 
 namespace Nomad.Save.Events
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public readonly struct SaveBeginEventArgs
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public readonly ISaveWriterService Writer;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="writer"></param>
         public SaveBeginEventArgs(ISaveWriterService writer)
         {
             Writer = writer;

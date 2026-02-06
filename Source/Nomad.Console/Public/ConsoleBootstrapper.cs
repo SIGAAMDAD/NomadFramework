@@ -22,6 +22,7 @@ using Nomad.Console.Private.Services;
 using Nomad.Core.Logger;
 using Nomad.Core.Compatibility;
 using Nomad.Core.Abstractions;
+using Nomad.Core.EngineUtils;
 
 namespace Nomad.Console
 {
@@ -42,6 +43,7 @@ namespace Nomad.Console
 
             var eventFactory = locator.GetService<IGameEventRegistryService>();
             var logger = locator.GetService<ILoggerService>();
+            var engineService = locator.GetService<IEngineService>();
 
             var cvarSystem = locator.GetService<ICVarSystemService>();
             var configFile = cvarSystem.Register(
@@ -62,15 +64,10 @@ namespace Nomad.Console
             eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.NAMESPACE, Constants.Events.Console.PAGE_UP_EVENT);
             eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.NAMESPACE, Constants.Events.Console.PAGE_DOWN_EVENT);
 
-            var commandBuilder = new GodotCommandBuilder(eventFactory);
+            var consoleObject = engineService.CreateConsoleObject();
+
             var commandService = registry.RegisterSingleton<ICommandService>(new CommandCacheService(logger, cvarSystem));
-
-            var console = new GodotConsole(commandBuilder, commandService, logger, eventFactory);
-            registry.RegisterSingleton<ICommandLineService>(new CommandLine(commandBuilder, commandService, logger, eventFactory));
-
-            logger.AddSink(new InGameSink(console, eventFactory));
-
-            rootNode.CallDeferred(Node.MethodName.AddChild, console);
+            registry.RegisterSingleton<ICommandLineService>(new CommandLine(commandService, logger, eventFactory));
         }
 
         /// <summary>

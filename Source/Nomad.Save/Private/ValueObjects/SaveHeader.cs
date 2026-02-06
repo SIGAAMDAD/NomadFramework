@@ -32,6 +32,8 @@ namespace Nomad.Save.Private.ValueObjects {
 		public readonly int SectionCount;
 		public readonly Checksum Checksum;
 
+		private const ulong HEADER_MAGIC = 0x5f3759df67217274;
+
 		/*
 		===============
 		SaveHeader
@@ -59,6 +61,7 @@ namespace Nomad.Save.Private.ValueObjects {
 		/// </summary>
 		/// <param name="writer"></param>
 		internal void Serialize( IWriteStream writer ) {
+			writer.WriteUInt64( HEADER_MAGIC );
 			Version.Serialize( writer );
 			writer.WriteInt32( SectionCount );
 			writer.WriteULong( Checksum.Value );
@@ -73,8 +76,12 @@ namespace Nomad.Save.Private.ValueObjects {
 		///
 		/// </summary>
 		/// <param name="reader"></param>
+		/// <param name="magicMatches"></param>
 		/// <returns></returns>
-		internal static SaveHeader Deserialize( IReadStream reader ) {;
+		internal static SaveHeader Deserialize( IReadStream reader, out bool magicMatches ) {
+			ulong headerMagic = reader.ReadUInt64();
+			magicMatches = headerMagic == HEADER_MAGIC;
+
 			GameVersion version = GameVersion.Deserialize( reader );
 			int sectionCount = reader.ReadInt32();
 			ulong checksum = reader.ReadUInt64();

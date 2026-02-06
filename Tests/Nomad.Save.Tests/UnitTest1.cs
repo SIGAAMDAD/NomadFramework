@@ -46,9 +46,27 @@ public class Tests
     private void OnSaveBegin(in SaveBeginEventArgs args)
     {
         var section = args.Writer.AddSection("TestSection");
+        
         section.AddField("TestFloat", 0.0f);
+        section.AddField("TestDouble", (double)0.0f);
+
+        section.AddField("TestSByte", (sbyte)0);
+        section.AddField("TestShort", (short)0);
         section.AddField("TestInt", (int)0);
+        section.AddField("TestLong", (long)0);
+
+        section.AddField("TestByte", (byte)0);
+        section.AddField("TestUShort", (ushort)0);
         section.AddField("TestUInt", (uint)0);
+        section.AddField("TestULong", (ulong)0);
+
+        section.AddField("TestBoolean", false);
+
         section.AddField("TestString", "testing");
+    }
+
+    private void OnLoadBegin(in LoadBeginEventArgs args)
+    {
+        
     }
 }
