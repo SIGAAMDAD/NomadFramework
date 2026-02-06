@@ -50,6 +50,7 @@ namespace Nomad.Events.Private {
 			NameSpace = nameSpace;
 			ArgsType = argsType;
 			_hashCode = HashCode.Combine(
+				nameSpace.GetHashCode(),
 				name.GetHashCode(),
 				argsType.AssemblyQualifiedName?.GetHashCode( StringComparison.Ordinal ) ?? 0
 			);
