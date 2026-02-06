@@ -10,14 +10,14 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        dotnet-version: ['10.0.x']
     
     runs-on: ${{ matrix.os }}
     timeout-minutes: 25
     
     env:
       DOTNET_CLI_TELEMETRY_OPTOUT: 1
-      DOTNET_NOLOGO: true  # No .NET logo (cleaner output)
     
     steps:
     - name: 📥 Checkout code
@@ -26,7 +26,7 @@ jobs:
     - name: ⚙️ Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '14.0.0'
+        dotnet-version: ${{ matrix.dotnet-version }}
     
     # CACHE for faster builds
     - name: 💾 Cache NuGet packages
@@ -62,40 +62,40 @@ jobs:
         $process.PriorityClass = [System.Diagnostics.ProcessPriorityClass]::High
     
     - name: 📦 Restore packages
-      run: dotnet restore --verbosity quiet
-      timeout-minutes: 3
+      run: dotnet restore
     
-    - name: 🔨 Build solution
-      run: dotnet build --configuration Release --no-restore --verbosity minimal
-      timeout-minutes: 3
-    
-    # SIMPLIFIED TEST COMMAND
-    - name: 🧪 Run tests
+    - name: 🔨 Build for multiple frameworks
       run: |
-        echo "Looking for test projects..."
+        # Build for all target frameworks in your csproj
+        dotnet build --configuration Release --no-restore --verbosity minimal
         
-        if [ "$RUNNER_OS" = "Windows" ]; then
-          # Use sln file if exists
-          if (Test-Path "*.sln") {
-            dotnet test --configuration Release --verbosity normal --no-build
-          } else {
-            # Just run tests in Tests directory
-            if (Test-Path "Tests") {
-              cd Tests
-              dotnet test --configuration Release --verbosity normal --no-build
-            } else {
-              echo "No Tests directory found"
-            }
+        # Or force specific frameworks:
+        # dotnet build -f net10.0 --configuration Release
+        # dotnet build -f netstandard2.1 --configuration Release
+    
+    - name: 🧪 Run tests for each target framework
+      run: |
+        echo "Testing with .NET ${{ matrix.dotnet-version }} on ${{ matrix.os }}"
+        
+        # Find test projects
+        if [ "${{ matrix.os }}" = "Windows" ]; then
+          # Windows PowerShell
+          $testProjects = Get-ChildItem -Path . -Recurse -Filter "*Test*.csproj"
+          foreach ($proj in $testProjects) {
+            echo "Testing: $($proj.Name)"
+            
+            # Test with the installed .NET version
+            dotnet test $proj.FullName --configuration Release --no-build
+            
+            # You can also test specific frameworks:
+            # dotnet test $proj.FullName -f net10.0 --configuration Release
+            # dotnet test $proj.FullName -f netstandard2.1 --configuration Release
           }
         else
           # Linux/Mac
-          if ls *.sln 1> /dev/null 2>&1; then
-            dotnet test --configuration Release --verbosity normal --no-build
-          elif [ -d "Tests" ]; then
-            cd Tests
-            dotnet test --configuration Release --verbosity normal --no-build
-          else
-            echo "No tests found"
-          fi
+          find . -name "*Test*.csproj" | while read project; do
+            echo "Testing: $(basename $project)"
+            dotnet test "$project" --configuration Release --no-build
+          done
         fi
       timeout-minutes: 15
