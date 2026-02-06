@@ -24,11 +24,11 @@ jobs:
     steps:
     # Step 1: Checkout code
     - name: 📥 Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     
     # Step 2: Setup .NET
     - name: ⚙️ Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ matrix.dotnet }}
     
@@ -57,7 +57,7 @@ jobs:
     # Step 6: Upload test results (optional)
     - name: 📊 Upload test results
       if: always()  # Run even if tests fail
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: test-results-${{ matrix.os }}
         path: TestResults/
@@ -69,10 +69,10 @@ jobs:
     
     steps:
     - name: 📥 Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     
     - name: ⚙️ Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '10.0.x'
     
@@ -86,7 +86,7 @@ jobs:
         zip -r ../release-${{ github.sha }}.zip .
     
     - name: 🚀 Upload release
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: release-package
         path: release-${{ github.sha }}.zip
