@@ -74,7 +74,8 @@ jobs:
         # dotnet build -f netstandard2.1 --configuration Release
     
     - name: 🧪 Run tests for each target framework
-          - name: 🧪 Run tests (Linux)
+    
+    - name: 🧪 Run tests (Linux)
       if: runner.os != 'Windows'
       shell: bash
       run: |
