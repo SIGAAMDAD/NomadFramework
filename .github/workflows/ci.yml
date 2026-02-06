@@ -75,7 +75,7 @@ jobs:
     
     - name: 🧪 Run tests for each target framework
           - name: 🧪 Run tests (Linux)
-      if: runner.os == 'Linux'
+      if: runner.os != 'Windows'
       shell: bash
       run: |
         echo "Testing with .NET ${{ matrix.dotnet-version }} on ${{ matrix.os }}"
