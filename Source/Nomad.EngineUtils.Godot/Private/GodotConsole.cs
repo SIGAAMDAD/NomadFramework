@@ -13,7 +13,9 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System.Windows.Input;
 using Godot;
+using Nomad.Core.Console;
 using Nomad.Core.EngineUtils;
 using Nomad.Core.Events;
 using Nomad.Core.Logger;
@@ -31,6 +33,9 @@ namespace Nomad.EngineUtils.Private {
 	/// </summary>
 	
 	internal sealed class GodotConsole : IConsoleObject {
+		public ICommandBuilder CommandBuilder => _commandBuilder;
+		private readonly GodotCommandBuilder _commandBuilder;
+
 		private readonly ILoggerService _logger;
 
 		private readonly CanvasLayer _node;
@@ -49,6 +54,8 @@ namespace Nomad.EngineUtils.Private {
 		/// <param name="eventFactory"></param>
 		public GodotConsole( Node node, ILoggerService logger, IGameEventRegistryService eventFactory ) {
 			_logger = logger;
+
+			_commandBuilder = new GodotCommandBuilder( eventFactory );
 
 			_node = new CanvasLayer();
 			_godotSink = new InGameSink( _node, node, eventFactory );

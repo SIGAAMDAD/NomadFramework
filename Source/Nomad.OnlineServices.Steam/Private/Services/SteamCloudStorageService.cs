@@ -15,22 +15,48 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Buffers;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.Core.OnlineServices;
 using Steamworks;
 
 namespace Nomad.OnlineServices.Steam.Private.Services {
+	/*
+	===================================================================================
+	
+	SteamCloudStorageService
+	
+	===================================================================================
+	*/
+	/// <summary>
+	/// 
+	/// </summary>
+	
 	internal sealed class SteamCloudStorageService : ICloudStorageService {
+		private static bool IsEnabled => SteamRemoteStorage.IsCloudEnabledForApp() && SteamRemoteStorage.IsCloudEnabledForAccount();
+
 		public bool SupportsCloudStorage => true;
+
+		private record CloudFile(
+			string Name,
+			int Size,
+			DateTime CloudAccessTime,
+			DateTime LocalAccessTime
+		);
+
+		private readonly List<CloudFile> _cloudFiles = new List<CloudFile>();
+
+		private readonly IFileSystem _fileSystem;
 
 		private readonly ILoggerService _logger;
 		private readonly ILoggerCategory _category;
 
 		private readonly CallResult<RemoteStorageLocalFileChange_t> _fileChangeResult;
-
-		private bool IsEnabled => SteamRemoteStorage.IsCloudEnabledForApp() && SteamRemoteStorage.IsCloudEnabledForAccount();
+		private readonly CallResult<RemoteStorageFileWriteAsyncComplete_t> _fileWriteAsyncComplete;
+		private readonly CallResult<RemoteStorageFileReadAsyncComplete_t> _fileReadAsyncComplete;
 
 		/*
 		===============
@@ -41,11 +67,27 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 		/// Creates a new SteamCloudStorageService instance.
 		/// </summary>
 		/// <param name="logger">The logger service to use for logging.</param>
-		public SteamCloudStorageService( ILoggerService logger ) {
+		/// <param name="fileSystem"></param>
+		public SteamCloudStorageService( ILoggerService logger, IFileSystem fileSystem ) {
 			_logger = logger;
 			_category = _logger.CreateCategory( nameof( SteamCloudStorageService ), LogLevel.Info, true );
 
+			_fileSystem = fileSystem;
+
 			_fileChangeResult = CallResult<RemoteStorageLocalFileChange_t>.Create( OnFileChange );
+		}
+
+		/*
+		===============
+		Dispose
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		public void Dispose() {
+			_category.Dispose();
+			_fileChangeResult.Dispose();
 		}
 
 		/*
@@ -110,6 +152,44 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 				_logger.PrintWarning( in _category, "Cloud storage is not enabled for this application." );
 				return;
 			}
+
+			int fileCount = SteamRemoteStorage.GetFileCount();
+			if ( _cloudFiles.Count < fileCount ) {
+				// we need to retrieve some files
+				for ( int i = 0; i < fileCount; i++ ) {
+					string name = SteamRemoteStorage.GetFileNameAndSize( i, out int fileSize );
+
+					if ( _fileSystem.FileExists( name ) ) {
+						continue;
+					}
+
+					_logger.PrintLine( in _category, $"SteamCloudStorageService.Synchronize: retrieving cloud file '{name}' from steam storage..." );
+				}
+			}
+
+			for ( int i = 0; i < fileCount; i++ ) {
+				string name = SteamRemoteStorage.GetFileNameAndSize( i, out int fileSize );
+
+				IReadStream? stream = _fileSystem.OpenRead( name );
+				if ( stream == null ) {
+					_logger.PrintWarning( in _category, $"SteamCloudStorageService.Synchronize: there is a cloud file that does not exist on the user's machine ('{name}'), starting download..." );
+					RetrieveCloudFile( name );
+					continue;
+				}
+
+				long timeStamp = SteamRemoteStorage.GetFileTimestamp( name );
+				FileInfo info = new FileInfo( name );
+
+				_logger.PrintLine( in _category, $"SteamCloudStorageService.Synchronize" );
+				_cloudFiles.Add(
+					new CloudFile(
+						Name: name,
+						Size: fileSize,
+						CloudAccessTime: DateTimeOffset.FromUnixTimeMilliseconds( timeStamp ).UtcDateTime,
+						LocalAccessTime: info.LastAccessTime
+					)
+				);
+			}
 		}
 
 		/*
@@ -123,6 +203,18 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 		/// <param name="fileName"></param>
 		/// <returns></returns>
 		public async ValueTask WriteFile( string fileName ) {
+		}
+
+		/*
+		===============
+		RetrieveCloudFile
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="fileName"></param>
+		private void RetrieveCloudFile( string fileName ) {
 		}
 	};
 };

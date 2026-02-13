@@ -15,6 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using Nomad.Console.Interfaces;
 using Nomad.Core.Compatibility;
+using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.Console;
 using Nomad.Core.Logger;
 using Nomad.Core.Util;
@@ -110,7 +111,7 @@ namespace Nomad.Console.Private.Services {
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public ConsoleCommand GetCommand( string command ) {
-			ExceptionCompat.ThrowIfNullOrEmpty( command );
+			ArgumentGuard.ThrowIfNullOrEmpty( command );
 			return _commands[ new( command ) ];
 		}
 
@@ -127,7 +128,7 @@ namespace Nomad.Console.Private.Services {
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public bool TryGetCommand( string name, out ConsoleCommand command ) {
-			ExceptionCompat.ThrowIfNullOrEmpty( name );
+			ArgumentGuard.ThrowIfNullOrEmpty( name );
 			return _commands.TryGetValue( new( name ), out command );
 		}
 
@@ -143,7 +144,7 @@ namespace Nomad.Console.Private.Services {
 		/// <returns>True if <paramref name="command"/> has been registered.</returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public bool CommandExists( string command ) {
-			ExceptionCompat.ThrowIfNullOrEmpty( command );
+			ArgumentGuard.ThrowIfNullOrEmpty( command );
 			return _commands.ContainsKey( new( command ) );
 		}
 

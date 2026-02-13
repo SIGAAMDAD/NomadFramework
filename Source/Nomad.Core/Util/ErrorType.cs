@@ -29,12 +29,12 @@ namespace Nomad.Core.Util
         /// 
         /// </summary>
         NotFound,
-        
+
         /// <summary>
         /// 
         /// </summary>
         Conflict,
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -54,7 +54,12 @@ namespace Nomad.Core.Util
         /// 
         /// </summary>
         Infrastructure,
-        
+
+        /// <summary>
+        /// 
+        /// </summary>
+        LoadFailed,
+
         /// <summary>
         /// 
         /// </summary>

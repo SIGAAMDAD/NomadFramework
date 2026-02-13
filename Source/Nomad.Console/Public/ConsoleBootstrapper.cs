@@ -20,9 +20,10 @@ using Nomad.Core;
 using Nomad.Console.Interfaces;
 using Nomad.Console.Private.Services;
 using Nomad.Core.Logger;
-using Nomad.Core.Compatibility;
 using Nomad.Core.Abstractions;
 using Nomad.Core.EngineUtils;
+using Nomad.Core.Compatibility.Guards;
+using Nomad.Core.FileSystem;
 
 namespace Nomad.Console
 {
@@ -38,12 +39,13 @@ namespace Nomad.Console
         /// <param name="locator"></param>
         public void Initialize(IServiceRegistry registry, IServiceLocator locator)
         {
-            ExceptionCompat.ThrowIfNull(registry);
-            ExceptionCompat.ThrowIfNull(locator);
+            ArgumentGuard.ThrowIfNull(registry);
+            ArgumentGuard.ThrowIfNull(locator);
 
             var eventFactory = locator.GetService<IGameEventRegistryService>();
             var logger = locator.GetService<ILoggerService>();
             var engineService = locator.GetService<IEngineService>();
+            var fileSystem = locator.GetService<IFileSystem>();
 
             var cvarSystem = locator.GetService<ICVarSystemService>();
             var configFile = cvarSystem.Register(
@@ -67,7 +69,7 @@ namespace Nomad.Console
             var consoleObject = engineService.CreateConsoleObject();
 
             var commandService = registry.RegisterSingleton<ICommandService>(new CommandCacheService(logger, cvarSystem));
-            registry.RegisterSingleton<ICommandLineService>(new CommandLine(commandService, logger, eventFactory));
+            registry.RegisterSingleton<ICommandLineService>(new CommandLine(consoleObject.CommandBuilder, fileSystem, commandService, logger, eventFactory));
         }
 
         /// <summary>

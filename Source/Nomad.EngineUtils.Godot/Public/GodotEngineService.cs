@@ -20,6 +20,7 @@ using Nomad.Core.EngineUtils;
 using Nomad.EngineUtils.Private;
 using Nomad.Core.Logger;
 using Nomad.Core.Events;
+using Nomad.Core.ResourceCache;
 
 namespace Nomad.EngineUtils
 {
@@ -35,6 +36,8 @@ namespace Nomad.EngineUtils
         private readonly string _assetDirectory;
 
         private readonly NotificationNode _notificationNode;
+
+        private readonly GodotLoader<Resource> _loader;
 
         private readonly ILoggerService _logger;
         private readonly IGameEventRegistryService _eventFactory;
@@ -56,6 +59,8 @@ namespace Nomad.EngineUtils
             _root = (Node)sceneTree.Get(SceneTree.PropertyName.Root);
             _notificationNode = new NotificationNode();
 
+            _loader = new GodotLoader<Resource>();
+
             _logger = logger;
             _eventFactory = eventFactory;
         }
@@ -73,11 +78,11 @@ namespace Nomad.EngineUtils
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="localPath"></param>
+        /// <param name="localpath"></param>
         /// <returns></returns>
-        public string GetOSPath(string localPath)
+        public string GetOSPath(string localpath)
         {
-            return ProjectSettings.GlobalizePath(localPath);
+            return ProjectSettings.GlobalizePath(localpath);
         }
 
         /// <summary>
@@ -88,6 +93,15 @@ namespace Nomad.EngineUtils
         {
             var console = new GodotConsole(_root, _logger, _eventFactory);
             return console;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public IResourceLoader GetResourceLoader()
+        {
+            return _loader;
         }
 
         /// <summary>

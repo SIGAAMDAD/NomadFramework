@@ -14,8 +14,10 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using Nomad.Core.EngineUtils;
 using Nomad.Core.Logger;
 using Nomad.Core.OnlineServices;
+using Nomad.OnlineServices.Steam.Private.Services;
 using Nomad.Steam.Private.ValueObjects;
 using Steamworks;
 
@@ -45,23 +47,11 @@ namespace Nomad.OnlineServices.Steam.Private {
 		public IStatsService Stats => _statsService;
 		private readonly SteamStatsService _statsService;
 
-		public IAchievementService Achievements {
-			get {
-				throw new NotImplementedException();
-			}
-		}
+		public IAchievementService Achievements => _achievementsService;
+		private readonly SteamAchievementService _achievementsService;
 
-		public IMultiplayerService Multiplayer {
-			get {
-				throw new NotImplementedException();
-			}
-		}
-
-		public ICloudStorageService CloudStorage {
-			get {
-				throw new NotImplementedException();
-			}
-		}
+		public ICloudStorageService CloudStorage => _cloudStorageService;
+		private readonly SteamCloudStorageService _cloudStorageService;
 
 		/*
 		===============
@@ -72,7 +62,8 @@ namespace Nomad.OnlineServices.Steam.Private {
 		///
 		/// </summary>
 		/// <param name="logger"></param>
-		public SteamService( ILoggerService logger ) {
+		/// <param name="engineService"></param>
+		public SteamService( ILoggerService logger, IEngineService engineService ) {
 			ESteamAPIInitResult result = SteamAPI.InitEx( out string errorMessage );
 			if ( result != ESteamAPIInitResult.k_ESteamAPIInitResult_OK ) {
 				logger.PrintError( $"SteamService: failed to initialize SteamAPI - {result}, {errorMessage}" );
@@ -86,7 +77,11 @@ namespace Nomad.OnlineServices.Steam.Private {
 			_appId = SteamUtils.GetAppID();
 
 			_logger = logger;
-			_category = logger.CreateCategory( "Steam", LogLevel.Info, true );
+			_category = logger.CreateCategory( "Nomad.Steam", LogLevel.Info, true );
+
+			_statsService = new SteamStatsService( logger );
+			_achievementsService = new SteamAchievementService( engineService );
+			_cloudStorageService = new SteamCloudStorageService( logger );
 		}
 
 		/*
@@ -99,6 +94,9 @@ namespace Nomad.OnlineServices.Steam.Private {
 		/// </summary>
 		public void Dispose() {
 			_category.Dispose();
+			_statsService.Dispose();
+			_achievementsService.Dispose();
+			_cloudStorageService.Dispose();
 		}
 
 		/*

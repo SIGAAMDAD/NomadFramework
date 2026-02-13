@@ -67,7 +67,12 @@ jobs:
     - name: 🔨 Build for multiple frameworks
       run: |
         # Build for all target frameworks in your csproj
-        dotnet build --configuration Release --no-restore --verbosity minimal
+        dotnet build Source/Nomad.Core/Nomad.Core.csproj --configuration Release --no-restore --verbosity minimal
+        dotnet build Source/Nomad.CVars/Nomad.CVars.csproj --configuration Release --no-restore --verbosity minimal
+        dotnet build Source/Nomad.FileSystem/Nomad.FileSystem.csproj --configuration Release --no-restore --verbosity minimal
+        dotnet build Source/Nomad.Events/Nomad.Events.csproj --configuration Release --no-restore --verbosity minimal
+        dotnet build Source/Nomad.Console/Nomad.Console.csproj --configuration Release --no-restore --verbosity minimal
+        dotnet build Source/Nomad.Logger/Nomad.Logger.csproj --configuration Release --no-restore --verbosity minimal
         
         # Or force specific frameworks:
         # dotnet build -f net10.0 --configuration Release

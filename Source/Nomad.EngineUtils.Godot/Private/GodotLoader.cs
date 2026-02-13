@@ -17,6 +17,7 @@ using System;
 using System.Threading.Tasks;
 using System.Threading;
 using Nomad.Core.ResourceCache;
+using Nomad.Core.Util;
 
 namespace Nomad.EngineUtils.Private {
     /*
@@ -55,13 +56,18 @@ namespace Nomad.EngineUtils.Private {
         private Result<Resource> LoadResource( string path ) {
             Godot.Resource resource = Godot.ResourceLoader.Load( path, String.Empty, Godot.ResourceLoader.CacheMode.ReplaceDeep );
             if ( resource == null ) {
-                return Result<Resource>.Failure( LoadError.Create( $"Error loading godot resource '{path}'" ) );
+                return Result<Resource>.Failure( Error.Create( $"Error loading godot resource '{path}'" ) );
             } else if ( resource is Resource loadedResource ) {
                 return Result<Resource>.Success( loadedResource );
             }
             throw new InvalidCastException();
         }
 
+        /*
+        ===============
+        LoadResourceAsync
+        ===============
+        */
         /// <summary>
         ///
         /// </summary>
@@ -69,9 +75,11 @@ namespace Nomad.EngineUtils.Private {
         /// <param name="ct"></param>
         /// <returns></returns>
         private async Task<Result<Resource>> LoadResourceAsync( string path, CancellationToken ct = default ) {
+            ct.ThrowIfCancellationRequested();
+
             Godot.Error requestError = Godot.ResourceLoader.LoadThreadedRequest( path, String.Empty, true, Godot.ResourceLoader.CacheMode.ReplaceDeep );
             if ( requestError != Godot.Error.Ok ) {
-                return Result<Resource>.Failure( LoadError.Create( $"Error loading godot resource '{path}' - {requestError}" ) );
+                return Result<Resource>.Failure( Error.Create( $"Error loading godot resource '{path}' - {requestError}" ) );
             }
 
             Godot.ResourceLoader.ThreadLoadStatus status = Godot.ResourceLoader.ThreadLoadStatus.Failed;
@@ -87,7 +95,7 @@ namespace Nomad.EngineUtils.Private {
             if ( status == Godot.ResourceLoader.ThreadLoadStatus.Loaded ) {
                 return Result<Resource>.Success( Godot.ResourceLoader.LoadThreadedGet( path ) as Resource );
             }
-            return Result<Resource>.Failure( LoadError.Create( $"godot resource '{path.GodotPath}' failed to load with thread status '{status}" ) );
+            return Result<Resource>.Failure( Error.Create( $"godot resource '{path}' failed to load with thread status '{status}" ) );
         }
     };
 };

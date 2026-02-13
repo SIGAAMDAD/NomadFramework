@@ -15,7 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using Nomad.Console.Interfaces;
 using Nomad.Core;
-using Nomad.Core.Compatibility;
+using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.Console;
 using Nomad.Core.Events;
 using Nomad.Core.FileSystem;
@@ -75,8 +75,8 @@ namespace Nomad.Console.Private.Services {
 		/// <param name="logger"></param>
 		/// <param name="eventFactory"></param>
 		public CommandLine( ICommandBuilder builder, IFileSystem fileSystem, ICommandService commandService, ILoggerService logger, IGameEventRegistryService eventFactory ) {
-			ExceptionCompat.ThrowIfNull( builder );
-			ExceptionCompat.ThrowIfNull( eventFactory );
+			ArgumentGuard.ThrowIfNull( builder );
+			ArgumentGuard.ThrowIfNull( eventFactory );
 
 			_commandBuilder = builder;
 			_commandService = commandService;
@@ -114,7 +114,7 @@ namespace Nomad.Console.Private.Services {
 		/// <param name="text"></param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void ExecuteCommand( string text ) {
-			ExceptionCompat.ThrowIfNullOrEmpty( text );
+			ArgumentGuard.ThrowIfNullOrEmpty( text );
 		}
 
 		/*

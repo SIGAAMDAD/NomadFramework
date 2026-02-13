@@ -24,6 +24,7 @@ using Nomad.Core;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Console;
 using Nomad.Core.Compatibility;
+using Nomad.Core.Compatibility.Guards;
 
 namespace Nomad.Console.Private.Services {
 	/*
@@ -67,9 +68,9 @@ namespace Nomad.Console.Private.Services {
 		/// <param name="logger"></param>
 		/// <param name="eventFactory"></param>
 		public History( ICommandBuilder builder, IFileSystem fileSystem, ILoggerService logger, IGameEventRegistryService eventFactory ) {
-			ExceptionCompat.ThrowIfNull( builder );
-			ExceptionCompat.ThrowIfNull( eventFactory );
-			ExceptionCompat.ThrowIfNull( logger );
+			ArgumentGuard.ThrowIfNull( builder );
+			ArgumentGuard.ThrowIfNull( eventFactory );
+			ArgumentGuard.ThrowIfNull( logger );
 
 			_logger = logger;
 			_historyPath = $"{_fileSystem.GetUserDataPath()}/history.txt";
