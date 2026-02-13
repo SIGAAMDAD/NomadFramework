@@ -7,7 +7,6 @@
     <Version>1.0.0</Version>
     <Authors>Noah Van Til</Authors>
     <Company>GDR Software</Company>
-    <TargetFrameworks>net10.0;netstandard2.1</TargetFrameworks>
     
     <!-- Recommended -->
     <Description></Description>

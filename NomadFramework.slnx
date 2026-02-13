@@ -1,3 +1,4 @@
 ﻿<Solution>
   <Project Path="NomadFramework.csproj" />
+  <TargetFrameworks>net10.0;netstandard2.1</TargetFrameworks>
 </Solution>
