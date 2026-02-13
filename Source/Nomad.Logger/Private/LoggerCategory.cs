@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -64,8 +64,9 @@ namespace Nomad.Logger.Private {
 			_level = level;
 			_enabled = enabled;
 
-			var printThread = new Thread( LoggerThreadAsync );
-			printThread.IsBackground = true;
+			var printThread = new Thread( LoggerThreadAsync ) {
+				IsBackground = true
+			};
 			printThread.Start();
 		}
 
@@ -92,6 +93,19 @@ namespace Nomad.Logger.Private {
 		/// <param name="sink"></param>
 		public void AddSink( in ILoggerSink sink ) {
 			_sinks.Add( sink );
+		}
+
+		/*
+		===============
+		RemoveSink
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="sink"></param>
+		public void RemoveSink( in ILoggerSink sink ) {
+			_sinks.Remove( sink );
 		}
 
 		/*
@@ -127,7 +141,7 @@ namespace Nomad.Logger.Private {
 					await Task.Delay( 500 );
 				}
 			} catch ( Exception e ) {
-				System.Console.WriteLine( $"LoggerThreadAsync: exception caught - {e}" );
+				Console.WriteLine( $"LoggerThreadAsync: exception caught - {e}" );
 			}
 		}
 	};

@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -13,17 +13,20 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
-
 namespace Nomad.Core.Exceptions
 {
     /// <summary>
     ///
     /// </summary>
-    public sealed class CVarMissing : Exception
+    public sealed class CVarMissing : NomadError
     {
-        public CVarMissing(string name)
-            : base($"Missing CVar '{name}'")
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="module"></param>
+        public CVarMissing(string name, string module)
+            : base($"Missing CVar '{name}'", module)
         {
         }
     }

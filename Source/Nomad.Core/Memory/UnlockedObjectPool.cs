@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -24,9 +24,15 @@ namespace Nomad.Core.Memory
     public sealed class UnlockedObjectPool<T, TFactory> : IObjectPool<T>
         where T : class, IDisposable, new()
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public int TotalCount => _currentSize;
         private int _currentSize = 0;
 
+        /// <summary>
+        /// 
+        /// </summary>
         public int ActiveObjectCount => _currentSize - _pool.Count;
 
         private readonly List<T> _pool = new List<T>();
@@ -34,6 +40,11 @@ namespace Nomad.Core.Memory
         private readonly int _maxSize = int.MaxValue;
         private bool _isDisposed = false;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="initialCapacity"></param>
+        /// <param name="maxCapacity"></param>
         public UnlockedObjectPool(int initialCapacity = 32, int maxCapacity = int.MaxValue)
         {
             _maxSize = maxCapacity;
@@ -74,5 +85,5 @@ namespace Nomad.Core.Memory
         {
             _pool.Add(value);
         }
-    };
-};
+    }
+}

@@ -25,11 +25,20 @@ namespace Nomad.Core.Memory
     public class BasicObjectPool<T> : IObjectPool<T>
         where T : new()
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public int AvailableCount => _availableObjects.Count;
 
+        /// <summary>
+        /// 
+        /// </summary>
         public int TotalCount => _currentSize;
         private int _currentSize = 0;
 
+        /// <summary>
+        /// 
+        /// </summary>
         public int ActiveObjectCount => _currentSize - _availableObjects.Count;
 
         private readonly ConcurrentBag<T> _availableObjects = new ConcurrentBag<T>();
@@ -142,5 +151,5 @@ namespace Nomad.Core.Memory
                 _currentSize++;
             }
         }
-    };
-};
+    }
+}

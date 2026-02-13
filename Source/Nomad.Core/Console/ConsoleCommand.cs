@@ -18,17 +18,17 @@ using Nomad.Core.Events;
 namespace Nomad.Core.Console
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public record ConsoleCommand
     {
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public string Name { get; init; }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public string Description { get; init; }
 

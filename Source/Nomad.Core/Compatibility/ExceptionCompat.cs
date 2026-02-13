@@ -20,7 +20,7 @@ using System;
 namespace Nomad.Core.Compatibility
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public static class ExceptionCompat
     {
@@ -29,6 +29,7 @@ namespace Nomad.Core.Compatibility
         /// </summary>
         /// <param name="argument">The argument value to check.</param>
         /// <param name="paramName">The name of the parameter being checked.</param>
+        /// <exception cref="ArgumentNullException"></exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ThrowIfNull([NotNull] object? argument, string? paramName = null)
         {

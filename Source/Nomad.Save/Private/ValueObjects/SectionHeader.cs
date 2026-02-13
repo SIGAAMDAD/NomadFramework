@@ -44,7 +44,7 @@ namespace Nomad.Save.Private.ValueObjects {
 		public readonly int FieldCount;
 
 		/// <summary>
-		/// The section's CRC64
+		/// The section's CRC64.
 		/// </summary>
 		public readonly ulong Checksum;
 
@@ -102,8 +102,10 @@ namespace Nomad.Save.Private.ValueObjects {
 			if ( fieldCount < 0 ) {
 				throw new FailedSectionLoadException( name, new System.Exception( "field count is corrupt" ) );
 			}
+			
+			ulong checksum = stream.ReadUInt64();
 
-			return new SectionHeader( name, fieldCount, stream.ReadUInt64() );
+			return new SectionHeader( name, fieldCount, checksum );
 		}
 	};
 };

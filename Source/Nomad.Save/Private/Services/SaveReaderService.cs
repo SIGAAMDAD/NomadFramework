@@ -13,13 +13,11 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
 using System.Collections.Concurrent;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.Save.Interfaces;
 using Nomad.Save.Private.Entities;
-using Nomad.Save.Private.Serialization.Streams;
 using Nomad.Save.Private.ValueObjects;
 
 namespace Nomad.Save.Private.Services {
@@ -84,7 +82,11 @@ namespace Nomad.Save.Private.Services {
 			_logger.PrintLine( $"Loading save data..." );
 
 			using var reader = _fileSystem.OpenRead( filepath );
-			var header = SaveHeader.Deserialize( reader, out bool magicMatches );
+			if ( reader == null ) {
+				_logger.PrintError( $"SaveReaderService.Load: couldn't open save file '{filepath}'!" );
+				return;
+			}
+			var header = SaveHeader.Deserialize( _logger, reader, out bool magicMatches );
 
 			_logger.PrintLine( $"...Section Count: {header.SectionCount}" );
 			_logger.PrintLine( $"...Version: {header.Version}" );
@@ -109,6 +111,7 @@ namespace Nomad.Save.Private.Services {
 		/// <returns></returns>
 		public ISaveSectionReader? FindSection( string sectionName ) {
 			if ( !_sections.TryGetValue( sectionName, out var section ) ) {
+				_logger.PrintError( $"SaveReaderService.FindSection: section '{sectionName}' not found!" );
 				return null;
 			}
 			return section;

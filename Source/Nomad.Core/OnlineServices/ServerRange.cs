@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-The Nomad MPL Source Code
+The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
@@ -15,12 +15,29 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Core.OnlineServices
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public enum ServerRange : byte
     {
+        /// <summary>
+        /// 
+        /// </summary>
         LAN,
+
+        /// <summary>
+        /// 
+        /// </summary>
         Friends,
+
+        /// <summary>
+        /// 
+        /// </summary>
         Internet,
 
+        /// <summary>
+        /// 
+        /// </summary>
         Count
     }
 }

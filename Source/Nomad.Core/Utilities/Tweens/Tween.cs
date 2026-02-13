@@ -1,23 +1,15 @@
 /*
 ===========================================================================
-The Nomad AGPL Source Code
-Copyright (C) 2025 Noah Van Til
+The Nomad Framework
+Copyright (C) 2025-2026 Noah Van Til
 
-The Nomad Source Code is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as published
-by the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v2. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-The Nomad Source Code is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Affero General Public License for more details.
-
-You should have received a copy of the GNU Affero General Public License
-along with The Nomad Source Code.  If not, see <http://www.gnu.org/licenses/>.
-
-If you have questions concerning this license or the applicable additional
-terms, you may contact me via email at nyvantil@gmail.com.
+This software is provided "as is", without warranty of any kind,
+express or implied, including but not limited to the warranties
+of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
@@ -25,39 +17,52 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace NomadCore.Utilities.Tweens
+namespace Nomad.Core.Utilities.Tweens
 {
     /*
 	===================================================================================
-	
+
 	Tween
-	
+
 	===================================================================================
 	*/
     /// <summary>
-    /// 
+    ///
     /// </summary>
 
     public class Tween : IDisposable
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public float ElapsedTime => (float)_stopwatch.Elapsed.TotalSeconds;
+
+        /// <summary>
+        /// 
+        /// </summary>
         public float Progress => Math.Clamp((ElapsedTime - _delay) / _duration, 0f, 1f);
+
+        /// <summary>
+        /// 
+        /// </summary>
         public bool IsPlaying => _isPlaying;
+
+        /// <summary>
+        /// 
+        /// </summary>
         public bool IsCompleted => Progress >= 1f;
 
-        private readonly List<ITweenProperty> _properties = new();
-        private readonly Stopwatch _stopwatch = new();
+        private readonly List<ITweenProperty> _properties = new List<ITweenProperty>();
+        private readonly Stopwatch _stopwatch = new Stopwatch();
         private float _duration;
         private IEasingFunction _easing = Easing.Linear;
         private Action _onCompleted;
         private bool _isPlaying;
         private float _delay;
 
-        /*
-		===============
-		Dispose
-		===============
-		*/
+        /// <summary>
+        /// 
+        /// </summary>
         public void Dispose()
         {
             _properties.Clear();
@@ -65,44 +70,42 @@ namespace NomadCore.Utilities.Tweens
             _onCompleted = null;
         }
 
-        /*
-		===============
-		SetEase
-		===============
-		*/
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="easing"></param>
+        /// <returns></returns>
         public Tween SetEase(IEasingFunction easing)
         {
             _easing = easing;
             return this;
         }
 
-        /*
-		===============
-		SetDelay
-		===============
-		*/
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="delay"></param>
+        /// <returns></returns>
         public Tween SetDelay(float delay)
         {
             _delay = Math.Max(0, delay);
             return this;
         }
 
-        /*
-		===============
-		OnComplete
-		===============
-		*/
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="action"></param>
+        /// <returns></returns>
         public Tween OnComplete(Action action)
         {
             _onCompleted = action;
             return this;
         }
 
-        /*
-		===============
-		Play
-		===============
-		*/
+        /// <summary>
+        /// 
+        /// </summary>
         public void Play()
         {
             if (_isPlaying)
@@ -114,22 +117,18 @@ namespace NomadCore.Utilities.Tweens
             _stopwatch.Restart();
         }
 
-        /*
-		===============
-		Stop
-		===============
-		*/
+        /// <summary>
+        /// 
+        /// </summary>
         public void Stop()
         {
             _isPlaying = false;
             _stopwatch.Stop();
         }
 
-        /*
-		===============
-		Update
-		===============
-		*/
+        /// <summary>
+        /// 
+        /// </summary>
         public void Update()
         {
             if (!_isPlaying || ElapsedTime < _delay)
@@ -151,11 +150,15 @@ namespace NomadCore.Utilities.Tweens
             }
         }
 
-        /*
-		===============
-		TweenProperty
-		===============
-		*/
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="setter"></param>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <param name="duration"></param>
+        /// <returns></returns>
         public Tween TweenProperty<T>(Action<T> setter, T start, T end, float duration)
         {
             _duration = Math.Max(_duration, duration);
@@ -182,10 +185,17 @@ namespace NomadCore.Utilities.Tweens
             return this;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private interface ITweenProperty
         {
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="t"></param>
             void Update(float t);
-        };
+        }
 
         private sealed class FloatTweenProperty : ITweenProperty
         {

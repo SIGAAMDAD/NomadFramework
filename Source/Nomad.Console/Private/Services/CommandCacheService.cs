@@ -21,7 +21,6 @@ using Nomad.Core.Util;
 using Nomad.CVars;
 using System;
 using System.Collections.Concurrent;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -39,6 +38,7 @@ namespace Nomad.Console.Private.Services {
 
 	internal sealed class CommandCacheService : ICommandService {
 		private readonly ConcurrentDictionary<InternString, ConsoleCommand> _commands = new ConcurrentDictionary<InternString, ConsoleCommand>();
+		
 		private readonly ILoggerService _logger;
 		private readonly ICVarSystemService _cvarSystem;
 
@@ -157,10 +157,8 @@ namespace Nomad.Console.Private.Services {
 		/// </summary>
 		/// <param name="args"></param>
 		private void OnListCommands( in CommandExecutedEventArgs args ) {
-			ConsoleCommand[] commandList = _commands.Values.ToArray();
-
-			for ( int i = 0; i < commandList.Length; i++ ) {
-				_logger.PrintLine( $"{commandList[ i ].Name}: {commandList[ i ].Description}" );
+			foreach ( var command in _commands.Values ) {
+				_logger.PrintLine( $"{command.Name}: {command.Description}" );
 			}
 		}
 

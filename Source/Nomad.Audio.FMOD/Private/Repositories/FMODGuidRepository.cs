@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -32,9 +32,8 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 	///
 	/// </summary>
 
-	internal sealed class FMODGuidRepository : IGuidRepository<FMODEventId, FMODBankId> {
-		private sealed class GUIDCache<TGuid, TId>()
-			where TGuid : IValueObject<TGuid>
+	internal sealed class FMODGuidRepository : IGuidRepository<FMOD.GUID, FMOD.GUID> {
+		private sealed class GUIDCache<TGuid, TId>
 			where TId : notnull
 		{
 			private readonly Dictionary<TGuid, TId> _guids = new Dictionary<TGuid, TId>();
@@ -64,8 +63,8 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			}
 		};
 
-		private readonly GUIDCache<FMODEventId, string> _eventGuids = new GUIDCache<FMODEventId, string>();
-		private readonly GUIDCache<FMODBankId, string> _bankGuids = new GUIDCache<FMODBankId, string>();
+		private readonly GUIDCache<FMOD.GUID, string> _eventGuids = new GUIDCache<FMOD.GUID, string>();
+		private readonly GUIDCache<FMOD.GUID, string> _bankGuids = new GUIDCache<FMOD.GUID, string>();
 
 		private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
 
@@ -89,7 +88,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// </summary>
 		/// <param name="path"></param>
 		/// <param name="guid"></param>
-		public void AddEventId( string path, FMODEventId guid ) {
+		public void AddEventId( string path, FMOD.GUID guid ) {
 			_lock.EnterWriteLock();
 			try {
 				_eventGuids.Add( path, guid );
@@ -109,7 +108,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// </summary>
 		/// <param name="path"></param>
 		/// <param name="guid"></param>
-		public void AddBankId( string path, FMODBankId guid ) {
+		public void AddBankId( string path, FMOD.GUID guid ) {
 			_lock.EnterWriteLock();
 			try {
 				_bankGuids.Add( path, guid );
@@ -124,7 +123,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		GetEventId
 		===============
 		*/
-		public string GetEventId( FMODEventId guid ) {
+		public string GetEventId( FMOD.GUID guid ) {
 			_lock.EnterUpgradeableReadLock();
 			try {
 				return _eventGuids[ guid ];
@@ -139,7 +138,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		GetEventGuid
 		===============
 		*/
-		public FMODEventId GetEventGuid( string id ) {
+		public FMOD.GUID GetEventGuid( string id ) {
 			_lock.EnterUpgradeableReadLock();
 			try {
 				return _eventGuids[ id ];
@@ -154,7 +153,12 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		GetBankId
 		===============
 		*/
-		public string GetBankId( FMODBankId guid ) {
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="guid"></param>
+		/// <returns></returns>
+		public string GetBankId( FMOD.GUID guid ) {
 			_lock.EnterUpgradeableReadLock();
 			try {
 				return _bankGuids[ guid ];
@@ -169,7 +173,12 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		GetBankGuid
 		===============
 		*/
-		public FMODBankId GetBankGuid( string id ) {
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="id"></param>
+		/// <returns></returns>
+		public FMOD.GUID GetBankGuid( string id ) {
 			_lock.EnterUpgradeableReadLock();
 			try {
 				return _bankGuids[ id ];

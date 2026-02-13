@@ -27,7 +27,7 @@ namespace Nomad.Save.Private.Exceptions {
 	/// 
 	/// </summary>
 	
-	internal sealed class DuplicateSectionException : Exception {
+	public sealed class DuplicateSectionException : Exception {
 		public readonly string SectionName;
 
 		/*

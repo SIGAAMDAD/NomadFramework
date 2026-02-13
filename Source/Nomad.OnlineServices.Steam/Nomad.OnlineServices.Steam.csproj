@@ -1,18 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  
+  <Import Project="..\..\CSharpVersions.props" />
 
-<PropertyGroup>
-    <!-- Build Configuration -->
-    <TargetFrameworks>net10.0;netstandard2.1</TargetFrameworks>
-    <LangVersion Condition="'$(TargetFramework)' == 'net10.0'">14.0</LangVersion>
-    <LangVersion Condition="'$(TargetFramework)' == 'netstandard2.1'">9.0</LangVersion>
-    <EnableDynamicLoading>true</EnableDynamicLoading>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Nullable>enable</Nullable>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <EnforceCodeStyleInBuilds>true</EnforceCodeStyleInBuilds>
-    <EnableUnsafeBinaryFormatterSerialization>false</EnableUnsafeBinaryFormatterSerialization>
-    <BuildInParallel>true</BuildInParallel>
-
+  <PropertyGroup>
     <!-- Performance -->
     <PubishAOT>true</PubishAOT>
     <TieredCompilation>true</TieredCompilation>

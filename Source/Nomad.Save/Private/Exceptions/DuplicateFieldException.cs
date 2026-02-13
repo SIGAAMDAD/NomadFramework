@@ -27,7 +27,7 @@ namespace Nomad.Save.Private.Exceptions {
 	/// 
 	/// </summary>
 	
-	internal sealed class DuplicateFieldException : Exception {
+	public sealed class DuplicateFieldException : Exception {
 		public readonly string FieldName;
 
 		/*

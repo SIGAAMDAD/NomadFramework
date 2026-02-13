@@ -14,10 +14,13 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using Nomad.Core.Compatibility;
+using Nomad.Core.Compatibility.Guards;
 
 namespace Nomad.Core.Util
 {
+    /// <summary>
+    ///
+    /// </summary>
     public static class StringExtensions
     {
         /// <summary>
@@ -28,7 +31,7 @@ namespace Nomad.Core.Util
         /// <returns></returns>
         public static uint HashFileName(this string filename, int seed = 0)
         {
-            ExceptionCompat.ThrowIfNullOrEmpty(filename);
+            ArgumentGuard.NullOrEmpty(filename);
 
             int length = filename.Length;
             Span<byte> hash = stackalloc byte[length];

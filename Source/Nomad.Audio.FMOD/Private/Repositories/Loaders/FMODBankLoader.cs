@@ -50,10 +50,10 @@ namespace Nomad.Audio.Fmod.Private.Repositories.Loaders {
 		/// <returns></returns>
 		private Result<IAudioResource> LoadBank( string path ) {
 			try {
-				FMODValidator.ValidateCall( fmodSystem.StudioSystem.loadBankFile( FilePath.FromResourcePath( path ).OSPath, FMOD.Studio.LOAD_BANK_FLAGS.NORMAL, out var bank ) );
+				FMODValidator.ValidateCall( fmodSystem.StudioSystem.loadBankFile( path, FMOD.Studio.LOAD_BANK_FLAGS.NORMAL, out var bank ) );
 				FMODValidator.ValidateCall( bank.getID( out var guid ) );
 				logger.PrintLine( $"FMODBankLoader.LoadBank: loaded bank '{path}'" );
-				guidRepository.AddBankId( path, new( guid ) );
+				guidRepository.AddBankId( path, guid );
 
 				return Result<IAudioResource>.Success( new FMODBankResource( bank ) );
 			} catch ( FMODException e ) {
@@ -77,10 +77,10 @@ namespace Nomad.Audio.Fmod.Private.Repositories.Loaders {
 			try {
 				ct.ThrowIfCancellationRequested();
 
-				FMODValidator.ValidateCall( fmodSystem.StudioSystem.loadBankFile( FilePath.FromResourcePath( path ).OSPath, FMOD.Studio.LOAD_BANK_FLAGS.NONBLOCKING, out var bank ) );
+				FMODValidator.ValidateCall( fmodSystem.StudioSystem.loadBankFile( path, FMOD.Studio.LOAD_BANK_FLAGS.NONBLOCKING, out var bank ) );
 				FMODValidator.ValidateCall( bank.getID( out var guid ) );
 				logger.PrintLine( $"FMODBankLoader.LoadBankAsync: loaded bank '{path}'" );
-				guidRepository.AddBankId( path, new( guid ) );
+				guidRepository.AddBankId( path, guid );
 
 				return Result<IAudioResource>.Success( new FMODBankResource( bank ) );
 			} catch ( FMODException e ) {

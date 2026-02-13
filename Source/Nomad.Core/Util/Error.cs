@@ -15,11 +15,22 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Core.Util
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="Message"></param>
+    /// <param name="Type"></param>
     public record Error(
         string Message,
         ErrorType Type = ErrorType.Validation
     ) : IError
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static Error Create(string message, ErrorType type = ErrorType.Validation)
         {
             return new Error(message, type);

@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -28,7 +28,7 @@ namespace Nomad.CVars.Private {
 	/// Holds all a <see cref="ICVar"/>'s metadata.
 	/// </summary>
 
-	[StructLayout( LayoutKind.Explicit, Pack = 1, Size = 14 )]
+	[StructLayout( LayoutKind.Explicit, Pack = 16, Size = 14 )]
 	internal readonly struct CVarMetadata {
 		[FieldOffset( 0 )] public readonly InternString Name;
 		[FieldOffset( 4 )] public readonly InternString Description;
@@ -46,15 +46,15 @@ namespace Nomad.CVars.Private {
 		===============
 		*/
 		/// <summary>
-		/// 
+		/// Creates a new CVarMetadata object.
 		/// </summary>
-		/// <param name="name"></param>
-		/// <param name="description"></param>
-		/// <param name="flags"></param>
-		/// <param name="type"></param>
+		/// <param name="name">The CVar's name.</param>
+		/// <param name="description">The CVar's description.</param>
+		/// <param name="flags">The CVar's flags.</param>
+		/// <param name="type">The CVar's type.</param>
 		public CVarMetadata( string name, string description, CVarFlags flags, CVarType type ) {
-			Name = new( name );
-			Description = new( description );
+			Name = new InternString( name );
+			Description = new InternString( description );
 			Flags = flags;
 			Type = type;
 		}

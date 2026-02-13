@@ -33,6 +33,11 @@ namespace Nomad.Save.Interfaces
         /// 
         /// </summary>
         /// <param name="filepath"></param>
-        internal void Save(string filepath);
+        internal void BeginSave(string filepath);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        internal void EndSave();
     }
 }

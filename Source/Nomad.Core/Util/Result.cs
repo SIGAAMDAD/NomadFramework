@@ -20,10 +20,25 @@ namespace Nomad.Core.Util
     /// </summary>
     public readonly struct Result
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public bool IsSuccess { get; init; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public IError? Error { get; init; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public bool IsFailure => !IsSuccess;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="error"></param>
         private Result(IError error)
         {
             IsSuccess = false;
@@ -59,5 +74,5 @@ namespace Nomad.Core.Util
             isSuccess = IsSuccess;
             error = Error;
         }
-    };
-};
+    }
+}

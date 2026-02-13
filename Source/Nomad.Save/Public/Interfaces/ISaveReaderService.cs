@@ -14,7 +14,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using System.Security.Cryptography;
 
 namespace Nomad.Save.Interfaces
 {

@@ -21,17 +21,41 @@ namespace Nomad.Core.Util
     /// <typeparam name="T"></typeparam>
     public record Result<T>
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public bool IsSuccess { get; init; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public bool IsFailure => !IsSuccess || Value == null;
+
+        /// <summary>
+        /// 
+        /// </summary>
         public T? Value { get; init; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public IError? Error { get; init; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
         protected Result(T value)
         {
             IsSuccess = true;
             Value = value;
             Error = null;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="error"></param>
         protected Result(IError error)
         {
             IsSuccess = false;
@@ -39,10 +63,21 @@ namespace Nomad.Core.Util
             Error = error;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public static Result<T> Success(T value)
         {
             return new Result<T>(value);
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="error"></param>
+        /// <returns></returns>
         public static Result<T> Failure(IError error)
         {
             return new Result<T>(error);

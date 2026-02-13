@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -25,6 +25,8 @@ using Nomad.Core.Logger;
 using Nomad.Core;
 using Nomad.Core.Util;
 using Nomad.ResourceCache.Events;
+using Nomad.Core.ResourceCache;
+using Nomad.Core.Compatibility.Guards;
 
 namespace Nomad.ResourceCache
 {
@@ -105,9 +107,9 @@ namespace Nomad.ResourceCache
         /// <param name="loader"></param>
         public BaseCache(ILoggerService logger, IGameEventRegistryService eventFactory, IResourceLoader<TResource, TId> loader)
         {
-            ArgumentNullException.ThrowIfNull(logger);
-            ArgumentNullException.ThrowIfNull(eventFactory);
-            ArgumentNullException.ThrowIfNull(loader);
+            ArgumentGuard.Null(logger);
+            ArgumentGuard.Null(eventFactory);
+            ArgumentGuard.Null(loader);
 
             _logger = logger;
             _loader = loader;

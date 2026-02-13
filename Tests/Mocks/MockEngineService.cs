@@ -1,5 +1,6 @@
 using System;
 using Nomad.Core.EngineUtils;
+using Nomad.Core.ResourceCache;
 using Nomad.Core.Util;
 
 public class MockEngineService : IEngineService
@@ -65,6 +66,11 @@ public class MockEngineService : IEngineService
 	}
 
 	public string Translate(InternString key)
+	{
+		throw new NotImplementedException();
+	}
+
+	public IResourceLoader GetResourceLoader()
 	{
 		throw new NotImplementedException();
 	}

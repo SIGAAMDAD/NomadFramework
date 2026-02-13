@@ -1,17 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../CSharpVersion.props" />
 
   <PropertyGroup>
-    <!-- Build Configuration -->
-    <TargetFramework>net10.0</TargetFramework>
-    <TargetFramework Condition=" '$(GodotTargetPlatform)' == 'android' ">net10.0</TargetFramework>
-    <EnableDynamicLoading>true</EnableDynamicLoading>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Nullable>enable</Nullable>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <EnforceCodeStyleInBuilds>true</EnforceCodeStyleInBuilds>
-    <EnableUnsafeBinaryFormatterSerialization>false</EnableUnsafeBinaryFormatterSerialization>
-    <BuildInParallel>true</BuildInParallel>
-
     <!-- Performance -->
     <TieredCompilation>true</TieredCompilation>
     <Deterministic>true</Deterministic>
@@ -21,27 +11,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Godot.NET.Sdk" Version="4.6.0" />
-    <PackageReference Include="Godot.SourceGenerators" Version="4.6.0" />
-    <PackageReference Include="GodotSharp" Version="4.6.0" />
-  </ItemGroup>
-
-  <ItemGroup>
 	  <ProjectReference Include="..\Nomad.Audio\Nomad.Audio.csproj" />
     <ProjectReference Include="..\Nomad.ResourceCache\Nomad.ResourceCache.csproj" />
   </ItemGroup>
-
-  <PropertyGroup>
-    <IsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">true</IsWindows>
-    <IsLinux Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">true</IsLinux>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(IsWindows)' == 'true'">
-    <DefineConstants>WINDOWS</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(IsLinux)' == 'true'">
-    <DefineConstants>LINUX</DefineConstants>
-  </PropertyGroup>
 
 </Project>

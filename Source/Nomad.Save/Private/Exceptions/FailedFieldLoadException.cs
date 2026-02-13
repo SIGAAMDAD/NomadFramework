@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using Nomad.Core.Exceptions;
 
 namespace Nomad.Save.Private.Exceptions {
 	/*
@@ -27,11 +28,23 @@ namespace Nomad.Save.Private.Exceptions {
 	///
 	/// </summary>
 
-	internal sealed class FailedFieldLoadException : Exception {
+	public sealed class FailedFieldLoadException : NomadError {
 		public readonly string? FieldName;
 		public readonly Exception Error;
 
-		public FailedFieldLoadException( string fieldName, Exception exception ) {
+		/*
+		===============
+		FailedFieldLoadException
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="fieldName"></param>
+		/// <param name="exception"></param>
+		public FailedFieldLoadException( string fieldName, Exception exception )
+			: base( $"Failed to load save field {fieldName}, exception {exception}", "Nomad.Save" )
+		{
 			FieldName = fieldName;
 			Error = exception;
 		}

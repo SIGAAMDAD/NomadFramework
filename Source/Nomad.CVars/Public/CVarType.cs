@@ -39,7 +39,7 @@ namespace Nomad.CVars
         /// <param name="type"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public static Type GetType(this CVarType type) => type switch
+        public static Type GetSystemType(this CVarType type) => type switch
         {
             CVarType.Int => typeof(int),
             CVarType.UInt => typeof(uint),

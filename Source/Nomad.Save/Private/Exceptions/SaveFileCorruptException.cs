@@ -27,7 +27,7 @@ namespace Nomad.Save.Private.Exceptions {
 	///
 	/// </summary>
 
-	internal abstract class SaveFileCorruptException : Exception {
+	public abstract class SaveFileCorruptException : Exception {
 		public readonly int FileOffset;
 		public readonly string Error;
 

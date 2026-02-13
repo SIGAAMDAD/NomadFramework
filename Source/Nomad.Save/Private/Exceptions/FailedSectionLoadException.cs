@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using Nomad.Core.Exceptions;
 
 namespace Nomad.Save.Private.Exceptions {
 	/*
@@ -27,11 +28,23 @@ namespace Nomad.Save.Private.Exceptions {
 	///
 	/// </summary>
 
-	internal sealed class FailedSectionLoadException : Exception {
+	public sealed class FailedSectionLoadException : NomadError {
 		public readonly string? SectionName;
 		public readonly Exception Error;
 
-		public FailedSectionLoadException( string sectionName, Exception exception ) {
+		/*
+		===============
+		FailedSectionLoadException
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="sectionName"></param>
+		/// <param name="exception"></param>
+		public FailedSectionLoadException( string sectionName, Exception exception )
+			: base( $"Failed to load save section {sectionName}, exception - {exception}", "Nomad.Save" )
+		{
 			SectionName = sectionName;
 			Error = exception;
 		}

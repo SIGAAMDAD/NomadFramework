@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using Nomad.Core.Abstractions;
+using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.Events;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
@@ -37,15 +38,18 @@ namespace Nomad.Save
         /// <param name="locator"></param>
         public void Initialize(IServiceRegistry serviceFactory, IServiceLocator locator)
         {
-            var logger = locator.GetService<ILoggerService>();
-            var fileSystem = locator.GetService<IFileSystem>();
-            var eventFactory = locator.GetService<IGameEventRegistryService>();
+            ArgumentGuard.Null(serviceFactory);
+            ArgumentGuard.Null(locator);
+
+            ILoggerService logger = locator.GetService<ILoggerService>();
+            IFileSystem fileSystem = locator.GetService<IFileSystem>();
+            IGameEventRegistryService eventFactory = locator.GetService<IGameEventRegistryService>();
 
             _saveProvider = serviceFactory.RegisterSingleton<ISaveDataProvider>(new SaveDataProvider(eventFactory, fileSystem, logger));
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public void Shutdown()
         {

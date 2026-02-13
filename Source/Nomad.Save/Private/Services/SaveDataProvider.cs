@@ -16,7 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Nomad.Core.Compatibility;
+using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.Events;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
@@ -39,7 +39,7 @@ namespace Nomad.Save.Private.Services {
 	///
 	/// </summary>
 
-	public sealed class SaveDataProvider : ISaveDataProvider {
+	internal sealed class SaveDataProvider : ISaveDataProvider {
 		private readonly List<SaveFileMetadata> _saveFiles;
 
 		private readonly ISaveWriterService _writerService;
@@ -59,15 +59,15 @@ namespace Nomad.Save.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		/// Creates a new SaveDataProvider object.
 		/// </summary>
 		/// <param name="eventFactory"></param>
 		/// <param name="fileSystem"></param>
 		/// <param name="logger"></param>
 		public SaveDataProvider( IGameEventRegistryService eventFactory, IFileSystem fileSystem, ILoggerService logger ) {
-			ExceptionCompat.ThrowIfNull( eventFactory );
-			ExceptionCompat.ThrowIfNull( fileSystem );
-			ExceptionCompat.ThrowIfNull( logger );
+			ArgumentGuard.Null( eventFactory );
+			ArgumentGuard.Null( fileSystem );
+			ArgumentGuard.Null( logger );
 
 			_saveBegin = eventFactory.GetEvent<SaveBeginEventArgs>( EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT );
 			_loadBegin = eventFactory.GetEvent<LoadBeginEventArgs>( EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT );
@@ -120,11 +120,11 @@ namespace Nomad.Save.Private.Services {
 		/// <summary>
 		///
 		/// </summary>
-		/// <param name="fileId"></param>
+		/// <param name="filepath"></param>
 		/// <returns></returns>
-		public async Task Load( SaveFileId fileId ) {
+		public async Task Load( string filepath ) {
 			try {
-				_readerService.Load( fileId.FileName );
+				_readerService.Load( filepath );
 
 				_loadBegin.Publish( new LoadBeginEventArgs( _readerService ) );
 			} catch ( FieldCorruptException fieldCorrupt ) {
@@ -142,13 +142,13 @@ namespace Nomad.Save.Private.Services {
 		/// <summary>
 		///
 		/// </summary>
-		/// <param name="fileId"></param>
+		/// <param name="filepath"></param>
 		/// <returns></returns>
-		public async Task Save( SaveFileId fileId ) {
+		public async Task Save( string filepath ) {
 			try {
-				_writerService.Save( fileId.FileName );
-
+				_writerService.BeginSave( filepath );
 				_saveBegin.Publish( new SaveBeginEventArgs( _writerService ) );
+				_writerService.EndSave();
 			} catch ( Exception e ) {
 				_logger.PrintError( $"Exception caught - {e}" );
 			}
@@ -164,7 +164,7 @@ namespace Nomad.Save.Private.Services {
 		/// </summary>
 		private void LoadMetadata( string saveDirectory ) {
 			var files = System.IO.Directory.GetFiles( saveDirectory );
-	
+
 #if !NETSTANDARD2_1
 			_saveFiles.EnsureCapacity( files.Length );
 #endif
@@ -173,7 +173,15 @@ namespace Nomad.Save.Private.Services {
 				var fileName = files[ i ];
 				System.IO.FileInfo info = new System.IO.FileInfo( fileName );
 
-				_saveFiles.Add( new SaveFileMetadata( new SaveFileId( fileName.Substring( fileName.LastIndexOf( System.IO.Path.PathSeparator ) ) ), info.Length, info.LastAccessTime ) );
+				_saveFiles.Add(
+					new SaveFileMetadata(
+						fileName,
+						info.Length,
+						info.LastAccessTime.Year,
+						info.LastAccessTime.Month,
+						info.LastAccessTime.Day
+					)
+				);
 			}
 		}
 	};

@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using System.Runtime.CompilerServices;
 using Nomad.Core.Util;
 
 namespace Nomad.Events.Private {
@@ -40,7 +41,7 @@ namespace Nomad.Events.Private {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="name"></param>
 		/// <param name="nameSpace"></param>
@@ -56,7 +57,16 @@ namespace Nomad.Events.Private {
 			);
 		}
 
-		public bool Equals( EventKey other ) => _hashCode == other._hashCode;
-		public override int GetHashCode() => _hashCode;
-	};
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public bool Equals( EventKey other )
+			=> _hashCode == other._hashCode;
+
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public override int GetHashCode()
+			=> _hashCode;
+
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public override bool Equals( object? obj )
+			=> obj is EventKey key && Equals( key );
+	}
 };

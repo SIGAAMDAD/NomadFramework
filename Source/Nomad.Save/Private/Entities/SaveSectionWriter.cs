@@ -31,9 +31,15 @@ namespace Nomad.Save.Private.Entities {
 	/// </summary>
 
 	internal sealed class SaveSectionWriter : ISaveSectionWriter {
+		/// <summary>
+		/// This section's name.
+		/// </summary>
 		public string Name => _name;
 		private readonly string _name;
 
+		/// <summary>
+		/// The number of fields in this section.
+		/// </summary>
 		public int FieldCount => _fields.Count;
 		private readonly Dictionary<string, SaveField> _fields;
 

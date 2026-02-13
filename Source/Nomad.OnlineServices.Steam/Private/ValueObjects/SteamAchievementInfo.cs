@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using Nomad.Core.EngineUtils;
 using Steamworks;
 
 namespace Nomad.OnlineServices.Steam {
@@ -35,29 +36,17 @@ namespace Nomad.OnlineServices.Steam {
 			public float MaxProgress;
 		};
 
-		public bool HasProgress => _progress.HasValue;
-		public float Progress {
-			get {
-				return _progress.HasValue ? _progress.Value.Progress : 0.0f;
-			}
-		}
-		public float MinProgress {
-			get {
-				return _progress.HasValue ? _progress.Value.MinProgress : 0.0f;
-			}
-		}
-		public float MaxProgress {
-			get {
-				return _progress.HasValue ? _progress.Value.MaxProgress : 0.0f;
-			}
-		}
-		private AchievementProgress? _progress;
-
 		public bool Achieved => _achieved;
 		private bool _achieved = false;
 
 		public string Name => _name;
 		private readonly string _name;
+
+		public bool HasProgress => _progress.HasValue;
+		public float Progress => _progress.HasValue ? _progress.Value.Progress : 0.0f;
+		public float MinProgress => _progress.HasValue ? _progress.Value.MinProgress : 0.0f;
+		public float MaxProgress => _progress.HasValue ? _progress.Value.MaxProgress : 0.0f;
+		private AchievementProgress? _progress;
 
 		/*
 		===============
@@ -100,7 +89,7 @@ namespace Nomad.OnlineServices.Steam {
 			byte[] imageBuffer = new byte[ width * height * 4 ];
 			SteamUtils.GetImageRGBA( pAchievement.m_nIconHandle, imageBuffer, imageBuffer.Length );
 
-			IDisposable texture = service.CreateImage( imageBuffer, (int)width, (int)height );
+			IDisposable texture = service.CreateImageRGBA( imageBuffer, (int)width, (int)height );
 		}
 
 		/*

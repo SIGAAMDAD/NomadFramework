@@ -12,7 +12,7 @@ express or implied, including but not limited to the warranties
 of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
-using System;
+
 using Nomad.Core.Compatibility;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;

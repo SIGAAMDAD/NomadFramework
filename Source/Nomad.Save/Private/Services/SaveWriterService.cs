@@ -83,7 +83,7 @@ namespace Nomad.Save.Private.Services {
 		/// 
 		/// </summary>
 		/// <param name="filepath"></param>
-		public void Save( string filepath ) {
+		void ISaveWriterService.BeginSave( string filepath ) {
 			_writer = _fileSystem.OpenWrite( filepath );
 			if ( _writer == null ) {
 				_logger.PrintError( $"Couldn't create save file {filepath}!" );
@@ -92,11 +92,35 @@ namespace Nomad.Save.Private.Services {
 
 			_logger.PrintLine( $"Writing save data to {filepath}..." );
 
-			var header = new SaveHeader( new GameVersion( 2, 0, 1 ), _sections.Count, Checksum.Empty );
-			header.Serialize( _writer );
+			{
+				var header = new SaveHeader( new GameVersion( 2, 0, 1 ), _sections.Count, Checksum.Empty );
+				header.Serialize( _writer );
+			}
+		}
 
+		/*
+		===============
+		EndSave
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		void ISaveWriterService.EndSave() {
+			int sectionCount = _sections.Count;
 			foreach ( var section in _sections ) {
 				section.Value.Dispose();
+			}
+
+			{
+				_logger.PrintLine( $"Writing header..." );
+				_logger.PrintLine( $"Has {sectionCount} sections." );
+				
+				_writer.Seek( 0, System.IO.SeekOrigin.Begin );
+				var header = new SaveHeader( new GameVersion( 2, 0, 1 ), sectionCount, Checksum.Empty );
+				header.Serialize( _writer );
+
+				_writer.Seek( 0, System.IO.SeekOrigin.End );
 			}
 
 			_writer?.Dispose();
@@ -118,6 +142,7 @@ namespace Nomad.Save.Private.Services {
 				throw new Exception( $"Section {sectionId} added twice!" );
 			}
 			var writer = new SaveSectionWriter( sectionId, _writer );
+			_logger.PrintLine( $"AddSection: creating save section {sectionId}..." );
 			_sections[ sectionId ] = writer;
 			return writer;
 		}

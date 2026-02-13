@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using Nomad.Core.FileSystem;
+using Nomad.Core.Logger;
 
 namespace Nomad.Save.Private.ValueObjects {
 	/*
@@ -28,8 +29,19 @@ namespace Nomad.Save.Private.ValueObjects {
 	/// </summary>
 	
 	public readonly struct SaveHeader {
+		/// <summary>
+		/// 
+		/// </summary>
 		public readonly GameVersion Version;
+
+		/// <summary>
+		/// 
+		/// </summary>
 		public readonly int SectionCount;
+
+		/// <summary>
+		/// 
+		/// </summary>
 		public readonly Checksum Checksum;
 
 		private const ulong HEADER_MAGIC = 0x5f3759df67217274;
@@ -64,7 +76,7 @@ namespace Nomad.Save.Private.ValueObjects {
 			writer.WriteUInt64( HEADER_MAGIC );
 			Version.Serialize( writer );
 			writer.WriteInt32( SectionCount );
-			writer.WriteULong( Checksum.Value );
+			writer.WriteUInt64( Checksum.Value );
 		}
 
 		/*
@@ -75,16 +87,21 @@ namespace Nomad.Save.Private.ValueObjects {
 		/// <summary>
 		///
 		/// </summary>
+		/// <param name="logger"></param>
 		/// <param name="reader"></param>
 		/// <param name="magicMatches"></param>
 		/// <returns></returns>
-		internal static SaveHeader Deserialize( IReadStream reader, out bool magicMatches ) {
+		internal static SaveHeader Deserialize( ILoggerService logger, IReadStream reader, out bool magicMatches ) {
 			ulong headerMagic = reader.ReadUInt64();
 			magicMatches = headerMagic == HEADER_MAGIC;
 
 			GameVersion version = GameVersion.Deserialize( reader );
 			int sectionCount = reader.ReadInt32();
 			ulong checksum = reader.ReadUInt64();
+
+			logger.PrintLine( $"Version: {version.ToInt()}" );
+			logger.PrintLine( $"SectionCount: {sectionCount}" );
+			logger.PrintLine( $"Checksum: {checksum}" );
 
 			return new SaveHeader(
 				version: version,

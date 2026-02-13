@@ -25,13 +25,27 @@ namespace Nomad.Save.Private.ValueObjects {
 	===================================================================================
 	*/
 	/// <summary>
-	/// Represents the serialized game version in integer format.
+	/// Represents the serialized game version in integer format. This only supports a Major, Minor, and Patch version, all 32-bit unsigned integers.
 	/// </summary>
+	/// <remarks>
+	/// The first two bits are for the major version, next 3 bits are the minor, the rest is dedicated to the patch number.
+	/// </remarks>
 	
 	public readonly struct GameVersion {
+		/// <summary>
+		/// 
+		/// </summary>
 		public readonly uint Major;
+
+		/// <summary>
+		/// 
+		/// </summary>
 		public readonly uint Minor;
-		public readonly ulong Patch;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public readonly uint Patch;
 
 		/*
 		===============
@@ -44,7 +58,7 @@ namespace Nomad.Save.Private.ValueObjects {
 		/// <param name="major"></param>
 		/// <param name="minor"></param>
 		/// <param name="patch"></param>
-		public GameVersion( uint major, uint minor, ulong patch ) {
+		public GameVersion( uint major, uint minor, uint patch ) {
 			Major = major;
 			Minor = minor;
 			Patch = patch;
@@ -61,7 +75,11 @@ namespace Nomad.Save.Private.ValueObjects {
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public ulong ToInt() {
-			return Major * 10000 + Minor * 100 + Patch;
+			ulong majorPart = (ulong)Major * 10_000_000UL;
+			ulong minorPart = (ulong)Minor * 10_000UL;
+			ulong patchPart = Patch;
+
+			return majorPart + minorPart + patchPart;
 		}
 
 		/*
@@ -77,7 +95,7 @@ namespace Nomad.Save.Private.ValueObjects {
 		internal void Serialize( IWriteStream writer ) {
 			writer.WriteUInt32( Major );
 			writer.WriteUInt32( Minor );
-			writer.WriteUInt64( Patch );
+			writer.WriteUInt32( Patch );
 		}
 
 		/*
@@ -94,7 +112,7 @@ namespace Nomad.Save.Private.ValueObjects {
 		internal static GameVersion Deserialize( IReadStream reader ) {
 			uint major = reader.ReadUInt32();
 			uint minor = reader.ReadUInt32();
-			ulong patch = reader.ReadUInt64();
+			uint patch = reader.ReadUInt32();
 
 			return new GameVersion(
 				major: major,

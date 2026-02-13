@@ -29,11 +29,13 @@ namespace Nomad.ResourceCache.Private.Entities {
 	///
 	/// </summary>
 
-	internal sealed class CacheEntry<TResource, TId>( IResourceCacheService<TResource, TId> owner, TId id, TResource cached, int memorySize, TimeSpan loadTime, ResourceLoadState loadState ) : ICacheEntry<TResource, TId>
+	internal sealed class CacheEntry<TResource, TId> : ICacheEntry<TResource, TId>
 		where TResource : notnull, IDisposable
 		where TId : IEquatable<TId>
 	{
-		public TId Id => id;
+		public TId Id => _id;
+		private readonly TId _id;
+
 		public DateTime CreatedAt => _createdAt;
 		private readonly DateTime _createdAt = DateTime.UtcNow;
 
@@ -50,12 +52,38 @@ namespace Nomad.ResourceCache.Private.Entities {
 		private EntryAccessStatistics _accessStats;
 
 		public int ReferenceCount = 1;
-		public TimeSpan LoadTimer = loadTime;
-		public ResourceLoadState LoadState { get; } = loadState;
+		public TimeSpan LoadTimer => _loadTimer;
+		private readonly TimeSpan _loadTimer;
 
-		public readonly int MemorySize = memorySize;
+		public readonly ResourceLoadState LoadState;
+
+		public readonly int MemorySize;
 
 		private readonly object _statsLock = new object();
+
+		private readonly TResource _cached;
+
+		/*
+		===============
+		CacheEntry
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="owner"></param>
+		/// <param name="id"></param>
+		/// <param name="cached"></param>
+		/// <param name="memorySize"></param>
+		/// <param name="loadTime"></param>
+		/// <param name="loadState"></param>
+		public CacheEntry( IResourceCacheService<TResource, TId> owner, TId id, TResource cached, int memorySize, TimeSpan loadTime, ResourceLoadState loadState ) {
+			_id = id;
+			_loadTimer = loadTime;
+			_cached = cached;
+			LoadState = loadState;
+			MemorySize = memorySize;
+		}
 
 		/*
 		===============
@@ -68,7 +96,7 @@ namespace Nomad.ResourceCache.Private.Entities {
 		/// <param name="resource"></param>
 		public void Get( out TResource resource ) {
 			UpdateAccessStats();
-			resource = cached;
+			resource = _cached;
 		}
 
 		/*
@@ -82,7 +110,7 @@ namespace Nomad.ResourceCache.Private.Entities {
 		/// <returns></returns>
 		public async ValueTask<TResource> GetAsync() {
 			UpdateAccessStats();
-			return cached;
+			return _cached;
 		}
 
 		/*
@@ -94,7 +122,7 @@ namespace Nomad.ResourceCache.Private.Entities {
 		///
 		/// </summary>
 		public void Dispose() {
-			cached?.Dispose();
+			_cached?.Dispose();
 			ReferenceCount = 0;
 		}
 

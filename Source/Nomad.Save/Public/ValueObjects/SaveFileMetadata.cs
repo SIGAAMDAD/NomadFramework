@@ -13,19 +13,24 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
-
 namespace Nomad.Save.ValueObjects
 {
     /// <summary>
-    /// 
+    /// The metadata of a persistent game state file. Stores relevant information for debugging, listing, and/or sorting.
     /// </summary>
-    /// <param name="FileName"></param>
-    /// <param name="FileSize"></param>
-    /// <param name="LastAccessTime"></param>
+    /// <remarks>
+    /// Retrieving the metadata for all the save files currently available can be done with <see cref="Services.ISaveDataProvider.ListSaveFiles"/>.
+    /// </remarks>
+    /// <param name="FileName">The save file's relative name, includes the ".ngd" extension.</param>
+    /// <param name="FileSize">The size of the save file in bytes.</param>
+    /// <param name="LastAccessYear">The year the save file was last accessed.</param>
+    /// <param name="LastAccessMonth">The month the save file was last accessed.</param>
+    /// <param name="LastAccessDay">The day the save file was last accessed.</param>
     public record SaveFileMetadata(
-        SaveFileId FileName,
+        string FileName,
         long FileSize,
-        DateTime LastAccessTime
+        int LastAccessYear,
+        int LastAccessMonth,
+        int LastAccessDay
     );
 }

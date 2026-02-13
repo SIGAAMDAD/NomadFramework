@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-The Nomad MPL Source Code
+The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
@@ -15,6 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System.Threading.Tasks;
 using Nomad.Core.OnlineServices;
+using Nomad.OnlineServices.Steam.Private.Services.LobbyServices;
 using Steamworks;
 
 namespace Nomad.OnlineServices.Steam.Private.Services {
@@ -29,7 +30,9 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 	///
 	/// </summary>
 
-	internal sealed class SteamLobbyService : ILobbyService {
+	public sealed class SteamLobbyService : ILobbyService {
+		private readonly LobbyLocator _locator;
+
 		/*
 		===============
 		SteamLobbyService

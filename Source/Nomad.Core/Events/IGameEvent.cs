@@ -24,40 +24,43 @@ namespace Nomad.Core.Events
     /// </summary>
     public interface IGameEvent : IDisposable
     {
+        /// <summary>
+        /// The event's debugger name.
+        /// </summary>
         string DebugName { get; }
+
+        /// <summary>
+        /// The event's namespace.
+        /// </summary>
         string NameSpace { get; }
+
+        /// <summary>
+        /// The event's hash code.
+        /// </summary>
         int Id { get; }
+
+        /// <summary>
+        ///
+        /// </summary>
+        void CleanupSubscriptions();
     }
 
     /// <summary>
     /// The base game event type.
     /// </summary>
-    /// <typeparam name="TArgs"></typeparam>
+    /// <typeparam name="TArgs">The argument structure to use when publishing the event.</typeparam>
     public interface IGameEvent<TArgs> : IGameEvent
         where TArgs : struct
     {
+        /// <summary>
+        ///
+        /// </summary>
         event EventCallback<TArgs> OnPublished;
+
+        /// <summary>
+        ///
+        /// </summary>
         event AsyncEventCallback<TArgs> OnPublishedAsync;
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <remarks>
-        /// The subscription's lifetime is determined by the owning event's lifetime.
-        /// </remarks>
-        /// <param name="asyncCallback"></param>
-        /// <returns></returns>
-        IDisposable SubscribeAsync(AsyncEventCallback<TArgs> asyncCallback);
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <remarks>
-        /// The subscription's lifetime is determined by the owning event's lifetime.
-        /// </remarks>
-        /// <param name="callback"></param>
-        /// <returns></returns>
-        IDisposable Subscribe(EventCallback<TArgs> callback);
 
         /// <summary>
         ///
@@ -78,14 +81,14 @@ namespace Nomad.Core.Events
         /// </summary>
         /// <param name="owner"></param>
         /// <param name="asyncCallback"></param>
-        void SubscribeAsync(object owner, AsyncEventCallback<TArgs> asyncCallback);
+        ISubscriptionHandle SubscribeAsync(object owner, AsyncEventCallback<TArgs> asyncCallback);
 
         /// <summary>
         ///
         /// </summary>
         /// <param name="owner"></param>
         /// <param name="callback"></param>
-        void Subscribe(object owner, EventCallback<TArgs> callback);
+        ISubscriptionHandle Subscribe(object owner, EventCallback<TArgs> callback);
 
         /// <summary>
         ///

@@ -20,6 +20,9 @@ namespace Nomad.Core.Logger
     /// <summary>
     /// Represents a logging category.
     /// </summary>
+    /// <remarks>
+    /// Categories show which part of a module/which system the log message is coming from to make tracing messages much easier instead of guesswork.
+    /// </remarks>
     public interface ILoggerCategory : IDisposable
     {
         /// <summary>
@@ -33,12 +36,12 @@ namespace Nomad.Core.Logger
         LogLevel Level { get; }
 
         /// <summary>
-        /// Whether the category is enabled.
+        /// Whether the category is enabled. <b>False</b> means all messages sent with this category as a parameter will simply be ignored.
         /// </summary>
         bool Enabled { get; set; }
 
         /// <summary>
-        /// Queues a log message.
+        /// Queues a log message into the category.
         /// </summary>
         /// <param name="message">The message to queue.</param>
         void QueueMessage(in string message);
@@ -46,7 +49,19 @@ namespace Nomad.Core.Logger
         /// <summary>
         /// Adds a sink to the category.
         /// </summary>
+        /// <remarks>
+        /// By default, all sinks are added to a category, however, if you wish to control where a category can actually output to, utilize this method here to do so.
+        /// </remarks>
         /// <param name="sink">The sink to add.</param>
         void AddSink(in ILoggerSink sink);
+
+        /// <summary>
+        /// Removes a sink from the category.
+        /// </summary>
+        /// <remarks>
+        /// By default, all sinks are added to a category, however, if you wish to control where a category can actually output to, utilize this method here to do so.
+        /// </remarks>
+        /// <param name="sink">The sink to remove.</param>
+        void RemoveSink(in ILoggerSink sink);
     }
 }

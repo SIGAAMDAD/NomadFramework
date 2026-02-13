@@ -20,14 +20,44 @@ namespace Nomad.Core.OnlineServices
     /// </summary>
     public enum OnlinePlatform
     {
+        /// <summary>
+        /// 
+        /// </summary>
         None = 0,
+
+        /// <summary>
+        /// 
+        /// </summary>
         Steam,
+
+        /// <summary>
+        /// 
+        /// </summary>
         Epic,
+
+        /// <summary>
+        /// 
+        /// </summary>
         GOG,
+        
+        /// <summary>
+        /// 
+        /// </summary>
         XboxLive,
+
+        /// <summary>
+        /// 
+        /// </summary>
         PlayStation,
+
+        /// <summary>
+        /// 
+        /// </summary>
         Nintendo,
 
+        /// <summary>
+        /// 
+        /// </summary>
         Count
     }
 }

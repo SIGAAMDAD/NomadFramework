@@ -16,7 +16,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using Nomad.Core.FileSystem;
 using Nomad.Save.Private.Exceptions;
 using Nomad.Save.Private.Serialization.FieldSerializers;
-using Nomad.Save.Private.Serialization.Streams;
 
 namespace Nomad.Save.Private.ValueObjects {
 	/*
@@ -62,12 +61,10 @@ namespace Nomad.Save.Private.ValueObjects {
 		===============
 		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
-		/// <typeparam name="T"></typeparam>
 		/// <param name="section"></param>
-		/// <param name="name"></param>
-		/// <param name="value"></param>
+		/// <param name="field"></param>
 		/// <param name="stream"></param>
 		public static void Write( string section, SaveField field, IWriteStream stream ) {
 			stream.WriteString( field.Name );

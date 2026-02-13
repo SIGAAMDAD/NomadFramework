@@ -21,12 +21,12 @@ using Nomad.Core.ServiceRegistry.Interfaces;
 namespace Nomad.Events
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public static class EventSystemBootstrapper
     {
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="locator"></param>
         /// <param name="registry"></param>

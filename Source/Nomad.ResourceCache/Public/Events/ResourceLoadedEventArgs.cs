@@ -20,9 +20,34 @@ namespace Nomad.ResourceCache.Events
     /// <summary>
     ///
     /// </summary>
-    public readonly record struct ResourceLoadedEventArgs<TId>(
-        TId Id,
-        TimeSpan LoadTime,
-        long MemorySize
-    );
+    public readonly struct ResourceLoadedEventArgs<TId>
+    {
+        /// <summary>
+        /// The resource's internal cache id.
+        /// </summary>
+        public readonly TId Id;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public readonly TimeSpan LoadTime;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public readonly long MemorySize;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="loadTime"></param>
+        /// <param name="memorySize"></param>
+        public ResourceLoadedEventArgs(TId id, TimeSpan loadTime, long memorySize)
+        {
+            Id = id;
+            LoadTime = loadTime;
+            MemorySize = memorySize;
+        }
+    }
 }

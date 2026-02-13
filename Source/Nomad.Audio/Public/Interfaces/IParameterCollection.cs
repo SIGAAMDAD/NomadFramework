@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -24,8 +24,8 @@ namespace Nomad.Audio.Interfaces
     {
         int ParameterCount { get; }
 
-        void SetParameter(ParameterId id, float value);
-        float GetParameter(ParameterId id);
-        bool ParameterExists(ParameterId id);
+        void SetParameter(string id, float value);
+        float GetParameter(string id);
+        bool ParameterExists(string id);
     }
 }

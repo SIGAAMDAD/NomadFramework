@@ -25,7 +25,7 @@ namespace Nomad.Save.Private.Exceptions {
 	///
 	/// </summary>
 
-	internal sealed class FieldCorruptException : SaveFileCorruptException {
+	public sealed class FieldCorruptException : SaveFileCorruptException {
 		public readonly string SectionName;
 		public readonly int FieldIndex;
 

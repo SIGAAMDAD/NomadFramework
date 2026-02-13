@@ -1,18 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\CSharpVersion.props" />
 
   <PropertyGroup>
-    <!-- Build Configuration -->
-    <TargetFrameworks>net10.0;netstandard2.1</TargetFrameworks>
-    <LangVersion Condition="'$(TargetFramework)' == 'net10.0'">14.0</LangVersion>
-    <LangVersion Condition="'$(TargetFramework)' == 'netstandard2.1'">9.0</LangVersion>
-    <EnableDynamicLoading>true</EnableDynamicLoading>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Nullable>enable</Nullable>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <EnforceCodeStyleInBuilds>true</EnforceCodeStyleInBuilds>
-    <EnableUnsafeBinaryFormatterSerialization>false</EnableUnsafeBinaryFormatterSerialization>
-    <BuildInParallel>true</BuildInParallel>
-
     <!-- Performance -->
     <PubishAOT>true</PubishAOT>
     <TieredCompilation>true</TieredCompilation>
@@ -21,22 +10,6 @@
     <Optimize>true</Optimize>
     <SkipLocalsInit>true</SkipLocalsInit>
   </PropertyGroup>
-
-  <!-- Framework-specific constants -->
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
-    <TrimMode>link</TrimMode>
-    <PublishTrimmed>true</PublishTrimmed>
-    <DefineConstants>$(DefineConstants);NET10_0;USE_LATEST_FEATURES</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
-    <DefineConstants>$(DefineConstants);NETSTANDARD2_1;USE_COMPATIBILITY_EXTENSIONS;UNITY_COMPATIBLE</DefineConstants>
-    <NoWarn>$(NoWarn);CS8632;CS8600;CS8601;CS8602;CS8603;CS8604;CS8618;CS8625</NoWarn>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Configuration.Ini" Version="10.0.2" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Nomad.Core\Nomad.Core.csproj" />

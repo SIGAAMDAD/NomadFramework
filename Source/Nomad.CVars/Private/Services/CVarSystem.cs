@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -37,7 +37,7 @@ namespace Nomad.CVars.Private.Services {
 	/// Global manager for CVars.
 	/// </summary>
 
-	public sealed class CVarSystem : ICVarSystemService {
+	internal sealed class CVarSystem : ICVarSystemService {
 		private readonly ConcurrentDictionary<InternString, ICVar> _cvars = new ConcurrentDictionary<InternString, ICVar>();
 		private readonly HashSet<CVarGroup> _groups = new HashSet<CVarGroup>();
 
@@ -51,7 +51,7 @@ namespace Nomad.CVars.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="eventFactory"></param>
 		/// <param name="fileSystem"></param>
@@ -367,7 +367,7 @@ namespace Nomad.CVars.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <param name="name"></param>
@@ -389,7 +389,7 @@ namespace Nomad.CVars.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="name"></param>
 		/// <returns></returns>

@@ -30,7 +30,7 @@ namespace Nomad.Logger
     /// Handles the process of logging.
     /// </summary>
 
-    public sealed class LoggerService : ILoggerService
+    internal sealed class LoggerService : ILoggerService
     {
         private ICVar<LogLevel> _logDepth;
         private readonly List<ILoggerSink> _sinks = new List<ILoggerSink>();

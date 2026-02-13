@@ -14,7 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using System.Runtime.CompilerServices;
+using Nomad.Core.Compatibility;
 using Nomad.Core.Events;
 
 namespace Nomad.Events
@@ -25,64 +25,39 @@ namespace Nomad.Events
     public sealed class DisposableSubscription<TArgs> : IDisposable
         where TArgs : struct
     {
-        private IGameEvent<TArgs> _event;
-        private EventCallback<TArgs> _callback;
+        private IGameEvent<TArgs>? _event;
+        private EventCallback<TArgs>? _callback;
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="handler"></param>
         /// <param name="callback"></param>
         public DisposableSubscription(IGameEvent<TArgs> handler, EventCallback<TArgs> callback)
         {
+            ExceptionCompat.ThrowIfNull(handler);
+
             handler.Subscribe(this, callback);
             _event = handler;
             _callback = callback;
         }
 
-        /*
-        ===============
-        ~DisposableSubscription
-        ===============
-        */
         /// <summary>
-        /// 
+        ///
         /// </summary>
         ~DisposableSubscription()
         {
             Dispose();
         }
 
-        /*
-        ===============
-        Dispose
-        ===============
-        */
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public void Dispose()
         {
-            _event.Unsubscribe(this, _callback);
+            _event?.Unsubscribe(this, _callback);
             _event = null;
             _callback = null;
-
-            GC.SuppressFinalize(this);
         }
-
-        /*
-        ===============
-        Publish
-        ===============
-        */
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="eventArgs"></param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Publish(in TArgs eventArgs)
-        {
-            _event.Publish(in eventArgs);
-        }
-    };
-};
+    }
+}

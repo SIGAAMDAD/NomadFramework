@@ -16,6 +16,10 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 
 namespace Nomad.Audio.Fmod.Private.Exceptions {
-	internal sealed class TooManyListenersException() : Exception( "Too many registered listeners!" ) {
+	internal sealed class TooManyListenersException : Exception {
+		public TooManyListenersException()
+			: base( "Too many registered listeners!" )
+		{
+		}
 	};
 };

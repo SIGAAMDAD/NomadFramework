@@ -18,6 +18,9 @@ using System.Threading.Tasks;
 
 namespace Nomad.Core.OnlineServices
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public interface IMatchMakingService : IDisposable
     {
         /// <summary>

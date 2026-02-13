@@ -27,7 +27,7 @@ namespace Nomad.Save.Private.Exceptions {
 	///
 	/// </summary>
 
-	internal sealed class SaveLoadException : Exception {
+	public sealed class SaveLoadException : Exception {
 		public readonly string FileId;
 		public readonly Exception Error;
 

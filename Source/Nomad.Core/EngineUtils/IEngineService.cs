@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using Nomad.Core.ResourceCache;
 using Nomad.Core.Util;
 
 namespace Nomad.Core.EngineUtils
@@ -121,9 +122,15 @@ namespace Nomad.Core.EngineUtils
         string Translate(InternString key);
 
         /// <summary>
-        /// 
+        /// Creates an engine-specific in-game console handle and returns it.
         /// </summary>
         /// <returns></returns>
         IConsoleObject CreateConsoleObject();
+
+        /// <summary>
+        /// Creates an engine-specific resource loader (e.g. ResourceLoader) and returns it.
+        /// </summary>
+        /// <returns></returns>
+        IResourceLoader GetResourceLoader();
     }
 }

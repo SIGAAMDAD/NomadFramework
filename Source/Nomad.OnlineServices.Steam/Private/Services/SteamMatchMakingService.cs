@@ -36,6 +36,8 @@ namespace Nomad.OnlineServices.Steam.Private {
 		private readonly List<LobbyInfo> _lobbies = new();
 
 		private readonly CallResult<LobbyMatchList_t> _lobbyMatchList;
+		private readonly CallResult<LobbyCreated_t> _lobbyCreated;
+		private readonly CallResult<LobbyEnter_t> _lobbyEnter;
 
 		/*
 		===============
@@ -47,6 +49,8 @@ namespace Nomad.OnlineServices.Steam.Private {
 		/// </summary>
 		public SteamMatchMakingService( SteamService service ) {
 			_lobbyMatchList = CallResult<LobbyMatchList_t>.Create( OnLobbyListFound );
+			_lobbyCreated = CallResult<LobbyCreated_t>.Create( OnLobbyCreated );
+			_lobbyEnter = CallResult<LobbyEnter_t>.Create( OnLobbyEnter );
 		}
 
 		/*
@@ -69,7 +73,7 @@ namespace Nomad.OnlineServices.Steam.Private {
 		///
 		/// </summary>
 		/// <returns></returns>
-		public ValueTask<LobbyInfo> FindLobby() {
+		public async ValueTask<LobbyInfo> FindLobby() {
 		}
 
 		/*
@@ -87,6 +91,32 @@ namespace Nomad.OnlineServices.Steam.Private {
 			for ( int i = 0; i < param.m_nLobbiesMatching; i++ ) {
 				CSteamID lobbyId = SteamMatchmaking.GetLobbyByIndex( i );
 			}
+		}
+
+		/*
+		===============
+		OnLobbyEnter
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="param"></param>
+		/// <param name="bIOFailure"></param>
+		private void OnLobbyEnter( LobbyEnter_t param, bool bIOFailure ) {
+		}
+
+		/*
+		===============
+		OnLobbyCreated
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="param"></param>
+		/// <param name="bIOFailure"></param>
+		private void OnLobbyCreated( LobbyCreated_t param, bool bIOFailure ) {
 		}
 	};
 };

@@ -54,6 +54,7 @@ namespace Nomad.Save.Private.Serialization.FieldSerializers {
 			Register( new FloatSerializer() );
 			Register( new DoubleSerializer() );
 			Register( new StringSerializer() );
+			Register( new BooleanSerializer() );
 		}
 
 		/*
