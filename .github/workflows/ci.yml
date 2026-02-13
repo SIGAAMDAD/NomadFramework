@@ -62,7 +62,13 @@ jobs:
         $process.PriorityClass = [System.Diagnostics.ProcessPriorityClass]::High
     
     - name: 📦 Restore packages
-      run: dotnet restore
+      run: |
+        dotnet restore Source/Nomad.Core/Nomad.Core.csproj
+        dotnet restore Source/Nomad.CVars/Nomad.CVars.csproj
+        dotnet restore Source/Nomad.FileSystem/Nomad.FileSystem.csproj
+        dotnet restore Source/Nomad.Events/Nomad.Events.csproj
+        dotnet restore Source/Nomad.Console/Nomad.Console.csproj
+        dotnet restore Source/Nomad.Logger/Nomad.Logger.csproj
     
     - name: 🔨 Build for multiple frameworks
       run: |
