@@ -96,7 +96,7 @@ public class SaveSectionTests
         });
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
 
         // Assert
         Assert.That(sectionAdded, Is.True);
@@ -147,7 +147,7 @@ public class SaveSectionTests
         });
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
         // Assert
@@ -180,7 +180,7 @@ public class SaveSectionTests
         saveBegin.Subscribe(this, OnSaveBegin);
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
 
         // Assert
         Assert.That(fieldCount, Is.EqualTo(5));
@@ -202,7 +202,7 @@ public class SaveSectionTests
         });
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
 
         // Assert
         Assert.That(actualSectionName, Is.EqualTo(expectedSectionName));
@@ -234,7 +234,7 @@ public class SaveSectionTests
         });
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
         // Assert
@@ -257,7 +257,7 @@ public class SaveSectionTests
         });
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
 
         // Assert
         Assert.That(hasField, Is.True);
@@ -286,7 +286,7 @@ public class SaveSectionTests
         });
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
         // Assert
@@ -316,7 +316,7 @@ public class SaveSectionTests
         });
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
         // Assert
@@ -379,7 +379,7 @@ public class SaveSectionTests
         });
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
         // Assert
@@ -425,7 +425,7 @@ public class SaveSectionTests
         });
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
         // Assert
@@ -456,12 +456,14 @@ public class SaveSectionTests
         loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
         {
             var section = args.Reader.FindSection("CountTest");
-            Console.WriteLine( "Retrieving line count!" );
-            readerFieldCount = section.FieldCount;
+            if (section != null)
+            {
+                readerFieldCount = section.FieldCount;
+            }
         });
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
         // Assert
@@ -508,7 +510,7 @@ public class SaveSectionTests
         });
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
         // Assert
@@ -536,7 +538,7 @@ public class SaveSectionTests
         });
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
 
         // Assert
         Assert.That(createdSectionName, Is.EqualTo(sectionName));

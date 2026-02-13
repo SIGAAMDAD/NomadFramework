@@ -14,7 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using NUnit.Framework;
-using Nomad.Save.Private.ValueObjects;
+using Nomad.Save.ValueObjects;
 
 namespace Nomad.Save.Tests;
 

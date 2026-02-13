@@ -114,7 +114,7 @@ public class SaveErrorHandlingTests
         // Should either succeed or throw - implementation dependent
         try
         {
-            await _dataProvider.Save("");
+            await _dataProvider.Save("", default);
             Assert.Pass("Handled empty filename");
         }
         catch
@@ -152,6 +152,7 @@ public class SaveErrorHandlingTests
     public async Task SaveField_WithEmptySection_Succeeds()
     {
         // Arrange
+        var fileId = Path.Combine(_testDirectory, "empty_section_test.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var sectionCreated = false;
 
@@ -164,7 +165,7 @@ public class SaveErrorHandlingTests
         saveBegin.Subscribe(this, OnSaveBegin);
 
         // Act
-        await _dataProvider.Save(Path.Combine(_testDirectory, "empty_section_test.ngd"));
+        await _dataProvider.Save(fileId, default);
 
         // Assert
         Assert.That(sectionCreated, Is.True);
@@ -174,6 +175,7 @@ public class SaveErrorHandlingTests
     public async Task SaveField_WithEmptyString_Succeeds()
     {
         // Arrange
+        var fileId = Path.Combine(_testDirectory, "empty_string_test.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -195,8 +197,8 @@ public class SaveErrorHandlingTests
         });
 
         // Act
-        await _dataProvider.Save(Path.Combine(_testDirectory, "empty_string_test.ngd"));
-        await _dataProvider.Load(Path.Combine(_testDirectory, "empty_string_test.ngd"));
+        await _dataProvider.Save(fileId, default);
+        await _dataProvider.Load(fileId);
 
         // Assert
         Assert.That(loadedString, Is.EqualTo(""));
@@ -206,6 +208,7 @@ public class SaveErrorHandlingTests
     public async Task SaveField_WithVeryLongString_Succeeds()
     {
         // Arrange
+        var fileId = Path.Combine(_testDirectory, "long_string_test.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -228,8 +231,8 @@ public class SaveErrorHandlingTests
         });
 
         // Act
-        await _dataProvider.Save(Path.Combine(_testDirectory, "long_string_test.ngd"));
-        await _dataProvider.Load(Path.Combine(_testDirectory, "long_string_test.ngd"));
+        await _dataProvider.Save(fileId, default);
+        await _dataProvider.Load(fileId);
 
         // Assert
         Assert.That(loadedString, Is.EqualTo(longString));
@@ -249,6 +252,7 @@ public class SaveErrorHandlingTests
     public async Task GetField_WithWrongType_ThrowsInvalidCastException()
     {
         // Arrange
+        var fileId = Path.Combine(_testDirectory, "wrong_type_test.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -282,8 +286,8 @@ public class SaveErrorHandlingTests
         loadBegin.Subscribe(this, OnLoadBegin);
 
         // Act
-        await _dataProvider.Save(Path.Combine(_testDirectory, "wrong_type_test.ngd"));
-        await _dataProvider.Load(Path.Combine(_testDirectory, "wrong_type_test.ngd"));
+        await _dataProvider.Save(fileId, default);
+        await _dataProvider.Load(fileId);
 
         // Assert
         Assert.That(exceptionThrown, Is.True);
@@ -293,6 +297,7 @@ public class SaveErrorHandlingTests
     public async Task SaveSection_WithSameName_Throws()
     {
         // Arrange
+        var fileId = Path.Combine(_testDirectory, "duplicate_section_test.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var exceptionThrown = false;
 
@@ -313,7 +318,7 @@ public class SaveErrorHandlingTests
         });
 
         // Act
-        await _dataProvider.Save(Path.Combine(_testDirectory, "duplicate_section_test.ngd"));
+        await _dataProvider.Save(fileId, default);
 
         // Assert
         Assert.That(exceptionThrown, Is.True);
@@ -323,6 +328,7 @@ public class SaveErrorHandlingTests
     public async Task SaveField_WithVeryLargeInt_Succeeds()
     {
         // Arrange
+        var fileId = Path.Combine(_testDirectory, "large_int_test.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -345,8 +351,8 @@ public class SaveErrorHandlingTests
         });
 
         // Act
-        await _dataProvider.Save(Path.Combine(_testDirectory, "large_int_test.ngd"));
-        await _dataProvider.Load(Path.Combine(_testDirectory, "large_int_test.ngd"));
+        await _dataProvider.Save(fileId, default);
+        await _dataProvider.Load(fileId);
 
         // Assert
         Assert.That(loadedValue, Is.EqualTo(largeValue));
@@ -356,6 +362,7 @@ public class SaveErrorHandlingTests
     public async Task SaveField_WithNegativeNumbers_Succeeds()
     {
         // Arrange
+        var fileId = Path.Combine(_testDirectory, "negative_test.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -382,8 +389,8 @@ public class SaveErrorHandlingTests
         });
 
         // Act
-        await _dataProvider.Save(Path.Combine(_testDirectory, "negative_test.ngd"));
-        await _dataProvider.Load(Path.Combine(_testDirectory, "negative_test.ngd"));
+        await _dataProvider.Save(fileId, default);
+        await _dataProvider.Load(fileId);
 
         // Assert
         Assert.That(loadedInt, Is.EqualTo(negativeInt));
@@ -394,6 +401,7 @@ public class SaveErrorHandlingTests
     public async Task Multiple_SaveAndLoad_Cycles_Succeed()
     {
         // Arrange
+        var fileId = Path.Combine(_testDirectory, "multiple_cycles_test.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
         int cycleCount = 0;
@@ -417,8 +425,8 @@ public class SaveErrorHandlingTests
         for (int i = 0; i < 5; i++)
         {
             cycleCount = i;
-            await _dataProvider.Save(Path.Combine(_testDirectory, "multiple_cycles_test.ngd"));
-            await _dataProvider.Load(Path.Combine(_testDirectory, "multiple_cycles_test.ngd"));
+            await _dataProvider.Save(fileId, default);
+            await _dataProvider.Load(fileId);
         }
 
         // Assert
@@ -429,6 +437,7 @@ public class SaveErrorHandlingTests
     public async Task SaveSection_WithEmptyName_HandlesGracefully()
     {
         // Arrange
+        var fileId = Path.Combine(_testDirectory, "empty_section_name_test.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
 
         saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
@@ -440,7 +449,7 @@ public class SaveErrorHandlingTests
         // Act & Assert
         try
         {
-            await _dataProvider.Save(Path.Combine(_testDirectory, "empty_section_name_test.ngd"));
+            await _dataProvider.Save(fileId, default);
             Assert.Pass("Empty section name handled");
         }
         catch
@@ -458,6 +467,7 @@ public class SaveErrorHandlingTests
     public async Task SaveField_WithExtremumIntValues_Succeeds(int value)
     {
         // Arrange
+        var fileId = Path.Combine(_testDirectory, $"extremum_int_test_{value.GetHashCode()}.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -479,8 +489,8 @@ public class SaveErrorHandlingTests
         });
 
         // Act
-        await _dataProvider.Save(Path.Combine(_testDirectory, $"extremum_int_test_{value.GetHashCode()}.ngd"));
-        await _dataProvider.Load(Path.Combine(_testDirectory, $"extremum_int_test_{value.GetHashCode()}.ngd"));
+        await _dataProvider.Save(fileId, default);
+        await _dataProvider.Load(fileId);
 
         // Assert
         Assert.That(loadedValue, Is.EqualTo(value));

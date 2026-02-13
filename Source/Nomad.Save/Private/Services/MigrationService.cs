@@ -19,8 +19,8 @@ using Nomad.Save.ValueObjects;
 
 namespace Nomad.Save.Private.Services {
 	internal sealed class MigrationService : IDisposable {
-		GameVersion GameVersion { get; }
-		SaveFileVersion SaveVersion { get; }
+		public GameVersion GameVersion { get; }
+		public SaveFileVersion SaveVersion { get; }
 
 		/*
 		===============

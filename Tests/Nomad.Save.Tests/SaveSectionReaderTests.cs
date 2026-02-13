@@ -59,9 +59,9 @@ public class SaveSectionReaderTests
     public void TearDown()
     {
         _dataProvider?.Dispose();
-		_logger?.Dispose();
-		_fileSystem?.Dispose();
-		_eventFactory?.Dispose();
+        _logger?.Dispose();
+        _fileSystem?.Dispose();
+        _eventFactory?.Dispose();
 
         try
         {
@@ -83,7 +83,7 @@ public class SaveSectionReaderTests
         var fileId = Path.Combine(_testDirectory, "section_name_test.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
-        
+
         var expectedSectionName = "MyTestSection";
         var readSectionName = "";
 
@@ -107,7 +107,7 @@ public class SaveSectionReaderTests
         loadBegin.Subscribe(this, OnLoadBegin);
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
         // Assert
@@ -121,7 +121,7 @@ public class SaveSectionReaderTests
         var fileId = Path.Combine(_testDirectory, "field_count_test.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
-        
+
         var readFieldCount = 0;
 
         void OnSaveBegin(in SaveBeginEventArgs args)
@@ -148,7 +148,7 @@ public class SaveSectionReaderTests
         loadBegin.Subscribe(this, OnLoadBegin);
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
         // Assert
@@ -162,7 +162,7 @@ public class SaveSectionReaderTests
         var fileId = Path.Combine(_testDirectory, "get_int_field_test.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
-        
+
         int expectedValue = 12345;
         int retrievedValue = 0;
 
@@ -186,7 +186,7 @@ public class SaveSectionReaderTests
         loadBegin.Subscribe(this, OnLoadBegin);
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
         // Assert
@@ -200,7 +200,7 @@ public class SaveSectionReaderTests
         var fileId = Path.Combine(_testDirectory, "get_float_field_test.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
-        
+
         float expectedValue = 3.14159f;
         float retrievedValue = 0f;
 
@@ -224,7 +224,7 @@ public class SaveSectionReaderTests
         loadBegin.Subscribe(this, OnLoadBegin);
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
         // Assert
@@ -238,7 +238,7 @@ public class SaveSectionReaderTests
         var fileId = Path.Combine(_testDirectory, "get_double_field_test.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
-        
+
         double expectedValue = 2.71828;
         double retrievedValue = 0d;
 
@@ -262,7 +262,7 @@ public class SaveSectionReaderTests
         loadBegin.Subscribe(this, OnLoadBegin);
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
         // Assert
@@ -276,7 +276,7 @@ public class SaveSectionReaderTests
         var fileId = Path.Combine(_testDirectory, "get_string_field_test.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
-        
+
         string expectedValue = "Hello, Save System!";
         string retrievedValue = "";
 
@@ -300,7 +300,7 @@ public class SaveSectionReaderTests
         loadBegin.Subscribe(this, OnLoadBegin);
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
         // Assert
@@ -314,7 +314,7 @@ public class SaveSectionReaderTests
         var fileId = Path.Combine(_testDirectory, "get_bool_field_test.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
-        
+
         bool expectedValue = true;
         bool retrievedValue = false;
 
@@ -338,7 +338,7 @@ public class SaveSectionReaderTests
         loadBegin.Subscribe(this, OnLoadBegin);
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
         // Assert
@@ -352,7 +352,7 @@ public class SaveSectionReaderTests
         var fileId = Path.Combine(_testDirectory, "nonexistent_field_test.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
-        
+
         int retrievedValue = int.MinValue;
 
         void OnSaveBegin(in SaveBeginEventArgs args)
@@ -375,7 +375,7 @@ public class SaveSectionReaderTests
         loadBegin.Subscribe(this, OnLoadBegin);
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
         // Assert
@@ -389,7 +389,7 @@ public class SaveSectionReaderTests
         var fileId = Path.Combine(_testDirectory, "wrong_type_test.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
-        
+
         var exceptionThrown = false;
 
         saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
@@ -416,7 +416,7 @@ public class SaveSectionReaderTests
         });
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
         // Assert
@@ -430,7 +430,7 @@ public class SaveSectionReaderTests
         var fileId = Path.Combine(_testDirectory, "dispose_test.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
-        
+
         ISaveSectionReader? sectionReader = null;
 
         saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
@@ -445,20 +445,20 @@ public class SaveSectionReaderTests
         });
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
-        
+
         var fieldCountBeforeDispose = sectionReader?.FieldCount ?? 0;
         sectionReader?.Dispose();
         var fieldCountAfterDispose = sectionReader?.FieldCount ?? 0;
 
-		using (Assert.EnterMultipleScope())
-		{
-			// Assert
-			Assert.That(fieldCountBeforeDispose, Is.GreaterThan(0));
-			Assert.That(fieldCountAfterDispose, Is.Zero);
-		}
-	}
+        using (Assert.EnterMultipleScope())
+        {
+            // Assert
+            Assert.That(fieldCountBeforeDispose, Is.GreaterThan(0));
+            Assert.That(fieldCountAfterDispose, Is.Zero);
+        }
+    }
 
     [Test]
     public async Task SaveSectionReader_GetField_WithAllIntegerTypes_ReturnsCorrectValues()
@@ -467,7 +467,7 @@ public class SaveSectionReaderTests
         var fileId = Path.Combine(_testDirectory, "all_int_types_test.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
-        
+
         var sbyte_val = (sbyte)-50;
         var short_val = (short)-1000;
         var int_val = -100000;
@@ -498,7 +498,7 @@ public class SaveSectionReaderTests
         });
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
         // Assert
@@ -523,7 +523,7 @@ public class SaveSectionReaderTests
         var fileId = Path.Combine(_testDirectory, "multiple_reads_test.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
-        
+
         ISaveSectionReader? sectionReader = null;
         int expectedValue = 777;
 
@@ -539,7 +539,7 @@ public class SaveSectionReaderTests
         });
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
         // Assert
@@ -562,7 +562,7 @@ public class SaveSectionReaderTests
         var fileId = Path.Combine(_testDirectory, "name_not_null_test.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
-        
+
         ISaveSectionReader? sectionReader = null;
 
         saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
@@ -577,7 +577,7 @@ public class SaveSectionReaderTests
         });
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
         // Assert
@@ -595,7 +595,7 @@ public class SaveSectionReaderTests
         var fileId = Path.Combine(_testDirectory, "field_count_nonneg_test.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
-        
+
         ISaveSectionReader? sectionReader = null;
 
         saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
@@ -611,7 +611,7 @@ public class SaveSectionReaderTests
         });
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
         // Assert
@@ -629,7 +629,7 @@ public class SaveSectionReaderTests
         var fileId = Path.Combine(_testDirectory, "empty_string_field_test.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
-        
+
         string retrievedValue = "unchanged";
 
         saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
@@ -648,7 +648,7 @@ public class SaveSectionReaderTests
         });
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
         // Assert
@@ -662,7 +662,7 @@ public class SaveSectionReaderTests
         var fileId = Path.Combine(_testDirectory, "long_string_field_test.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
-        
+
         string longString = new string('X', 50000);
         string retrievedValue = "";
 
@@ -682,7 +682,7 @@ public class SaveSectionReaderTests
         });
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
         // Assert
@@ -699,7 +699,7 @@ public class SaveSectionReaderTests
         var fileId = Path.Combine(_testDirectory, $"bool_test_{boolValue}.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
-        
+
         bool retrievedValue = !boolValue; // Opposite to verify it changes
 
         saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
@@ -718,7 +718,7 @@ public class SaveSectionReaderTests
         });
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
         // Assert
@@ -732,7 +732,7 @@ public class SaveSectionReaderTests
         var fileId = Path.Combine(_testDirectory, "negative_values_test.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
-        
+
         int negInt = -999;
         double negDouble = -123.456;
         int retrievedInt = 0;
@@ -756,7 +756,7 @@ public class SaveSectionReaderTests
         });
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
         // Assert
@@ -771,7 +771,7 @@ public class SaveSectionReaderTests
         var fileId = Path.Combine(_testDirectory, "dispose_multiple_test.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
-        
+
         ISaveSectionReader? sectionReader = null;
 
         void OnSaveBegin(in SaveBeginEventArgs args)
@@ -790,7 +790,7 @@ public class SaveSectionReaderTests
         loadBegin.Subscribe(this, OnLoadBegin);
 
         // Act & Assert
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
         if (sectionReader != null)
@@ -798,7 +798,7 @@ public class SaveSectionReaderTests
             sectionReader.Dispose();
             sectionReader.Dispose(); // Should not throw
             sectionReader.Dispose(); // Should not throw
-            
+
             Assert.Pass("Multiple dispose calls handled");
         }
     }
@@ -810,7 +810,7 @@ public class SaveSectionReaderTests
         var fileId = Path.Combine(_testDirectory, "name_match_test.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
-        
+
         string writerSectionName = "NameMatchSection";
         string readerSectionName = "";
 
@@ -826,13 +826,16 @@ public class SaveSectionReaderTests
         void OnLoadBegin(in LoadBeginEventArgs args)
         {
             var section = args.Reader.FindSection(writerSectionName);
-            readerSectionName = section.Name;
+            if (section != null)
+            {
+                readerSectionName = section.Name;
+            }
         }
 
         loadBegin.Subscribe(this, OnLoadBegin);
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
         // Assert
@@ -846,7 +849,7 @@ public class SaveSectionReaderTests
         var fileId = Path.Combine(_testDirectory, "field_count_match_test.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
-        
+
         int writerFieldCount = 0;
         int readerFieldCount = 0;
 
@@ -874,7 +877,7 @@ public class SaveSectionReaderTests
         loadBegin.Subscribe(this, OnLoadBegin);
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
         // Assert

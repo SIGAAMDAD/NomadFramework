@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using Nomad.Save.ValueObjects;
 
 namespace Nomad.Save.Interfaces
 {
@@ -33,11 +34,13 @@ namespace Nomad.Save.Interfaces
         /// 
         /// </summary>
         /// <param name="filepath"></param>
-        internal void BeginSave(string filepath);
+        /// <param name="gameVersion"></param>
+        internal void BeginSave(string filepath, GameVersion gameVersion);
 
         /// <summary>
         /// 
         /// </summary>
-        internal void EndSave();
+        /// <param name="gameVersion"></param>
+        internal void EndSave(GameVersion gameVersion);
     }
 }

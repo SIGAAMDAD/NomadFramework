@@ -55,6 +55,8 @@ namespace Nomad.Save.Private.Services {
 			_fileSystem = fileSystem;
 			_logger = logger;
 			_sections = new ConcurrentDictionary<string, SaveSectionReader>();
+
+			_category = _logger.CreateCategory( "Nomad.Save.ReaderService", LogLevel.Info, true );
 		}
 
 		/*
@@ -79,24 +81,24 @@ namespace Nomad.Save.Private.Services {
 		/// </summary>
 		/// <param name="filepath"></param>
 		void ISaveReaderService.Load( string filepath ) {
-			_logger.PrintLine( $"Loading save data..." );
+			_logger.PrintLine( in _category, $"Loading save data..." );
 
 			using var reader = _fileSystem.OpenRead( filepath );
 			if ( reader == null ) {
-				_logger.PrintError( $"SaveReaderService.Load: couldn't open save file '{filepath}'!" );
+				_logger.PrintError( in _category, $"SaveReaderService.Load: couldn't open save file '{filepath}'!" );
 				return;
 			}
-			var header = SaveHeader.Deserialize( _logger, reader, out bool magicMatches );
+			var header = SaveHeader.Deserialize( reader, out bool magicMatches );
 
-			_logger.PrintLine( $"...Section Count: {header.SectionCount}" );
-			_logger.PrintLine( $"...Version: {header.Version}" );
+			_logger.PrintLine( in _category, $"...Section Count: {header.SectionCount}" );
+			_logger.PrintLine( in _category, $"...Version: {header.Version}" );
 
 			for ( int i = 0; i < header.SectionCount; i++ ) {
 				var section = new SaveSectionReader( in reader, _logger );
 				_sections[ section.Name ] = section;
 			}
 
-			_logger.PrintLine( "...Finished loading save data" );
+			_logger.PrintLine( in _category, "...Finished loading save data" );
 		}
 
 		/*
@@ -111,7 +113,7 @@ namespace Nomad.Save.Private.Services {
 		/// <returns></returns>
 		public ISaveSectionReader? FindSection( string sectionName ) {
 			if ( !_sections.TryGetValue( sectionName, out var section ) ) {
-				_logger.PrintError( $"SaveReaderService.FindSection: section '{sectionName}' not found!" );
+				_logger.PrintError( in _category, $"SaveReaderService.FindSection: section '{sectionName}' not found!" );
 				return null;
 			}
 			return section;

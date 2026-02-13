@@ -16,6 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Nomad.Save.Private.ValueObjects;
 using Nomad.Save.ValueObjects;
 
 namespace Nomad.Save.Services
@@ -38,7 +39,8 @@ namespace Nomad.Save.Services
         /// that you are locking your persistent data as to not cause a dirty read.
         /// </remarks>
         /// <param name="filepath">The file to write the persistent game state to.</param>
-        Task Save(string filepath);
+        /// <param name="gameVersion"></param>
+        Task Save(string filepath, GameVersion gameVersion);
 
         /// <summary>
         /// Reads a save file and loads the information into memory to be then read and processed as the new state. This save file is provided through <paramref name="filepath"/>.

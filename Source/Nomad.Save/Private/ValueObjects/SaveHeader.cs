@@ -14,7 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using Nomad.Core.FileSystem;
-using Nomad.Core.Logger;
+using Nomad.Save.ValueObjects;
 
 namespace Nomad.Save.Private.ValueObjects {
 	/*
@@ -87,22 +87,17 @@ namespace Nomad.Save.Private.ValueObjects {
 		/// <summary>
 		///
 		/// </summary>
-		/// <param name="logger"></param>
 		/// <param name="reader"></param>
 		/// <param name="magicMatches"></param>
 		/// <returns></returns>
-		internal static SaveHeader Deserialize( ILoggerService logger, IReadStream reader, out bool magicMatches ) {
+		internal static SaveHeader Deserialize(IReadStream reader, out bool magicMatches ) {
 			ulong headerMagic = reader.ReadUInt64();
 			magicMatches = headerMagic == HEADER_MAGIC;
 
 			GameVersion version = GameVersion.Deserialize( reader );
 			int sectionCount = reader.ReadInt32();
 			ulong checksum = reader.ReadUInt64();
-
-			logger.PrintLine( $"Version: {version.ToInt()}" );
-			logger.PrintLine( $"SectionCount: {sectionCount}" );
-			logger.PrintLine( $"Checksum: {checksum}" );
-
+			
 			return new SaveHeader(
 				version: version,
 				sectionCount: sectionCount,

@@ -29,6 +29,7 @@ using Nomad.Save.Interfaces;
 using Nomad.Save.Private.Services;
 using Nomad.Save.Services;
 using Nomad.Save.ValueObjects;
+using Nomad.Save.Private.ValueObjects;
 
 namespace Nomad.Save.Tests;
 
@@ -170,7 +171,7 @@ public class SaveDataProviderTests
         });
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, new GameVersion());
 
         // Assert
         Assert.That(saveInvoked, Is.True);
@@ -204,7 +205,7 @@ public class SaveDataProviderTests
         });
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
         // Assert
@@ -237,8 +238,8 @@ public class SaveDataProviderTests
         });
 
         // Act
-        await _dataProvider.Save(fileId);
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
+        await _dataProvider.Save(fileId, default);
 
         // Assert
         Assert.That(File.Exists(fileId), Is.True);
@@ -262,7 +263,7 @@ public class SaveDataProviderTests
         });
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
 
         // Assert
         Assert.That(File.Exists(fileId), Is.True);
@@ -275,7 +276,7 @@ public class SaveDataProviderTests
         var fileId = Path.Combine(_testDirectory, "no_subscribers.ngd");
 
         // Act & Assert
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
         Assert.Pass("Save completed without subscribers");
     }
 
@@ -294,8 +295,8 @@ public class SaveDataProviderTests
         });
 
         // Act
-        await _dataProvider.Save(fileId1);
-        await _dataProvider.Save(fileId2);
+        await _dataProvider.Save(fileId1, default);
+        await _dataProvider.Save(fileId2, default);
         var filesList = _dataProvider.ListSaveFiles(_testDirectory);
 
         // Assert
@@ -348,7 +349,7 @@ public class SaveDataProviderTests
         });
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
         // Assert
@@ -374,7 +375,7 @@ public class SaveDataProviderTests
         });
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
 
         // Assert
         Assert.That(File.Exists(fileId), Is.True);

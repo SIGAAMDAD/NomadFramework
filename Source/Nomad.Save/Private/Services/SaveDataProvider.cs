@@ -143,12 +143,13 @@ namespace Nomad.Save.Private.Services {
 		///
 		/// </summary>
 		/// <param name="filepath"></param>
+		/// <param name="gameVersion"></param>
 		/// <returns></returns>
-		public async Task Save( string filepath ) {
+		public async Task Save( string filepath, GameVersion gameVersion ) {
 			try {
-				_writerService.BeginSave( filepath );
+				_writerService.BeginSave( filepath, gameVersion );
 				_saveBegin.Publish( new SaveBeginEventArgs( _writerService ) );
-				_writerService.EndSave();
+				_writerService.EndSave( gameVersion );
 			} catch ( Exception e ) {
 				_logger.PrintError( $"Exception caught - {e}" );
 			}

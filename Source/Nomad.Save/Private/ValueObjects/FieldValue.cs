@@ -96,6 +96,15 @@ namespace Nomad.Save.Private.ValueObjects {
 			_type = FieldType.Int8;
 		}
 
+		/*
+		===============
+		FieldValue
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="i16"></param>
 		public FieldValue( short i16 ) {
 			_value = new Union { Int16 = i16 };
 			_type = FieldType.Int16;

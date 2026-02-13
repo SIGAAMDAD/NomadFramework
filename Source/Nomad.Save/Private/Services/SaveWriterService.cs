@@ -20,6 +20,7 @@ using Nomad.Core.Logger;
 using Nomad.Save.Interfaces;
 using Nomad.Save.Private.Entities;
 using Nomad.Save.Private.ValueObjects;
+using Nomad.Save.ValueObjects;
 
 namespace Nomad.Save.Private.Services {
 	/*
@@ -60,6 +61,8 @@ namespace Nomad.Save.Private.Services {
 			_fileSystem = fileSystem;
 			_logger = logger;
 			_category = category;
+
+			_category = _logger.CreateCategory( "Nomad.Save.WriterService", LogLevel.Info, true );
 		}
 
 		/*
@@ -83,7 +86,8 @@ namespace Nomad.Save.Private.Services {
 		/// 
 		/// </summary>
 		/// <param name="filepath"></param>
-		void ISaveWriterService.BeginSave( string filepath ) {
+		/// <param name="gameVersion"></param>
+		void ISaveWriterService.BeginSave( string filepath, GameVersion gameVersion ) {
 			_writer = _fileSystem.OpenWrite( filepath );
 			if ( _writer == null ) {
 				_logger.PrintError( $"Couldn't create save file {filepath}!" );
@@ -93,7 +97,7 @@ namespace Nomad.Save.Private.Services {
 			_logger.PrintLine( $"Writing save data to {filepath}..." );
 
 			{
-				var header = new SaveHeader( new GameVersion( 2, 0, 1 ), _sections.Count, Checksum.Empty );
+				var header = new SaveHeader( gameVersion, _sections.Count, Checksum.Empty );
 				header.Serialize( _writer );
 			}
 		}
@@ -106,7 +110,8 @@ namespace Nomad.Save.Private.Services {
 		/// <summary>
 		/// 
 		/// </summary>
-		void ISaveWriterService.EndSave() {
+		/// <param name="gameVersion"></param>
+		void ISaveWriterService.EndSave(GameVersion gameVersion) {
 			int sectionCount = _sections.Count;
 			foreach ( var section in _sections ) {
 				section.Value.Dispose();
@@ -117,7 +122,7 @@ namespace Nomad.Save.Private.Services {
 				_logger.PrintLine( $"Has {sectionCount} sections." );
 				
 				_writer.Seek( 0, System.IO.SeekOrigin.Begin );
-				var header = new SaveHeader( new GameVersion( 2, 0, 1 ), sectionCount, Checksum.Empty );
+				var header = new SaveHeader( gameVersion, sectionCount, Checksum.Empty );
 				header.Serialize( _writer );
 
 				_writer.Seek( 0, System.IO.SeekOrigin.End );
