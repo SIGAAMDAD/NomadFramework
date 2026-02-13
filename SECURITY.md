@@ -2,15 +2,11 @@
 
 ## Supported Versions
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
-
 | Version | Supported          |
 | ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+| .NET 10.0.0x | ✅ |
+| .NET Standard 2.1  | ✅ |
+| .NET < 8.0.0x | :x: |
 
 ## Reporting a Vulnerability
 
