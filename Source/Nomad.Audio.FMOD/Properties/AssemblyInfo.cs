@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-The Nomad MPL Source Code
+The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
@@ -13,16 +13,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System.IO.Compression;
-using Nomad.Core.FileSystem;
+using System.Runtime.CompilerServices;
+using Nomad.Core.Util.Attributes;
 
-namespace Nomad.FileSystem.Private.ArchiveStream {
-	internal sealed class ZipArchiveReadStream {
-		private readonly ZipArchive _archive;
-
-		public ZipArchiveReadStream( string path ) {
-			using var stream = new System.IO.FileStream( path, System.IO.FileMode.Open, System.IO.FileAccess.Read );
-			_archive = new ZipArchive( stream );
-		}
-	};
-};
+[assembly: NomadModule("Nomad.Audio.FMOD")]
+[assembly: InternalsVisibleTo("Nomad.Tests")]

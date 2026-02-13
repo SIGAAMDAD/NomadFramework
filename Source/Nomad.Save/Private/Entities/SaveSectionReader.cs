@@ -16,6 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Collections.Generic;
 using Nomad.Core.Compatibility;
+using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.Save.Interfaces;
@@ -98,7 +99,7 @@ namespace Nomad.Save.Private.Entities {
 		/// <param name="fieldName"></param>
 		/// <returns></returns>
 		public T GetField<T>( string fieldName ) {
-			ExceptionCompat.ThrowIfNullOrEmpty( fieldName );
+			ArgumentGuard.ThrowIfNullOrEmpty( fieldName );
 			
 			T value = default;
 			if ( _fields.TryGetValue( fieldName, out var field ) ) {

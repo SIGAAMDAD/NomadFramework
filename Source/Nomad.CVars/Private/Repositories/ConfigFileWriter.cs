@@ -15,7 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Collections.Generic;
-using Nomad.Core.Compatibility;
+using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 
@@ -49,7 +49,7 @@ namespace Nomad.CVars.Private.Repositories {
 		/// <param name="fileSystem"></param>
 		/// <param name="cvars"></param>
 		public ConfigFileWriter( string configFile, ILoggerService logger, ICVarSystemService cvarSystem, IFileSystem fileSystem, in IEnumerable<ICVar> cvars ) {
-			ExceptionCompat.ThrowIfNullOrEmpty( configFile );
+			ArgumentGuard.ThrowIfNullOrEmpty( configFile );
 
 			_cvarSystem = cvarSystem;
 			logger.PrintLine( $"ConfigFileWriter: writing cvar config...." );
@@ -102,7 +102,7 @@ namespace Nomad.CVars.Private.Repositories {
 		/// </summary>
 		/// <param name="cvar">The cvar to serialize</param>
 		public readonly void WriteVariable( in ICVar? cvar ) {
-			ExceptionCompat.ThrowIfNull( cvar );
+			ArgumentGuard.ThrowIfNull( cvar );
 
 			switch ( cvar.Type ) {
 				case CVarType.Boolean:
@@ -133,7 +133,7 @@ namespace Nomad.CVars.Private.Repositories {
 		/// </summary>
 		/// <param name="group"></param>
 		private void WriteGroup( in CVarGroup group ) {
-			ExceptionCompat.ThrowIfNull( group );
+			ArgumentGuard.ThrowIfNull( group );
 
 			if ( group.Cvars.Count == 0 ) {
 				return;

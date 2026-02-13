@@ -17,7 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Nomad.Core.Compatibility;
+using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.Events;
 using Nomad.Core.Logger;
 
@@ -113,8 +113,8 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// <param name="callback">The method that is called whenever the event triggers.</param>
 		/// <exception cref="ArgumentNullException">Thrown if <paramref name="callback"/> is null.</exception>
 		public void AddSubscription( object subscriber, EventCallback<TArgs> callback ) {
-			ExceptionCompat.ThrowIfNull( subscriber );
-			ExceptionCompat.ThrowIfNull( callback );
+			ArgumentGuard.ThrowIfNull( subscriber );
+			ArgumentGuard.ThrowIfNull( callback );
 
 			_genericSubscriptions.Add( SubscriptionEntry<TArgs>.Create( subscriber, callback ) );
 		}
@@ -147,8 +147,8 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// <exception cref="ArgumentNullException">Thrown if <paramref name="callback"/> is null.</exception>
 		/// <exception cref="ArgumentOutOfRangeException">Thrown if the returned index from <see cref="ContainsCallback"/> is invalid.</exception>
 		public void RemoveSubscription( object subscriber, EventCallback<TArgs> callback ) {
-			ExceptionCompat.ThrowIfNull( subscriber );
-			ExceptionCompat.ThrowIfNull( callback );
+			ArgumentGuard.ThrowIfNull( subscriber );
+			ArgumentGuard.ThrowIfNull( callback );
 
 			if ( !ContainsCallback( subscriber, callback, out int index ) ) {
 #if EVENT_DEBUG
@@ -184,7 +184,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// </summary>
 		/// <param name="subscriber"></param>
 		public void RemoveAllForSubscriber( object subscriber ) {
-			ExceptionCompat.ThrowIfNull( subscriber );
+			ArgumentGuard.ThrowIfNull( subscriber );
 
 			_genericSubscriptions.RemoveAllOwnedBy( subscriber );
 		}

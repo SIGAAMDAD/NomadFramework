@@ -38,8 +38,8 @@ namespace Nomad.Save
         /// <param name="locator"></param>
         public void Initialize(IServiceRegistry serviceFactory, IServiceLocator locator)
         {
-            ArgumentGuard.Null(serviceFactory);
-            ArgumentGuard.Null(locator);
+            ArgumentGuard.ThrowIfNull(serviceFactory);
+            ArgumentGuard.ThrowIfNull(locator);
 
             ILoggerService logger = locator.GetService<ILoggerService>();
             IFileSystem fileSystem = locator.GetService<IFileSystem>();

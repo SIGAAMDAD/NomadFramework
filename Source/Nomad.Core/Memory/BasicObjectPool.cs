@@ -15,7 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System.Collections.Concurrent;
 using System;
-using Nomad.Core.Compatibility;
+using Nomad.Core.Compatibility.Guards;
 
 namespace Nomad.Core.Memory
 {
@@ -25,6 +25,8 @@ namespace Nomad.Core.Memory
     public class BasicObjectPool<T> : IObjectPool<T>
         where T : new()
     {
+        public static readonly Func<T> DefaultFactory = new Func<T>( DefaultCreateObject );
+
         /// <summary>
         /// 
         /// </summary>
@@ -70,11 +72,11 @@ namespace Nomad.Core.Memory
         /// <exception cref="InvalidOperationException"></exception>
         public T Rent()
         {
-            ExceptionCompat.ThrowIfDisposed(_isDisposed, this);
+            StateGuard.ThrowIfDisposed(_isDisposed, this);
 
             if (_availableObjects.TryTake(out T? obj))
             {
-                ExceptionCompat.ThrowIfNull(obj);
+                ArgumentGuard.ThrowIfNull(obj);
                 return obj;
             }
 
@@ -101,7 +103,7 @@ namespace Nomad.Core.Memory
                 return;
             }
 
-            ExceptionCompat.ThrowIfNull(obj);
+            ArgumentGuard.ThrowIfNull(obj);
 
             if (_availableObjects.Count < _maxSize)
             {
@@ -130,7 +132,7 @@ namespace Nomad.Core.Memory
             _isDisposed = true;
             while (_availableObjects.TryTake(out T? obj))
             {
-                ExceptionCompat.ThrowIfNull(obj);
+                ArgumentGuard.ThrowIfNull(obj);
                 if (obj is IDisposable disposable)
                 {
                     disposable.Dispose();
@@ -150,6 +152,15 @@ namespace Nomad.Core.Memory
                 _availableObjects.Add(_createObject.Invoke());
                 _currentSize++;
             }
+        }
+
+        /// <summary>
+        /// The default factory for objects.
+        /// </summary>
+        /// <returns></returns>
+        private static T DefaultCreateObject()
+        {
+            return new T();
         }
     }
 }

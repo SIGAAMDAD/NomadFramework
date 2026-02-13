@@ -43,7 +43,7 @@ namespace Nomad.Save.Private.Exceptions {
 		/// <param name="fieldName"></param>
 		/// <param name="exception"></param>
 		public FailedFieldLoadException( string fieldName, Exception exception )
-			: base( $"Failed to load save field {fieldName}, exception {exception}", "Nomad.Save" )
+			: base( $"Failed to load save field {fieldName}, exception {exception}" )
 		{
 			FieldName = fieldName;
 			Error = exception;

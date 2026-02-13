@@ -30,9 +30,9 @@ namespace Nomad.Core.Compatibility.Guards
         /// <param name="message"></param>
         /// <exception cref="InvalidOperationException"></exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void NotMainThread(string? message = null)
+        public static void ThrowIfNotMainThread(string? message = null)
         {
-            if (Thread.CurrentThread.ManagedThreadId != 1)
+            if (Environment.CurrentManagedThreadId != 1)
             {
                 throw new InvalidOperationException(message ?? "Operation must be performed on the main thread.");
             }
@@ -45,9 +45,9 @@ namespace Nomad.Core.Compatibility.Guards
         /// <param name="message"></param>
         /// <exception cref="InvalidOperationException"></exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void WrongThread(int expectedThreadId, string? message = null)
+        public static void ThrowIfWrongThread(int expectedThreadId, string? message = null)
         {
-            if (Thread.CurrentThread.ManagedThreadId != expectedThreadId)
+            if (Environment.CurrentManagedThreadId != expectedThreadId)
             {
                 throw new InvalidOperationException(message ?? "Operation executed on the wrong thread.");
             }

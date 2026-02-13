@@ -46,7 +46,7 @@ namespace Nomad.Events
         /// </summary>
         public void Dispose()
         {
-            foreach (KeyValuePair<EventKey, IGameEvent> @event in _eventCache)
+            foreach (var @event in _eventCache)
             {
                 @event.Value.Dispose();
             }

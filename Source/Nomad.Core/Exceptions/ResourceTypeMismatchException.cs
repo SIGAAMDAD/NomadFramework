@@ -27,9 +27,8 @@ namespace Nomad.Core.Exceptions
         /// </summary>
         /// <param name="expectedType"></param>
         /// <param name="actualType"></param>
-        /// <param name="module"></param>
-        public ResourceTypeMismatchException(Type expectedType, Type actualType, string module)
-            : base($"IResourceLoader expected type of {expectedType.FullName}, got {actualType.FullName}", module)
+        public ResourceTypeMismatchException(Type expectedType, Type actualType)
+            : base($"IResourceLoader expected type of {expectedType.FullName}, got {actualType.FullName}")
         {
         }
     }

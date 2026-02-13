@@ -22,7 +22,7 @@ using System.Collections.Concurrent;
 using Nomad.Logger.Private;
 using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
-using Nomad.Core.Compatibility;
+using Nomad.Core.Compatibility.Guards;
 
 namespace Nomad.Logger
 {
@@ -109,7 +109,7 @@ namespace Nomad.Logger
         /// <param name="sink"></param>
         public void AddSink(ILoggerSink sink)
         {
-            ExceptionCompat.ThrowIfNull(sink);
+            ArgumentGuard.ThrowIfNull(sink);
             _sinks.Add(sink);
 
             foreach (var category in _categories)
@@ -188,7 +188,7 @@ namespace Nomad.Logger
         /// <param name="message"></param>
         public void Print(in ILoggerCategory category, in string message)
         {
-            ExceptionCompat.ThrowIfNull(category);
+            ArgumentGuard.ThrowIfNull(category);
             PrintMessage(in category, LogLevel.Info, in message, false);
         }
 
@@ -199,7 +199,7 @@ namespace Nomad.Logger
         /// <param name="message"></param>
         public void PrintLine(in ILoggerCategory category, in string message)
         {
-            ExceptionCompat.ThrowIfNull(category);
+            ArgumentGuard.ThrowIfNull(category);
             PrintMessage(in category, LogLevel.Info, in message, true);
         }
 
@@ -210,7 +210,7 @@ namespace Nomad.Logger
         /// <param name="message"></param>
         public void PrintDebug(in ILoggerCategory category, in string message)
         {
-            ExceptionCompat.ThrowIfNull(category);
+            ArgumentGuard.ThrowIfNull(category);
             PrintMessage(in category, LogLevel.Debug, in message, true);
         }
 
@@ -221,7 +221,7 @@ namespace Nomad.Logger
         /// <param name="message"></param>
         public void PrintWarning(in ILoggerCategory category, in string message)
         {
-            ExceptionCompat.ThrowIfNull(category);
+            ArgumentGuard.ThrowIfNull(category);
             PrintMessage(in category, LogLevel.Warning, in message, true);
         }
 
@@ -232,7 +232,7 @@ namespace Nomad.Logger
         /// <param name="message"></param>
         public void PrintError(in ILoggerCategory category, in string message)
         {
-            ExceptionCompat.ThrowIfNull(category);
+            ArgumentGuard.ThrowIfNull(category);
             PrintMessage(in category, LogLevel.Error, in message, true);
         }
 

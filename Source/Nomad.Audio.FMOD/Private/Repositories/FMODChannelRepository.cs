@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -13,7 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Godot;
+using System.Numerics;
 using Nomad.Audio.Fmod.Private.Entities;
 using Nomad.Audio.Fmod.Private.Services;
 using Nomad.Audio.Fmod.Private.ValueObjects;
@@ -22,13 +22,13 @@ using Nomad.Audio.Interfaces;
 using Nomad.Core;
 using Nomad.Core.Exceptions;
 using Nomad.Core.Logger;
-using Nomad.Core.Util;
 using Nomad.CVars;
 using Nomad.ResourceCache;
-using NomadCore.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Nomad.Core.Memory;
+using Nomad.Core.Util;
 
 namespace Nomad.Audio.Fmod.Private.Repositories {
 	/*
@@ -77,7 +77,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		private readonly ICVar<int> _maxChannels;
 		private readonly ICVar<int> _maxActiveChannels;
 
-		private readonly ObjectPool<FMODChannel> _channelPool = new ObjectPool<FMODChannel>();
+		private readonly BasicObjectPool<FMODChannel> _channelPool = new BasicObjectPool<FMODChannel>( BasicObjectPool<FMODChannel>.DefaultFactory );
 
 		/*
 		===============
@@ -93,11 +93,12 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// <param name="fmodSystem"></param>
 		/// <exception cref="CVarMissing"></exception>
 		public FMODChannelRepository( ILoggerService logger, ICVarSystemService cvarSystem, IListenerService listenerService,
-			FMODDevice fmodSystem ) {
+			FMODDevice fmodSystem )
+		{
 			_logger = logger;
 			_listenerService = listenerService;
 
-			_maxChannels = cvarSystem.GetCVar<int>( Constants.CVars.Audio.MAX_CHANNELS ) ?? throw new CVarMissing( Constants.CVars.Audio.MAX_CHANNELS );
+			_maxChannels = cvarSystem.GetCVar<int>( Constants.CVars.Audio.MAX_CHANNELS ) ?? throw new CVarMissing( Constants.CVars.Audio.MAX_CHANNELS,  );
 
 			_maxActiveChannels = cvarSystem.GetCVar<int>( Constants.CVars.Audio.MAX_ACTIVE_CHANNELS ) ?? throw new CVarMissing( Constants.CVars.Audio.MAX_ACTIVE_CHANNELS );
 			_maxChannels.Value = _maxActiveChannels.Value;
@@ -154,7 +155,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 				}
 			}
 
-			float startTime = Time.GetTicksMsec() / 1000.0f;
+			float startTime = DateTime.Now.Millisecond / 1000.0f;
 			var instance = CreateSoundInstance( id, position );
 
 			float actualPriority = CalculateActualPriority( startTime, instance.Handle.handle, position, basePriority, config );
@@ -214,7 +215,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			}
 			UpdatePriorities();
 
-			float startTime = Time.GetTicksMsec() / 1000.0f;
+			float startTime = DateTime.Now.Millisecond / 1000.0f;
 			CleanupFinishedSounds( startTime );
 			EnforceCategoryLimits( startTime );
 		}
@@ -614,7 +615,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			}
 			if ( channel != null ) {
 				// ensure we unhook the callback (causes a seggy)
-				StopSound( Time.GetTicksMsec() / 1000.0f, channel, false );
+				StopSound( DateTime.Now.Millisecond / 1000.0f, channel, false );
 			}
 			return FMOD.RESULT.OK;
 		}

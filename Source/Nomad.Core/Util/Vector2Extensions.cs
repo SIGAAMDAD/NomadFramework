@@ -13,35 +13,37 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System.Numerics;
 using System;
-using Nomad.Core.Compatibility.Guards;
+using System.Runtime.CompilerServices;
 
 namespace Nomad.Core.Util
 {
     /// <summary>
-    ///
+    /// 
     /// </summary>
-    public static class StringExtensions
+    public static class Vector2Extensions
     {
         /// <summary>
-        ///
+        /// 
         /// </summary>
-        /// <param name="filename"></param>
-        /// <param name="seed"></param>
         /// <returns></returns>
-        public static uint HashFileName(this string filename, int seed = 0)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double DistanceTo(this Vector2 from, Vector2 to)
         {
-            ArgumentGuard.ThrowIfNullOrEmpty(filename);
+            return System.Math.Sqrt((from.X - to.X) * (from.X - to.X) + (from.Y - to.Y) * (from.Y - to.Y));
+        }
 
-            int length = filename.Length;
-            Span<byte> hash = stackalloc byte[length];
-            for (int i = 0; i < length; i++)
-            {
-                char c = filename[i];
-                hash[i] = (byte)(c >= 'A' && c <= 'Z' ? c + 32 : c);
-            }
-
-            return System.IO.Hashing.XxHash32.HashToUInt32(hash, seed);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="with"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float Dot(this Vector2 from, Vector2 with)
+        {
+            return from.X * with.X + from.Y * with.Y;
         }
     }
 }

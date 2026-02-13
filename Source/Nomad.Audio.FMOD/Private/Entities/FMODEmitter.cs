@@ -13,7 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Godot;
+using System.Numerics;
 using Nomad.Audio.Fmod.Private.Repositories;
 using Nomad.Audio.Fmod.ValueObjects;
 using Nomad.Audio.Interfaces;

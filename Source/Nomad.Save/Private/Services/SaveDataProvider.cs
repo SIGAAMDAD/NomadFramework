@@ -65,9 +65,9 @@ namespace Nomad.Save.Private.Services {
 		/// <param name="fileSystem"></param>
 		/// <param name="logger"></param>
 		public SaveDataProvider( IGameEventRegistryService eventFactory, IFileSystem fileSystem, ILoggerService logger ) {
-			ArgumentGuard.Null( eventFactory );
-			ArgumentGuard.Null( fileSystem );
-			ArgumentGuard.Null( logger );
+			ArgumentGuard.ThrowIfNull( eventFactory );
+			ArgumentGuard.ThrowIfNull( fileSystem );
+			ArgumentGuard.ThrowIfNull( logger );
 
 			_saveBegin = eventFactory.GetEvent<SaveBeginEventArgs>( EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT );
 			_loadBegin = eventFactory.GetEvent<LoadBeginEventArgs>( EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT );

@@ -13,7 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Nomad.Core.Compatibility;
+using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.Util;
 using System;
 using System.Runtime.CompilerServices;
@@ -42,7 +42,7 @@ namespace Nomad.Core.FileSystem
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         public FilePath(string filePath)
         {
-            ExceptionCompat.ThrowIfNullOrEmpty(filePath);
+            ArgumentGuard.ThrowIfNull(filePath);
 
             _path = filePath;
             _hashCode = (int)_path.HashFileName();

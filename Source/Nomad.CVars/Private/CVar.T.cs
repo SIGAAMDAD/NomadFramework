@@ -17,7 +17,7 @@ using System;
 using System.Runtime.CompilerServices;
 using Nomad.Core.Events;
 using Nomad.Core;
-using Nomad.Core.Compatibility;
+using Nomad.Core.Compatibility.Guards;
 using System.Collections.Generic;
 
 namespace Nomad.CVars.Private {
@@ -155,7 +155,7 @@ namespace Nomad.CVars.Private {
 		/// <exception cref="ArgumentException"></exception>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void SetFromString( string value ) {
-			ExceptionCompat.ThrowIfNull( value );
+			ArgumentGuard.ThrowIfNull( value );
 			if ( !CVarConverter<T>.TryConvertStringToType( value, typeof( T ), out object convertedValue ) ) {
 				throw new ArgumentException( $"Failed to convert cvar value '{value}' to type {typeof( T ).Name}" );
 			}

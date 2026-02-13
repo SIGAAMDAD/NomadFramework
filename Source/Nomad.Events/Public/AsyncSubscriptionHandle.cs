@@ -13,7 +13,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
 using System.Threading;
 using Nomad.Core.Events;
 using Nomad.Events.Private.SubscriptionSets;

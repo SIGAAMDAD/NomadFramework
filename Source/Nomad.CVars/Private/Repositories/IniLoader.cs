@@ -17,7 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Extensions.Configuration.Ini;
-using Nomad.Core.Compatibility;
+using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 
@@ -47,13 +47,13 @@ namespace Nomad.CVars.Private.Repositories {
 		/// <param name="configFile"></param>
 		/// <param name="logger"></param>
 		public IniLoader( string configFile, ILoggerService logger, IFileSystem fileSystem ) {
-			ExceptionCompat.ThrowIfNullOrEmpty( configFile );
-			ExceptionCompat.ThrowIfNull( logger );
+			ArgumentGuard.ThrowIfNullOrEmpty( configFile );
+			ArgumentGuard.ThrowIfNull( logger );
 
 			_iniData = null;
 
 			try {
-				using FileStream fileStream = new( $"{fileSystem.GetConfigPath()}/{configFile}", FileMode.Open, FileAccess.Read );
+				using FileStream fileStream = new FileStream( $"{fileSystem.GetConfigPath()}/{configFile}", FileMode.Open, FileAccess.Read );
 
 				_iniData = IniStreamConfigurationProvider.Read( fileStream );
 				if ( _iniData == null ) {
@@ -75,11 +75,11 @@ namespace Nomad.CVars.Private.Repositories {
 		/// <param name="name">The name of the key of the configuration value</param>
 		/// <param name="value">The output value</param>
 		public bool LoadConfigValue( string name, out int value ) {
-			ExceptionCompat.ThrowIfNull( _iniData );
-			ExceptionCompat.ThrowIfNullOrEmpty( name );
+			ArgumentGuard.ThrowIfNull( _iniData );
+			ArgumentGuard.ThrowIfNullOrEmpty( name );
 
 			if ( _iniData.TryGetValue( name, out string? data ) ) {
-				ExceptionCompat.ThrowIfNullOrEmpty( data );
+				ArgumentGuard.ThrowIfNullOrEmpty( data );
 				value = Convert.ToInt32( data );
 				return true;
 			}
@@ -98,11 +98,11 @@ namespace Nomad.CVars.Private.Repositories {
 		/// <param name="name">The name of the key of the configuration value</param>
 		/// <param name="value">The output value</param>
 		public bool LoadConfigValue( string name, out float value ) {
-			ExceptionCompat.ThrowIfNull( _iniData );
-			ExceptionCompat.ThrowIfNullOrEmpty( name );
+			ArgumentGuard.ThrowIfNull( _iniData );
+			ArgumentGuard.ThrowIfNullOrEmpty( name );
 
 			if ( _iniData.TryGetValue( name, out string? data ) ) {
-				ExceptionCompat.ThrowIfNullOrEmpty( data );
+				ArgumentGuard.ThrowIfNullOrEmpty( data );
 				value = Convert.ToSingle( data );
 				return true;
 			}
@@ -121,16 +121,20 @@ namespace Nomad.CVars.Private.Repositories {
 		/// <param name="name">The name of the key of the configuration value</param>
 		/// <param name="value">The output value</param>
 		public bool LoadConfigValue( string name, out bool value ) {
-			ExceptionCompat.ThrowIfNull( _iniData );
-			ExceptionCompat.ThrowIfNullOrEmpty( name );
+			ArgumentGuard.ThrowIfNull( _iniData );
+			ArgumentGuard.ThrowIfNullOrEmpty( name );
 
 			if ( _iniData.TryGetValue( name, out string? data ) ) {
-				ExceptionCompat.ThrowIfNullOrEmpty( data );
-				value = data.Trim().ToLower() switch {
-					"1" or "true" or "yes" or "on" => true,
-					"0" or "false" or "no" or "off" => false,
-					_ => bool.TryParse( data, out bool result ) && result
-				};
+				ArgumentGuard.ThrowIfNullOrEmpty( data );
+
+				string str = data.Trim().ToLower();
+				if ( str == "1" || str == "true" || str == "yes" || str == "on" ) {
+					value = true;
+				} else if ( str == "0" || str == "false" || str == "no" || str == "off" ) {
+					value = false;
+				} else {
+					value = bool.TryParse( data, out bool result ) && result;
+				}
 				return true;
 			}
 			value = false;
@@ -148,11 +152,11 @@ namespace Nomad.CVars.Private.Repositories {
 		/// <param name="name">The name of the key of the configuration value</param>
 		/// <param name="value">The output value</param>
 		public bool LoadConfigValue( string name, out string value ) {
-			ExceptionCompat.ThrowIfNull( _iniData );
-			ExceptionCompat.ThrowIfNullOrEmpty( name );
+			ArgumentGuard.ThrowIfNull( _iniData );
+			ArgumentGuard.ThrowIfNullOrEmpty( name );
 
 			if ( _iniData.TryGetValue( name, out string? data ) ) {
-				ExceptionCompat.ThrowIfNullOrEmpty( data );
+				ArgumentGuard.ThrowIfNullOrEmpty( data );
 				value = data;
 				return true;
 			}

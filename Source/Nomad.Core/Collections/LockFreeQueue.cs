@@ -19,7 +19,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using Nomad.Core.Compatibility;
+using Nomad.Core.Compatibility.Guards;
 
 namespace Nomad.Core.Collections
 {
@@ -42,7 +42,14 @@ namespace Nomad.Core.Collections
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public object SyncRoot => throw new NotSupportedException("Lock-free collections don't support SyncRoot");
+
+        /// <summary>
+        /// 
+        /// </summary>
         public bool IsSynchronized => true;
 
         /// <summary>
@@ -90,7 +97,8 @@ namespace Nomad.Core.Collections
         public void Clear()
         {
             while (TryTake(out _))
-                ;
+            {
+            }
         }
 
         /// <summary>
@@ -100,9 +108,9 @@ namespace Nomad.Core.Collections
         /// <param name="index"></param>
         public void CopyTo(T[] array, int index)
         {
-            ExceptionCompat.ThrowIfNull(array);
-            ExceptionCompat.ThrowIfLessThan(index, 0, nameof(index));
-            ExceptionCompat.ThrowIfGreaterThanOrEqual(index, array.Length, nameof(index));
+            ArgumentGuard.ThrowIfNull(array);
+            RangeGuard.ThrowIfLessThan(index, 0, nameof(index));
+            RangeGuard.ThrowIfGreaterThanOrEqual(index, array.Length, nameof(index));
 
             int i = index;
             Node current = _head.Next;
@@ -202,7 +210,7 @@ namespace Nomad.Core.Collections
             else
             {
                 // Single-producer: simpler algorithm
-                var tail = _tail;
+                Node tail = _tail;
                 tail.Next = node;
                 _tail = node;
                 IncrementCount();
@@ -220,9 +228,9 @@ namespace Nomad.Core.Collections
                 // Multi-consumer: use interlocked operations
                 while (true)
                 {
-                    var head = _head;
-                    var tail = _tail;
-                    var next = head.Next;
+                    Node head = _head;
+                    Node tail = _tail;
+                    Node next = head.Next;
 
                     if (head == _head)
                     { // Check consistency
@@ -258,8 +266,8 @@ namespace Nomad.Core.Collections
             else
             {
                 // Single-consumer: simpler algorithm
-                var head = _head;
-                var next = head.Next;
+                Node head = _head;
+                Node next = head.Next;
 
                 if (next == null)
                 {
@@ -280,7 +288,7 @@ namespace Nomad.Core.Collections
         /// </summary>
         public bool TryPeek(out T item)
         {
-            var next = _head.Next;
+            Node next = _head.Next;
             if (next == null)
             {
                 item = default;

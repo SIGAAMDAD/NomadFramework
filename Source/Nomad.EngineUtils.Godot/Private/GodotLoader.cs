@@ -16,7 +16,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Threading.Tasks;
 using System.Threading;
-using Nomad.Core.Util;
 using Nomad.Core.ResourceCache;
 
 namespace Nomad.EngineUtils.Private {
@@ -32,9 +31,21 @@ namespace Nomad.EngineUtils.Private {
     /// </summary>
 
     public sealed class GodotLoader<Resource> : IResourceLoader<Resource, string>
-        where Resource : Godot.Resource {
+        where Resource : Godot.Resource
+    {
         public LoadCallback<Resource, string> Load => LoadResource;
         public LoadAsyncCallback<Resource, string> LoadAsync => LoadResourceAsync;
+
+        /*
+        ===============
+        Dispose
+        ===============
+        */
+        /// <summary>
+        /// 
+        /// </summary>
+        public void Dispose() {
+        }
 
         /// <summary>
         ///

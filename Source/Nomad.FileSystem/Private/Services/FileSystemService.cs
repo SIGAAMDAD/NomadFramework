@@ -15,10 +15,9 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
-using Nomad.Core.Compatibility;
+using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.EngineUtils;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
@@ -53,8 +52,8 @@ namespace Nomad.FileSystem.Private.Services {
 		/// </summary>
 		/// <param name="engineService"></param>
 		public FileSystemService( IEngineService engineService, ILoggerService logger ) {
-			ExceptionCompat.ThrowIfNull( engineService );
-			ExceptionCompat.ThrowIfNull( logger );
+			ArgumentGuard.ThrowIfNull( engineService );
+			ArgumentGuard.ThrowIfNull( logger );
 			
 			_engineService = engineService;
 

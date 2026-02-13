@@ -1,3 +1,18 @@
+/*
+===========================================================================
+The Nomad Framework
+Copyright (C) 2025-2026 Noah Van Til
+
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v2. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+This software is provided "as is", without warranty of any kind,
+express or implied, including but not limited to the warranties
+of merchantability, fitness for a particular purpose and noninfringement.
+===========================================================================
+*/
+
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
@@ -16,7 +31,7 @@ namespace Nomad.Core.Compatibility.Guards
         /// <param name="paramName"></param>
         /// <exception cref="ArgumentNullException"></exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Null([NotNull] object? value, string? paramName = null)
+        public static void ThrowIfNull([NotNull] object? value, string? paramName = null)
         {
 #if USE_COMPATIBILITY_EXTENSIONS
             if (value is null)
@@ -35,7 +50,7 @@ namespace Nomad.Core.Compatibility.Guards
         /// <param name="paramName"></param>
         /// <exception cref="ArgumentException"></exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void NullOrEmpty(string? value, string? paramName = null)
+        public static void ThrowIfNullOrEmpty(string? value, string? paramName = null)
         {
 #if USE_COMPATIBILITY_EXTENSIONS
             if (string.IsNullOrEmpty(value))
@@ -54,7 +69,7 @@ namespace Nomad.Core.Compatibility.Guards
         /// <param name="paramName"></param>
         /// <exception cref="ArgumentException"></exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void NullOrWhiteSpace(string? value, string? paramName = null)
+        public static void ThrowIfNullOrWhiteSpace(string? value, string? paramName = null)
         {
 #if USE_COMPATIBILITY_EXTENSIONS
             if (string.IsNullOrWhiteSpace(value))
@@ -74,7 +89,7 @@ namespace Nomad.Core.Compatibility.Guards
         /// <param name="paramName"></param>
         /// <exception cref="ArgumentException"></exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Default<T>(T value, string? paramName = null) where T : struct
+        public static void ThrowIfDefault<T>(T value, string? paramName = null) where T : struct
         {
             if (value.Equals(default(T)))
             {

@@ -13,7 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Nomad.Core.Compatibility;
+using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.Events;
 using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
@@ -32,8 +32,8 @@ namespace Nomad.Events
         /// <param name="registry"></param>
         public static void Initialize(IServiceLocator locator, IServiceRegistry registry)
         {
-            ExceptionCompat.ThrowIfNull(locator);
-            ExceptionCompat.ThrowIfNull(registry);
+            ArgumentGuard.ThrowIfNull(locator);
+            ArgumentGuard.ThrowIfNull(registry);
 
             ILoggerService logger = locator.GetService<ILoggerService>();
 

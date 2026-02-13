@@ -18,7 +18,7 @@ namespace Nomad.Core.Util
     /// <summary>
     ///
     /// </summary>
-    public readonly struct Result
+    public record Result
     {
         /// <summary>
         /// 
@@ -43,6 +43,15 @@ namespace Nomad.Core.Util
         {
             IsSuccess = false;
             Error = error;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private Result()
+        {
+            IsSuccess = true;
+            Error = null;
         }
 
         /// <summary>

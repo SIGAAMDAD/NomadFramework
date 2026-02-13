@@ -15,6 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using Nomad.Core.Compatibility;
+using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.Events;
 
 namespace Nomad.Events
@@ -35,7 +36,7 @@ namespace Nomad.Events
         /// <param name="callback"></param>
         public DisposableSubscription(IGameEvent<TArgs> handler, EventCallback<TArgs> callback)
         {
-            ExceptionCompat.ThrowIfNull(handler);
+            ArgumentGuard.ThrowIfNull(handler);
 
             handler.Subscribe(this, callback);
             _event = handler;

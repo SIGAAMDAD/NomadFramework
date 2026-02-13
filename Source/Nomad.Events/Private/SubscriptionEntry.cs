@@ -68,8 +68,8 @@ namespace Nomad.Events.Private {
 		/// <param name="callback"></param>
 		/// <returns></returns>
 		public static SubscriptionEntry<TArgs> Create( object? owner, EventCallback<TArgs>? callback ) {
-			ArgumentGuard.Null( owner );
-			ArgumentGuard.Null( callback );
+			ArgumentGuard.ThrowIfNull( owner );
+			ArgumentGuard.ThrowIfNull( callback );
 			
 			return new SubscriptionEntry<TArgs>( new WeakReference<object>( owner ), callback, null );
 		}
@@ -86,8 +86,8 @@ namespace Nomad.Events.Private {
 		/// <param name="callback"></param>
 		/// <returns></returns>
 		public static SubscriptionEntry<TArgs> CreateAsync( object? owner, AsyncEventCallback<TArgs>? callback ) {
-			ArgumentGuard.Null( owner );
-			ArgumentGuard.Null( callback );
+			ArgumentGuard.ThrowIfNull( owner );
+			ArgumentGuard.ThrowIfNull( callback );
 			
 			return new SubscriptionEntry<TArgs>( new WeakReference<object>( owner ), null, callback );
 		}

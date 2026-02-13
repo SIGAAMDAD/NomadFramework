@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Nomad.Core.Compatibility;
+using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.FileSystem;
 using Nomad.FileSystem.Private.MemoryStream;
 
@@ -134,8 +134,8 @@ namespace Nomad.FileSystem.Private {
 		/// <param name="offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
 		/// <param name="count">The number of bytes to be written to the current stream.</param>
 		public void Write( byte[] buffer, int offset, int count ) {
-			ExceptionCompat.ThrowIfNull( _buffer );
-			ExceptionCompat.ThrowIfNull( buffer );
+			ArgumentGuard.ThrowIfNull( _buffer );
+			ArgumentGuard.ThrowIfNull( buffer );
 
 			EnsureCapacity( count );
 			Buffer.BlockCopy( buffer, offset, _buffer, _position, count );
@@ -152,7 +152,7 @@ namespace Nomad.FileSystem.Private {
 		/// </summary>
 		/// <param name="buffer">A read-only span of bytes. This method copies the contents of the span to the current stream.</param>
 		public void Write( ReadOnlySpan<byte> buffer ) {
-			ExceptionCompat.ThrowIfNull( _buffer );
+			ArgumentGuard.ThrowIfNull( _buffer );
 
 			int count = buffer.Length;
 			EnsureCapacity( count );
@@ -219,7 +219,7 @@ namespace Nomad.FileSystem.Private {
 		/// </summary>
 		/// <param name="stream">The read stream to copy from.</param>
 		public void WriteFromStream( IReadStream stream ) {
-			ExceptionCompat.ThrowIfNull( stream );
+			ArgumentGuard.ThrowIfNull( stream );
 
 			byte[] buffer = ArrayPool<byte>.Shared.Rent( 4096 );
 			try {
@@ -244,7 +244,7 @@ namespace Nomad.FileSystem.Private {
 		/// <param name="cancellationToken">A token to cancel the operation.</param>
 		/// <returns>A task that represents the asynchronous copy operation.</returns>
 		public async ValueTask WriteFromStreamAsync( IReadStream stream, CancellationToken cancellationToken = default( CancellationToken ) ) {
-			ExceptionCompat.ThrowIfNull( stream );
+			ArgumentGuard.ThrowIfNull( stream );
 
 			byte[] buffer = ArrayPool<byte>.Shared.Rent( 4096 );
 			try {
@@ -267,8 +267,8 @@ namespace Nomad.FileSystem.Private {
 		/// </summary>
 		/// <param name="value">The string to write.</param>
 		public void Write( string? value ) {
-			ExceptionCompat.ThrowIfNull( _buffer );
-			ExceptionCompat.ThrowIfNull( value );
+			ArgumentGuard.ThrowIfNull( _buffer );
+			ArgumentGuard.ThrowIfNull( value );
 
 			int maxByteCount = Encoding.UTF8.GetMaxByteCount( value.Length );
 
@@ -297,7 +297,7 @@ namespace Nomad.FileSystem.Private {
 		/// </summary>
 		/// <param name="value">The integer value to write.</param>
 		public void Write7BitEncodedInt( int value ) {
-			ExceptionCompat.ThrowIfNull( _buffer );
+			ArgumentGuard.ThrowIfNull( _buffer );
 
 			uint uValue = (uint)value;
 			while ( uValue >= 0x80 ) {
@@ -318,7 +318,7 @@ namespace Nomad.FileSystem.Private {
 		/// <typeparam name="T">The type of the value to write.</typeparam>
 		/// <param name="value">The value to write.</param>
 		public void Write<T>( T value ) where T : unmanaged {
-			ExceptionCompat.ThrowIfNull( _buffer );
+			ArgumentGuard.ThrowIfNull( _buffer );
 
 			int sizeOfData = Marshal.SizeOf<T>();
 			EnsureCapacity( sizeOfData );
@@ -609,8 +609,8 @@ namespace Nomad.FileSystem.Private {
 		/// </summary>
 		/// <param name="value">The string to write.</param>
 		public void WriteString( string value ) {
-			ExceptionCompat.ThrowIfNull( _buffer );
-			ExceptionCompat.ThrowIfNull( value );
+			ArgumentGuard.ThrowIfNull( _buffer );
+			ArgumentGuard.ThrowIfNull( value );
 
 			int maxByteCount = Encoding.UTF8.GetMaxByteCount( value.Length );
 

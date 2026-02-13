@@ -16,6 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System.Buffers;
 using System.IO;
 using System.Threading.Tasks;
+using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.FileSystem;
 
 namespace Nomad.FileSystem.Private.MemoryStream {

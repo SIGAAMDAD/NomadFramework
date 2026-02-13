@@ -30,7 +30,14 @@ namespace Nomad.Events.Private {
 	/// </summary>
 
 	internal readonly struct EventKey : IEquatable<EventKey> {
+		/// <summary>
+		/// 
+		/// </summary>
 		public readonly InternString Name { get; }
+		
+		/// <summary>
+		/// 
+		/// </summary>
 		public readonly InternString NameSpace { get; }
 		public readonly Type ArgsType { get; }
 		private readonly int _hashCode;

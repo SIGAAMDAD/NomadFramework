@@ -17,7 +17,6 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Nomad.Core.Compatibility;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.Events;
 using Nomad.Core.Logger;
@@ -95,7 +94,7 @@ namespace Nomad.Events.Private {
 		/// <param name="logger"></param>
 		/// <exception cref="ArgumentException">Thrown if name is null or empty.</exception>
 		internal GameEvent( InternString nameSpace, InternString name, ILoggerService logger, EventFlags flags ) {
-			ArgumentGuard.NullOrEmpty( name );
+			ArgumentGuard.ThrowIfNullOrEmpty( name );
 
 			_nameSpace = nameSpace;
 			_name = name;
@@ -121,9 +120,14 @@ namespace Nomad.Events.Private {
 		Equals
 		===============
 		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public bool Equals( IGameEvent? other ) {
-			return other is not null && Id.Equals( other.Id );
+			return other != null && Id.Equals( other.Id );
 		}
 
 		/*
@@ -144,7 +148,7 @@ namespace Nomad.Events.Private {
 		===============
 		*/
 		/// <summary>
-		/// Publishes an event to the main <see cref="GameEventBus"/>.
+		/// 
 		/// </summary>
 		/// <param name="eventArgs"></param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
@@ -158,9 +162,10 @@ namespace Nomad.Events.Private {
 		===============
 		*/
 		/// <summary>
-		/// Publishes an event to the main <see cref="GameEventBus"/>.
+		/// 
 		/// </summary>
 		/// <param name="eventArgs"></param>
+		/// <param name="ct"></param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public async Task PublishAsync( TArgs eventArgs, CancellationToken ct = default ) {
 			await _subscriptions.PumpAsync( eventArgs, ct );
@@ -179,7 +184,7 @@ namespace Nomad.Events.Private {
 		/// <exception cref="ArgumentNullException">Thrown if <paramref name="callback"/> is null.</exception>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public IDisposable Subscribe( EventCallback<TArgs> callback ) {
-			ArgumentGuard.Null( callback );
+			ArgumentGuard.ThrowIfNull( callback );
 
 			_subscriptions.AddSubscription( this, callback );
 			return this;
@@ -197,7 +202,7 @@ namespace Nomad.Events.Private {
 		/// <exception cref="ArgumentNullException">Thrown if <paramref name="callback"/> is null.</exception>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public IDisposable SubscribeAsync( AsyncEventCallback<TArgs> callback ) {
-			ArgumentGuard.Null( callback );
+			ArgumentGuard.ThrowIfNull( callback );
 
 			_subscriptions.AddSubscriptionAsync( this, callback );
 			return this;
@@ -209,15 +214,15 @@ namespace Nomad.Events.Private {
 		===============
 		*/
 		/// <summary>
-		/// Adds a new subscription to the GameEvent utilizing the <see cref="GameEventBus"/>.
+		/// 
 		/// </summary>
 		/// <param name="owner"></param>
 		/// <param name="callback">The lambda or method to call when the event is triggered.</param>
 		/// <exception cref="ArgumentNullException">Thrown if <paramref name="callback"/> is null.</exception>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public ISubscriptionHandle Subscribe( object owner, EventCallback<TArgs> callback ) {
-			ArgumentGuard.Null( owner );
-			ArgumentGuard.Null( callback );
+			ArgumentGuard.ThrowIfNull( owner );
+			ArgumentGuard.ThrowIfNull( callback );
 
 			return new SubscriptionHandle<TArgs>( owner, _subscriptions, callback );
 		}
@@ -235,8 +240,8 @@ namespace Nomad.Events.Private {
 		/// <exception cref="ArgumentNullException">Thrown if <paramref name="callback"/> is null.</exception>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public ISubscriptionHandle SubscribeAsync( object owner, AsyncEventCallback<TArgs> callback ) {
-			ArgumentGuard.Null( owner );
-			ArgumentGuard.Null( callback );
+			ArgumentGuard.ThrowIfNull( owner );
+			ArgumentGuard.ThrowIfNull( callback );
 
 			return new AsyncSubscriptionHandle<TArgs>( owner, _subscriptions, callback );
 		}
@@ -247,15 +252,15 @@ namespace Nomad.Events.Private {
 		===============
 		*/
 		/// <summary>
-		/// Removes the <paramref name="callback"/> from the GameEvent utilizing the <see cref="GameEventBus"/>.
+		/// 
 		/// </summary>
 		/// <param name="owner"></param>
 		/// <param name="callback">The lambda or method to remove from the subscription list.</param>
 		/// <exception cref="ArgumentNullException">Thrown if <paramref name="callback"/> is null.</exception>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void Unsubscribe( object owner, EventCallback<TArgs> callback ) {
-			ArgumentGuard.Null( owner );
-			ArgumentGuard.Null( callback );
+			ArgumentGuard.ThrowIfNull( owner );
+			ArgumentGuard.ThrowIfNull( callback );
 
 			_subscriptions.RemoveSubscription( owner, callback );
 		}
@@ -266,15 +271,15 @@ namespace Nomad.Events.Private {
 		===============
 		*/
 		/// <summary>
-		/// Removes the <paramref name="callback"/> from the GameEvent utilizing the <see cref="GameEventBus"/>.
+		/// 
 		/// </summary>
 		/// <param name="owner"></param>
 		/// <param name="callback">The lambda or method to remove from the subscription list.</param>
 		/// <exception cref="ArgumentNullException">Thrown if <paramref name="callback"/> is null.</exception>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void UnsubscribeAsync( object owner, AsyncEventCallback<TArgs> callback ) {
-			ArgumentGuard.Null( owner );
-			ArgumentGuard.Null( callback );
+			ArgumentGuard.ThrowIfNull( owner );
+			ArgumentGuard.ThrowIfNull( callback );
 
 			_subscriptions.RemoveSubscriptionAsync( owner, callback );
 		}
@@ -290,7 +295,7 @@ namespace Nomad.Events.Private {
 		/// <param name="owner"></param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void UnsubscribeAll( object owner ) {
-			ArgumentGuard.Null( owner );
+			ArgumentGuard.ThrowIfNull( owner );
 
 			_subscriptions.RemoveAllForSubscriber( owner );
 		}

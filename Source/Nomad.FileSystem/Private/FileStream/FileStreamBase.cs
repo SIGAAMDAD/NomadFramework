@@ -18,6 +18,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Nomad.Core.Compatibility;
+using Nomad.Core.Compatibility.Guards;
 
 namespace Nomad.FileSystem.Private.FileStream {
 	/*
@@ -136,7 +137,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// Flushes the file stream's buffer to the underlying file.
 		/// </summary>
 		public override void Flush() {
-			ExceptionCompat.ThrowIfNull( _fileStream );
+			ArgumentGuard.ThrowIfNull( _fileStream );
 			_fileStream.Flush();
 		}
 
@@ -152,7 +153,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <returns></returns>
 		/// <exception cref="NotImplementedException"></exception>
 		public override async ValueTask FlushAsync( CancellationToken ct = default( CancellationToken ) ) {
-			ExceptionCompat.ThrowIfNull( _fileStream );
+			ArgumentGuard.ThrowIfNull( _fileStream );
 			await _fileStream.FlushAsync( ct );
 		}
 
@@ -190,7 +191,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <returns></returns>
 		/// <exception cref="NotImplementedException"></exception>
 		public override int Seek( int offset, SeekOrigin origin ) {
-			ExceptionCompat.ThrowIfNull( _fileStream );
+			ArgumentGuard.ThrowIfNull( _fileStream );
 			return (int)_fileStream.Seek( offset, origin );
 		}
 	};

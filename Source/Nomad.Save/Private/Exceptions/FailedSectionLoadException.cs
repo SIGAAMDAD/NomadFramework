@@ -43,7 +43,7 @@ namespace Nomad.Save.Private.Exceptions {
 		/// <param name="sectionName"></param>
 		/// <param name="exception"></param>
 		public FailedSectionLoadException( string sectionName, Exception exception )
-			: base( $"Failed to load save section {sectionName}, exception - {exception}", "Nomad.Save" )
+			: base( $"Failed to load save section {sectionName}, exception - {exception}" )
 		{
 			SectionName = sectionName;
 			Error = exception;

@@ -24,9 +24,8 @@ namespace Nomad.Core.Exceptions
         /// 
         /// </summary>
         /// <param name="name"></param>
-        /// <param name="module"></param>
-        public CVarMissing(string name, string module)
-            : base($"Missing CVar '{name}'", module)
+        public CVarMissing(string name)
+            : base($"Missing CVar '{name}'")
         {
         }
     }

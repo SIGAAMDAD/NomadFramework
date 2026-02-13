@@ -25,12 +25,12 @@ namespace Nomad.Core.Memory
         where TObject : new()
     {
         /// <summary>
-        /// 
+        /// The total amount of objects allocated.
         /// </summary>
         int TotalCount { get; }
 
         /// <summary>
-        /// 
+        /// The total amount of objects currently in use.
         /// </summary>
         int ActiveObjectCount { get; }
 

@@ -16,7 +16,7 @@ namespace Nomad.Core.Compatibility.Guards
         /// <param name="paramName"></param>
         /// <exception cref="ArgumentException"></exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Unaligned(IntPtr ptr, int alignment, string? paramName = null)
+        public static void ThrowIfUnaligned(IntPtr ptr, int alignment, string? paramName = null)
         {
             if (((long)ptr & (alignment - 1)) != 0)
             {
@@ -31,7 +31,7 @@ namespace Nomad.Core.Compatibility.Guards
         /// <param name="paramName"></param>
         /// <exception cref="ArgumentNullException"></exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void NullPtr(IntPtr ptr, string? paramName = null)
+        public static void ThrowIfNullPtr(IntPtr ptr, string? paramName = null)
         {
             if (ptr == IntPtr.Zero)
             {

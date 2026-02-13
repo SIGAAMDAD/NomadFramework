@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using Nomad.Core.Abstractions;
+using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.EngineUtils;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
@@ -36,8 +37,11 @@ namespace Nomad.FileSystem
         /// <param name="locator"></param>
         public void Initialize(IServiceRegistry registry, IServiceLocator locator)
         {
-            var engineService = locator.GetService<IEngineService>();
-            var logger = locator.GetService<ILoggerService>();
+            ArgumentGuard.ThrowIfNull(registry);
+            ArgumentGuard.ThrowIfNull(locator);
+
+            IEngineService engineService = locator.GetService<IEngineService>();
+            ILoggerService logger = locator.GetService<ILoggerService>();
 
             _fileSystem = registry.RegisterSingleton<IFileSystem>(new FileSystemService(engineService, logger));
         }

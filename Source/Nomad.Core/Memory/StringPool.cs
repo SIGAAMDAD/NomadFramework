@@ -54,6 +54,7 @@ namespace Nomad.Core.Memory
             {
                 return InternString.Empty;
             }
+            
             string converted = new string(str);
 #if !USE_COMPATIBILITY_EXTENSIONS
             ref int id = ref CollectionsMarshal.GetValueRefOrAddDefault(_current._stringToIds, converted, out bool exists);

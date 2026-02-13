@@ -16,7 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System.Collections.Generic;
 using Nomad.Core.Util;
 using Nomad.Core.Logger;
-using Nomad.Core.Compatibility;
+using Nomad.Core.Compatibility.Guards;
 
 namespace Nomad.CVars.Private.Repositories {
 	/*
@@ -49,7 +49,7 @@ namespace Nomad.CVars.Private.Repositories {
 		/// <param name="logger"></param>
 		/// <param name="cvarSystem"></param>
 		public CVarGroup( string name, ILoggerService logger, ICVarSystemService cvarSystem ) {
-			Name = new( name );
+			Name = new InternString( name );
 			_logger = logger;
 			_cvarSystem = cvarSystem;
 		}
@@ -64,7 +64,7 @@ namespace Nomad.CVars.Private.Repositories {
 		/// </summary>
 		/// <param name="name"></param>
 		public void Add( InternString name ) {
-			ExceptionCompat.ThrowIfNullOrEmpty( name );
+			ArgumentGuard.ThrowIfNullOrEmpty( name );
 
 			if ( !_cvarSystem.CVarExists( name ) ) {
 				_logger.PrintError( $"CVarGroup.Add: cvar '{name}' doesn't exist!" );

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Nomad.Core.Compatibility;
+using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.Events;
 using Nomad.Core.Logger;
 
@@ -80,8 +80,8 @@ namespace Nomad.Events.Private {
 		/// <param name="subscriber"></param>
 		/// <param name="callback"></param>
 		public void AddSubscription( object subscriber, TCallback callback ) {
-			ExceptionCompat.ThrowIfNull( subscriber );
-			ExceptionCompat.ThrowIfNull( callback );
+			ArgumentGuard.ThrowIfNull( subscriber );
+			ArgumentGuard.ThrowIfNull( callback );
 
 			AddInternal( subscriber, callback );
 		}
@@ -97,8 +97,8 @@ namespace Nomad.Events.Private {
 		/// <param name="subscriber"></param>
 		/// <param name="callback"></param>
 		public void RemoveSubscription( object subscriber, TCallback callback ) {
-			ExceptionCompat.ThrowIfNull( subscriber );
-			ExceptionCompat.ThrowIfNull( callback );
+			ArgumentGuard.ThrowIfNull( subscriber );
+			ArgumentGuard.ThrowIfNull( callback );
 
 			RemoveInternal( subscriber, callback );
 		}
@@ -113,7 +113,7 @@ namespace Nomad.Events.Private {
 		/// </summary>
 		/// <param name="subscriber"></param>
 		public void RemoveAllForSubscriber( object subscriber ) {
-			ExceptionCompat.ThrowIfNull( subscriber );
+			ArgumentGuard.ThrowIfNull( subscriber );
 			RemoveAllInternal( subscriber );
 		}
 

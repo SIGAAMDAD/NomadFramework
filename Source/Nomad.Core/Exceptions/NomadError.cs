@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-The Nomad MPL Source Code
+The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
@@ -14,6 +14,9 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using Nomad.Core.Util.Attributes;
 
 namespace Nomad.Core.Exceptions
 {
@@ -22,6 +25,11 @@ namespace Nomad.Core.Exceptions
     /// </summary>
     public class NomadError : Exception
     {
+        /// <summary>
+        /// 
+        /// </summary>
+		public override string Message => GetMessage();
+        
         /// <summary>
         /// The system where the exception was thrown.
         /// </summary>
@@ -38,12 +46,37 @@ namespace Nomad.Core.Exceptions
         /// 
         /// </summary>
         /// <param name="message"></param>
-        /// <param name="module"></param>
-        public NomadError(string message, string module)
+        public NomadError(string message)
             : base(message)
         {
-            _module = module;
+            _module = GetAssemblyName();
             _timeStamp = DateTime.Now;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private string GetMessage()
+        {
+            return $"FROM {_module} AT {_timeStamp}\n{base.Message}";
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        private static string GetAssemblyName()
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+
+            NomadModule module = assembly.GetCustomAttribute<NomadModule>();
+            if (module == null)
+            {
+                return "(UNKNOWN)";
+            }
+            return module.Name;
         }
     }
 }
