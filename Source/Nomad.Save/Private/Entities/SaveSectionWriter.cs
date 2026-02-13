@@ -16,6 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System.Collections.Generic;
 using Nomad.Core.FileSystem;
 using Nomad.Save.Interfaces;
+using Nomad.Save.Private.Exceptions;
 using Nomad.Save.Private.ValueObjects;
 
 namespace Nomad.Save.Private.Entities {
@@ -90,8 +91,7 @@ namespace Nomad.Save.Private.Entities {
 		/// <param name="value"></param>
 		public void AddField<T>( string fieldId, T value ) {
 			if ( _fields.ContainsKey( fieldId ) ) {
-				// FIXME: THROW
-				return;
+				throw new DuplicateFieldException( $"Field '{fieldId}' added twice!" );
 			}
 			_fields[ fieldId ] = new SaveField(
 				fieldId,

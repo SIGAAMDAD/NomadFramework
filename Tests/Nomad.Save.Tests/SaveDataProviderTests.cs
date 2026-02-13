@@ -352,10 +352,13 @@ public class SaveDataProviderTests
         await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
-        // Assert
-        Assert.That(section1Found, Is.True);
-        Assert.That(section2Found, Is.True);
-    }
+		using (Assert.EnterMultipleScope())
+		{
+			// Assert
+			Assert.That(section1Found, Is.True);
+			Assert.That(section2Found, Is.True);
+		}
+	}
 
     [Test]
     [TestCase(0)]

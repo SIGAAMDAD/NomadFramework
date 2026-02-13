@@ -392,10 +392,13 @@ public class SaveErrorHandlingTests
         await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
-        // Assert
-        Assert.That(loadedInt, Is.EqualTo(negativeInt));
-        Assert.That(loadedDouble, Is.EqualTo(negativeDouble).Within(0.00001));
-    }
+		using (Assert.EnterMultipleScope())
+		{
+			// Assert
+			Assert.That(loadedInt, Is.EqualTo(negativeInt));
+			Assert.That(loadedDouble, Is.EqualTo(negativeDouble).Within(0.00001));
+		}
+	}
 
     [Test]
     public async Task Multiple_SaveAndLoad_Cycles_Succeed()

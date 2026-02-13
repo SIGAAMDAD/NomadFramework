@@ -35,7 +35,7 @@ namespace Nomad.FileSystem.Private.Services {
 	/// 
 	/// </summary>
 
-	public sealed class FileSystemService : IFileSystem {
+	internal sealed class FileSystemService : IFileSystem {
 		private readonly IEngineService _engineService;
 		private readonly RecursiveFileSearcher _searchHelper;
 

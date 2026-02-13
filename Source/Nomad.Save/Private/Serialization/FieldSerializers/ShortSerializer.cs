@@ -33,7 +33,6 @@ namespace Nomad.Save.Private.Serialization.FieldSerializers {
 		public FieldType FieldType => FieldType.Int16;
 		public Type DataType => typeof( short );
 
-		public void Serialize( IWriteStream stream, short value ) => stream.WriteInt16( value );
 		public void Serialize( IWriteStream stream, FieldValue value ) => stream.WriteInt16( value.GetValue<short>() );
 		public FieldValue Deserialize( IReadStream stream ) => new FieldValue( stream.ReadInt16() );
 	};

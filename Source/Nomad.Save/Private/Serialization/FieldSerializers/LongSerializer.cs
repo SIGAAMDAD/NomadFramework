@@ -33,7 +33,6 @@ namespace Nomad.Save.Private.Serialization.FieldSerializers {
 		public FieldType FieldType => FieldType.Int64;
 		public Type DataType => typeof( long );
 
-		public void Serialize( IWriteStream stream, long value ) => stream.WriteInt64( value );
 		public void Serialize( IWriteStream stream, FieldValue value ) => stream.WriteInt64( value.GetValue<long>() );
 		public FieldValue Deserialize( IReadStream stream ) => new FieldValue( stream.ReadInt64() );
 	};

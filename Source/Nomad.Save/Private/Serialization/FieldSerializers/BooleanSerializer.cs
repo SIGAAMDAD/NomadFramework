@@ -43,18 +43,6 @@ namespace Nomad.Save.Private.Serialization.FieldSerializers {
 		/// </summary>
 		/// <param name="stream"></param>
 		/// <param name="value"></param>
-		public void Serialize( IWriteStream stream, bool value ) => stream.WriteBoolean( value );
-
-		/*
-		===============
-		Serialize
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="stream"></param>
-		/// <param name="value"></param>
 		public void Serialize( IWriteStream stream, FieldValue value ) => stream.WriteBoolean( value.GetValue<bool>() );
 
 		/*

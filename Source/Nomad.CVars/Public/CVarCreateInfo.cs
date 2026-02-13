@@ -18,51 +18,19 @@ using System;
 namespace Nomad.CVars
 {
     /// <summary>
-    ///
+    /// 
     /// </summary>
-    /// <typeparam name="T">The CVar's value type.</typeparam>
-    public readonly struct CVarCreateInfo<T>
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        public readonly string Name;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public readonly T DefaultValue;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public readonly string Description;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public readonly CVarFlags Flags;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public readonly Func<T, bool>? Validator;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="name">The name of the CVar.</param>
-        /// <param name="defaultValue"></param>
-        /// <param name="description"></param>
-        /// <param name="flags"></param>
-        /// <param name="validator"></param>
-        public CVarCreateInfo(string name, T defaultValue, string description, CVarFlags flags = CVarFlags.None, Func<T, bool>? validator = null)
-        {
-            Name = name;
-            Description = description;
-            DefaultValue = defaultValue;
-            Flags = flags;
-            Validator = validator;
-        }
-    }
+    /// <typeparam name="T"></typeparam>
+    /// <param name="Name"></param>
+    /// <param name="DefaultValue"></param>
+    /// <param name="Description"></param>
+    /// <param name="Flags"></param>
+    /// <param name="Validator"></param>
+    public record CVarCreateInfo<T>(
+        string Name,
+        T DefaultValue,
+        string Description,
+        CVarFlags Flags = CVarFlags.None,
+        Func<T, bool>? Validator = null
+    );
 }

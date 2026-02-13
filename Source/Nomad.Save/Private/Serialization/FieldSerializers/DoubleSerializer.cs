@@ -33,7 +33,6 @@ namespace Nomad.Save.Private.Serialization.FieldSerializers {
 		public FieldType FieldType => FieldType.Double;
 		public Type DataType => typeof( double );
 
-		public void Serialize( IWriteStream stream, double value ) => stream.WriteDouble( value );
 		public void Serialize( IWriteStream stream, FieldValue value ) => stream.WriteDouble( value.GetValue<double>() );
 		public FieldValue Deserialize( IReadStream stream ) => new FieldValue( stream.ReadDouble() );
 	};

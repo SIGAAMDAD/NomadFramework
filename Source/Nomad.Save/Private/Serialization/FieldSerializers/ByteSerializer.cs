@@ -33,7 +33,6 @@ namespace Nomad.Save.Private.Serialization.FieldSerializers {
 		public FieldType FieldType => FieldType.UInt8;
 		public Type DataType => typeof( byte );
 
-		public void Serialize( IWriteStream stream, byte value ) => stream.WriteUInt8( value );
 		public void Serialize( IWriteStream stream, FieldValue value ) => stream.WriteUInt8( value.GetValue<byte>() );
 		public FieldValue Deserialize( IReadStream stream ) => new FieldValue( stream.ReadUInt8() );
 	};

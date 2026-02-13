@@ -94,11 +94,11 @@ namespace Nomad.Logger
             var cvarSystem = locator.GetService<ICVarSystemService>();
             _logDepth = cvarSystem.Register(
                 new CVarCreateInfo<LogLevel>(
-                    name: Constants.CVars.Console.CONSOLE_LOG_LEVEL,
-                    defaultValue: LogLevel.Info,
-                    description: "The verbosity of the logger.",
-                    flags: CVarFlags.Archive,
-                    validator: value => value >= LogLevel.Error && value < LogLevel.Count
+                    Name: Constants.CVars.Console.CONSOLE_LOG_LEVEL,
+                    DefaultValue: LogLevel.Info,
+                    Description: "The verbosity of the logger.",
+                    Flags: CVarFlags.Archive,
+                    Validator: value => value >= LogLevel.Error && value < LogLevel.Count
                 )
             );
         }

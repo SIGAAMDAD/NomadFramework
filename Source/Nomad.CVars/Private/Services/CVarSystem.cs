@@ -88,7 +88,6 @@ namespace Nomad.CVars.Private.Services {
 		///
 		/// </summary>
 		/// <param name="cvar"></param>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void Register( ICVar cvar ) {
 			ArgumentGuard.ThrowIfNull( cvar );
 
@@ -110,12 +109,15 @@ namespace Nomad.CVars.Private.Services {
 		/// <param name="createInfo">The cvar's creation info.</param>
 		/// <returns></returns>
 		public ICVar<T> Register<T>( in CVarCreateInfo<T> createInfo ) {
+			ArgumentGuard.ThrowIfNullOrEmpty( createInfo.Name );
+			ArgumentGuard.ThrowIfNullOrEmpty( createInfo.Description );
+
 			InternString name = new InternString( createInfo.Name );
 			if ( _cvars.TryGetValue( name, out ICVar? var ) ) {
 				if ( var is ICVar<T> value ) {
 					return value;
 				}
-				throw new InvalidOperationException( $"CVar {createInfo.Name} found in CVarSystem cache isn't a valid CVar object!" );
+				throw new InvalidCastException( $"CVar {createInfo.Name} found in CVarSystem cache isn't a valid CVar object!" );
 			}
 
 			ICVar<T> cvar = new CVar<T>( _eventFactory, in createInfo );
@@ -159,11 +161,11 @@ namespace Nomad.CVars.Private.Services {
 			ArgumentGuard.ThrowIfNull( group );
 
 			if ( _groups.Contains( group ) ) {
-				throw new InvalidOperationException( $"CVarGroup {group.Name} added twice" );
+				throw new InvalidOperationException( $"CVarGroup {(string)group.Name} added twice" );
 			}
 			_groups.Add( group );
 
-			_logger.PrintLine( $"CVarSystem.AddGroup: Added CVar group {group.Name}." );
+			_logger.PrintLine( $"CVarSystem.AddGroup: Added CVar group {(string)group.Name}." );
 		}
 
 		/*
@@ -355,10 +357,27 @@ namespace Nomad.CVars.Private.Services {
 		/// </summary>
 		/// <param name="name"></param>
 		/// <returns></returns>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public bool CVarExists( string name ) {
 			ArgumentGuard.ThrowIfNullOrEmpty( name );
 			return _cvars.ContainsKey( new InternString( name ) );
+		}
+
+		/*
+		===============
+		CVarExists
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="name"></param>
+		/// <returns></returns>
+		public bool CVarExists<T>( string name ) {
+			ArgumentGuard.ThrowIfNullOrEmpty( name );
+			if ( _cvars.TryGetValue( new InternString( name ), out var cvar ) ) {
+				return cvar is ICVar<T> typedVar;
+			}
+			return false;
 		}
 
 		/*

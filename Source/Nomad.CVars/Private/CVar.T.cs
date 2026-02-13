@@ -110,8 +110,9 @@ namespace Nomad.CVars.Private {
 		internal CVar( IGameEventRegistryService eventFactory, in CVarCreateInfo<T> createInfo ) {
 			_validator = new CVarValidator<T>( createInfo.Validator );
 			if ( !CVarValidator<T>.ValidateCVarType() ) {
-				throw new InvalidCastException();
+				throw new InvalidCastException( "Invalid CVar type!" );
 			}
+			
 			_metadata = new CVarMetadata(
 				createInfo.Name,
 				createInfo.Description,

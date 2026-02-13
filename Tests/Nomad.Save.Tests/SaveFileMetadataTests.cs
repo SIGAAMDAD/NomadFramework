@@ -39,12 +39,15 @@ public class SaveFileMetadataTests
 
         // Assert
         Assert.That(metadata, Is.Not.Null);
-        Assert.That(metadata.FileName, Is.EqualTo(fileName));
-        Assert.That(metadata.FileSize, Is.EqualTo(fileSize));
-        Assert.That(metadata.LastAccessYear, Is.EqualTo(lastAccessTime.Year));
-        Assert.That(metadata.LastAccessMonth, Is.EqualTo(lastAccessTime.Month));
-        Assert.That(metadata.LastAccessDay, Is.EqualTo(lastAccessTime.Day));
-    }
+		using (Assert.EnterMultipleScope())
+		{
+			Assert.That(metadata.FileName, Is.EqualTo(fileName));
+			Assert.That(metadata.FileSize, Is.EqualTo(fileSize));
+			Assert.That(metadata.LastAccessYear, Is.EqualTo(lastAccessTime.Year));
+			Assert.That(metadata.LastAccessMonth, Is.EqualTo(lastAccessTime.Month));
+			Assert.That(metadata.LastAccessDay, Is.EqualTo(lastAccessTime.Day));
+		}
+	}
 
     [Test]
     public void Constructor_WithZeroFileSize_CreatesInstance()
@@ -102,11 +105,14 @@ public class SaveFileMetadataTests
         // Act
         var metadata = new SaveFileMetadata(fileName, fileSize, lastAccessTime.Year, lastAccessTime.Month, lastAccessTime.Day);
 
-        // Assert
-        Assert.That(metadata.LastAccessYear, Is.EqualTo(lastAccessTime.Year));
-        Assert.That(metadata.LastAccessMonth, Is.EqualTo(lastAccessTime.Month));
-        Assert.That(metadata.LastAccessDay, Is.EqualTo(lastAccessTime.Day));
-    }
+		using (Assert.EnterMultipleScope())
+		{
+			// Assert
+			Assert.That(metadata.LastAccessYear, Is.EqualTo(lastAccessTime.Year));
+			Assert.That(metadata.LastAccessMonth, Is.EqualTo(lastAccessTime.Month));
+			Assert.That(metadata.LastAccessDay, Is.EqualTo(lastAccessTime.Day));
+		}
+	}
 
     [Test]
     public void Equality_TwoInstancesWithSameValues_AreEqual()
@@ -211,13 +217,16 @@ public class SaveFileMetadataTests
         var lastAccessTime = DateTime.Now;
         var metadata = new SaveFileMetadata(fileName, fileSize, lastAccessTime.Year, lastAccessTime.Month, lastAccessTime.Day);
 
-        // Act & Assert
-        Assert.That(metadata.FileName, Is.EqualTo(fileName));
-        Assert.That(metadata.FileSize, Is.EqualTo(fileSize));
-        Assert.That(metadata.LastAccessYear, Is.EqualTo(lastAccessTime.Year));
-        Assert.That(metadata.LastAccessMonth, Is.EqualTo(lastAccessTime.Month));
-        Assert.That(metadata.LastAccessDay, Is.EqualTo(lastAccessTime.Day));
-    }
+		using (Assert.EnterMultipleScope())
+		{
+			// Act & Assert
+			Assert.That(metadata.FileName, Is.EqualTo(fileName));
+			Assert.That(metadata.FileSize, Is.EqualTo(fileSize));
+			Assert.That(metadata.LastAccessYear, Is.EqualTo(lastAccessTime.Year));
+			Assert.That(metadata.LastAccessMonth, Is.EqualTo(lastAccessTime.Month));
+			Assert.That(metadata.LastAccessDay, Is.EqualTo(lastAccessTime.Day));
+		}
+	}
 
     [Test]
     public void FileName_PropertyIsAccessible()
@@ -256,11 +265,14 @@ public class SaveFileMetadataTests
         var expectedTime = new DateTime(2024, 6, 15, 12, 30, 45);
         var metadata = new SaveFileMetadata("test.ngd", 1024, expectedTime.Year, expectedTime.Month, expectedTime.Day);
 
-        // Assert
-        Assert.That(metadata.LastAccessYear, Is.EqualTo(expectedTime.Year));
-        Assert.That(metadata.LastAccessMonth, Is.EqualTo(expectedTime.Month));
-        Assert.That(metadata.LastAccessDay, Is.EqualTo(expectedTime.Day));
-    }
+		using (Assert.EnterMultipleScope())
+		{
+			// Assert
+			Assert.That(metadata.LastAccessYear, Is.EqualTo(expectedTime.Year));
+			Assert.That(metadata.LastAccessMonth, Is.EqualTo(expectedTime.Month));
+			Assert.That(metadata.LastAccessDay, Is.EqualTo(expectedTime.Day));
+		}
+	}
 
     [Test]
     public void Constructor_WithNegativeFileSize_CreatesInstance()

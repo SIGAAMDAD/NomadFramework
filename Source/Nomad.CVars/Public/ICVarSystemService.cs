@@ -50,6 +50,14 @@ namespace Nomad.CVars
         bool CVarExists(string name);
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        bool CVarExists<T>(string name);
+
+        /// <summary>
         ///
         /// </summary>
         /// <typeparam name="T"></typeparam>

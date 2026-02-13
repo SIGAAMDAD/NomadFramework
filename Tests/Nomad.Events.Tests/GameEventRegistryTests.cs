@@ -57,9 +57,12 @@ public class GameEventRegistryTests
 		var gameEvent = _registry.GetEvent<EmptyEventArgs>(nameSpace, eventName);
 
 		// Assert
-		Assert.That(gameEvent, Is.Not.Null);
-		Assert.That(gameEvent.DebugName, Is.EqualTo(eventName));
-		Assert.That(gameEvent.NameSpace, Is.EqualTo(nameSpace));
+		using (Assert.EnterMultipleScope())
+		{
+			Assert.That(gameEvent, Is.Not.Null);
+			Assert.That(gameEvent.DebugName, Is.EqualTo(eventName));
+			Assert.That(gameEvent.NameSpace, Is.EqualTo(nameSpace));
+		}
 	}
 
 	[Test]
@@ -362,8 +365,11 @@ public class GameEventRegistryTests
 
 		// Assert
 		Assert.That(gameEvent, Is.Not.Null);
-		Assert.That(gameEvent.NameSpace, Contains.Substring("@#$"));
-		Assert.That(gameEvent.DebugName, Contains.Substring("!@#$"));
+		using (Assert.EnterMultipleScope())
+		{
+			Assert.That(gameEvent.NameSpace, Contains.Substring("@#$"));
+			Assert.That(gameEvent.DebugName, Contains.Substring("!@#$"));
+		}
 	}
 
 	#endregion

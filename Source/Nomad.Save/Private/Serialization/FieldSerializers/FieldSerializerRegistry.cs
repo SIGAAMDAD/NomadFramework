@@ -31,8 +31,8 @@ namespace Nomad.Save.Private.Serialization.FieldSerializers {
 	/// </summary>
 
 	internal static class FieldSerializerRegistry {
-		private static readonly Dictionary<Type, object> _serializers = new Dictionary<Type, object>();
-		private static readonly Dictionary<FieldType, object> _serializerByFieldType = new Dictionary<FieldType, object>();
+		private static readonly Dictionary<Type, IFieldSerializer> _serializers = new Dictionary<Type, IFieldSerializer>();
+		private static readonly Dictionary<FieldType, IFieldSerializer> _serializerByFieldType = new Dictionary<FieldType, IFieldSerializer>();
 
 		/*
 		===============
@@ -86,7 +86,7 @@ namespace Nomad.Save.Private.Serialization.FieldSerializers {
 		/// <exception cref="InvalidOperationException"></exception>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public static IFieldSerializer<T> GetSerializer<T>() {
-			if ( _serializers.TryGetValue( typeof( T ), out object? serializer ) ) {
+			if ( _serializers.TryGetValue( typeof( T ), out var serializer ) ) {
 				return (IFieldSerializer<T>)serializer;
 			}
 			throw new InvalidOperationException( $"No serializer for {typeof( T )}" );
@@ -103,8 +103,7 @@ namespace Nomad.Save.Private.Serialization.FieldSerializers {
 		/// <param name="type"></param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public static IFieldSerializer GetSerializer( Type type ) {
-			return (IFieldSerializer)_serializers[ type ];
-		}
+		public static IFieldSerializer GetSerializer( Type type )
+			=> _serializers[ type ];
 	};
 };

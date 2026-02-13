@@ -42,11 +42,11 @@ namespace Nomad.Logger.Private.Sinks {
 		public FileSink( ICVarSystemService cvarSystem, IFileSystem fileSystem ) {
 			ICVar<string> logfile = cvarSystem.Register(
 				new CVarCreateInfo<string>(
-					name: "console.LogFile",
-					defaultValue: "debug.log",
-					description: "The path to the console's logging file.",
-					flags: CVarFlags.Archive | CVarFlags.Developer,
-					validator: file => file.Length > 0
+					Name: "console.LogFile",
+					DefaultValue: "debug.log",
+					Description: "The path to the console's logging file.",
+					Flags: CVarFlags.Archive | CVarFlags.Developer,
+					Validator: file => file.Length > 0
 				)
 			);
 

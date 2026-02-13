@@ -68,10 +68,13 @@ public class SubscriptionTests
 			var testArgs = new TestEventArgs { Value = 42, Message = "Test" };
 			gameEvent.Publish(in testArgs);
 
-		// Assert
-		Assert.That(callbackInvoked, Is.True);
-		Assert.That(receivedArgs.Value, Is.EqualTo(42));
-		Assert.That(receivedArgs.Message, Is.EqualTo("Test"));
+		using (Assert.EnterMultipleScope())
+		{
+			// Assert
+			Assert.That(callbackInvoked, Is.True);
+			Assert.That(receivedArgs.Value, Is.EqualTo(42));
+			Assert.That(receivedArgs.Message, Is.EqualTo("Test"));
+		}
 	}
 
 	[Test]
@@ -165,7 +168,7 @@ public class SubscriptionTests
 		gameEvent.Publish(default);
 
 		// Assert
-		Assert.That(callStack.Count, Is.EqualTo(0));
+		Assert.That(callStack, Is.Empty);
 	}
 
 	[Test]
@@ -287,9 +290,12 @@ public class SubscriptionTests
 		event1.Publish(default);
 		event2.Publish(new TestEventArgs { Value = 42 });
 
-		// Assert
-		Assert.That(invocations1, Is.EqualTo(1));
-		Assert.That(invocations2, Is.EqualTo(1));
+		using (Assert.EnterMultipleScope())
+		{
+			// Assert
+			Assert.That(invocations1, Is.EqualTo(1));
+			Assert.That(invocations2, Is.EqualTo(1));
+		}
 	}
 
 	#endregion
@@ -315,10 +321,13 @@ public class SubscriptionTests
 		// Act
 		gameEvent.Publish(default);
 
-		// Assert - Callbacks should be invoked in subscription order
-		Assert.That(callStack[0], Is.EqualTo(1));
-		Assert.That(callStack[1], Is.EqualTo(2));
-		Assert.That(callStack[2], Is.EqualTo(3));
+		using (Assert.EnterMultipleScope())
+		{
+			// Assert - Callbacks should be invoked in subscription order
+			Assert.That(callStack[0], Is.EqualTo(1));
+			Assert.That(callStack[1], Is.EqualTo(2));
+			Assert.That(callStack[2], Is.EqualTo(3));
+		}
 	}
 
 	#endregion
@@ -351,12 +360,15 @@ public class SubscriptionTests
 
 		// Assert
 		Assert.That(capturedArgs.Count, Is.EqualTo(3));
-		Assert.That(capturedArgs[0].Value, Is.EqualTo(100));
-		Assert.That(capturedArgs[1].Value, Is.EqualTo(200));
-		Assert.That(capturedArgs[2].Value, Is.EqualTo(300));
-		Assert.That(capturedArgs[0].Message, Is.EqualTo("First"));
-		Assert.That(capturedArgs[1].Message, Is.EqualTo("Second"));
-		Assert.That(capturedArgs[2].Message, Is.EqualTo("Third"));
+		using (Assert.EnterMultipleScope())
+		{
+			Assert.That(capturedArgs[0].Value, Is.EqualTo(100));
+			Assert.That(capturedArgs[1].Value, Is.EqualTo(200));
+			Assert.That(capturedArgs[2].Value, Is.EqualTo(300));
+			Assert.That(capturedArgs[0].Message, Is.EqualTo("First"));
+			Assert.That(capturedArgs[1].Message, Is.EqualTo("Second"));
+			Assert.That(capturedArgs[2].Message, Is.EqualTo("Third"));
+		}
 	}
 
 	#endregion

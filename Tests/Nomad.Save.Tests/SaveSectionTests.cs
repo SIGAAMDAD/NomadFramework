@@ -98,10 +98,13 @@ public class SaveSectionTests
         // Act
         await _dataProvider.Save(fileId, default);
 
-        // Assert
-        Assert.That(sectionAdded, Is.True);
-        Assert.That(sectionName, Is.EqualTo("TestSection"));
-    }
+		using (Assert.EnterMultipleScope())
+		{
+			// Assert
+			Assert.That(sectionAdded, Is.True);
+			Assert.That(sectionName, Is.EqualTo("TestSection"));
+		}
+	}
 
     [Test]
     public async Task AddField_WithVariousTypes_PreservesValues()
@@ -150,13 +153,16 @@ public class SaveSectionTests
         await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
-        // Assert
-        Assert.That(loadedFloat, Is.EqualTo(floatValue).Within(0.00001f));
-        Assert.That(loadedDouble, Is.EqualTo(doubleValue).Within(0.00001));
-        Assert.That(loadedInt, Is.EqualTo(intValue));
-        Assert.That(loadedString, Is.EqualTo(stringValue));
-        Assert.That(loadedBool, Is.EqualTo(boolValue));
-    }
+		using (Assert.EnterMultipleScope())
+		{
+			// Assert
+			Assert.That(loadedFloat, Is.EqualTo(floatValue).Within(0.00001f));
+			Assert.That(loadedDouble, Is.EqualTo(doubleValue).Within(0.00001));
+			Assert.That(loadedInt, Is.EqualTo(intValue));
+			Assert.That(loadedString, Is.EqualTo(stringValue));
+			Assert.That(loadedBool, Is.EqualTo(boolValue));
+		}
+	}
 
     [Test]
     public async Task FieldCount_ReturnsCorrectCount()
@@ -382,22 +388,25 @@ public class SaveSectionTests
         await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
-        // Assert
-        Assert.That(loaded_sbyte, Is.EqualTo(sbyte_val));
-        Assert.That(loaded_short, Is.EqualTo(short_val));
-        Assert.That(loaded_int, Is.EqualTo(int_val));
-        Assert.That(loaded_long, Is.EqualTo(long_val));
-        Assert.That(loaded_byte, Is.EqualTo(byte_val));
-        Assert.That(loaded_ushort, Is.EqualTo(ushort_val));
-        Assert.That(loaded_uint, Is.EqualTo(uint_val));
-        Assert.That(loaded_ulong, Is.EqualTo(ulong_val));
-    }
+		using (Assert.EnterMultipleScope())
+		{
+			// Assert
+			Assert.That(loaded_sbyte, Is.EqualTo(sbyte_val));
+			Assert.That(loaded_short, Is.EqualTo(short_val));
+			Assert.That(loaded_int, Is.EqualTo(int_val));
+			Assert.That(loaded_long, Is.EqualTo(long_val));
+			Assert.That(loaded_byte, Is.EqualTo(byte_val));
+			Assert.That(loaded_ushort, Is.EqualTo(ushort_val));
+			Assert.That(loaded_uint, Is.EqualTo(uint_val));
+			Assert.That(loaded_ulong, Is.EqualTo(ulong_val));
+		}
+	}
 
     [Test]
     public async Task AddField_WithFloatingPointTypes_PreservesValues()
     {
         // Arrange
-        var fileId = (Path.Combine(_testDirectory, "float_types_test.ngd"));
+        var fileId = Path.Combine(_testDirectory, "float_types_test.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -428,16 +437,19 @@ public class SaveSectionTests
         await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
-        // Assert
-        Assert.That(loaded_float, Is.EqualTo(float_val).Within(0.00001f));
-        Assert.That(loaded_double, Is.EqualTo(double_val).Within(0.00001));
-    }
+		using (Assert.EnterMultipleScope())
+		{
+			// Assert
+			Assert.That(loaded_float, Is.EqualTo(float_val).Within(0.00001f));
+			Assert.That(loaded_double, Is.EqualTo(double_val).Within(0.00001));
+		}
+	}
 
     [Test]
     public async Task SectionReader_FieldCount_ReturnsCorrectCount()
     {
         // Arrange
-        var fileId = (Path.Combine(_testDirectory, "reader_field_count_test.ngd"));
+        var fileId = Path.Combine(_testDirectory, "reader_field_count_test.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -513,11 +525,14 @@ public class SaveSectionTests
         await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
-        // Assert
-        Assert.That(playerValue, Is.EqualTo(100));
-        Assert.That(enemyValue, Is.EqualTo(80));
-        Assert.That(worldValue, Is.EqualTo(5));
-    }
+		using (Assert.EnterMultipleScope())
+		{
+			// Assert
+			Assert.That(playerValue, Is.EqualTo(100));
+			Assert.That(enemyValue, Is.EqualTo(80));
+			Assert.That(worldValue, Is.EqualTo(5));
+		}
+	}
 
     [Test]
     [TestCase("SimpleSection")]

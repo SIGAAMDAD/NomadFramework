@@ -505,15 +505,18 @@ public class SaveSectionReaderTests
         Assert.That(reader, Is.Not.Null);
         if (reader != null)
         {
-            Assert.That(reader.GetField<sbyte>("sbyte"), Is.EqualTo(sbyte_val));
-            Assert.That(reader.GetField<short>("short"), Is.EqualTo(short_val));
-            Assert.That(reader.GetField<int>("int"), Is.EqualTo(int_val));
-            Assert.That(reader.GetField<long>("long"), Is.EqualTo(long_val));
-            Assert.That(reader.GetField<byte>("byte"), Is.EqualTo(byte_val));
-            Assert.That(reader.GetField<ushort>("ushort"), Is.EqualTo(ushort_val));
-            Assert.That(reader.GetField<uint>("uint"), Is.EqualTo(uint_val));
-            Assert.That(reader.GetField<ulong>("ulong"), Is.EqualTo(ulong_val));
-        }
+			using (Assert.EnterMultipleScope())
+			{
+				Assert.That(reader.GetField<sbyte>("sbyte"), Is.EqualTo(sbyte_val));
+				Assert.That(reader.GetField<short>("short"), Is.EqualTo(short_val));
+				Assert.That(reader.GetField<int>("int"), Is.EqualTo(int_val));
+				Assert.That(reader.GetField<long>("long"), Is.EqualTo(long_val));
+				Assert.That(reader.GetField<byte>("byte"), Is.EqualTo(byte_val));
+				Assert.That(reader.GetField<ushort>("ushort"), Is.EqualTo(ushort_val));
+				Assert.That(reader.GetField<uint>("uint"), Is.EqualTo(uint_val));
+				Assert.That(reader.GetField<ulong>("ulong"), Is.EqualTo(ulong_val));
+			}
+		}
     }
 
     [Test]
@@ -549,10 +552,13 @@ public class SaveSectionReaderTests
             var secondRead = sectionReader.GetField<int>("Value");
             var thirdRead = sectionReader.GetField<int>("Value");
 
-            Assert.That(firstRead, Is.EqualTo(expectedValue));
-            Assert.That(secondRead, Is.EqualTo(expectedValue));
-            Assert.That(thirdRead, Is.EqualTo(expectedValue));
-        }
+			using (Assert.EnterMultipleScope())
+			{
+				Assert.That(firstRead, Is.EqualTo(expectedValue));
+				Assert.That(secondRead, Is.EqualTo(expectedValue));
+				Assert.That(thirdRead, Is.EqualTo(expectedValue));
+			}
+		}
     }
 
     [Test]
@@ -759,10 +765,13 @@ public class SaveSectionReaderTests
         await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
-        // Assert
-        Assert.That(retrievedInt, Is.EqualTo(negInt));
-        Assert.That(retrievedDouble, Is.EqualTo(negDouble).Within(0.001));
-    }
+		using (Assert.EnterMultipleScope())
+		{
+			// Assert
+			Assert.That(retrievedInt, Is.EqualTo(negInt));
+			Assert.That(retrievedDouble, Is.EqualTo(negDouble).Within(0.001));
+		}
+	}
 
     [Test]
     public async Task SaveSectionReader_Dispose_CanBeCalledMultipleTimes()

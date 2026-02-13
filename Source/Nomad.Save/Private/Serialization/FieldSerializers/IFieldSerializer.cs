@@ -27,6 +27,5 @@ namespace Nomad.Save.Private.Serialization.FieldSerializers {
 	};
 
 	internal interface IFieldSerializer<T> : IFieldSerializer {
-		void Serialize( IWriteStream stream, T value );
 	};
 };

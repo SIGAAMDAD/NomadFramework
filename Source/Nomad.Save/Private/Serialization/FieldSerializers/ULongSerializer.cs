@@ -33,7 +33,6 @@ namespace Nomad.Save.Private.Serialization.FieldSerializers {
 		public FieldType FieldType => FieldType.UInt64;
 		public Type DataType => typeof( ulong );
 
-		public void Serialize( IWriteStream stream, ulong value ) => stream.WriteUInt64( value );
 		public void Serialize( IWriteStream stream, FieldValue value ) => stream.WriteUInt64( value.GetValue<ulong>() );
 		public FieldValue Deserialize( IReadStream stream ) => new FieldValue( stream.ReadUInt64() );
 	};

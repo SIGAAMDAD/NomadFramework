@@ -96,9 +96,12 @@ public class EventFlagsTests
 		bool hasSynchronous = (defaultFlags & EventFlags.Synchronous) != 0;
 		bool hasAsynchronous = (defaultFlags & EventFlags.Asynchronous) != 0;
 
-		// Assert
-		Assert.That(hasSynchronous, Is.True);
-		Assert.That(hasAsynchronous, Is.True);
+		using (Assert.EnterMultipleScope())
+		{
+			// Assert
+			Assert.That(hasSynchronous, Is.True);
+			Assert.That(hasAsynchronous, Is.True);
+		}
 	}
 
 	#endregion
@@ -113,9 +116,12 @@ public class EventFlagsTests
 		bool hasSync = (combined & EventFlags.Synchronous) != 0;
 		bool hasStrong = (combined & EventFlags.StrongSubscriptions) != 0;
 
-		// Assert
-		Assert.That(hasSync, Is.True);
-		Assert.That(hasStrong, Is.True);
+		using (Assert.EnterMultipleScope())
+		{
+			// Assert
+			Assert.That(hasSync, Is.True);
+			Assert.That(hasStrong, Is.True);
+		}
 	}
 
 	[Test]
@@ -128,9 +134,12 @@ public class EventFlagsTests
 		bool hasSynchronous = (flags & EventFlags.Synchronous) != 0;
 		bool hasNoLock = (flags & EventFlags.NoLock) != 0;
 
-		// Assert
-		Assert.That(hasSynchronous, Is.True);
-		Assert.That(hasNoLock, Is.False);
+		using (Assert.EnterMultipleScope())
+		{
+			// Assert
+			Assert.That(hasSynchronous, Is.True);
+			Assert.That(hasNoLock, Is.False);
+		}
 	}
 
 	#endregion
@@ -266,10 +275,13 @@ public class EventFlagsTests
 		bool hasAsynchronous = (defaultFlags & EventFlags.Asynchronous) != 0;
 		bool hasNoLock = (defaultFlags & EventFlags.NoLock) != 0;
 
-		// Assert
-		Assert.That(hasSynchronous, Is.True);
-		Assert.That(hasAsynchronous, Is.True);
-		Assert.That(hasNoLock, Is.False);
+		using (Assert.EnterMultipleScope())
+		{
+			// Assert
+			Assert.That(hasSynchronous, Is.True);
+			Assert.That(hasAsynchronous, Is.True);
+			Assert.That(hasNoLock, Is.False);
+		}
 	}
 
 	#endregion
@@ -289,11 +301,14 @@ public class EventFlagsTests
 		bool flags2HasAsync = (flags2 & EventFlags.Asynchronous) != 0;
 		bool flags2HasNoLock = (flags2 & EventFlags.NoLock) != 0;
 
-		// Assert
-		Assert.That(flags1HasSync, Is.True);
-		Assert.That(flags1HasStrong, Is.True);
-		Assert.That(flags2HasAsync, Is.True);
-		Assert.That(flags2HasNoLock, Is.True);
+		using (Assert.EnterMultipleScope())
+		{
+			// Assert
+			Assert.That(flags1HasSync, Is.True);
+			Assert.That(flags1HasStrong, Is.True);
+			Assert.That(flags2HasAsync, Is.True);
+			Assert.That(flags2HasNoLock, Is.True);
+		}
 	}
 
 	#endregion
