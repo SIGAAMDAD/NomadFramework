@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -19,8 +19,8 @@ using Nomad.Audio.Fmod.Private.Services;
 using Nomad.Audio.Fmod.Private.ValueObjects;
 using Nomad.Audio.Interfaces;
 using Nomad.Core.Logger;
+using Nomad.Core.ResourceCache;
 using Nomad.Core.Util;
-using Nomad.ResourceCache;
 
 namespace Nomad.Audio.Fmod.Private.Repositories.Loaders {
 	/*
@@ -34,9 +34,41 @@ namespace Nomad.Audio.Fmod.Private.Repositories.Loaders {
 	/// Loads FMOD banks from disk.
 	/// </summary>
 
-	internal sealed class FMODBankLoader( FMODDevice fmodSystem, FMODGuidRepository guidRepository, ILoggerService logger ) : IResourceLoader<IAudioResource, string> {
+	internal sealed class FMODBankLoader : IResourceLoader<IAudioResource, string> {
 		public LoadCallback<IAudioResource, string> Load => LoadBank;
 		public LoadAsyncCallback<IAudioResource, string> LoadAsync => LoadBankAsync;
+
+		private readonly FMODDevice _fmodSystem;
+		private readonly FMODGuidRepository _guidRepository;
+		private readonly ILoggerService _logger;
+
+		/*
+		===============
+		FMODBankLoader
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="fmodSystem"></param>
+		/// <param name="guidRepository"></param>
+		/// <param name="logger"></param>
+		public FMODBankLoader( FMODDevice fmodSystem, FMODGuidRepository guidRepository, ILoggerService logger ) {
+			_fmodSystem = fmodSystem;
+			_guidRepository = guidRepository;
+			_logger = logger;
+		}
+
+		/*
+		===============
+		Dispose
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		public void Dispose() {
+		}
 
 		/*
 		===============
@@ -50,14 +82,14 @@ namespace Nomad.Audio.Fmod.Private.Repositories.Loaders {
 		/// <returns></returns>
 		private Result<IAudioResource> LoadBank( string path ) {
 			try {
-				FMODValidator.ValidateCall( fmodSystem.StudioSystem.loadBankFile( path, FMOD.Studio.LOAD_BANK_FLAGS.NORMAL, out var bank ) );
+				FMODValidator.ValidateCall( _fmodSystem.StudioSystem.loadBankFile( path, FMOD.Studio.LOAD_BANK_FLAGS.NORMAL, out var bank ) );
 				FMODValidator.ValidateCall( bank.getID( out var guid ) );
-				logger.PrintLine( $"FMODBankLoader.LoadBank: loaded bank '{path}'" );
-				guidRepository.AddBankId( path, guid );
+				_logger.PrintLine( $"FMODBankLoader.LoadBank: loaded bank '{path}'" );
+				_guidRepository.AddBankId( path, guid );
 
 				return Result<IAudioResource>.Success( new FMODBankResource( bank ) );
 			} catch ( FMODException e ) {
-				logger.PrintError( $"FMODBankLoader.LoadBank: failed to load bank '{path}' - {e.Error}" );
+				_logger.PrintError( $"FMODBankLoader.LoadBank: failed to load bank '{path}' - {e.Error}" );
 				throw;
 			}
 		}
@@ -77,14 +109,14 @@ namespace Nomad.Audio.Fmod.Private.Repositories.Loaders {
 			try {
 				ct.ThrowIfCancellationRequested();
 
-				FMODValidator.ValidateCall( fmodSystem.StudioSystem.loadBankFile( path, FMOD.Studio.LOAD_BANK_FLAGS.NONBLOCKING, out var bank ) );
+				FMODValidator.ValidateCall( _fmodSystem.StudioSystem.loadBankFile( path, FMOD.Studio.LOAD_BANK_FLAGS.NONBLOCKING, out var bank ) );
 				FMODValidator.ValidateCall( bank.getID( out var guid ) );
-				logger.PrintLine( $"FMODBankLoader.LoadBankAsync: loaded bank '{path}'" );
-				guidRepository.AddBankId( path, guid );
+				_logger.PrintLine( $"FMODBankLoader.LoadBankAsync: loaded bank '{path}'" );
+				_guidRepository.AddBankId( path, guid );
 
 				return Result<IAudioResource>.Success( new FMODBankResource( bank ) );
 			} catch ( FMODException e ) {
-				logger.PrintError( $"FMODBankLoader.LoadBank: failed to load bank '{path}' - {e.Error}" );
+				_logger.PrintError( $"FMODBankLoader.LoadBank: failed to load bank '{path}' - {e.Error}" );
 				throw;
 			}
 		}

@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Nomad.Core.Compatibility;
 
 namespace Nomad.FileSystem.Private.Services {
 	/*

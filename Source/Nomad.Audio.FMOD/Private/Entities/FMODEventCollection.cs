@@ -15,9 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System.Collections.Generic;
 using Nomad.Audio.Fmod.Private.Repositories;
-using Nomad.Audio.Fmod.ValueObjects;
 using Nomad.Audio.Interfaces;
-using Nomad.Audio.ValueObjects;
 using Nomad.Core.Logger;
 
 namespace Nomad.Audio.Fmod.Private.Entities {
@@ -36,7 +34,7 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 		public int EventCount => _events.Length;
 
 		private readonly FMOD.Studio.EventDescription[] _events;
-		private readonly HashSet<EventId> _eventIds;
+		private readonly List<string> _eventIds;
 
 		/*
 		===============
@@ -51,11 +49,11 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 		/// <param name="logger"></param>
 		public FMODEventCollection( FMOD.Studio.EventDescription[] events, FMODGuidRepository guidRepository, ILoggerService logger ) {
 			_events = events;
-			_eventIds = new HashSet<EventId>( _events.Length );
+			_eventIds = new List<string>( _events.Length );
 			for ( int i = 0; i < _events.Length; i++ ) {
 				FMODValidator.ValidateCall( _events[ i ].getID( out var guid ) );
 				FMODValidator.ValidateCall( _events[ i ].getPath( out var path ) );
-				guidRepository.AddEventId( path, new FMODEventId( guid ) );
+				guidRepository.AddEventId( path, guid );
 			}
 		}
 
@@ -64,7 +62,12 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 		ContainsEvent
 		===============
 		*/
-		public bool ContainsEvent( EventId eventId ) {
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="eventId"></param>
+		/// <returns></returns>
+		public bool ContainsEvent( string eventId ) {
 			return _eventIds.Contains( eventId );
 		}
 
@@ -73,7 +76,11 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 		GetEventIds
 		===============
 		*/
-		public IEnumerable<EventId> GetEventIds() {
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		public IReadOnlyList<string> GetEventIds() {
 			return _eventIds;
 		}
 	};

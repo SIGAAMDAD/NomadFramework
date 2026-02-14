@@ -13,8 +13,9 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System;
 using System.Runtime.CompilerServices;
-using Nomad.Audio.Fmod.Entities;
+using Nomad.Audio.Fmod.Private.Entities;
 using Nomad.Audio.Interfaces;
 
 namespace Nomad.Audio.Fmod.Private.ValueObjects {
@@ -29,8 +30,34 @@ namespace Nomad.Audio.Fmod.Private.ValueObjects {
 	///
 	/// </summary>
 
-	internal readonly record struct FMODEventResource( FMOD.Studio.EventDescription Handle ) : IAudioResource {
-		public bool IsValid => Handle.isValid();
+	internal readonly struct FMODEventResource : IAudioResource {
+		private readonly FMOD.Studio.EventDescription _instance;
+		public readonly bool IsValid => _instance.isValid();
+
+		/*
+		===============
+		FMODEventResource
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="instance"></param>
+		public FMODEventResource( FMOD.Studio.EventDescription instance ) {
+			_instance = instance;
+		}
+
+		/*
+		===============
+		Dispose
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		public void Dispose() {
+			Unload();
+		}
 
 		/*
 		===============
@@ -43,17 +70,8 @@ namespace Nomad.Audio.Fmod.Private.ValueObjects {
 		/// <param name="instance"></param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void CreateInstance( out FMODChannelResource instance ) {
-			FMODValidator.ValidateCall( Handle.createInstance( out var resource ) );
+			FMODValidator.ValidateCall( _instance.createInstance( out var resource ) );
 			instance = new FMODChannelResource( resource );
-		}
-
-		/*
-		===============
-		Dispose
-		===============
-		*/
-		public void Dispose() {
-			Unload();
 		}
 
 		/*
@@ -65,11 +83,16 @@ namespace Nomad.Audio.Fmod.Private.ValueObjects {
 		/// Unloads and deallocates all event instances bound to this event description.
 		/// </summary>
 		public void Unload() {
-			if ( Handle.isValid() ) {
-				FMODValidator.ValidateCall( Handle.unloadSampleData() );
-				FMODValidator.ValidateCall( Handle.releaseAllInstances() );
-				Handle.clearHandle();
+			if ( _instance.isValid() ) {
+				FMODValidator.ValidateCall( _instance.unloadSampleData() );
+				FMODValidator.ValidateCall( _instance.releaseAllInstances() );
+				_instance.clearHandle();
 			}
 		}
+
+		public static implicit operator IntPtr( FMODEventResource resource ) => resource._instance.handle;
+		public static implicit operator FMOD.Studio.EventDescription( FMODEventResource resource ) => resource._instance;
+		public static bool operator ==( FMODEventResource a, FMODEventResource b ) => a._instance.handle == b._instance.handle;
+		public static bool operator !=( FMODEventResource a, FMODEventResource b ) => a._instance.handle != b._instance.handle;
 	};
 };

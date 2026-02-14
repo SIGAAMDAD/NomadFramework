@@ -15,9 +15,10 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using Nomad.Audio.Fmod.Private.Entities;
 using Nomad.Audio.Interfaces;
+using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.Logger;
-using Godot;
 using System;
+using System.Numerics;
 
 namespace Nomad.Audio.Fmod.Private.Services {
 	/*
@@ -81,8 +82,8 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		/// <param name="listenerIndex"></param>
 		/// <param name="position"></param>
 		public void SetListenerPosition( int listenerIndex, Vector2 position ) {
-			ArgumentOutOfRangeException.ThrowIfLessThan( listenerIndex, 0, nameof( listenerIndex ) );
-			ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual( listenerIndex, MAX_LISTENERS, nameof( listenerIndex ) );
+			RangeGuard.ThrowIfLessThan( listenerIndex, 0, nameof( listenerIndex ) );
+			RangeGuard.ThrowIfGreaterThanOrEqual( listenerIndex, MAX_LISTENERS, nameof( listenerIndex ) );
 
 			if ( listenerIndex > _listenerCount ) {
 				FMODValidator.ValidateCall( _system.StudioSystem.setNumListeners( listenerIndex ) );

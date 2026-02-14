@@ -14,7 +14,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -27,6 +26,7 @@ using Nomad.Core.Util;
 using Nomad.ResourceCache.Events;
 using Nomad.Core.ResourceCache;
 using Nomad.Core.Compatibility.Guards;
+using System.Linq;
 
 namespace Nomad.ResourceCache
 {
@@ -39,15 +39,15 @@ namespace Nomad.ResourceCache
         where TResource : IDisposable
         where TId : IEquatable<TId>
     {
-        public CacheStatistics Statistics => new CacheStatistics
-        {
-            CacheHits = _cacheHits,
-            CacheMisses = _cacheMisses,
-            TotalLoaded = _totalLoaded,
-            MemoryUsage = _currentMemorySize,
-            ActiveReferences = _cache.Values.Count(entry => entry.ReferenceCount > 0),
-            AverageLoadTime = _totalLoaded > 0 ? TimeSpan.FromTicks(_totalLoadTime.Ticks / _totalLoaded) : TimeSpan.Zero
-        };
+        public CacheStatistics Statistics => new CacheStatistics(
+            cacheHits: _cacheHits,
+            cacheMisses: _cacheMisses,
+            totalLoaded: _totalLoaded,
+            totalEvictions: _totalUnloaded,
+            memoryUsage: _currentMemorySize,
+            activeReferences: _cache.Values.Count(entry => entry.ReferenceCount > 0),
+            averageLoadTime: _totalLoaded > 0 ? TimeSpan.FromTicks(_totalLoadTime.Ticks / _totalLoaded) : TimeSpan.Zero
+        );
 
         public CachePolicy Policy
         {
@@ -107,9 +107,9 @@ namespace Nomad.ResourceCache
         /// <param name="loader"></param>
         public BaseCache(ILoggerService logger, IGameEventRegistryService eventFactory, IResourceLoader<TResource, TId> loader)
         {
-            ArgumentGuard.Null(logger);
-            ArgumentGuard.Null(eventFactory);
-            ArgumentGuard.Null(loader);
+            ArgumentGuard.ThrowIfNull(logger);
+            ArgumentGuard.ThrowIfNull(eventFactory);
+            ArgumentGuard.ThrowIfNull(loader);
 
             _logger = logger;
             _loader = loader;
@@ -544,7 +544,14 @@ namespace Nomad.ResourceCache
             _cacheLock.EnterWriteLock();
             try
             {
-                var candidates = _cache.Where(kvp => kvp.Value.ReferenceCount == 0).ToList();
+                var candidates = new Dictionary<TId, CacheEntry<TResource, TId>>();
+                foreach (var entry in _cache)
+                {
+                    if (entry.Value.ReferenceCount == 0)
+                    {
+                        candidates.Add(entry.Key, entry.Value);
+                    }
+                }
                 if (candidates.Count == 0)
                 {
                     return;

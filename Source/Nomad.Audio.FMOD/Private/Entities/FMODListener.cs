@@ -13,7 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Godot;
+using System.Numerics;
 using Nomad.Audio.Interfaces;
 
 namespace Nomad.Audio.Fmod.Private.Entities {
@@ -28,7 +28,7 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 	///
 	/// </summary>
 
-	internal sealed class FMODListener( FMOD.Studio.System system, int index ) : IListener {
+	internal sealed class FMODListener : IListener {
 		public Vector2 Position {
 			get => _position;
 			set {
@@ -43,7 +43,12 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 		}
 		private Vector2 _position = Vector2.Zero;
 
-		private readonly int _listenerIndex = index;
-		private readonly FMOD.Studio.System _system = system;
+		private readonly int _listenerIndex;
+		private readonly FMOD.Studio.System _system;
+
+		public FMODListener( FMOD.Studio.System system, int index ) {
+			_listenerIndex = index;
+			_system = system;
+		}
 	};
 };

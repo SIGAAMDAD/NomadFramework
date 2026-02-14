@@ -193,7 +193,7 @@ namespace FMOD.Studio
         public CREATESOUNDEXINFO exinfo;
         public int subsoundindex;
 
-        public string name
+        public readonly string name
         {
             get
             {
@@ -220,10 +220,10 @@ namespace FMOD.Studio
         public USER_PROPERTY_TYPE type;
         private Union_IntBoolFloatString value;
 
-        public int intValue()       {   return (type == USER_PROPERTY_TYPE.INTEGER) ? value.intvalue : -1;      }
-        public bool boolValue()     {   return (type == USER_PROPERTY_TYPE.BOOLEAN) ? value.boolvalue : false;  }
-        public float floatValue()   {   return (type == USER_PROPERTY_TYPE.FLOAT)   ? value.floatvalue : -1;    }
-        public string stringValue() {   return (type == USER_PROPERTY_TYPE.STRING)  ? value.stringvalue : "";   }
+        public readonly int intValue()       {   return (type == USER_PROPERTY_TYPE.INTEGER) ? value.intvalue : -1;      }
+        public readonly bool boolValue()     {   return (type == USER_PROPERTY_TYPE.BOOLEAN) ? value.boolvalue : false;  }
+        public readonly float floatValue()   {   return (type == USER_PROPERTY_TYPE.FLOAT)   ? value.floatvalue : -1;    }
+        public readonly string stringValue() {   return (type == USER_PROPERTY_TYPE.STRING)  ? value.stringvalue : "";   }
     };
 
     [StructLayout(LayoutKind.Explicit)]
@@ -393,7 +393,7 @@ namespace FMOD.Studio
         {
             return FMOD_Studio_System_Create(out system.handle, VERSION.number);
         }
-        public RESULT setAdvancedSettings(ADVANCEDSETTINGS settings)
+        public readonly RESULT setAdvancedSettings(ADVANCEDSETTINGS settings)
         {
             settings.cbsize = Marshal.SizeOf<ADVANCEDSETTINGS>();
             return FMOD_Studio_System_SetAdvancedSettings(this.handle, ref settings);
@@ -409,49 +409,49 @@ namespace FMOD.Studio
                 return result;
             }
         }
-        public RESULT getAdvancedSettings(out ADVANCEDSETTINGS settings)
+        public readonly RESULT getAdvancedSettings(out ADVANCEDSETTINGS settings)
         {
             settings.cbsize = Marshal.SizeOf<ADVANCEDSETTINGS>();
             return FMOD_Studio_System_GetAdvancedSettings(this.handle, out settings);
         }
-        public RESULT initialize(int maxchannels, INITFLAGS studioflags, FMOD.INITFLAGS flags, IntPtr extradriverdata)
+        public readonly RESULT initialize(int maxchannels, INITFLAGS studioflags, FMOD.INITFLAGS flags, IntPtr extradriverdata)
         {
             return FMOD_Studio_System_Initialize(this.handle, maxchannels, studioflags, flags, extradriverdata);
         }
-        public RESULT release()
+        public readonly RESULT release()
         {
             return FMOD_Studio_System_Release(this.handle);
         }
-        public RESULT update()
+        public readonly RESULT update()
         {
             return FMOD_Studio_System_Update(this.handle);
         }
-        public RESULT getCoreSystem(out FMOD.System coresystem)
+        public readonly RESULT getCoreSystem(out FMOD.System coresystem)
         {
             return FMOD_Studio_System_GetCoreSystem(this.handle, out coresystem.handle);
         }
-        public RESULT getEvent(string path, out EventDescription _event)
+        public readonly RESULT getEvent(string path, out EventDescription _event)
         {
             using (StringHelper.ThreadSafeEncoding encoder = StringHelper.GetFreeHelper())
             {
                 return FMOD_Studio_System_GetEvent(this.handle, encoder.byteFromStringUTF8(path), out _event.handle);
             }
         }
-        public RESULT getBus(string path, out Bus bus)
+        public readonly RESULT getBus(string path, out Bus bus)
         {
             using (StringHelper.ThreadSafeEncoding encoder = StringHelper.GetFreeHelper())
             {
                 return FMOD_Studio_System_GetBus(this.handle, encoder.byteFromStringUTF8(path), out bus.handle);
             }
         }
-        public RESULT getVCA(string path, out VCA vca)
+        public readonly RESULT getVCA(string path, out VCA vca)
         {
             using (StringHelper.ThreadSafeEncoding encoder = StringHelper.GetFreeHelper())
             {
                 return FMOD_Studio_System_GetVCA(this.handle, encoder.byteFromStringUTF8(path), out vca.handle);
             }
         }
-        public RESULT getBank(string path, out Bank bank)
+        public readonly RESULT getBank(string path, out Bank bank)
         {
             using (StringHelper.ThreadSafeEncoding encoder = StringHelper.GetFreeHelper())
             {
@@ -459,41 +459,41 @@ namespace FMOD.Studio
             }
         }
 
-        public RESULT getEventByID(GUID id, out EventDescription _event)
+        public readonly RESULT getEventByID(GUID id, out EventDescription _event)
         {
             return FMOD_Studio_System_GetEventByID(this.handle, ref id, out _event.handle);
         }
-        public RESULT getBusByID(GUID id, out Bus bus)
+        public readonly RESULT getBusByID(GUID id, out Bus bus)
         {
             return FMOD_Studio_System_GetBusByID(this.handle, ref id, out bus.handle);
         }
-        public RESULT getVCAByID(GUID id, out VCA vca)
+        public readonly RESULT getVCAByID(GUID id, out VCA vca)
         {
             return FMOD_Studio_System_GetVCAByID(this.handle, ref id, out vca.handle);
         }
-        public RESULT getBankByID(GUID id, out Bank bank)
+        public readonly RESULT getBankByID(GUID id, out Bank bank)
         {
             return FMOD_Studio_System_GetBankByID(this.handle, ref id, out bank.handle);
         }
-        public RESULT getSoundInfo(string key, out SOUND_INFO info)
+        public readonly RESULT getSoundInfo(string key, out SOUND_INFO info)
         {
             using (StringHelper.ThreadSafeEncoding encoder = StringHelper.GetFreeHelper())
             {
                 return FMOD_Studio_System_GetSoundInfo(this.handle, encoder.byteFromStringUTF8(key), out info);
             }
         }
-        public RESULT getParameterDescriptionByName(string name, out PARAMETER_DESCRIPTION parameter)
+        public readonly RESULT getParameterDescriptionByName(string name, out PARAMETER_DESCRIPTION parameter)
         {
             using (StringHelper.ThreadSafeEncoding encoder = StringHelper.GetFreeHelper())
             {
                 return FMOD_Studio_System_GetParameterDescriptionByName(this.handle, encoder.byteFromStringUTF8(name), out parameter);
             }
         }
-        public RESULT getParameterDescriptionByID(PARAMETER_ID id, out PARAMETER_DESCRIPTION parameter)
+        public readonly RESULT getParameterDescriptionByID(PARAMETER_ID id, out PARAMETER_DESCRIPTION parameter)
         {
             return FMOD_Studio_System_GetParameterDescriptionByID(this.handle, id, out parameter);
         }
-        public RESULT getParameterLabelByName(string name, int labelindex, out string label)
+        public readonly RESULT getParameterLabelByName(string name, int labelindex, out string label)
         {
             label = null;
 
@@ -520,7 +520,7 @@ namespace FMOD.Studio
                 return result;
             }
         }
-        public RESULT getParameterLabelByID(PARAMETER_ID id, int labelindex, out string label)
+        public readonly RESULT getParameterLabelByID(PARAMETER_ID id, int labelindex, out string label)
         {
             label = null;
 
@@ -551,22 +551,22 @@ namespace FMOD.Studio
             float finalValue;
             return getParameterByID(id, out value, out finalValue);
         }
-        public RESULT getParameterByID(PARAMETER_ID id, out float value, out float finalvalue)
+        public readonly RESULT getParameterByID(PARAMETER_ID id, out float value, out float finalvalue)
         {
             return FMOD_Studio_System_GetParameterByID(this.handle, id, out value, out finalvalue);
         }
-        public RESULT setParameterByID(PARAMETER_ID id, float value, bool ignoreseekspeed = false)
+        public readonly RESULT setParameterByID(PARAMETER_ID id, float value, bool ignoreseekspeed = false)
         {
             return FMOD_Studio_System_SetParameterByID(this.handle, id, value, ignoreseekspeed);
         }
-        public RESULT setParameterByIDWithLabel(PARAMETER_ID id, string label, bool ignoreseekspeed = false)
+        public readonly RESULT setParameterByIDWithLabel(PARAMETER_ID id, string label, bool ignoreseekspeed = false)
         {
             using (StringHelper.ThreadSafeEncoding encoder = StringHelper.GetFreeHelper())
             {
                 return FMOD_Studio_System_SetParameterByIDWithLabel(this.handle, id, encoder.byteFromStringUTF8(label), ignoreseekspeed);
             }
         }
-        public RESULT setParametersByIDs(PARAMETER_ID[] ids, float[] values, int count, bool ignoreseekspeed = false)
+        public readonly RESULT setParametersByIDs(PARAMETER_ID[] ids, float[] values, int count, bool ignoreseekspeed = false)
         {
             return FMOD_Studio_System_SetParametersByIDs(this.handle, ids, values, count, ignoreseekspeed);
         }
@@ -575,21 +575,21 @@ namespace FMOD.Studio
             float finalValue;
             return getParameterByName(name, out value, out finalValue);
         }
-        public RESULT getParameterByName(string name, out float value, out float finalvalue)
+        public readonly RESULT getParameterByName(string name, out float value, out float finalvalue)
         {
             using (StringHelper.ThreadSafeEncoding encoder = StringHelper.GetFreeHelper())
             {
                 return FMOD_Studio_System_GetParameterByName(this.handle, encoder.byteFromStringUTF8(name), out value, out finalvalue);
             }
         }
-        public RESULT setParameterByName(string name, float value, bool ignoreseekspeed = false)
+        public readonly RESULT setParameterByName(string name, float value, bool ignoreseekspeed = false)
         {
             using (StringHelper.ThreadSafeEncoding encoder = StringHelper.GetFreeHelper())
             {
                 return FMOD_Studio_System_SetParameterByName(this.handle, encoder.byteFromStringUTF8(name), value, ignoreseekspeed);
             }
         }
-        public RESULT setParameterByNameWithLabel(string name, string label, bool ignoreseekspeed = false)
+        public readonly RESULT setParameterByNameWithLabel(string name, string label, bool ignoreseekspeed = false)
         {
             using (StringHelper.ThreadSafeEncoding encoder = StringHelper.GetFreeHelper(),
                                                    labelEncoder = StringHelper.GetFreeHelper())
@@ -597,14 +597,14 @@ namespace FMOD.Studio
                 return FMOD_Studio_System_SetParameterByNameWithLabel(this.handle, encoder.byteFromStringUTF8(name), labelEncoder.byteFromStringUTF8(label), ignoreseekspeed);
             }
         }
-        public RESULT lookupID(string path, out GUID id)
+        public readonly RESULT lookupID(string path, out GUID id)
         {
             using (StringHelper.ThreadSafeEncoding encoder = StringHelper.GetFreeHelper())
             {
                 return FMOD_Studio_System_LookupID(this.handle, encoder.byteFromStringUTF8(path), out id);
             }
         }
-        public RESULT lookupPath(GUID id, out string path)
+        public readonly RESULT lookupPath(GUID id, out string path)
         {
             path = null;
 
@@ -629,46 +629,46 @@ namespace FMOD.Studio
                 return result;
             }
         }
-        public RESULT getNumListeners(out int numlisteners)
+        public readonly RESULT getNumListeners(out int numlisteners)
         {
             return FMOD_Studio_System_GetNumListeners(this.handle, out numlisteners);
         }
-        public RESULT setNumListeners(int numlisteners)
+        public readonly RESULT setNumListeners(int numlisteners)
         {
             return FMOD_Studio_System_SetNumListeners(this.handle, numlisteners);
         }
-        public RESULT getListenerAttributes(int listener, out ATTRIBUTES_3D attributes)
+        public readonly RESULT getListenerAttributes(int listener, out ATTRIBUTES_3D attributes)
         {
             return FMOD_Studio_System_GetListenerAttributes(this.handle, listener, out attributes, IntPtr.Zero);
         }
-        public RESULT getListenerAttributes(int listener, out ATTRIBUTES_3D attributes, out VECTOR attenuationposition)
+        public readonly RESULT getListenerAttributes(int listener, out ATTRIBUTES_3D attributes, out VECTOR attenuationposition)
         {
             return FMOD_Studio_System_GetListenerAttributes(this.handle, listener, out attributes, out attenuationposition);
         }
-        public RESULT setListenerAttributes(int listener, ATTRIBUTES_3D attributes)
+        public readonly RESULT setListenerAttributes(int listener, ATTRIBUTES_3D attributes)
         {
             return FMOD_Studio_System_SetListenerAttributes(this.handle, listener, ref attributes, IntPtr.Zero);
         }
-        public RESULT setListenerAttributes(int listener, ATTRIBUTES_3D attributes, VECTOR attenuationposition)
+        public readonly RESULT setListenerAttributes(int listener, ATTRIBUTES_3D attributes, VECTOR attenuationposition)
         {
             return FMOD_Studio_System_SetListenerAttributes(this.handle, listener, ref attributes, ref attenuationposition);
         }
-        public RESULT getListenerWeight(int listener, out float weight)
+        public readonly RESULT getListenerWeight(int listener, out float weight)
         {
             return FMOD_Studio_System_GetListenerWeight(this.handle, listener, out weight);
         }
-        public RESULT setListenerWeight(int listener, float weight)
+        public readonly RESULT setListenerWeight(int listener, float weight)
         {
             return FMOD_Studio_System_SetListenerWeight(this.handle, listener, weight);
         }
-        public RESULT loadBankFile(string filename, LOAD_BANK_FLAGS flags, out Bank bank)
+        public readonly RESULT loadBankFile(string filename, LOAD_BANK_FLAGS flags, out Bank bank)
         {
             using (StringHelper.ThreadSafeEncoding encoder = StringHelper.GetFreeHelper())
             {
                 return FMOD_Studio_System_LoadBankFile(this.handle, encoder.byteFromStringUTF8(filename), flags, out bank.handle);
             }
         }
-        public RESULT loadBankMemory(byte[] buffer, LOAD_BANK_FLAGS flags, out Bank bank)
+        public readonly RESULT loadBankMemory(byte[] buffer, LOAD_BANK_FLAGS flags, out Bank bank)
         {
             // Manually pin the byte array. It's what the marshaller should do anyway but don't leave it to chance.
             GCHandle pinnedArray = GCHandle.Alloc(buffer, GCHandleType.Pinned);
@@ -677,46 +677,46 @@ namespace FMOD.Studio
             pinnedArray.Free();
             return result;
         }
-        public RESULT loadBankCustom(BANK_INFO info, LOAD_BANK_FLAGS flags, out Bank bank)
+        public readonly RESULT loadBankCustom(BANK_INFO info, LOAD_BANK_FLAGS flags, out Bank bank)
         {
             info.size = Marshal.SizeOf<BANK_INFO>();
             return FMOD_Studio_System_LoadBankCustom(this.handle, ref info, flags, out bank.handle);
         }
-        public RESULT unloadAll()
+        public readonly RESULT unloadAll()
         {
             return FMOD_Studio_System_UnloadAll(this.handle);
         }
-        public RESULT flushCommands()
+        public readonly RESULT flushCommands()
         {
             return FMOD_Studio_System_FlushCommands(this.handle);
         }
-        public RESULT flushSampleLoading()
+        public readonly RESULT flushSampleLoading()
         {
             return FMOD_Studio_System_FlushSampleLoading(this.handle);
         }
-        public RESULT startCommandCapture(string filename, COMMANDCAPTURE_FLAGS flags)
+        public readonly RESULT startCommandCapture(string filename, COMMANDCAPTURE_FLAGS flags)
         {
             using (StringHelper.ThreadSafeEncoding encoder = StringHelper.GetFreeHelper())
             {
                 return FMOD_Studio_System_StartCommandCapture(this.handle, encoder.byteFromStringUTF8(filename), flags);
             }
         }
-        public RESULT stopCommandCapture()
+        public readonly RESULT stopCommandCapture()
         {
             return FMOD_Studio_System_StopCommandCapture(this.handle);
         }
-        public RESULT loadCommandReplay(string filename, COMMANDREPLAY_FLAGS flags, out CommandReplay replay)
+        public readonly RESULT loadCommandReplay(string filename, COMMANDREPLAY_FLAGS flags, out CommandReplay replay)
         {
             using (StringHelper.ThreadSafeEncoding encoder = StringHelper.GetFreeHelper())
             {
                 return FMOD_Studio_System_LoadCommandReplay(this.handle, encoder.byteFromStringUTF8(filename), flags, out replay.handle);
             }
         }
-        public RESULT getBankCount(out int count)
+        public readonly RESULT getBankCount(out int count)
         {
             return FMOD_Studio_System_GetBankCount(this.handle, out count);
         }
-        public RESULT getBankList(out Bank[] array)
+        public readonly RESULT getBankList(out Bank[] array)
         {
             array = null;
 
@@ -751,11 +751,11 @@ namespace FMOD.Studio
             }
             return RESULT.OK;
         }
-        public RESULT getParameterDescriptionCount(out int count)
+        public readonly RESULT getParameterDescriptionCount(out int count)
         {
             return FMOD_Studio_System_GetParameterDescriptionCount(this.handle, out count);
         }
-        public RESULT getParameterDescriptionList(out PARAMETER_DESCRIPTION[] array)
+        public readonly RESULT getParameterDescriptionList(out PARAMETER_DESCRIPTION[] array)
         {
             array = null;
 
@@ -788,35 +788,35 @@ namespace FMOD.Studio
 
             return RESULT.OK;
         }
-        public RESULT getCPUUsage(out CPU_USAGE usage, out FMOD.CPU_USAGE usage_core)
+        public readonly RESULT getCPUUsage(out CPU_USAGE usage, out FMOD.CPU_USAGE usage_core)
         {
             return FMOD_Studio_System_GetCPUUsage(this.handle, out usage, out usage_core);
         }
-        public RESULT getBufferUsage(out BUFFER_USAGE usage)
+        public readonly RESULT getBufferUsage(out BUFFER_USAGE usage)
         {
             return FMOD_Studio_System_GetBufferUsage(this.handle, out usage);
         }
-        public RESULT resetBufferUsage()
+        public readonly RESULT resetBufferUsage()
         {
             return FMOD_Studio_System_ResetBufferUsage(this.handle);
         }
 
-        public RESULT setCallback(SYSTEM_CALLBACK callback, SYSTEM_CALLBACK_TYPE callbackmask = SYSTEM_CALLBACK_TYPE.ALL)
+        public readonly RESULT setCallback(SYSTEM_CALLBACK callback, SYSTEM_CALLBACK_TYPE callbackmask = SYSTEM_CALLBACK_TYPE.ALL)
         {
             return FMOD_Studio_System_SetCallback(this.handle, callback, callbackmask);
         }
 
-        public RESULT getUserData(out IntPtr userdata)
+        public readonly RESULT getUserData(out IntPtr userdata)
         {
             return FMOD_Studio_System_GetUserData(this.handle, out userdata);
         }
 
-        public RESULT setUserData(IntPtr userdata)
+        public readonly RESULT setUserData(IntPtr userdata)
         {
             return FMOD_Studio_System_SetUserData(this.handle, userdata);
         }
 
-        public RESULT getMemoryUsage(out MEMORY_USAGE memoryusage)
+        public readonly RESULT getMemoryUsage(out MEMORY_USAGE memoryusage)
         {
             return FMOD_Studio_System_GetMemoryUsage(this.handle, out memoryusage);
         }
@@ -945,7 +945,7 @@ namespace FMOD.Studio
         public IntPtr handle;
 
         public System(IntPtr ptr)   { this.handle = ptr; }
-        public bool hasHandle()     { return this.handle != IntPtr.Zero; }
+        public readonly bool hasHandle()     { return this.handle != IntPtr.Zero; }
         public void clearHandle()   { this.handle = IntPtr.Zero; }
 
         public bool isValid()
@@ -958,11 +958,11 @@ namespace FMOD.Studio
 
     public struct EventDescription
     {
-        public RESULT getID(out GUID id)
+        public readonly RESULT getID(out GUID id)
         {
             return FMOD_Studio_EventDescription_GetID(this.handle, out id);
         }
-        public RESULT getPath(out string path)
+        public readonly RESULT getPath(out string path)
         {
             path = null;
 
@@ -987,26 +987,26 @@ namespace FMOD.Studio
                 return result;
             }
         }
-        public RESULT getParameterDescriptionCount(out int count)
+        public readonly RESULT getParameterDescriptionCount(out int count)
         {
             return FMOD_Studio_EventDescription_GetParameterDescriptionCount(this.handle, out count);
         }
-        public RESULT getParameterDescriptionByIndex(int index, out PARAMETER_DESCRIPTION parameter)
+        public readonly RESULT getParameterDescriptionByIndex(int index, out PARAMETER_DESCRIPTION parameter)
         {
             return FMOD_Studio_EventDescription_GetParameterDescriptionByIndex(this.handle, index, out parameter);
         }
-        public RESULT getParameterDescriptionByName(string name, out PARAMETER_DESCRIPTION parameter)
+        public readonly RESULT getParameterDescriptionByName(string name, out PARAMETER_DESCRIPTION parameter)
         {
             using (StringHelper.ThreadSafeEncoding encoder = StringHelper.GetFreeHelper())
             {
                 return FMOD_Studio_EventDescription_GetParameterDescriptionByName(this.handle, encoder.byteFromStringUTF8(name), out parameter);
             }
         }
-        public RESULT getParameterDescriptionByID(PARAMETER_ID id, out PARAMETER_DESCRIPTION parameter)
+        public readonly RESULT getParameterDescriptionByID(PARAMETER_ID id, out PARAMETER_DESCRIPTION parameter)
         {
             return FMOD_Studio_EventDescription_GetParameterDescriptionByID(this.handle, id, out parameter);
         }
-        public RESULT getParameterLabelByIndex(int index, int labelindex, out string label)
+        public readonly RESULT getParameterLabelByIndex(int index, int labelindex, out string label)
         {
             label = null;
 
@@ -1032,7 +1032,7 @@ namespace FMOD.Studio
                 return result;
             }
         }
-        public RESULT getParameterLabelByName(string name, int labelindex, out string label)
+        public readonly RESULT getParameterLabelByName(string name, int labelindex, out string label)
         {
             label = null;
 
@@ -1059,7 +1059,7 @@ namespace FMOD.Studio
                 return result;
             }
         }
-        public RESULT getParameterLabelByID(PARAMETER_ID id, int labelindex, out string label)
+        public readonly RESULT getParameterLabelByID(PARAMETER_ID id, int labelindex, out string label)
         {
             label = null;
 
@@ -1085,68 +1085,68 @@ namespace FMOD.Studio
                 return result;
             }
         }
-        public RESULT getUserPropertyCount(out int count)
+        public readonly RESULT getUserPropertyCount(out int count)
         {
             return FMOD_Studio_EventDescription_GetUserPropertyCount(this.handle, out count);
         }
-        public RESULT getUserPropertyByIndex(int index, out USER_PROPERTY property)
+        public readonly RESULT getUserPropertyByIndex(int index, out USER_PROPERTY property)
         {
             return FMOD_Studio_EventDescription_GetUserPropertyByIndex(this.handle, index, out property);
         }
-        public RESULT getUserProperty(string name, out USER_PROPERTY property)
+        public readonly RESULT getUserProperty(string name, out USER_PROPERTY property)
         {
             using (StringHelper.ThreadSafeEncoding encoder = StringHelper.GetFreeHelper())
             {
                 return FMOD_Studio_EventDescription_GetUserProperty(this.handle, encoder.byteFromStringUTF8(name), out property);
             }
         }
-        public RESULT getLength(out int length)
+        public readonly RESULT getLength(out int length)
         {
             return FMOD_Studio_EventDescription_GetLength(this.handle, out length);
         }
-        public RESULT getMinMaxDistance(out float min, out float max)
+        public readonly RESULT getMinMaxDistance(out float min, out float max)
         {
             return FMOD_Studio_EventDescription_GetMinMaxDistance(this.handle, out min, out max);
         }
-        public RESULT getSoundSize(out float size)
+        public readonly RESULT getSoundSize(out float size)
         {
             return FMOD_Studio_EventDescription_GetSoundSize(this.handle, out size);
         }
-        public RESULT isSnapshot(out bool snapshot)
+        public readonly RESULT isSnapshot(out bool snapshot)
         {
             return FMOD_Studio_EventDescription_IsSnapshot(this.handle, out snapshot);
         }
-        public RESULT isOneshot(out bool oneshot)
+        public readonly RESULT isOneshot(out bool oneshot)
         {
             return FMOD_Studio_EventDescription_IsOneshot(this.handle, out oneshot);
         }
-        public RESULT isStream(out bool isStream)
+        public readonly RESULT isStream(out bool isStream)
         {
             return FMOD_Studio_EventDescription_IsStream(this.handle, out isStream);
         }
-        public RESULT is3D(out bool is3D)
+        public readonly RESULT is3D(out bool is3D)
         {
             return FMOD_Studio_EventDescription_Is3D(this.handle, out is3D);
         }
-        public RESULT isDopplerEnabled(out bool doppler)
+        public readonly RESULT isDopplerEnabled(out bool doppler)
         {
             return FMOD_Studio_EventDescription_IsDopplerEnabled(this.handle, out doppler);
         }
-        public RESULT hasSustainPoint(out bool sustainPoint)
+        public readonly RESULT hasSustainPoint(out bool sustainPoint)
         {
             return FMOD_Studio_EventDescription_HasSustainPoint(this.handle, out sustainPoint);
         }
 
-        public RESULT createInstance(out EventInstance instance)
+        public readonly RESULT createInstance(out EventInstance instance)
         {
             return FMOD_Studio_EventDescription_CreateInstance(this.handle, out instance.handle);
         }
 
-        public RESULT getInstanceCount(out int count)
+        public readonly RESULT getInstanceCount(out int count)
         {
             return FMOD_Studio_EventDescription_GetInstanceCount(this.handle, out count);
         }
-        public RESULT getInstanceList(out EventInstance[] array)
+        public readonly RESULT getInstanceList(out EventInstance[] array)
         {
             array = null;
 
@@ -1182,36 +1182,36 @@ namespace FMOD.Studio
             return RESULT.OK;
         }
 
-        public RESULT loadSampleData()
+        public readonly RESULT loadSampleData()
         {
             return FMOD_Studio_EventDescription_LoadSampleData(this.handle);
         }
 
-        public RESULT unloadSampleData()
+        public readonly RESULT unloadSampleData()
         {
             return FMOD_Studio_EventDescription_UnloadSampleData(this.handle);
         }
 
-        public RESULT getSampleLoadingState(out LOADING_STATE state)
+        public readonly RESULT getSampleLoadingState(out LOADING_STATE state)
         {
             return FMOD_Studio_EventDescription_GetSampleLoadingState(this.handle, out state);
         }
 
-        public RESULT releaseAllInstances()
+        public readonly RESULT releaseAllInstances()
         {
             return FMOD_Studio_EventDescription_ReleaseAllInstances(this.handle);
         }
-        public RESULT setCallback(EVENT_CALLBACK callback, EVENT_CALLBACK_TYPE callbackmask = EVENT_CALLBACK_TYPE.ALL)
+        public readonly RESULT setCallback(EVENT_CALLBACK callback, EVENT_CALLBACK_TYPE callbackmask = EVENT_CALLBACK_TYPE.ALL)
         {
             return FMOD_Studio_EventDescription_SetCallback(this.handle, callback, callbackmask);
         }
 
-        public RESULT getUserData(out IntPtr userdata)
+        public readonly RESULT getUserData(out IntPtr userdata)
         {
             return FMOD_Studio_EventDescription_GetUserData(this.handle, out userdata);
         }
 
-        public RESULT setUserData(IntPtr userdata)
+        public readonly RESULT setUserData(IntPtr userdata)
         {
             return FMOD_Studio_EventDescription_SetUserData(this.handle, userdata);
         }
@@ -1287,7 +1287,7 @@ namespace FMOD.Studio
         public IntPtr handle;
 
         public EventDescription(IntPtr ptr) { this.handle = ptr; }
-        public bool hasHandle()             { return this.handle != IntPtr.Zero; }
+        public readonly bool hasHandle()             { return this.handle != IntPtr.Zero; }
         public void clearHandle()           { this.handle = IntPtr.Zero; }
 
         public bool isValid()
@@ -1300,111 +1300,111 @@ namespace FMOD.Studio
 
     public struct EventInstance
     {
-        public RESULT getDescription(out EventDescription description)
+        public readonly RESULT getDescription(out EventDescription description)
         {
             return FMOD_Studio_EventInstance_GetDescription(this.handle, out description.handle);
         }
-        public RESULT getSystem(out System system)
+        public readonly RESULT getSystem(out System system)
         {
             return FMOD_Studio_EventInstance_GetSystem(this.handle, out system.handle);
         }
-        public RESULT getVolume(out float volume)
+        public readonly RESULT getVolume(out float volume)
         {
             return FMOD_Studio_EventInstance_GetVolume(this.handle, out volume, IntPtr.Zero);
         }
-        public RESULT getVolume(out float volume, out float finalvolume)
+        public readonly RESULT getVolume(out float volume, out float finalvolume)
         {
             return FMOD_Studio_EventInstance_GetVolume(this.handle, out volume, out finalvolume);
         }
-        public RESULT setVolume(float volume)
+        public readonly RESULT setVolume(float volume)
         {
             return FMOD_Studio_EventInstance_SetVolume(this.handle, volume);
         }
-        public RESULT getPitch(out float pitch)
+        public readonly RESULT getPitch(out float pitch)
         {
             return FMOD_Studio_EventInstance_GetPitch(this.handle, out pitch, IntPtr.Zero);
         }
-        public RESULT getPitch(out float pitch, out float finalpitch)
+        public readonly RESULT getPitch(out float pitch, out float finalpitch)
         {
             return FMOD_Studio_EventInstance_GetPitch(this.handle, out pitch, out finalpitch);
         }
-        public RESULT setPitch(float pitch)
+        public readonly RESULT setPitch(float pitch)
         {
             return FMOD_Studio_EventInstance_SetPitch(this.handle, pitch);
         }
-        public RESULT get3DAttributes(out ATTRIBUTES_3D attributes)
+        public readonly RESULT get3DAttributes(out ATTRIBUTES_3D attributes)
         {
             return FMOD_Studio_EventInstance_Get3DAttributes(this.handle, out attributes);
         }
-        public RESULT set3DAttributes(ATTRIBUTES_3D attributes)
+        public readonly RESULT set3DAttributes(ATTRIBUTES_3D attributes)
         {
             return FMOD_Studio_EventInstance_Set3DAttributes(this.handle, ref attributes);
         }
-        public RESULT getListenerMask(out uint mask)
+        public readonly RESULT getListenerMask(out uint mask)
         {
             return FMOD_Studio_EventInstance_GetListenerMask(this.handle, out mask);
         }
-        public RESULT setListenerMask(uint mask)
+        public readonly RESULT setListenerMask(uint mask)
         {
             return FMOD_Studio_EventInstance_SetListenerMask(this.handle, mask);
         }
-        public RESULT getProperty(EVENT_PROPERTY index, out float value)
+        public readonly RESULT getProperty(EVENT_PROPERTY index, out float value)
         {
             return FMOD_Studio_EventInstance_GetProperty(this.handle, index, out value);
         }
-        public RESULT setProperty(EVENT_PROPERTY index, float value)
+        public readonly RESULT setProperty(EVENT_PROPERTY index, float value)
         {
             return FMOD_Studio_EventInstance_SetProperty(this.handle, index, value);
         }
-        public RESULT getReverbLevel(int index, out float level)
+        public readonly RESULT getReverbLevel(int index, out float level)
         {
             return FMOD_Studio_EventInstance_GetReverbLevel(this.handle, index, out level);
         }
-        public RESULT setReverbLevel(int index, float level)
+        public readonly RESULT setReverbLevel(int index, float level)
         {
             return FMOD_Studio_EventInstance_SetReverbLevel(this.handle, index, level);
         }
-        public RESULT getPaused(out bool paused)
+        public readonly RESULT getPaused(out bool paused)
         {
             return FMOD_Studio_EventInstance_GetPaused(this.handle, out paused);
         }
-        public RESULT setPaused(bool paused)
+        public readonly RESULT setPaused(bool paused)
         {
             return FMOD_Studio_EventInstance_SetPaused(this.handle, paused);
         }
-        public RESULT start()
+        public readonly RESULT start()
         {
             return FMOD_Studio_EventInstance_Start(this.handle);
         }
-        public RESULT stop(STOP_MODE mode)
+        public readonly RESULT stop(STOP_MODE mode)
         {
             return FMOD_Studio_EventInstance_Stop(this.handle, mode);
         }
-        public RESULT getTimelinePosition(out int position)
+        public readonly RESULT getTimelinePosition(out int position)
         {
             return FMOD_Studio_EventInstance_GetTimelinePosition(this.handle, out position);
         }
-        public RESULT setTimelinePosition(int position)
+        public readonly RESULT setTimelinePosition(int position)
         {
             return FMOD_Studio_EventInstance_SetTimelinePosition(this.handle, position);
         }
-        public RESULT getPlaybackState(out PLAYBACK_STATE state)
+        public readonly RESULT getPlaybackState(out PLAYBACK_STATE state)
         {
             return FMOD_Studio_EventInstance_GetPlaybackState(this.handle, out state);
         }
-        public RESULT getChannelGroup(out FMOD.ChannelGroup group)
+        public readonly RESULT getChannelGroup(out FMOD.ChannelGroup group)
         {
             return FMOD_Studio_EventInstance_GetChannelGroup(this.handle, out group.handle);
         }
-        public RESULT getMinMaxDistance(out float min, out float max)
+        public readonly RESULT getMinMaxDistance(out float min, out float max)
         {
             return FMOD_Studio_EventInstance_GetMinMaxDistance(this.handle, out min, out max);
         }
-        public RESULT release()
+        public readonly RESULT release()
         {
             return FMOD_Studio_EventInstance_Release(this.handle);
         }
-        public RESULT isVirtual(out bool virtualstate)
+        public readonly RESULT isVirtual(out bool virtualstate)
         {
             return FMOD_Studio_EventInstance_IsVirtual(this.handle, out virtualstate);
         }
@@ -1413,22 +1413,22 @@ namespace FMOD.Studio
             float finalvalue;
             return getParameterByID(id, out value, out finalvalue);
         }
-        public RESULT getParameterByID(PARAMETER_ID id, out float value, out float finalvalue)
+        public readonly RESULT getParameterByID(PARAMETER_ID id, out float value, out float finalvalue)
         {
             return FMOD_Studio_EventInstance_GetParameterByID(this.handle, id, out value, out finalvalue);
         }
-        public RESULT setParameterByID(PARAMETER_ID id, float value, bool ignoreseekspeed = false)
+        public readonly RESULT setParameterByID(PARAMETER_ID id, float value, bool ignoreseekspeed = false)
         {
             return FMOD_Studio_EventInstance_SetParameterByID(this.handle, id, value, ignoreseekspeed);
         }
-        public RESULT setParameterByIDWithLabel(PARAMETER_ID id, string label, bool ignoreseekspeed = false)
+        public readonly RESULT setParameterByIDWithLabel(PARAMETER_ID id, string label, bool ignoreseekspeed = false)
         {
             using (StringHelper.ThreadSafeEncoding encoder = StringHelper.GetFreeHelper())
             {
                 return FMOD_Studio_EventInstance_SetParameterByIDWithLabel(this.handle, id, encoder.byteFromStringUTF8(label), ignoreseekspeed);
             }
         }
-        public RESULT setParametersByIDs(PARAMETER_ID[] ids, float[] values, int count, bool ignoreseekspeed = false)
+        public readonly RESULT setParametersByIDs(PARAMETER_ID[] ids, float[] values, int count, bool ignoreseekspeed = false)
         {
             return FMOD_Studio_EventInstance_SetParametersByIDs(this.handle, ids, values, count, ignoreseekspeed);
         }
@@ -1437,21 +1437,21 @@ namespace FMOD.Studio
             float finalValue;
             return getParameterByName(name, out value, out finalValue);
         }
-        public RESULT getParameterByName(string name, out float value, out float finalvalue)
+        public readonly RESULT getParameterByName(string name, out float value, out float finalvalue)
         {
             using (StringHelper.ThreadSafeEncoding encoder = StringHelper.GetFreeHelper())
             {
                 return FMOD_Studio_EventInstance_GetParameterByName(this.handle, encoder.byteFromStringUTF8(name), out value, out finalvalue);
             }
         }
-        public RESULT setParameterByName(string name, float value, bool ignoreseekspeed = false)
+        public readonly RESULT setParameterByName(string name, float value, bool ignoreseekspeed = false)
         {
             using (StringHelper.ThreadSafeEncoding encoder = StringHelper.GetFreeHelper())
             {
                 return FMOD_Studio_EventInstance_SetParameterByName(this.handle, encoder.byteFromStringUTF8(name), value, ignoreseekspeed);
             }
         }
-        public RESULT setParameterByNameWithLabel(string name, string label, bool ignoreseekspeed = false)
+        public readonly RESULT setParameterByNameWithLabel(string name, string label, bool ignoreseekspeed = false)
         {
             using (StringHelper.ThreadSafeEncoding encoder = StringHelper.GetFreeHelper(),
                                                    labelEncoder = StringHelper.GetFreeHelper())
@@ -1459,27 +1459,27 @@ namespace FMOD.Studio
                 return FMOD_Studio_EventInstance_SetParameterByNameWithLabel(this.handle, encoder.byteFromStringUTF8(name), labelEncoder.byteFromStringUTF8(label), ignoreseekspeed);
             }
         }
-        public RESULT keyOff()
+        public readonly RESULT keyOff()
         {
             return FMOD_Studio_EventInstance_KeyOff(this.handle);
         }
-        public RESULT setCallback(EVENT_CALLBACK callback, EVENT_CALLBACK_TYPE callbackmask = EVENT_CALLBACK_TYPE.ALL)
+        public readonly RESULT setCallback(EVENT_CALLBACK callback, EVENT_CALLBACK_TYPE callbackmask = EVENT_CALLBACK_TYPE.ALL)
         {
             return FMOD_Studio_EventInstance_SetCallback(this.handle, callback, callbackmask);
         }
-        public RESULT getUserData(out IntPtr userdata)
+        public readonly RESULT getUserData(out IntPtr userdata)
         {
             return FMOD_Studio_EventInstance_GetUserData(this.handle, out userdata);
         }
-        public RESULT setUserData(IntPtr userdata)
+        public readonly RESULT setUserData(IntPtr userdata)
         {
             return FMOD_Studio_EventInstance_SetUserData(this.handle, userdata);
         }
-        public RESULT getCPUUsage(out uint exclusive, out uint inclusive)
+        public readonly RESULT getCPUUsage(out uint exclusive, out uint inclusive)
         {
             return FMOD_Studio_EventInstance_GetCPUUsage(this.handle, out exclusive, out inclusive);
         }
-        public RESULT getMemoryUsage(out MEMORY_USAGE memoryusage)
+        public readonly RESULT getMemoryUsage(out MEMORY_USAGE memoryusage)
         {
             return FMOD_Studio_EventInstance_GetMemoryUsage(this.handle, out memoryusage);
         }
@@ -1573,7 +1573,7 @@ namespace FMOD.Studio
         public IntPtr handle;
 
         public EventInstance(IntPtr ptr) { this.handle = ptr; }
-        public bool hasHandle()          { return this.handle != IntPtr.Zero; }
+        public readonly bool hasHandle()          { return this.handle != IntPtr.Zero; }
         public void clearHandle()        { this.handle = IntPtr.Zero; }
 
         public bool isValid()
@@ -1586,11 +1586,11 @@ namespace FMOD.Studio
 
     public struct Bus
     {
-        public RESULT getID(out GUID id)
+        public readonly RESULT getID(out GUID id)
         {
             return FMOD_Studio_Bus_GetID(this.handle, out id);
         }
-        public RESULT getPath(out string path)
+        public readonly RESULT getPath(out string path)
         {
             path = null;
 
@@ -1621,59 +1621,59 @@ namespace FMOD.Studio
             float finalVolume;
             return getVolume(out volume, out finalVolume);
         }
-        public RESULT getVolume(out float volume, out float finalvolume)
+        public readonly RESULT getVolume(out float volume, out float finalvolume)
         {
             return FMOD_Studio_Bus_GetVolume(this.handle, out volume, out finalvolume);
         }
-        public RESULT setVolume(float volume)
+        public readonly RESULT setVolume(float volume)
         {
             return FMOD_Studio_Bus_SetVolume(this.handle, volume);
         }
-        public RESULT getPaused(out bool paused)
+        public readonly RESULT getPaused(out bool paused)
         {
             return FMOD_Studio_Bus_GetPaused(this.handle, out paused);
         }
-        public RESULT setPaused(bool paused)
+        public readonly RESULT setPaused(bool paused)
         {
             return FMOD_Studio_Bus_SetPaused(this.handle, paused);
         }
-        public RESULT getMute(out bool mute)
+        public readonly RESULT getMute(out bool mute)
         {
             return FMOD_Studio_Bus_GetMute(this.handle, out mute);
         }
-        public RESULT setMute(bool mute)
+        public readonly RESULT setMute(bool mute)
         {
             return FMOD_Studio_Bus_SetMute(this.handle, mute);
         }
-        public RESULT stopAllEvents(STOP_MODE mode)
+        public readonly RESULT stopAllEvents(STOP_MODE mode)
         {
             return FMOD_Studio_Bus_StopAllEvents(this.handle, mode);
         }
-        public RESULT lockChannelGroup()
+        public readonly RESULT lockChannelGroup()
         {
             return FMOD_Studio_Bus_LockChannelGroup(this.handle);
         }
-        public RESULT unlockChannelGroup()
+        public readonly RESULT unlockChannelGroup()
         {
             return FMOD_Studio_Bus_UnlockChannelGroup(this.handle);
         }
-        public RESULT getChannelGroup(out FMOD.ChannelGroup group)
+        public readonly RESULT getChannelGroup(out FMOD.ChannelGroup group)
         {
             return FMOD_Studio_Bus_GetChannelGroup(this.handle, out group.handle);
         }
-        public RESULT getCPUUsage(out uint exclusive, out uint inclusive)
+        public readonly RESULT getCPUUsage(out uint exclusive, out uint inclusive)
         {
             return FMOD_Studio_Bus_GetCPUUsage(this.handle, out exclusive, out inclusive);
         }
-        public RESULT getMemoryUsage(out MEMORY_USAGE memoryusage)
+        public readonly RESULT getMemoryUsage(out MEMORY_USAGE memoryusage)
         {
             return FMOD_Studio_Bus_GetMemoryUsage(this.handle, out memoryusage);
         }
-        public RESULT getPortIndex(out ulong index)
+        public readonly RESULT getPortIndex(out ulong index)
         {
             return FMOD_Studio_Bus_GetPortIndex(this.handle, out index);
         }
-        public RESULT setPortIndex(ulong index)
+        public readonly RESULT setPortIndex(ulong index)
         {
             return FMOD_Studio_Bus_SetPortIndex(this.handle, index);
         }
@@ -1720,7 +1720,7 @@ namespace FMOD.Studio
         public IntPtr handle;
 
         public Bus(IntPtr ptr)      { this.handle = ptr; }
-        public bool hasHandle()     { return this.handle != IntPtr.Zero; }
+        public readonly bool hasHandle()     { return this.handle != IntPtr.Zero; }
         public void clearHandle()   { this.handle = IntPtr.Zero; }
 
         public bool isValid()
@@ -1733,11 +1733,11 @@ namespace FMOD.Studio
 
     public struct VCA
     {
-        public RESULT getID(out GUID id)
+        public readonly RESULT getID(out GUID id)
         {
             return FMOD_Studio_VCA_GetID(this.handle, out id);
         }
-        public RESULT getPath(out string path)
+        public readonly RESULT getPath(out string path)
         {
             path = null;
 
@@ -1767,11 +1767,11 @@ namespace FMOD.Studio
             float finalVolume;
             return getVolume(out volume, out finalVolume);
         }
-        public RESULT getVolume(out float volume, out float finalvolume)
+        public readonly RESULT getVolume(out float volume, out float finalvolume)
         {
             return FMOD_Studio_VCA_GetVolume(this.handle, out volume, out finalvolume);
         }
-        public RESULT setVolume(float volume)
+        public readonly RESULT setVolume(float volume)
         {
             return FMOD_Studio_VCA_SetVolume(this.handle, volume);
         }
@@ -1794,7 +1794,7 @@ namespace FMOD.Studio
         public IntPtr handle;
 
         public VCA(IntPtr ptr)      { this.handle = ptr; }
-        public bool hasHandle()     { return this.handle != IntPtr.Zero; }
+        public readonly bool hasHandle()     { return this.handle != IntPtr.Zero; }
         public void clearHandle()   { this.handle = IntPtr.Zero; }
 
         public bool isValid()
@@ -1809,11 +1809,11 @@ namespace FMOD.Studio
     {
         // Property access
 
-        public RESULT getID(out GUID id)
+        public readonly RESULT getID(out GUID id)
         {
             return FMOD_Studio_Bank_GetID(this.handle, out id);
         }
-        public RESULT getPath(out string path)
+        public readonly RESULT getPath(out string path)
         {
             path = null;
 
@@ -1838,33 +1838,33 @@ namespace FMOD.Studio
                 return result;
             }
         }
-        public RESULT unload()
+        public readonly RESULT unload()
         {
             return FMOD_Studio_Bank_Unload(this.handle);
         }
-        public RESULT loadSampleData()
+        public readonly RESULT loadSampleData()
         {
             return FMOD_Studio_Bank_LoadSampleData(this.handle);
         }
-        public RESULT unloadSampleData()
+        public readonly RESULT unloadSampleData()
         {
             return FMOD_Studio_Bank_UnloadSampleData(this.handle);
         }
-        public RESULT getLoadingState(out LOADING_STATE state)
+        public readonly RESULT getLoadingState(out LOADING_STATE state)
         {
             return FMOD_Studio_Bank_GetLoadingState(this.handle, out state);
         }
-        public RESULT getSampleLoadingState(out LOADING_STATE state)
+        public readonly RESULT getSampleLoadingState(out LOADING_STATE state)
         {
             return FMOD_Studio_Bank_GetSampleLoadingState(this.handle, out state);
         }
 
         // Enumeration
-        public RESULT getStringCount(out int count)
+        public readonly RESULT getStringCount(out int count)
         {
             return FMOD_Studio_Bank_GetStringCount(this.handle, out count);
         }
-        public RESULT getStringInfo(int index, out GUID id, out string path)
+        public readonly RESULT getStringInfo(int index, out GUID id, out string path)
         {
             path = null;
             id = new GUID();
@@ -1891,11 +1891,11 @@ namespace FMOD.Studio
             }
         }
 
-        public RESULT getEventCount(out int count)
+        public readonly RESULT getEventCount(out int count)
         {
             return FMOD_Studio_Bank_GetEventCount(this.handle, out count);
         }
-        public RESULT getEventList(out EventDescription[] array)
+        public readonly RESULT getEventList(out EventDescription[] array)
         {
             array = null;
 
@@ -1930,11 +1930,11 @@ namespace FMOD.Studio
             }
             return RESULT.OK;
         }
-        public RESULT getBusCount(out int count)
+        public readonly RESULT getBusCount(out int count)
         {
             return FMOD_Studio_Bank_GetBusCount(this.handle, out count);
         }
-        public RESULT getBusList(out Bus[] array)
+        public readonly RESULT getBusList(out Bus[] array)
         {
             array = null;
 
@@ -1969,11 +1969,11 @@ namespace FMOD.Studio
             }
             return RESULT.OK;
         }
-        public RESULT getVCACount(out int count)
+        public readonly RESULT getVCACount(out int count)
         {
             return FMOD_Studio_Bank_GetVCACount(this.handle, out count);
         }
-        public RESULT getVCAList(out VCA[] array)
+        public readonly RESULT getVCAList(out VCA[] array)
         {
             array = null;
 
@@ -2009,12 +2009,12 @@ namespace FMOD.Studio
             return RESULT.OK;
         }
 
-        public RESULT getUserData(out IntPtr userdata)
+        public readonly RESULT getUserData(out IntPtr userdata)
         {
             return FMOD_Studio_Bank_GetUserData(this.handle, out userdata);
         }
 
-        public RESULT setUserData(IntPtr userdata)
+        public readonly RESULT setUserData(IntPtr userdata)
         {
             return FMOD_Studio_Bank_SetUserData(this.handle, userdata);
         }
@@ -2063,10 +2063,10 @@ namespace FMOD.Studio
         public IntPtr handle;
 
         public Bank(IntPtr ptr)     { this.handle = ptr; }
-        public bool hasHandle()     { return this.handle != IntPtr.Zero; }
+        public readonly bool hasHandle()     { return this.handle != IntPtr.Zero; }
         public void clearHandle()   { this.handle = IntPtr.Zero; }
 
-        public bool isValid()
+        public readonly bool isValid()
         {
             return hasHandle() && FMOD_Studio_Bank_IsValid(this.handle);
         }
@@ -2077,25 +2077,25 @@ namespace FMOD.Studio
     public struct CommandReplay
     {
         // Information query
-        public RESULT getSystem(out System system)
+        public readonly RESULT getSystem(out System system)
         {
             return FMOD_Studio_CommandReplay_GetSystem(this.handle, out system.handle);
         }
 
-        public RESULT getLength(out float length)
+        public readonly RESULT getLength(out float length)
         {
             return FMOD_Studio_CommandReplay_GetLength(this.handle, out length);
         }
-        public RESULT getCommandCount(out int count)
+        public readonly RESULT getCommandCount(out int count)
         {
             return FMOD_Studio_CommandReplay_GetCommandCount(this.handle, out count);
         }
-        public RESULT getCommandInfo(int commandIndex, out COMMAND_INFO info)
+        public readonly RESULT getCommandInfo(int commandIndex, out COMMAND_INFO info)
         {
             return FMOD_Studio_CommandReplay_GetCommandInfo(this.handle, commandIndex, out info);
         }
 
-        public RESULT getCommandString(int commandIndex, out string buffer)
+        public readonly RESULT getCommandString(int commandIndex, out string buffer)
         {
             buffer = null;
             using (StringHelper.ThreadSafeEncoding encoder = StringHelper.GetFreeHelper())
@@ -2120,73 +2120,73 @@ namespace FMOD.Studio
                 return result;
             }
         }
-        public RESULT getCommandAtTime(float time, out int commandIndex)
+        public readonly RESULT getCommandAtTime(float time, out int commandIndex)
         {
             return FMOD_Studio_CommandReplay_GetCommandAtTime(this.handle, time, out commandIndex);
         }
         // Playback
-        public RESULT setBankPath(string bankPath)
+        public readonly RESULT setBankPath(string bankPath)
         {
             using (StringHelper.ThreadSafeEncoding encoder = StringHelper.GetFreeHelper())
             {
                 return FMOD_Studio_CommandReplay_SetBankPath(this.handle, encoder.byteFromStringUTF8(bankPath));
             }
         }
-        public RESULT start()
+        public readonly RESULT start()
         {
             return FMOD_Studio_CommandReplay_Start(this.handle);
         }
-        public RESULT stop()
+        public readonly RESULT stop()
         {
             return FMOD_Studio_CommandReplay_Stop(this.handle);
         }
-        public RESULT seekToTime(float time)
+        public readonly RESULT seekToTime(float time)
         {
             return FMOD_Studio_CommandReplay_SeekToTime(this.handle, time);
         }
-        public RESULT seekToCommand(int commandIndex)
+        public readonly RESULT seekToCommand(int commandIndex)
         {
             return FMOD_Studio_CommandReplay_SeekToCommand(this.handle, commandIndex);
         }
-        public RESULT getPaused(out bool paused)
+        public readonly RESULT getPaused(out bool paused)
         {
             return FMOD_Studio_CommandReplay_GetPaused(this.handle, out paused);
         }
-        public RESULT setPaused(bool paused)
+        public readonly RESULT setPaused(bool paused)
         {
             return FMOD_Studio_CommandReplay_SetPaused(this.handle, paused);
         }
-        public RESULT getPlaybackState(out PLAYBACK_STATE state)
+        public readonly RESULT getPlaybackState(out PLAYBACK_STATE state)
         {
             return FMOD_Studio_CommandReplay_GetPlaybackState(this.handle, out state);
         }
-        public RESULT getCurrentCommand(out int commandIndex, out float currentTime)
+        public readonly RESULT getCurrentCommand(out int commandIndex, out float currentTime)
         {
             return FMOD_Studio_CommandReplay_GetCurrentCommand(this.handle, out commandIndex, out currentTime);
         }
         // Release
-        public RESULT release()
+        public readonly RESULT release()
         {
             return FMOD_Studio_CommandReplay_Release(this.handle);
         }
         // Callbacks
-        public RESULT setFrameCallback(COMMANDREPLAY_FRAME_CALLBACK callback)
+        public readonly RESULT setFrameCallback(COMMANDREPLAY_FRAME_CALLBACK callback)
         {
             return FMOD_Studio_CommandReplay_SetFrameCallback(this.handle, callback);
         }
-        public RESULT setLoadBankCallback(COMMANDREPLAY_LOAD_BANK_CALLBACK callback)
+        public readonly RESULT setLoadBankCallback(COMMANDREPLAY_LOAD_BANK_CALLBACK callback)
         {
             return FMOD_Studio_CommandReplay_SetLoadBankCallback(this.handle, callback);
         }
-        public RESULT setCreateInstanceCallback(COMMANDREPLAY_CREATE_INSTANCE_CALLBACK callback)
+        public readonly RESULT setCreateInstanceCallback(COMMANDREPLAY_CREATE_INSTANCE_CALLBACK callback)
         {
             return FMOD_Studio_CommandReplay_SetCreateInstanceCallback(this.handle, callback);
         }
-        public RESULT getUserData(out IntPtr userdata)
+        public readonly RESULT getUserData(out IntPtr userdata)
         {
             return FMOD_Studio_CommandReplay_GetUserData(this.handle, out userdata);
         }
-        public RESULT setUserData(IntPtr userdata)
+        public readonly RESULT setUserData(IntPtr userdata)
         {
             return FMOD_Studio_CommandReplay_SetUserData(this.handle, userdata);
         }
@@ -2243,7 +2243,7 @@ namespace FMOD.Studio
         public IntPtr handle;
 
         public CommandReplay(IntPtr ptr) { this.handle = ptr; }
-        public bool hasHandle()          { return this.handle != IntPtr.Zero; }
+        public readonly bool hasHandle()          { return this.handle != IntPtr.Zero; }
         public void clearHandle()        { this.handle = IntPtr.Zero; }
 
         public bool isValid()

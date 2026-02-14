@@ -50,10 +50,10 @@ namespace Nomad.Console
             var cvarSystem = locator.GetService<ICVarSystemService>();
             var configFile = cvarSystem.Register(
                 new CVarCreateInfo<string>(
-                    name: Constants.CVars.Console.DEFAULT_CONFIG_FILE,
-                    defaultValue: "res://Assets/Config/default.ini",
-                    description: "The default configuration file.",
-                    flags: CVarFlags.Init | CVarFlags.ReadOnly
+                    Name: Constants.CVars.Console.DEFAULT_CONFIG_FILE,
+                    DefaultValue: "res://Assets/Config/default.ini",
+                    Description: "The default configuration file.",
+                    Flags: CVarFlags.Init | CVarFlags.ReadOnly
                 )
             );
             cvarSystem.Load(configFile.Value);

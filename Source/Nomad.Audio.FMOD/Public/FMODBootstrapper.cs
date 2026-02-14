@@ -13,10 +13,10 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
 using Nomad.Audio.Fmod.Private.Repositories;
 using Nomad.Audio.Fmod.Private.Services;
 using Nomad.Audio.Interfaces;
+using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
 using Nomad.CVars;
@@ -35,7 +35,7 @@ namespace Nomad.Audio.Fmod
         /// <param name="registry"></param>
         public static void Initialize(IServiceLocator locator, IServiceRegistry registry)
         {
-            ArgumentNullException.ThrowIfNull(locator);
+            ArgumentGuard.ThrowIfNull(locator);
 
             var logger = locator.GetService<ILoggerService>();
             var cvarSystem = locator.GetService<ICVarSystemService>();

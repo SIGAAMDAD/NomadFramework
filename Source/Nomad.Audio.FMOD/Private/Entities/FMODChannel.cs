@@ -13,11 +13,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Godot;
 using System;
-using Nomad.Audio.Fmod.Entities;
 using Nomad.Audio.Fmod.ValueObjects;
-using System.Runtime.InteropServices;
 
 namespace Nomad.Audio.Fmod.Private.Entities {
 	/*
@@ -32,13 +29,13 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 	/// </summary>
 
 	internal sealed class FMODChannel : IDisposable {
-		public FMODChannelResource Instance = new();
+		public FMODChannelResource Instance = new FMODChannelResource();
 		public float BasePriority;
 		public float CurrentPriority;
 		public float StartTime;
 		public int ChannelId;
 		public IntPtr Id;
-		public SoundCategory Category;
+		public SoundCategory? Category;
 		public float LastStolenTime = 0.0f;
 
 		public float Volume {
@@ -68,7 +65,7 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 		public int PlayCount = 0;
 		public bool IsEssential = false;
 
-		public float Age => Time.GetTicksMsec() / 1000.0f - StartTime;
+		public float Age => DateTime.Now.Millisecond / 1000.0f - StartTime;
 		public bool IsPlaying => Instance.IsPlaying;
 
 		/*
@@ -76,6 +73,9 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 		Dispose
 		===============
 		*/
+		/// <summary>
+		/// 
+		/// </summary>
 		public void Dispose() {
 			Instance.Dispose();
 		}

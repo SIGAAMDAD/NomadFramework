@@ -16,13 +16,33 @@ of merchantability, fitness for a particular purpose and noninfringement.
 namespace Nomad.ResourceCache
 {
     /// <summary>
-    /// The reason for why a cached resource is being removed from memory.
+    ///
     /// </summary>
-    public enum UnloadReason : byte
+    public enum ResourceLoadState : byte
     {
-        Manual,
-        CacheFull,
-        ReferenceCountZero,
-        Dispose
+        /// <summary>
+        /// 
+        /// </summary>
+        Queued,
+
+        /// <summary>
+        /// 
+        /// </summary>
+        Loading,
+
+        /// <summary>
+        /// 
+        /// </summary>
+        Processing,
+
+        /// <summary>
+        /// 
+        /// </summary>
+        Complete,
+
+        /// <summary>
+        /// 
+        /// </summary>
+        Failed
     }
 }

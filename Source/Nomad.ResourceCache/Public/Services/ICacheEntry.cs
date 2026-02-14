@@ -13,17 +13,31 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System;
+using System.Threading.Tasks;
+using Nomad.Core.Abstractions;
+
 namespace Nomad.ResourceCache
 {
     /// <summary>
-    ///
+    /// 
     /// </summary>
-    public enum ResourceLoadState : byte
+    /// <typeparam name="TResource"></typeparam>
+    /// <typeparam name="TId"></typeparam>
+    public interface ICacheEntry<TResource, TId> : IEntity<TId>, IDisposable
+        where TResource : notnull, IDisposable
+        where TId : IEquatable<TId>
     {
-        Queued,
-        Loading,
-        Processing,
-        Complete,
-        Failed
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="resource"></param>
+        void Get(out TResource resource);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        ValueTask<TResource> GetAsync();
     }
 }

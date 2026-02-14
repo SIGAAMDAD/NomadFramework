@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -13,10 +13,31 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Nomad.Core.Abstractions;
+namespace Nomad.ResourceCache
+{
+    /// <summary>
+    /// The reason for why a cached resource is being removed from memory.
+    /// </summary>
+    public enum UnloadReason : byte
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        Manual,
 
-namespace Nomad.Audio.Fmod.Private.ValueObjects {
-	internal readonly record struct FMODBankId(
-		FMOD.GUID Value
-	) : IValueObject<FMODBankId>;
-};
+        /// <summary>
+        /// 
+        /// </summary>
+        CacheFull,
+
+        /// <summary>
+        /// 
+        /// </summary>
+        ReferenceCountZero,
+
+        /// <summary>
+        /// 
+        /// </summary>
+        Dispose
+    }
+}

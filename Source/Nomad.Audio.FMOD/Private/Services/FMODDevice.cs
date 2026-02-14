@@ -29,6 +29,7 @@ using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
 using Nomad.CVars;
 using Nomad.Core.Events;
+using System.Collections.Immutable;
 
 namespace Nomad.Audio.Fmod.Private.Services {
 	/*
@@ -138,6 +139,18 @@ namespace Nomad.Audio.Fmod.Private.Services {
 
 		/*
 		===============
+		UnloadBanks
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		public void UnloadBanks() {
+			_bankRepository.UnloadAll();
+		}
+
+		/*
+		===============
 		GetOutputDevices
 		===============
 		*/
@@ -145,14 +158,14 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		///
 		/// </summary>
 		/// <returns></returns>
-		public IEnumerable<string> GetOutputDevices() {
+		public IImmutableList<string> GetOutputDevices() {
 			var devices = new string[ _driverRepository.Devices.Length ];
 
 			for ( int i = 0; i < devices.Length; i++ ) {
 				devices[ i ] = _driverRepository.Devices[ i ].Name;
 			}
 
-			return devices;
+			return devices.ToImmutableList();
 		}
 
 		/*
@@ -164,8 +177,8 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		///
 		/// </summary>
 		/// <returns></returns>
-		public IEnumerable<string> GetAudioDrivers()
-			=> _driverRepository.Drivers;
+		public IImmutableList<string> GetAudioDrivers()
+			=> _driverRepository.Drivers.ToImmutableList();
 
 		/*
 		===============
@@ -200,7 +213,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 
 			FMODValidator.ValidateCall( System.setStreamBufferSize( (uint)streamBufferSize.Value, FMOD.TIMEUNIT.MS ) );
 			FMODValidator.ValidateCall( System.setDSPBufferSize( dspBufferSize.Value, dspBufferCount.Value ) );
-			FMODValidator.ValidateCall( StudioSystem.initialize( maxChannels.Value, FMOD.Studio.INITFLAGS.LIVEUPDATE | FMOD.Studio.INITFLAGS.SYNCHRONOUS_UPDATE, flags, 0 ) );
+			FMODValidator.ValidateCall( StudioSystem.initialize( maxChannels.Value, FMOD.Studio.INITFLAGS.LIVEUPDATE | FMOD.Studio.INITFLAGS.SYNCHRONOUS_UPDATE, flags, (IntPtr)null ) );
 		}
 	};
 };

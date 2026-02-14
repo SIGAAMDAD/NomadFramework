@@ -13,13 +13,13 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Godot;
+using System;
 
 namespace Nomad.Audio.Fmod {
 	public static class FMODValidator {
 		public static void ValidateCall( FMOD.RESULT result ) {
 			if ( result != FMOD.RESULT.OK ) {
-				GD.PrintErr( $"FMODValidator.ValidateCall: FMOD Error - '{FMOD.Error.String( result )}'" );
+				Console.WriteLine( $"FMODValidator.ValidateCall: FMOD Error - '{FMOD.Error.String( result )}'" );
 				throw new FMODException( FMOD.Error.String( result ) );
 			}
 		}

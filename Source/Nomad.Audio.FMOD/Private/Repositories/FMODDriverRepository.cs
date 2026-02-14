@@ -16,6 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Nomad.Audio.Fmod.Private.ValueObjects;
 using Nomad.Core;
 using Nomad.Core.Exceptions;
@@ -55,7 +56,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// <summary>
 		/// A list of all the audio driver APIs available for usage with FMOD.
 		/// </summary>
-		public string[] Drivers => _supportedAudioDrivers.Values.ToImmutableArray();
+		public string[] Drivers => _supportedAudioDrivers.Values.ToArray();
 
 		/// <summary>
 		///

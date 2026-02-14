@@ -32,7 +32,7 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 	internal sealed class FMODParameterCollection : IParameterCollection {
 		public int ParameterCount => _parameters.Count;
 
-		private readonly Dictionary<ParameterId, FMOD.Studio.PARAMETER_ID> _parameters;
+		private readonly Dictionary<string, FMOD.Studio.PARAMETER_ID> _parameters;
 		private readonly FMOD.Studio.EventInstance _instance;
 
 		public FMODParameterCollection( FMOD.Studio.EventDescription owner, FMOD.Studio.EventInstance instance ) {
@@ -40,10 +40,10 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 
 			FMODValidator.ValidateCall( owner.getParameterDescriptionCount( out int parameterCount ) );
 
-			_parameters = new Dictionary<ParameterId, FMOD.Studio.PARAMETER_ID>( parameterCount );
+			_parameters = new Dictionary<string, FMOD.Studio.PARAMETER_ID>( parameterCount );
 			for ( int i = 0; i < parameterCount; i++ ) {
 				FMODValidator.ValidateCall( owner.getParameterDescriptionByIndex( i, out var parameter ) );
-				_parameters[ new ParameterId( new( parameter.name ) ) ] = parameter.id;
+				_parameters[ parameter.name ] = parameter.id;
 			}
 		}
 
@@ -57,8 +57,8 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 		/// </summary>
 		/// <param name="id"></param>
 		/// <returns></returns>
-		public float GetParameter( ParameterId id ) {
-			_instance.getParameterByName( id.Name, out float value );
+		public float GetParameter( string id ) {
+			_instance.getParameterByName( id, out float value );
 			return value;
 		}
 
@@ -72,7 +72,7 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 		/// </summary>
 		/// <param name="id"></param>
 		/// <returns></returns>
-		public bool ParameterExists( ParameterId id ) {
+		public bool ParameterExists( string id ) {
 			return _parameters.ContainsKey( id );
 		}
 
@@ -86,7 +86,7 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 		/// </summary>
 		/// <param name="id"></param>
 		/// <param name="value"></param>
-		public void SetParameter( ParameterId id, float value ) {
+		public void SetParameter( string id, float value ) {
 			if ( _parameters.TryGetValue( id, out var parameter ) ) {
 				_instance.setParameterByID( parameter, value );
 			}

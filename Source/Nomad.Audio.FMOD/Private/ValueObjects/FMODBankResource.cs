@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -27,19 +27,37 @@ namespace Nomad.Audio.Fmod.Private.ValueObjects {
 	///
 	/// </summary>
 
-	internal readonly record struct FMODBankResource( FMOD.Studio.Bank Instance ) : IAudioResource {
-		public bool IsValid => Instance.isValid();
+	internal readonly struct FMODBankResource : IAudioResource {
+		private readonly FMOD.Studio.Bank _instance;
+
+		public readonly bool IsValid => _instance.isValid();
+
+		/*
+		===============
+		FMODBankResource
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="instance"></param>
+		public FMODBankResource( FMOD.Studio.Bank instance ) {
+			_instance = instance;
+		}
 
 		/*
 		===============
 		Unload
 		===============
 		*/
+		/// <summary>
+		/// 
+		/// </summary>
 		public void Unload() {
-			if ( Instance.isValid() ) {
-				FMODValidator.ValidateCall( Instance.unloadSampleData() );
-				FMODValidator.ValidateCall( Instance.unload() );
-				Instance.clearHandle();
+			if ( _instance.isValid() ) {
+				FMODValidator.ValidateCall( _instance.unloadSampleData() );
+				FMODValidator.ValidateCall( _instance.unload() );
+				_instance.clearHandle();
 			}
 		}
 
@@ -48,8 +66,15 @@ namespace Nomad.Audio.Fmod.Private.ValueObjects {
 		Dispose
 		===============
 		*/
+		/// <summary>
+		/// 
+		/// </summary>
 		public void Dispose() {
 			Unload();
 		}
+
+		public static implicit operator FMOD.Studio.Bank( FMODBankResource bank ) => bank._instance;
+		public static bool operator ==( FMODBankResource a, FMODBankResource b ) => a._instance.handle == b._instance.handle;
+		public static bool operator !=( FMODBankResource a, FMODBankResource b ) => a._instance.handle != b._instance.handle;
 	};
 };

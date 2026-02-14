@@ -20,7 +20,7 @@ using Nomad.Audio.Interfaces;
 using Nomad.Audio.ValueObjects;
 
 namespace Nomad.Audio.Fmod.Private.Entities {
-	internal sealed class FMODEmitter( FMODChannelRepository channelRepository, SoundCategory category ) : IAudioEmitter {
+	internal sealed class FMODEmitter : IAudioEmitter {
 		public Vector2 Positon {
 			get {
 				throw new System.NotImplementedException();
@@ -50,11 +50,8 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 			}
 		}
 
-		public string Category {
-			get {
-				throw new System.NotImplementedException();
-			}
-		}
+		public string Category => _category.Config.Name;
+		private readonly SoundCategory _category;
 
 		public ChannelStatus Status {
 			get {
@@ -64,8 +61,15 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 
 		private FMODChannel? _channel;
 
-		public void PlaySound( string id, float priority = 0.5F ) {
-			_channel = channelRepository.AllocateChannel( id, _position, category, priority );
+		private readonly FMODChannelRepository _channelRepository;
+
+		public FMODEmitter( FMODChannelRepository channelRepository, SoundCategory category ) {
+			_category = category;
+			_channelRepository = channelRepository;
+		}
+
+		public void PlaySound( string id, float priority = 0.5f ) {
+			_channel = _channelRepository.AllocateChannel( id, _position, _category, priority );
 		}
 	};
 };

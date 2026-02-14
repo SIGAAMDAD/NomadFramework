@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -14,7 +14,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using Nomad.Core.Abstractions;
 
 namespace Nomad.Audio.Fmod.Private.ValueObjects {
 	/*
@@ -28,11 +27,11 @@ namespace Nomad.Audio.Fmod.Private.ValueObjects {
 	///
 	/// </summary>
 
-	internal readonly record struct FMODDeviceInfo(
+	internal record FMODDeviceInfo(
 		string Name,
 		Guid Guid,
 		int SystemRate,
 		FMOD.SPEAKERMODE SpeakerMode,
 		int SpeakerChannels
-	) : IValueObject<FMODDeviceInfo>;
+	);
 };

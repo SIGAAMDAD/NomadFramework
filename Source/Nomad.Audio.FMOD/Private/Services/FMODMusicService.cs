@@ -15,12 +15,10 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Collections.Generic;
-using Nomad.Audio.Fmod.Entities;
 using Nomad.Audio.Fmod.Private.Entities;
 using Nomad.Audio.Fmod.Private.ValueObjects;
 using Nomad.Audio.Interfaces;
 using Nomad.Core;
-using Nomad.Core.Util;
 using Nomad.CVars;
 using Nomad.ResourceCache;
 
@@ -97,7 +95,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			_musicHandle = resource;
 			_musicHandle.CreateInstance( out _musicInstance );
 			_musicInstance.Volume = _musicVolume / 100.0f;
-			FMODValidator.ValidateCall( _musicInstance.instance.start() );
+			FMODValidator.ValidateCall( _musicInstance.Start() );
 		}
 
 		/*
@@ -112,7 +110,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			if ( !_musicOn || !IsPlaying ) {
 				return;
 			}
-			FMODValidator.ValidateCall( _musicInstance.instance.stop( FMOD.Studio.STOP_MODE.ALLOWFADEOUT ) );
+			FMODValidator.ValidateCall( _musicInstance.Stop( FMOD.Studio.STOP_MODE.ALLOWFADEOUT ) );
 		}
 
 		/*
@@ -145,7 +143,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		private void OnMusicOnChanged( in CVarValueChangedEventArgs<bool> args ) {
 			_musicOn = args.NewValue;
 			if ( !_musicOn ) {
-				FMODValidator.ValidateCall( _musicInstance.instance.stop( FMOD.Studio.STOP_MODE.IMMEDIATE ) );
+				FMODValidator.ValidateCall( _musicInstance.Stop( FMOD.Studio.STOP_MODE.IMMEDIATE ) );
 			}
 		}
 
@@ -154,6 +152,10 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		OnMusicVolumeChanged
 		===============
 		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="args"></param>
 		private void OnMusicVolumeChanged( in CVarValueChangedEventArgs<float> args ) {
 			_musicVolume = args.NewValue;
 			if ( IsPlaying ) {

@@ -22,10 +22,21 @@ namespace Nomad.ResourceCache
     /// </summary>
     public sealed class CachePolicy
     {
+        /// <summary>
+        /// The default cache policy.
+        /// </summary>
         public static readonly CachePolicy Default = new CachePolicy();
 
-        public long MaxMemorySize { get; set; } = 512 * 1024 * 1024; // 512MB default
+        /// <summary>
+        /// The maximum amount of memory the cache can store in RAM at a time before flushing.
+        /// </summary>
+        public long MaxMemorySize { get; set; } = 512 * 1024 * 1024;
+
+        /// <summary>
+        /// The maximum amount of items the cache can store in RAM at a time before flushing.
+        /// </summary>
         public int MaxResourceCount { get; set; } = 1000;
+
         public bool PreloadDependencies { get; set; } = true;
         public EvictionPolicy EvictionPolicy { get; set; } = EvictionPolicy.LRU;
         public TimeSpan UnloadUnusedAfter { get; set; } = TimeSpan.FromMinutes(20);

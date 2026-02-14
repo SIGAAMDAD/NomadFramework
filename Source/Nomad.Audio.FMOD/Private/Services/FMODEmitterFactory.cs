@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -18,10 +18,17 @@ using Nomad.Audio.Fmod.Private.Repositories;
 using Nomad.Audio.Interfaces;
 
 namespace Nomad.Audio.Fmod.Private.Services {
-	internal sealed class FMODEmitterFactory( FMODChannelRepository channelRepository, FMODBusRepository busRepository ) : IEmitterFactory {
+	internal sealed class FMODEmitterFactory : IEmitterFactory {
+		private readonly FMODChannelRepository _channelRepository;
+		private readonly FMODBusRepository _busRepository;
+
+		public FMODEmitterFactory( FMODChannelRepository channelRepository, FMODBusRepository busRepository ) {
+			_channelRepository = channelRepository;
+			_busRepository = busRepository;
+		}
 
 		public IAudioEmitter CreateEmitter( string category ) {
-			return new FMODEmitter( channelRepository, busRepository.GetSoundCategory( category ) );
+			return new FMODEmitter( _channelRepository, _busRepository.GetSoundCategory( category ) );
 		}
 	};
 };

@@ -13,10 +13,17 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
+using Nomad.Core.Exceptions;
 
 namespace Nomad.Audio.Fmod {
-	public sealed class FMODException( string errorString ) : Exception {
-		public readonly string Error = errorString;
-	};
-};
+	public sealed class FMODException : NomadError
+	{
+		public readonly string Error;
+
+		public FMODException( string errorString )
+			: base( errorString )
+		{
+			Error = errorString;
+		}
+	}
+}
