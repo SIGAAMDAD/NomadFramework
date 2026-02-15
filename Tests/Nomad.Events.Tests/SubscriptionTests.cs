@@ -13,6 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+#if !UNITY_64
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
@@ -373,3 +374,4 @@ public class SubscriptionTests
 
 	#endregion
 }
+#endif

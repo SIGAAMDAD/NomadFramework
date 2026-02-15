@@ -13,6 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+#if !UNITY_64
 using System;
 using NUnit.Framework;
 using Nomad.Save.ValueObjects;
@@ -313,3 +314,4 @@ public class SaveFileMetadataTests
         Assert.That(() => metadata.LastAccessDay, Throws.Nothing);
     }
 }
+#endif

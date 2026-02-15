@@ -13,6 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+#if !UNITY_64
 using System;
 using NUnit.Framework;
 using Nomad.Core.Events;
@@ -341,3 +342,4 @@ public class EventFlagsTests
 		Assert.That(typedEvent.SubscriptionSet, Is.TypeOf<SubscriptionSet<EmptyEventArgs>>());
 	}
 }
+#endif

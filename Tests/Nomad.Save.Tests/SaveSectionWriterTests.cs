@@ -13,6 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+#if !UNITY_64
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -105,3 +106,4 @@ public class SaveSectionWriterTests
 		Assert.That(exception, Is.Not.Null);
 	}
 }
+#endif

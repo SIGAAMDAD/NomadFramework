@@ -13,6 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+#if !UNITY_64
 using NUnit.Framework;
 using Nomad.Save.ValueObjects;
 
@@ -319,3 +320,4 @@ public class GameVersionTests
 		}
 	}
 }
+#endif

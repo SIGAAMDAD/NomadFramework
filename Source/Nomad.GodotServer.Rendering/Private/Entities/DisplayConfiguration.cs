@@ -13,9 +13,11 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+#if !UNITY_64
 namespace Nomad.GodotServer.Rendering {
 	internal sealed class DisplayConfiguration {
 		public DisplayConfiguration() {
 		}
 	};
 };
+#endif

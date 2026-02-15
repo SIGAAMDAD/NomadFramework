@@ -13,6 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+#if !UNITY_64
 using System;
 using NUnit.Framework;
 using Nomad.Core.Events;
@@ -383,3 +384,4 @@ public struct TestEventArgs
 	public int Value { get; set; }
 	public string Message { get; set; }
 }
+#endif
