@@ -317,7 +317,7 @@ namespace Nomad.Core
             {
                 public const string NAMESPACE = nameof(Console);
 
-#if USE_COMPATIBILITY_EXTENSIONS
+#if USE_COMPATIBILITY_EXTENSIONS || UNITY_64
                 public const string CONSOLE_OPENED_EVENT = NAMESPACE + ":ConsoleOpened";
                 public const string CONSOLE_CLOSED_EVENT = NAMESPACE + ":ConsoleClosed";
                 public const string TEXT_ENTERED_EVENT = NAMESPACE + ":TextEntered";
@@ -345,7 +345,7 @@ namespace Nomad.Core
             {
                 public const string NAMESPACE = nameof(ResourceCache);
 
-#if USE_COMPATIBILITY_EXTENSIONS
+#if USE_COMPATIBILITY_EXTENSIONS || UNITY_64
                 public const string RESOURCE_LOADED_EVENT = NAMESPACE + ":ResourceLoaded";
                 public const string RESOURCE_LOAD_FAILED_EVENT = NAMESPACE + ":ResourceLoadFailed";
                 public const string RESOURCE_LOAD_PROGRESS_EVENT = NAMESPACE + ":ResourceLoadProgress";

@@ -15,7 +15,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Runtime.CompilerServices;
-using System.Threading;
 
 namespace Nomad.Core.Compatibility.Guards
 {

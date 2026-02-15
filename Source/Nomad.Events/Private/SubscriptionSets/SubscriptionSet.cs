@@ -295,7 +295,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 				}
 			}
 
-#if USE_COMPATIBILITY_EXTENSIONS
+#if USE_COMPATIBILITY_EXTENSIONS || UNITY_64
 			Task.WaitAll( tasks.ToArray(), ct );
 #else
 			Task.WaitAll( tasks, ct );

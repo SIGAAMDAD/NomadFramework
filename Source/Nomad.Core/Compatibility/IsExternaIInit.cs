@@ -13,7 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-#if USE_COMPATIBILITY_EXTENSIONS
+#if USE_COMPATIBILITY_EXTENSIONS || UNITY_64
 namespace System.Runtime.CompilerServices
 {
     /// <summary>

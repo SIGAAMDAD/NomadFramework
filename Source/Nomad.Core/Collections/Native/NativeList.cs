@@ -16,7 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Runtime.InteropServices;
 
-#if !USE_COMPATIBILITY_EXTENSIONS
+#if !USE_COMPATIBILITY_EXTENSIONS && !UNITY_64
 namespace Nomad.Core.Collections.Native
 {
     /// <summary>
