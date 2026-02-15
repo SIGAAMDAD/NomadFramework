@@ -15,7 +15,8 @@ namespace Nomad::Core
 	class ILoggerCategory
 	{
 	public:
-		ILoggerCategory( const char *pszName, NomadLoggerLevel eLevel );
+		ILoggerCategory( const char *pszName, int eLevel );
+		virtual ~ILoggerCategory();
 	protected:
 		const char* m_pszName;
 	};

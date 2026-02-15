@@ -13,6 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+#if !UNITY_COMPATIBLE
 using System;
 using Godot;
 using Nomad.Core.Util;
@@ -21,6 +22,7 @@ using Nomad.EngineUtils.Private;
 using Nomad.Core.Logger;
 using Nomad.Core.Events;
 using Nomad.Core.ResourceCache;
+using Nomad.Core.Input;
 
 namespace Nomad.EngineUtils
 {
@@ -36,8 +38,8 @@ namespace Nomad.EngineUtils
         private readonly string _assetDirectory;
 
         private readonly NotificationNode _notificationNode;
-
         private readonly GodotLoader<Resource> _loader;
+        private readonly GodotInputPump _inputPump;
 
         private readonly ILoggerService _logger;
         private readonly IGameEventRegistryService _eventFactory;
@@ -51,13 +53,17 @@ namespace Nomad.EngineUtils
         /// 
         /// </summary>
         /// <param name="sceneTree"></param>
+        /// <param name="inputSystem"></param>
         /// <param name="logger"></param>
         /// <param name="eventFactory"></param>
-        public GodotEngineService(SceneTree sceneTree, ILoggerService logger, IGameEventRegistryService eventFactory)
+        public GodotEngineService(SceneTree sceneTree, IInputSystem inputSystem, ILoggerService logger, IGameEventRegistryService eventFactory)
         {
             _sceneTree = sceneTree;
             _root = (Node)sceneTree.Get(SceneTree.PropertyName.Root);
             _notificationNode = new NotificationNode();
+
+            _inputPump = new GodotInputPump(inputSystem);
+            _root.CallDeferred(Node.MethodName.AddChild, _inputPump);
 
             _loader = new GodotLoader<Resource>();
 
@@ -175,3 +181,4 @@ namespace Nomad.EngineUtils
         }
     }
 }
+#endif

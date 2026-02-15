@@ -9,15 +9,15 @@ GENERATE_HTML          = YES
 GENERATE_LATEX         = NO
 STRIP_FROM_PATH        = Source/
 EXCLUDE_PATTERNS      += */obj/* */bin/* */intermediate/*
-EXCLUDE_PATTERNS      += */Private/* */private/*
 
 
-INPUT                  = Source
-FILE_PATTERNS          = *.cs
+INPUT                  = Source Documentation/Modules.dox
+FILE_PATTERNS          = *.cs *.dox
 RECURSIVE              = YES
 EXTRACT_ALL            = YES
 EXTRACT_PRIVATE        = YES
 EXTRACT_STATIC         = YES
+MARKDOWN_SUPPORT       = YES
 
 OPTIMIZE_OUTPUT_FOR_CSHARP = YES
 TYPEDEF_HIDES_STRUCT       = YES
@@ -36,25 +36,27 @@ FULL_PATH_NAMES        = NO
 GENERATE_TREEVIEW      = YES
 OPTIMIZE_OUTPUT_FOR_CSHARP = YES
 FULL_SIDEBAR           = YES
+GROUP_NESTED_COMPOUNDS = YES
 
 HTML_EXTRA_STYLESHEET  = doxygen-awesome.css
-HTML_EXTRA_STYLESHEET += doxygen-awesome-sidebar-only.css
 HTML_EXTRA_STYLESHEET += ue5-overrides.css
 
-HTML_EXTRA_FILES       = ue5-overrides.js \
-                         toggle.js \
-                         doxygen-awesome-darkmode-toggle.js
+HTML_EXTRA_FILES       = doxygen-awesome-darkmode-toggle.js
+#HTML_EXTRA_FILES      += ue5-overrides.js
 
-HTML_COLORSTYLE        = LIGHT
+HTML_COLORSTYLE        = DARK
 HTML_DYNAMIC_MENUS     = YES
 
 SEARCHENGINE           = YES
+
+#LAYOUT_FILE            = layout.xml
 
 HAVE_DOT               = NO
 DOT_GRAPH_MAX_NODES    = 80
 DOT_TRANSPARENT        = NO
 CALL_GRAPH             = YES
 CALLER_GRAPH           = YES
+CLASS_DIAGRAMS         = NO
 
 SOURCE_BROWSER         = YES
 
@@ -63,3 +65,12 @@ WARN_IF_UNDOCUMENTED   = NO
 WARN_IF_DOC_ERROR      = YES
 
 HTML_FOOTER            = footer.html
+#HTML_HEADER            = header.html
+
+ALIASES += access="<p class='meta-access'>Access Level: "
+ALIASES += stability="<p class='meta-stability'>Stability: "
+ALIASES += category="<p class='meta-category'>Category: "
+ALIASES += module="<p class='meta-module'>Module: "
+
+HTML_EXTRA_FILES      += metadata.js
+HTML_EXTRA_STYLESHEET += metadata.css

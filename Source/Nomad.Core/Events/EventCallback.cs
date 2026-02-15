@@ -19,7 +19,12 @@ namespace Nomad.Core.Events
     ///
     /// </summary>
     /// <typeparam name="TArgs"></typeparam>
-    /// <param name="eventArgs"></param>
+    /// <param name="args"></param>
+    /// @since 1.0.0
+    /// @version 1.0.0
+    /// @stability Stable
+    /// @category Callback
+    /// @module Nomad.Events
     public delegate void EventCallback<TArgs>(in TArgs args)
         where TArgs : struct;
 }

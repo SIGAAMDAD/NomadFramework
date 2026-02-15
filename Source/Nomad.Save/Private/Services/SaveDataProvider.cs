@@ -23,7 +23,7 @@ using Nomad.Core.Logger;
 using Nomad.Save.Data;
 using Nomad.Save.Events;
 using Nomad.Save.Interfaces;
-using Nomad.Save.Private.Exceptions;
+using Nomad.Save.Exceptions;
 using Nomad.Save.Services;
 using Nomad.Save.ValueObjects;
 
@@ -74,7 +74,7 @@ namespace Nomad.Save.Private.Services {
 
 			_vfs = fileSystem;
 			_logger = logger;
-			_category = logger.CreateCategory( "Nomad.Save", LogLevel.Info, true );
+			_category = logger.CreateCategory( nameof( Nomad.Save ), LogLevel.Info, true );
 
 			_saveFiles = new List<SaveFileMetadata>();
 

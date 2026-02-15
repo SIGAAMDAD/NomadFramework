@@ -14,7 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using Nomad.Core.FileSystem;
-using Nomad.Save.Private.Exceptions;
+using Nomad.Save.Exceptions;
 using Nomad.Save.Private.Serialization.FieldSerializers;
 
 namespace Nomad.Save.Private.ValueObjects {

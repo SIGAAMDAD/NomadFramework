@@ -1,346 +1,78 @@
-/* ---------------------------------------------------------
-   NOMAD DARK THEME FOR DOXYGEN-AWESOME
-   - Black background
-   - White text
-   - Cyan links
-   - Structured sidebar for Modules / Namespaces / Types
---------------------------------------------------------- */
 
-:root {
-    --bg: #000000;
-    --bg-panel: #000000;
-    --bg-panel-alt: #0b0b0b;
-    --border: #181818;
-
-    --text: #ffffff;
-    --text-muted: #b0b0b0;
-    --heading: #ffffff;
-
-    --link: #00e5ff;
-    --link-hover: #66f0ff;
-
-    --code-bg: #000000;
-    --code-text: #e6e6e6;
-
-    --breadcrumb-bg: #050505;
+/* Top */
+#top {
+  z-index: 2000;
+  background: #000;
+  border-bottom: 1px solid #222;
 }
 
-/* GLOBAL -------------------------------------------------- */
+/* Left sidebar */
+#side-nav {
+  background: #000;
+  border-right: 1px solid #222;
+}
+
+/* Right sidebar */
+.contents,
+#nav-tree,
+#nav-tree-contents,
+#nav-path {
+  background: #000;
+  border-right: 1px solid #222;
+}
+
+#doc-content {
+  position: relative;
+  background: #000;
+  border-right: 1px solid #222;
+}
+
+/* Right sidebar */
+#nav-path {
+  position: sticky;
+  background: #000;
+}
 
 html, body {
-    background: var(--bg) !important;
-    color: var(--text) !important;
-    font-family: "Segoe UI", Roboto, sans-serif !important;
+  background: #000 !important;
+  color: #fff m !important;
 }
 
-body {
-    margin: 0;
+body, .contents, .textblock, .memitem, .memproto, .memdoc {
+  color: #fff !important;
 }
 
-/* HEADINGS ------------------------------------------------ */
-
-h1, h2, h3, h4, h5, h6 {
-    color: var(--heading) !important;
-    font-weight: 600 !important;
-    letter-spacing: -0.01em !important;
-}
-
-/* TEXT ---------------------------------------------------- */
-
-p, li, td, th, span, div {
-    color: var(--text) !important;
-}
-
-small, .note, .warning, .deprecated {
-    color: var(--text-muted) !important;
-}
-
-/* LINKS --------------------------------------------------- */
-
-a {
-    color: var(--link) !important;
-    text-decoration: none;
+a, a:visited {
+  color: #00e5ff !important;
 }
 
 a:hover {
-    color: var(--link-hover) !important;
-    text-decoration: underline;
+  color: #66f5ff !important;
 }
 
-/* LAYOUT: SIDEBAR + CONTENT ------------------------------ */
-
-#top {
-    background: var(--bg) !important;
-    border-bottom: 1px solid var(--border) !important;
+table, th, td {
+  background: #000 !important;
+  color: #fff !important;
+  border-color: #333 !important;
 }
 
-/* LEFT SIDEBAR ------------------------------------------- */
-
-#side-nav {
-    background: #000000 !important;
-    border-right: 1px solid var(--border) !important;
+pre, code {
+  background: #111 !important;
+  color: #fff !important;
+  border: 1px solid #333 !important;
 }
 
-/* Tree container */
-#nav-tree,
-#nav-tree-contents {
-    background: #000000 !important;
-    color: var(--text) !important;
-}
-
-/* Tree items */
-#nav-tree .item {
-    background: transparent !important;
-    color: var(--text) !important;
-}
-
-/* Links in tree */
-#nav-tree a {
-    color: var(--text) !important;
-}
-
-/* Hover */
-#nav-tree a:hover {
-    color: var(--link-hover) !important;
-}
-
-/* Selected item */
-#nav-tree .selected {
-    background: #050505 !important;
-    border-left: 3px solid var(--link) !important;
-}
-
-#nav-tree .selected a {
-    color: var(--link) !important;
-    font-weight: 600 !important;
-}
-
-/* Indentation lines / children */
-#nav-tree .children_ul {
-    background: #000000 !important;
-    border-left: 1px solid #111111 !important;
-}
-
-/* Optional: visually emphasize Modules / Groups */
-#nav-tree .group {
-    font-weight: 600 !important;
-}
-
-/* CONTENT AREA ------------------------------------------- */
-
-#doc-content,
-.contents {
-    background: var(--bg-panel) !important;
-    color: var(--text) !important;
-}
-
-.contents {
-    padding: 24px 32px !important;
-    border-left: 1px solid var(--border) !important;
-}
-
-/* SECTION HEADERS / BLOCK TITLES ------------------------- */
-
-div.header,
-div.headertitle {
-    background: var(--bg-panel-alt) !important;
-    border-bottom: 1px solid var(--border) !important;
-}
-
-div.headertitle .title {
-    color: var(--heading) !important;
-}
-
-/* TABLES -------------------------------------------------- */
-
-table {
-    border-collapse: collapse;
-    background: var(--bg-panel-alt) !important;
-}
-
-th, td {
-    border: 1px solid var(--border) !important;
-    padding: 6px 10px !important;
-}
-
-th {
-    background: #101010 !important;
-    font-weight: 600 !important;
-}
-
-/* METADATA TABLE ----------------------------------------- */
-
-.ue5-metadata {
-    margin: 12px 0 24px 0;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    width: fit-content;
-    background: #0b0b0b;
-}
-
-.ue5-metadata table {
-    border-collapse: collapse;
-    font-size: 14px;
-    color: var(--text);
-}
-
-.ue5-metadata td {
-    padding: 6px 12px;
-    border-bottom: 1px solid var(--border);
-}
-
-.ue5-metadata tr:last-child td {
-    border-bottom: none;
-}
-
-.ue5-metadata .label {
-    font-weight: 600;
-    color: var(--heading);
-    white-space: nowrap;
-}
-
-/* CODE BLOCKS -------------------------------------------- */
-
-div.fragment,
-pre.fragment {
-    background: var(--code-bg) !important;
-    color: var(--code-text) !important;
-    border-radius: 6px !important;
-    padding: 12px !important;
-    border: 1px solid #222222 !important;
-}
-
-/* Inline code */
-code {
-    background: #151515 !important;
-    color: var(--code-text) !important;
-    padding: 2px 4px;
-    border-radius: 3px;
-}
-
-/* BREADCRUMBS -------------------------------------------- */
-
-/* RIGHT SIDEBAR — STICKY FOLLOW */
-#nav-path,          /* breadcrumb bar */
-#doc-content .navpath, 
-#doc-content .summary, 
-#doc-content .contents .side-nav, 
-#doc-content .side-nav, 
-#right-sidebar, 
-#MSearchResultsWindow {
-    position: sticky !important;
-    top: 0 !important;
-}
-
-div.contents > div.doxygen-awesome-sidebar {
-    position: sticky !important;
-    top: 0 !important;
-    align-self: flex-start;
-}
-
-#nav-path {
-    background: var(--breadcrumb-bg) !important;
-    border-top: 1px solid var(--border) !important;
-}
-
-#nav-path a {
-    color: var(--link) !important;
-}
-
-#nav-path a:hover {
-    color: var(--link-hover) !important;
-}
-
-/* SEARCH BOX --------------------------------------------- */
-
-#MSearchBox {
-    background: #050505 !important;
-    border: 1px solid var(--border) !important;
+#doc-content, .header, .headertitle, .title, .navpath ul {
+  background: #000 !important;
+  color: #fff !important;
 }
 
 #MSearchField {
-    background: transparent !important;
-    color: var(--text) !important;
+  background: #111 !important;
+  color: #fff !important;
+  border: 1px solid #333 !important;
 }
 
-/* TOGGLES / BUTTONS -------------------------------------- */
-
-button,
-input[type="button"],
-input[type="submit"] {
-    background: #101010 !important;
-    color: var(--text) !important;
-    border: 1px solid var(--border) !important;
-    border-radius: 4px;
-}
-
-button:hover,
-input[type="button"]:hover,
-input[type="submit"]:hover {
-    background: #181818 !important;
-    border-color: var(--link) !important;
-}
-
-/* INTERNAL DOCS TOGGLE (if you add it) ------------------- */
-
-#internal-toggle {
-    padding: 6px 12px;
-    background: #050505;
-    border-bottom: 1px solid var(--border);
-    color: var(--text-muted);
-    font-size: 13px;
-}
-
-#internal-toggle input[type="checkbox"] {
-    margin-right: 6px;
-}
-
-/* Internal sections hidden by default */
-.internal-doc {
-    display: none;
-}
-
-.nomad-footer {
-    background: #050505;
-    color: #888;
-    padding: 12px;
-    text-align: center;
-    border-top: 1px solid #181818;
-}
-
-/* --- Sticky Header --- */
-#nomad-header {
-    position: sticky;
-    top: 0;
-    z-index: 9999;
-    background: #000000;
-    border-bottom: 1px solid #181818;
-    padding: 10px 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-/* --- Allow sticky sidebar inside flex layout --- */
-.contents {
-    align-items: flex-start !important;
-}
-
-/* --- Sticky Right Sidebar --- */
-.doxygen-awesome-sidebar {
-    position: sticky !important;
-    top: 60px !important;
-    align-self: flex-start !important;
-    height: fit-content !important;
-    max-height: calc(100vh - 60px) !important;
-    overflow-y: auto !important;
-    background: #0b0b0b !important;
-    border-left: 1px solid #181818 !important;
-    padding-left: 16px !important;
-    z-index: 900;
-}
-
-/* --- Prevent header overlap --- */
-#doc-content {
-    padding-top: 10px !important;
+#MSearchCloseImg {
+  filter: invert(1); /* make the close icon white */
 }

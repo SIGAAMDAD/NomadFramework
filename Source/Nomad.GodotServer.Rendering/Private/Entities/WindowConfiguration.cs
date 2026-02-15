@@ -13,6 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+#if !UNITY_COMPATIBLE
 namespace Nomad.GodotServer.Rendering {
 	internal sealed class WindowConfiguration {
 
@@ -20,3 +21,4 @@ namespace Nomad.GodotServer.Rendering {
 		}
 	};
 };
+#endif

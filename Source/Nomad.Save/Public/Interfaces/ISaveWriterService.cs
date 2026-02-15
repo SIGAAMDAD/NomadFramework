@@ -19,8 +19,18 @@ using Nomad.Save.ValueObjects;
 namespace Nomad.Save.Interfaces
 {
     /// <summary>
-    /// 
+    /// A service for writing persistent game/save data to disk.
     /// </summary>
+    /// <example>
+    /// Here is an example of how you would utilize this to write some (for example) player data to a save file:
+    /// <code lang="csharp">
+    /// <![CDATA[
+    /// public class Player {
+    ///     
+    /// };
+    /// ]]>
+    /// </code>
+    /// </example> 
     public interface ISaveWriterService : IDisposable
     {
         /// <summary>

@@ -13,27 +13,39 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.Save.Private.Exceptions {
-	/*
-	===================================================================================
-
-	SectionCorruptException
-
-	===================================================================================
-	*/
+namespace Nomad.Input.Private.ValueObjects {
 	/// <summary>
-	///
+	/// 
 	/// </summary>
+	internal enum InputType : byte {
+		/// <summary>
+		/// 
+		/// </summary>
+		Keyboard,
 
-	public sealed class SectionCorruptException : SaveFileCorruptException {
-		public readonly string SectionName;
-		public readonly int SectionIndex;
+		/// <summary>
+		/// 
+		/// </summary>
+		MouseMotion,
 
-		public SectionCorruptException( string sectionName, int sectionIndex, int fileOffset, string message = "" )
-			: base( fileOffset, message )
-		{
-			SectionName = sectionName;
-			SectionIndex = sectionIndex;
-		}
+		/// <summary>
+		/// 
+		/// </summary>
+		MouseButton,
+
+		/// <summary>
+		/// 
+		/// </summary>
+		GamepadButton,
+
+		/// <summary>
+		/// 
+		/// </summary>
+		GamepadMotion,
+
+		/// <summary>
+		/// 
+		/// </summary>
+		Count
 	};
 };

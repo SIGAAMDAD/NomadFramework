@@ -23,6 +23,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <DefineConstants>$(DefineConstants);NETSTANDARD2_1;USE_COMPATIBILITY_EXTENSIONS;UNITY_COMPATIBLE</DefineConstants>
+    <NoWarn>$(NoWarn);CS8632;CS8600;CS8601;CS8602;CS8603;CS8604;CS8618;CS8625</NoWarn>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Nomad.Core\Nomad.Core.csproj" />
 	  <ProjectReference Include="..\Nomad.Events\Nomad.Events.csproj" />
   </ItemGroup>

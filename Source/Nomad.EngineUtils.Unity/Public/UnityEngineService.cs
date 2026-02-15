@@ -13,17 +13,30 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+#if UNITY_COMPATIBLE
 using System;
 using Nomad.Core.EngineUtils;
+using Nomad.Core.ResourceCache;
 using Nomad.Core.Util;
+using UnityEngine;
 
 namespace Nomad.EngineUtils
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public sealed class UnityEngineService : IEngineService
     {
+        public IResourceLoader GetResourceLoader()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IConsoleObject CreateConsoleObject()
+        {
+            throw new NotImplementedException();
+        }
+
         public IDisposable CreateImageRGBA(byte[] image, int width, int height)
         {
             throw new NotImplementedException();
@@ -87,3 +100,4 @@ namespace Nomad.EngineUtils
         }
     }
 }
+#endif

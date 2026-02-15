@@ -13,6 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+#if !UNITY_COMPATIBLE
 using System;
 using System.Threading.Tasks;
 using System.Threading;
@@ -99,3 +100,4 @@ namespace Nomad.EngineUtils.Private {
         }
     };
 };
+#endif

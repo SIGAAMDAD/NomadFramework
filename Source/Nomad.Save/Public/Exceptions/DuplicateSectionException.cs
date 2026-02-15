@@ -15,32 +15,22 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 
-namespace Nomad.Save.Private.Exceptions {
-	/*
-	===================================================================================
-	
-	DuplicateFieldException
-	
-	===================================================================================
-	*/
-	/// <summary>
-	/// 
-	/// </summary>
-	
-	public sealed class DuplicateFieldException : Exception {
-		public readonly string FieldName;
+namespace Nomad.Save.Exceptions
+{
+    /// <summary>
+    /// 
+    /// </summary>
+    public sealed class DuplicateSectionException : Exception
+    {
+        public readonly string SectionName;
 
-		/*
-		===============
-		DuplicateFieldException
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="fieldName"></param>
-		public DuplicateFieldException( string fieldName ) {
-			FieldName = fieldName;
-		}
-	};
-};
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sectionName"></param>
+        public DuplicateSectionException(string sectionName)
+        {
+            SectionName = sectionName;
+        }
+    }
+}

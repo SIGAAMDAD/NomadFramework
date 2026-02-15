@@ -6,7 +6,8 @@
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/Cpp/Core/include",
                 "${workspaceFolder}/Cpp/ThirdParty/EASTL/include",
-                "${workspaceFolder}/Cpp/ThirdParty/EABase/include/Common"
+                "${workspaceFolder}/Cpp/ThirdParty/EABase/include/Common",
+                "${workspaceFolder}/Cpp/ThirdParty/godot-cpp-10.0.0-rc1/include"
             ],
             "defines": [
                 "_DEBUG",

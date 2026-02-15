@@ -22,7 +22,7 @@ namespace Nomad.Core.Events
     ///
     /// </summary>
     /// <typeparam name="TArgs"></typeparam>
-    /// <param name="eventArgs"></param>
+    /// <param name="args"></param>
     /// <param name="ct"></param>
     /// <returns></returns>
     public delegate Task AsyncEventCallback<TArgs>(TArgs args, CancellationToken ct = default)

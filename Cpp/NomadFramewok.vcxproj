@@ -133,21 +133,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Core\include\GameEvent.h" />
-    <ClInclude Include="Core\include\IFileSystem.h" />
-    <ClInclude Include="Core\include\IGameEvent.h" />
-    <ClInclude Include="Core\include\ILoggerCategory.h" />
-    <ClInclude Include="Core\include\ILoggerService.h" />
-    <ClInclude Include="Core\include\IOnlineService.h" />
-    <ClInclude Include="Core\include\LoggerService.h" />
-    <ClInclude Include="Core\include\LoggerSink.h" />
-    <ClInclude Include="Core\include\nomad_compiler.h" />
-    <ClInclude Include="Core\include\nomad_core.h" />
-    <ClInclude Include="Core\include\nomad_pch.h" />
-    <ClInclude Include="Core\include\nomad_platform.h" />
+    <ClInclude Include="Core\include\Events\GameEvent.h" />
+    <ClInclude Include="Core\include\FileSystem\IFileSystem.h" />
+    <ClInclude Include="Core\include\Events\IGameEvent.h" />
+    <ClInclude Include="Core\include\Logger\ILoggerCategory.h" />
+    <ClInclude Include="Core\include\Logger\ILoggerService.h" />
+    <ClInclude Include="Core\include\OnlineServices\IOnlineService.h" />
+    <ClInclude Include="Core\include\Logger\LoggerService.h" />
+    <ClInclude Include="Core\include\Logger\LoggerSink.h" />
+    <ClInclude Include="Core\include\Core\nomad_compiler.h" />
+    <ClInclude Include="Core\include\Core\nomad_core.h" />
+    <ClInclude Include="Core\include\Core\nomad_pch.h" />
+    <ClInclude Include="Core\include\Core\nomad_platform.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Core\src\GameEvent.cpp" />
+    <ClCompile Include="Core\src\Events\GameEvent.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

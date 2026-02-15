@@ -20,119 +20,173 @@ using System.Threading.Tasks;
 namespace Nomad.Core.Events
 {
     /// <summary>
-    /// The base game event type.
+    /// Represents the base type for all game events.
     /// </summary>
+    /// <remarks>
+    /// Provides identifying metadata and manual subscription cleanup.
+    /// Typically inherited by generic game events that carry an event payload.
+    /// </remarks>
     public interface IGameEvent : IDisposable
     {
         /// <summary>
-        /// The event's debugger name.
+        /// Gets the debugger-friendly display name for this event.
         /// </summary>
         string DebugName { get; }
 
         /// <summary>
-        /// The event's namespace.
+        /// Gets the logical namespace/category associated with this event.
         /// </summary>
         string NameSpace { get; }
 
         /// <summary>
-        /// The event's hash code.
+        /// Gets the unique identifier or hash code for this event.
         /// </summary>
         int Id { get; }
 
         /// <summary>
-        ///
+        /// Removes all active subscriptions.
         /// </summary>
+        /// <remarks>
+        /// Useful when resetting systems or shutting down the event entirely.
+        /// </remarks>
         void CleanupSubscriptions();
     }
 
     /// <summary>
-    /// The base game event type.
+    /// Represents a typed game event capable of publishing payload data to subscribers.
     /// </summary>
-    /// <typeparam name="TArgs">The argument structure to use when publishing the event.</typeparam>
+    /// <typeparam name="TArgs">The struct payload type used when publishing the event.</typeparam>
+    /// <remarks>
+    /// Subscriptions are tied to an owner object. Subscriptions automatically clean
+    /// themselves up when the owner goes out of scope or is destroyed.
+    /// </remarks>
+    /// # Subscription Examples
+    /// <example>
+    /// ## Godot
+    /// <details>
+    /// Here's an example of how to subscribe to an IGameEvent in Godot:
+    /// \include Documentation/Examples/Nomad.Events/Godot/Player_Subscribe.cs
+    /// </details>
+    /// </example>
+    /// <example>
+    /// ## Unity
+    /// <details>
+    /// Here's an example of how to subscribe to a IGameEvent in Unity:
+    /// \include Documentation/Examples/Nomad.Events/Unity/Player_Subscribe.cs
+    /// </details>
+    /// </example>
+    /// # Publishing Examples
+    /// <example>
+    /// ## Godot
+    /// <details>
+    /// Here's an example of how to publish a IGameEvent in Godot:
+    /// \include Documentation/Examples/Nomad.Events/Unity/Enemy_Publish.cs
+    /// </details>
+    /// </example>
+    /// <example>
+    /// ## Unity
+    /// <details>
+    /// Here's an example of how to publish a IGameEvent in Unity:
+    /// \include Documentation/Examples/Nomad.Events/Unity/Enemy_Publish.cs
+    /// </details>
+    /// </example>
+    /// 
+    /// @module Nomad.Events
+    /// @stability Stable
+    /// @since 1.0.0
+    /// @version 1.0.0
     public interface IGameEvent<TArgs> : IGameEvent
         where TArgs : struct
     {
         /// <summary>
-        ///
+        /// Occurs when <see cref="Publish"/> is invoked.
         /// </summary>
+        /// <remarks>
+        /// This callback is executed synchronously on the calling thread.
+        /// </remarks>
         event EventCallback<TArgs> OnPublished;
 
         /// <summary>
-        ///
+        /// Occurs when <see cref="PublishAsync"/> is invoked.
         /// </summary>
+        /// <remarks>
+        /// This callback is executed asynchronously on a background thread or worker.
+        /// </remarks>
         event AsyncEventCallback<TArgs> OnPublishedAsync;
 
         /// <summary>
-        ///
+        /// Publishes this event asynchronously.
         /// </summary>
-        /// <param name="eventArgs"></param>
-        /// <param name="ct"></param>
-        /// <returns></returns>
+        /// <param name="eventArgs">The payload to provide to all subscribers.</param>
+        /// <param name="ct">An optional cancellation token.</param>
+        /// <returns>A task that completes once all asynchronous subscribers finish.</returns>
         Task PublishAsync(TArgs eventArgs, CancellationToken ct = default);
 
         /// <summary>
-        ///
+        /// Publishes this event synchronously on the calling thread.
         /// </summary>
-        /// <param name="eventArgs"></param>
+        /// <param name="eventArgs">The payload to provide to all subscribers.</param>
         void Publish(in TArgs eventArgs);
 
         /// <summary>
-        ///
+        /// Subscribes an asynchronous callback to this event.
         /// </summary>
-        /// <param name="owner"></param>
-        /// <param name="asyncCallback"></param>
+        /// <param name="owner">The object that owns this subscription.</param>
+        /// <param name="asyncCallback">The callback invoked when the event is published asynchronously.</param>
+        /// <returns>A subscription handle that can be used to manage the subscription.</returns>
         ISubscriptionHandle SubscribeAsync(object owner, AsyncEventCallback<TArgs> asyncCallback);
 
         /// <summary>
-        ///
+        /// Subscribes a synchronous callback to this event.
         /// </summary>
-        /// <param name="owner"></param>
-        /// <param name="callback"></param>
+        /// <param name="owner">The object that owns this subscription.</param>
+        /// <param name="callback">The callback invoked when the event is published synchronously.</param>
+        /// <returns>A subscription handle that can be used to manage the subscription.</returns>
         ISubscriptionHandle Subscribe(object owner, EventCallback<TArgs> callback);
 
         /// <summary>
-        ///
+        /// Unsubscribes a specific asynchronous callback for the specified owner.
         /// </summary>
-        /// <param name="owner"></param>
-        /// <param name="asyncCallback"></param>
+        /// <param name="owner">The subscription owner.</param>
+        /// <param name="asyncCallback">The asynchronous callback to remove.</param>
         void UnsubscribeAsync(object owner, AsyncEventCallback<TArgs> asyncCallback);
 
         /// <summary>
-        ///
+        /// Unsubscribes a specific synchronous callback for the specified owner.
         /// </summary>
-        /// <param name="owner"></param>
-        /// <param name="callback"></param>
+        /// <param name="owner">The subscription owner.</param>
+        /// <param name="callback">The callback to remove.</param>
         void Unsubscribe(object owner, EventCallback<TArgs> callback);
 
         /// <summary>
-        ///
+        /// Unsubscribes all callbacks associated with the specified owner.
         /// </summary>
-        /// <param name="owner"></param>
+        /// <param name="owner">The owner whose subscriptions should be removed.</param>
         void UnsubscribeAll(object owner);
 
 #if NET7_OR_GREATER
         /// <summary>
-        /// Event subscription operator.
+        /// Adds a synchronous callback via operator syntax.
         /// </summary>
-        /// <param name="callback"></param>
+        /// <param name="other">The callback to add.</param>
         void operator +=(EventCallback<TArgs> other);
 
         /// <summary>
-        /// Event subscription operator.
+        /// Adds an asynchronous callback via operator syntax.
         /// </summary>
-        /// <param name="callback"></param>
+        /// <param name="other">The callback to add.</param>
         void operator +=(AsyncEventCallback<TArgs> other);
 
         /// <summary>
-        /// Event subscription operator.
+        /// Removes a synchronous callback via operator syntax.
         /// </summary>
-        /// <param name="callback"></param>
+        /// <param name="other">The callback to remove.</param>
         void operator -=(EventCallback<TArgs> other);
 
         /// <summary>
-        /// Event subscription operator.
+        /// Removes an asynchronous callback via operator syntax.
         /// </summary>
-        /// <param name="callback"></param>
+        /// <param name="other">The callback to remove.</param>
         void operator -=(AsyncEventCallback<TArgs> other);
 #endif
     }

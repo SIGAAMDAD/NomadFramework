@@ -13,6 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+#if !UNITY_COMPATIBLE
 namespace Nomad.GodotServer.Rendering {
 	internal readonly unsafe struct AnimationDataDto( int* currentFrame, float* frameTimer, float* speedScale, bool* playing, bool* backwards ) {
 		public readonly int* CurrentFrame = currentFrame;
@@ -22,3 +23,4 @@ namespace Nomad.GodotServer.Rendering {
 		public readonly bool* Backwards = backwards;
 	};
 };
+#endif

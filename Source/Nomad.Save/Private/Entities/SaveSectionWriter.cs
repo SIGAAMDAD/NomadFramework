@@ -16,7 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System.Collections.Generic;
 using Nomad.Core.FileSystem;
 using Nomad.Save.Interfaces;
-using Nomad.Save.Private.Exceptions;
+using Nomad.Save.Exceptions;
 using Nomad.Save.Private.ValueObjects;
 
 namespace Nomad.Save.Private.Entities {

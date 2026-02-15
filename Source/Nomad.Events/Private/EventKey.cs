@@ -31,14 +31,18 @@ namespace Nomad.Events.Private {
 
 	internal readonly struct EventKey : IEquatable<EventKey> {
 		/// <summary>
-		/// 
+		/// The event's name. Used for generating the hashkey.
 		/// </summary>
 		public readonly InternString Name { get; }
 		
 		/// <summary>
-		/// 
+		/// The event's namespace. Used for generating the hashkey.
 		/// </summary>
 		public readonly InternString NameSpace { get; }
+
+		/// <summary>
+		/// The struct packet argument system type. Used for generating the hashkey.
+		/// </summary>
 		public readonly Type ArgsType { get; }
 		private readonly int _hashCode;
 
@@ -64,14 +68,43 @@ namespace Nomad.Events.Private {
 			);
 		}
 
+		/*
+		===============
+		Equals
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public bool Equals( EventKey other )
 			=> _hashCode == other._hashCode;
 
+		/*
+		===============
+		GetHashCode
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public override int GetHashCode()
 			=> _hashCode;
 
+		/*
+		===============
+		Equals
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="obj"></param>
+		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public override bool Equals( object? obj )
 			=> obj is EventKey key && Equals( key );

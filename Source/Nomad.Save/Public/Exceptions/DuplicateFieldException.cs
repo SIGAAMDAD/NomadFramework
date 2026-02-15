@@ -14,29 +14,26 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using Nomad.Core.Exceptions;
 
-namespace Nomad.Save.Private.Exceptions {
-	/*
-	===================================================================================
+namespace Nomad.Save.Exceptions
+{
+    /// <summary>
+    /// 
+    /// </summary>
+    public sealed class DuplicateFieldException : Exception
+    {
+        /// <summary>
+        /// The field's name.
+        /// </summary>
+        public readonly string FieldName;
 
-	SaveFileCorruptException
-
-	===================================================================================
-	*/
-	/// <summary>
-	///
-	/// </summary>
-
-	public abstract class SaveFileCorruptException : NomadError {
-		public readonly int FileOffset;
-		public readonly string Error;
-
-		public SaveFileCorruptException( int fileOffset, string message )
-			: base( String.Empty )
-		{
-			FileOffset = fileOffset;
-			Error = message;
-		}
-	};
-};
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fieldName"></param>
+        public DuplicateFieldException(string fieldName)
+        {
+            FieldName = fieldName;
+        }
+    }
+}

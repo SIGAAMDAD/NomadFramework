@@ -35,26 +35,8 @@ namespace Nomad.Events.Private {
 	/// <para>Generic class for managing an event.</para>
 	/// <para>Inherit from this class to pass data between modules and events, if not needed, simply name the event, then publish it.</para>
 	/// </summary>
-	/// <example>
-	/// Here's an example of how to use the <see cref="GameEvent"/> class (without any inheritance).
-	/// <code lang="csharp">
-	/// public class Example {
-	/// 	public readonly GameEvent Event = new GameEvent( nameof( Event ) );
-	///
-	/// 	public static void Main() {
-	/// 		gameEvent.Subscribe( this, DoSomething ); // "subscribe" to the event, this function will be called into every time the event is published
-	/// 		gameEvent.Publish( EmptyEventArgs.Args ); // this will publish the event to the GameEventBus, ensuring that all subscribers are notified that the event has been triggered.
-	/// 	}
-	///
-	/// 	// this will be called whenever the ExampleEvent is triggered
-	/// 	public void DoSomething( in IGameEvent eventData, in IEventArgs args ) {
-	/// 		Debug.Log( "Foo" );
-	/// 	}
-	/// };
-	/// </code>
-	/// </example>
 
-	public class GameEvent<TArgs> : IGameEvent<TArgs>
+	internal sealed class GameEvent<TArgs> : IGameEvent<TArgs>
 		where TArgs : struct
 	{
 		/// <summary>

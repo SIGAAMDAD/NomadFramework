@@ -14,16 +14,17 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using Nomad.Save.Interfaces;
+using Nomad.Save.Services;
 
 namespace Nomad.Save.Events
 {
     /// <summary>
-    /// 
+    /// Event that triggers when <see cref="ISaveDataProvider.Save"/> is called.
     /// </summary>
     public readonly struct SaveBeginEventArgs
     {
         /// <summary>
-        /// 
+        /// The writer service to utilize.
         /// </summary>
         public readonly ISaveWriterService Writer;
 

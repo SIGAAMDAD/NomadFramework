@@ -13,6 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+#if !UNITY_COMPATIBLE
 using System;
 using Godot;
 using Nomad.Core.Events;
@@ -187,3 +188,4 @@ namespace Nomad.GodotServer.Rendering {
 		}
 	};
 };
+#endif
