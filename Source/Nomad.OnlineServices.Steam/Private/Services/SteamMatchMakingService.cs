@@ -74,6 +74,7 @@ namespace Nomad.OnlineServices.Steam.Private {
 		/// </summary>
 		/// <returns></returns>
 		public async ValueTask<LobbyInfo> FindLobby() {
+			return null;
 		}
 
 		/*
@@ -87,7 +88,6 @@ namespace Nomad.OnlineServices.Steam.Private {
 		/// <param name="param"></param>
 		/// <param name="bIOFailure"></param>
 		private void OnLobbyListFound( LobbyMatchList_t param, bool bIOFailure ) {
-			_lobbies.EnsureCapacity( (int)param.m_nLobbiesMatching );
 			for ( int i = 0; i < param.m_nLobbiesMatching; i++ ) {
 				CSteamID lobbyId = SteamMatchmaking.GetLobbyByIndex( i );
 			}

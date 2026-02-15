@@ -75,6 +75,17 @@ namespace Nomad.OnlineServices.Steam {
 
 		/*
 		===============
+		Dispose
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		public void Dispose() {
+		}
+
+		/*
+		===============
 		OnAchievementIconFetched
 		===============
 		*/

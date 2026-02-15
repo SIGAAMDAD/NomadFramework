@@ -16,8 +16,21 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using Steamworks;
 
 namespace Nomad.Steam.Private.ValueObjects {
-	internal readonly record struct SteamUserData(
-		CSteamID UserID,
-		string UserName
-	);
+	/// <summary>
+	/// 
+	/// </summary>
+	internal readonly struct SteamUserData {
+		public readonly CSteamID UserID;
+		public readonly string UserName;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="userId"></param>
+		/// <param name="userName"></param>
+		public SteamUserData(CSteamID userId, string userName) {
+			UserID = userId;
+			UserName = userName;
+		}
+	};
 };

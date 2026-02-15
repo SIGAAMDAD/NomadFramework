@@ -31,7 +31,6 @@ namespace Nomad.OnlineServices.Steam.Private.Services.LobbyServices {
 	/// </summary>
 	
 	public sealed class LobbyLocator : IDisposable {
-		private readonly IGameEvent<> ;
 
 		/// <summary>
 		/// 
