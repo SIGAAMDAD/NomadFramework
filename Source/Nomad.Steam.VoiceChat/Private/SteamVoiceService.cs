@@ -13,6 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+#if !UNITY_64
 using Nomad.Multiplayer;
 using Steamworks;
 
@@ -88,3 +89,4 @@ namespace Nomad.Steam {
 		}
 	};
 };
+#endif
