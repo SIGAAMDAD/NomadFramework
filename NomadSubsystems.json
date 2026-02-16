@@ -1,0 +1,195 @@
+{
+  "Subsystems": [
+    {
+      "Name": "Nomad.Core",
+      "Define": "",
+      "Description": "Subsystem Core",
+      "DependsOn": [],
+      "UnityCompatible": true,
+      "DefaultEnabled": true
+    },
+    {
+      "Name": "Nomad.Save",
+      "Define": "NOMAD_ENABLE_SAVE",
+      "Description": "Subsystem Save",
+      "DependsOn": [
+        "Nomad.Core",
+        "Nomad.CVars",
+        "Nomad.Events",
+        "Nomad.Logger"
+      ],
+      "UnityCompatible": true,
+      "DefaultEnabled": false
+    },
+    {
+      "Name": "Nomad.Events",
+      "Define": "NOMAD_ENABLE_EVENTS",
+      "Description": "Subsystem Events",
+      "DependsOn": [
+        "Nomad.Core"
+      ],
+      "UnityCompatible": true,
+      "DefaultEnabled": true
+    },
+    {
+      "Name": "Nomad.CVars",
+      "Define": "NOMAD_ENABLE_CVARS",
+      "Description": "Subsystem CVars",
+      "DependsOn": [
+        "Nomad.Core",
+        "Nomad.Events"
+      ],
+      "UnityCompatible": true,
+      "DefaultEnabled": true
+    },
+    {
+      "Name": "Nomad.Steam.VoiceChat",
+      "Define": "NOMAD_ENABLE_STEAM_VOICECHAT",
+      "Description": "Subsystem SteamVoiceChat",
+      "DependsOn": [
+        "Nomad.Core",
+        "Nomad.Events",
+        "Nomad.Logger",
+        "Nomad.CVars"
+      ],
+      "UnityCompatible": false,
+      "DefaultEnabled": false
+    },
+    {
+      "Name": "Nomad.ResourceCache",
+      "Define": "NOMAD_ENABLE_RESOURCECACHE",
+      "Description": "Subsystem ResourceCache",
+      "DependsOn": [
+        "Nomad.Core"
+      ],
+      "UnityCompatible": true,
+      "DefaultEnabled": false
+    },
+    {
+      "Name": "Nomad.OnlineServices.Steam",
+      "Define": "NOMAD_ENABLE_ONLINESERVICES_STEAM",
+      "Description": "Subsystem OnlineServices Steam",
+      "DependsOn": [
+        "Nomad.Core",
+        "Nomad.Events",
+        "Nomad.Logger",
+        "Nomad.CVars"
+      ],
+      "UnityCompatible": false,
+      "DefaultEnabled": false
+    },
+    {
+      "Name": "Nomad.Events",
+      "Define": "NOMAD_ENABLE_EVENTS",
+      "Description": "Subsystem Events",
+      "DependsOn": [
+        "Nomad.Core"
+      ],
+      "UnityCompatible": true,
+      "DefaultEnabled": false
+    },
+    {
+      "Name": "Nomad.Logger",
+      "Define": "NOMAD_ENABLE_LOGGER",
+      "Description": "Subsystem Logger",
+      "DependsOn": [
+        "Nomad.Core"
+      ],
+      "UnityCompatible": true,
+      "DefaultEnabled": true
+    },
+    {
+      "Name": "Nomad.Input",
+      "Define": "NOMAD_ENABLE_INPUT",
+      "Description": "Subsystem Input",
+      "DependsOn": [
+        "Nomad.Core",
+        "Nomad.Events",
+        "Nomad.Logger",
+        "Nomad.CVars"
+      ],
+      "UnityCompatible": false,
+      "DefaultEnabled": false
+    },
+    {
+      "Name": "Nomad.GodotServer.Rendering",
+      "Define": "NOMAD_ENABLE_GODOTSERVER_RENDERING",
+      "Description": "Subsystem GodotServer Rendering",
+      "DependsOn": [
+        "Nomad.Core",
+        "Nomad.Events"
+      ],
+      "UnityCompatible": false,
+      "DefaultEnabled": false
+    },
+    {
+      "Name": "Nomad.FileSystem",
+      "Define": "NOMAD_ENABLE_FILESYSTEM",
+      "Description": "Subsystem FileSyste,",
+      "DependsOn": [
+        "Nomad.Core",
+        "Nomad.Events",
+        "Nomad.Logger",
+        "Nomad.CVars"
+      ],
+      "UnityCompatible": true,
+      "DefaultEnabled": false
+    },
+    {
+      "Name": "Nomad.EngineUtils.Unity",
+      "Define": "NOMAD_ENABLE_ENGINEUTILS_UNITY",
+      "Description": "Subsystem EngineUtils Unity",
+      "DependsOn": [
+        "Nomad.Core",
+        "Nomad.Events"
+      ],
+      "UnityCompatible": true,
+      "DefaultEnabled": false
+    },
+    {
+      "Name": "Nomad.EngineUtils.Godot",
+      "Define": "NOMAD_ENABLE_ENGINEUTILS_GODOT",
+      "Description": "Subsystem EngineUtils Godot",
+      "DependsOn": [
+        "Nomad.Core",
+        "Nomad.Events"
+      ],
+      "UnityCompatible": false,
+      "DefaultEnabled": false
+    },
+    {
+      "Name": "Nomad.Audio",
+      "Define": "NOMAD_ENABLE_AUDIO",
+      "Description": "Subsystem Audio",
+      "DependsOn": [
+        "Nomad.Core"
+      ],
+      "UnityCompatible": false,
+      "DefaultEnabled": false
+    },
+    {
+      "Name": "Nomad.Audio.FMOD",
+      "Define": "NOMAD_ENABLE_AUDIO_FMOD",
+      "Description": "Subsystem Audio FMOD",
+      "DependsOn": [
+        "Nomad.Audio",
+        "Nomad.ResourceCache"
+      ],
+      "UnityCompatible": false,
+      "DefaultEnabled": false
+    },
+    {
+      "Name": "Nomad.Console",
+      "Define": "NOMAD_ENABLE_CONSOLE",
+      "Description": "Subsystem Console",
+      "DependsOn": [
+        "Nomad.Core",
+        "Nomad.Logger",
+        "Nomad.Events",
+        "Nomad.CVars"
+      ],
+      "UnityCompatible": true,
+      "DefaultEnabled": false
+    }
+  ]
+}

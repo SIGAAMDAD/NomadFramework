@@ -13,7 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-#if !UNITY_64
+#if !UNITY_EDITOR
 using System;
 using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;

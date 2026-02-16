@@ -15,7 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 
-#if !USE_COMPATIBILITY_EXTENSIONS && !UNITY_64
+#if !USE_COMPATIBILITY_EXTENSIONS && !UNITY_EDITOR
 namespace Nomad.Core.Collections.Native
 {
     /// <summary>

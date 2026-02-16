@@ -13,10 +13,10 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
 using System.Collections.Concurrent;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
+using Nomad.Save.Exceptions;
 using Nomad.Save.Interfaces;
 using Nomad.Save.Private.Entities;
 using Nomad.Save.Private.ValueObjects;
@@ -116,17 +116,12 @@ namespace Nomad.Save.Private.Services {
 			foreach ( var section in _sections ) {
 				section.Value.Dispose();
 			}
+			
+			_writer.Seek( 0, System.IO.SeekOrigin.Begin );
+			var header = new SaveHeader( gameVersion, sectionCount, Checksum.Empty );
+			header.Serialize( _writer );
 
-			{
-				_logger.PrintLine( $"Writing header..." );
-				_logger.PrintLine( $"Has {sectionCount} sections." );
-				
-				_writer.Seek( 0, System.IO.SeekOrigin.Begin );
-				var header = new SaveHeader( gameVersion, sectionCount, Checksum.Empty );
-				header.Serialize( _writer );
-
-				_writer.Seek( 0, System.IO.SeekOrigin.End );
-			}
+			_writer.Seek( 0, System.IO.SeekOrigin.End );
 
 			_writer?.Dispose();
 		}
@@ -137,14 +132,14 @@ namespace Nomad.Save.Private.Services {
 		===============
 		*/
 		/// <summary>
-		///
+		/// Creates a new section with the id of <paramref name="sectionId"/> and returns it.
 		/// </summary>
-		/// <param name="sectionId"></param>
-		/// <returns></returns>
-		/// <exception cref="Exception"></exception>
+		/// <param name="sectionId">The name of the section to add.</param>
+		/// <returns>The new write-dedicated section.</returns>
+		/// <exception cref="DuplicateSectionException">Thrown if <paramref name="sectionId"/> already exists in the section cache.</exception>
 		public ISaveSectionWriter AddSection( string sectionId ) {
 			if ( _sections.ContainsKey( sectionId ) ) {
-				throw new Exception( $"Section {sectionId} added twice!" );
+				throw new DuplicateSectionException( $"Section {sectionId} added twice!" );
 			}
 			var writer = new SaveSectionWriter( sectionId, _writer );
 			_logger.PrintLine( $"AddSection: creating save section {sectionId}..." );

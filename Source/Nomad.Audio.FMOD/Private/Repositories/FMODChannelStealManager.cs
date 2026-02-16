@@ -66,7 +66,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// <param name="stolenChannelId"></param>
 		/// <param name="stealTime"></param>
 		public void AddOrUpdate( IntPtr stolenChannelId, float stealTime ) {
-#if !USE_COMPATIBILITY_EXTENSIONS && !UNITY_64
+#if !USE_COMPATIBILITY_EXTENSIONS && !UNITY_EDITOR
 			ref int index = ref CollectionsMarshal.GetValueRefOrAddDefault( _indexMap, stolenChannelId, out bool exists );
 			if ( !exists )
 #else
@@ -76,7 +76,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 				index = _stealChannelCount++;
 				_buffer[ index ].Id = stolenChannelId;
 				_buffer[ index ].StealCount = 0;
-#if USE_COMPATIBILITY_EXTENSIONS && !UNITY_64
+#if USE_COMPATIBILITY_EXTENSIONS && !UNITY_EDITOR
 				_indexMap[ stolenChannelId ] = index;
 #endif
 			}

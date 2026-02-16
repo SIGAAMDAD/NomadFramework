@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "NomadSubsystems",
+  "type": "object",
+  "properties": {
+    "subsystems": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "define",
+          "dependsOn",
+          "unityCompatible",
+          "defaultEnabled",
+          "description"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Za-z0-9]*$"
+          },
+          "define": {
+            "type": "string"
+          },
+          "dependsOn": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "unityCompatible": {
+            "type": "boolean"
+          },
+          "defaultEnabled": {
+            "type": "boolean"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [ "subsystems" ],
+  "additionalProperties": false
+}

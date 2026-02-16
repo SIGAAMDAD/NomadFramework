@@ -13,6 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System;
 using System.Threading;
 using Nomad.Core.Events;
 using Nomad.Events.Private.SubscriptionSets;
@@ -48,6 +49,14 @@ namespace Nomad.Events
         /// <summary>
         /// 
         /// </summary>
+        ~SubscriptionHandle()
+        {
+            Dispose();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public void Dispose()
         {
             if (Interlocked.Exchange(ref _disposed, 1) == 1)
@@ -55,6 +64,7 @@ namespace Nomad.Events
                 return;
             }
             _set.RemoveSubscription(_owner, _callback);
+            GC.SuppressFinalize(this);
         }
     }
 }

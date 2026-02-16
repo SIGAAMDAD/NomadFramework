@@ -16,7 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using Nomad.Core.OnlineServices;
 using Steamworks;
 
-namespace Nomad.OnlineServices.Steam {
+namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
 	/*
 	===================================================================================
 

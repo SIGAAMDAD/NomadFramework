@@ -23,21 +23,16 @@ namespace Nomad.Save.Interfaces
     /// </summary>
     /// <example>
     /// Here is an example of how you would utilize this to write some (for example) player data to a save file:
-    /// <code lang="csharp">
-    /// <![CDATA[
-    /// public class Player {
-    ///     
-    /// };
-    /// ]]>
-    /// </code>
+    /// 
     /// </example> 
     public interface ISaveWriterService : IDisposable
     {
         /// <summary>
-        /// 
+        /// Creates a new section with the id of <paramref name="sectionId"/> and returns it.
         /// </summary>
-        /// <param name="sectionId"></param>
-        /// <returns></returns>
+        /// <param name="sectionId">The name of the section to add.</param>
+        /// <returns>The new write-dedicated section.</returns>
+        /// <exception cref="DuplicateSectionException">Thrown if <paramref name="sectionId"/> already exists in the section cache.</exception>
         ISaveSectionWriter AddSection(string sectionId);
 
         /// <summary>

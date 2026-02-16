@@ -36,7 +36,7 @@ namespace Nomad.Core.Compatibility.Guards
         public static void ThrowIfLessThanOrEqual<T>(T value, T other, string? paramName = null)
             where T : IComparable<T>
         {
-#if USE_COMPATIBILITY_EXTENSIONS || UNITY_64
+#if USE_COMPATIBILITY_EXTENSIONS || UNITY_EDITOR
             if (value.CompareTo(other) <= 0)
             {
                 throw new ArgumentOutOfRangeException(paramName);
@@ -57,7 +57,7 @@ namespace Nomad.Core.Compatibility.Guards
         public static void ThrowIfGreaterThanOrEqual<T>(T value, T other, string? paramName = null)
             where T : IComparable<T>
         {
-#if USE_COMPATIBILITY_EXTENSIONS || UNITY_64
+#if USE_COMPATIBILITY_EXTENSIONS || UNITY_EDITOR
             if (value.CompareTo(other) >= 0)
             {
                 throw new ArgumentOutOfRangeException(paramName);
@@ -78,7 +78,7 @@ namespace Nomad.Core.Compatibility.Guards
         public static void ThrowIfLessThan<T>(T value, T other, string? paramName)
             where T : IComparable<T>
         {
-#if USE_COMPATIBILITY_EXTENSIONS || UNITY_64
+#if USE_COMPATIBILITY_EXTENSIONS || UNITY_EDITOR
             if (value.CompareTo(other) < 0)
             {
                 throw new ArgumentOutOfRangeException(paramName);
@@ -99,7 +99,7 @@ namespace Nomad.Core.Compatibility.Guards
         public static void ThrowIfGreaterThan<T>(T value, T other, string? paramName)
             where T : IComparable<T>
         {
-#if USE_COMPATIBILITY_EXTENSIONS || UNITY_64
+#if USE_COMPATIBILITY_EXTENSIONS || UNITY_EDITOR
             if (value.CompareTo(other) > 0)
             {
                 throw new ArgumentOutOfRangeException(paramName);
@@ -120,7 +120,7 @@ namespace Nomad.Core.Compatibility.Guards
         public static void ThrowIfEqual<T>(T value, T other, string? paramName)
             where T : IEqualityComparer<T>?
         {
-#if USE_COMPATIBILITY_EXTENSIONS || UNITY_64
+#if USE_COMPATIBILITY_EXTENSIONS || UNITY_EDITOR
             if (EqualityComparer<T>.Default.Equals(value, other))
             {
                 throw new ArgumentOutOfRangeException(paramName);
@@ -141,7 +141,7 @@ namespace Nomad.Core.Compatibility.Guards
         public static void ThrowIfNotEqual<T>(T value, T other, string? paramName)
             where T : IEqualityComparer<T>?
         {
-#if USE_COMPATIBILITY_EXTENSIONS || UNITY_64
+#if USE_COMPATIBILITY_EXTENSIONS || UNITY_EDITOR
             if (!EqualityComparer<T>.Default.Equals(value, other))
             {
                 throw new ArgumentOutOfRangeException(paramName);
@@ -160,7 +160,7 @@ namespace Nomad.Core.Compatibility.Guards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ThrowIfNegative(int value, string? paramName = null)
         {
-#if USE_COMPATIBILITY_EXTENSIONS || UNITY_64
+#if USE_COMPATIBILITY_EXTENSIONS || UNITY_EDITOR
             if (value < 0)
             {
                 throw new ArgumentOutOfRangeException(paramName, "Value cannot be negative.");
@@ -179,7 +179,7 @@ namespace Nomad.Core.Compatibility.Guards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ThrowIfNegative(float value, string? paramName = null)
         {
-#if USE_COMPATIBILITY_EXTENSIONS || UNITY_64
+#if USE_COMPATIBILITY_EXTENSIONS || UNITY_EDITOR
             if (value < 0.0f)
             {
                 throw new ArgumentOutOfRangeException(paramName, "Value cannot be negative.");
@@ -198,7 +198,7 @@ namespace Nomad.Core.Compatibility.Guards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ThrowIfZero(int value, string? paramName = null)
         {
-#if USE_COMPATIBILITY_EXTENSIONS || UNITY_64
+#if USE_COMPATIBILITY_EXTENSIONS || UNITY_EDITOR
             if (value == 0)
             {
                 throw new ArgumentOutOfRangeException(paramName, "Value cannot be zero.");
@@ -217,7 +217,7 @@ namespace Nomad.Core.Compatibility.Guards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ThrowIfZero(float value, string? paramName = null)
         {
-#if USE_COMPATIBILITY_EXTENSIONS || UNITY_64
+#if USE_COMPATIBILITY_EXTENSIONS || UNITY_EDITOR
             if (value == 0.0f)
             {
                 throw new ArgumentOutOfRangeException(paramName, "Value cannot be zero.");
@@ -236,7 +236,7 @@ namespace Nomad.Core.Compatibility.Guards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ThrowIfNegativeOrZero(int value, string? paramName = null)
         {
-#if USE_COMPATIBILITY_EXTENSIONS || UNITY_64
+#if USE_COMPATIBILITY_EXTENSIONS || UNITY_EDITOR
             if (value < 0 || value == 0)
             {
                 throw new ArgumentOutOfRangeException(paramName, "Value must be greater than zero.");
@@ -255,7 +255,7 @@ namespace Nomad.Core.Compatibility.Guards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ThrowIfNegativeOrZero(float value, string? paramName = null)
         {
-#if USE_COMPATIBILITY_EXTENSIONS || UNITY_64
+#if USE_COMPATIBILITY_EXTENSIONS || UNITY_EDITOR
             if (value < 0.0f || value == 0.0f)
             {
                 throw new ArgumentOutOfRangeException(paramName, "Value must be greater than zero.");

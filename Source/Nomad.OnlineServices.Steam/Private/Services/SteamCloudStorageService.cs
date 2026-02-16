@@ -41,13 +41,12 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 		public bool SupportsCloudStorage => true;
 
 		private record CloudFile(
-			string Name,
 			int Size,
 			DateTime CloudAccessTime,
 			DateTime LocalAccessTime
 		);
 
-		private readonly List<CloudFile> _cloudFiles = new List<CloudFile>();
+		private readonly Dictionary<string, CloudFile> _cloudFiles = new Dictionary<string, CloudFile>();
 
 		private readonly IFileSystem _fileSystem;
 
@@ -75,6 +74,8 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 			_fileSystem = fileSystem;
 
 			_fileChangeResult = CallResult<RemoteStorageLocalFileChange_t>.Create( OnFileChange );
+
+			RefreshCloudFiles();
 		}
 
 		/*
@@ -86,8 +87,8 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 		/// 
 		/// </summary>
 		public void Dispose() {
-			_category.Dispose();
-			_fileChangeResult.Dispose();
+			_category?.Dispose();
+			_fileChangeResult?.Dispose();
 		}
 
 		/*
@@ -135,6 +136,18 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 			return fileBuffer;
 		}
 
+		/*
+		===============
+		ResolveConflict
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="fileName"></param>
+		/// <param name="localData"></param>
+		/// <param name="cloudData"></param>
+		/// <returns></returns>
 		public async ValueTask ResolveConflict( string fileName, byte[] localData, byte[] cloudData ) {
 		}
 
@@ -153,18 +166,10 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 				return;
 			}
 
-			int fileCount = SteamRemoteStorage.GetFileCount();
-			if ( _cloudFiles.Count < fileCount ) {
+			int cloudFileCount = SteamRemoteStorage.GetFileCount();
+			if ( _cloudFiles.Count != cloudFileCount ) {
 				// we need to retrieve some files
-				for ( int i = 0; i < fileCount; i++ ) {
-					string name = SteamRemoteStorage.GetFileNameAndSize( i, out int fileSize );
-
-					if ( _fileSystem.FileExists( name ) ) {
-						continue;
-					}
-
-					_logger.PrintLine( in _category, $"SteamCloudStorageService.Synchronize: retrieving cloud file '{name}' from steam storage..." );
-				}
+				RefreshCloudFiles();
 			}
 
 			for ( int i = 0; i < fileCount; i++ ) {
@@ -207,6 +212,38 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 
 		/*
 		===============
+		RefreshCloudFiles
+		===============
+		*/
+		/// <summary>
+		/// Updates the current cloud-files list.
+		/// </summary>
+		private void RefreshCloudFiles() {
+			int cloudFileCount = SteamRemoteStorage.GetFileCount();
+
+			_cloudFiles.Clear();
+			_cloudFiles.EnsureCapacity( cloudFileCount );
+
+			for ( int i = 0; i < cloudFileCount; i++ ) {
+				string name = SteamRemoteStorage.GetFileNameAndSize( i, out int fileSize );
+
+				long timeStamp = SteamRemoteStorage.GetFileTimestamp( name );
+				FileInfo info = new FileInfo( name );
+
+				_logger.PrintLine( in _category, $"SteamCloudStorageService.Synchronize" );
+				_cloudFiles.Add(
+					name,
+					new CloudFile(
+						Size: fileSize,
+						CloudAccessTime: DateTimeOffset.FromUnixTimeMilliseconds( timeStamp ).UtcDateTime,
+						LocalAccessTime: info.LastAccessTime
+					)
+				);
+			}
+		}
+
+		/*
+		===============
 		RetrieveCloudFile
 		===============
 		*/
@@ -215,6 +252,8 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 		/// </summary>
 		/// <param name="fileName"></param>
 		private void RetrieveCloudFile( string fileName ) {
+			int fileSize = SteamRemoteStorage.GetFileSize( fileName );
+			SteamRemoteStorage.FileReadAsync( fileName, 0, (uint)fileSize );
 		}
 	};
 };

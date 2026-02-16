@@ -1,1 +1,0 @@
-dotnet test --filter "$1$2$3"

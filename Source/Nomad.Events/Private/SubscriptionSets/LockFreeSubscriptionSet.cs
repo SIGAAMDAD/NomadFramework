@@ -112,11 +112,17 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// <param name="subscriber"></param>
 		/// <param name="callback">The method that is called whenever the event triggers.</param>
 		/// <exception cref="ArgumentNullException">Thrown if <paramref name="callback"/> is null.</exception>
-		public void AddSubscription( object subscriber, EventCallback<TArgs> callback ) {
+		public bool AddSubscription( object subscriber, EventCallback<TArgs> callback ) {
 			ArgumentGuard.ThrowIfNull( subscriber );
 			ArgumentGuard.ThrowIfNull( callback );
 
+			if ( ContainsCallback( subscriber, callback, out _ ) ) {
+				_logger.PrintWarning( $"" );
+				return false;
+			}
+
 			_genericSubscriptions.Add( SubscriptionEntry<TArgs>.Create( subscriber, callback ) );
+			return true;
 		}
 
 		/*
@@ -130,7 +136,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// <param name="subscriber"></param>
 		/// <param name="callback"></param>
 		/// <exception cref="NotSupportedException"></exception>
-		public void AddSubscriptionAsync( object subscriber, AsyncEventCallback<TArgs> callback ) {
+		public bool AddSubscriptionAsync( object subscriber, AsyncEventCallback<TArgs> callback ) {
 			throw new NotSupportedException();
 		}
 
@@ -146,17 +152,17 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// <param name="callback">The callback to remove from the subscription list.</param>
 		/// <exception cref="ArgumentNullException">Thrown if <paramref name="callback"/> is null.</exception>
 		/// <exception cref="ArgumentOutOfRangeException">Thrown if the returned index from <see cref="ContainsCallback"/> is invalid.</exception>
-		public void RemoveSubscription( object subscriber, EventCallback<TArgs> callback ) {
+		public bool RemoveSubscription( object subscriber, EventCallback<TArgs> callback ) {
 			ArgumentGuard.ThrowIfNull( subscriber );
 			ArgumentGuard.ThrowIfNull( callback );
 
 			if ( !ContainsCallback( subscriber, callback, out int index ) ) {
-#if EVENT_DEBUG
 				_logger.PrintWarning( $"" );
-#endif
+				return false;
 			}
 
 			_genericSubscriptions.RemoveAt( index );
+			return true;
 		}
 
 		/*
@@ -170,7 +176,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// <param name="subscriber"></param>
 		/// <param name="callback"></param>
 		/// <exception cref="NotSupportedException"></exception>
-		public void RemoveSubscriptionAsync( object subscriber, AsyncEventCallback<TArgs> callback ) {
+		public bool RemoveSubscriptionAsync( object subscriber, AsyncEventCallback<TArgs> callback ) {
 			throw new NotSupportedException();
 		}
 

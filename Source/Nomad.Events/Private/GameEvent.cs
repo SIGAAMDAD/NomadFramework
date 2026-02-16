@@ -295,7 +295,7 @@ namespace Nomad.Events.Private {
 			_subscriptions.CleanupSubscriptions();
 		}
 
-#if !USE_COMPATIBILITY_EXTENSIONS && !UNITY_64
+#if !USE_COMPATIBILITY_EXTENSIONS && !UNITY_EDITOR
 		/*
 		===============
 		operator +=

@@ -13,6 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using Nomad.Core.Abstractions;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.Events;
 using Nomad.Core.Logger;
@@ -23,21 +24,31 @@ namespace Nomad.Events
     /// <summary>
     ///
     /// </summary>
-    public static class EventSystemBootstrapper
+    public sealed class EventBootstrapper : IBootstrapper
     {
+        private IGameEventRegistryService _eventRegistry;
+
         /// <summary>
         ///
         /// </summary>
-        /// <param name="locator"></param>
         /// <param name="registry"></param>
-        public static void Initialize(IServiceLocator locator, IServiceRegistry registry)
+        /// <param name="locator"></param>
+        public void Initialize(IServiceRegistry registry, IServiceLocator locator)
         {
             ArgumentGuard.ThrowIfNull(locator);
             ArgumentGuard.ThrowIfNull(registry);
 
-            ILoggerService logger = locator.GetService<ILoggerService>();
+            var logger = locator.GetService<ILoggerService>();
 
-            registry.RegisterSingleton<IGameEventRegistryService>(new GameEventRegistry(logger));
+            _eventRegistry = registry.RegisterSingleton<IGameEventRegistryService>(new GameEventRegistry(logger));
         }
-    };
-};
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void Shutdown()
+        {
+            _eventRegistry?.Dispose();
+        }
+    }
+}

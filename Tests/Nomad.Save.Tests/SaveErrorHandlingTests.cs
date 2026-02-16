@@ -13,7 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-#if !UNITY_64
+#if !UNITY_EDITOR
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -29,6 +29,7 @@ using Nomad.Save.Interfaces;
 using Nomad.Save.Private.Services;
 using Nomad.Save.Services;
 using Nomad.Save.ValueObjects;
+using Nomad.Save.Exceptions;
 
 namespace Nomad.Save.Tests;
 
@@ -500,12 +501,11 @@ public class SaveErrorHandlingTests
         Assert.That(loadedValue, Is.EqualTo(value));
     }
 
-    /*
     [Test]
     public async Task EventSubscriber_CanBeUnsubscribed()
     {
         // Arrange
-        var fileId = new SaveFileId(Path.Combine(_testDirectory, "unsubscribe_test.ngd"));
+        var fileId = Path.Combine(_testDirectory, "unsubscribe_test.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var eventFired = false;
 
@@ -519,20 +519,22 @@ public class SaveErrorHandlingTests
         saveBegin.Subscribe(this, OnSaveBegin);
 
         // Act
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
         var firstRun = eventFired;
 
         eventFired = false;
         saveBegin.Unsubscribe(this, OnSaveBegin);
 
-        await _dataProvider.Save(fileId);
+        await _dataProvider.Save(fileId, default);
         var secondRun = eventFired;
 
-        // Assert
-        Assert.That(firstRun, Is.True);
-        Assert.That(secondRun, Is.False);
-    }
-    */
+		using (Assert.EnterMultipleScope())
+		{
+			// Assert
+			Assert.That(firstRun, Is.True);
+			Assert.That(secondRun, Is.False);
+		}
+	}
 
     [Test]
     public async Task SaveDataProvider_IsDisposable()
@@ -545,6 +547,54 @@ public class SaveErrorHandlingTests
 
         // Assert - should be disposed without throwing
         Assert.Pass("SaveDataProvider successfully disposed");
+    }
+
+    [Test]
+    public async Task Field_DuplicateFieldCreation_ThrowsDuplicateFieldException()
+    {
+        // Arrange
+        var fileId = Path.Combine(_testDirectory, "duplicate_field_exception.ngd");
+        var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
+        DuplicateFieldException? exception = null;
+
+        void OnSaveBegin(in SaveBeginEventArgs args)
+        {
+            var section = args.Writer.AddSection("Test");
+            section.AddField("Value", 1);
+            exception = Assert.Throws<DuplicateFieldException>( () => section.AddField("Value", 1) );
+        }
+
+        saveBegin.Subscribe(this, OnSaveBegin);
+
+        // Act
+        await _dataProvider.Save(fileId, default);
+        
+        // Assert
+        Assert.That(exception, Is.Not.Null);
+    }
+
+    [Test]
+    public async Task Section_DuplicateSectionCreation_ThrowsDuplicateSectionException()
+    {
+        // Arrange
+        var fileId = Path.Combine(_testDirectory, "duplicate_section_test.ngd");
+        var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
+        DuplicateSectionException? exception = null;
+
+        void OnSaveBegin(in SaveBeginEventArgs args)
+        {
+            ISaveWriterService writer = args.Writer;
+            var section = args.Writer.AddSection("Test");
+            exception = Assert.Throws<DuplicateSectionException>( () => writer.AddSection("Test") );
+        }
+
+        saveBegin.Subscribe(this, OnSaveBegin);
+
+        // Act
+        await _dataProvider.Save(fileId, default);
+        
+        // Assert
+        Assert.That(exception, Is.Not.Null);
     }
 }
 #endif

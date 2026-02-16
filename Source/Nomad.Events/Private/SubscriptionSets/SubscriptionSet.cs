@@ -45,7 +45,6 @@ namespace Nomad.Events.Private.SubscriptionSets {
 
 		private readonly SubscriptionCache<TArgs> _genericSubscriptions;
 		private readonly SubscriptionCache<TArgs> _asyncSubscriptions;
-		private int _cleanupCounter = 0;
 
 		private readonly HashSet<WeakReference<IGameEvent>> _friends = new HashSet<WeakReference<IGameEvent>>();
 		private readonly ReaderWriterLockSlim _pumpLock = new ReaderWriterLockSlim();
@@ -78,9 +77,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// Clears all the subscriptions within this set.
 		/// </summary>
 		public void Dispose() {
-#if EVENT_DEBUG
 			_logger.PrintLine( $"Releasing subscription set for event {_eventData.DebugName}..." );
-#endif
 			_genericSubscriptions.Dispose();
 			_asyncSubscriptions.Dispose();
 			_friends.Clear();
@@ -116,18 +113,19 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// <param name="subscriber"></param>
 		/// <param name="callback">The method that is called whenever the event triggers.</param>
 		/// <exception cref="ArgumentNullException">Thrown if <paramref name="callback"/> is null.</exception>
-		public void AddSubscription( object subscriber, EventCallback<TArgs> callback ) {
+		public bool AddSubscription( object subscriber, EventCallback<TArgs> callback ) {
 			ArgumentGuard.ThrowIfNull( subscriber );
 			ArgumentGuard.ThrowIfNull( callback );
 
 			if ( ContainsCallback( subscriber, callback, out _ ) ) {
-				_logger.PrintWarning( $"SubscriptionSet.AddSubscription: subscription for owner '{subscriber.GetType().FullName}' and callback '{callback.Method.Name}' already exists!" );
-				return;
+				_logger?.PrintWarning( $"SubscriptionSet.AddSubscription: subscription for owner '{subscriber.GetType().FullName}' and callback '{callback.Method.Name}' already exists!" );
+				return false;
 			}
 
 			_pumpLock.EnterWriteLock();
 			try {
 				_genericSubscriptions.Add( SubscriptionEntry<TArgs>.Create( subscriber, callback ) );
+				return true;
 			} finally {
 				_pumpLock.ExitWriteLock();
 			}
@@ -144,18 +142,19 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// <param name="subscriber"></param>
 		/// <param name="callback">The method that is called whenever the event triggers.</param>
 		/// <exception cref="ArgumentNullException">Thrown if <paramref name="callback"/> is null.</exception>
-		public void AddSubscriptionAsync( object subscriber, AsyncEventCallback<TArgs> callback ) {
+		public bool AddSubscriptionAsync( object subscriber, AsyncEventCallback<TArgs> callback ) {
 			ArgumentGuard.ThrowIfNull( subscriber );
 			ArgumentGuard.ThrowIfNull( callback );
 
 			if ( ContainsCallbackAsync( subscriber, callback, out _ ) ) {
-				_logger.PrintWarning( $"SubscriptionSet.AddSubscriptionAsync: subscription for owner '{subscriber.GetType().FullName}' and callback '{callback.Method.Name}' already exists!" );
-				return;
+				_logger?.PrintWarning( $"SubscriptionSet.AddSubscriptionAsync: subscription for owner '{subscriber.GetType().FullName}' and callback '{callback.Method.Name}' already exists!" );
+				return false;
 			}
 
 			_pumpLock.EnterWriteLock();
 			try {
 				_asyncSubscriptions.Add( SubscriptionEntry<TArgs>.CreateAsync( subscriber, callback ) );
+				return true;
 			} finally {
 				_pumpLock.ExitWriteLock();
 			}
@@ -173,18 +172,19 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// <param name="callback">The callback to remove from the subscription list.</param>
 		/// <exception cref="ArgumentNullException">Thrown if <paramref name="callback"/> is null.</exception>
 		/// <exception cref="ArgumentOutOfRangeException">Thrown if the returned index from <see cref="ContainsCallback"/> is invalid.</exception>
-		public void RemoveSubscription( object subscriber, EventCallback<TArgs> callback ) {
+		public bool RemoveSubscription( object subscriber, EventCallback<TArgs> callback ) {
 			ArgumentGuard.ThrowIfNull( subscriber );
 			ArgumentGuard.ThrowIfNull( callback );
 
 			if ( !ContainsCallback( subscriber, callback, out int index ) ) {
-				_logger.PrintError( $"SubscriptionSet.RemoveSubscription: no such existing subscription for owner '{subscriber.GetType().FullName}' and callback '{callback.Method.Name}'" );
-				return;
+				_logger?.PrintError( $"SubscriptionSet.RemoveSubscription: no such existing subscription for owner '{subscriber.GetType().FullName}' and callback '{callback.Method.Name}'" );
+				return false;
 			}
 
 			_pumpLock.EnterWriteLock();
 			try {
 				_genericSubscriptions.RemoveAt( index );
+				return true;
 			} finally {
 				_pumpLock.ExitWriteLock();
 			}
@@ -202,18 +202,19 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// <param name="callback">The callback to remove from the subscription list.</param>
 		/// <exception cref="ArgumentNullException">Thrown if <paramref name="callback"/> is null.</exception>
 		/// <exception cref="ArgumentOutOfRangeException">Thrown if the returned index from <see cref="ContainsCallback"/> is invalid.</exception>
-		public void RemoveSubscriptionAsync( object subscriber, AsyncEventCallback<TArgs> callback ) {
+		public bool RemoveSubscriptionAsync( object subscriber, AsyncEventCallback<TArgs> callback ) {
 			ArgumentGuard.ThrowIfNull( subscriber );
 			ArgumentGuard.ThrowIfNull( callback );
 
 			if ( !ContainsCallbackAsync( subscriber, callback, out int index ) ) {
-				_logger.PrintError( $"SubscriptionSet.RemoveSubscriptionAsync: no such existing subscription for owner '{subscriber.GetType().FullName}' and callback '{callback.Method.Name}'" );
-				return;
+				_logger?.PrintError( $"SubscriptionSet.RemoveSubscriptionAsync: no such existing subscription for owner '{subscriber.GetType().FullName}' and callback '{callback.Method.Name}'" );
+				return false;
 			}
 
 			_pumpLock.EnterWriteLock();
 			try {
 				_asyncSubscriptions.RemoveAt( index );
+				return true;
 			} finally {
 				_pumpLock.ExitWriteLock();
 			}
@@ -295,7 +296,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 				}
 			}
 
-#if USE_COMPATIBILITY_EXTENSIONS || UNITY_64
+#if USE_COMPATIBILITY_EXTENSIONS || UNITY_EDITOR
 			Task.WaitAll( tasks.ToArray(), ct );
 #else
 			Task.WaitAll( tasks, ct );

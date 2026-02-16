@@ -13,7 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-#if !UNITY_64
+#if !UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
@@ -101,7 +101,7 @@ public class SubscriptionTests
 		gameEvent.Publish(default);
 
 		// Assert
-		Assert.That(callStack.Count, Is.EqualTo(3));
+		Assert.That(callStack, Has.Count.EqualTo(3));
 		Assert.That(callStack, Contains.Item("Subscriber1"));
 		Assert.That(callStack, Contains.Item("Subscriber2"));
 		Assert.That(callStack, Contains.Item("Subscriber3"));
@@ -139,7 +139,7 @@ public class SubscriptionTests
 	{
 		// Arrange
 		var gameEvent = _registry.GetEvent<EmptyEventArgs>("Test", "Event");
-		void Callback(in EmptyEventArgs args) { }
+		static void Callback(in EmptyEventArgs args) { }
 
 		// Act & Assert
 		Assert.DoesNotThrow(() =>
@@ -192,7 +192,7 @@ public class SubscriptionTests
 		gameEvent.Publish(default);
 
 		// Assert
-		Assert.That(callStack.Count, Is.EqualTo(1));
+		Assert.That(callStack, Has.Count.EqualTo(1));
 	}
 
 	#endregion
@@ -217,7 +217,7 @@ public class SubscriptionTests
 	{
 		// Arrange
 		var gameEvent = _registry.GetEvent<EmptyEventArgs>("Test", "Event");
-		void Callback(in EmptyEventArgs args) { }
+		static void Callback(in EmptyEventArgs args) { }
 
 		// Act & Assert
 		Assert.Throws<ArgumentNullException>(() =>
@@ -360,7 +360,7 @@ public class SubscriptionTests
 		gameEvent.Publish(in args3);
 
 		// Assert
-		Assert.That(capturedArgs.Count, Is.EqualTo(3));
+		Assert.That(capturedArgs, Has.Count.EqualTo(3));
 		using (Assert.EnterMultipleScope())
 		{
 			Assert.That(capturedArgs[0].Value, Is.EqualTo(100));

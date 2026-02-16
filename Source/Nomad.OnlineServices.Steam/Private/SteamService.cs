@@ -15,10 +15,11 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using Nomad.Core.EngineUtils;
+using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.Core.OnlineServices;
 using Nomad.OnlineServices.Steam.Private.Services;
-using Nomad.Steam.Private.ValueObjects;
+using Nomad.OnlineServices.Steam.Private.ValueObjects;
 using Steamworks;
 
 namespace Nomad.OnlineServices.Steam.Private {
@@ -38,7 +39,7 @@ namespace Nomad.OnlineServices.Steam.Private {
 		private readonly ILoggerCategory _category;
 
 		private readonly SteamUserData _userData;
-		private readonly AppId_t _appId;
+		private readonly SteamAppData _appData;
 
 		public OnlinePlatform Platform => OnlinePlatform.Steam;
 		public string PlatformName => nameof( OnlinePlatform.Steam );
@@ -59,11 +60,12 @@ namespace Nomad.OnlineServices.Steam.Private {
 		===============
 		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
 		/// <param name="logger"></param>
+		/// <param name="fileSystem"></param>
 		/// <param name="engineService"></param>
-		public SteamService( ILoggerService logger, IEngineService engineService ) {
+		public SteamService( ILoggerService logger, IFileSystem fileSystem, IEngineService engineService ) {
 			ESteamAPIInitResult result = SteamAPI.InitEx( out string errorMessage );
 			if ( result != ESteamAPIInitResult.k_ESteamAPIInitResult_OK ) {
 				logger.PrintError( $"SteamService: failed to initialize SteamAPI - {result}, {errorMessage}" );
@@ -74,14 +76,16 @@ namespace Nomad.OnlineServices.Steam.Private {
 				SteamFriends.GetPersonaName()
 			);
 
-			_appId = SteamUtils.GetAppID();
+			_appData = new SteamAppData(
+				AppId: SteamUtils.GetAppID()
+			);
 
 			_logger = logger;
 			_category = logger.CreateCategory( "Nomad.Steam", LogLevel.Info, true );
 
 			_statsService = new SteamStatsService( logger );
-			_achievementsService = new SteamAchievementService( engineService );
-			_cloudStorageService = new SteamCloudStorageService( logger );
+			_achievementsService = new SteamAchievementService( _appData, engineService );
+			_cloudStorageService = new SteamCloudStorageService( logger, fileSystem );
 		}
 
 		/*

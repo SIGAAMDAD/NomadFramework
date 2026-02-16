@@ -1,0 +1,6 @@
+/** \defgroup NomadEvents Nomad.Events
+ *  Events subsystem: callbacks, dispatch, and event args.
+ *  @{
+ *  \ingroup Nomad.Core.Events.IGameEvent
+ *  @}
+ */

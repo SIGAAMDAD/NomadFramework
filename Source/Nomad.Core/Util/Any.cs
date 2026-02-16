@@ -59,6 +59,36 @@ namespace Nomad.Core.Util
             [FieldOffset(0)] public InternString String;
         }
 
+#if USE_COMPATIBILITY_EXTENSIONS || UNITY_EDITOR
+        private static readonly IReadOnlyDictionary<Type, AnyType> _systemTypeToAnyType = new Dictionary<Type, AnyType>() {
+            { typeof( bool ), AnyType.Boolean },
+            { typeof( sbyte ), AnyType.Int8 },
+            { typeof( short ), AnyType.Int16 },
+            { typeof( int ), AnyType.Int32 },
+            { typeof( long ), AnyType.Int64 },
+            { typeof( byte ), AnyType.UInt8 },
+            { typeof( ushort ), AnyType.UInt16 },
+            { typeof( uint ), AnyType.UInt32 },
+            { typeof( ulong ), AnyType.UInt64 },
+            { typeof( float ), AnyType.Float32 },
+            { typeof( double ), AnyType.Float64 },
+            { typeof( InternString ), AnyType.InternString }
+        };
+        private static readonly IReadOnlyDictionary<AnyType, Type> _anyTypeToSystemType = new Dictionary<AnyType, Type>() {
+            { AnyType.Boolean, typeof( bool ) },
+            { AnyType.Int8, typeof( sbyte ) },
+            { AnyType.Int16, typeof( short ) },
+            { AnyType.Int32, typeof( int ) },
+            { AnyType.Int64, typeof( long ) },
+            { AnyType.UInt8, typeof( byte ) },
+            { AnyType.UInt16, typeof( ushort ) },
+            { AnyType.UInt32, typeof( uint ) },
+            { AnyType.UInt64, typeof( ulong ) },
+            { AnyType.Float32, typeof( float ) },
+            { AnyType.Float64, typeof( double ) },
+            { AnyType.InternString, typeof( InternString ) }
+        };
+#else
         private static readonly ImmutableDictionary<Type, AnyType> _systemTypeToAnyType = new Dictionary<Type, AnyType>() {
             { typeof( bool ), AnyType.Boolean },
             { typeof( sbyte ), AnyType.Int8 },
@@ -73,7 +103,6 @@ namespace Nomad.Core.Util
             { typeof( double ), AnyType.Float64 },
             { typeof( InternString ), AnyType.InternString }
         }.ToImmutableDictionary();
-
         private static readonly ImmutableDictionary<AnyType, Type> _anyTypeToSystemType = new Dictionary<AnyType, Type>() {
             { AnyType.Boolean, typeof( bool ) },
             { AnyType.Int8, typeof( sbyte ) },
@@ -88,6 +117,7 @@ namespace Nomad.Core.Util
             { AnyType.Float64, typeof( double ) },
             { AnyType.InternString, typeof( InternString ) }
         }.ToImmutableDictionary();
+#endif
 
         private readonly Union _value;
 

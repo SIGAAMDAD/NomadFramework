@@ -17,6 +17,7 @@ using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Nomad.Core.EngineUtils;
 using Nomad.Core.OnlineServices;
+using Nomad.OnlineServices.Steam.Private.ValueObjects;
 using Steamworks;
 
 namespace Nomad.OnlineServices.Steam {
@@ -43,6 +44,7 @@ namespace Nomad.OnlineServices.Steam {
 
 		private readonly ConcurrentDictionary<string, SteamAchievementInfo> _achievements;
 
+		private readonly SteamAppData _appData;
 		private readonly IEngineService _engineService;
 
 		private readonly CallResult<UserAchievementIconFetched_t> _userAchievementIconFetched;
@@ -57,13 +59,15 @@ namespace Nomad.OnlineServices.Steam {
 		///
 		/// </summary>
 		/// <param name="engineService"></param>
-		public SteamAchievementService( IEngineService engineService ) {
+		public SteamAchievementService( SteamAppData appData, IEngineService engineService ) {
 			_engineService = engineService;
+			_appData = appData;
 
 			int numAchievements = (int)SteamUserStats.GetNumAchievements();
 			_achievements = new ConcurrentDictionary<string, SteamAchievementInfo>( numAchievements, numAchievements );
 
 			_userAchievementIconFetched = CallResult<UserAchievementIconFetched_t>.Create( OnAchievementIconFetched );
+			_userAchievementStored = CallResult<UserAchievementStored_t>.Create( OnUserAchievementStored );
 
 			for ( uint i = 0; i < numAchievements; i++ ) {
 				string name = SteamUserStats.GetAchievementName( i );
@@ -101,8 +105,17 @@ namespace Nomad.OnlineServices.Steam {
 			achievementInfo.SetIcon( pCallback, _engineService );
 		}
 
-		private void OnUserAchievementStored( UserAchievementStored_t pCallback ) {
-
+		/*
+		===============
+		OnUserAchievementStored
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="pCallback"></param>
+		/// <param name="bIOFailure"></param>
+		private void OnUserAchievementStored( UserAchievementStored_t pCallback, bool bIOFailure ) {
 		}
 
 		public ValueTask LockAchievement( string achievementId ) {

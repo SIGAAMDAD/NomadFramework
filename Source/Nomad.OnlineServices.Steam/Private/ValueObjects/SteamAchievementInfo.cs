@@ -17,7 +17,7 @@ using System;
 using Nomad.Core.EngineUtils;
 using Steamworks;
 
-namespace Nomad.OnlineServices.Steam {
+namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
 	/*
 	===================================================================================
 

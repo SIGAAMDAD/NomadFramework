@@ -36,11 +36,11 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		void BindEventFriend( IGameEvent friend );
 		void RemoveAllForSubscriber( object subscriber );
 
-		void AddSubscription( object subscriber, EventCallback<TArgs> callback );
-		void AddSubscriptionAsync( object subscriber, AsyncEventCallback<TArgs> callback );
+		bool AddSubscription( object subscriber, EventCallback<TArgs> callback );
+		bool AddSubscriptionAsync( object subscriber, AsyncEventCallback<TArgs> callback );
 
-		void RemoveSubscription( object subscriber, EventCallback<TArgs> callback );
-		void RemoveSubscriptionAsync( object subscriber, AsyncEventCallback<TArgs> callback );
+		bool RemoveSubscription( object subscriber, EventCallback<TArgs> callback );
+		bool RemoveSubscriptionAsync( object subscriber, AsyncEventCallback<TArgs> callback );
 
 		void Pump( in TArgs args );
 		Task PumpAsync( TArgs args, CancellationToken ct );
