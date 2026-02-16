@@ -115,7 +115,9 @@ namespace Nomad.OnlineServices.Steam {
 		/// <param name="value"></param>
 		/// <returns></returns>
 		public async ValueTask SetStatFloat( string statName, float value ) {
-			SteamUserStats.SetStat( statName, value );
+			if ( !SteamUserStats.SetStat( statName, value ) ) {
+				_logger.PrintWarning( $"SteamStatsService.SetStatFloat: SteamUserStats.SetStat failed on statistic '{statName}'!" );
+			}
 		}
 
 		/*
@@ -130,7 +132,9 @@ namespace Nomad.OnlineServices.Steam {
 		/// <param name="value"></param>
 		/// <returns></returns>
 		public async ValueTask SetStatInt( string statName, int value ) {
-			SteamUserStats.SetStat( statName, value );
+			if ( !SteamUserStats.SetStat( statName, value ) ) {
+				_logger.PrintWarning( $"SteamStatsService.SetStatInt: SteamUserStats.SetStat failed on statistic '{statName}'!" );
+			}
 		}
 
 		/*
