@@ -11,6 +11,26 @@
     <EnforceCodeStyleInBuilds>true</EnforceCodeStyleInBuilds>
     <EnableUnsafeBinaryFormatterSerialization>false</EnableUnsafeBinaryFormatterSerialization>
     <BuildInParallel>true</BuildInParallel>
+
+    <!-- NuGet Package Information -->
+    <PackageId>NomadFramework.Nomad.Audio.FMOD</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Noah Van Til</Authors>
+    <Company>GDR Software</Company>
+    
+    <Description></Description>
+    <PackageTags>dotnet;library;framework</PackageTags>
+    <PackageLicenseExpression>MPLv2</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/SIGAAMDAD/NomadFramework.git</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/SIGAAMDAD/NomadFramework.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageIcon>.../../NomadFramework.png</PackageIcon>
+    <PackageReadmeFile>../../README.md</PackageReadmeFile>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <!-- Package references with version conditions -->
