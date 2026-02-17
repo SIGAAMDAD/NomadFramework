@@ -80,9 +80,14 @@ namespace Nomad.Core.Util
         Float64,
 
         /// <summary>
-        /// Represents an interned string.
+        /// Represents a string.
         /// </summary>
-        InternString,
+        String,
+
+        /// <summary>
+        /// Represents an object.
+        /// </summary>
+        Object,
 
         /// <summary>
         /// Represents the total count of valid <see cref="AnyType"/> values.
