@@ -475,6 +475,7 @@ namespace Nomad.Core.Util
             ulong u64 => new Any(u64),
             float f32 => new Any(f32),
             double f64 => new Any(f64),
+            null when typeof(T) == typeof(string) => new Any((string)(object)value),
             string str => new Any(str),
             object obj => new Any(obj),
             _ => throw new InvalidCastException($"An Any object cannot hold a value of type {typeof(T)}")

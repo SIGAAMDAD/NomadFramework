@@ -148,10 +148,10 @@ public class CVarSystemServiceTests
 
 	[Test]
 	[TestCase<bool>(false)]
-	[TestCase<string>("")]
 	[TestCase<uint>(0)]
 	[TestCase<int>(0)]
 	[TestCase<float>(0.0f)]
+	[TestCase<string>("")]
 	public void RegisterCVar_CreatedWithExplicitType_CanBeFoundWithNameOnly<T>(T value)
 	{
 		// Arrange

@@ -32,7 +32,7 @@ namespace Nomad.CVars.Private {
 
 	internal unsafe struct CVarConverter<T> {
 		private readonly CVarType _type;
-		private Any _value;
+		private T _value;
 
 		/*
 		===============
@@ -46,7 +46,7 @@ namespace Nomad.CVars.Private {
 		/// <param name="pdefaultValuee"></param>
 		public CVarConverter( CVarType type, T defaultValue ) {
 			_type = type;
-			_value = Any.From( defaultValue );
+			_value = defaultValue;
 		}
 
 		/*
@@ -60,7 +60,7 @@ namespace Nomad.CVars.Private {
 		/// <returns>The <see cref="Value"/> in string format.</returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public readonly string? GetStringValue()
-			=> _type == CVarType.String ? _value.GetReferenceValue<string>() : throw new InvalidCastException( $"CVar type mismatch: expected string but instead got '{_type}'" );
+			=> _value is string strValue ? strValue : throw new InvalidCastException( $"CVar type mismatch: expected string but instead got '{_type}'" );
 
 		/*
 		===============
@@ -73,7 +73,7 @@ namespace Nomad.CVars.Private {
 		/// <returns>The <see cref="Value"/> in 32-bit integer format, 0 by default if int.TryParse failed</returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public readonly uint GetUIntegerValue()
-			=> _type == CVarType.UInt ? _value.GetPrimitiveValue<uint>() : throw new InvalidCastException( $"CVar type mismatch: expected unsigned integer but instead got '{_type}'" );
+			=> _value is uint uintValue ? uintValue : throw new InvalidCastException( $"CVar type mismatch: expected unsigned integer but instead got '{_type}'" );
 
 		/*
 		===============
@@ -86,7 +86,7 @@ namespace Nomad.CVars.Private {
 		/// <returns>The <see cref="Value"/> in 32-bit integer format, 0 by default if int.TryParse failed</returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public readonly int GetIntegerValue()
-			=> _type == CVarType.Int ? _value.GetPrimitiveValue<int>() : throw new InvalidCastException( $"CVar type mismatch: expected integer but instead got '{_type}'" );
+			=> _value is int intValue ? intValue : throw new InvalidCastException( $"CVar type mismatch: expected integer but instead got '{_type}'" );
 
 		/*
 		===============
@@ -99,7 +99,7 @@ namespace Nomad.CVars.Private {
 		/// <returns>The <see cref="Value"/> in 32-bit floating-point format, 0 by default if float.TryParse failed</returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public readonly float GetDecimalValue()
-			=> _type == CVarType.Decimal ? _value.GetPrimitiveValue<float>() : throw new InvalidCastException( $"CVar type mismatch: expected float but instead got '{_type}'" );
+			=> _value is float floatValue ? floatValue : throw new InvalidCastException( $"CVar type mismatch: expected float but instead got '{_type}'" );
 
 		/*
 		===============
@@ -112,7 +112,7 @@ namespace Nomad.CVars.Private {
 		/// <returns>The <see cref="Value"/> in 8-bit boolean format, false by default if bool.TryParse failed</returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public readonly bool GetBooleanValue()
-			=> _type == CVarType.Boolean ? _value.GetPrimitiveValue<bool>() : throw new InvalidCastException( $"CVar type mismatch: expected boolean but instead got '{_type}'" );
+			=> _value is bool booleanValue ? booleanValue : throw new InvalidCastException( $"CVar type mismatch: expected boolean but instead got '{_type}'" );
 
 		/*
 		===============
@@ -127,7 +127,7 @@ namespace Nomad.CVars.Private {
 		/// <exception cref="NotImplementedException"></exception>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public readonly T1? GetValue<T1>()
-			=> _value is T1 value ? value : default;
+			=> _value is T1 value ? value : throw new InvalidCastException();
 
 		/*
 		===============
@@ -141,7 +141,7 @@ namespace Nomad.CVars.Private {
 		/// <exception cref="InvalidCastException"></exception>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void SetIntegerValue( int value )
-			=> _value = _type == CVarType.Int ? Any.From( value ) : throw new InvalidCastException( $"CVar type mismatch: expected integer but instead got '{_type}'" );
+			=> _value = _type == CVarType.Int ? Unsafe.As<int, T>(ref Unsafe.AsRef(value)) : throw new InvalidCastException( $"CVar type mismatch: expected integer but instead got '{_type}'" );
 
 		/*
 		===============
@@ -155,7 +155,7 @@ namespace Nomad.CVars.Private {
 		/// <exception cref="InvalidCastException"></exception>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void SetUIntegerValue( uint value )
-			=> _value = _type == CVarType.UInt ? Any.From( value ) : throw new InvalidCastException( $"CVar type mismatch: expected unsigned integer but instead got '{_type}'" );
+			=> _value = _type == CVarType.UInt ? Unsafe.As<uint, T>(ref Unsafe.AsRef(value)) : throw new InvalidCastException( $"CVar type mismatch: expected unsigned integer but instead got '{_type}'" );
 
 		/*
 		===============
@@ -169,7 +169,7 @@ namespace Nomad.CVars.Private {
 		/// <exception cref="InvalidCastException"></exception>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void SetBooleanValue( bool value )
-			=> _value = _type == CVarType.Boolean ? Any.From( value ) : throw new InvalidCastException( $"CVar type mismatch: expected boolean but instead got '{_type}'" );
+			=> _value = _type == CVarType.Boolean ? Unsafe.As<bool, T>(ref Unsafe.AsRef(value)) : throw new InvalidCastException( $"CVar type mismatch: expected boolean but instead got '{_type}'" );
 
 		/*
 		===============
@@ -183,7 +183,7 @@ namespace Nomad.CVars.Private {
 		/// <exception cref="InvalidCastException"></exception>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void SetDecimalValue( float value )
-			=> _value = _type == CVarType.Decimal ? Any.From( value ) : throw new InvalidCastException( $"CVar type mismatch: expected float but instead got '{_type}'" );
+			=> _value = _type == CVarType.Decimal ? Unsafe.As<float, T>(ref Unsafe.AsRef(value)) : throw new InvalidCastException( $"CVar type mismatch: expected float but instead got '{_type}'" );
 
 		/*
 		===============
@@ -197,7 +197,7 @@ namespace Nomad.CVars.Private {
 		/// <exception cref="InvalidCastException"></exception>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void SetStringValue( string value )
-			=> _value = _type == CVarType.String ? Any.From( value ) : throw new InvalidCastException( $"CVar type mismatch: expected string but instead got '{_type}'" );
+			=> _value = _type == CVarType.String ? Unsafe.As<string, T>(ref Unsafe.AsRef(value)) : throw new InvalidCastException( $"CVar type mismatch: expected string but instead got '{_type}'" );
 		
 		/*
 		===============
@@ -212,7 +212,7 @@ namespace Nomad.CVars.Private {
 		/// <exception cref="InvalidCastException"></exception>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void SetValue<T1>( T1 value )
-			=> _value = value is T thisValue ? Any.From( thisValue ) : throw new InvalidCastException();
+			=> _value = value is T thisValue ? thisValue : throw new InvalidCastException();
 
 		/*
 		===============

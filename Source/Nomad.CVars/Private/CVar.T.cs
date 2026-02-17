@@ -37,10 +37,9 @@ namespace Nomad.CVars.Private {
 		/// The current value of the CVar.
 		/// </summary>
 		public T Value {
-			get => _value;
+			get => _converter.GetValue<T>();
 			set => Set( value );
 		}
-		private T _value;
 
 		/// <summary>
 		/// The default value of the CVar, what it resets to.
@@ -120,14 +119,9 @@ namespace Nomad.CVars.Private {
 				typeof( T ).GetCVarType()
 			);
 
-			unsafe {
-				fixed ( T *value = &_value ) {
-					_converter = new CVarConverter<T>( Type, value );
-				}
-			}
-
-			_value = createInfo.DefaultValue;
+			_converter = new CVarConverter<T>( _metadata.Type, createInfo.DefaultValue );
 			_defaultValue = createInfo.DefaultValue;
+
 			_valueChanged = eventFactory.GetEvent<CVarValueChangedEventArgs<T>>( Constants.Events.Console.NAMESPACE, $"{createInfo.Name}:{Constants.Events.CVars.CVAR_VALUE_CHANGED_EVENT}" );
 		}
 
@@ -174,25 +168,79 @@ namespace Nomad.CVars.Private {
 		/// <param name="value">The new value of the CVar.</param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void Set( T value ) {
-			if ( IsReadOnly || !_validator.ValidateValue( value ) || EqualityComparer<T>.Default.Equals( _value, value ) ) {
+			if ( IsReadOnly || !_validator.ValidateValue( value ) || EqualityComparer<T>.Default.Equals( _converter.GetValue<T>(), value ) ) {
 				return;
 			}
-			T old = _value;
-			_value = value;
+			T? old = _converter.GetValue<T>();
+			_converter.SetValue( value );
 			_valueChanged.Publish( new CVarValueChangedEventArgs<T>( old, value ) );
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
 		public float GetDecimalValue() => _converter.GetDecimalValue();
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
 		public int GetIntegerValue() => _converter.GetIntegerValue();
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
 		public uint GetUIntegerValue() => _converter.GetUIntegerValue();
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
 		public string? GetStringValue() => _converter.GetStringValue();
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
 		public bool GetBooleanValue() => _converter.GetBooleanValue();
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <typeparam name="T1"></typeparam>
+		/// <returns></returns>
 		public T1 GetValue<T1>() => _converter.GetValue<T1>();
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="value"></param>
 		public void SetDecimalValue( float value ) => _converter.SetDecimalValue( value );
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="value"></param>
 		public void SetIntegerValue( int value ) => _converter.SetIntegerValue( value );
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="value"></param>
 		public void SetUIntegerValue( uint value ) => _converter.SetUIntegerValue( value );
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="value"></param>
 		public void SetBooleanValue( bool value ) => _converter.SetBooleanValue( value );
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="value"></param>
 		public void SetStringValue( string value ) => _converter.SetStringValue( value );
 
 		/*
@@ -206,6 +254,6 @@ namespace Nomad.CVars.Private {
 		/// <param name="cvar"></param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public static implicit operator T( CVar<T> cvar )
-			=> cvar._value;
+			=> cvar.Value;
 	};
 };
