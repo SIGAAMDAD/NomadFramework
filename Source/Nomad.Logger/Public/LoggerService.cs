@@ -16,13 +16,14 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Nomad.CVars;
+using Nomad.CVars.Interfaces;
 using Nomad.Core;
 using System.Collections.Concurrent;
 using Nomad.Logger.Private;
 using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
 using Nomad.Core.Compatibility.Guards;
+using Nomad.CVars.ValueObjects;
 
 namespace Nomad.Logger
 {

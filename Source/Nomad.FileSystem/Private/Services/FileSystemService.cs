@@ -22,6 +22,10 @@ using Nomad.Core.EngineUtils;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.FileSystem.Private.FileStream;
+using System.IO;
+using Nomad.FileSystem.Private.MemoryStream;
+using Nomad.Core.Util;
+using Nomad.FileSystem.Private.BufferHandles;
 
 namespace Nomad.FileSystem.Private.Services {
 	/*
@@ -51,6 +55,7 @@ namespace Nomad.FileSystem.Private.Services {
 		/// 
 		/// </summary>
 		/// <param name="engineService"></param>
+		/// <param name="logger"></param>
 		public FileSystemService( IEngineService engineService, ILoggerService logger ) {
 			ArgumentGuard.ThrowIfNull( engineService );
 			ArgumentGuard.ThrowIfNull( logger );
@@ -58,7 +63,7 @@ namespace Nomad.FileSystem.Private.Services {
 			_engineService = engineService;
 
 			_logger = logger;
-			_category = logger.CreateCategory( "Nomad.FileSystem", LogLevel.Info, true );
+			_category = logger.CreateCategory( nameof( FileSystem ), LogLevel.Info, true );
 
 			_searchHelper = new RecursiveFileSearcher();
 			_searchHelper.AddSearchDirectory( engineService.GetStoragePath( StorageScope.StreamingAssets ) );
@@ -90,7 +95,7 @@ namespace Nomad.FileSystem.Private.Services {
 		/// <param name="overwrite"></param>
 		/// <exception cref="NotImplementedException"></exception>
 		public void CopyFile( string sourcePath, string destinationPath, bool overwrite ) {
-			System.IO.File.Copy( sourcePath, destinationPath, overwrite );
+			File.Copy( sourcePath, destinationPath, overwrite );
 		}
 
 		/*
@@ -103,7 +108,7 @@ namespace Nomad.FileSystem.Private.Services {
 		/// </summary>
 		/// <param name="path"></param>
 		public void CreateDirectory( string path ) {
-			System.IO.Directory.CreateDirectory( path );
+			Directory.CreateDirectory( path );
 		}
 
 		/*
@@ -117,7 +122,7 @@ namespace Nomad.FileSystem.Private.Services {
 		/// <param name="path"></param>
 		/// <returns></returns>
 		public bool DirectoryExists( string path ) {
-			return !string.IsNullOrEmpty( path ) && System.IO.Directory.Exists( path );
+			return !string.IsNullOrEmpty( path ) && Directory.Exists( path );
 		}
 
 		/*
@@ -131,7 +136,7 @@ namespace Nomad.FileSystem.Private.Services {
 		/// <param name="path"></param>
 		/// <param name="recursive"></param>
 		public void DeleteDirectory( string path, bool recursive ) {
-			System.IO.Directory.Delete( path, recursive );
+			Directory.Delete( path, recursive );
 		}
 
 		/*
@@ -144,7 +149,7 @@ namespace Nomad.FileSystem.Private.Services {
 		/// </summary>
 		/// <param name="path">The path of the file to delete.</param>
 		public void DeleteFile( string path ) {
-			System.IO.File.Delete( path );
+			File.Delete( path );
 		}
 		
 		/*
@@ -158,7 +163,7 @@ namespace Nomad.FileSystem.Private.Services {
 		/// <param name="path"></param>
 		/// <returns></returns>
 		public bool FileExists( string path ) {
-			return System.IO.File.Exists( path );
+			return File.Exists( path );
 		}
 
 		/*
@@ -224,7 +229,7 @@ namespace Nomad.FileSystem.Private.Services {
 		/// <param name="path">The path to get directories from.</param>
 		/// <returns>A list of directory paths.</returns>
 		public IReadOnlyList<string> GetDirectories( string path ) {
-			return System.IO.Directory.GetDirectories( path );
+			return Directory.GetDirectories( path );
 		}
 
 		/*
@@ -240,7 +245,7 @@ namespace Nomad.FileSystem.Private.Services {
 		/// <param name="recursive">Whether to search recursively.</param>
 		/// <returns>A list of file paths.</returns>
 		public IReadOnlyList<string> GetFiles( string path, string searchPattern, bool recursive ) {
-			return System.IO.Directory.GetFiles( path, searchPattern, recursive ? System.IO.SearchOption.AllDirectories : System.IO.SearchOption.TopDirectoryOnly );
+			return Directory.GetFiles( path, searchPattern, recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly );
 		}
 
 		/*
@@ -254,7 +259,7 @@ namespace Nomad.FileSystem.Private.Services {
 		/// <param name="path">The path of the file to get the size of.</param>
 		/// <returns>The size of the file in bytes.</returns>
 		public long GetFileSize( string path ) {
-			var info = new System.IO.FileInfo( path );
+			var info = new FileInfo( path );
 			return info.Length;
 		}
 
@@ -269,7 +274,7 @@ namespace Nomad.FileSystem.Private.Services {
 		/// <param name="path">The path of the file to get the last write time of.</param>
 		/// <returns>The last write time of the file.</returns>
 		public DateTime GetLastWriteTime( string path ) {
-			var info = new System.IO.FileInfo( path );
+			var info = new FileInfo( path );
 			return info.LastWriteTime;
 		}
 
@@ -284,7 +289,7 @@ namespace Nomad.FileSystem.Private.Services {
 		/// <param name="sourcePath">The path of the file to move.</param>
 		/// <param name="destinationPath">The path to move the file to.</param>
 		public void MoveFile( string sourcePath, string destinationPath ) {
-			System.IO.File.Move( sourcePath, destinationPath );
+			File.Move( sourcePath, destinationPath );
 		}
 
 		/*
@@ -296,14 +301,21 @@ namespace Nomad.FileSystem.Private.Services {
 		/// Opens a read stream for the specified file path.
 		/// </summary>
 		/// <param name="path">The path of the file to open.</param>
+		/// <param name="config">How to create the stream and rules around how it should be handled.</param>
 		/// <returns>The read stream for the specified file path.</returns>
-		public IReadStream? OpenRead( string path ) {
-			var fullPath = _searchHelper.FindFile( path, System.IO.SearchOption.AllDirectories );
+		public IReadStream? OpenRead( string path, in ReadConfig config ) {
+			ArgumentGuard.ThrowIfNullOrEmpty( path );
+
+			var fullPath = _searchHelper.FindFile( path, SearchOption.AllDirectories );
 			if ( fullPath == null ) {
 				return null;
 			}
 
-			return new FileReadStream( fullPath );
+			return config.Type switch {
+				StreamType.File => new FileReadStream( path ),
+				StreamType.MemoryFile => new MemoryFileReadStream( path ),
+				_ => throw new ArgumentOutOfRangeException( nameof( config ) )
+			};
 		}
 
 		/*
@@ -315,12 +327,13 @@ namespace Nomad.FileSystem.Private.Services {
 		/// Opens a read stream for the specified file path asynchronously.
 		/// </summary>
 		/// <param name="path">The path of the file to open.</param>
+		/// <param name="config">How to create the stream and rules around how it should be handled.</param>
 		/// <param name="ct">The cancellation token.</param>
 		/// <returns>The read stream for the specified file path.</returns>
-		public async ValueTask<IReadStream?> OpenReadAsync( string path, CancellationToken ct = default ) {
+		public async ValueTask<IReadStream?> OpenReadAsync( string path, ReadConfig config, CancellationToken ct = default ) {
 			ct.ThrowIfCancellationRequested();
 			
-			var fullPath = _searchHelper.FindFile( path, System.IO.SearchOption.AllDirectories );
+			var fullPath = _searchHelper.FindFile( path, SearchOption.AllDirectories );
 			if ( fullPath == null ) {
 				return null;
 			}
@@ -337,10 +350,17 @@ namespace Nomad.FileSystem.Private.Services {
 		/// Opens a write stream for the specified file path.
 		/// </summary>
 		/// <param name="path">The path of the file to open.</param>
-		/// <param name="append">Whether to append to the file or overwrite it.</param>
+		/// <param name="config">How to create the stream and rules around how it should be handled.</param>
 		/// <returns>The write stream for the specified file path.</returns>
-		public IWriteStream? OpenWrite( string path, bool append = false ) {
-			return new FileWriteStream( path, append );
+		public IWriteStream? OpenWrite( string path, in WriteConfig config ) {
+			ArgumentGuard.ThrowIfNullOrEmpty( path );
+
+			return config.Type switch {
+				StreamType.Memory => new MemoryWriteStream( config.Length ),
+				StreamType.File => new FileWriteStream( path, config.Append ),
+				StreamType.MemoryFile => new MemoryFileWriteStream( path, config.Length ),
+				_ => throw new ArgumentOutOfRangeException( nameof( config ) )	
+			};
 		}
 
 		/*
@@ -352,13 +372,13 @@ namespace Nomad.FileSystem.Private.Services {
 		/// Opens a write stream for the specified file path asynchronously.
 		/// </summary>
 		/// <param name="path">The path of the file to open.</param>
-		/// <param name="append">Whether to append to the file or overwrite it.</param>
+		/// <param name="config">How to create the stream and rules around how it should be handled.</param>
 		/// <param name="ct">The cancellation token.</param>
 		/// <returns>The write stream for the specified file path.</returns>
-		public async ValueTask<IWriteStream?> OpenWriteAsync( string path, bool append = false, CancellationToken ct = default ) {
+		public async ValueTask<IWriteStream?> OpenWriteAsync( string path, WriteConfig config, CancellationToken ct = default ) {
 			ct.ThrowIfCancellationRequested();
 
-			return new FileWriteStream( path, append );
+			return OpenWrite( path, in config );
 		}
 
 		/*
@@ -370,12 +390,90 @@ namespace Nomad.FileSystem.Private.Services {
 		/// 
 		/// </summary>
 		/// <param name="accessMode"></param>
+		/// <param name="type"></param>
 		/// <param name="outputFile"></param>
 		/// <param name="length"></param>
 		/// <returns></returns>
 		/// <exception cref="NotImplementedException"></exception>
-		public IDataStream CreateStream( System.IO.FileAccess accessMode, string outputFile = "", int length = 0 ) {
+		public IDataStream CreateStream( FileAccess accessMode, StreamType type, string outputFile = "", int length = 0 ) {
 			throw new NotImplementedException();
+		}
+
+		/*
+		===============
+		LoadFile
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="path"></param>
+		/// <returns></returns>
+		/// <exception cref="IOException"></exception>
+		public IBufferHandle LoadFile( string path ) {
+			using var stream = OpenRead( path, new ReadConfig( StreamType.File ) ) ?? throw new IOException();
+
+			var handle = new SharedArrayHandle( stream.Length );
+			stream.Read( handle.Buffer, 0, handle.Length );
+
+			return handle;
+		}
+
+		/*
+		===============
+		LoadFileAsync
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="path"></param>
+		/// <returns></returns>
+		/// <exception cref="IOException"></exception>
+		public async ValueTask<IBufferHandle?> LoadFileAsync( string path ) {
+			using var stream = OpenRead( path, new ReadConfig( StreamType.File ) ) ?? throw new IOException();
+
+			var handle = new SharedArrayHandle( stream.Length );
+			await stream.ReadAsync( handle.Buffer, 0, handle.Length );
+
+			return handle;
+		}
+		
+		/*
+		===============
+		WriteFile
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="path"></param>
+		/// <param name="buffer"></param>
+		/// <param name="offset"></param>
+		/// <param name="length"></param>
+		public void WriteFile( string path, in ReadOnlySpan<byte> buffer, int offset, int length ) {
+			using var stream = OpenWrite( path, new WriteConfig( StreamType.File, false ) ) ?? throw new IOException( $"Error opening file {path}" );
+			stream.Write( buffer, offset, length );
+		}
+
+		/*
+		===============
+		WriteFileAsync
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="path"></param>
+		/// <param name="buffer"></param>
+		/// <param name="offset"></param>
+		/// <param name="length"></param>
+		/// <param name="ct"></param>
+		public async ValueTask WriteFileAsync( string path, ReadOnlyMemory<byte> buffer, int offset, int length, CancellationToken ct = default ) {
+			ArgumentGuard.ThrowIfNull( buffer );
+
+			using var stream = await OpenWriteAsync( path, new WriteConfig( StreamType.File ), ct ) ?? throw new IOException( $"Error opening file {path}" );
+			await stream.WriteAsync( buffer.Slice( offset, length ), ct );
 		}
 	};
 };

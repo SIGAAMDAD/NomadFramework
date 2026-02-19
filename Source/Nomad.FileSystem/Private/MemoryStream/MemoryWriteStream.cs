@@ -22,9 +22,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.FileSystem;
-using Nomad.FileSystem.Private.MemoryStream;
 
-namespace Nomad.FileSystem.Private {
+namespace Nomad.FileSystem.Private.MemoryStream {
 	/*
 	===================================================================================
 
@@ -36,15 +35,30 @@ namespace Nomad.FileSystem.Private {
 	///
 	/// </summary>
 
-	public class MemoryWriteStream : MemoryStreamBase, IWriteStream {
+	internal class MemoryWriteStream : MemoryStreamBase, IWriteStream {
 		private const int MAX_CAPACITY = 1 * 1024 * 1024 * 1024;
 		private const int STACK_ALLOC_THRESHOLD = 256;
+
+		/// <summary>
+		/// 
+		/// </summary>
 		public const int DEFAULT_CAPACITY = 8192;
 
+		/// <summary>
+		/// 
+		/// </summary>
 		public override bool CanRead => false;
+
+		/// <summary>
+		/// 
+		/// </summary>
 		public override bool CanWrite => true;
 
-		protected byte[] _buffer;
+		/// <summary>
+		/// 
+		/// </summary>
+		protected byte[]? _buffer;
+
 		private bool _fixedSize;
 
 		/*
@@ -150,15 +164,48 @@ namespace Nomad.FileSystem.Private {
 		/// <summary>
 		/// Writes a sequence of bytes to the current stream and advances the current position within this stream by the number of bytes written.
 		/// </summary>
+		/// <param name="buffer">An array of bytes. This method copies count bytes from buffer to the current stream.</param>
+		public void Write( byte[] buffer )
+			=> Write( buffer, 0, buffer.Length );
+
+		/*
+		===============
+		Write
+		===============
+		*/
+		/// <summary>
+		/// Writes a sequence of bytes to the current stream and advances the current position within this stream by the number of bytes written.
+		/// </summary>
 		/// <param name="buffer">A read-only span of bytes. This method copies the contents of the span to the current stream.</param>
-		public void Write( ReadOnlySpan<byte> buffer ) {
+		/// <param name="offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
+		/// <param name="count">The number of bytes to be written to the current stream.</param>
+		public void Write( ReadOnlySpan<byte> buffer, int offset, int count ) {
 			ArgumentGuard.ThrowIfNull( _buffer );
 
-			int count = buffer.Length;
+			// check for overflow
+			RangeGuard.ThrowIfNegativeOrZero( buffer.Length - offset );
+
 			EnsureCapacity( count );
-			buffer.CopyTo( _buffer.AsSpan( _position ) );
+			unsafe {
+				fixed ( byte* src = &_buffer[ _position ] )
+				fixed ( byte* dst = &buffer[ offset ] ) {
+					Buffer.MemoryCopy( src, dst, buffer.Length, count );
+				}
+			}
 			_position += count;
 		}
+
+		/*
+		===============
+		Write
+		===============
+		*/
+		/// <summary>
+		/// Writes a sequence of bytes to the current stream and advances the current position within this stream by the number of bytes written.
+		/// </summary>
+		/// <param name="buffer">A read-only span of bytes. This method copies the contents of the span to the current stream.</param>
+		public void Write( ReadOnlySpan<byte> buffer )
+			=> Write( buffer, 0, buffer.Length );
 
 		/*
 		===============
@@ -205,9 +252,8 @@ namespace Nomad.FileSystem.Private {
 		/// Writes a byte to the current stream and advances the current position within this stream by one byte.
 		/// </summary>
 		/// <param name="value">The byte to write to the stream.</param>
-		public void WriteByte( byte value ) {
-			Write( value );
-		}
+		public void WriteByte( byte value )
+			=> Write( value );
 
 		/*
 		===============
@@ -224,7 +270,7 @@ namespace Nomad.FileSystem.Private {
 			byte[] buffer = ArrayPool<byte>.Shared.Rent( 4096 );
 			try {
 				int bytesRead;
-				while ( ( bytesRead = stream.Read( buffer, 0, buffer.Length ) ) > 0 ) {
+				while ( (bytesRead = stream.Read( buffer, 0, buffer.Length )) > 0 ) {
 					Write( buffer, 0, bytesRead );
 				}
 			} finally {
@@ -249,7 +295,7 @@ namespace Nomad.FileSystem.Private {
 			byte[] buffer = ArrayPool<byte>.Shared.Rent( 4096 );
 			try {
 				int bytesRead;
-				while ( ( bytesRead = await stream.ReadAsync( buffer, 0, buffer.Length, cancellationToken ) ) > 0 ) {
+				while ( (bytesRead = await stream.ReadAsync( buffer, 0, buffer.Length, cancellationToken )) > 0 ) {
 					Write( buffer, 0, bytesRead );
 				}
 			} finally {
@@ -299,12 +345,12 @@ namespace Nomad.FileSystem.Private {
 		public void Write7BitEncodedInt( int value ) {
 			ArgumentGuard.ThrowIfNull( _buffer );
 
-			uint uValue = (uint)value;
+			uint uValue = ( uint )value;
 			while ( uValue >= 0x80 ) {
-				Write( (byte)( uValue | 0x80 ) );
+				Write( ( byte )(uValue | 0x80) );
 				uValue >>= 7;
 			}
-			Write( (byte)uValue );
+			Write( ( byte )uValue );
 		}
 
 		/*
@@ -335,9 +381,8 @@ namespace Nomad.FileSystem.Private {
 		/// Writes a signed byte to the stream.
 		/// </summary>
 		/// <param name="value">The signed byte value to write.</param>
-		public void WriteSByte( sbyte value ) {
-			Write( value );
-		}
+		public void WriteSByte( sbyte value )
+			=> Write( value );
 
 		/*
 		===============
@@ -348,9 +393,8 @@ namespace Nomad.FileSystem.Private {
 		/// Writes a 16-bit signed integer to the stream.
 		/// </summary>
 		/// <param name="value">The 16-bit signed integer value to write.</param>
-		public void WriteShort( short value ) {
-			Write( value );
-		}
+		public void WriteShort( short value )
+			=> Write( value );
 
 		/*
 		===============
@@ -361,9 +405,8 @@ namespace Nomad.FileSystem.Private {
 		/// Writes a 32-bit signed integer to the stream.
 		/// </summary>
 		/// <param name="value">The 32-bit signed integer value to write.</param>
-		public void WriteInt( int value ) {
-			Write( value );
-		}
+		public void WriteInt( int value )
+			=> Write( value );
 
 		/*
 		===============
@@ -374,9 +417,8 @@ namespace Nomad.FileSystem.Private {
 		/// Writes a 64-bit signed integer to the stream.
 		/// </summary>
 		/// <param name="value">The 64-bit signed integer value to write.</param>
-		public void WriteLong( long value ) {
-			Write( value );
-		}
+		public void WriteLong( long value )
+			=> Write( value );
 
 		/*
 		===============
@@ -387,9 +429,8 @@ namespace Nomad.FileSystem.Private {
 		/// Writes a 16-bit unsigned integer to the stream.
 		/// </summary>
 		/// <param name="value">The 16-bit unsigned integer value to write.</param>
-		public void WriteUShort( ushort value ) {
-			Write( value );
-		}
+		public void WriteUShort( ushort value )
+			=> Write( value );
 
 		/*
 		===============
@@ -400,9 +441,8 @@ namespace Nomad.FileSystem.Private {
 		/// Writes a 32-bit unsigned integer to the stream.
 		/// </summary>
 		/// <param name="value">The 32-bit unsigned integer value to write.</param>
-		public void WriteUInt( uint value ) {
-			Write( value );
-		}
+		public void WriteUInt( uint value )
+			=> Write( value );
 
 		/*
 		===============
@@ -413,9 +453,8 @@ namespace Nomad.FileSystem.Private {
 		/// Writes a 64-bit unsigned integer to the stream.
 		/// </summary>
 		/// <param name="value">The 64-bit unsigned integer value to write.</param>
-		public void WriteULong( ulong value ) {
-			Write( value );
-		}
+		public void WriteULong( ulong value )
+			=> Write( value );
 
 		/*
 		===============
@@ -426,9 +465,8 @@ namespace Nomad.FileSystem.Private {
 		/// Writes an 8-bit signed integer to the stream.
 		/// </summary>
 		/// <param name="value">The 8-bit signed integer value to write.</param>
-		public void WriteInt8( sbyte value ) {
-			Write( value );
-		}
+		public void WriteInt8( sbyte value )
+			=> Write( value );
 
 		/*
 		===============
@@ -439,9 +477,8 @@ namespace Nomad.FileSystem.Private {
 		/// Writes a 16-bit signed integer to the stream.
 		/// </summary>
 		/// <param name="value">The 16-bit signed integer value to write.</param>
-		public void WriteInt16( short value ) {
-			Write( value );
-		}
+		public void WriteInt16( short value )
+			=> Write( value );
 
 		/*
 		===============
@@ -452,9 +489,8 @@ namespace Nomad.FileSystem.Private {
 		/// Writes a 32-bit signed integer to the stream.
 		/// </summary>
 		/// <param name="value">The 32-bit signed integer value to write.</param>
-		public void WriteInt32( int value ) {
-			Write( value );
-		}
+		public void WriteInt32( int value )
+			=> Write( value );
 
 		/*
 		===============
@@ -465,9 +501,8 @@ namespace Nomad.FileSystem.Private {
 		/// Writes a 64-bit signed integer to the stream.
 		/// </summary>
 		/// <param name="value">The 64-bit signed integer value to write.</param>
-		public void WriteInt64( long value ) {
-			Write( value );
-		}
+		public void WriteInt64( long value )
+			=> Write( value );
 
 		/*
 		===============
@@ -478,9 +513,8 @@ namespace Nomad.FileSystem.Private {
 		/// Writes an 8-bit unsigned integer to the stream.
 		/// </summary>
 		/// <param name="value">The 8-bit unsigned integer value to write.</param>
-		public void WriteUInt8( byte value ) {
-			Write( value );
-		}
+		public void WriteUInt8( byte value )
+			=> Write( value );
 
 		/*
 		===============
@@ -491,9 +525,8 @@ namespace Nomad.FileSystem.Private {
 		/// Writes a 16-bit unsigned integer to the stream.
 		/// </summary>
 		/// <param name="value">The 16-bit unsigned integer value to write.</param>
-		public void WriteUInt16( ushort value ) {
-			Write( value );
-		}
+		public void WriteUInt16( ushort value )
+			=> Write( value );
 
 		/*
 		===============
@@ -504,9 +537,8 @@ namespace Nomad.FileSystem.Private {
 		/// Writes a 32-bit unsigned integer to the stream.
 		/// </summary>
 		/// <param name="value">The 32-bit unsigned integer value to write.</param>
-		public void WriteUInt32( uint value ) {
-			Write( value );
-		}
+		public void WriteUInt32( uint value )
+			=> Write( value );
 
 		/*
 		===============
@@ -517,9 +549,8 @@ namespace Nomad.FileSystem.Private {
 		/// Writes a 64-bit unsigned integer to the stream.
 		/// </summary>
 		/// <param name="value">The 64-bit unsigned integer value to write.</param>
-		public void WriteUInt64( ulong value ) {
-			Write( value );
-		}
+		public void WriteUInt64( ulong value )
+			=> Write( value );
 
 		/*
 		===============
@@ -530,9 +561,8 @@ namespace Nomad.FileSystem.Private {
 		/// Writes a 32-bit floating-point number to the stream.
 		/// </summary>
 		/// <param name="value">The 32-bit floating-point value to write.</param>
-		public void WriteFloat( float value ) {
-			Write( value );
-		}
+		public void WriteFloat( float value )
+			=> Write( value );
 
 		/*
 		===============
@@ -543,9 +573,8 @@ namespace Nomad.FileSystem.Private {
 		/// Writes a single-precision floating-point number to the stream.
 		/// </summary>
 		/// <param name="value">The single-precision floating-point value to write.</param>
-		public void WriteSingle( float value ) {
-			Write( value );
-		}
+		public void WriteSingle( float value )
+			=> Write( value );
 
 		/*
 		===============
@@ -556,9 +585,8 @@ namespace Nomad.FileSystem.Private {
 		/// Writes a double-precision floating-point number to the stream.
 		/// </summary>
 		/// <param name="value">The double-precision floating-point value to write.</param>
-		public void WriteDouble( double value ) {
-			Write( value );
-		}
+		public void WriteDouble( double value )
+			=> Write( value );
 
 		/*
 		===============
@@ -569,9 +597,8 @@ namespace Nomad.FileSystem.Private {
 		/// Writes a 32-bit floating-point number to the stream.
 		/// </summary>
 		/// <param name="value">The 32-bit floating-point value to write.</param>
-		public void WriteFloat32( float value ) {
-			Write( value );
-		}
+		public void WriteFloat32( float value )
+			=> Write( value );
 
 		/*
 		===============
@@ -582,9 +609,8 @@ namespace Nomad.FileSystem.Private {
 		/// Writes a 64-bit floating-point number to the stream.
 		/// </summary>
 		/// <param name="value">The 64-bit floating-point value to write.</param>
-		public void WriteFloat64( double value ) {
-			Write( value );
-		}
+		public void WriteFloat64( double value )
+			=> Write( value );
 
 		/*
 		===============
@@ -595,9 +621,8 @@ namespace Nomad.FileSystem.Private {
 		/// Writes an 8-bit boolean value to the stream.
 		/// </summary>
 		/// <param name="value">The 8-bit boolean value to write</param>
-		public void WriteBoolean( bool value ) {
-			Write( value );
-		}
+		public void WriteBoolean( bool value )
+			=> Write( value );
 
 		/*
 		===============
@@ -642,7 +667,7 @@ namespace Nomad.FileSystem.Private {
 		/// </remarks>
 		/// <param name="required">The bytes needed to write the data.</param>
 		private void EnsureCapacity( int required ) {
-			if ( _position + required > _buffer.Length ) {
+			if ( _position + required > _buffer!.Length ) {
 				int newCapacity = _buffer.Length * 2;
 				if ( newCapacity >= MAX_CAPACITY ) {
 					throw new InvalidOperationException( $"Memory stream size has exceeded {MAX_CAPACITY} bytes... what the hell are you doing?" );

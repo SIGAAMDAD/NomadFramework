@@ -13,7 +13,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
 using Nomad.Core.Exceptions;
 
 namespace Nomad.Save.Exceptions
@@ -23,14 +22,21 @@ namespace Nomad.Save.Exceptions
     /// </summary>
     public abstract class SaveFileCorruptException : NomadError
     {
-        public readonly int FileOffset;
-        public readonly string Error;
+        /// <summary>
+        /// 
+        /// </summary>
+        public int FileOffset => _fileOffset;
+        private readonly int _fileOffset;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fileOffset"></param>
+        /// <param name="message"></param>
         public SaveFileCorruptException(int fileOffset, string message)
-            : base(String.Empty)
+            : base(message)
         {
-            FileOffset = fileOffset;
-            Error = message;
+            _fileOffset = fileOffset;
         }
     }
 }

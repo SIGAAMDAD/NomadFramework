@@ -33,7 +33,7 @@ namespace Nomad.Core.Compatibility.Guards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ThrowIfNull([NotNull] object? value, string? paramName = null)
         {
-#if USE_COMPATIBILITY_EXTENSIONS || UNITY_EDITOR
+#if NETSTANDARD2_1 || !NET6_0_OR_GREATER
             if (value is null)
             {
                 throw new ArgumentNullException(paramName);
@@ -52,7 +52,7 @@ namespace Nomad.Core.Compatibility.Guards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ThrowIfNullOrEmpty(string? value, string? paramName = null)
         {
-#if USE_COMPATIBILITY_EXTENSIONS || UNITY_EDITOR
+#if NETSTANDARD2_1 || !NET6_0_OR_GREATER
             if (string.IsNullOrEmpty(value))
             {
                 throw new ArgumentException("Value cannot be null or empty.", paramName);
@@ -71,7 +71,7 @@ namespace Nomad.Core.Compatibility.Guards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ThrowIfNullOrWhiteSpace(string? value, string? paramName = null)
         {
-#if USE_COMPATIBILITY_EXTENSIONS || UNITY_EDITOR
+#if NETSTANDARD2_1 || !NET6_0_OR_GREATER
             if (string.IsNullOrWhiteSpace(value))
             {
                 throw new ArgumentException("Value cannot be null, empty, or whitespace.", paramName);

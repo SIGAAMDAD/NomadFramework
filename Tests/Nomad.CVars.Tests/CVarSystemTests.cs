@@ -20,6 +20,8 @@ using Nomad.Core.Events;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.CVars.Private.Services;
+using Nomad.CVars.ValueObjects;
+using Nomad.CVars.Interfaces;
 using Nomad.Events;
 using Nomad.FileSystem.Private.Services;
 using NUnit.Framework;

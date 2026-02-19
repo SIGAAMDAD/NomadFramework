@@ -16,7 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 namespace Nomad.Core.FileSystem
 {
     /// <summary>
-    /// Defines the type of a data stream.
+    /// Defines the type of a data stream and how it handles I/O.
     /// </summary>
     public enum StreamType : byte
     {

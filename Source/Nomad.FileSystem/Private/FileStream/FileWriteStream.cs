@@ -33,7 +33,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 	/// Represents a write-only file stream.
 	/// </summary>
 
-	public sealed class FileWriteStream : FileStreamBase, IFileWriteStream {
+	internal sealed class FileWriteStream : FileStreamBase, IFileWriteStream {
 		/// <summary>
 		/// Indicates whether the stream supports reading.
 		/// </summary>
@@ -118,11 +118,37 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <summary>
 		/// Writes a sequence of bytes to the file stream and advances the current position within this stream by the number of bytes written.
 		/// </summary>
+		/// <param name="buffer">An array of bytes. This method copies count bytes from buffer to the current stream.</param>
+		public void Write( byte[] buffer )
+			=> Write( buffer, 0, buffer.Length );
+
+		/*
+		===============
+		Write
+		===============
+		*/
+		/// <summary>
+		/// Writes a sequence of bytes to the file stream and advances the current position within this stream by the number of bytes written.
+		/// </summary>
 		/// <param name="buffer">A read-only span of bytes. This method copies the contents of the span to the current stream.</param>
-		public void Write( ReadOnlySpan<byte> buffer ) {
+		/// <param name="offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
+		/// <param name="count">The number of bytes to be written to the current stream.</param>
+		public void Write( ReadOnlySpan<byte> buffer, int offset, int count ) {
 			ArgumentGuard.ThrowIfNull( _fileStream );
-			_fileStream.Write( buffer );
+			_fileStream.Write( buffer.Slice( offset, count ) );
 		}
+		
+		/*
+		===============
+		Write
+		===============
+		*/
+		/// <summary>
+		/// Writes a sequence of bytes to the file stream and advances the current position within this stream by the number of bytes written.
+		/// </summary>
+		/// <param name="buffer">A read-only span of bytes. This method copies the contents of the span to the current stream.</param>
+		public void Write( ReadOnlySpan<byte> buffer )
+			=> Write( buffer, 0, buffer.Length );
 
 		/*
 		===============
@@ -137,8 +163,9 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <param name="count">The number of bytes to be written to the current stream.</param>
 		/// <param name="ct">A token to cancel the operation.</param>
 		/// <returns>A task that represents the asynchronous write operation.</returns>
-		public async ValueTask WriteAsync( byte[] buffer, int offset, int count, CancellationToken ct = default( CancellationToken ) ) {
+		public async ValueTask WriteAsync( byte[] buffer, int offset, int count, CancellationToken ct = default ) {
 			ArgumentGuard.ThrowIfNull( _fileStream );
+			ArgumentGuard.ThrowIfNull( buffer );
 			ct.ThrowIfCancellationRequested();
 			await _fileStream.WriteAsync( buffer.AsMemory( offset, count ), ct );
 		}
@@ -152,10 +179,31 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// Asynchronously writes a sequence of bytes to the file stream and advances the current position within this stream by the number of bytes written.
 		/// </summary>
 		/// <param name="buffer">A read-only memory buffer. This method copies the contents of the buffer to the current stream.</param>
+		/// <param name="offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
+		/// <param name="count">The number of bytes to be written to the current stream.</param>
 		/// <param name="ct">A token to cancel the operation.</param>
 		/// <returns>A task that represents the asynchronous write operation.</returns>
-		public async ValueTask WriteAsync( ReadOnlyMemory<byte> buffer, CancellationToken ct = default( CancellationToken ) ) {
+		public async ValueTask WriteAsync( ReadOnlyMemory<byte> buffer, int offset, int count, CancellationToken ct = default ) {
 			ArgumentGuard.ThrowIfNull( _fileStream );
+			ArgumentGuard.ThrowIfNull( buffer );
+			ct.ThrowIfCancellationRequested();
+			await _fileStream.WriteAsync( buffer, ct );
+		}
+
+		/*
+		===============
+		WriteAsync
+		===============
+		*/
+		/// <summary>
+		/// Asynchronously writes a sequence of bytes to the file stream and advances the current position within this stream by the number of bytes written.
+		/// </summary>
+		/// <param name="buffer">A read-only memory buffer. This method copies the contents of the buffer to the current stream.</param>
+		/// <param name="ct">A token to cancel the operation.</param>
+		/// <returns>A task that represents the asynchronous write operation.</returns>
+		public async ValueTask WriteAsync( ReadOnlyMemory<byte> buffer, CancellationToken ct = default ) {
+			ArgumentGuard.ThrowIfNull( _fileStream );
+			ArgumentGuard.ThrowIfNull( buffer );
 			ct.ThrowIfCancellationRequested();
 			await _fileStream.WriteAsync( buffer, ct );
 		}
@@ -170,7 +218,6 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <param name="value">The byte value to write.</param>
 		public void WriteByte( byte value ) {
-			ArgumentGuard.ThrowIfNull( _streamWriter );
 			_streamWriter.Write( value );
 		}
 
@@ -261,7 +308,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <param name="stream">The read stream to copy from.</param>
 		/// <param name="ct">A token to cancel the operation.</param>
 		/// <returns>A task that represents the asynchronous copy operation.</returns>
-		public async ValueTask WriteFromStreamAsync( IReadStream stream, CancellationToken ct = default( CancellationToken ) ) {
+		public async ValueTask WriteFromStreamAsync( IReadStream stream, CancellationToken ct = default ) {
 			ArgumentGuard.ThrowIfNull( stream );
 			ArgumentGuard.ThrowIfNull( _fileStream );
 
@@ -548,7 +595,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <param name="line"></param>
 		public void WriteLine( ReadOnlySpan<char> line ) {
 			_streamWriter.Write( line );
-			_streamWriter.Write( "\n" );
+			_streamWriter.Write( '\n' );
 		}
 
 		/*
@@ -577,7 +624,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <returns></returns>
 		public async ValueTask WriteLineAsync( ReadOnlyMemory<char> line ) {
 			_streamWriter.Write( line.Span );
-			_streamWriter.Write( "\n" );
+			_streamWriter.Write( '\n' );
 		}
 	};
 };

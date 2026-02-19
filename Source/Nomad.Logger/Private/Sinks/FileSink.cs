@@ -15,7 +15,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
-using Nomad.CVars;
+using Nomad.CVars.Interfaces;
+using Nomad.CVars.ValueObjects;
 using System;
 using System.Runtime.CompilerServices;
 
@@ -51,7 +52,7 @@ namespace Nomad.Logger.Private.Sinks {
 			);
 
 			try {
-				_writer = fileSystem.OpenWrite( $"{fileSystem.GetUserDataPath()}/{logfile.Value}" ) as IFileWriteStream;
+				_writer = fileSystem.OpenWrite( $"{fileSystem.GetUserDataPath()}/{logfile.Value}", new WriteConfig( StreamType.File ) ) as IFileWriteStream;
 			} catch ( Exception e ) {
 				_writer?.Close();
 				Console.WriteLine( $"FileSink: failed to create log file {logfile.Value} - {e.Message}" );

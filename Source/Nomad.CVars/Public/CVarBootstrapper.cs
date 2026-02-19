@@ -18,6 +18,7 @@ using Nomad.Core.Events;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
+using Nomad.CVars.Interfaces;
 using Nomad.CVars.Private.Services;
 
 namespace Nomad.CVars
@@ -27,7 +28,7 @@ namespace Nomad.CVars
     /// </summary>
     public sealed class CVarBootstrapper : IBootstrapper
     {
-        private ICVarSystemService _cvarSystem;
+        private ICVarSystemService? _cvarSystem;
 
         /// <summary>
         /// Initializes the CVar system.
@@ -50,7 +51,7 @@ namespace Nomad.CVars
         /// </summary>
         public void Shutdown()
         {
-            _cvarSystem.Dispose();
+            _cvarSystem?.Dispose();
         }
     }
 }

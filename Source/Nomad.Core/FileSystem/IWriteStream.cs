@@ -35,6 +35,20 @@ namespace Nomad.Core.FileSystem
         /// <summary>
         /// Writes a sequence of bytes to the current stream.
         /// </summary>
+        /// <param name="buffer">The buffer containing data to write.</param>
+        void Write(byte[] buffer);
+
+        /// <summary>
+        /// Writes a sequence of bytes to the current stream.
+        /// </summary>
+        /// <param name="buffer">The region of memory containing data to write.</param>
+        /// <param name="offset">The zero-based byte offset in buffer at which to begin copying bytes to the stream.</param>
+        /// <param name="count">The number of bytes to write.</param>
+        void Write(ReadOnlySpan<byte> buffer, int offset, int count);
+
+        /// <summary>
+        /// Writes a sequence of bytes to the current stream.
+        /// </summary>
         /// <param name="buffer">The region of memory containing data to write.</param>
         void Write(ReadOnlySpan<byte> buffer);
 

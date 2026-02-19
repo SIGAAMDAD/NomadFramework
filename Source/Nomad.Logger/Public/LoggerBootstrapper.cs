@@ -18,7 +18,7 @@ using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
 using Nomad.Core.Abstractions;
-using Nomad.CVars;
+using Nomad.CVars.Interfaces;
 using Nomad.Logger.Private.Sinks;
 
 namespace Nomad.Logger

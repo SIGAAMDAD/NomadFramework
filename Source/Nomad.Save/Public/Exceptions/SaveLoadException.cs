@@ -14,21 +14,29 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using Nomad.Core.Exceptions;
 
 namespace Nomad.Save.Exceptions
 {
     /// <summary>
     ///
     /// </summary>
-    public sealed class SaveLoadException : Exception
+    public sealed class SaveLoadException : NomadError
     {
-        public readonly string FileId;
-        public readonly Exception Error;
+        /// <summary>
+        /// 
+        /// </summary>
+        public string FileId => _fileId;
+        private readonly string _fileId;
 
-        public SaveLoadException(string saveFileId, Exception exception)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="saveFileId"></param>
+        public SaveLoadException(string saveFileId)
+            : base($"")
         {
-            FileId = saveFileId;
-            Error = exception;
+            _fileId = saveFileId;
         }
     }
 }

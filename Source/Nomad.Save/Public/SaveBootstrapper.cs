@@ -29,23 +29,23 @@ namespace Nomad.Save
     /// </summary>
     public class SaveBootstrapper : IBootstrapper
     {
-        private ISaveDataProvider _saveProvider;
+        private ISaveDataProvider? _saveProvider;
 
         /// <summary>
         ///
         /// </summary>
-        /// <param name="serviceFactory"></param>
+        /// <param name="registry"></param>
         /// <param name="locator"></param>
-        public void Initialize(IServiceRegistry serviceFactory, IServiceLocator locator)
+        public void Initialize(IServiceRegistry registry, IServiceLocator locator)
         {
-            ArgumentGuard.ThrowIfNull(serviceFactory);
+            ArgumentGuard.ThrowIfNull(registry);
             ArgumentGuard.ThrowIfNull(locator);
 
             ILoggerService logger = locator.GetService<ILoggerService>();
             IFileSystem fileSystem = locator.GetService<IFileSystem>();
             IGameEventRegistryService eventFactory = locator.GetService<IGameEventRegistryService>();
 
-            _saveProvider = serviceFactory.RegisterSingleton<ISaveDataProvider>(new SaveDataProvider(eventFactory, fileSystem, logger));
+            _saveProvider = registry.RegisterSingleton<ISaveDataProvider>(new SaveDataProvider(eventFactory, fileSystem, logger));
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace Nomad.Save
         /// </summary>
         public void Shutdown()
         {
-            _saveProvider.Dispose();
+            _saveProvider?.Dispose();
         }
     }
 }

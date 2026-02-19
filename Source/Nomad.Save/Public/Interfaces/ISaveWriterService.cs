@@ -15,6 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using Nomad.Save.ValueObjects;
+using Nomad.Save.Exceptions;
 
 namespace Nomad.Save.Interfaces
 {

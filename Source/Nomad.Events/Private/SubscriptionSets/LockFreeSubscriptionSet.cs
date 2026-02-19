@@ -107,7 +107,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		===============
 		*/
 		/// <summary>
-		/// Adds a callback method to the <see cref="Subscriptions"/> list.
+		/// Adds a callback method to the subscriptions list.
 		/// </summary>
 		/// <param name="subscriber"></param>
 		/// <param name="callback">The method that is called whenever the event triggers.</param>

@@ -15,16 +15,24 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Save.Data
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class EventNames
     {
-        public const string NAMESPACE = nameof(Save);
+        /// <summary>
+        /// 
+        /// </summary>
+        public const string NAMESPACE = nameof(Nomad.Save);
 
-#if NETSTANDARD2_1
+        /// <summary>
+        /// 
+        /// </summary>
         public const string SAVE_BEGIN_EVENT = NAMESPACE + ":SaveBegin";
+
+        /// <summary>
+        /// 
+        /// </summary>
         public const string LOAD_BEGIN_EVENT = NAMESPACE + ":LoadBegin";
-#else
-        public const string SAVE_BEGIN_EVENT = $"{NAMESPACE}:SaveBegin";
-        public const string LOAD_BEGIN_EVENT = $"{NAMESPACE}:LoadBegin";
-#endif
     }
 }

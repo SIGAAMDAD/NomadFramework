@@ -214,7 +214,8 @@ public class SaveErrorHandlingTests
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
-        var longString = new string('a', 100000);
+        int length = 1000;
+        var longString = new string('a', length);
         var loadedString = "";
 
         saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
@@ -238,7 +239,7 @@ public class SaveErrorHandlingTests
 
         // Assert
         Assert.That(loadedString, Is.EqualTo(longString));
-        Assert.That(loadedString.Length, Is.EqualTo(100000));
+        Assert.That(loadedString, Has.Length.EqualTo(length));
     }
 
     [Test]

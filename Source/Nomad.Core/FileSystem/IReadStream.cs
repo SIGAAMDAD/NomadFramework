@@ -36,6 +36,22 @@ namespace Nomad.Core.FileSystem
         /// <summary>
         /// Reads a sequence of bytes from the current stream.
         /// </summary>
+        /// <param name="buffer">The buffer to write the data into.</param>
+        /// <returns>The total number of bytes read into the buffer.</returns>
+        int Read(byte[] buffer);
+
+        /// <summary>
+        /// Reads a sequence of bytes from the current stream.
+        /// </summary>
+        /// <param name="buffer">The region of memory to write the data into.</param>
+        /// <param name="offset">The byte offset in buffer at which to begin writing data from the stream.</param>
+        /// <param name="count">The maximum number of bytes to read.</param>
+        /// <returns>The total number of bytes read into the buffer.</returns>
+        int Read(Span<byte> buffer, int offset, int count);
+
+        /// <summary>
+        /// Reads a sequence of bytes from the current stream.
+        /// </summary>
         /// <param name="buffer">The region of memory to write the data into.</param>
         /// <returns>The total number of bytes read into the buffer.</returns>
         int Read(Span<byte> buffer);
@@ -62,7 +78,7 @@ namespace Nomad.Core.FileSystem
         /// Reads the entire stream content as a byte array.
         /// </summary>
         /// <returns>A byte array containing the entire stream content.</returns>
-        byte[] ToArray();
+        byte[]? ToArray();
 
         /// <summary>
         /// Reads the remaining content from the current position to the end of the stream.

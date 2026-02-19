@@ -25,7 +25,8 @@ namespace Nomad.Save.Events
         /// <summary>
         /// 
         /// </summary>
-        public readonly ISaveReaderService Reader;
+        public ISaveReaderService Reader => _reader;
+        private readonly ISaveReaderService _reader;
 
         /// <summary>
         /// 
@@ -33,7 +34,7 @@ namespace Nomad.Save.Events
         /// <param name="reader"></param>
         public LoadBeginEventArgs(ISaveReaderService reader)
         {
-            Reader = reader;
+            _reader = reader;
         }
     }
 }

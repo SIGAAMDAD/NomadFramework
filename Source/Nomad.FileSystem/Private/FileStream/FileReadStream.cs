@@ -18,8 +18,8 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Nomad.Core.FileSystem;
-using Nomad.Core.Compatibility;
 using Nomad.Core.Compatibility.Guards;
+using System.Runtime.CompilerServices;
 
 namespace Nomad.FileSystem.Private.FileStream {
 	/*
@@ -33,7 +33,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 	/// Represents a read-only file stream.
 	/// </summary>
 
-	public sealed class FileReadStream : FileStreamBase, IFileReadStream {
+	internal sealed class FileReadStream : FileStreamBase, IFileReadStream {
 		/// <summary>
 		/// Indicates whether the stream supports reading.
 		/// </summary>
@@ -89,14 +89,42 @@ namespace Nomad.FileSystem.Private.FileStream {
 		===============
 		*/
 		/// <summary>
+		/// Reads a sequence of bytes from the file stream and advances the position within the stream by the number of bytes read.
+		/// </summary>
+		/// <param name="buffer">An array of bytes. When this method returns, the buffer contains the specified byte array with the values between offset and (offset + count - 1) replaced by the bytes read from the current source.</param>
+		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many bytes are not currently available, or zero if the end of the stream has been reached.</returns>
+		public int Read( byte[] buffer )
+			=> Read( buffer, 0, buffer.Length );
+		
+		/*
+		===============
+		Read
+		===============
+		*/
+		/// <summary>
+		/// Reads a sequence of bytes from the file stream into a span and advances the position within the stream by the number of bytes read.
+		/// </summary>
+		/// <param name="buffer">A span of bytes. When this method returns, the span contains the bytes read from the current source.</param>
+		/// <param name="offset">The zero-based byte offset in buffer at which to begin storing the data read from the current stream.</param>
+		/// <param name="count">The maximum number of bytes to be read from the current stream.</param>
+		/// <returns>The total number of bytes read into the span. This can be less than the length of the span if that many bytes are not currently available, or zero if the end of the stream has been reached.</returns>
+		public int Read( Span<byte> buffer, int offset, int count ) {
+			ArgumentGuard.ThrowIfNull( _fileStream );
+			return _fileStream.Read( buffer.Slice( offset, count  ) );
+		}
+
+		/*
+		===============
+		Read
+		===============
+		*/
+		/// <summary>
 		/// Reads a sequence of bytes from the file stream into a span and advances the position within the stream by the number of bytes read.
 		/// </summary>
 		/// <param name="buffer">A span of bytes. When this method returns, the span contains the bytes read from the current source.</param>
 		/// <returns>The total number of bytes read into the span. This can be less than the length of the span if that many bytes are not currently available, or zero if the end of the stream has been reached.</returns>
-		public int Read( Span<byte> buffer ) {
-			ArgumentGuard.ThrowIfNull( _fileStream );
-			return _fileStream.Read( buffer );
-		}
+		public int Read( Span<byte> buffer )
+			=> Read( buffer );
 
 		/*
 		===============
@@ -529,9 +557,9 @@ namespace Nomad.FileSystem.Private.FileStream {
 		===============
 		*/
 		/// <summary>
-		/// 
+		/// Reads an 8-bit boolean from the file stream.
 		/// </summary>
-		/// <returns></returns>
+		/// <returns>The 8-bit boolean value read from the stream.</returns>
 		public bool ReadBoolean() {
 			ArgumentGuard.ThrowIfNull( _streamReader );
 			return _streamReader.ReadBoolean();

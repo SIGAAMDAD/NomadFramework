@@ -59,6 +59,7 @@ namespace Nomad.Events
             _event?.Unsubscribe(this, _callback);
             _event = null;
             _callback = null;
+            GC.SuppressFinalize(this);
         }
     }
 }

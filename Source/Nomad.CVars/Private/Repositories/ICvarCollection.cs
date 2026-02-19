@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using Nomad.CVars.Interfaces;
 
 namespace Nomad.CVars.Private.Repositories {
 	internal interface ICVarCollection : IDisposable {

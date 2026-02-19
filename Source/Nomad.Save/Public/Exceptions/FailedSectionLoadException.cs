@@ -23,8 +23,17 @@ namespace Nomad.Save.Exceptions
     /// </summary>
     public sealed class FailedSectionLoadException : NomadError
     {
-        public readonly string? SectionName;
-        public readonly Exception Error;
+        /// <summary>
+        /// 
+        /// </summary>
+        public string? SectionName => _sectionName;
+        private readonly string? _sectionName;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public Exception Error => _error;
+        private readonly Exception _error;
 
         /// <summary>
         /// 
@@ -34,8 +43,8 @@ namespace Nomad.Save.Exceptions
         public FailedSectionLoadException(string sectionName, Exception exception)
             : base($"Failed to load save section {sectionName}, exception - {exception}")
         {
-            SectionName = sectionName;
-            Error = exception;
+            _sectionName = sectionName;
+            _error = exception;
         }
     }
 }

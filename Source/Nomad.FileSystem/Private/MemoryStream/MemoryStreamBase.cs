@@ -29,7 +29,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 	///
 	/// </summary>
 
-	public abstract class MemoryStreamBase : BaseStream {
+	internal abstract class MemoryStreamBase : BaseStream {
 		public override int Length => _length;
 		protected int _length = 0;
 

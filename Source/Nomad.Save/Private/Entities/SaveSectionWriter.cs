@@ -76,6 +76,8 @@ namespace Nomad.Save.Private.Entities {
 			foreach ( var field in _fields ) {
 				SaveField.Write( _name, field.Value, _writer );
 			}
+
+			_fields.Clear();
 		}
 
 		/*

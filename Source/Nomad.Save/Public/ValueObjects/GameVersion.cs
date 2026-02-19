@@ -30,17 +30,17 @@ namespace Nomad.Save.ValueObjects
         /// <summary>
         /// 
         /// </summary>
-        public readonly uint Major;
+        public readonly uint Major { get; }
 
         /// <summary>
         /// 
         /// </summary>
-        public readonly uint Minor;
+        public readonly uint Minor { get; }
 
         /// <summary>
         /// 
         /// </summary>
-        public readonly uint Patch;
+        public readonly uint Patch { get; }
 
         /// <summary>
         /// 

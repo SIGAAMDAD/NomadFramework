@@ -83,7 +83,7 @@ namespace Nomad.Save.Private.Services {
 		void ISaveReaderService.Load( string filepath ) {
 			_logger.PrintLine( in _category, $"Loading save data..." );
 
-			using var reader = _fileSystem.OpenRead( filepath );
+			using var reader = _fileSystem.OpenRead( filepath, new ReadConfig( StreamType.MemoryFile ) );
 			if ( reader == null ) {
 				_logger.PrintError( in _category, $"SaveReaderService.Load: couldn't open save file '{filepath}'!" );
 				return;

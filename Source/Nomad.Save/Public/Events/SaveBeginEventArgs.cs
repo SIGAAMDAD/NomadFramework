@@ -26,7 +26,8 @@ namespace Nomad.Save.Events
         /// <summary>
         /// The writer service to utilize.
         /// </summary>
-        public readonly ISaveWriterService Writer;
+        public ISaveWriterService Writer => _writer;
+        private readonly ISaveWriterService _writer;
 
         /// <summary>
         /// 
@@ -34,7 +35,7 @@ namespace Nomad.Save.Events
         /// <param name="writer"></param>
         public SaveBeginEventArgs(ISaveWriterService writer)
         {
-            Writer = writer;
+            _writer = writer;
         }
     }
 }

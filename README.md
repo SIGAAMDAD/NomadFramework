@@ -35,7 +35,6 @@ NomadFramework includes a comprehensive suite of subsystems intended to serve as
 - **Nomad.Audio.FMOD** — high‑quality audio pipeline support  
 
 ### Networking
-- **Nomad.Lobbies** — lobby creation, discovery, and session management. Online service agnostic
 - **Nomad.OnlineServices.Steam** — engine‑agnostic Steamworks.NET abstraction layer
 
 ### Gameplay Systems
@@ -94,14 +93,7 @@ See [`FORMATTING.md`](./FORMATTING.md) for full details.
 
 ## Roadmap
 
-Planned future modules include:
-
-- Save corruption & migration handling
-- Event priority queues
-- GOG/Epic support
-- Additional engine bindings (Unreal, MonoGame)
-- Advanced networking features
-- Physics abstraction layer
+Planned future modules & features are listed in great depth within the [`ROADMAD.md`](./ROADMAP.md) document.
 
 ---
 

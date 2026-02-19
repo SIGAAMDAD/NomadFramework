@@ -29,10 +29,16 @@ namespace Nomad.Save.Private.ValueObjects {
 	/// </summary>
 	
 	public readonly struct Checksum {
+		/// <summary>
+		/// 
+		/// </summary>
 		public static readonly Checksum Empty = new Checksum( 0 );
 		private static readonly Crc64 _checksum64 = new Crc64();
 
-		public readonly ulong Value;
+		/// <summary>
+		/// 
+		/// </summary>
+		public readonly ulong Value { get; }
 
 		/*
 		===============

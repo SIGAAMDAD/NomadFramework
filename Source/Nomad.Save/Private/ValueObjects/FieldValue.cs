@@ -86,11 +86,29 @@ namespace Nomad.Save.Private.ValueObjects {
 		private readonly Union _value;
 		private readonly FieldType _type;
 
+		/*
+		===============
+		FieldValue
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="b"></param>
 		public FieldValue( bool b ) {
 			_value = new Union { Boolean = b };
 			_type = FieldType.Boolean;
 		}
 
+		/*
+		===============
+		FieldValue
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="i8"></param>
 		public FieldValue( sbyte i8 ) {
 			_value = new Union { Int8 = i8 };
 			_type = FieldType.Int8;
@@ -110,46 +128,127 @@ namespace Nomad.Save.Private.ValueObjects {
 			_type = FieldType.Int16;
 		}
 
+		/*
+		===============
+		FieldValue
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="i32"></param>
 		public FieldValue( int i32 ) {
 			_value = new Union { Int32 = i32 };
 			_type = FieldType.Int32;
 		}
-
+		
+		/*
+		===============
+		FieldValue
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="i64"></param>
 		public FieldValue( long i64 ) {
 			_value = new Union { Int64 = i64 };
 			_type = FieldType.Int64;
 		}
 
+		/*
+		===============
+		FieldValue
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="u8"></param>
 		public FieldValue( byte u8 ) {
 			_value = new Union { UInt8 = u8 };
 			_type = FieldType.UInt8;
 		}
 
+		/*
+		===============
+		FieldValue
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="u16"></param>
 		public FieldValue( ushort u16 ) {
 			_value = new Union { UInt16 = u16 };
 			_type = FieldType.UInt16;
 		}
 
+		/*
+		===============
+		FieldValue
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="u32"></param>
 		public FieldValue( uint u32 ) {
 			_value = new Union { UInt32 = u32 };
 			_type = FieldType.UInt32;
 		}
 
+		/*
+		===============
+		FieldValue
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="u64"></param>
 		public FieldValue( ulong u64 ) {
 			_value = new Union { UInt64 = u64 };
 			_type = FieldType.UInt64;
 		}
 
+		/*
+		===============
+		FieldValue
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="f32"></param>
 		public FieldValue( float f32 ) {
 			_value = new Union { Float32 = f32 };
 			_type = FieldType.Float;
 		}
 
+		/*
+		===============
+		FieldValue
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="f64"></param>
 		public FieldValue( double f64 ) {
 			_value = new Union { Float64 = f64 };
 			_type = FieldType.Double;
 		}
 
+		/*
+		===============
+		FieldValue
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="str"></param>
 		public FieldValue( string? str ) {
 			_value = new Union { String = str };
 			_type = FieldType.String;

@@ -38,7 +38,7 @@ namespace Nomad.Events
             ArgumentGuard.ThrowIfNull(locator);
             ArgumentGuard.ThrowIfNull(registry);
 
-            var logger = locator.GetService<ILoggerService>();
+            ILoggerService logger = locator.GetService<ILoggerService>();
 
             _eventRegistry = registry.RegisterSingleton<IGameEventRegistryService>(new GameEventRegistry(logger));
         }

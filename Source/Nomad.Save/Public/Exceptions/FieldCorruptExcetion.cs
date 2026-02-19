@@ -21,14 +21,30 @@ namespace Nomad.Save.Exceptions
     /// @module Nomad.Save
     public sealed class FieldCorruptException : SaveFileCorruptException
     {
-        public readonly string SectionName;
-        public readonly int FieldIndex;
+        /// <summary>
+        /// 
+        /// </summary>
+        public string SectionName => _sectionName;
+        private readonly string _sectionName;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public int FieldIndex => _fieldIndex;
+        private readonly int _fieldIndex;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sectionName"></param>
+        /// <param name="fieldIndex"></param>
+        /// <param name="fileOffset"></param>
+        /// <param name="message"></param>
         public FieldCorruptException(string sectionName, int fieldIndex, int fileOffset, string message = "")
             : base(fileOffset, message)
         {
-            SectionName = sectionName;
-            FieldIndex = fieldIndex;
+            _sectionName = sectionName;
+            _fieldIndex = fieldIndex;
         }
     }
 }

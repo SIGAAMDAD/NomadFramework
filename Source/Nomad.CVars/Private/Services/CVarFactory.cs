@@ -28,19 +28,5 @@ namespace Nomad.CVars.Private.Services {
 		/// </summary>
 		public void Dispose() {
 		}
-
-		/*
-		===============
-		Register
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="createInfo"></param>
-		/// <returns></returns>
-//		public ICVar<T> Register<T>( in CVarCreateInfo<T> createInfo ) {
-//		}
 	};
 };

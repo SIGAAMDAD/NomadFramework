@@ -32,7 +32,7 @@ namespace Nomad.Core.Compatibility.Guards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ThrowIfDisposed(bool isDisposed, object? obj)
         {
-#if USE_COMPATIBILITY_EXTENSIONS || UNITY_EDITOR
+#if NETSTANDARD2_1 || !NET6_0_OR_GREATER
             if (isDisposed)
             {
                 throw new ObjectDisposedException(obj?.GetType().FullName);

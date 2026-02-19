@@ -91,11 +91,11 @@ namespace Nomad.Save.Private.Services {
 		///
 		/// </summary>
 		public void Dispose() {
-			_readerService.Dispose();
-			_writerService.Dispose();
+			_readerService?.Dispose();
+			_writerService?.Dispose();
 
-			_saveBegin.Dispose();
-			_loadBegin.Dispose();
+			_saveBegin?.Dispose();
+			_loadBegin?.Dispose();
 		}
 
 		/*
@@ -128,7 +128,7 @@ namespace Nomad.Save.Private.Services {
 
 				_loadBegin.Publish( new LoadBeginEventArgs( _readerService ) );
 			} catch ( FieldCorruptException fieldCorrupt ) {
-				_logger.PrintError( $"Field corruption - {fieldCorrupt}: {fieldCorrupt.Error}" );
+				_logger.PrintError( $"Field corruption - [FieldIndex] {fieldCorrupt.FieldIndex}, [FileOffset] {fieldCorrupt.FileOffset}, [Section] {fieldCorrupt.SectionName}" );
 			} catch ( Exception e ) {
 				_logger.PrintError( $"Exception caught - {e}" );
 			}
@@ -180,7 +180,10 @@ namespace Nomad.Save.Private.Services {
 						info.Length,
 						info.LastAccessTime.Year,
 						info.LastAccessTime.Month,
-						info.LastAccessTime.Day
+						info.LastAccessTime.Day,
+						info.CreationTime.Year,
+						info.CreationTime.Month,
+						info.CreationTime.Day
 					)
 				);
 			}

@@ -91,6 +91,32 @@ namespace Nomad.Core.FileSystem
         public string GetFullPath() => System.IO.Path.GetFullPath(_path);
 
         /// <summary>
+        /// Removes the file path's extension if there is any starting at the character '.'
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void StripExtension()
+        {
+            int relativeStart = _path.LastIndexOf(System.IO.Path.DirectorySeparatorChar);
+            int index = _path.IndexOf('.', relativeStart);
+            if (index == -1)
+            {
+                // no extension to strip
+                return;
+            }
+            _path.Remove(index);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="extension"></param>
+        public void SetExtension(string extension)
+        {
+            StripExtension();
+            _path.Insert(_path.Length - 1, extension);
+        }
+
+        /// <summary>
         ///
         /// </summary>
         /// <returns></returns>

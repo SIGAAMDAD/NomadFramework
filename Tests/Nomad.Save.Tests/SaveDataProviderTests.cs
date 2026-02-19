@@ -152,7 +152,7 @@ public class SaveDataProviderTests
 		using (Assert.EnterMultipleScope())
 		{
 			Assert.That(metadata.FileSize, Is.EqualTo(fileInfo.Length));
-			Assert.That(metadata.FileName, Is.Not.Null.And.Not.Empty);
+			Assert.That(metadata.SaveName, Is.Not.Null.And.Not.Empty);
 		}
 	}
 
@@ -301,7 +301,7 @@ public class SaveDataProviderTests
         var filesList = _dataProvider.ListSaveFiles(_testDirectory);
 
         // Assert
-        Assert.That(filesList.Count, Is.GreaterThanOrEqualTo(2));
+        Assert.That(filesList, Has.Count.GreaterThanOrEqualTo(2));
     }
 
     [Test]

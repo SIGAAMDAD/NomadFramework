@@ -17,7 +17,6 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Nomad.Core.Compatibility;
 using Nomad.Core.Compatibility.Guards;
 
 namespace Nomad.FileSystem.Private.FileStream {
@@ -32,7 +31,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 	/// Base implementation of a file stream.
 	/// </summary>
 
-	public abstract class FileStreamBase : BaseStream {
+	internal abstract class FileStreamBase : BaseStream {
 		/// <summary>
 		/// Indicates whether the stream supports seeking.
 		/// </summary>
@@ -170,11 +169,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <param name="accessMode"></param>
 		/// <exception cref="NotImplementedException"></exception>
 		public bool Open( string filepath, FileMode openMode, FileAccess accessMode ) {
-			try {
-				_fileStream = new System.IO.FileStream( filepath, openMode, accessMode );
-			} catch ( Exception ex ) {
-				return false;
-			}
+			_fileStream = new System.IO.FileStream( filepath, openMode, accessMode );
 			return true;
 		}
 

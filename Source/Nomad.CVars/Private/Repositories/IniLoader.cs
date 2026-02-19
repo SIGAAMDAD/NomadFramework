@@ -46,6 +46,7 @@ namespace Nomad.CVars.Private.Repositories {
 		/// </summary>
 		/// <param name="configFile"></param>
 		/// <param name="logger"></param>
+		/// <param name="fileSystem"></param>
 		public IniLoader( string configFile, ILoggerService logger, IFileSystem fileSystem ) {
 			ArgumentGuard.ThrowIfNullOrEmpty( configFile );
 			ArgumentGuard.ThrowIfNull( logger );

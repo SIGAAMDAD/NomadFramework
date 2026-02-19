@@ -59,7 +59,7 @@ namespace Nomad.Core
                 /// 
                 /// </summary>
                 public const string MAX_CHANNELS = "audio.MaxChannels";
-                
+
                 /// <summary>
                 /// 
                 /// </summary>
@@ -227,7 +227,7 @@ namespace Nomad.Core
                 /// 
                 /// </summary>
                 public const string SEPARATE_RENDERING_THREAD = "r.SeparateRenderingThread";
-                
+
                 /// <summary>
                 /// 
                 /// </summary>
@@ -311,91 +311,212 @@ namespace Nomad.Core
                 public const string CONSOLE_LOG_LEVEL = "console.LogLevel";
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public static class Events
         {
+            /// <summary>
+            /// 
+            /// </summary>
             public static partial class Console
             {
+                /// <summary>
+                /// 
+                /// </summary>
                 public const string NAMESPACE = nameof(Console);
 
-#if USE_COMPATIBILITY_EXTENSIONS || UNITY_EDITOR
+                /// <summary>
+                /// 
+                /// </summary>
                 public const string CONSOLE_OPENED_EVENT = NAMESPACE + ":ConsoleOpened";
+
+                /// <summary>
+                /// 
+                /// </summary>
                 public const string CONSOLE_CLOSED_EVENT = NAMESPACE + ":ConsoleClosed";
+
+                /// <summary>
+                /// 
+                /// </summary>
                 public const string TEXT_ENTERED_EVENT = NAMESPACE + ":TextEntered";
+
+                /// <summary>
+                /// 
+                /// </summary>
                 public const string HISTORY_PREV_EVENT = NAMESPACE + ":HistoryPrev";
+
+                /// <summary>
+                /// 
+                /// </summary>
                 public const string HISTORY_NEXT_EVENT = NAMESPACE + ":HistoryNext";
+
+                /// <summary>
+                /// 
+                /// </summary>
                 public const string AUTOCOMPLETE_EVENT = NAMESPACE + ":AutoComplete";
+
+                /// <summary>
+                /// 
+                /// </summary>
                 public const string PAGE_UP_EVENT = NAMESPACE + ":PageUp";
+
+                /// <summary>
+                /// 
+                /// </summary>
                 public const string PAGE_DOWN_EVENT = NAMESPACE + ":PageDown";
+
+                /// <summary>
+                /// 
+                /// </summary>
                 public const string UNKNOWN_COMMAND_EVENT = NAMESPACE + ":UnknownCommand";
+
+                /// <summary>
+                /// 
+                /// </summary>
                 public const string COMMAND_EXECUTED_EVENT = NAMESPACE + ":CommandExecuted";
-#else
-                public const string CONSOLE_OPENED_EVENT = $"{NAMESPACE}:ConsoleOpened";
-                public const string CONSOLE_CLOSED_EVENT = $"{NAMESPACE}:ConsoleClosed";
-                public const string TEXT_ENTERED_EVENT = $"{NAMESPACE}:TextEntered";
-                public const string HISTORY_PREV_EVENT = $"{NAMESPACE}:HistoryPrev";
-                public const string HISTORY_NEXT_EVENT = $"{NAMESPACE}:HistoryNext";
-                public const string AUTOCOMPLETE_EVENT = $"{NAMESPACE}:AutoComplete";
-                public const string PAGE_UP_EVENT = $"{NAMESPACE}:PageUp";
-                public const string PAGE_DOWN_EVENT = $"{NAMESPACE}:PageDown";
-                public const string UNKNOWN_COMMAND_EVENT = $"{NAMESPACE}:UnknownCommand";
-                public const string COMMAND_EXECUTED_EVENT = $"{NAMESPACE}:CommandExecuted";
-#endif
             }
+
+            /// <summary>
+            /// 
+            /// </summary>
             public static partial class ResourceCache
             {
+                /// <summary>
+                /// 
+                /// </summary>
                 public const string NAMESPACE = nameof(ResourceCache);
 
-#if USE_COMPATIBILITY_EXTENSIONS || UNITY_EDITOR
+                /// <summary>
+                /// 
+                /// </summary>
                 public const string RESOURCE_LOADED_EVENT = NAMESPACE + ":ResourceLoaded";
+
+                /// <summary>
+                /// 
+                /// </summary>
                 public const string RESOURCE_LOAD_FAILED_EVENT = NAMESPACE + ":ResourceLoadFailed";
+
+                /// <summary>
+                /// 
+                /// </summary>
                 public const string RESOURCE_LOAD_PROGRESS_EVENT = NAMESPACE + ":ResourceLoadProgress";
+
+                /// <summary>
+                /// 
+                /// </summary>
                 public const string RESOURCE_UNLOADED_EVENT = NAMESPACE + ":ResourceUnloaded";
-#else
-                public const string RESOURCE_LOADED_EVENT = $"{NAMESPACE}:ResourceLoaded";
-                public const string RESOURCE_LOAD_FAILED_EVENT = $"{NAMESPACE}:ResourceLoadFailed";
-                public const string RESOURCE_LOAD_PROGRESS_EVENT = $"{NAMESPACE}:ResourceLoadProgress";
-                public const string RESOURCE_UNLOADED_EVENT = $"{NAMESPACE}:ResourceUnloaded";
-#endif
             }
+
+            /// <summary>
+            /// 
+            /// </summary>
             public static partial class CVars
             {
-                public const string NAMESPACE = nameof(CVars);
+                private const string NAMESPACE = nameof(CVars);
 
-#if USE_COMPATIBILITY_EXTENSIONS || UNITY_EDITOR
+                /// <summary>
+                /// 
+                /// </summary>
                 public const string CVAR_VALUE_CHANGED_EVENT = NAMESPACE + ":CVarValueChanged";
-#else
-                public const string CVAR_VALUE_CHANGED_EVENT = $"{NAMESPACE}:CVarValueChanged";
-#endif
             }
+
+            /// <summary>
+            /// 
+            /// </summary>
             public static partial class Rendering
             {
-                public const string NAMESPACE = nameof(Rendering);
+                private const string NAMESPACE = nameof(Rendering);
 
-                public const string ENTITY_VISIBILITY_CHANGED_EVENT = "Rendering:EntityVisibilityChanged";
-                public const string ANIMATION_FINISHED_EVENT = "Rendering:AnimationFinished";
-                public const string ANIMATION_LOOPED_EVENT = "Rendering:AnimationLooped";
-                public const string ANIMATION_CHANGED_EVENT = "Rendering:AnimationChanged";
-                public const string FRAME_CHANGED_EVENT = "Rendering:FrameChanged";
-                public const string SPRITE_FRAMES_CHANGED_EVENT = "Rendering:SpriteFramesChanged";
+                /// <summary>
+                /// 
+                /// </summary>
+                public const string ENTITY_VISIBILITY_CHANGED_EVENT = NAMESPACE + ":EntityVisibilityChanged";
+
+                /// <summary>
+                /// 
+                /// </summary>
+                public const string ANIMATION_FINISHED_EVENT = NAMESPACE + ":AnimationFinished";
+
+                /// <summary>
+                /// 
+                /// </summary>
+                public const string ANIMATION_LOOPED_EVENT = NAMESPACE + ":AnimationLooped";
+
+                /// <summary>
+                /// 
+                /// </summary>
+                public const string ANIMATION_CHANGED_EVENT = NAMESPACE + ":AnimationChanged";
+
+                /// <summary>
+                /// 
+                /// </summary>
+                public const string FRAME_CHANGED_EVENT = NAMESPACE + ":FrameChanged";
+
+                /// <summary>
+                /// 
+                /// </summary>
+                public const string SPRITE_FRAMES_CHANGED_EVENT = NAMESPACE + ":SpriteFramesChanged";
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public static class Commands
         {
+            /// <summary>
+            /// 
+            /// </summary>
             public static partial class Console
             {
+                /// <summary>
+                /// 
+                /// </summary>
                 public const string ECHO_COMMAND = "echo";
+
+                /// <summary>
+                /// 
+                /// </summary>
                 public const string CLEAR_COMMAND = "clear";
+
+                /// <summary>
+                /// 
+                /// </summary>
                 public const string EXIT_COMMAND = "exit";
+
+                /// <summary>
+                /// 
+                /// </summary>
                 public const string QUIT_COMMAND = "quit";
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public static class Audio
         {
+            /// <summary>
+            /// 
+            /// </summary>
             public const int MAX_AUDIO_CHANNELS = 512;
+
+            /// <summary>
+            /// 
+            /// </summary>
             public const int MIN_AUDIO_CHANNELS = 64;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public static class Multiplayer
         {
+            /// <summary>
+            /// 
+            /// </summary>
             public const int MAX_PLAYERS = 16;
         }
     }

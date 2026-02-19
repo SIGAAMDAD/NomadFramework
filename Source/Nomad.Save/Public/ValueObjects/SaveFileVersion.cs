@@ -13,6 +13,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using Nomad.Core.FileSystem;
+
 namespace Nomad.Save.ValueObjects
 {
     /// <summary>
@@ -23,17 +25,17 @@ namespace Nomad.Save.ValueObjects
         /// <summary>
         /// 
         /// </summary>
-        public readonly uint Major;
+        public readonly uint Major { get; }
 
         /// <summary>
         /// 
         /// </summary>
-        public readonly uint Minor;
+        public readonly uint Minor { get; }
 
         /// <summary>
         /// 
         /// </summary>
-        public readonly ulong Patch;
+        public readonly ulong Patch { get; }
 
         /// <summary>
         /// 
@@ -46,6 +48,31 @@ namespace Nomad.Save.ValueObjects
             Major = major;
             Minor = minor;
             Patch = patch;
+        }
+
+        /// <summary>
+        /// Writes the version data to a <see cref="IWriteStream"/>.
+        /// </summary>
+        /// <param name="stream">The stream to write to.</param>
+        internal void Serialize(IWriteStream stream)
+        {
+            stream.WriteUInt32(Major);
+            stream.WriteUInt32(Minor);
+            stream.WriteUInt64(Patch);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        internal static SaveFileVersion Deserialize(IReadStream stream)
+        {
+            return new SaveFileVersion(
+                stream.ReadUInt32(),
+                stream.ReadUInt32(),
+                stream.ReadUInt64()
+            );
         }
     }
 }

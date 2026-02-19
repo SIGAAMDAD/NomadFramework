@@ -13,10 +13,10 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+#if NET6_0_OR_GREATER
 using System;
 using System.Runtime.InteropServices;
 
-#if !USE_COMPATIBILITY_EXTENSIONS && !UNITY_EDITOR
 namespace Nomad.Core.Collections.Native
 {
     /// <summary>

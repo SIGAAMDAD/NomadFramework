@@ -15,6 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using Nomad.Core.EngineUtils;
+using Nomad.Core.Events;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.Core.OnlineServices;
@@ -65,7 +66,8 @@ namespace Nomad.OnlineServices.Steam.Private {
 		/// <param name="logger"></param>
 		/// <param name="fileSystem"></param>
 		/// <param name="engineService"></param>
-		public SteamService( ILoggerService logger, IFileSystem fileSystem, IEngineService engineService ) {
+		/// <param name="eventFactory"></param>
+		public SteamService( ILoggerService logger, IFileSystem fileSystem, IEngineService engineService, IGameEventRegistryService eventFactory ) {
 			ESteamAPIInitResult result = SteamAPI.InitEx( out string errorMessage );
 			if ( result != ESteamAPIInitResult.k_ESteamAPIInitResult_OK ) {
 				logger.PrintError( $"SteamService: failed to initialize SteamAPI - {result}, {errorMessage}" );
@@ -81,7 +83,7 @@ namespace Nomad.OnlineServices.Steam.Private {
 			);
 
 			_logger = logger;
-			_category = logger.CreateCategory( "Nomad.Steam", LogLevel.Info, true );
+			_category = logger.CreateCategory( nameof( Nomad.OnlineServices.Steam ), LogLevel.Info, true );
 
 			_statsService = new SteamStatsService( logger );
 			_achievementsService = new SteamAchievementService( _appData, engineService );
@@ -97,26 +99,10 @@ namespace Nomad.OnlineServices.Steam.Private {
 		///
 		/// </summary>
 		public void Dispose() {
-			_category.Dispose();
-			_statsService.Dispose();
-			_achievementsService.Dispose();
-			_cloudStorageService.Dispose();
-		}
-
-		/*
-		===============
-		Initialize
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		public void Initialize() {
-			ESteamAPIInitResult result = SteamAPI.InitEx( out string errorMessage );
-			if ( result != ESteamAPIInitResult.k_ESteamAPIInitResult_OK ) {
-
-			}
-
+			_category?.Dispose();
+			_statsService?.Dispose();
+			_achievementsService?.Dispose();
+			_cloudStorageService?.Dispose();
 		}
 
 		/*
@@ -129,10 +115,6 @@ namespace Nomad.OnlineServices.Steam.Private {
 		/// </summary>
 		public void RunCallbacks() {
 			SteamAPI.RunCallbacks();
-		}
-
-		public void Shutdown() {
-			throw new NotImplementedException();
 		}
 	};
 };

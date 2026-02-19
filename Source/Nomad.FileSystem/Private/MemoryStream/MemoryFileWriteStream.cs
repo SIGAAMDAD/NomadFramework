@@ -28,18 +28,20 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 	===================================================================================
 	*/
 	/// <summary>
-	///
+	/// 
 	/// </summary>
-	/// <param name="filepath"></param>
-	/// <param name="length"></param>
-	/// <param name="fixedSize"></param>
 
-	public sealed class MemoryFileWriteStream
-		: MemoryWriteStream, IMemoryFileWriteStream
+	internal sealed class MemoryFileWriteStream : MemoryWriteStream, IMemoryFileWriteStream
 	{
+		/// <summary>
+		/// 
+		/// </summary>
 		public string FilePath => _filepath;
 		private string _filepath;
 
+		/// <summary>
+		/// 
+		/// </summary>
 		public bool IsOpen => _buffer != null;
 
 		/*
@@ -151,7 +153,6 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 				_length = DEFAULT_CAPACITY;
 				_buffer = ArrayPool<byte>.Shared.Rent( _length );
 			}
-
 			return true;
 		}
 	};

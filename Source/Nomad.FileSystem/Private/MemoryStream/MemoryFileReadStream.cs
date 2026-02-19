@@ -16,7 +16,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System.Buffers;
 using System.IO;
 using System.Threading.Tasks;
-using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.FileSystem;
 
 namespace Nomad.FileSystem.Private.MemoryStream {
@@ -31,10 +30,16 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 	///
 	/// </summary>
 
-	public sealed class MemoryFileReadStream : MemoryReadStream, IMemoryFileReadStream {
-		public string FilePath => _filepath;
-		private string _filepath;
+	internal sealed class MemoryFileReadStream : MemoryReadStream, IMemoryFileReadStream {
+		/// <summary>
+		/// 
+		/// </summary>
+		public string? FilePath => _filepath;
+		private readonly string? _filepath;
 
+		/// <summary>
+		/// 
+		/// </summary>
 		public bool IsOpen => _buffer != null;
 
 		/*
@@ -105,8 +110,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <param name="openMode">The mode in which to open the file.</param>
 		/// <param name="accessMode">The access mode for the file.</param>
 		/// <returns><c>true</c> if the file was opened successfully; otherwise, <c>false.</c></returns>
-		public bool Open( string filepath, FileMode openMode, FileAccess accessMode ) {
-			_filepath = filepath;
+		private bool Open( string filepath, FileMode openMode, FileAccess accessMode ) {
 			_position = 0;
 
 			try {
@@ -115,14 +119,9 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 					return false;
 				}
 
-				_buffer = ArrayPool<byte>.Shared.Rent( ( int )stream.Length );
-#if NETSTANDARD2_1
-				stream.Read( _buffer, 0, (int)stream.Length );
-#else
-				stream.ReadExactly( _buffer, 0, ( int )stream.Length );
-#endif
-
-				_length = ( int )stream.Length;
+				_buffer = ArrayPool<byte>.Shared.Rent( (int)stream.Length );
+				int bytesRead = stream.Read( _buffer, 0, (int)stream.Length );
+				_length = (int)stream.Length;
 
 				stream.Dispose();
 

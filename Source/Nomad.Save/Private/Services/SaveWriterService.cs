@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System.Collections.Concurrent;
+using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.Save.Exceptions;
@@ -88,7 +89,7 @@ namespace Nomad.Save.Private.Services {
 		/// <param name="filepath"></param>
 		/// <param name="gameVersion"></param>
 		void ISaveWriterService.BeginSave( string filepath, GameVersion gameVersion ) {
-			_writer = _fileSystem.OpenWrite( filepath );
+			_writer = _fileSystem.OpenWrite( filepath, new WriteConfig( StreamType.MemoryFile, 8192 ) );
 			if ( _writer == null ) {
 				_logger.PrintError( $"Couldn't create save file {filepath}!" );
 				return;
@@ -123,7 +124,11 @@ namespace Nomad.Save.Private.Services {
 
 			_writer.Seek( 0, System.IO.SeekOrigin.End );
 
+			// clear the memory buffer
 			_writer?.Dispose();
+			_writer = null;
+
+			_sections.Clear();
 		}
 
 		/*
@@ -138,6 +143,8 @@ namespace Nomad.Save.Private.Services {
 		/// <returns>The new write-dedicated section.</returns>
 		/// <exception cref="DuplicateSectionException">Thrown if <paramref name="sectionId"/> already exists in the section cache.</exception>
 		public ISaveSectionWriter AddSection( string sectionId ) {
+			ArgumentGuard.ThrowIfNull( _writer );
+
 			if ( _sections.ContainsKey( sectionId ) ) {
 				throw new DuplicateSectionException( $"Section {sectionId} added twice!" );
 			}

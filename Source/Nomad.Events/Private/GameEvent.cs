@@ -74,6 +74,7 @@ namespace Nomad.Events.Private {
 		/// <param name="nameSpace"></param>
 		/// <param name="name">The name of the event, should be unique.</param>
 		/// <param name="logger"></param>
+		/// <param name="flags"></param>
 		/// <exception cref="ArgumentException">Thrown if name is null or empty.</exception>
 		internal GameEvent( InternString nameSpace, InternString name, ILoggerService logger, EventFlags flags ) {
 			ArgumentGuard.ThrowIfNullOrEmpty( name );
@@ -160,7 +161,7 @@ namespace Nomad.Events.Private {
 		===============
 		*/
 		/// <summary>
-		/// Adds a new subscription to the GameEvent utilizing the <see cref="GameEventBus"/>.
+		/// 
 		/// </summary>
 		/// <param name="callback">The lambda or method to call when the event is triggered.</param>
 		/// <exception cref="ArgumentNullException">Thrown if <paramref name="callback"/> is null.</exception>
@@ -178,7 +179,7 @@ namespace Nomad.Events.Private {
 		===============
 		*/
 		/// <summary>
-		/// Adds a new subscription to the GameEvent utilizing the <see cref="GameEventBus"/>.
+		/// 
 		/// </summary>
 		/// <param name="callback">The lambda or method to call when the event is triggered.</param>
 		/// <exception cref="ArgumentNullException">Thrown if <paramref name="callback"/> is null.</exception>
@@ -215,7 +216,7 @@ namespace Nomad.Events.Private {
 		===============
 		*/
 		/// <summary>
-		/// Adds a new subscription to the GameEvent utilizing the <see cref="GameEventBus"/>.
+		/// 
 		/// </summary>
 		/// <param name="owner"></param>
 		/// <param name="callback">The lambda or method to call when the event is triggered.</param>
@@ -295,7 +296,7 @@ namespace Nomad.Events.Private {
 			_subscriptions.CleanupSubscriptions();
 		}
 
-#if !USE_COMPATIBILITY_EXTENSIONS && !UNITY_EDITOR
+#if !NETSTANDARD2_1 || NET8_0_OR_GREATER
 		/*
 		===============
 		operator +=

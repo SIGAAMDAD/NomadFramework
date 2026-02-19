@@ -22,3 +22,5 @@ UnityIntegration/Library/
 UnityIntegration/UserSettings
 
 *.tar.gz
+
+nuget_api_key.txt

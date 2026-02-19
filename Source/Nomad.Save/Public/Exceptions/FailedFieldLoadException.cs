@@ -24,8 +24,17 @@ namespace Nomad.Save.Exceptions
     /// @module Nomad.Save
     public sealed class FailedFieldLoadException : NomadError
     {
-        public readonly string? FieldName;
-        public readonly Exception Error;
+        /// <summary>
+        /// 
+        /// </summary>
+        public string? FieldName => _fieldName;
+        private readonly string? _fieldName;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public Exception Error => _error;
+        private readonly Exception _error;
 
         /// <summary>
         /// 
@@ -35,8 +44,8 @@ namespace Nomad.Save.Exceptions
         public FailedFieldLoadException(string fieldName, Exception exception)
             : base($"Failed to load save field {fieldName}, exception {exception}")
         {
-            FieldName = fieldName;
-            Error = exception;
+            _fieldName = fieldName;
+            _error = exception;
         }
     }
 }

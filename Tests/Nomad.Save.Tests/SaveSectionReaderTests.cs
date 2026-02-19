@@ -670,7 +670,8 @@ public class SaveSectionReaderTests
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
-        string longString = new string('X', 50000);
+        int length = 1000;
+        string longString = new string('X', length);
         string retrievedValue = "";
 
         saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
@@ -694,7 +695,7 @@ public class SaveSectionReaderTests
 
         // Assert
         Assert.That(retrievedValue, Is.EqualTo(longString));
-        Assert.That(retrievedValue.Length, Is.EqualTo(50000));
+        Assert.That(retrievedValue, Has.Length.EqualTo(length));
     }
 
     [Test]

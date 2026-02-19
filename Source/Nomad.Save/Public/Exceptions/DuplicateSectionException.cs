@@ -22,7 +22,11 @@ namespace Nomad.Save.Exceptions
     /// </summary>
     public sealed class DuplicateSectionException : Exception
     {
-        public readonly string SectionName;
+        /// <summary>
+        /// 
+        /// </summary>
+        public string SectionName => _sectionName;
+        private readonly string _sectionName;
 
         /// <summary>
         /// 
@@ -30,7 +34,7 @@ namespace Nomad.Save.Exceptions
         /// <param name="sectionName"></param>
         public DuplicateSectionException(string sectionName)
         {
-            SectionName = sectionName;
+            _sectionName = sectionName;
         }
     }
 }

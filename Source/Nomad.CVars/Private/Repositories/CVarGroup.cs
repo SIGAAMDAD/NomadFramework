@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using Nomad.Core.Util;
 using Nomad.Core.Logger;
 using Nomad.Core.Compatibility.Guards;
+using Nomad.CVars.Interfaces;
 
 namespace Nomad.CVars.Private.Repositories {
 	/*
@@ -30,7 +31,7 @@ namespace Nomad.CVars.Private.Repositories {
 	///
 	/// </summary>
 
-	public sealed class CVarGroup {
+	internal sealed class CVarGroup {
 		public readonly InternString Name;
 		public readonly HashSet<InternString> Cvars = new HashSet<InternString>();
 

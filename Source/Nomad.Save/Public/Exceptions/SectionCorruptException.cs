@@ -20,14 +20,30 @@ namespace Nomad.Save.Exceptions
     /// </summary>
     public sealed class SectionCorruptException : SaveFileCorruptException
     {
-        public readonly string SectionName;
-        public readonly int SectionIndex;
+        /// <summary>
+        /// 
+        /// </summary>
+        public string SectionName => _sectionName;
+        private readonly string _sectionName;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public int SectionIndex => _sectionIndex;
+        private readonly int _sectionIndex;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sectionName"></param>
+        /// <param name="sectionIndex"></param>
+        /// <param name="fileOffset"></param>
+        /// <param name="message"></param>
         public SectionCorruptException(string sectionName, int sectionIndex, int fileOffset, string message = "")
             : base(fileOffset, message)
         {
-            SectionName = sectionName;
-            SectionIndex = sectionIndex;
+            _sectionName = sectionName;
+            _sectionIndex = sectionIndex;
         }
     }
 }

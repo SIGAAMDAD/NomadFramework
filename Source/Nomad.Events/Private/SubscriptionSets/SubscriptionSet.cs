@@ -108,7 +108,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		===============
 		*/
 		/// <summary>
-		/// Adds a callback method to the <see cref="Subscriptions"/> list.
+		/// Adds a callback method to the subscriptions list.
 		/// </summary>
 		/// <param name="subscriber"></param>
 		/// <param name="callback">The method that is called whenever the event triggers.</param>
@@ -137,7 +137,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		===============
 		*/
 		/// <summary>
-		/// Adds a callback method to the <see cref="Subscriptions"/> list.
+		/// Adds a callback method to the subscriptions list.
 		/// </summary>
 		/// <param name="subscriber"></param>
 		/// <param name="callback">The method that is called whenever the event triggers.</param>
@@ -296,7 +296,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 				}
 			}
 
-#if USE_COMPATIBILITY_EXTENSIONS || UNITY_EDITOR
+#if NETSTANDARD2_1
 			Task.WaitAll( tasks.ToArray(), ct );
 #else
 			Task.WaitAll( tasks, ct );
@@ -310,7 +310,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		*/
 		/// <summary>
 		/// Public method that acquires the read lock and checks for callback existence.
-		/// </summary>s
+		/// </summary>
 		/// <param name="subscriber"></param>
 		/// <param name="callback"></param>
 		/// <param name="index"></param>
@@ -338,7 +338,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		*/
 		/// <summary>
 		/// Public method that acquires the read lock and checks for callback existence.
-		/// </summary>s
+		/// </summary>
 		/// <param name="subscriber"></param>
 		/// <param name="callback"></param>
 		/// <param name="index"></param>

@@ -55,16 +55,6 @@ namespace Nomad.Core.OnlineServices
         /// <summary>
         /// 
         /// </summary>
-        void Initialize();
-
-        /// <summary>
-        /// 
-        /// </summary>
         void RunCallbacks();
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        void Shutdown();
     }
 }

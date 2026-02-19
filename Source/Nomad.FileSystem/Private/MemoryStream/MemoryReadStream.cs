@@ -19,6 +19,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.FileSystem;
 
 namespace Nomad.FileSystem.Private.MemoryStream {
@@ -33,11 +34,21 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 	///
 	/// </summary>
 
-	public class MemoryReadStream : MemoryStreamBase, IReadStream {
+	internal class MemoryReadStream : MemoryStreamBase, IReadStream {
+		/// <summary>
+		/// 
+		/// </summary>
 		public override bool CanRead => true;
+
+		/// <summary>
+		/// 
+		/// </summary>
 		public override bool CanWrite => false;
 
-		protected byte[] _buffer;
+		/// <summary>
+		/// 
+		/// </summary>
+		protected byte[]? _buffer;
 
 		/*
 		===============
@@ -47,7 +58,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <summary>
 		///
 		/// </summary>
-		internal MemoryReadStream() {
+		public MemoryReadStream() {
 		}
 
 		/*
@@ -126,24 +137,51 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		===============
 		*/
 		/// <summary>
+		/// Reads a sequence of bytes from the current stream and advances the position within the stream by the number of bytes read.
+		/// </summary>
+		/// <param name="buffer">An array of bytes. When this method returns, the buffer contains the specified byte array with the values between offset and (offset + count - 1) replaced by the bytes read from the current source.</param>
+		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many bytes are not currently available, or zero if the end of the stream has been reached.</returns>
+		public int Read( byte[] buffer )
+			=> Read( buffer, 0, buffer.Length );
+		
+		/*
+		===============
+		Read
+		===============
+		*/
+		/// <summary>
 		/// Reads a sequence of bytes from the current stream into a span and advances the position within the stream by the number of bytes read.
 		/// </summary>
 		/// <param name="buffer">A span of bytes. When this method returns, the span contains the bytes read from the current source.</param>
+		/// <param name="offset">The zero-based byte offset in buffer at which to begin storing the data read from the current stream.</param>
+		/// <param name="count">The maximum number of bytes to be read from the current stream.</param>
 		/// <returns>The total number of bytes read into the span. This can be less than the length of the span if that many bytes are not currently available, or zero if the end of the stream has been reached.</returns>
-		public int Read( Span<byte> buffer ) {
-			int count = buffer.Length;
-			if ( count > _length - _position ) {
-				count = _length - _position;
+		public int Read( Span<byte> buffer, int offset, int count ) {
+			if ( offset + count >= buffer.Length ) {
+				count = buffer.Length - offset;
 			}
 			unsafe {
 				fixed ( byte* dst = buffer )
 				fixed ( byte* src = _buffer ) {
-					Buffer.MemoryCopy( src + _position, dst, buffer.Length, count );
+					Buffer.MemoryCopy( src + _position, dst + offset, buffer.Length, count );
 				}
 			}
 			_position += count;
 			return count;
 		}
+
+		/*
+		===============
+		Read
+		===============
+		*/
+		/// <summary>
+		/// Reads a sequence of bytes from the current stream into a span and advances the position within the stream by the number of bytes read.
+		/// </summary>
+		/// <param name="buffer">A span of bytes. When this method returns, the span contains the bytes read from the current source.</param>
+		/// <returns>The total number of bytes read into the span. This can be less than the length of the span if that many bytes are not currently available, or zero if the end of the stream has been reached.</returns>
+		public int Read( Span<byte> buffer )
+			=> Read( buffer, 0, buffer.Length );
 
 		/*
 		===============
@@ -189,6 +227,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <returns>A byte array containing the remaining data in the stream.</returns>
 		public byte[] ReadToEnd() {
+			ArgumentGuard.ThrowIfNull( _buffer );
+
 			int remaining = _length - _position;
 			byte[] result = new byte[ remaining ];
 			Buffer.BlockCopy( _buffer, _position, result, 0, remaining );
@@ -220,9 +260,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// Returns the underlying buffer as a byte array.
 		/// </summary>
 		/// <returns>The underlying byte array.</returns>
-		public byte[] ToArray() {
-			return _buffer;
-		}
+		public byte[]? ToArray()
+			=> _buffer;
 
 		/*
 		===============
@@ -233,9 +272,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// Reads a signed byte from the stream.
 		/// </summary>
 		/// <returns>The signed byte value read from the stream.</returns>
-		public sbyte ReadSByte() {
-			return Read<sbyte>();
-		}
+		public sbyte ReadSByte()
+			=> Read<sbyte>();
 
 		/*
 		===============
@@ -246,9 +284,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// Reads a 16-bit signed integer from the stream.
 		/// </summary>
 		/// <returns>The 16-bit signed integer value read from the stream.</returns>
-		public short ReadShort() {
-			return Read<short>();
-		}
+		public short ReadShort()
+			=> Read<short>();
 
 		/*
 		===============
@@ -259,9 +296,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// Reads a 32-bit signed integer from the stream.
 		/// </summary>
 		/// <returns>The 32-bit signed integer value read from the stream.</returns>
-		public int ReadInt() {
-			return Read<int>();
-		}
+		public int ReadInt()
+			=> Read<int>();
 
 		/*
 		===============
@@ -272,9 +308,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// Reads a 64-bit signed integer from the stream.
 		/// </summary>
 		/// <returns>The 64-bit signed integer value read from the stream.</returns>
-		public long ReadLong() {
-			return Read<long>();
-		}
+		public long ReadLong()
+			=> Read<long>();
 
 		/*
 		===============
@@ -285,9 +320,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// Reads an unsigned byte from the stream.
 		/// </summary>
 		/// <returns>The unsigned byte value read from the stream.</returns>
-		public byte ReadByte() {
-			return Read<byte>();
-		}
+		public byte ReadByte()
+			=> Read<byte>();
 
 		/*
 		===============
@@ -298,9 +332,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// Reads a 16-bit unsigned integer from the stream.
 		/// </summary>
 		/// <returns>The 16-bit unsigned integer value read from the stream.</returns>
-		public ushort ReadUShort() {
-			return Read<ushort>();
-		}
+		public ushort ReadUShort()
+			=> Read<ushort>();
 
 		/*
 		===============
@@ -311,9 +344,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// Reads a 32-bit unsigned integer from the stream.
 		/// </summary>
 		/// <returns>The 32-bit unsigned integer value read from the stream.</returns>
-		public uint ReadUInt() {
-			return Read<uint>();
-		}
+		public uint ReadUInt()
+			=> Read<uint>();
 
 		/*
 		===============
@@ -324,9 +356,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// Reads a 64-bit unsigned integer from the stream.
 		/// </summary>
 		/// <returns>The 64-bit unsigned integer value read from the stream.</returns>
-		public ulong ReadULong() {
-			return Read<ulong>();
-		}
+		public ulong ReadULong()
+			=> Read<ulong>();
 
 		/*
 		===============
@@ -337,9 +368,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// Reads an 8-bit signed integer from the stream.
 		/// </summary>
 		/// <returns>The 8-bit signed integer value read from the stream.</returns>
-		public sbyte ReadInt8() {
-			return Read<sbyte>();
-		}
+		public sbyte ReadInt8()
+			=> Read<sbyte>();
 
 		/*
 		===============
@@ -350,9 +380,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// Reads a 16-bit signed integer from the stream.
 		/// </summary>
 		/// <returns>The 16-bit signed integer value read from the stream.</returns>
-		public short ReadInt16() {
-			return Read<short>();
-		}
+		public short ReadInt16()
+			=> Read<short>();
 
 		/*
 		===============
@@ -363,9 +392,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// Reads a 32-bit signed integer from the stream.
 		/// </summary>
 		/// <returns>The 32-bit signed integer value read from the stream.</returns>
-		public int ReadInt32() {
-			return Read<int>();
-		}
+		public int ReadInt32()
+			=> Read<int>();
 
 		/*
 		===============
@@ -376,9 +404,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// Reads a 64-bit signed integer from the stream.
 		/// </summary>
 		/// <returns>The 64-bit signed integer value read from the stream.</returns>
-		public long ReadInt64() {
-			return Read<long>();
-		}
+		public long ReadInt64()
+			=> Read<long>();
 
 		/*
 		===============
@@ -389,9 +416,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// Reads an 8-bit unsigned integer from the stream.
 		/// </summary>
 		/// <returns>The 8-bit unsigned integer value read from the stream.</returns>
-		public byte ReadUInt8() {
-			return Read<byte>();
-		}
+		public byte ReadUInt8()
+			=> Read<byte>();
 
 		/*
 		===============
@@ -402,9 +428,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// Reads a 16-bit unsigned integer from the stream.
 		/// </summary>
 		/// <returns>The 16-bit unsigned integer value read from the stream.</returns>
-		public ushort ReadUInt16() {
-			return Read<ushort>();
-		}
+		public ushort ReadUInt16()
+			=> Read<ushort>();
 
 		/*
 		===============
@@ -415,9 +440,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// Reads a 32-bit unsigned integer from the stream.
 		/// </summary>
 		/// <returns>The 32-bit unsigned integer value read from the stream.</returns>
-		public uint ReadUInt32() {
-			return Read<uint>();
-		}
+		public uint ReadUInt32()
+			=> Read<uint>();
 
 		/*
 		===============
@@ -428,9 +452,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// Reads a 64-bit unsigned integer from the stream.
 		/// </summary>
 		/// <returns>The 64-bit unsigned integer value read from the stream.</returns>
-		public ulong ReadUInt64() {
-			return Read<ulong>();
-		}
+		public ulong ReadUInt64()
+			=> Read<ulong>();
 
 		/*
 		===============
@@ -441,9 +464,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// Reads a 32-bit floating-point number from the stream.
 		/// </summary>
 		/// <returns>The 32-bit floating-point value read from the stream.</returns>
-		public float ReadFloat() {
-			return Read<float>();
-		}
+		public float ReadFloat()
+			=> Read<float>();
 
 		/*
 		===============
@@ -454,9 +476,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// Reads a single-precision floating-point number from the stream.
 		/// </summary>
 		/// <returns>The single-precision floating-point value read from the stream.</returns>
-		public float ReadSingle() {
-			return Read<float>();
-		}
+		public float ReadSingle()
+			=> Read<float>();
 
 		/*
 		===============
@@ -467,9 +488,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// Reads a double-precision floating-point number from the stream.
 		/// </summary>
 		/// <returns>The double-precision floating-point value read from the stream.</returns>
-		public double ReadDouble() {
-			return Read<double>();
-		}
+		public double ReadDouble()
+			=> Read<double>();
 
 		/*
 		===============
@@ -480,9 +500,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// Reads a 32-bit floating-point number from the stream.
 		/// </summary>
 		/// <returns>The 32-bit floating-point value read from the stream.</returns>
-		public float ReadFloat32() {
-			return Read<float>();
-		}
+		public float ReadFloat32()
+			=> Read<float>();
 
 		/*
 		===============
@@ -493,9 +512,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// Reads a 64-bit floating-point number from the stream.
 		/// </summary>
 		/// <returns>The 64-bit floating-point value read from the stream.</returns>
-		public double ReadFloat64() {
-			return Read<double>();
-		}
+		public double ReadFloat64()
+			=> Read<double>();
 
 		/*
 		===============
@@ -506,9 +524,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// Reads an 8-bit value from the stream.
 		/// </summary>
 		/// <returns>The 8-bit value read from the stream</returns>
-		public bool ReadBoolean() {
-			return Read<bool>();
-		}
+		public bool ReadBoolean()
+			=> Read<bool>();
 
 		/*
 		===============
@@ -521,7 +538,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <returns>The string read from the stream.</returns>
 		public string ReadString() {
 			int byteCount = Read7BitEncodedInt();
-			string value = Encoding.UTF8.GetString( _buffer, _position, byteCount );
+			string value = Encoding.UTF8.GetString( _buffer!, _position, byteCount );
 			_position += byteCount;
 			return value;
 		}
@@ -543,12 +560,12 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 
 			do {
 				b = Read<byte>();
-				value |= (b & 0x7F) << shift;
+				value |= ( b & 0x7F ) << shift;
 				shift += 7;
 				if ( shift > 35 ) {
 					throw new FormatException( "Invalid 7-bit encoded integer formatting in save file." );
 				}
-			} while ( (b & 0x80) != 0 );
+			} while ( ( b & 0x80 ) != 0 );
 
 			return value;
 		}
@@ -564,9 +581,11 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <typeparam name="T"></typeparam>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		private T Read<T>() where T : unmanaged {
+		private T Read<T>()
+			where T : unmanaged
+		{
 			int sizeOfData = Marshal.SizeOf<T>();
-			T value = Unsafe.ReadUnaligned<T>( ref _buffer[ Position ] );
+			T value = Unsafe.ReadUnaligned<T>( ref _buffer![ Position ] );
 			_position += sizeOfData;
 			return value;
 		}

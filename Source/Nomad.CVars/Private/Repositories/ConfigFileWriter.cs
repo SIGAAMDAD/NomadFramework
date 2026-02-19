@@ -18,6 +18,8 @@ using System.Collections.Generic;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
+using Nomad.CVars.Interfaces;
+using Nomad.CVars.ValueObjects;
 
 namespace Nomad.CVars.Private.Repositories {
 	/*
@@ -32,7 +34,7 @@ namespace Nomad.CVars.Private.Repositories {
 	/// </summary>
 
 	internal readonly ref struct ConfigFileWriter {
-		private readonly IFileWriteStream _writer;
+		private readonly IFileWriteStream? _writer;
 		private readonly ICVarSystemService _cvarSystem;
 
 		/*
@@ -62,7 +64,7 @@ namespace Nomad.CVars.Private.Repositories {
 					System.IO.Directory.CreateDirectory( directory );
 				}
 
-				using ( _writer = (IFileWriteStream)fileSystem.OpenWrite( configFile ) ) {
+				using ( _writer = (IFileWriteStream)fileSystem.OpenWrite( configFile, new WriteConfig( StreamType.File ) ) ) {
 					WriteHeader();
 					foreach ( var cvar in cvars ) {
 						WriteVariable( in cvar );

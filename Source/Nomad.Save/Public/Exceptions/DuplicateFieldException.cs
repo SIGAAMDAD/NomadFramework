@@ -25,7 +25,8 @@ namespace Nomad.Save.Exceptions
         /// <summary>
         /// The field's name.
         /// </summary>
-        public readonly string FieldName;
+        public string FieldName => _fieldName;
+        private readonly string _fieldName;
 
         /// <summary>
         /// 
@@ -33,7 +34,7 @@ namespace Nomad.Save.Exceptions
         /// <param name="fieldName"></param>
         public DuplicateFieldException(string fieldName)
         {
-            FieldName = fieldName;
+            _fieldName = fieldName;
         }
     }
 }

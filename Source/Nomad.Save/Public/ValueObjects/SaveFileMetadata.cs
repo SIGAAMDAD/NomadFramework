@@ -21,16 +21,23 @@ namespace Nomad.Save.ValueObjects
     /// <remarks>
     /// Retrieving the metadata for all the save files currently available can be done with <see cref="Services.ISaveDataProvider.ListSaveFiles"/>.
     /// </remarks>
-    /// <param name="FileName">The save file's relative name, includes the ".ngd" extension.</param>
+    /// <param name="SaveName">The save file's name. This is not the actual name, just the user-provided identification.</param>
     /// <param name="FileSize">The size of the save file in bytes.</param>
     /// <param name="LastAccessYear">The year the save file was last accessed.</param>
     /// <param name="LastAccessMonth">The month the save file was last accessed.</param>
     /// <param name="LastAccessDay">The day the save file was last accessed.</param>
+    /// <param name="CreationYear"></param>
+    /// <param name="CreationMonth"></param>
+    /// <param name="CreationDay"></param>
     public record SaveFileMetadata(
-        string FileName,
+        string SaveName,
         long FileSize,
         int LastAccessYear,
         int LastAccessMonth,
-        int LastAccessDay
+        int LastAccessDay,
+
+        int CreationYear,
+        int CreationMonth,
+        int CreationDay
     );
 }

@@ -14,9 +14,11 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Nomad.Core.Util;
 
 namespace Nomad.Core.FileSystem
 {
@@ -131,42 +133,78 @@ namespace Nomad.Core.FileSystem
         /// Opens a read stream for the specified file path.
         /// </summary>
         /// <param name="path">The path of the file to open.</param>
+        /// <param name="config">How to create the stream and rules around how it should be handled.</param>
         /// <returns>The opened read stream.</returns>
-        IReadStream? OpenRead(string path);
+        IReadStream? OpenRead(string path, in ReadConfig config);
 
         /// <summary>
         /// Opens a write stream for the specified file path.
         /// </summary>
         /// <param name="path">The path of the file to open.</param>
-        /// <param name="append">Whether to append to the file or overwrite it.</param>
+        /// <param name="config">How to create the stream and rules around how it should be handled.</param>
         /// <returns>The opened write stream.</returns>
-        IWriteStream? OpenWrite(string path, bool append = false);
+        IWriteStream? OpenWrite(string path, in WriteConfig config);
 
         /// <summary>
         /// Opens a read stream for the specified file path.
         /// </summary>
         /// <param name="path">The path of the file to open.</param>
+        /// <param name="config"></param>
         /// <param name="ct">Cancellation token.</param>
         /// <returns>The opened read stream.</returns>
-        ValueTask<IReadStream?> OpenReadAsync(string path, CancellationToken ct = default);
+        ValueTask<IReadStream?> OpenReadAsync(string path, ReadConfig config, CancellationToken ct = default);
 
         /// <summary>
         /// Opens a write stream for the specified file path.
         /// </summary>
         /// <param name="path">The path of the file to open.</param>
-        /// <param name="append">Whether to append to the file or overwrite it.</param>
+        /// <param name="config">How to create the stream and rules around how it should be handled.</param>
         /// <param name="ct">Cancellation token.</param>
         /// <returns>The opened write stream.</returns>
-        ValueTask<IWriteStream?> OpenWriteAsync(string path, bool append = false, CancellationToken ct = default);
+        ValueTask<IWriteStream?> OpenWriteAsync(string path, WriteConfig config, CancellationToken ct = default);
 
         /// <summary>
         /// Creates a memory stream.
         /// </summary>
         /// <param name="accessMode">The access mode to create the memory stream with.</param>
+        /// <param name="type"></param>
         /// <param name="outputFile">Optional output file path for the memory stream.</param>
         /// <param name="length">The initial length of the memory stream.</param>
         /// <returns>The created data stream.</returns>
-        IDataStream CreateStream(System.IO.FileAccess accessMode, string outputFile = "", int length = 0);
+        IDataStream CreateStream(System.IO.FileAccess accessMode, StreamType type, string outputFile = "", int length = 0);
+
+        /// <summary>
+        /// Loads a file into memory.
+        /// </summary>
+        /// <param name="path">The file to open and load.</param>
+        /// <returns>The data retrieved from the file.</returns>
+        IBufferHandle LoadFile(string path);
+
+        /// <summary>
+        /// Loads a file into memory asynchronously.
+        /// </summary>
+        /// <param name="path">The file to open and load.</param>
+        /// <returns>The data retrieved from the file.</returns>
+        ValueTask<IBufferHandle?> LoadFileAsync(string path);
+
+        /// <summary>
+        /// Writes a buffer to disk.
+        /// </summary>
+        /// <param name="path">The file to write to.</param>
+        /// <param name="buffer">The data to write to disk.</param>
+        /// <param name="offset"></param>
+        /// <param name="length"></param>
+        void WriteFile(string path, in ReadOnlySpan<byte> buffer, int offset, int length);
+
+        /// <summary>
+        /// Writes a buffer asynchronously to disk.
+        /// </summary>
+        /// <param name="path">The file to write to.</param>
+        /// <param name="buffer"></param>
+        /// <param name="offset"></param>
+        /// <param name="length"></param>
+        /// <param name="ct"></param>
+        ValueTask WriteFileAsync(string path, ReadOnlyMemory<byte> buffer, int offset, int length, CancellationToken ct = default);
     }
 }
 
