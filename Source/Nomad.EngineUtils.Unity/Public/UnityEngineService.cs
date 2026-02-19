@@ -27,9 +27,16 @@ namespace Nomad.EngineUtils
     /// </summary>
     public sealed class UnityEngineService : IEngineService
     {
+        private readonly UnityLoader _loader;
+
+        public UnityEngineService()
+        {
+            _loader = new UnityLoader();
+        }
+
         public IResourceLoader GetResourceLoader()
         {
-            throw new NotImplementedException();
+            return _loader;
         }
 
         public IConsoleObject CreateConsoleObject()
@@ -44,12 +51,12 @@ namespace Nomad.EngineUtils
 
         public string GetApplicationVersion()
         {
-            throw new NotImplementedException();
+            return Application.version;
         }
 
         public string GetEngineVersion()
         {
-            throw new NotImplementedException();
+            return Application.unityVersion;
         }
 
         public string GetLocalPath(string ospath)
@@ -64,39 +71,41 @@ namespace Nomad.EngineUtils
 
         public void GetScreenResolution(out int width, out int height)
         {
-            throw new NotImplementedException();
+            width = Display.main.renderingWidth;
+            height = Display.main.renderingHeight;
         }
 
         public string GetStoragePath(StorageScope scope) => scope switch
         {
             StorageScope.StreamingAssets => Application.dataPath,
-            StorageScope.UserData => Application.persistentDataPath
+            StorageScope.UserData => Application.persistentDataPath,
+            StorageScope.Install => Application.dataPath,
+            StorageScope.Documents => Application.persistentDataPath,
+            StorageScope.Temporary => Application.persistentDataPath,
+            _ => throw new ArgumentOutOfRangeException(nameof(scope))
         };
 
         public string GetStoragePath(string relativePath, StorageScope scope)
-        {
-            throw new NotImplementedException();
-        }
+            => $"{GetStoragePath(scope)}/{relativePath}";
 
         public string GetSystemRegion()
         {
-            throw new NotImplementedException();
+            return String.Empty;
         }
 
         public void Quit(int exitCode = 0)
         {
             Application.Quit(exitCode);
-            throw new NotImplementedException();
         }
 
         public void SetScreenResolution(int width, int height)
         {
-            throw new NotImplementedException();
+            Display.main.SetRenderingResolution(width, height);
         }
 
         public string Translate(InternString key)
         {
-            throw new NotImplementedException();
+            return String.Empty;
         }
     }
 }

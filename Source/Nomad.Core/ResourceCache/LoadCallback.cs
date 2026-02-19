@@ -13,7 +13,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
 using Nomad.Core.Util;
 
 namespace Nomad.Core.ResourceCache
@@ -25,6 +24,5 @@ namespace Nomad.Core.ResourceCache
     /// <typeparam name="TId"></typeparam>
     /// <param name="id"></param>
     /// <returns></returns>
-    public delegate Result<TResource> LoadCallback<TResource, TId>(TId id)
-        where TResource : IDisposable;
+    public delegate Result<TResource> LoadCallback<TResource, TId>(TId id);
 }

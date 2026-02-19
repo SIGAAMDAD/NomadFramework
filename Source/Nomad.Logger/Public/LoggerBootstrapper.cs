@@ -37,12 +37,7 @@ namespace Nomad.Logger
         /// <param name="locator"></param>
         public void Initialize(IServiceRegistry serviceRegistry, IServiceLocator locator)
         {
-            var cvarSystem = locator.GetService<ICVarSystemService>();
-            var eventFactory = locator.GetService<IGameEventRegistryService>();
-            var fileSystem = locator.GetService<IFileSystem>();
-
             _logger = serviceRegistry.RegisterSingleton<ILoggerService>(new LoggerService());
-            _logger.AddSink(new FileSink(cvarSystem, fileSystem));
         }
 
         /// <summary>

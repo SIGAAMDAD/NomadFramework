@@ -32,6 +32,14 @@ namespace Nomad.Save.Private.Repositories {
 	internal sealed class SlotRepository : IDisposable {
 		private readonly Dictionary<string, SaveSlot> _saveSlots = new Dictionary<string, SaveSlot>();
 		
+		/*
+		===============
+		SlotRepository
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
 		public SlotRepository() {
 		}
 		

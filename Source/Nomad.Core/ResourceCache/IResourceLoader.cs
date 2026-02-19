@@ -30,7 +30,6 @@ namespace Nomad.Core.ResourceCache
     /// <typeparam name="TResource"></typeparam>
     /// <typeparam name="TId"></typeparam>
     public interface IResourceLoader<TResource, TId> : IResourceLoader
-        where TResource : IDisposable
     {
         /// <summary>
         /// The default loading callback.

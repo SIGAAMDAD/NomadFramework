@@ -40,6 +40,11 @@ namespace Nomad.Logger.Private.Sinks {
 		FileSink
 		===============
 		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="cvarSystem"></param>
+		/// <param name="fileSystem"></param>
 		public FileSink( ICVarSystemService cvarSystem, IFileSystem fileSystem ) {
 			ICVar<string> logfile = cvarSystem.Register(
 				new CVarCreateInfo<string>(

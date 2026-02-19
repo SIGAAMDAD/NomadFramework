@@ -3,6 +3,7 @@
   <PropertyGroup>
     <!-- NuGet Package Information -->
     <PackageId>NomadFramework.Nomad.Logger</PackageId>
+    <Version>1.0.1</Version> 
   </PropertyGroup>
 
   <!-- SPECIAL PROPS -->

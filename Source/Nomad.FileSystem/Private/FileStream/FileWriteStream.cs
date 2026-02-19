@@ -166,6 +166,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		public async ValueTask WriteAsync( byte[] buffer, int offset, int count, CancellationToken ct = default ) {
 			ArgumentGuard.ThrowIfNull( _fileStream );
 			ArgumentGuard.ThrowIfNull( buffer );
+
 			ct.ThrowIfCancellationRequested();
 			await _fileStream.WriteAsync( buffer.AsMemory( offset, count ), ct );
 		}
@@ -186,6 +187,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		public async ValueTask WriteAsync( ReadOnlyMemory<byte> buffer, int offset, int count, CancellationToken ct = default ) {
 			ArgumentGuard.ThrowIfNull( _fileStream );
 			ArgumentGuard.ThrowIfNull( buffer );
+
 			ct.ThrowIfCancellationRequested();
 			await _fileStream.WriteAsync( buffer, ct );
 		}
@@ -204,6 +206,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		public async ValueTask WriteAsync( ReadOnlyMemory<byte> buffer, CancellationToken ct = default ) {
 			ArgumentGuard.ThrowIfNull( _fileStream );
 			ArgumentGuard.ThrowIfNull( buffer );
+
 			ct.ThrowIfCancellationRequested();
 			await _fileStream.WriteAsync( buffer, ct );
 		}
@@ -217,9 +220,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// Writes a byte to the file stream.
 		/// </summary>
 		/// <param name="value">The byte value to write.</param>
-		public void WriteByte( byte value ) {
-			_streamWriter.Write( value );
-		}
+		public void WriteByte( byte value )
+			=> _streamWriter.Write( value );
 
 		/*
 		===============
@@ -230,10 +232,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// Writes a double-precision floating-point number to the file stream.
 		/// </summary>
 		/// <param name="value">The double value to write.</param>
-		public void WriteDouble( double value ) {
-			ArgumentGuard.ThrowIfNull( _streamWriter );
-			_streamWriter.Write( value );
-		}
+		public void WriteDouble( double value )
+			=> _streamWriter.Write( value );
 
 		/*
 		===============
@@ -244,10 +244,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// Writes a single-precision floating-point number to the file stream.
 		/// </summary>
 		/// <param name="value">The float value to write.</param>
-		public void WriteFloat( float value ) {
-			ArgumentGuard.ThrowIfNull( _streamWriter );
-			_streamWriter.Write( value );
-		}
+		public void WriteFloat( float value )
+			=> _streamWriter.Write( value );
 
 		/*
 		===============
@@ -258,10 +256,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// Writes a 32-bit floating-point number to the file stream.
 		/// </summary>
 		/// <param name="value">The 32-bit float value to write.</param>
-		public void WriteFloat32( float value ) {
-			ArgumentGuard.ThrowIfNull( _streamWriter );
-			_streamWriter.Write( value );
-		}
+		public void WriteFloat32( float value )
+			=> _streamWriter.Write( value );
 
 		/*
 		===============
@@ -272,10 +268,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// Writes a 64-bit floating-point number to the file stream.
 		/// </summary>
 		/// <param name="value">The 64-bit double value to write.</param>
-		public void WriteFloat64( double value ) {
-			ArgumentGuard.ThrowIfNull( _streamWriter );
-			_streamWriter.Write( value );
-		}
+		public void WriteFloat64( double value )
+			=> _streamWriter.Write( value );
 
 		/*
 		===============
@@ -328,10 +322,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// Writes a 32-bit signed integer to the file stream.
 		/// </summary>
 		/// <param name="value">The 32-bit signed integer value to write.</param>
-		public void WriteInt( int value ) {
-			ArgumentGuard.ThrowIfNull( _streamWriter );
-			_streamWriter.Write( value );
-		}
+		public void WriteInt( int value )
+			=> _streamWriter.Write( value );
 
 		/*
 		===============
@@ -342,10 +334,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// Writes a 16-bit signed integer to the file stream.
 		/// </summary>
 		/// <param name="value">The 16-bit signed integer value to write.</param>
-		public void WriteInt16( short value ) {
-			ArgumentGuard.ThrowIfNull( _streamWriter );
-			_streamWriter.Write( value );
-		}
+		public void WriteInt16( short value )
+			=> _streamWriter.Write( value );
 
 		/*
 		===============
@@ -356,10 +346,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// Writes a 32-bit signed integer to the file stream.
 		/// </summary>
 		/// <param name="value">The 32-bit signed integer value to write.</param>
-		public void WriteInt32( int value ) {
-			ArgumentGuard.ThrowIfNull( _streamWriter );
-			_streamWriter.Write( value );
-		}
+		public void WriteInt32( int value )
+			=> _streamWriter.Write( value );
 
 		/*
 		===============
@@ -370,10 +358,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// Writes a 64-bit signed integer to the file stream.
 		/// </summary>
 		/// <param name="value">The 64-bit signed integer value to write.</param>
-		public void WriteInt64( long value ) {
-			ArgumentGuard.ThrowIfNull( _streamWriter );
-			_streamWriter.Write( value );
-		}
+		public void WriteInt64( long value )
+			=> _streamWriter.Write( value );
 
 		/*
 		===============
@@ -384,10 +370,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// Writes an 8-bit signed integer to the file stream.
 		/// </summary>
 		/// <param name="value">The 8-bit signed integer value to write.</param>
-		public void WriteInt8( sbyte value ) {
-			ArgumentGuard.ThrowIfNull( _streamWriter );
-			_streamWriter.Write( value );
-		}
+		public void WriteInt8( sbyte value )
+			=> _streamWriter.Write( value );
 
 		/*
 		===============
@@ -398,10 +382,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// Writes a 64-bit signed integer to the file stream.
 		/// </summary>
 		/// <param name="value">The 64-bit signed integer value to write.</param>
-		public void WriteLong( long value ) {
-			ArgumentGuard.ThrowIfNull( _streamWriter );
-			_streamWriter.Write( value );
-		}
+		public void WriteLong( long value )
+			=> _streamWriter.Write( value );
 
 		/*
 		===============
@@ -412,10 +394,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// Writes a signed byte to the file stream.
 		/// </summary>
 		/// <param name="value">The signed byte value to write.</param>
-		public void WriteSByte( sbyte value ) {
-			ArgumentGuard.ThrowIfNull( _streamWriter );
-			_streamWriter.Write( value );
-		}
+		public void WriteSByte( sbyte value )
+			=> _streamWriter.Write( value );
 
 		/*
 		===============
@@ -426,10 +406,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// Writes a 16-bit signed integer to the file stream.
 		/// </summary>
 		/// <param name="value">The 16-bit signed integer value to write.</param>
-		public void WriteShort( short value ) {
-			ArgumentGuard.ThrowIfNull( _streamWriter );
-			_streamWriter.Write( value );
-		}
+		public void WriteShort( short value )
+			=> _streamWriter.Write( value );
 
 		/*
 		===============
@@ -440,10 +418,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// Writes a single-precision floating-point number to the file stream.
 		/// </summary>
 		/// <param name="value">The single-precision float value to write.</param>
-		public void WriteSingle( float value ) {
-			ArgumentGuard.ThrowIfNull( _streamWriter );
-			_streamWriter.Write( value );
-		}
+		public void WriteSingle( float value )
+			=> _streamWriter.Write( value );
 
 		/*
 		===============
@@ -454,10 +430,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// Writes a string to the file stream.
 		/// </summary>
 		/// <param name="value">The string value to write.</param>
-		public void WriteString( string value ) {
-			ArgumentGuard.ThrowIfNull( _streamWriter );
-			_streamWriter.Write( value );
-		}
+		public void WriteString( string value )
+			=> _streamWriter.Write( value );
 
 		/*
 		===============
@@ -468,10 +442,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// Writes a 32-bit unsigned integer to the file stream.
 		/// </summary>
 		/// <param name="value">The 32-bit unsigned integer value to write.</param>
-		public void WriteUInt( uint value ) {
-			ArgumentGuard.ThrowIfNull( _streamWriter );
-			_streamWriter.Write( value );
-		}
+		public void WriteUInt( uint value )
+			=> _streamWriter.Write( value );
 
 		/*
 		===============
@@ -482,10 +454,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// Writes a 16-bit unsigned integer to the file stream.
 		/// </summary>
 		/// <param name="value">The 16-bit unsigned integer value to write.</param>
-		public void WriteUInt16( ushort value ) {
-			ArgumentGuard.ThrowIfNull( _streamWriter );
-			_streamWriter.Write( value );
-		}
+		public void WriteUInt16( ushort value )
+			=> _streamWriter.Write( value );
 
 		/*
 		===============
@@ -496,10 +466,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// Writes a 32-bit unsigned integer to the file stream.
 		/// </summary>
 		/// <param name="value">The 32-bit unsigned integer value to write.</param>
-		public void WriteUInt32( uint value ) {
-			ArgumentGuard.ThrowIfNull( _streamWriter );
-			_streamWriter.Write( value );
-		}
+		public void WriteUInt32( uint value )
+			=> _streamWriter.Write( value );
 
 		/*
 		===============
@@ -510,10 +478,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// Writes a 64-bit unsigned integer to the file stream.
 		/// </summary>
 		/// <param name="value">The 64-bit unsigned integer value to write.</param>
-		public void WriteUInt64( ulong value ) {
-			ArgumentGuard.ThrowIfNull( _streamWriter );
-			_streamWriter.Write( value );
-		}
+		public void WriteUInt64( ulong value )
+			=> _streamWriter.Write( value );
 
 		/*
 		===============
@@ -524,10 +490,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// Writes an 8-bit unsigned integer to the file stream.
 		/// </summary>
 		/// <param name="value">The 8-bit unsigned integer value to write.</param>
-		public void WriteUInt8( byte value ) {
-			ArgumentGuard.ThrowIfNull( _streamWriter );
-			_streamWriter.Write( value );
-		}
+		public void WriteUInt8( byte value )
+			=> _streamWriter.Write( value );
 
 		/*
 		===============
@@ -538,10 +502,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// Writes a 64-bit unsigned integer to the file stream.
 		/// </summary>
 		/// <param name="value">The 64-bit unsigned integer value to write.</param>
-		public void WriteULong( ulong value ) {
-			ArgumentGuard.ThrowIfNull( _streamWriter );
-			_streamWriter.Write( value );
-		}
+		public void WriteULong( ulong value )
+			=> _streamWriter.Write( value );
 
 		/*
 		===============
@@ -552,10 +514,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// Writes a 16-bit unsigned integer to the file stream.
 		/// </summary>
 		/// <param name="value">The 16-bit unsigned integer value to write.</param>
-		public void WriteUShort( ushort value ) {
-			ArgumentGuard.ThrowIfNull( _streamWriter );
-			_streamWriter.Write( value );
-		}
+		public void WriteUShort( ushort value )
+			=> _streamWriter.Write( value );
 
 		/*
 		===============
@@ -566,10 +526,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// 
 		/// </summary>
 		/// <param name="value"></param>
-		public void WriteBoolean( bool value ) {
-			ArgumentGuard.ThrowIfNull( _streamWriter );
-			_streamWriter.Write( value );
-		}
+		public void WriteBoolean( bool value )
+			=> _streamWriter.Write( value );
 
 		/*
 		===============

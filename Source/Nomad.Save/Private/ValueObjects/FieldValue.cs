@@ -347,7 +347,7 @@ namespace Nomad.Save.Private.ValueObjects {
 		/// <exception cref="InvalidCastException"></exception>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public static Type GetFieldType( FieldType type ) =>
-			_fieldTypeToSystemType.TryGetValue( type, out Type value ) ? value : throw new InvalidCastException( $"Invalid field type {type}" );
+			_fieldTypeToSystemType.TryGetValue( type, out Type? value ) ? value : throw new InvalidCastException( $"Invalid field type {type}" );
 
 		/*
 		===============

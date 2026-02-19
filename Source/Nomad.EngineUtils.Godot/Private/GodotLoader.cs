@@ -32,7 +32,7 @@ namespace Nomad.EngineUtils.Private {
     /// A godot-focused resource loader.
     /// </summary>
 
-    public sealed class GodotLoader<Resource> : IResourceLoader<Resource, string>
+    internal sealed class GodotLoader<Resource> : IResourceLoader<Resource, string>
         where Resource : Godot.Resource
     {
         public LoadCallback<Resource, string> Load => LoadResource;
@@ -94,7 +94,10 @@ namespace Nomad.EngineUtils.Private {
             } while ( status == Godot.ResourceLoader.ThreadLoadStatus.InProgress );
 
             if ( status == Godot.ResourceLoader.ThreadLoadStatus.Loaded ) {
-                return Result<Resource>.Success( Godot.ResourceLoader.LoadThreadedGet( path ) as Resource );
+                if ( Godot.ResourceLoader.LoadThreadedGet( path ) is Resource resource ) {
+                    return Result<Resource>.Success( resource );
+                }
+                throw new InvalidCastException();
             }
             return Result<Resource>.Failure( Error.Create( $"godot resource '{path}' failed to load with thread status '{status}" ) );
         }

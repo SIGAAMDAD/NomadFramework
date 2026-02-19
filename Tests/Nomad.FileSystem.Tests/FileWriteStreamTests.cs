@@ -16,6 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 #if !UNITY_EDITOR
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Nomad.Core.FileSystem;

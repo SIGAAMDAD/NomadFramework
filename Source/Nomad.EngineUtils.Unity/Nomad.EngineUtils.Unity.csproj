@@ -14,6 +14,10 @@
     <EnableUnsafeBinaryFormatterSerialization>false</EnableUnsafeBinaryFormatterSerialization>
     <BuildInParallel>true</BuildInParallel>
 
+    <!-- NuGet Package Information -->
+    <PackageId>NomadFramework.Nomad.EngineUtils.Unity</PackageId>
+    <Version>1.0.1</Version>
+
     <!-- Performance -->
     <TieredCompilation>true</TieredCompilation>
     <Deterministic>true</Deterministic>
