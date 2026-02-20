@@ -15,10 +15,12 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using Nomad.Core.Abstractions;
 using Nomad.Core.Compatibility.Guards;
+using Nomad.Core.EngineUtils;
 using Nomad.Core.Events;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
+using Nomad.CVars.Interfaces;
 using Nomad.Save.Private.Services;
 using Nomad.Save.Services;
 
@@ -43,9 +45,11 @@ namespace Nomad.Save
 
             ILoggerService logger = locator.GetService<ILoggerService>();
             IFileSystem fileSystem = locator.GetService<IFileSystem>();
+            ICVarSystemService cvarSystem = locator.GetService<ICVarSystemService>();
+            IEngineService engineService = locator.GetService<IEngineService>();
             IGameEventRegistryService eventFactory = locator.GetService<IGameEventRegistryService>();
 
-            _saveProvider = registry.RegisterSingleton<ISaveDataProvider>(new SaveDataProvider(eventFactory, fileSystem, logger));
+            _saveProvider = registry.RegisterSingleton<ISaveDataProvider>(new SaveDataProvider(engineService, eventFactory, cvarSystem, fileSystem, logger));
         }
 
         /// <summary>

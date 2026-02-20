@@ -12,7 +12,7 @@ public readonly struct DamagePlayerEventArgs
     }
 }
 
-public class Enemy : MonoBehavior
+public class Enemy : MonoBehaviour
 {
 	// Declare the event.
 	private IGameEvent<DamagePlayerEventArgs> _damagePlayer;

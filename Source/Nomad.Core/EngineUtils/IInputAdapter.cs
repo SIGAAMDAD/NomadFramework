@@ -15,7 +15,10 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Core.EngineUtils
 {
-	public interface IInputAdapter
-	{
-	}
+    /// <summary>
+    /// 
+    /// </summary>
+    public interface IInputAdapter
+    {
+    }
 }

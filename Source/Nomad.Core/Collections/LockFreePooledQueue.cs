@@ -27,7 +27,7 @@ namespace Nomad.Core.Collections
         private class PooledNode
         {
             public T Value;
-            public PooledNode Next;
+            public PooledNode? Next;
             public int Version; // For ABA protection
 
             public void Reset(T value)
@@ -50,7 +50,7 @@ namespace Nomad.Core.Collections
 
             public PooledNode Get(T value)
             {
-                if (_pool.TryPop(out var node))
+                if (_pool.TryPop(out PooledNode? node))
                 {
                     node.Reset(value);
                     return node;
@@ -93,8 +93,7 @@ namespace Nomad.Core.Collections
         /// <returns></returns>
         public bool TryEnqueue(in T item)
         {
-            var node = _pool.Get(item);
-
+            PooledNode node = _pool.Get(item);
             PooledNode oldTail, oldNext;
 
             while (true)
@@ -129,9 +128,9 @@ namespace Nomad.Core.Collections
         {
             while (true)
             {
-                var head = _head;
-                var tail = _tail;
-                var next = head.Next;
+                PooledNode head = _head;
+                PooledNode tail = _tail;
+                PooledNode? next = head.Next;
 
                 if (head == _head)
                 {
@@ -159,5 +158,5 @@ namespace Nomad.Core.Collections
                 }
             }
         }
-    };
-};
+    }
+}

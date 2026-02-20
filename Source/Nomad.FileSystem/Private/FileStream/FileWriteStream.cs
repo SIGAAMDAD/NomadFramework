@@ -60,7 +60,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <param name="filepath">The path to the file to write to.</param>
 		/// <param name="append">Whether to append to the file or overwrite it.</param>
 		public FileWriteStream( string filepath, bool append = false )
-			: base( filepath, append ? FileMode.Append : FileMode.Create, FileAccess.Write )
+			: base( filepath, append ? FileMode.Append : FileMode.CreateNew, FileAccess.Write)
 		{
 			ArgumentGuard.ThrowIfNull( _fileStream );
 			_streamWriter = new BinaryWriter( _fileStream );
@@ -93,6 +93,18 @@ namespace Nomad.FileSystem.Private.FileStream {
 			await base.DisposeAsync();
 		}
 
+		/*
+		===============
+		Flush
+		===============
+		*/
+		/// <summary>
+		/// Flushes the file stream's buffer to the underlying file.
+		/// </summary>
+		public override void Flush() {
+			base.Flush();
+			_streamWriter?.Flush();
+		}
 
 		/*
 		===============
@@ -538,9 +550,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// 
 		/// </summary>
 		/// <param name="line"></param>
-		public void WriteLine( string line ) {
-			_streamWriter.Write( $"{line}\n" );
-		}
+		public void WriteLine( string line )
+			=> _streamWriter.Write( $"{line}\n" );
 
 		/*
 		===============

@@ -25,7 +25,10 @@ namespace Nomad.Core.Memory
     public class BasicObjectPool<T> : IObjectPool<T>
         where T : new()
     {
-        public static readonly Func<T> DefaultFactory = new Func<T>( DefaultCreateObject );
+        /// <summary>
+        /// 
+        /// </summary>
+        public static readonly Func<T> DefaultFactory = new Func<T>(DefaultCreateObject);
 
         /// <summary>
         /// 
@@ -139,6 +142,8 @@ namespace Nomad.Core.Memory
                 }
             }
             _currentSize = 0;
+
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>

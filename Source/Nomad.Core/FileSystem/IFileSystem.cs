@@ -14,8 +14,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using System.Buffers;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Nomad.Core.Util;
@@ -27,6 +27,12 @@ namespace Nomad.Core.FileSystem
     /// </summary>
     public interface IFileSystem : IDisposable
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="directory"></param>
+        void AddSearchDirectory(string directory);
+
         /// <summary>
         /// Gets the save directory path.
         /// </summary>
@@ -78,6 +84,14 @@ namespace Nomad.Core.FileSystem
         /// <param name="destinationPath">The destination path of the file to copy.</param>
         /// <param name="overwrite">Whether to overwrite an existing file at the destination path.</param>
         void CopyFile(string sourcePath, string destinationPath, bool overwrite);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sourcePath"></param>
+        /// <param name="destPath"></param>
+        /// <param name="destBackupPath"></param>
+        void ReplaceFile(string sourcePath, string destPath, string destBackupPath);
 
         /// <summary>
         /// Gets the last write time of the file at the specified path.
@@ -178,7 +192,7 @@ namespace Nomad.Core.FileSystem
         /// </summary>
         /// <param name="path">The file to open and load.</param>
         /// <returns>The data retrieved from the file.</returns>
-        IBufferHandle LoadFile(string path);
+        IBufferHandle? LoadFile(string path);
 
         /// <summary>
         /// Loads a file into memory asynchronously.

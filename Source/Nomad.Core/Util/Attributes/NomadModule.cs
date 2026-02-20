@@ -26,7 +26,8 @@ namespace Nomad.Core.Util.Attributes
         /// <summary>
         ///
         /// </summary>
-        public readonly string Name;
+        public string Name => _name;
+        private readonly string _name;
 
         /// <summary>
         ///
@@ -34,7 +35,7 @@ namespace Nomad.Core.Util.Attributes
         /// <param name="name"></param>
         public NomadModule(string name)
         {
-            Name = name;
+            _name = name;
         }
     }
 }

@@ -14,7 +14,11 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO.Hashing;
+using System.Runtime.CompilerServices;
+using Nomad.Core.Compatibility.Guards;
+using Nomad.Core.Util;
 
 namespace Nomad.Save.Private.ValueObjects {
 	/*
@@ -61,12 +65,70 @@ namespace Nomad.Save.Private.ValueObjects {
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="data"></param>
+		/// <param name="buffer"></param>
 		/// <returns></returns>
-		public static Checksum Compute( ReadOnlySpan<byte> data ) {
+		public static Checksum Compute( ReadOnlySpan<byte> buffer ) {
 			_checksum64.Reset();
-			_checksum64.Append( data );
+			_checksum64.Append( buffer );
 			return new Checksum( _checksum64.GetCurrentHashAsUInt64() );
 		}
+
+		/*
+		===============
+		Equals
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="obj"></param>
+		/// <returns></returns>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public override bool Equals( [NotNullWhen( true )] object? obj )
+			=> obj is Checksum checksum && checksum.Value == Value;
+
+		/*
+		===============
+		GetHashCode
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public override int GetHashCode()
+			=> base.GetHashCode();
+
+		/*
+		===============
+		operator ==
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="a"></param>
+		/// <param name="b"></param>
+		/// <returns></returns>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public static bool operator ==( Checksum a, Checksum b )
+			=> a.Value == b.Value;
+		
+		
+		/*
+		===============
+		operator !=
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="a"></param>
+		/// <param name="b"></param>
+		/// <returns></returns>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public static bool operator !=( Checksum a, Checksum b )
+			=> a.Value != b.Value;
 	};
 };

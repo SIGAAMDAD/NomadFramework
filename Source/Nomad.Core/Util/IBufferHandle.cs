@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using System.Buffers;
 
 namespace Nomad.Core.Util
 {
@@ -21,7 +22,7 @@ namespace Nomad.Core.Util
     /// A buffer ownership model. This handles the construction and destruction process
     /// of the provided <see cref="Buffer"/>.
     /// </summary>
-    public interface IBufferHandle : IDisposable
+    public interface IBufferHandle : IDisposable, IEquatable<IBufferHandle>
     {
         /// <summary>
         /// The length in bytes of the owned memory.
@@ -29,8 +30,130 @@ namespace Nomad.Core.Util
         int Length { get; }
 
         /// <summary>
-        /// The buffer containing the owned memory.
+        /// The memory we have ownership over.
         /// </summary>
         byte[] Buffer { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        Span<byte> AsSpan();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="start"></param>
+        /// <returns></returns>
+        Span<byte> AsSpan(int start);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        Span<byte> AsSpan(int start, int length);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        Memory<byte> AsMemory();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="start"></param>
+        /// <returns></returns>
+        Memory<byte> AsMemory(int start);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        Memory<byte> AsMemory(int start, int length);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        MemoryHandle Pin();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        void Clear();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="length"></param>
+        void Clear(int start, int length);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        ReadOnlySpan<byte> GetSlice(int start, int length);
+
+        /// <summary>
+        /// Copies the <paramref name="source"/> buffer into the owned buffer starting at <paramref name="offset"/> to <paramref name="length"/>
+        /// </summary>
+        /// <param name="source">The source buffer to copy from</param>
+        /// <param name="offset"></param>
+        /// <param name="length"></param>
+        /// <param name="dstOffset"></param>
+        void CopyFrom(byte[] source, int offset, int length, int dstOffset = 0);
+
+        /// <summary>
+        /// Copies the <paramref name="source"/> buffer into the owned buffer starting at <paramref name="offset"/> to <paramref name="length"/>
+        /// </summary>
+        /// <param name="source">The source buffer to copy from</param>
+        /// <param name="offset"></param>
+        /// <param name="length"></param>
+        /// <param name="dstOffset"></param>
+        void CopyFrom(ReadOnlySpan<byte> source, int offset, int length, int dstOffset = 0);
+
+        /// <summary>
+        /// Copies the <paramref name="source"/> buffer into the owned buffer starting at <paramref name="offset"/> to <paramref name="length"/>
+        /// </summary>
+        /// <param name="source">The source buffer to copy from</param>
+        /// <param name="offset"></param>
+        /// <param name="length"></param>
+        /// <param name="dstOffset"></param>
+        void CopyFrom(IBufferHandle source, int offset, int length, int dstOffset = 0);
+
+        /// <summary>
+        /// Copies to the <paramref name="dest"/> buffer from the owned buffer starting at <paramref name="offset"/> to <paramref name="length"/>
+        /// </summary>
+        /// <param name="dest">The source buffer to copy from</param>
+        /// <param name="offset"></param>
+        /// <param name="length"></param>
+        /// <param name="srcOffset"></param>
+        void CopyTo(byte[] dest, int offset, int length, int srcOffset = 0);
+
+        /// <summary>
+        /// Copies to the <paramref name="dest"/> buffer from the owned buffer starting at <paramref name="offset"/> to <paramref name="length"/>
+        /// </summary>
+        /// <param name="dest">The source buffer to copy from</param>
+        /// <param name="offset"></param>
+        /// <param name="length"></param>
+        /// <param name="srcOffset"></param>
+        void CopyTo(Span<byte> dest, int offset, int length, int srcOffset = 0);
+
+        /// <summary>
+        /// Copies to the <paramref name="dest"/> buffer from the owned buffer starting at <paramref name="offset"/> to <paramref name="length"/>
+        /// </summary>
+        /// <param name="dest">The source buffer to copy from</param>
+        /// <param name="offset"></param>
+        /// <param name="length"></param>
+        /// <param name="srcOffset"></param>
+        void CopyTo(IBufferHandle dest, int offset, int length, int srcOffset = 0);
     }
 }

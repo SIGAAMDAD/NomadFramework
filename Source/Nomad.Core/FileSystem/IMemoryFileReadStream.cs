@@ -16,9 +16,9 @@ of merchantability, fitness for a particular purpose and noninfringement.
 namespace Nomad.Core.FileSystem
 {
     /// <summary>
-    /// Represents a write-only memory file stream.
+    /// Represents a read-only memory file stream.
     /// </summary>
-    public interface IMemoryFileReadStream : IMemoryStream, IReadStream
+    public interface IMemoryFileReadStream : IMemoryStream, IReadStream, IFileReadStream
     {
     }
 }

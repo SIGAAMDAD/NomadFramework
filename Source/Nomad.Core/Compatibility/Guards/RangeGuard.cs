@@ -117,10 +117,10 @@ namespace Nomad.Core.Compatibility.Guards
         /// <param name="paramName"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ThrowIfEqual<T>(T value, T other, string? paramName)
-            where T : IEqualityComparer<T>?
+            where T : IEquatable<T>
         {
 #if NETSTANDARD2_1 || !NET6_0_OR_GREATER
-            if (EqualityComparer<T>.Default.Equals(value, other))
+            if (value.Equals(other))
             {
                 throw new ArgumentOutOfRangeException(paramName);
             }
@@ -138,10 +138,10 @@ namespace Nomad.Core.Compatibility.Guards
         /// <param name="paramName"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ThrowIfNotEqual<T>(T value, T other, string? paramName)
-            where T : IEqualityComparer<T>?
+            where T : IEquatable<T>
         {
 #if NETSTANDARD2_1 || !NET6_0_OR_GREATER
-            if (!EqualityComparer<T>.Default.Equals(value, other))
+            if (!value.Equals(other))
             {
                 throw new ArgumentOutOfRangeException(paramName);
             }

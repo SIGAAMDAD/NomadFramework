@@ -30,7 +30,7 @@ namespace Nomad.Core.Compatibility.Guards
         /// <param name="obj"></param>
         /// <exception cref="ObjectDisposedException"></exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ThrowIfDisposed(bool isDisposed, object? obj)
+        public static void ThrowIfDisposed(bool isDisposed, object obj)
         {
 #if NETSTANDARD2_1 || !NET6_0_OR_GREATER
             if (isDisposed)

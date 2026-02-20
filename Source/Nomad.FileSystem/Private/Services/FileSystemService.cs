@@ -25,7 +25,7 @@ using Nomad.FileSystem.Private.FileStream;
 using System.IO;
 using Nomad.FileSystem.Private.MemoryStream;
 using Nomad.Core.Util;
-using Nomad.FileSystem.Private.BufferHandles;
+using Nomad.Core.Util.BufferHandles;
 
 namespace Nomad.FileSystem.Private.Services {
 	/*
@@ -59,13 +59,13 @@ namespace Nomad.FileSystem.Private.Services {
 		public FileSystemService( IEngineService engineService, ILoggerService logger ) {
 			ArgumentGuard.ThrowIfNull( engineService );
 			ArgumentGuard.ThrowIfNull( logger );
-			
+
 			_engineService = engineService;
 
 			_logger = logger;
 			_category = logger.CreateCategory( nameof( FileSystem ), LogLevel.Info, true );
 
-			_searchHelper = new RecursiveFileSearcher();
+			_searchHelper = new RecursiveFileSearcher( _logger );
 			_searchHelper.AddSearchDirectory( engineService.GetStoragePath( StorageScope.StreamingAssets ) );
 			_searchHelper.AddSearchDirectory( engineService.GetStoragePath( StorageScope.UserData ) );
 			_searchHelper.AddSearchDirectory( engineService.GetStoragePath( StorageScope.Install ) );
@@ -84,6 +84,19 @@ namespace Nomad.FileSystem.Private.Services {
 
 		/*
 		===============
+		AddSearchDirectory
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="directory"></param>
+		public void AddSearchDirectory( string directory ) {
+			_searchHelper.AddSearchDirectory( directory );
+		}
+
+		/*
+		===============
 		CopyFile
 		===============
 		*/
@@ -96,6 +109,21 @@ namespace Nomad.FileSystem.Private.Services {
 		/// <exception cref="NotImplementedException"></exception>
 		public void CopyFile( string sourcePath, string destinationPath, bool overwrite ) {
 			File.Copy( sourcePath, destinationPath, overwrite );
+		}
+
+		/*
+		===============
+		ReplaceFile
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="sourcePath"></param>
+		/// <param name="destPath"></param>
+		/// <param name="destBackupPath"></param>
+		public void ReplaceFile( string sourcePath, string destPath, string destBackupPath ) {
+			File.Replace( sourcePath, destPath, destBackupPath );
 		}
 
 		/*
@@ -151,7 +179,7 @@ namespace Nomad.FileSystem.Private.Services {
 		public void DeleteFile( string path ) {
 			File.Delete( path );
 		}
-		
+
 		/*
 		===============
 		FileExists
@@ -306,14 +334,14 @@ namespace Nomad.FileSystem.Private.Services {
 		public IReadStream? OpenRead( string path, in ReadConfig config ) {
 			ArgumentGuard.ThrowIfNullOrEmpty( path );
 
-			var fullPath = _searchHelper.FindFile( path, SearchOption.AllDirectories );
+			var fullPath = _searchHelper.FindFile( path );
 			if ( fullPath == null ) {
 				return null;
 			}
 
 			return config.Type switch {
-				StreamType.File => new FileReadStream( path ),
-				StreamType.MemoryFile => new MemoryFileReadStream( path ),
+				StreamType.File => new FileReadStream( fullPath ),
+				StreamType.MemoryFile => new MemoryFileReadStream( fullPath ),
 				_ => throw new ArgumentOutOfRangeException( nameof( config ) )
 			};
 		}
@@ -332,13 +360,8 @@ namespace Nomad.FileSystem.Private.Services {
 		/// <returns>The read stream for the specified file path.</returns>
 		public async ValueTask<IReadStream?> OpenReadAsync( string path, ReadConfig config, CancellationToken ct = default ) {
 			ct.ThrowIfCancellationRequested();
-			
-			var fullPath = _searchHelper.FindFile( path, SearchOption.AllDirectories );
-			if ( fullPath == null ) {
-				return null;
-			}
 
-			return new FileReadStream( fullPath );
+			return OpenRead( path, in config );
 		}
 
 		/*
@@ -359,7 +382,7 @@ namespace Nomad.FileSystem.Private.Services {
 				StreamType.Memory => new MemoryWriteStream( config.Length ),
 				StreamType.File => new FileWriteStream( path, config.Append ),
 				StreamType.MemoryFile => new MemoryFileWriteStream( path, config.Length ),
-				_ => throw new ArgumentOutOfRangeException( nameof( config ) )	
+				_ => throw new ArgumentOutOfRangeException( nameof( config ) )
 			};
 		}
 
@@ -410,10 +433,14 @@ namespace Nomad.FileSystem.Private.Services {
 		/// <param name="path"></param>
 		/// <returns></returns>
 		/// <exception cref="IOException"></exception>
-		public IBufferHandle LoadFile( string path ) {
+		public IBufferHandle? LoadFile( string path ) {
+			var fullPath = _searchHelper.FindFile( path );
+			if ( fullPath == null ) {
+				return null;
+			}
 			using var stream = OpenRead( path, new ReadConfig( StreamType.File ) ) ?? throw new IOException();
 
-			var handle = new SharedArrayHandle( stream.Length );
+			var handle = new PooledBufferHandle( stream.Length );
 			stream.Read( handle.Buffer, 0, handle.Length );
 
 			return handle;
@@ -431,14 +458,19 @@ namespace Nomad.FileSystem.Private.Services {
 		/// <returns></returns>
 		/// <exception cref="IOException"></exception>
 		public async ValueTask<IBufferHandle?> LoadFileAsync( string path ) {
-			using var stream = OpenRead( path, new ReadConfig( StreamType.File ) ) ?? throw new IOException();
+			var fullPath = _searchHelper.FindFile( path );
+			if ( fullPath == null ) {
+				return null;
+			}
 
-			var handle = new SharedArrayHandle( stream.Length );
+			using var stream = OpenRead( fullPath, new ReadConfig( StreamType.File ) ) ?? throw new IOException();
+
+			var handle = new PooledBufferHandle( stream.Length );
 			await stream.ReadAsync( handle.Buffer, 0, handle.Length );
 
 			return handle;
 		}
-		
+
 		/*
 		===============
 		WriteFile

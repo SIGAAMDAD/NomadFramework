@@ -23,11 +23,29 @@ namespace Nomad.Core.EngineUtils
     /// </summary>
     public interface IUIComponent : IDisposable
     {
-        bool Visible { get; }
-        Vector2 Position { get; }
-        Vector2 Scale { get; }
+        /// <summary>
+        /// Whether the ui component is visible or not.
+        /// </summary>
+        bool Visible { get; set; }
 
+        /// <summary>
+        /// The ui component's position on the screen.
+        /// </summary>
+        Vector2 Position { get; set; }
+
+        /// <summary>
+        /// The ui component's scaling factor.
+        /// </summary>
+        Vector2 Scale { get; set; }
+
+        /// <summary>
+        /// Enables the ui component completely, toggles it visible and allows it to process events.
+        /// </summary>
         void Enable();
+
+        /// <summary>
+        /// Disables the ui component completely, toggles it invisible and forces it to no longer receive any events.
+        /// </summary>
         void Disable();
     }
 }

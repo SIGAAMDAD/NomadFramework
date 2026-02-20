@@ -38,7 +38,6 @@ namespace Nomad.Core.Memory
         private readonly List<T> _pool = new List<T>();
 
         private readonly int _maxSize = int.MaxValue;
-        private bool _isDisposed = false;
 
         /// <summary>
         /// 

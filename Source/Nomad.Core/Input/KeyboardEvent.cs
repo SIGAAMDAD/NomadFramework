@@ -26,17 +26,20 @@ namespace Nomad.Core.Input
         /// <summary>
         /// 
         /// </summary>
-        public readonly DateTime TimeStamp;
+        public DateTime TimeStamp => _timeStamp;
+        private readonly DateTime _timeStamp;
 
         /// <summary>
         /// 
         /// </summary>
-        public readonly KeyNum KeyNum;
+        public KeyNum KeyNum => _keyNum;
+        private readonly KeyNum _keyNum;
 
         /// <summary>
         /// 
         /// </summary>
-        public readonly bool Pressed;
+        public bool Pressed => _pressed;
+        private readonly bool _pressed;
 
         /// <summary>
         /// 
@@ -46,9 +49,9 @@ namespace Nomad.Core.Input
         /// <param name="pressed"></param>
         public KeyboardEvent(KeyNum keyNum, DateTime timeStamp, bool pressed)
         {
-            KeyNum = keyNum;
-            TimeStamp = timeStamp;
-            Pressed = pressed;
+            _keyNum = keyNum;
+            _timeStamp = timeStamp;
+            _pressed = pressed;
         }
     }
 }

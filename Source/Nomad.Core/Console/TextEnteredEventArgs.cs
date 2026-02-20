@@ -23,7 +23,8 @@ namespace Nomad.Core.Console
         /// <summary>
         /// The text entered.
         /// </summary>
-        public readonly string Text;
+        public string Text => _text;
+        private readonly string _text;
 
         /// <summary>
         /// Creates a TextEnteredEventArgs object.
@@ -31,7 +32,7 @@ namespace Nomad.Core.Console
         /// <param name="text"></param>
         public TextEnteredEventArgs(string text)
         {
-            Text = text;
+            _text = text;
         }
     }
 }

@@ -36,10 +36,12 @@ namespace Nomad.CVars.Private.ValueObjects {
 		[FieldOffset( 8 )] public readonly CVarFlags Flags;
 		[FieldOffset( 12 )] public readonly CVarType Type;
 
-		public bool IsReadOnly => ( Flags & CVarFlags.ReadOnly ) != 0;
-		public bool IsHidden => ( Flags & CVarFlags.Hidden ) != 0;
-		public bool IsSaved => ( Flags & CVarFlags.Archive ) != 0;
-		public bool IsUserCreated => ( Flags & CVarFlags.UserCreated ) != 0;
+		public bool IsReadOnly => Flags.HasFlag( CVarFlags.ReadOnly );
+		public bool IsHidden => Flags.HasFlag( CVarFlags.Hidden );
+		public bool IsSaved => Flags.HasFlag( CVarFlags.Archive );
+		public bool IsUserCreated => Flags.HasFlag( CVarFlags.UserCreated );
+		public bool IsDeveloper => Flags.HasFlag( CVarFlags.Developer );
+		public bool IsInitializationOnly => Flags.HasFlag( CVarFlags.Init );
 
 		/*
 		===============

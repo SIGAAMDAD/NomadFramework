@@ -16,7 +16,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Nomad.Save.Private.ValueObjects;
 using Nomad.Save.ValueObjects;
 
 namespace Nomad.Save.Services
@@ -53,13 +52,12 @@ namespace Nomad.Save.Services
         Task Load(string filepath);
 
         /// <summary>
-        /// Goes into the specified <paramref name="saveDirectory"/> and lists all the files with the extension of ".ngd" (Nomad Game Data), then returns the file's metadata (filename, size, last access time)
-        /// to a structure, and returns the complete list for usage in for example a save slots menu.
+        /// Returns a list of all the currently available save data files in the save system.
         /// </summary>
         /// <remarks>
         /// This is not thread safe.
         /// </remarks>
-        /// <returns>The complete list of save files found in the directory <paramref name="saveDirectory"/>.</returns>
-        IReadOnlyList<SaveFileMetadata> ListSaveFiles(string saveDirectory);
+        /// <returns>The complete list of save files found in the save system's data path.</returns>
+        IReadOnlyList<SaveFileMetadata> ListSaveFiles();
     }
 }

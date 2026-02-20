@@ -14,8 +14,9 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using System.Runtime.CompilerServices;
 using Nomad.Core.FileSystem;
-using Nomad.Save.Private.ValueObjects;
+using Nomad.Core.Util;
 
 namespace Nomad.Save.Private.Serialization.FieldSerializers {
 	/*
@@ -30,10 +31,33 @@ namespace Nomad.Save.Private.Serialization.FieldSerializers {
 	/// </summary>
 
 	internal sealed class UIntSerializer : IFieldSerializer<uint> {
-		public FieldType FieldType => FieldType.UInt32;
+		public AnyType FieldType => AnyType.UInt32;
 		public Type DataType => typeof( uint );
 
-		public void Serialize( IWriteStream stream, FieldValue value ) => stream.WriteUInt32( value.GetValue<uint>() );
-		public FieldValue Deserialize( IReadStream stream ) => new FieldValue( stream.ReadUInt32() );
+		/*
+		===============
+		Serialize
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="stream"></param>
+		/// <param name="value"></param>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public void Serialize( IWriteStream stream, in Any value ) => stream.WriteUInt32( value.GetPrimitiveValue<uint>() );
+
+		/*
+		===============
+		Deserialize
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="stream"></param>
+		/// <returns></returns>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public Any Deserialize( IReadStream stream ) => new Any( stream.ReadUInt32() );
 	};
 };

@@ -22,8 +22,19 @@ namespace Nomad.Core.EngineUtils
     /// </summary>
     public interface ITexture : IDisposable
     {
+        /// <summary>
+        /// 
+        /// </summary>
         int Width { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         int Height { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         byte[] ImageBuffer { get; }
     }
 }

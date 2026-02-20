@@ -18,6 +18,9 @@ using Nomad.Core.FileSystem;
 using Nomad.Save.Interfaces;
 using Nomad.Save.Exceptions;
 using Nomad.Save.Private.ValueObjects;
+using Nomad.Core.Util;
+using Nomad.Core.Logger;
+using System.Collections.Concurrent;
 
 namespace Nomad.Save.Private.Entities {
 	/*
@@ -42,9 +45,14 @@ namespace Nomad.Save.Private.Entities {
 		/// The number of fields in this section.
 		/// </summary>
 		public int FieldCount => _fields.Count;
-		private readonly Dictionary<string, SaveField> _fields;
+		private readonly ConcurrentDictionary<string, SaveField> _fields;
 
-		private readonly IWriteStream _writer;
+		private readonly IMemoryFileWriteStream _writer;
+
+		private readonly SaveConfig _config;
+
+		private readonly ILoggerService _logger;
+		private readonly ILoggerCategory _category;
 
 		/*
 		===============
@@ -54,12 +62,19 @@ namespace Nomad.Save.Private.Entities {
 		/// <summary>
 		/// 
 		/// </summary>
+		/// <param name="config"></param>
+		/// <param name="logger"></param>
+		/// <param name="category"></param>
 		/// <param name="name"></param>
 		/// <param name="writer"></param>
-		public SaveSectionWriter( string name, IWriteStream writer ) {
+		public SaveSectionWriter( in SaveConfig config, ILoggerService logger, ILoggerCategory category, string name, IMemoryFileWriteStream writer ) {
 			_name = name;
-			_fields = new Dictionary<string, SaveField>();
+			_fields = new ConcurrentDictionary<string, SaveField>();
 			_writer = writer;
+			_config = config;
+
+			_logger = logger;
+			_category = category;
 		}
 
 		/*
@@ -68,14 +83,37 @@ namespace Nomad.Save.Private.Entities {
 		===============
 		*/
 		/// <summary>
-		///
+		/// Writes the entire section to the save stream and clears all fields.
 		/// </summary>
 		public void Dispose() {
-			var header = new SectionHeader( _name, FieldCount, Checksum.Empty.Value );
-			header.Save( _writer );
+			int offset = _writer.Position;
+			{
+				var header = new SectionHeader( _name, 0, FieldCount, Checksum.Empty );
+				header.Save( _writer );
+			}
+
+			int start = _writer.Position;
 			foreach ( var field in _fields ) {
 				SaveField.Write( _name, field.Value, _writer );
 			}
+
+			int position = _writer.Position;
+			int length = position - start;
+
+			_writer.Seek( offset, System.IO.SeekOrigin.Begin );
+			{
+				var header = new SectionHeader( _name, length, FieldCount, Checksum.Compute( _writer.Buffer.GetSlice( start, length ) ) );
+				header.Save( _writer );
+
+				if ( _config.LogSerializationTree ) {
+					_logger.PrintLine( in _category, "Finalized section data:" );
+					_logger.PrintLine( in _category, $"\tName: {header.Name}" );
+					_logger.PrintLine( in _category, $"\tByteLength: {header.ByteLength}" );
+					_logger.PrintLine( in _category, $"\tFieldCount: {header.FieldCount}" );
+					_logger.PrintLine( in _category, $"\tChecksum64: {header.Checksum}" );
+				}
+			}
+			_writer.Seek( position, System.IO.SeekOrigin.Begin );
 
 			_fields.Clear();
 		}
@@ -95,11 +133,17 @@ namespace Nomad.Save.Private.Entities {
 			if ( _fields.ContainsKey( fieldId ) ) {
 				throw new DuplicateFieldException( $"Field '{fieldId}' added twice!" );
 			}
+
+			var type = Any.GetType<T>();
+
 			_fields[ fieldId ] = new SaveField(
 				fieldId,
-				FieldValue.GetFieldType<T>(),
-				FieldValue.From( value )
+				type,
+				Any.From( value )
 			);
+			if ( _config.LogSerializationTree ) {
+				_logger.PrintLine( in _category, $"\t\t[Field] (NAME) {fieldId}, (TYPE) {type}, (VALUE) {value}" );
+			}
 		}
 
 		/*
@@ -113,8 +157,7 @@ namespace Nomad.Save.Private.Entities {
 		/// <typeparam name="T"></typeparam>
 		/// <param name="fieldId"></param>
 		/// <returns></returns>
-		public bool HasField<T>( string fieldId ) {
-			return _fields.ContainsKey( fieldId );
-		}
+		public bool HasField<T>( string fieldId )
+			=> _fields.ContainsKey( fieldId );
 	};
 };

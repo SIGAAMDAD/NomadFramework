@@ -17,50 +17,102 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Nomad.Core.Logger;
 
 namespace Nomad.FileSystem.Private.Services {
 	/*
 	===================================================================================
-
-	PathService
-
+	
+	RecursiveFileSearcher
+	
 	===================================================================================
 	*/
 	/// <summary>
-	/// A file search system that can search recursively through multiple base directories
+	/// A Quake 3‑style file search system that searches through multiple base directories
+	/// in priority order. Files are located by exact relative paths only.
 	/// </summary>
 
-	internal sealed class RecursiveFileSearcher {
+	internal sealed class RecursiveFileSearcher : IDisposable {
+		private readonly List<string> _searchDirectories = new List<string>();
+		private readonly bool _ignoreCase;
+		private readonly bool _useIndex;
+		private readonly Dictionary<string, List<string>> _fileIndex; // relative path -> full paths (one per base dir)
+		private readonly FileSystemWatcher _indexWatcher; // optional, to keep index fresh
+		private bool _disposed;
+
 		/// <summary>
 		/// Gets all search directories in their current priority order.
 		/// </summary>
 		public IReadOnlyList<string> SearchDirectories => _searchDirectories.AsReadOnly();
-		private readonly List<string> _searchDirectories = new List<string>();
-		
+
+		private readonly ILoggerService _logger;
+
+		/*
+		===============
+		RecursiveFileSearcher
+		===============
+		*/
+		/// <summary>
+		/// Initializes a new instance of the <see cref="RecursiveFileSearcher"/> class.
+		/// </summary>
+		/// <param name="logger"></param>
+		/// <param name="ignoreCase">If true, file lookups are case‑insensitive (recommended for cross‑platform).</param>
+		/// <param name="useIndex">If true, builds an in‑memory index of all files for faster lookups (may impact startup time).</param>
+		public RecursiveFileSearcher( ILoggerService logger, bool ignoreCase = false, bool useIndex = false ) {
+			_ignoreCase = ignoreCase;
+			_useIndex = useIndex;
+			_logger = logger;
+			if ( _useIndex ) {
+				_fileIndex = new Dictionary<string, List<string>>( ignoreCase ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal );
+				// Optional: set up a FileSystemWatcher to keep index fresh (not implemented here for simplicity)
+			}
+		}
+
+		/*
+		===============
+		Dispose
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		public void Dispose() {
+			if ( !_disposed ) {
+				_indexWatcher?.Dispose();
+				_disposed = true;
+			}
+		}
+
 		/*
 		===============
 		AddSearchDirectory
 		===============
 		*/
 		/// <summary>
-		/// Add an additional search directory with optional priority
+		/// Adds a search directory with optional priority.
 		/// </summary>
-		/// <param name="directory">Directory to add</param>
-		/// <param name="highPriority">If true, adds to beginning of search list</param>
+		/// <param name="directory">Directory to add.</param>
+		/// <param name="highPriority">If true, adds to beginning of search list; otherwise appends.</param>
+		/// <exception cref="ArgumentException">Thrown if directory is null or empty.</exception>
+		/// <exception cref="DirectoryNotFoundException">Thrown if directory does not exist.</exception>
 		public void AddSearchDirectory( string directory, bool highPriority = false ) {
 			if ( string.IsNullOrWhiteSpace( directory ) ) {
-				throw new ArgumentException( "Directory cannot be null or empty", nameof( directory ) );
-			}
-			if ( !Directory.Exists( directory ) ) {
-				throw new DirectoryNotFoundException( $"Directory not found: {directory}" );
+				throw new ArgumentException( "Directory cannot be null or empty.", nameof( directory ) );
 			}
 
-			var normalizedPath = NormalizeDirectoryPath( directory );
+			string normalizedPath = NormalizeDirectoryPath( directory );
+			if ( !Directory.Exists( normalizedPath ) ) {
+				throw new DirectoryNotFoundException( $"Directory not found: {directory}" );
+			}
 
 			if ( highPriority ) {
 				_searchDirectories.Insert( 0, normalizedPath );
 			} else {
 				_searchDirectories.Add( normalizedPath );
+			}
+
+			if ( _useIndex ) {
+				IndexDirectory( normalizedPath );
 			}
 		}
 
@@ -70,79 +122,31 @@ namespace Nomad.FileSystem.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// Find a file by its relative path
+		/// Finds a file by its exact relative path. Returns the full path of the first match
+		/// according to search directory priority, or null if not found.
 		/// </summary>
-		/// <param name="relativePath">Relative path to search for (e.g., "Textures/wood.png")</param>
-		/// <param name="searchOption">Search option (default: AllDirectories)</param>
-		/// <returns>Full path to the found file, or null if not found</returns>
-		public string? FindFile( string relativePath, SearchOption searchOption = SearchOption.AllDirectories ) {
+		/// <param name="relativePath">Relative path to the file (e.g., "Textures/wood.png").</param>
+		/// <returns>Full path to the found file, or null.</returns>
+		/// <exception cref="ArgumentException">Thrown if relativePath is null or empty.</exception>
+		public string? FindFile( string relativePath ) {
 			if ( string.IsNullOrWhiteSpace( relativePath ) ) {
-				throw new ArgumentException( "Relative path cannot be null or empty", nameof( relativePath ) );
+				throw new ArgumentException( "Relative path cannot be null or empty.", nameof( relativePath ) );
 			}
 
-			// Clean the relative path
-			var cleanRelativePath = relativePath.Trim()
-				.Replace( '/', Path.DirectorySeparatorChar )
-				.Replace( '\\', Path.DirectorySeparatorChar );
+			string cleanPath = NormalizePath( relativePath );
 
-			// First, try direct path combination (exact relative location)
-			foreach ( var baseDir in _searchDirectories ) {
-				var fullPath = Path.Combine( baseDir, cleanRelativePath );
-				if ( File.Exists( fullPath ) ) {
+			if ( _useIndex ) {
+				return FindFileFromIndex( cleanPath );
+			}
+
+			// Exact match search without index
+			foreach ( string baseDir in _searchDirectories ) {
+				string? fullPath = GetSafeFullPath( baseDir, cleanPath );
+				if ( fullPath != null && FileExists( fullPath ) ) {
 					return fullPath;
 				}
 			}
-
-			// If not found directly, search recursively by file name
-			if ( searchOption == SearchOption.AllDirectories ) {
-				var fileName = Path.GetFileName( cleanRelativePath );
-				if ( string.IsNullOrEmpty( fileName ) ) {
-					return null;
-				}
-
-				foreach ( var baseDir in _searchDirectories ) {
-					var foundFile = FindFileRecursive( baseDir, fileName, cleanRelativePath );
-					if ( foundFile != null ) {
-						return foundFile;
-					}
-				}
-			}
-
 			return null;
-		}
-
-		/*
-		===============
-		RecursiveFileSearcher
-		===============
-		*/
-		/// <summary>
-		/// Find multiple files matching a pattern
-		/// </summary>
-		/// <param name="searchPattern">Search pattern (e.g., "*.png", "config*.json")</param>
-		/// <param name="relativeDirectory">Optional relative directory to restrict search</param>
-		/// <returns>Dictionary mapping search directory to found files</returns>
-		public Dictionary<string, List<string>> FindFiles( string searchPattern, string? relativeDirectory = null ) {
-			var results = new Dictionary<string, List<string>>();
-
-			foreach ( var baseDir in _searchDirectories ) {
-				var searchDir = string.IsNullOrEmpty( relativeDirectory )
-					? baseDir
-					: Path.Combine( baseDir, relativeDirectory );
-
-				if ( !Directory.Exists( searchDir ) ) {
-					continue;
-				}
-
-				var files = Directory.EnumerateFiles( searchDir, searchPattern, SearchOption.AllDirectories )
-					.ToList();
-
-				if ( files.Count > 0 ) {
-					results[ baseDir ] = files;
-				}
-			}
-
-			return results;
 		}
 
 		/*
@@ -151,35 +155,62 @@ namespace Nomad.FileSystem.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// Find all occurrences of a file (returns first match from each directory)
+		/// Finds all occurrences of a file across all search directories, ordered by priority.
 		/// </summary>
-		/// <param name="relativePath">Relative path to search for</param>
-		/// <returns>List of all found files, ordered by search priority</returns>
+		/// <param name="relativePath">Relative path to search for.</param>
+		/// <returns>List of full paths (may be empty).</returns>
 		public List<string> FindAllFiles( string relativePath ) {
-			var results = new List<string>();
-			var cleanRelativePath = NormalizePath( relativePath );
-			var fileName = Path.GetFileName( cleanRelativePath );
+			if ( string.IsNullOrWhiteSpace( relativePath ) ) {
+				return new List<string>();
+			}
 
-			if ( string.IsNullOrEmpty( fileName ) ) {
+			string cleanPath = NormalizePath( relativePath );
+			var results = new List<string>();
+
+			if ( _useIndex ) {
+				if ( _fileIndex.TryGetValue( cleanPath, out var paths ) ) {
+					results.AddRange( paths );
+				}
 				return results;
 			}
 
-			foreach ( var baseDir in _searchDirectories ) {
-				// Try exact match first
-				var exactPath = Path.Combine( baseDir, cleanRelativePath );
-				if ( File.Exists( exactPath ) ) {
-					results.Add( exactPath );
-					continue;
-				}
-
-				// Then recursive search
-				var foundFile = FindFileRecursive( baseDir, fileName, cleanRelativePath );
-				if ( foundFile != null ) {
-					results.Add( foundFile );
+			foreach ( string baseDir in _searchDirectories ) {
+				string? fullPath = GetSafeFullPath( baseDir, cleanPath );
+				if ( fullPath != null && FileExists( fullPath ) ) {
+					results.Add( fullPath );
 				}
 			}
-
 			return results;
+		}
+
+		/*
+		===============
+		FindFiles
+		===============
+		*/
+		/// <summary>
+		/// Finds files matching a pattern (e.g., "*.png") in a specific relative subdirectory.
+		/// Returns a dictionary mapping each base directory to the list of matching files.
+		/// </summary>
+		/// <param name="searchDir"></param>
+		/// <param name="searchPattern">Search pattern (supports * and ?).</param>
+		/// <returns>Dictionary with results per base directory.</returns>
+		public List<string>? FindFiles( string searchDir, string searchPattern ) {
+			if ( !Directory.Exists( searchDir ) ) {
+				return null;
+			}
+
+			Console.WriteLine( $"Adding files from {searchDir}..." );
+
+			try {
+				return GetFilesAsList( searchDir, searchPattern, false );
+			} catch ( UnauthorizedAccessException ) {
+				_logger.PrintWarning( $"Attempted access to directory {searchDir} (UnauthorizedAccess) denied." );
+			} catch ( PathTooLongException ) {
+				_logger.PrintWarning( $"Attempted access to directory {searchDir} denied, path was too long." );
+			}
+			// Other IO exceptions could be caught as needed
+			return null;
 		}
 
 		/*
@@ -188,58 +219,19 @@ namespace Nomad.FileSystem.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// Find file with support for different extensions
+		/// Finds a file by trying multiple file extensions.
 		/// </summary>
-		/// <param name="relativePathWithoutExtension">Relative path without extension</param>
-		/// <param name="extensions">Array of extensions to try (e.g., [".json", ".yaml", ".yml"])</param>
-		/// <returns>Full path to found file, or null</returns>
+		/// <param name="relativePathWithoutExtension">Relative path without extension.</param>
+		/// <param name="extensions">Extensions to try (e.g., ".json", ".yaml").</param>
+		/// <returns>Full path of first matching file, or null.</returns>
 		public string? FindFileWithExtensions( string relativePathWithoutExtension, params string[] extensions ) {
-			foreach ( var ext in extensions ) {
-				var filePath = FindFile( relativePathWithoutExtension + ext );
-				if ( filePath != null ) {
-					return filePath;
+			foreach ( string ext in extensions ) {
+				string path = FindFile( relativePathWithoutExtension + ext );
+				if ( path != null ) {
+					return path;
 				}
 			}
-
 			return null;
-		}
-
-		/*
-		===============
-		FindFileRecursive
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="baseDirectory"></param>
-		/// <param name="targetFileName"></param>
-		/// <param name="originalRelativePath"></param>
-		/// <returns></returns>
-		private string? FindFileRecursive( string baseDirectory, string targetFileName, string originalRelativePath ) {
-			try {
-				// If the original path has directories, try to maintain some structure
-				var relativeDir = Path.GetDirectoryName( originalRelativePath );
-				if ( !string.IsNullOrEmpty( relativeDir ) ) {
-					// Search in the expected directory structure first
-					var expectedDir = Path.Combine( baseDirectory, relativeDir );
-					if ( Directory.Exists( expectedDir ) ) {
-						var file = Directory.EnumerateFiles( expectedDir, targetFileName, SearchOption.TopDirectoryOnly ).FirstOrDefault();
-						if ( file != null ) {
-							return file;
-						}
-					}
-				}
-
-				// Full recursive search as fallback
-				return Directory.EnumerateFiles( baseDirectory, targetFileName, SearchOption.AllDirectories ).FirstOrDefault();
-			} catch ( UnauthorizedAccessException ) {
-				// Skip directories we can't access
-				return null;
-			} catch ( PathTooLongException ) {
-				// Skip paths that are too long
-				return null;
-			}
 		}
 
 		/*
@@ -253,11 +245,11 @@ namespace Nomad.FileSystem.Private.Services {
 		/// <param name="path"></param>
 		/// <returns></returns>
 		private string NormalizeDirectoryPath( string path ) {
-			var normalized = Path.GetFullPath( path );
-			if ( !normalized.EndsWith( Path.DirectorySeparatorChar ) ) {
-				normalized += Path.DirectorySeparatorChar;
+			string fullPath = Path.GetFullPath( path );
+			if ( !fullPath.EndsWith( Path.DirectorySeparatorChar.ToString() ) ) {
+				fullPath += Path.DirectorySeparatorChar;
 			}
-			return normalized;
+			return fullPath;
 		}
 
 		/*
@@ -275,5 +267,173 @@ namespace Nomad.FileSystem.Private.Services {
 				.Replace( '/', Path.DirectorySeparatorChar )
 				.Replace( '\\', Path.DirectorySeparatorChar );
 		}
-	};
-};
+
+		/*
+		===============
+		GetSafeFullPath
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="baseDir"></param>
+		/// <param name="relativePath"></param>
+		/// <returns></returns>
+		private string? GetSafeFullPath( string baseDir, string relativePath ) {
+			try {
+				string combined = Path.Combine( baseDir, relativePath );
+				string fullPath = Path.GetFullPath( combined ); // resolves .. and .
+				if ( fullPath.StartsWith( baseDir, _ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal ) ) {
+					return fullPath;
+				}
+			} catch ( Exception ) // PathTooLongException, ArgumentException, etc.
+			  {
+				// If the path is invalid or escapes, treat as not found
+			}
+			return null;
+		}
+
+		/*
+		===============
+		FileExists
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="path"></param>
+		/// <returns></returns>
+		private bool FileExists( string path ) {
+			try {
+				return _ignoreCase
+					? Directory.EnumerateFiles( Path.GetDirectoryName( path ) ?? string.Empty, Path.GetFileName( path ) )
+							   .Any( f => string.Equals( f, path, StringComparison.OrdinalIgnoreCase ) )
+					: File.Exists( path );
+			} catch {
+				return false;
+			}
+		}
+
+		/*
+		===============
+		IsSubPath
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="basePath"></param>
+		/// <param name="candidatePath"></param>
+		/// <returns></returns>
+		private bool IsSubPath( string basePath, string candidatePath ) {
+			string baseFull = Path.GetFullPath( basePath );
+			string candidateFull = Path.GetFullPath( candidatePath );
+			return candidateFull.StartsWith( baseFull, _ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal );
+		}
+
+		/*
+		===============
+		IndexDirectory
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="directory"></param>
+		private void IndexDirectory( string directory ) {
+			// Build index of all files relative to this directory
+			foreach ( string file in Directory.EnumerateFiles( directory, "*", SearchOption.AllDirectories ) ) {
+				string relative = Path.GetRelativePath( directory, file );
+				if ( !_fileIndex.TryGetValue( relative, out var list ) ) {
+					list = new List<string>();
+					_fileIndex[ relative ] = list;
+				}
+				list.Add( file );
+			}
+		}
+
+		/*
+		===============
+		FindFileFromIndex
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="relativePath"></param>
+		/// <returns></returns>
+		private string? FindFileFromIndex( string relativePath ) {
+			if ( _fileIndex.TryGetValue( relativePath, out var fullPaths ) ) {
+				// The index stores files in the order they were added (i.e., insertion order of directories)
+				// But we need to respect the current _searchDirectories order.
+				// So we must reorder the results based on directory priority.
+				var ordered = fullPaths.OrderBy( p => _searchDirectories.FindIndex( d => p.StartsWith( d, _ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal ) ) );
+				return ordered.FirstOrDefault();
+			}
+			return null;
+		}
+
+		/*
+		===============
+		GetFilesAsList
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="rootDir"></param>
+		/// <param name="searchPattern"></param>
+		/// <param name="skipReparsePoints"></param>
+		/// <returns></returns>
+		private static List<string> GetFilesAsList( string rootDir, string searchPattern, bool skipReparsePoints = true ) {
+			var result = new List<string>();
+			var stack = new Stack<string>();
+
+			if ( !Directory.Exists( rootDir ) ) {
+				Console.WriteLine( $"Directory {rootDir} doesn't exist." );
+				return result;
+			}
+
+			stack.Push( rootDir );
+
+			while ( stack.Count > 0 ) {
+				var dir = stack.Pop();
+
+				try {
+					// Optionally skip reparse points (symlinks/junctions) to prevent infinite loops
+					if ( skipReparsePoints ) {
+						var attrs = File.GetAttributes( dir );
+						if ( (attrs & FileAttributes.ReparsePoint) != 0 ) {
+							continue;
+						}
+					}
+
+					// Add files in the current directory
+					var files = Directory.GetFiles( dir, searchPattern, SearchOption.TopDirectoryOnly );
+					if ( files.Length > 0 ) {
+						result.AddRange( files );
+						Console.WriteLine( $"Found files {files}" );
+					}
+
+					// Traverse subdirectories
+					var subDirs = Directory.GetDirectories( dir, "*", SearchOption.TopDirectoryOnly );
+					for ( int i = 0; i < subDirs.Length; i++ ) {
+						// You can insert custom rules here (e.g., exclude hidden/system)
+						stack.Push( subDirs[ i ] );
+					}
+				} catch ( UnauthorizedAccessException ) {
+					// Skip directories you can't access
+					continue;
+				} catch ( DirectoryNotFoundException ) {
+					// Directory may have been removed during traversal
+					continue;
+				} catch ( PathTooLongException ) {
+					// Skip problematic paths
+					continue;
+				}
+			}
+
+			return result;
+		}
+	}
+}

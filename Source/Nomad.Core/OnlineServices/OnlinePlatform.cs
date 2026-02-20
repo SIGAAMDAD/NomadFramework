@@ -39,7 +39,7 @@ namespace Nomad.Core.OnlineServices
         /// 
         /// </summary>
         GOG,
-        
+
         /// <summary>
         /// 
         /// </summary>

@@ -20,211 +20,209 @@ using System.Runtime.CompilerServices;
 using Nomad.Core.Events;
 using Nomad.Core.Logger;
 using Nomad.Core.Util;
+using Nomad.Events.Exceptions;
 using Nomad.Events.Private;
 
 namespace Nomad.Events {
-    /*
-    ===================================================================================
-    
-    GameEventRegistry
-    
-    ===================================================================================
-    */
-    /// <summary>
-    /// Handles event registration and lookup.
-    /// </summary>
-    
-    public sealed class GameEventRegistry : IGameEventRegistryService {
-        private readonly ConcurrentDictionary<EventKey, IGameEvent> _eventCache = new ConcurrentDictionary<EventKey, IGameEvent>();
-        private readonly ILoggerService _logger;
+	/*
+	===================================================================================
+	
+	GameEventRegistry
+	
+	===================================================================================
+	*/
+	/// <summary>
+	/// Handles event registration and lookup.
+	/// </summary>
+	
+	public sealed class GameEventRegistry : IGameEventRegistryService {
+		private readonly ConcurrentDictionary<EventKey, IGameEvent> _eventCache = new ConcurrentDictionary<EventKey, IGameEvent>();
+		private readonly ILoggerService _logger;
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="logger"></param>
-        public GameEventRegistry( ILoggerService logger ) {
-            _logger = logger;
-        }
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="logger"></param>
+		public GameEventRegistry( ILoggerService logger ) {
+			_logger = logger;
+		}
 
-        /// <summary>
-        ///
-        /// </summary>
-        public void Dispose() {
-            foreach ( var @event in _eventCache ) {
-                @event.Value.Dispose();
-            }
-            _eventCache.Clear();
-        }
+		/// <summary>
+		///
+		/// </summary>
+		public void Dispose() {
+			foreach ( var @event in _eventCache ) {
+				@event.Value.Dispose();
+			}
+			_eventCache.Clear();
+		}
 
-        /// <summary>
-        /// Releases all events in the naming space of <paramref name="nameSpace"/>.
-        /// </summary>
-        /// <param name="nameSpace"></param>
-        public void ClearEventsInNamespace( string nameSpace ) {
-            InternString nameSpaceCmp = new InternString( nameSpace );
-            foreach ( KeyValuePair<EventKey, IGameEvent> @event in _eventCache ) {
-                if ( @event.Value.NameSpace == nameSpaceCmp ) {
-                    @event.Value.Dispose();
-                    _eventCache.Remove( @event.Key, out _ );
-                }
-            }
-        }
+		/// <summary>
+		/// Releases all events in the naming space of <paramref name="nameSpace"/>.
+		/// </summary>
+		/// <param name="nameSpace"></param>
+		public void ClearEventsInNamespace( string nameSpace ) {
+			InternString nameSpaceCmp = new InternString( nameSpace );
+			foreach ( KeyValuePair<EventKey, IGameEvent> @event in _eventCache ) {
+				if ( @event.Value.NameSpace == nameSpaceCmp ) {
+					@event.Value.Dispose();
+					_eventCache.Remove( @event.Key, out _ );
+				}
+			}
+		}
 
-        /*
-        ===============
-        GetEvent
-        ===============
-        */
-        /// <summary>
-        /// Registers a <see cref="IGameEvent"/> with argument parameters <typeparamref name="TArgs"/> and id <paramref name="name"/>.
-        /// </summary>
-        /// <typeparam name="TArgs">The type of struct payload used with the event.</typeparam>
-        /// <param name="nameSpace"></param>
-        /// <param name="name">Name of the event to register.</param>
-        /// <param name="flags"></param>
-        /// <returns></returns>
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public IGameEvent<TArgs> GetEvent<TArgs>( string nameSpace, string name, EventFlags flags = EventFlags.Default )
-            where TArgs : struct
-        {
-            var key = new EventKey(
-                name: new InternString( name ),
-                nameSpace: new InternString( nameSpace ),
-                argsType: typeof( TArgs )
-            );
+		/*
+		===============
+		GetEvent
+		===============
+		*/
+		/// <summary>
+		/// Registers a <see cref="IGameEvent"/> with argument parameters <typeparamref name="TArgs"/> and id <paramref name="name"/>.
+		/// </summary>
+		/// <typeparam name="TArgs">The type of struct payload used with the event.</typeparam>
+		/// <param name="nameSpace"></param>
+		/// <param name="name">Name of the event to register.</param>
+		/// <param name="flags"></param>
+		/// <returns></returns>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public IGameEvent<TArgs> GetEvent<TArgs>( string nameSpace, string name, EventFlags flags = EventFlags.Default )
+			where TArgs : struct
+		{
+			var key = new EventKey(
+				name: new InternString( name ),
+				nameSpace: new InternString( nameSpace ),
+				argsType: typeof( TArgs )
+			);
 
-            if ( _eventCache.TryGetValue( key, out IGameEvent? value ) ) {
-                if ( value is IGameEvent<TArgs> typedEvent ) {
-                    return typedEvent;
-                }
-                throw new InvalidOperationException(
-                    
-                );
-            }
+			if ( _eventCache.TryGetValue( key, out IGameEvent? value ) ) {
+				if ( value is IGameEvent<TArgs> typedEvent ) {
+					return typedEvent;
+				}
+				throw new InvalidEventRegistrationException( name, typeof( IGameEvent<TArgs> ), typeof( TArgs ) );
+			}
 
-            value = new GameEvent<TArgs>( key.NameSpace, key.Name, _logger, flags );
-            _eventCache.TryAdd( key, value );
-            return ( IGameEvent<TArgs> )value;
-        }
+			value = new GameEvent<TArgs>( key.NameSpace, key.Name, _logger, flags );
+			_eventCache.TryAdd( key, value );
+			return ( IGameEvent<TArgs> )value;
+		}
 
-        /*
-        ===============
-        TryGetEvent
-        ===============
-        */
-        /// <summary>
-        /// Attempts to retrieve an existing event by name and namespace.
-        /// </summary>
-        /// <typeparam name="TArgs">The struct type containing event data.</typeparam>
-        /// <param name="name">The name of the event.</param>
-        /// <param name="nameSpace">The namespace the event belongs to.</param>
-        /// <param name="gameEvent">
-        /// When this method returns, contains the event if found; otherwise <c>null</c>.
-        /// </param>
-        /// <returns><c>true</c> if the event exists; otherwise <c>false</c>.</returns>
-        public bool TryGetEvent<TArgs>( string name, string nameSpace, out IGameEvent<TArgs>? gameEvent )
-            where TArgs : struct
-        {
-            var key = new EventKey(
-                name: new InternString( name ),
-                nameSpace: new InternString( nameSpace ),
-                argsType: typeof( TArgs )
-            );
-            if ( _eventCache.TryGetValue( key, out IGameEvent? @event ) ) {
-                if ( @event is IGameEvent<TArgs> typedEvent ) {
-                    gameEvent = typedEvent;
-                    return true;
-                }
-            }
-            gameEvent = null;
-            return false;
-        }
+		/*
+		===============
+		TryGetEvent
+		===============
+		*/
+		/// <summary>
+		/// Attempts to retrieve an existing event by name and namespace.
+		/// </summary>
+		/// <typeparam name="TArgs">The struct type containing event data.</typeparam>
+		/// <param name="name">The name of the event.</param>
+		/// <param name="nameSpace">The namespace the event belongs to.</param>
+		/// <param name="gameEvent">
+		/// When this method returns, contains the event if found; otherwise <c>null</c>.
+		/// </param>
+		/// <returns><c>true</c> if the event exists; otherwise <c>false</c>.</returns>
+		public bool TryGetEvent<TArgs>( string name, string nameSpace, out IGameEvent<TArgs>? gameEvent )
+			where TArgs : struct
+		{
+			var key = new EventKey(
+				name: new InternString( name ),
+				nameSpace: new InternString( nameSpace ),
+				argsType: typeof( TArgs )
+			);
+			if ( _eventCache.TryGetValue( key, out IGameEvent? @event ) ) {
+				if ( @event is IGameEvent<TArgs> typedEvent ) {
+					gameEvent = typedEvent;
+					return true;
+				}
+			}
+			gameEvent = null;
+			return false;
+		}
 
-        /*
-        ===============
-        TryRemoveEvent
-        ===============
-        */
-        /// <summary>
-        ///
-        /// </summary>
-        /// <typeparam name="TArgs"></typeparam>
-        /// <param name="nameSpace"></param>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public bool TryRemoveEvent<TArgs>( string nameSpace, string name )
-            where TArgs : struct
-        {
-            var key = new EventKey(
-                name: new InternString( name ),
-                nameSpace: new InternString( nameSpace ),
-                argsType: typeof( TArgs )
-            );
-            if ( _eventCache.TryRemove( key, out IGameEvent? eventObj ) ) {
-                (eventObj as IDisposable)?.Dispose();
-                return true;
-            }
-            return false;
-        }
+		/*
+		===============
+		TryRemoveEvent
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <typeparam name="TArgs"></typeparam>
+		/// <param name="nameSpace"></param>
+		/// <param name="name"></param>
+		/// <returns></returns>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public bool TryRemoveEvent<TArgs>( string nameSpace, string name )
+			where TArgs : struct
+		{
+			var key = new EventKey(
+				name: new InternString( name ),
+				nameSpace: new InternString( nameSpace ),
+				argsType: typeof( TArgs )
+			);
+			if ( _eventCache.TryRemove( key, out IGameEvent? eventObj ) ) {
+				(eventObj as IDisposable)?.Dispose();
+				return true;
+			}
+			return false;
+		}
 
-        /*
-        ===============
-        CleanupAllEvents
-        ===============
-        */
-        /// <summary>
-        ///
-        /// </summary>
-        public void CleanupAllEvents() {
-            foreach ( var @event in _eventCache ) {
-                @event.Value.CleanupSubscriptions();
-            }
-        }
+		/*
+		===============
+		CleanupAllEvents
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		public void CleanupAllEvents() {
+			foreach ( var @event in _eventCache ) {
+				@event.Value.CleanupSubscriptions();
+			}
+		}
 
-        /*
-        ===============
-        CleanupNamespace
-        ===============
-        */
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="nameSpace"></param>
-        public void CleanupNamespace( string nameSpace ) {
-            foreach ( var @event in _eventCache ) {
-                if ( @event.Value.NameSpace == nameSpace ) {
-                    @event.Value.CleanupSubscriptions();
-                }
-            }
-        }
+		/*
+		===============
+		CleanupNamespace
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="nameSpace"></param>
+		public void CleanupNamespace( string nameSpace ) {
+			foreach ( var @event in _eventCache ) {
+				if ( @event.Value.NameSpace == nameSpace ) {
+					@event.Value.CleanupSubscriptions();
+				}
+			}
+		}
 
-        /*
-        ===============
-        ClearAllEvents
-        ===============
-        */
-        /// <summary>
-        ///
-        /// </summary>
-        public void ClearAllEvents() {
-            foreach ( var @event in _eventCache ) {
-                @event.Value.Dispose();
-            }
-            _eventCache.Clear();
-        }
+		/*
+		===============
+		ClearAllEvents
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		public void ClearAllEvents() {
+			foreach ( var @event in _eventCache ) {
+				@event.Value.Dispose();
+			}
+			_eventCache.Clear();
+		}
 
-        /*
-        ===============
-        GetAllEvents
-        ===============
-        */
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        public IReadOnlyCollection<IGameEvent> GetAllEvents() {
-            return (IReadOnlyCollection<IGameEvent>)_eventCache.Values;
-        }
-    };
+		/*
+		===============
+		GetAllEvents
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <returns></returns>
+		public IReadOnlyCollection<IGameEvent> GetAllEvents()
+			=> (IReadOnlyCollection<IGameEvent>)_eventCache.Values;
+	};
 };

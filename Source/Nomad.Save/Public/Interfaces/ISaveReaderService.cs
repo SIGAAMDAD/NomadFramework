@@ -32,7 +32,7 @@ namespace Nomad.Save.Interfaces
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="filepath"></param>
-        internal void Load(string filepath);
+        /// <param name="name"></param>
+        internal void Load(string name);
     }
 }

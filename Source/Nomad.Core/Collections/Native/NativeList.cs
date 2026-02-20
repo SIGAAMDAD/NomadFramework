@@ -26,9 +26,15 @@ namespace Nomad.Core.Collections.Native
     public unsafe struct NativeList<T> : IDisposable
         where T : unmanaged
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public int Count => _length;
         private int _length;
 
+        /// <summary>
+        /// 
+        /// </summary>
         public int Capacity => _capacity;
         private int _capacity;
 

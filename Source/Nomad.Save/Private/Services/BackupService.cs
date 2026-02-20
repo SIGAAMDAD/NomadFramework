@@ -15,11 +15,13 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using Nomad.Core.Exceptions;
 using Nomad.Core.FileSystem;
 using Nomad.CVars.Events;
 using Nomad.CVars.Interfaces;
+using Nomad.Save.Private.Entities;
 using Nomad.Save.Private.ValueObjects;
 
 namespace Nomad.Save.Private.Services {
@@ -41,9 +43,8 @@ namespace Nomad.Save.Private.Services {
 
 	internal sealed class BackupService : IDisposable {
 		private readonly List<BackupData> _backups = new List<BackupData>();
-		private int _maxBackups = 0;
+		private readonly SaveConfig _config;
 
-		private readonly ICVarSystemService _cvarSystem;
 		private readonly IFileSystem _fileSystem;
 
 		/*
@@ -54,15 +55,11 @@ namespace Nomad.Save.Private.Services {
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="cvarSystem"></param>
+		/// <param name="config"></param>
 		/// <param name="fileSystem"></param>
 		/// <exception cref="CVarMissing"></exception>
-		public BackupService( ICVarSystemService cvarSystem, IFileSystem fileSystem ) {
-			ICVar<int> maxBackups = cvarSystem.GetCVar<int>( "Nomad.Save.MaxBackups" ) ?? throw new CVarMissing( "Nomad.Save.MaxBackups" );
-			_maxBackups = maxBackups.Value;
-			maxBackups.ValueChanged.Subscribe( this, OnMaxBackupsValueChanged );
-
-			_cvarSystem = cvarSystem;
+		public BackupService( in SaveConfig config, IFileSystem fileSystem ) {
+			_config = config;
 			_fileSystem = fileSystem;
 		}
 
@@ -87,28 +84,13 @@ namespace Nomad.Save.Private.Services {
 		/// </summary>
 		/// <param name="fileName"></param>
 		/// <returns></returns>
-		public async ValueTask CreateBackup( string fileName ) {
-			ICVar<string> dataPath = _cvarSystem.GetCVar<string>( "Nomad.Save.DataPath" ) ?? throw new CVarMissing( "Nomad.Save.DataPath" );
-			string path = $"{dataPath}{System.IO.Path.PathSeparator}{fileName}.ngd.backup";
+		public void CreateBackup( string fileName ) {
+			string path = Path.Combine( _config.BackupPath, $"{fileName}.ngd.backup" );
 
-			using var stream = _fileSystem.OpenWrite( path, new WriteConfig( StreamType.File ) );
-			if ( stream == null ) {
-				// TODO: throw BackupFailedException
-				return;
+			try {
+				_fileSystem.CopyFile( fileName, path, true );
+			} catch {
 			}
-		}
-
-		/*
-		===============
-		OnMaxBackupsValueChanged
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="args"></param>
-		private void OnMaxBackupsValueChanged( in CVarValueChangedEventArgs<int> args ) {
-			_maxBackups = args.NewValue;
 		}
 	};
 };

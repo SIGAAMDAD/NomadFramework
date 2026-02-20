@@ -13,6 +13,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using Nomad.Core.Util;
+
 namespace Nomad.Core.FileSystem
 {
     /// <summary>
@@ -20,5 +22,9 @@ namespace Nomad.Core.FileSystem
     /// </summary>
     public interface IMemoryStream : IDataStream
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        IBufferHandle Buffer { get; }
     }
 }

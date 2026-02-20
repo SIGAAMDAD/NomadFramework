@@ -25,14 +25,25 @@ namespace Nomad.Core.Collections.Native
     public unsafe struct NativeStack<T>
         where T : unmanaged
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public readonly int Capacity => _capacity;
         private readonly int _capacity;
 
+        /// <summary>
+        /// 
+        /// </summary>
         public readonly int Count => _length;
         private int _length;
 
         private readonly T* _data;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         public readonly T this[int index]
         {
             get => _data[index];

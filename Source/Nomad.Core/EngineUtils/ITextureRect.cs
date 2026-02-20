@@ -15,6 +15,9 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Core.EngineUtils
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public interface ITextureRect : IUIComponent
     {
     }

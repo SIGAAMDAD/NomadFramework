@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using Nomad.Core.FileSystem;
+using Nomad.Core.Util;
 using Nomad.Save.Exceptions;
 using Nomad.Save.Private.Serialization.FieldSerializers;
 
@@ -32,11 +33,9 @@ namespace Nomad.Save.Private.ValueObjects {
 	internal readonly struct SaveField {
 		public static readonly SaveField Empty = new SaveField();
 
-		private const int MAX_FIELD_NAME_LENGTH = 256;
-
 		public readonly string Name;
-		public readonly FieldType Type;
-		public readonly FieldValue Value;
+		public readonly AnyType Type;
+		public readonly Any Value;
 
 		/*
 		===============
@@ -49,7 +48,7 @@ namespace Nomad.Save.Private.ValueObjects {
 		/// <param name="name"></param>
 		/// <param name="type"></param>
 		/// <param name="value"></param>
-		public SaveField( string name, FieldType type, FieldValue value ) {
+		public SaveField( string name, AnyType type, Any value ) {
 			Name = name;
 			Type = type;
 			Value = value;
@@ -69,7 +68,7 @@ namespace Nomad.Save.Private.ValueObjects {
 		public static void Write( string section, SaveField field, IWriteStream stream ) {
 			stream.WriteString( field.Name );
 			stream.WriteUInt8( (byte)field.Type );
-			FieldSerializerRegistry.GetSerializer( FieldValue.GetFieldType( field.Type ) ).Serialize( stream, field.Value );
+			FieldSerializerRegistry.GetSerializer( Any.GetAnyType( field.Type ) ).Serialize( stream, field.Value );
 		}
 
 		/*
@@ -85,18 +84,18 @@ namespace Nomad.Save.Private.ValueObjects {
 		/// <param name="stream">The file stream to read from.</param>
 		/// <returns>A new SaveField object.</returns>
 		/// <exception cref="FieldCorruptException">Thrown if the field's data is invalid.</exception>
-		public static SaveField Read( string section, int index, in IReadStream stream ) {
+		public static SaveField Read( string section, int index, in IMemoryReadStream stream ) {
 			string name = stream.ReadString();
-			if ( name.Length < 0 || name.Length > MAX_FIELD_NAME_LENGTH ) {
+			if ( name.Length < 0 || name.Length > Constants.MAX_FIELD_NAME_LENGTH ) {
 				throw new FieldCorruptException( section, index, stream.Position, $"Field name length corrupted (0 or string overflow, {name.Length} bytes)" );
 			}
 
-			FieldType type = (FieldType)stream.ReadUInt8();
-			if ( type < FieldType.Int8 || type >= FieldType.Count ) {
+			AnyType type = (AnyType)stream.ReadUInt8();
+			if ( type < AnyType.Boolean || type >= AnyType.Count ) {
 				throw new FieldCorruptException( section, index, stream.Position, $"Field type '{type}' isn't valid" );
 			}
 
-			FieldValue value = FieldSerializerRegistry.GetSerializer( FieldValue.GetFieldType( type ) ).Deserialize( stream );
+			Any value = FieldSerializerRegistry.GetSerializer( Any.GetAnyType( type ) ).Deserialize( stream );
 
 			return new SaveField( name, type, value );
 		}

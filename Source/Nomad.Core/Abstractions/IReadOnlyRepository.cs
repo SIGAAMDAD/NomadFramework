@@ -18,14 +18,43 @@ using System.Collections.Generic;
 
 namespace Nomad.Core.Abstractions
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="TEntity"></typeparam>
+    /// <typeparam name="TId"></typeparam>
     public interface IReadOnlyRepository<TEntity, TId>
         where TEntity : IEntity<TId>
         where TId : IEquatable<TId>
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         TEntity? Find(TId id);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         IReadOnlyList<TEntity> GetAll();
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="id"></param>
+        /// <param name="projector"></param>
+        /// <returns></returns>
         TResult? Project<TResult>(TId id, Func<TEntity, TResult> projector);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="projector"></param>
+        /// <returns></returns>
         IReadOnlyList<TResult> ProjectAll<TResult>(Func<TEntity, TResult> projector);
     }
 }

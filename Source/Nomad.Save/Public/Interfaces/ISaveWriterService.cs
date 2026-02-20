@@ -39,14 +39,15 @@ namespace Nomad.Save.Interfaces
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="filepath"></param>
+        /// <param name="name"></param>
         /// <param name="gameVersion"></param>
-        internal void BeginSave(string filepath, GameVersion gameVersion);
+        internal void BeginSave(string name, GameVersion gameVersion);
 
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="name"></param>
         /// <param name="gameVersion"></param>
-        internal void EndSave(GameVersion gameVersion);
+        internal void EndSave(string name, GameVersion gameVersion);
     }
 }

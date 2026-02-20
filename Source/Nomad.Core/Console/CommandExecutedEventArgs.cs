@@ -23,12 +23,14 @@ namespace Nomad.Core.Console
         /// <summary>
         /// 
         /// </summary>
-        public readonly ConsoleCommand Command;
+        public ConsoleCommand Command => _command;
+        private readonly ConsoleCommand _command;
 
         /// <summary>
         /// 
         /// </summary>
-        public readonly int ArgumentCount;
+        public int ArgumentCount => _argumentCount;
+        private readonly int _argumentCount;
 
         /// <summary>
         /// 
@@ -37,8 +39,8 @@ namespace Nomad.Core.Console
         /// <param name="argumentCount"></param>
         public CommandExecutedEventArgs(ConsoleCommand command, int argumentCount)
         {
-            Command = command;
-            ArgumentCount = argumentCount;
+            _command = command;
+            _argumentCount = argumentCount;
         }
     }
 }

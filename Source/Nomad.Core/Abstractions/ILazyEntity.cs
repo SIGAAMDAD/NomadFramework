@@ -27,15 +27,40 @@ using System.Threading.Tasks;
 
 namespace Nomad.Core.Abstractions
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="TEntity"></typeparam>
+    /// <typeparam name="TId"></typeparam>
     public interface ILazyEntity<TEntity, TId>
         where TEntity : IEntity<TId>
         where TId : struct, IEquatable<TId>
     {
+        /// <summary>
+        /// 
+        /// </summary>
         TId Id { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         bool IsLoaded { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         TEntity Target { get; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         void Load();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ct"></param>
+        /// <returns></returns>
         Task LoadAsync(CancellationToken ct);
     }
 }

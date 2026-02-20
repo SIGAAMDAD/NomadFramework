@@ -20,6 +20,9 @@ namespace Nomad.Core.EngineUtils
     /// </summary>
     public interface ILabel : IUIComponent
     {
+        /// <summary>
+        /// 
+        /// </summary>
         string Text { get; set; }
     }
 }

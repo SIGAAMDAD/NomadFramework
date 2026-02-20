@@ -18,12 +18,36 @@ using System.Collections.Generic;
 
 namespace Nomad.Core.Abstractions
 {
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="TEntity"></typeparam>
+    /// <typeparam name="TId"></typeparam>
     public interface IReadRepository<TEntity, TId>
         where TEntity : IDisposable
         where TId : IEquatable<TId>
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
         bool TryGetById(TId id, out TEntity? entity);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         TEntity? GetById(TId id);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <returns></returns>
         IEnumerable<TEntity> GetByIds(ReadOnlySpan<TId> ids);
     }
 }

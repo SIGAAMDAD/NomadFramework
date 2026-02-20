@@ -28,8 +28,12 @@ using Nomad.Save.Events;
 using Nomad.Save.Interfaces;
 using Nomad.Save.Private.Services;
 using Nomad.Save.Services;
-using Nomad.Save.ValueObjects;
 using Nomad.Save.Exceptions;
+using Nomad.CVars.Interfaces;
+using Nomad.CVars.Private.Services;
+using Nomad.Core.EngineUtils;
+using Moq;
+using Nomad.Save.Private.Entities;
 
 namespace Nomad.Save.Tests;
 
@@ -41,8 +45,10 @@ public class SaveErrorHandlingTests
 {
     private ISaveDataProvider _dataProvider;
     private ILoggerService _logger;
+    private ICVarSystemService _cvarSystem;
     private IFileSystem _fileSystem;
     private IGameEventRegistryService _eventFactory;
+    private Mock<IEngineService> _engineService;
     private string _testDirectory;
 
     [SetUp]
@@ -50,21 +56,27 @@ public class SaveErrorHandlingTests
     {
         _testDirectory = Path.Combine(Path.GetTempPath(), "NomadSaveErrorTests", Guid.NewGuid().ToString());
         Directory.CreateDirectory(_testDirectory);
+        Directory.CreateDirectory($"{_testDirectory}/SaveData");
 
         _logger = new MockLogger();
-        var engineService = new MockEngineService();
-        _fileSystem = new FileSystemService(engineService, _logger);
+        _engineService = new Mock<IEngineService>();
+        _engineService.Setup(e => e.GetStoragePath(StorageScope.StreamingAssets)).Returns(_testDirectory);
+        _engineService.Setup(e => e.GetStoragePath(StorageScope.UserData)).Returns(_testDirectory);
+        _engineService.Setup(e => e.GetStoragePath(StorageScope.Install)).Returns(_testDirectory);
+        _fileSystem = new FileSystemService(_engineService.Object, _logger);
         _eventFactory = new GameEventRegistry(_logger);
-        _dataProvider = new SaveDataProvider(_eventFactory, _fileSystem, _logger);
+        _cvarSystem = new CVarSystem(_eventFactory, _fileSystem, _logger);
+        _dataProvider = new SaveDataProvider(_engineService.Object, _eventFactory, _cvarSystem, _fileSystem, _logger);
     }
 
     [TearDown]
     public void TearDown()
     {
         _dataProvider?.Dispose();
-		_logger?.Dispose();
-		_fileSystem?.Dispose();
-		_eventFactory?.Dispose();
+        _cvarSystem?.Dispose();
+        _logger?.Dispose();
+        _fileSystem?.Dispose();
+        _eventFactory?.Dispose();
 
         try
         {
@@ -83,21 +95,21 @@ public class SaveErrorHandlingTests
     public void Constructor_WithNullEventFactory_ThrowsException()
     {
         // Assert
-        Assert.That(() => new SaveDataProvider(null!, _fileSystem, _logger), Throws.ArgumentNullException);
+        Assert.That(() => new SaveDataProvider(_engineService.Object, null!, _cvarSystem, _fileSystem, _logger), Throws.ArgumentNullException);
     }
 
     [Test]
     public void Constructor_WithNullFileSystem_ThrowsException()
     {
         // Assert
-        Assert.That(() => new SaveDataProvider(_eventFactory, null!, _logger), Throws.ArgumentNullException);
+        Assert.That(() => new SaveDataProvider(_engineService.Object, _eventFactory, _cvarSystem, null!, _logger), Throws.ArgumentNullException);
     }
 
     [Test]
     public void Constructor_WithNullLogger_ThrowsException()
     {
         // Assert
-        Assert.That(() => new SaveDataProvider(_eventFactory, _fileSystem, null!), Throws.ArgumentNullException);
+        Assert.That(() => new SaveDataProvider(_engineService.Object, _eventFactory, _cvarSystem, _fileSystem, null!), Throws.ArgumentNullException);
     }
 
     [Test]
@@ -139,7 +151,7 @@ public class SaveErrorHandlingTests
         // Act
         try
         {
-            await _dataProvider.Load(Path.Combine(_testDirectory, "nonexistent_file.ngd"));
+            await _dataProvider.Load("nonexistent_file");
         }
         catch
         {
@@ -154,7 +166,7 @@ public class SaveErrorHandlingTests
     public async Task SaveField_WithEmptySection_Succeeds()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "empty_section_test.ngd");
+        var fileId = "empty_section_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var sectionCreated = false;
 
@@ -177,7 +189,7 @@ public class SaveErrorHandlingTests
     public async Task SaveField_WithEmptyString_Succeeds()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "empty_string_test.ngd");
+        var fileId = "empty_string_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -194,7 +206,7 @@ public class SaveErrorHandlingTests
             var section = args.Reader.FindSection("Test");
             if (section != null)
             {
-                loadedString = section.GetField<string>("EmptyString");
+                loadedString = section.GetString("EmptyString");
             }
         });
 
@@ -210,7 +222,7 @@ public class SaveErrorHandlingTests
     public async Task SaveField_WithVeryLongString_Succeeds()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "long_string_test.ngd");
+        var fileId = "long_string_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -229,7 +241,7 @@ public class SaveErrorHandlingTests
             var section = args.Reader.FindSection("Test");
             if (section != null)
             {
-                loadedString = section.GetField<string>("LongString");
+                loadedString = section.GetString("LongString");
             }
         });
 
@@ -255,7 +267,7 @@ public class SaveErrorHandlingTests
     public async Task GetField_WithWrongType_ThrowsInvalidCastException()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "wrong_type_test.ngd");
+        var fileId = "wrong_type_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -300,7 +312,7 @@ public class SaveErrorHandlingTests
     public async Task SaveSection_WithSameName_Throws()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "duplicate_section_test.ngd");
+        var fileId = "duplicate_section_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var exceptionThrown = false;
 
@@ -331,7 +343,7 @@ public class SaveErrorHandlingTests
     public async Task SaveField_WithVeryLargeInt_Succeeds()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "large_int_test.ngd");
+        var fileId = "large_int_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -365,7 +377,7 @@ public class SaveErrorHandlingTests
     public async Task SaveField_WithNegativeNumbers_Succeeds()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "negative_test.ngd");
+        var fileId = "negative_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -395,19 +407,19 @@ public class SaveErrorHandlingTests
         await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
-		using (Assert.EnterMultipleScope())
-		{
-			// Assert
-			Assert.That(loadedInt, Is.EqualTo(negativeInt));
-			Assert.That(loadedDouble, Is.EqualTo(negativeDouble).Within(0.00001));
-		}
-	}
+        using (Assert.EnterMultipleScope())
+        {
+            // Assert
+            Assert.That(loadedInt, Is.EqualTo(negativeInt));
+            Assert.That(loadedDouble, Is.EqualTo(negativeDouble).Within(0.00001));
+        }
+    }
 
     [Test]
     public async Task Multiple_SaveAndLoad_Cycles_Succeed()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "multiple_cycles_test.ngd");
+        var fileId = "multiple_cycles_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
         int cycleCount = 0;
@@ -443,7 +455,7 @@ public class SaveErrorHandlingTests
     public async Task SaveSection_WithEmptyName_HandlesGracefully()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "empty_section_name_test.ngd");
+        var fileId = "empty_section_name_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
 
         saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
@@ -473,7 +485,7 @@ public class SaveErrorHandlingTests
     public async Task SaveField_WithExtremumIntValues_Succeeds(int value)
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, $"extremum_int_test_{value.GetHashCode()}.ngd");
+        var fileId = $"extremum_int_test_{value.GetHashCode()}";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -506,7 +518,7 @@ public class SaveErrorHandlingTests
     public async Task EventSubscriber_CanBeUnsubscribed()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "unsubscribe_test.ngd");
+        var fileId = "unsubscribe_test.ngd";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var eventFired = false;
 
@@ -529,19 +541,19 @@ public class SaveErrorHandlingTests
         await _dataProvider.Save(fileId, default);
         var secondRun = eventFired;
 
-		using (Assert.EnterMultipleScope())
-		{
-			// Assert
-			Assert.That(firstRun, Is.True);
-			Assert.That(secondRun, Is.False);
-		}
-	}
+        using (Assert.EnterMultipleScope())
+        {
+            // Assert
+            Assert.That(firstRun, Is.True);
+            Assert.That(secondRun, Is.False);
+        }
+    }
 
     [Test]
     public async Task SaveDataProvider_IsDisposable()
     {
         // Arrange
-        var newProvider = new SaveDataProvider(_eventFactory, _fileSystem, _logger);
+        var newProvider = new SaveDataProvider(_engineService.Object, _eventFactory, _cvarSystem, _fileSystem, _logger);
 
         // Act
         newProvider.Dispose();
@@ -554,7 +566,7 @@ public class SaveErrorHandlingTests
     public async Task Field_DuplicateFieldCreation_ThrowsDuplicateFieldException()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "duplicate_field_exception.ngd");
+        var fileId = "duplicate_field_exception.ngd";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         DuplicateFieldException? exception = null;
 
@@ -562,14 +574,14 @@ public class SaveErrorHandlingTests
         {
             var section = args.Writer.AddSection("Test");
             section.AddField("Value", 1);
-            exception = Assert.Throws<DuplicateFieldException>( () => section.AddField("Value", 1) );
+            exception = Assert.Throws<DuplicateFieldException>(() => section.AddField("Value", 1));
         }
 
         saveBegin.Subscribe(this, OnSaveBegin);
 
         // Act
         await _dataProvider.Save(fileId, default);
-        
+
         // Assert
         Assert.That(exception, Is.Not.Null);
     }
@@ -578,7 +590,7 @@ public class SaveErrorHandlingTests
     public async Task Section_DuplicateSectionCreation_ThrowsDuplicateSectionException()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "duplicate_section_test.ngd");
+        var fileId = "duplicate_section_test.ngd";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         DuplicateSectionException? exception = null;
 
@@ -586,14 +598,14 @@ public class SaveErrorHandlingTests
         {
             ISaveWriterService writer = args.Writer;
             var section = args.Writer.AddSection("Test");
-            exception = Assert.Throws<DuplicateSectionException>( () => writer.AddSection("Test") );
+            exception = Assert.Throws<DuplicateSectionException>(() => writer.AddSection("Test"));
         }
 
         saveBegin.Subscribe(this, OnSaveBegin);
 
         // Act
         await _dataProvider.Save(fileId, default);
-        
+
         // Assert
         Assert.That(exception, Is.Not.Null);
     }

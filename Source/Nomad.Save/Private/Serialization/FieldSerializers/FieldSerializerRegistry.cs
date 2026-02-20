@@ -16,7 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Nomad.Save.Private.ValueObjects;
+using Nomad.Core.Util;
 
 namespace Nomad.Save.Private.Serialization.FieldSerializers {
 	/*
@@ -32,7 +32,7 @@ namespace Nomad.Save.Private.Serialization.FieldSerializers {
 
 	internal static class FieldSerializerRegistry {
 		private static readonly Dictionary<Type, IFieldSerializer> _serializers = new Dictionary<Type, IFieldSerializer>();
-		private static readonly Dictionary<FieldType, IFieldSerializer> _serializerByFieldType = new Dictionary<FieldType, IFieldSerializer>();
+		private static readonly Dictionary<AnyType, IFieldSerializer> _serializerByFieldType = new Dictionary<AnyType, IFieldSerializer>();
 
 		/*
 		===============
@@ -85,12 +85,8 @@ namespace Nomad.Save.Private.Serialization.FieldSerializers {
 		/// <returns></returns>
 		/// <exception cref="InvalidOperationException"></exception>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public static IFieldSerializer<T> GetSerializer<T>() {
-			if ( _serializers.TryGetValue( typeof( T ), out var serializer ) ) {
-				return (IFieldSerializer<T>)serializer;
-			}
-			throw new InvalidOperationException( $"No serializer for {typeof( T )}" );
-		}
+		public static IFieldSerializer<T> GetSerializer<T>()
+			=> _serializers.TryGetValue( typeof( T ), out var serializer ) ? (IFieldSerializer<T>)serializer : throw new InvalidOperationException( $"No serializer for {typeof( T )}" );
 
 		/*
 		===============

@@ -13,18 +13,21 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.Core.Utilities.Tweens
+namespace Nomad.Core.Util.BufferHandles
 {
     /// <summary>
-    ///
+    /// 
     /// </summary>
-    public interface IEasingFunction
+    public sealed class SharedBufferHandle : BufferBase
     {
         /// <summary>
-        ///
+        /// 
         /// </summary>
-        /// <param name="t"></param>
-        /// <returns></returns>
-        float Calculate(float t);
+        /// <param name="buffer"></param>
+        /// <param name="length"></param>
+        public SharedBufferHandle(byte[] buffer, int length)
+            : base(buffer, length)
+        {
+        }
     }
 }

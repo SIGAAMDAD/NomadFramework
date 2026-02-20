@@ -16,6 +16,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using Nomad.Core.FileSystem;
+using Nomad.Core.Util;
 
 namespace Nomad.FileSystem.Private.MemoryStream {
 	/*
@@ -29,7 +31,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 	///
 	/// </summary>
 
-	internal abstract class MemoryStreamBase : BaseStream {
+	internal abstract class MemoryStreamBase : BaseStream, IMemoryStream {
 		public override int Length => _length;
 		protected int _length = 0;
 
@@ -38,6 +40,9 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 			set => Seek( value, SeekOrigin.Begin );
 		}
 		protected int _position = 0;
+
+		public IBufferHandle Buffer => _buffer;
+		protected IBufferHandle _buffer;
 
 		public override bool CanSeek => true;
 

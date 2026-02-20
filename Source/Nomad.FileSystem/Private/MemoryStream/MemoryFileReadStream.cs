@@ -13,10 +13,11 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System.Buffers;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using Nomad.Core.FileSystem;
+using Nomad.Core.Util.BufferHandles;
 
 namespace Nomad.FileSystem.Private.MemoryStream {
 	/*
@@ -34,13 +35,24 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <summary>
 		/// 
 		/// </summary>
-		public string? FilePath => _filepath;
-		private readonly string? _filepath;
+		public string FilePath => _filepath;
+		private readonly string _filepath;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		public bool IsOpen => _buffer != null;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public DateTime LastAccessTime => _creationTime;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public DateTime CreationTime => _creationTime;
+		private readonly DateTime _creationTime;
 
 		/*
 		===============
@@ -52,6 +64,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <param name="filepath">The path to the file to read from.</param>
 		public MemoryFileReadStream( string filepath ) {
+			_filepath = filepath;
 			Open( filepath, FileMode.Open, FileAccess.Read );
 		}
 
@@ -91,10 +104,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// 
 		/// </summary>
 		public void Close() {
-			if ( _buffer == null ) {
-				return;
-			}
-			ArrayPool<byte>.Shared.Return( _buffer );
+			_buffer?.Dispose();
 			_buffer = null;
 		}
 
@@ -114,20 +124,12 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 			_position = 0;
 
 			try {
-				using var stream = new System.IO.FileStream( filepath, openMode, accessMode );
-				if ( stream == null ) {
-					return false;
-				}
-
-				_buffer = ArrayPool<byte>.Shared.Rent( (int)stream.Length );
-				int bytesRead = stream.Read( _buffer, 0, (int)stream.Length );
-				_length = (int)stream.Length;
-
-				stream.Dispose();
-
+				byte[] fileBuffer = File.ReadAllBytes( filepath );
+				_length = fileBuffer.Length;
+				_buffer = new SharedBufferHandle( fileBuffer, fileBuffer.Length );
 				return true;
 			} catch ( IOException ) {
-				return false;
+				throw;
 			}
 		}
 	};

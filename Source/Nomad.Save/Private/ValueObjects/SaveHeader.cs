@@ -28,7 +28,12 @@ namespace Nomad.Save.Private.ValueObjects {
 	/// 
 	/// </summary>
 	
-	public readonly struct SaveHeader {
+	internal record SaveHeader {
+		/// <summary>
+		/// 
+		/// </summary>
+		public readonly string Name;
+
 		/// <summary>
 		/// 
 		/// </summary>
@@ -44,8 +49,6 @@ namespace Nomad.Save.Private.ValueObjects {
 		/// </summary>
 		public readonly Checksum Checksum;
 
-		private const ulong HEADER_MAGIC = 0x5f3759df67217274;
-
 		/*
 		===============
 		SaveHeader
@@ -54,10 +57,12 @@ namespace Nomad.Save.Private.ValueObjects {
 		/// <summary>
 		/// 
 		/// </summary>
+		/// <param name="name"></param>
 		/// <param name="version"></param>
 		/// <param name="sectionCount"></param>
 		/// <param name="checksum"></param>
-		public SaveHeader( GameVersion version, int sectionCount, Checksum checksum ) {
+		public SaveHeader( string name, GameVersion version, int sectionCount, Checksum checksum ) {
+			Name = name;
 			Version = version;
 			SectionCount = sectionCount;
 			Checksum = checksum;
@@ -73,8 +78,9 @@ namespace Nomad.Save.Private.ValueObjects {
 		/// </summary>
 		/// <param name="writer"></param>
 		internal void Serialize( IWriteStream writer ) {
-			writer.WriteUInt64( HEADER_MAGIC );
+			writer.WriteUInt64( Constants.HEADER_MAGIC );
 			Version.Serialize( writer );
+			writer.WriteString( Name );
 			writer.WriteInt32( SectionCount );
 			writer.WriteUInt64( Checksum.Value );
 		}
@@ -92,13 +98,15 @@ namespace Nomad.Save.Private.ValueObjects {
 		/// <returns></returns>
 		internal static SaveHeader Deserialize(IReadStream reader, out bool magicMatches ) {
 			ulong headerMagic = reader.ReadUInt64();
-			magicMatches = headerMagic == HEADER_MAGIC;
+			magicMatches = headerMagic == Constants.HEADER_MAGIC;
 
 			GameVersion version = GameVersion.Deserialize( reader );
+			string name = reader.ReadString();
 			int sectionCount = reader.ReadInt32();
 			ulong checksum = reader.ReadUInt64();
 			
 			return new SaveHeader(
+				name: name,
 				version: version,
 				sectionCount: sectionCount,
 				checksum: new Checksum( value: checksum )

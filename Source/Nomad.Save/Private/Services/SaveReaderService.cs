@@ -13,11 +13,13 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System;
 using System.Collections.Concurrent;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.Save.Interfaces;
 using Nomad.Save.Private.Entities;
+using Nomad.Save.Private.Repositories;
 using Nomad.Save.Private.ValueObjects;
 
 namespace Nomad.Save.Private.Services {
@@ -34,7 +36,11 @@ namespace Nomad.Save.Private.Services {
 
 	internal sealed class SaveReaderService : ISaveReaderService {
 		public int SectionCount => _sections.Count;
+
 		private readonly ConcurrentDictionary<string, SaveSectionReader> _sections;
+
+		private readonly SlotRepository _slotRepository;
+		private readonly SaveConfig _config;
 
 		private readonly IFileSystem _fileSystem;
 
@@ -49,14 +55,19 @@ namespace Nomad.Save.Private.Services {
 		/// <summary>
 		/// 
 		/// </summary>
+		/// <param name="config"></param>
+		/// <param name="slotRepository"></param>
 		/// <param name="fileSystem"></param>
 		/// <param name="logger"></param>
-		public SaveReaderService( IFileSystem fileSystem, ILoggerService logger ) {
+		public SaveReaderService( in SaveConfig config, SlotRepository slotRepository, IFileSystem fileSystem, ILoggerService logger ) {
+			_slotRepository = slotRepository;
 			_fileSystem = fileSystem;
-			_logger = logger;
 			_sections = new ConcurrentDictionary<string, SaveSectionReader>();
 
-			_category = _logger.CreateCategory( "Nomad.Save.ReaderService", LogLevel.Info, true );
+			_config = config;
+
+			_logger = logger;
+			_category = _logger.CreateCategory( Constants.Logger.READER_SERVICE_CATEGORY_NAME, LogLevel.Info, true );
 		}
 
 		/*
@@ -79,22 +90,30 @@ namespace Nomad.Save.Private.Services {
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="filepath"></param>
-		void ISaveReaderService.Load( string filepath ) {
-			_logger.PrintLine( in _category, $"Loading save data..." );
+		/// <param name="name"></param>
+		void ISaveReaderService.Load( string name ) {
+			var filepath = _slotRepository.AddSaveFile( name, false );
 
-			using var reader = _fileSystem.OpenRead( filepath, new ReadConfig( StreamType.MemoryFile ) );
+			_logger.PrintLine( in _category, $"Loading save data from {filepath}..." );
+
+			using var reader = _fileSystem.OpenRead( filepath, new ReadConfig( StreamType.MemoryFile ) ) as IMemoryReadStream;
 			if ( reader == null ) {
 				_logger.PrintError( in _category, $"SaveReaderService.Load: couldn't open save file '{filepath}'!" );
 				return;
 			}
 			var header = SaveHeader.Deserialize( reader, out bool magicMatches );
 
-			_logger.PrintLine( in _category, $"...Section Count: {header.SectionCount}" );
-			_logger.PrintLine( in _category, $"...Version: {header.Version}" );
+			if ( _config.DebugLogging ) {
+				_logger.PrintLine( in _category, "Got save file metadata:" );
+				_logger.PrintLine( in _category, $"\tMagic: {Constants.HEADER_MAGIC}" );
+				_logger.PrintLine( in _category, $"\tSectionCount: {header.SectionCount}" );
+				_logger.PrintLine( in _category, $"\tSaveName: {header.Name}" );
+				_logger.PrintLine( in _category, $"\tChecksum64: {header.Checksum.Value}" );
+				_logger.PrintLine( in _category, $"\tGameVersion: {header.Version.ToInt()}" );
+			}
 
 			for ( int i = 0; i < header.SectionCount; i++ ) {
-				var section = new SaveSectionReader( in reader, _logger );
+				var section = new SaveSectionReader( in _config, i, in reader, _logger );
 				_sections[ section.Name ] = section;
 			}
 

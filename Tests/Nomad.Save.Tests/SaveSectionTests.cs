@@ -30,6 +30,11 @@ using Nomad.Save.Interfaces;
 using Nomad.Save.Private.Services;
 using Nomad.Save.Services;
 using Nomad.Save.ValueObjects;
+using Nomad.CVars.Interfaces;
+using Nomad.CVars.Private.Services;
+using Moq;
+using Nomad.Core.EngineUtils;
+using Nomad.Save.Exceptions;
 
 namespace Nomad.Save.Tests;
 
@@ -41,6 +46,7 @@ public class SaveSectionTests
 {
     private ISaveDataProvider _dataProvider;
     private ILoggerService _logger;
+    private ICVarSystemService _cvarSystem;
     private IFileSystem _fileSystem;
     private IGameEventRegistryService _eventFactory;
     private string _testDirectory;
@@ -48,20 +54,26 @@ public class SaveSectionTests
     [SetUp]
     public void Setup()
     {
-        _testDirectory = Path.Combine(Path.GetTempPath(), "NomadSaveSectionTests", Guid.NewGuid().ToString());
+        _testDirectory = Path.Combine(Path.GetTempPath(), "NomadErrorHandlingTests", Guid.NewGuid().ToString());
         Directory.CreateDirectory(_testDirectory);
+        Directory.CreateDirectory($"{_testDirectory}/SaveData");
 
         _logger = new MockLogger();
-        var engineService = new MockEngineService();
-        _fileSystem = new FileSystemService(engineService, _logger);
+        var engineService = new Mock<IEngineService>();
+        engineService.Setup(e => e.GetStoragePath(StorageScope.StreamingAssets)).Returns(_testDirectory);
+        engineService.Setup(e => e.GetStoragePath(StorageScope.UserData)).Returns(_testDirectory);
+        engineService.Setup(e => e.GetStoragePath(StorageScope.Install)).Returns(_testDirectory);
+        _fileSystem = new FileSystemService(engineService.Object, _logger);
         _eventFactory = new GameEventRegistry(_logger);
-        _dataProvider = new SaveDataProvider(_eventFactory, _fileSystem, _logger);
+        _cvarSystem = new CVarSystem(_eventFactory, _fileSystem, _logger);
+        _dataProvider = new SaveDataProvider(engineService.Object, _eventFactory, _cvarSystem, _fileSystem, _logger);
     }
 
     [TearDown]
     public void TearDown()
     {
         _dataProvider?.Dispose();
+        _cvarSystem?.Dispose();
 		_logger?.Dispose();
 		_fileSystem?.Dispose();
 		_eventFactory?.Dispose();
@@ -83,7 +95,7 @@ public class SaveSectionTests
     public async Task AddSection_WithValidName_CreatesSection()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "section_test.ngd");
+        var fileId = "section_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var sectionAdded = false;
         string sectionName = "";
@@ -111,7 +123,7 @@ public class SaveSectionTests
     public async Task AddField_WithVariousTypes_PreservesValues()
     {
         // Arrange
-        var fileId = (Path.Combine(_testDirectory, "field_types_test.ngd"));
+        var fileId =  "field_types_test.ngd";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -145,7 +157,7 @@ public class SaveSectionTests
                 loadedFloat = section.GetField<float>("FloatField");
                 loadedDouble = section.GetField<double>("DoubleField");
                 loadedInt = section.GetField<int>("IntField");
-                loadedString = section.GetField<string>("StringField");
+                loadedString = section.GetString("StringField");
                 loadedBool = section.GetField<bool>("BoolField");
             }
         });
@@ -169,7 +181,7 @@ public class SaveSectionTests
     public async Task FieldCount_ReturnsCorrectCount()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "field_count_test.ngd");
+        var fileId = "field_count_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var fieldCount = 0;
 
@@ -197,7 +209,7 @@ public class SaveSectionTests
     public async Task SectionName_PropertyIsAccessible()
     {
         // Arrange
-        var fileId = (Path.Combine(_testDirectory, "section_name_test.ngd"));
+        var fileId =  "section_name_test.ngd";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var expectedSectionName = "MyCustomSection";
         var actualSectionName = "";
@@ -219,7 +231,7 @@ public class SaveSectionTests
     public async Task GetField_WithNonExistentField_ReturnsDefault()
     {
         // Arrange
-        var fileId = (Path.Combine(_testDirectory, "nonexistent_field_test.ngd"));
+        var fileId =  "nonexistent_field_test.ngd";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -252,7 +264,7 @@ public class SaveSectionTests
     public async Task HasField_WithExistingField_ReturnsTrue()
     {
         // Arrange
-        var fileId = (Path.Combine(_testDirectory, "has_field_test.ngd"));
+        var fileId =  "has_field_test.ngd";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var hasField = false;
 
@@ -274,7 +286,7 @@ public class SaveSectionTests
     public async Task FindSection_WithValidSectionName_ReturnsSection()
     {
         // Arrange
-        var fileId = (Path.Combine(_testDirectory, "find_section_test.ngd"));
+        var fileId =  "find_section_test.ngd";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -304,7 +316,7 @@ public class SaveSectionTests
     public async Task FindSection_WithInvalidSectionName_ReturnsNull()
     {
         // Arrange
-        var fileId = (Path.Combine(_testDirectory, "find_section_invalid_test.ngd"));
+        var fileId =  "find_section_invalid_test.ngd";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -334,7 +346,7 @@ public class SaveSectionTests
     public async Task AddField_WithIntegerTypes_PreservesValues()
     {
         // Arrange
-        var fileId = (Path.Combine(_testDirectory, "integer_types_test.ngd"));
+        var fileId =  "integer_types_test.ngd";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -407,7 +419,7 @@ public class SaveSectionTests
     public async Task AddField_WithFloatingPointTypes_PreservesValues()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "float_types_test.ngd");
+        var fileId = "float_types_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -450,7 +462,7 @@ public class SaveSectionTests
     public async Task SectionReader_FieldCount_ReturnsCorrectCount()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "reader_field_count_test.ngd");
+        var fileId = "reader_field_count_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -487,7 +499,7 @@ public class SaveSectionTests
     public async Task Multiple_Sections_IndependentStorage()
     {
         // Arrange
-        var fileId = (Path.Combine(_testDirectory, "multiple_sections_test.ngd"));
+        var fileId =  "multiple_sections_test.ngd";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -542,7 +554,7 @@ public class SaveSectionTests
     public async Task AddSection_WithVariousNames_Succeeds(string sectionName)
     {
         // Arrange
-        var fileId = (Path.Combine(_testDirectory, "various_names_test.ngd"));
+        var fileId = "various_names_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var createdSectionName = "";
 

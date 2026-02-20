@@ -23,12 +23,14 @@ namespace Nomad.Core.Input
         /// <summary>
         /// 
         /// </summary>
-        public readonly MouseButton Button;
+        public MouseButton Button => _button;
+        private readonly MouseButton _button;
 
         /// <summary>
         /// 
         /// </summary>
-        public readonly bool Released;
+        public bool Released => _released;
+        private readonly bool _released;
 
         /// <summary>
         /// 
@@ -37,8 +39,8 @@ namespace Nomad.Core.Input
         /// <param name="released"></param>
         public MouseButtonEvent(MouseButton button, bool released)
         {
-            Button = button;
-            Released = released;
+            _button = button;
+            _released = released;
         }
     }
 }

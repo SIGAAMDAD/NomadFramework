@@ -28,7 +28,7 @@ namespace Nomad.FileSystem
     /// </summary>
     public sealed class FileSystemBootstrapper : IBootstrapper
     {
-        private IFileSystem _fileSystem;
+        private IFileSystem? _fileSystem;
 
         /// <summary>
         /// 
@@ -51,7 +51,7 @@ namespace Nomad.FileSystem
         /// </summary>
         public void Shutdown()
         {
-            _fileSystem.Dispose();
+            _fileSystem?.Dispose();
         }
     }
 }

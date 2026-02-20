@@ -20,7 +20,7 @@ namespace Nomad.Core.Util
     /// </summary>
     /// <param name="Message"></param>
     /// <param name="Type"></param>
-    public record Error(
+    public record InternalError(
         string Message,
         ErrorType Type = ErrorType.Validation
     ) : IError
@@ -31,9 +31,9 @@ namespace Nomad.Core.Util
         /// <param name="message"></param>
         /// <param name="type"></param>
         /// <returns></returns>
-        public static Error Create(string message, ErrorType type = ErrorType.Validation)
+        public static InternalError Create(string message, ErrorType type = ErrorType.Validation)
         {
-            return new Error(message, type);
+            return new InternalError(message, type);
         }
     }
 }

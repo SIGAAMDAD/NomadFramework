@@ -14,8 +14,9 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using System.Runtime.CompilerServices;
 using Nomad.Core.FileSystem;
-using Nomad.Save.Private.ValueObjects;
+using Nomad.Core.Util;
 
 namespace Nomad.Save.Private.Serialization.FieldSerializers {
 	/*
@@ -30,10 +31,33 @@ namespace Nomad.Save.Private.Serialization.FieldSerializers {
 	/// </summary>
 
 	internal sealed class StringSerializer : IFieldSerializer<string> {
-		public FieldType FieldType => FieldType.String;
+		public AnyType FieldType => AnyType.String;
 		public Type DataType => typeof( string );
 
-		public void Serialize( IWriteStream stream, FieldValue value ) => stream.WriteString( value.GetValue<string>() );
-		public FieldValue Deserialize( IReadStream stream ) => new FieldValue( stream.ReadString() );
+		/*
+		===============
+		Serialize
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="stream"></param>
+		/// <param name="value"></param>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public void Serialize( IWriteStream stream, in Any value ) => stream.WriteString( value.GetReferenceValue<string>()! );
+
+		/*
+		===============
+		Deserialize
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="stream"></param>
+		/// <returns></returns>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public Any Deserialize( IReadStream stream ) => new Any( stream.ReadString() );
 	};
 };

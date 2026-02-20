@@ -13,6 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System;
 using System.Collections.Concurrent;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.FileSystem;
@@ -20,6 +21,7 @@ using Nomad.Core.Logger;
 using Nomad.Save.Exceptions;
 using Nomad.Save.Interfaces;
 using Nomad.Save.Private.Entities;
+using Nomad.Save.Private.Repositories;
 using Nomad.Save.Private.ValueObjects;
 using Nomad.Save.ValueObjects;
 
@@ -40,12 +42,17 @@ namespace Nomad.Save.Private.Services {
 
 		private readonly ConcurrentDictionary<string, SaveSectionWriter> _sections = new ConcurrentDictionary<string, SaveSectionWriter>();
 
-		private IWriteStream? _writer;
+		private IMemoryFileWriteStream? _writer;
 
+		private readonly SaveConfig _config;
+
+		private readonly SlotRepository _slotRepository;
 		private readonly IFileSystem _fileSystem;
 
 		private readonly ILoggerService _logger;
 		private readonly ILoggerCategory _category;
+
+		private readonly AtomicWriterService _atomicWriter;
 
 		/*
 		===============
@@ -55,15 +62,20 @@ namespace Nomad.Save.Private.Services {
 		/// <summary>
 		/// 
 		/// </summary>
+		/// <param name="config"></param>
+		/// <param name="slotRepository"></param>
 		/// <param name="fileSystem"></param>
 		/// <param name="logger"></param>
-		/// <param name="category"></param>
-		public SaveWriterService( IFileSystem fileSystem, ILoggerService logger, ILoggerCategory category ) {
+		public SaveWriterService( in SaveConfig config, SlotRepository slotRepository, IFileSystem fileSystem, ILoggerService logger ) {
+			_slotRepository = slotRepository;
 			_fileSystem = fileSystem;
-			_logger = logger;
-			_category = category;
 
-			_category = _logger.CreateCategory( "Nomad.Save.WriterService", LogLevel.Info, true );
+			_config = config;
+
+			_logger = logger;
+			_category = _logger.CreateCategory( Constants.Logger.WRITER_SERVICE_CATEGORY_NAME, LogLevel.Info, true );
+
+			_atomicWriter = new AtomicWriterService( fileSystem );
 		}
 
 		/*
@@ -75,7 +87,6 @@ namespace Nomad.Save.Private.Services {
 		///
 		/// </summary>
 		public void Dispose() {
-			_writer?.Dispose();
 		}
 
 		/*
@@ -86,19 +97,21 @@ namespace Nomad.Save.Private.Services {
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="filepath"></param>
+		/// <param name="name"></param>
 		/// <param name="gameVersion"></param>
-		void ISaveWriterService.BeginSave( string filepath, GameVersion gameVersion ) {
-			_writer = _fileSystem.OpenWrite( filepath, new WriteConfig( StreamType.MemoryFile, 8192 ) );
+		void ISaveWriterService.BeginSave( string name, GameVersion gameVersion ) {
+			var filepath = _slotRepository.AddSaveFile( name, false );
+
+			_writer = _fileSystem.OpenWrite( AtomicWriterService.GetAtomicPathName(), new WriteConfig( StreamType.MemoryFile ) ) as IMemoryFileWriteStream;
 			if ( _writer == null ) {
-				_logger.PrintError( $"Couldn't create save file {filepath}!" );
+				_logger.PrintError( in _category, $"Couldn't create save file {filepath}!" );
 				return;
 			}
 
-			_logger.PrintLine( $"Writing save data to {filepath}..." );
+			_logger.PrintLine( in _category, $"Writing save data to {filepath}..." );
 
 			{
-				var header = new SaveHeader( gameVersion, _sections.Count, Checksum.Empty );
+				var header = new SaveHeader( name, gameVersion, _sections.Count, Checksum.Empty );
 				header.Serialize( _writer );
 			}
 		}
@@ -111,22 +124,36 @@ namespace Nomad.Save.Private.Services {
 		/// <summary>
 		/// 
 		/// </summary>
+		/// <param name="name"></param>
 		/// <param name="gameVersion"></param>
-		void ISaveWriterService.EndSave(GameVersion gameVersion) {
+		void ISaveWriterService.EndSave( string name, GameVersion gameVersion ) {
+			ArgumentGuard.ThrowIfNull( _writer );
+
 			int sectionCount = _sections.Count;
 			foreach ( var section in _sections ) {
 				section.Value.Dispose();
 			}
-			
+
+			var checksum = Checksum.Compute( _writer.Buffer.Buffer );
+
 			_writer.Seek( 0, System.IO.SeekOrigin.Begin );
-			var header = new SaveHeader( gameVersion, sectionCount, Checksum.Empty );
+			var header = new SaveHeader( name, gameVersion, sectionCount, checksum );
 			header.Serialize( _writer );
 
 			_writer.Seek( 0, System.IO.SeekOrigin.End );
 
+			if ( _config.DebugLogging ) {
+				_logger.PrintLine( in _category, $"Finalized save data file:" );
+				_logger.PrintLine( in _category, $"\tMagic: {Constants.HEADER_MAGIC}" );
+				_logger.PrintLine( in _category, $"\tSectionCount: {header.SectionCount}" );
+				_logger.PrintLine( in _category, $"\tSaveName: {header.Name}" );
+				_logger.PrintLine( in _category, $"\tChecksum64: {header.Checksum.Value}" );
+				_logger.PrintLine( in _category, $"\tGameVersion: {header.Version.ToInt()}" );
+			}
+
 			// clear the memory buffer
-			_writer?.Dispose();
-			_writer = null;
+			var filepath = _slotRepository.AddSaveFile( name, false );
+			_atomicWriter.FinalizeSaveData( filepath, _writer );
 
 			_sections.Clear();
 		}
@@ -148,9 +175,13 @@ namespace Nomad.Save.Private.Services {
 			if ( _sections.ContainsKey( sectionId ) ) {
 				throw new DuplicateSectionException( $"Section {sectionId} added twice!" );
 			}
-			var writer = new SaveSectionWriter( sectionId, _writer );
-			_logger.PrintLine( $"AddSection: creating save section {sectionId}..." );
+			var writer = new SaveSectionWriter( in _config, _logger, _category, sectionId, _writer );
 			_sections[ sectionId ] = writer;
+			
+			if ( _config.LogSerializationTree ) {
+				_logger.PrintLine( in _category, $"\t[Section] (NAME) {sectionId}" );
+			}
+
 			return writer;
 		}
 	};

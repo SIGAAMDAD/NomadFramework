@@ -19,6 +19,7 @@ using Nomad.Core.Compatibility;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
+using Nomad.Core.Util;
 using Nomad.Save.Interfaces;
 using Nomad.Save.Private.ValueObjects;
 
@@ -51,15 +52,14 @@ namespace Nomad.Save.Private.Entities {
 		/// <summary>
 		/// 
 		/// </summary>
+		/// <param name="config"></param>
+		/// <param name="index"></param>
 		/// <param name="reader"></param>
 		/// <param name="logger"></param>
-		public SaveSectionReader( in IReadStream reader, ILoggerService logger ) {
+		public SaveSectionReader( in SaveConfig config, int index, in IMemoryReadStream reader, ILoggerService logger ) {
 			_fields = new Dictionary<string, SaveField>();
-			
-			logger.PrintLine( "...Loading save section" );
 
-			var header = SectionHeader.Load( in reader );
-			logger.PrintLine( $"...Got name {header.Name}, field count {header.FieldCount}" );
+			var header = SectionHeader.Load( index, in reader );
 
 			int fieldCount = header.FieldCount;
 			Name = header.Name;
@@ -68,8 +68,6 @@ namespace Nomad.Save.Private.Entities {
 			for ( int i = 0; i < fieldCount; i++ ) {
 				var field = SaveField.Read( Name, i, in reader );
 				_fields[ field.Name ] = field;
-
-				logger.PrintLine( $"- Got field {field.Name}, value {field.Value}" );
 			}
 
 			_logger = logger;
@@ -98,15 +96,42 @@ namespace Nomad.Save.Private.Entities {
 		/// <typeparam name="T"></typeparam>
 		/// <param name="fieldName"></param>
 		/// <returns></returns>
-		public T GetField<T>( string fieldName ) {
+		/// <exception cref="InvalidCastException"></exception>
+		public T GetField<T>( string fieldName )
+			where T : unmanaged
+		{
 			ArgumentGuard.ThrowIfNullOrEmpty( fieldName );
 			
 			T value = default;
 			if ( _fields.TryGetValue( fieldName, out var field ) ) {
-				if ( FieldValue.GetFieldType<T>() != field.Type ) {
+				if ( Any.GetType<T>() != field.Type ) {
 					throw new InvalidCastException( "Field type found in file does not match the requested type" );
 				}
-				value = field.Value.GetValue<T>();
+				value = field.Value.GetPrimitiveValue<T>();
+			}
+			return value;
+		}
+
+		/*
+		===============
+		GetString
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="fieldName"></param>
+		/// <returns></returns>
+		/// <exception cref="InvalidCastException"></exception>
+		public string GetString( string fieldName ) {
+			ArgumentGuard.ThrowIfNullOrEmpty( fieldName );
+			
+			string value = String.Empty;
+			if ( _fields.TryGetValue( fieldName, out var field ) ) {
+				if ( field.Type != AnyType.String ) {
+					throw new InvalidCastException( "Field type found in file does not match the requested type" );
+				}
+				value = field.Value.GetReferenceValue<string>()!;
 			}
 			return value;
 		}

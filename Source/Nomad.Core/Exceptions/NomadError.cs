@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Nomad.Core.Util.Attributes;
@@ -29,7 +30,7 @@ namespace Nomad.Core.Exceptions
         /// 
         /// </summary>
 		public override string Message => GetMessage();
-        
+
         /// <summary>
         /// The system where the exception was thrown.
         /// </summary>
@@ -49,7 +50,7 @@ namespace Nomad.Core.Exceptions
         public NomadError(string message)
             : base(message)
         {
-            _module = GetAssemblyName();
+            _module = ResolveNomadModuleName() ?? "(UNKNOWN)";
             _timeStamp = DateTime.Now;
         }
 
@@ -60,23 +61,47 @@ namespace Nomad.Core.Exceptions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private string GetMessage()
         {
-            return $"FROM {_module} AT {_timeStamp}\n{base.Message}";
+            return $"FROM {_module} AT {_timeStamp}\n\t[ERROR STRING]: {base.Message}";
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        private static string GetAssemblyName()
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static string? ResolveNomadModuleName()
         {
-            var assembly = Assembly.GetExecutingAssembly();
+            Assembly thisAssembly = typeof(NomadError).Assembly;
 
-            NomadModule module = assembly.GetCustomAttribute<NomadModule>();
-            if (module == null)
+            // skip 1 to move past this method's own fame
+            var st = new StackTrace(skipFrames: 1, fNeedFileInfo: true);
+            StackFrame[] frames = st.GetFrames();
+            if (frames == null || frames.Length == 0)
             {
-                return "(UNKNOWN)";
+                return null;
             }
-            return module.Name;
+
+            for (int i = 0; i < frames.Length; i++)
+            {
+                var method = frames[i].GetMethod();
+                if (method == null)
+                {
+                    continue;
+                }
+
+                var asm = method.Module.Assembly;
+                if (asm == thisAssembly)
+                {
+                    continue;
+                }
+
+                var attribute = asm.GetCustomAttribute<NomadModule>();
+                if (attribute != null)
+                {
+                    return attribute.Name;
+                }
+            }
+            return null;
         }
     }
 }

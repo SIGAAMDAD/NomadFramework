@@ -28,7 +28,7 @@ namespace Nomad.Core.FileSystem
         /// <summary>
         /// The string path.
         /// </summary>
-        private string _path { get; init; }
+        private string _path;
 
         /// <summary>
         /// The unique hash id of this FilePath.
@@ -103,7 +103,7 @@ namespace Nomad.Core.FileSystem
                 // no extension to strip
                 return;
             }
-            _path.Remove(index);
+            _path = _path.Remove(index);
         }
 
         /// <summary>
@@ -113,7 +113,7 @@ namespace Nomad.Core.FileSystem
         public void SetExtension(string extension)
         {
             StripExtension();
-            _path.Insert(_path.Length - 1, extension);
+            _path = _path.Insert(_path.Length - 1, extension);
         }
 
         /// <summary>
@@ -128,6 +128,10 @@ namespace Nomad.Core.FileSystem
         /// </summary>
         /// <param name="path"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator string(FilePath path) => path._path;
+        public static implicit operator string(FilePath path)
+        {
+            ArgumentGuard.ThrowIfNull(path);
+            return path._path;
+        }
     }
 }

@@ -23,12 +23,14 @@ namespace Nomad.Core.Input
         /// <summary>
         /// 
         /// </summary>
-        public readonly int RelativeX;
+        public int RelativeX => _relativeX;
+        private readonly int _relativeX;
 
         /// <summary>
         /// 
         /// </summary>
-        public readonly int RelativeY;
+        public int RelativeY => _relativeY;
+        private readonly int _relativeY;
 
         /// <summary>
         /// 
@@ -37,8 +39,8 @@ namespace Nomad.Core.Input
         /// <param name="relativeY"></param>
         public MouseMotionEvent(int relativeX, int relativeY)
         {
-            RelativeX = relativeX;
-            RelativeY = relativeY;
+            _relativeX = relativeX;
+            _relativeY = relativeY;
         }
     }
 }

@@ -19,10 +19,21 @@ using System.Threading.Tasks;
 
 namespace Nomad.Core.Abstractions
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="TEntity"></typeparam>
+    /// <typeparam name="TId"></typeparam>
     public interface IAsyncReadRepository<TEntity, TId>
         where TEntity : IEntity<TId>
         where TId : IEquatable<TId>
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
         ValueTask<TEntity?> GetByIdAsync(TId id, CancellationToken ct = default);
     }
 }

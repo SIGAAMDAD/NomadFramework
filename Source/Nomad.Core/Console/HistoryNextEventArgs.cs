@@ -23,12 +23,14 @@ namespace Nomad.Core.Console
         /// <summary>
         /// 
         /// </summary>
-        public readonly bool EndReached;
+        public bool EndReached => _endReached;
+        private readonly bool _endReached;
 
         /// <summary>
         /// 
         /// </summary>
-        public readonly string Text;
+        public string Text => _text;
+        private readonly string _text;
 
         /// <summary>
         /// 
@@ -37,8 +39,8 @@ namespace Nomad.Core.Console
         /// <param name="text"></param>
         public HistoryNextEventArgs(bool endReached, string text)
         {
-            EndReached = endReached;
-            Text = text;
+            _endReached = endReached;
+            _text = text;
         }
     }
 }

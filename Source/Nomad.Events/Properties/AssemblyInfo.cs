@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System.Runtime.CompilerServices;
+using Nomad.Core.Util.Attributes;
 
-[assembly: Nomad.Core.Util.Attributes.NomadModule("Nomad.Events")]
+[assembly: NomadModule("Nomad.Events")]
 [assembly: InternalsVisibleTo("Nomad.Tests")]

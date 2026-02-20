@@ -15,7 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using Nomad.Core.FileSystem;
-using Nomad.Save.Private.ValueObjects;
+using Nomad.Core.Util;
 
 namespace Nomad.Save.Private.Serialization.FieldSerializers {
 	/*
@@ -30,7 +30,7 @@ namespace Nomad.Save.Private.Serialization.FieldSerializers {
 	/// </summary>
 
 	internal sealed class BooleanSerializer : IFieldSerializer<bool> {
-		public FieldType FieldType => FieldType.Boolean;
+		public AnyType FieldType => AnyType.Boolean;
 		public Type DataType => typeof( bool );
 
 		/*
@@ -43,7 +43,7 @@ namespace Nomad.Save.Private.Serialization.FieldSerializers {
 		/// </summary>
 		/// <param name="stream"></param>
 		/// <param name="value"></param>
-		public void Serialize( IWriteStream stream, FieldValue value ) => stream.WriteBoolean( value.GetValue<bool>() );
+		public void Serialize( IWriteStream stream, in Any value ) => stream.WriteBoolean( value.GetPrimitiveValue<bool>() );
 
 		/*
 		===============
@@ -55,6 +55,6 @@ namespace Nomad.Save.Private.Serialization.FieldSerializers {
 		/// </summary>
 		/// <param name="stream"></param>
 		/// <returns></returns>
-		public FieldValue Deserialize( IReadStream stream ) => new FieldValue( stream.ReadBoolean() );
+		public Any Deserialize( IReadStream stream ) => new Any( stream.ReadBoolean() );
 	};
 };

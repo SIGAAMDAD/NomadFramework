@@ -13,7 +13,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System.IO;
 using System.Runtime.CompilerServices;
 using Nomad.Core.FileSystem;
 using Nomad.Save.Exceptions;
@@ -31,22 +30,25 @@ namespace Nomad.Save.Private.ValueObjects {
 	/// </summary>
 
 	internal readonly ref struct SectionHeader {
-		private const int SECTION_NAME_MAX_LENGTH = 128;
-
 		/// <summary>
 		/// The section's name.
 		/// </summary>
 		public readonly string Name;
 
 		/// <summary>
-		/// The amount of written primitives in the section.
+		/// The amount of written values in the section.
 		/// </summary>
 		public readonly int FieldCount;
 
 		/// <summary>
+		/// The total length of the section, used for corruption checking.
+		/// </summary>
+		public readonly int ByteLength;
+
+		/// <summary>
 		/// The section's CRC64.
 		/// </summary>
-		public readonly ulong Checksum;
+		public readonly Checksum Checksum;
 
 		/*
 		===============
@@ -57,10 +59,12 @@ namespace Nomad.Save.Private.ValueObjects {
 		/// 
 		/// </summary>
 		/// <param name="name"></param>
+		/// <param name="byteLength"></param>
 		/// <param name="fieldCount"></param>
 		/// <param name="checksum"></param>
-		public SectionHeader( string name, int fieldCount, ulong checksum ) {
+		public SectionHeader( string name, int byteLength, int fieldCount, Checksum checksum ) {
 			Name = name;
+			ByteLength = byteLength;
 			FieldCount = fieldCount;
 			Checksum = checksum;
 		}
@@ -77,8 +81,9 @@ namespace Nomad.Save.Private.ValueObjects {
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void Save( in IWriteStream stream ) {
 			stream.WriteString( Name );
+			stream.WriteInt32( ByteLength );
 			stream.WriteInt32( FieldCount );
-			stream.WriteUInt64( Checksum );
+			stream.WriteUInt64( Checksum.Value );
 		}
 
 		/*
@@ -89,23 +94,33 @@ namespace Nomad.Save.Private.ValueObjects {
 		/// <summary>
 		///
 		/// </summary>
+		/// <param name="index"></param>
 		/// <param name="stream"></param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public static SectionHeader Load( in IReadStream stream ) {
+		public static SectionHeader Load( int index, in IMemoryReadStream stream ) {
 			string name = stream.ReadString();
-			if ( name.Length <= 0 || name.Length > SECTION_NAME_MAX_LENGTH ) {
-				throw new IOException( $"Section name corrupt or too long ({name.Length})" );
+			if ( name.Length <= 0 || name.Length > Constants.SECTION_NAME_MAX_LENGTH ) {
+				throw new SectionCorruptException( null, index, stream.Position, $"Section name corrupt or too long ({name.Length})" );
+			}
+
+			int byteLength = stream.ReadInt32();
+			if ( byteLength < 0 ) {
+				throw new SectionCorruptException( name, index, stream.Position, $"Byte length is invalid ({byteLength})" );
 			}
 
 			int fieldCount = stream.ReadInt32();
 			if ( fieldCount < 0 ) {
-				throw new FailedSectionLoadException( name, new System.Exception( "field count is corrupt" ) );
+				throw new SectionCorruptException( name, index, stream.Position, $"Field count is invalid ({fieldCount})" );
 			}
 			
-			ulong checksum = stream.ReadUInt64();
+			Checksum loadedChecksum = new Checksum( stream.ReadUInt64() );
+			Checksum actualChecksum = Checksum.Compute( stream.Buffer.GetSlice( stream.Position, byteLength ) );
+			if ( loadedChecksum != actualChecksum ) {
+				throw new SectionCorruptException( name, index, stream.Position, $"Section checksum64 does not match the value found in the save file data ({loadedChecksum.Value} != {actualChecksum.Value})" );
+			}
 
-			return new SectionHeader( name, fieldCount, checksum );
+			return new SectionHeader( name, byteLength, fieldCount, actualChecksum );
 		}
 	};
 };

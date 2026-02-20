@@ -296,7 +296,7 @@ namespace Nomad.Events.Private {
 			_subscriptions.CleanupSubscriptions();
 		}
 
-#if !NETSTANDARD2_1 || NET8_0_OR_GREATER
+#if NET10_0_OR_GREATER
 		/*
 		===============
 		operator +=

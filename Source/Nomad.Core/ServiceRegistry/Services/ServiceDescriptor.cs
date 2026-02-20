@@ -16,6 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System.Runtime.CompilerServices;
 using System;
 using Nomad.Core.ServiceRegistry.Interfaces;
+using Nomad.Core.Compatibility.Guards;
 
 namespace Nomad.Core.ServiceRegistry.Services
 {
@@ -48,7 +49,8 @@ namespace Nomad.Core.ServiceRegistry.Services
         /// <summary>
         /// 
         /// </summary>
-        public readonly object? Instance;
+        public object? Instance => _instance;
+        private readonly object? _instance;
 
         /// <summary>
         /// 
@@ -64,7 +66,7 @@ namespace Nomad.Core.ServiceRegistry.Services
             ImplementationType = implementationType;
             Lifetime = lifetime;
             Factory = factory;
-            Instance = instance;
+            _instance = instance;
         }
 
         /// <summary>
@@ -91,6 +93,7 @@ namespace Nomad.Core.ServiceRegistry.Services
         public static ServiceDescriptor CreateSingleton<TService>(TService instance)
             where TService : class
         {
+            ArgumentGuard.ThrowIfNull(instance);
             return new ServiceDescriptor(typeof(TService), instance.GetType(), ServiceLifetime.Singleton, null, instance);
         }
 

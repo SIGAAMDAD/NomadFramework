@@ -93,6 +93,11 @@ namespace Nomad.Core.Util
         }.ToImmutableDictionary();
 
         private Union _value;
+
+        /// <summary>
+        /// The internal system type.
+        /// </summary>
+        public readonly AnyType Type => _type;
         private AnyType _type;
 
         /// <summary>

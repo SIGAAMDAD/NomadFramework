@@ -33,10 +33,10 @@ namespace Nomad.Core.Collections
     {
         private class Node
         {
-            public T Value;
-            public Node Next = null;
+            public T? Value;
+            public Node? Next = null;
 
-            public Node(T value = default)
+            public Node(T? value = default)
             {
                 Value = value;
             }
@@ -113,7 +113,7 @@ namespace Nomad.Core.Collections
             RangeGuard.ThrowIfGreaterThanOrEqual(index, array.Length, nameof(index));
 
             int i = index;
-            Node current = _head.Next;
+            Node? current = _head.Next;
             while (current != null && i < array.Length)
             {
                 array[i++] = current.Value;
@@ -139,10 +139,10 @@ namespace Nomad.Core.Collections
         public T[] ToArray()
         {
             var list = new List<T>();
-            Node current = _head.Next;
+            Node? current = _head.Next;
             while (current != null)
             {
-                list.Add(current.Value);
+                list.Add(current.Value!);
                 current = current.Next;
             }
             return list.ToArray();
@@ -154,10 +154,10 @@ namespace Nomad.Core.Collections
         /// <returns></returns>
         public IEnumerator<T> GetEnumerator()
         {
-            Node current = _head.Next;
+            Node? current = _head.Next;
             while (current != null)
             {
-                yield return current.Value;
+                yield return current.Value!;
                 current = current.Next;
             }
         }
@@ -178,7 +178,7 @@ namespace Nomad.Core.Collections
             if (_allowMultipleProducers)
             {
                 // Multi-producer: use interlocked operations
-                Node oldTail, oldNext;
+                Node? oldTail, oldNext;
 
                 while (true)
                 {
@@ -230,7 +230,7 @@ namespace Nomad.Core.Collections
                 {
                     Node head = _head;
                     Node tail = _tail;
-                    Node next = head.Next;
+                    Node? next = head.Next;
 
                     if (head == _head)
                     { // Check consistency
@@ -267,7 +267,7 @@ namespace Nomad.Core.Collections
             {
                 // Single-consumer: simpler algorithm
                 Node head = _head;
-                Node next = head.Next;
+                Node? next = head.Next;
 
                 if (next == null)
                 {
@@ -286,9 +286,9 @@ namespace Nomad.Core.Collections
         /// <summary>
         /// Try to peek at the front item without removing it.
         /// </summary>
-        public bool TryPeek(out T item)
+        public bool TryPeek(out T? item)
         {
-            Node next = _head.Next;
+            Node? next = _head.Next;
             if (next == null)
             {
                 item = default;

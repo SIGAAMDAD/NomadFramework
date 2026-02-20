@@ -26,6 +26,14 @@ using Nomad.Save.Interfaces;
 using Nomad.Save.Exceptions;
 using Nomad.Save.Services;
 using Nomad.Save.ValueObjects;
+using Nomad.CVars.Interfaces;
+using Nomad.Save.Private.Entities;
+using Nomad.Core.Exceptions;
+using Nomad.CVars.Events;
+using Nomad.Save.Private.ValueObjects;
+using Nomad.Save.Private.Registries;
+using Nomad.Core.EngineUtils;
+using Nomad.Save.Private.Repositories;
 
 namespace Nomad.Save.Private.Services {
 	/*
@@ -50,6 +58,11 @@ namespace Nomad.Save.Private.Services {
 		private readonly ILoggerService _logger;
 		private readonly ILoggerCategory _category;
 
+		private readonly SlotRepository _slotRepository;
+		private readonly AtomicWriterService _atomicWriter;
+
+		private SaveConfig _config;
+
 		private readonly IGameEvent<SaveBeginEventArgs> _saveBegin;
 		private readonly IGameEvent<LoadBeginEventArgs> _loadBegin;
 
@@ -61,13 +74,17 @@ namespace Nomad.Save.Private.Services {
 		/// <summary>
 		/// Creates a new SaveDataProvider object.
 		/// </summary>
+		/// <param name="engineService"></param>
 		/// <param name="eventFactory"></param>
+		/// <param name="cvarSystem"></param>
 		/// <param name="fileSystem"></param>
 		/// <param name="logger"></param>
-		public SaveDataProvider( IGameEventRegistryService eventFactory, IFileSystem fileSystem, ILoggerService logger ) {
+		public SaveDataProvider( IEngineService engineService, IGameEventRegistryService eventFactory, ICVarSystemService cvarSystem, IFileSystem fileSystem, ILoggerService logger ) {
+			ArgumentGuard.ThrowIfNull( engineService );
 			ArgumentGuard.ThrowIfNull( eventFactory );
 			ArgumentGuard.ThrowIfNull( fileSystem );
 			ArgumentGuard.ThrowIfNull( logger );
+			ArgumentGuard.ThrowIfNull( cvarSystem );
 
 			_saveBegin = eventFactory.GetEvent<SaveBeginEventArgs>( EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT );
 			_loadBegin = eventFactory.GetEvent<LoadBeginEventArgs>( EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT );
@@ -78,8 +95,13 @@ namespace Nomad.Save.Private.Services {
 
 			_saveFiles = new List<SaveFileMetadata>();
 
-			_readerService = new SaveReaderService( _vfs, _logger );
-			_writerService = new SaveWriterService( _vfs, _logger, _category );
+			InitConfiguration( engineService, cvarSystem );
+
+			_slotRepository = new SlotRepository( fileSystem, logger, _config );
+			_readerService = new SaveReaderService( in _config, _slotRepository, _vfs, _logger );
+			_writerService = new SaveWriterService( in _config, _slotRepository, _vfs, _logger );
+
+			_atomicWriter = new AtomicWriterService( fileSystem );
 		}
 
 		/*
@@ -107,10 +129,8 @@ namespace Nomad.Save.Private.Services {
 		///
 		/// </summary>
 		/// <returns></returns>
-		public IReadOnlyList<SaveFileMetadata> ListSaveFiles( string saveDirectory ) {
-			LoadMetadata( saveDirectory );
-			return _saveFiles;
-		}
+		public IReadOnlyList<SaveFileMetadata> ListSaveFiles()
+			=> _slotRepository.GetMetadataList();
 
 		/*
 		===============
@@ -120,15 +140,15 @@ namespace Nomad.Save.Private.Services {
 		/// <summary>
 		///
 		/// </summary>
-		/// <param name="filepath"></param>
+		/// <param name="name"></param>
 		/// <returns></returns>
-		public async Task Load( string filepath ) {
+		public async Task Load( string name ) {
 			try {
-				_readerService.Load( filepath );
+				_readerService.Load( name );
 
 				_loadBegin.Publish( new LoadBeginEventArgs( _readerService ) );
 			} catch ( FieldCorruptException fieldCorrupt ) {
-				_logger.PrintError( $"Field corruption - [FieldIndex] {fieldCorrupt.FieldIndex}, [FileOffset] {fieldCorrupt.FileOffset}, [Section] {fieldCorrupt.SectionName}" );
+				_logger.PrintError( $"Field corruption: [FieldIndex] {fieldCorrupt.FieldIndex}, [FileOffset] {fieldCorrupt.FileOffset}, [Section] {fieldCorrupt.SectionName} - {fieldCorrupt.Message}" );
 			} catch ( Exception e ) {
 				_logger.PrintError( $"Exception caught - {e}" );
 			}
@@ -142,14 +162,14 @@ namespace Nomad.Save.Private.Services {
 		/// <summary>
 		///
 		/// </summary>
-		/// <param name="filepath"></param>
+		/// <param name="name"></param>
 		/// <param name="gameVersion"></param>
 		/// <returns></returns>
-		public async Task Save( string filepath, GameVersion gameVersion ) {
+		public async Task Save( string name, GameVersion gameVersion ) {
 			try {
-				_writerService.BeginSave( filepath, gameVersion );
+				_writerService.BeginSave( name, gameVersion );
 				_saveBegin.Publish( new SaveBeginEventArgs( _writerService ) );
-				_writerService.EndSave( gameVersion );
+				_writerService.EndSave( name, gameVersion );
 			} catch ( Exception e ) {
 				_logger.PrintError( $"Exception caught - {e}" );
 			}
@@ -157,36 +177,76 @@ namespace Nomad.Save.Private.Services {
 
 		/*
 		===============
-		LoadMetadata
+		InitConfiguration
 		===============
 		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
-		private void LoadMetadata( string saveDirectory ) {
-			var files = System.IO.Directory.GetFiles( saveDirectory );
+		/// <param name="engineService"></param>
+		/// <param name="cvarSystem"></param>
+		/// <exception cref="CVarMissing"></exception>
+		private void InitConfiguration( IEngineService engineService, ICVarSystemService cvarSystem ) {
+			SaveCVarRegistry.RegisterCVars( engineService, cvarSystem );
 
-#if !NETSTANDARD2_1
-			_saveFiles.EnsureCapacity( files.Length );
-#endif
+			var dataPath = cvarSystem.GetCVar<string>( Constants.CVars.DATA_PATH ) ?? throw new CVarMissing( Constants.CVars.DATA_PATH );
 
-			for ( int i = 0; i < files.Length; i++ ) {
-				var fileName = files[ i ];
-				System.IO.FileInfo info = new System.IO.FileInfo( fileName );
+			var backupPath = cvarSystem.GetCVar<string>( Constants.CVars.BACKUP_DIRECTORY ) ?? throw new CVarMissing( Constants.CVars.BACKUP_DIRECTORY );
+			var maxBackups = cvarSystem.GetCVar<int>( Constants.CVars.MAX_BACKUPS ) ?? throw new CVarMissing( Constants.CVars.MAX_BACKUPS );
 
-				_saveFiles.Add(
-					new SaveFileMetadata(
-						fileName,
-						info.Length,
-						info.LastAccessTime.Year,
-						info.LastAccessTime.Month,
-						info.LastAccessTime.Day,
-						info.CreationTime.Year,
-						info.CreationTime.Month,
-						info.CreationTime.Day
-					)
-				);
-			}
+			var autoSaveEnabled = cvarSystem.GetCVar<bool>( Constants.CVars.AUTO_SAVE_ENABLED ) ?? throw new CVarMissing( Constants.CVars.AUTO_SAVE_ENABLED );
+			autoSaveEnabled.ValueChanged.Subscribe( this, OnAutoSaveEnabledChanged );
+
+			var autoSaveInterval = cvarSystem.GetCVar<int>( Constants.CVars.AUTO_SAVE_INTERVAL ) ?? throw new CVarMissing( Constants.CVars.AUTO_SAVE_INTERVAL );
+			autoSaveInterval.ValueChanged.Subscribe( this, OnAutoSaveIntervalChanged );
+
+			var checksumsEnabled = cvarSystem.GetCVar<bool>( Constants.CVars.CHECKSUM_ENABLED ) ?? throw new CVarMissing( Constants.CVars.CHECKSUM_ENABLED );
+			var verifyAfterWrite = cvarSystem.GetCVar<bool>( Constants.CVars.VERIFY_AFTER_WRITE ) ?? throw new CVarMissing( Constants.CVars.VERIFY_AFTER_WRITE );
+			var logSerializationTree = cvarSystem.GetCVar<bool>( Constants.CVars.LOG_SERIALIZATION_TREE ) ?? throw new CVarMissing( Constants.CVars.LOG_SERIALIZATION_TREE );
+			var logWriteTimings = cvarSystem.GetCVar<bool>( Constants.CVars.LOG_WRITE_TIMINGS ) ?? throw new CVarMissing( Constants.CVars.LOG_WRITE_TIMINGS );
+			var debugLogging = cvarSystem.GetCVar<bool>( Constants.CVars.DEBUG_LOGGING ) ?? throw new CVarMissing( Constants.CVars.DEBUG_LOGGING );
+
+			_config = new SaveConfig {
+				DataPath = dataPath.Value,
+
+				BackupPath = backupPath.Value,
+				MaxBackups = maxBackups.Value,
+				
+				AutoSaveInterval = autoSaveInterval.Value,
+				AutoSave = autoSaveEnabled.Value,
+
+				ChecksumEnabled = checksumsEnabled.Value,
+				VerifyAfterWrite = verifyAfterWrite.Value,
+				LogSerializationTree = logSerializationTree.Value,
+				LogWriteTimings = logWriteTimings.Value,
+				DebugLogging = debugLogging.Value
+			};
+		}
+
+		/*
+		===============
+		OnAutoSaveIntervalChanged
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="args"></param>
+		private void OnAutoSaveIntervalChanged( in CVarValueChangedEventArgs<int> args ) {
+			_config = _config with { AutoSaveInterval = args.NewValue };
+		}
+
+		/*
+		===============
+		OnAutoSaveEnabledChanged
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="args"></param>
+		private void OnAutoSaveEnabledChanged( in CVarValueChangedEventArgs<bool> args ) {
+			_config = _config with { AutoSave = args.NewValue };
 		}
 	};
 };

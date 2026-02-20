@@ -18,6 +18,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Nomad.Core.Compatibility.Guards;
+using Nomad.Core.FileSystem;
 
 namespace Nomad.FileSystem.Private.FileStream {
 	/*
@@ -31,7 +32,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 	/// Base implementation of a file stream.
 	/// </summary>
 
-	internal abstract class FileStreamBase : BaseStream {
+	internal abstract class FileStreamBase : BaseStream, IFileStream {
 		/// <summary>
 		/// Indicates whether the stream supports seeking.
 		/// </summary>
@@ -61,9 +62,24 @@ namespace Nomad.FileSystem.Private.FileStream {
 		public bool IsOpen => _fileStream != null;
 
 		/// <summary>
+		/// The timestamp of which this file was last accessed.
+		/// </summary>
+		public DateTime LastAccessTime => _info.LastAccessTime;
+
+		/// <summary>
+		/// The time of the file's initial creation.
+		/// </summary>
+		public DateTime CreationTime => _info.CreationTime;
+
+		/// <summary>
 		/// The underlying file stream.
 		/// </summary>
 		protected System.IO.FileStream? _fileStream;
+
+		/// <summary>
+		/// The file metadata, fetched at object construction.
+		/// </summary>
+		private readonly FileInfo _info;
 
 		/*
 		===============
@@ -78,6 +94,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <param name="fileAccess"></param>
 		public FileStreamBase( string filepath, FileMode fileMode, FileAccess fileAccess ) {
 			_fileStream = new System.IO.FileStream( filepath, fileMode, fileAccess );
+			_info = new FileInfo( filepath );
 		}
 
 		/*
@@ -89,10 +106,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// Releases all resources used by the file stream.
 		/// </summary>
 		public override void Dispose() {
-			if ( _fileStream == null ) {
-				return;
-			}
-			_fileStream.Dispose();
+			_fileStream?.Dispose();
 			_fileStream = null;
 			GC.SuppressFinalize( this );
 		}
@@ -105,7 +119,6 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <summary>
 		/// Asynchronously releases all resources used by the file stream.
 		/// </summary>
-		/// <returns></returns>
 		public override async ValueTask DisposeAsync() {
 			if ( _fileStream == null ) {
 				return;
@@ -149,8 +162,6 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// Asynchronously flushes the file stream's buffer to the underlying file.
 		/// </summary>
 		/// <param name="ct"></param>
-		/// <returns></returns>
-		/// <exception cref="NotImplementedException"></exception>
 		public override async ValueTask FlushAsync( CancellationToken ct = default( CancellationToken ) ) {
 			ArgumentGuard.ThrowIfNull( _fileStream );
 			await _fileStream.FlushAsync( ct );
@@ -167,7 +178,6 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <param name="filepath"></param>
 		/// <param name="openMode"></param>
 		/// <param name="accessMode"></param>
-		/// <exception cref="NotImplementedException"></exception>
 		public bool Open( string filepath, FileMode openMode, FileAccess accessMode ) {
 			_fileStream = new System.IO.FileStream( filepath, openMode, accessMode );
 			return true;
@@ -183,8 +193,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <param name="offset"></param>
 		/// <param name="origin"></param>
-		/// <returns></returns>
-		/// <exception cref="NotImplementedException"></exception>
+		/// <returns>The new position in the file stream.</returns>
 		public override int Seek( int offset, SeekOrigin origin ) {
 			ArgumentGuard.ThrowIfNull( _fileStream );
 			return (int)_fileStream.Seek( offset, origin );

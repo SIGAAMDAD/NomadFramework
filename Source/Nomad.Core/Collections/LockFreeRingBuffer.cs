@@ -25,8 +25,14 @@ namespace Nomad.Core.Collections
     public class LockFreeRingBuffer<T>
         where T : struct
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public int Capacity => _capacity;
 
+        /// <summary>
+        /// 
+        /// </summary>
         public int Count
         {
             get
@@ -45,7 +51,14 @@ namespace Nomad.Core.Collections
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public bool IsEmpty => _head == _tail;
+
+        /// <summary>
+        /// 
+        /// </summary>
         public bool IsFull => ((_head + 1) & _mask) == _tail;
 
         private readonly T[] _buffer;
@@ -97,7 +110,9 @@ namespace Nomad.Core.Collections
 
             // Check if full (tail hasn't caught up)
             if (nextHead == _tail)
+            {
                 return false;
+            }
 
             _buffer[currentHead] = item;
 

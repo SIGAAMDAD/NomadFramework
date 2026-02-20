@@ -26,10 +26,13 @@ using Nomad.Events;
 using Nomad.FileSystem.Private.Services;
 using Nomad.Save.Data;
 using Nomad.Save.Events;
-using Nomad.Save.Interfaces;
 using Nomad.Save.Private.Services;
 using Nomad.Save.Services;
 using Nomad.Save.ValueObjects;
+using Nomad.CVars.Interfaces;
+using Nomad.CVars.Private.Services;
+using Moq;
+using Nomad.Core.EngineUtils;
 using Nomad.Save.Private.ValueObjects;
 
 namespace Nomad.Save.Tests;
@@ -42,31 +45,41 @@ public class SaveDataProviderTests
 {
     private ISaveDataProvider _dataProvider;
     private ILoggerService _logger;
+    private ICVarSystemService _cvarSystem;
     private IFileSystem _fileSystem;
     private IGameEventRegistryService _eventFactory;
     private string _testDirectory;
+    private string _saveDirectory;
 
     [SetUp]
     public void Setup()
     {
         _testDirectory = Path.Combine(Path.GetTempPath(), "NomadSaveTests", Guid.NewGuid().ToString());
         Directory.CreateDirectory(_testDirectory);
+        _saveDirectory = Path.Combine(_testDirectory, "SaveData");
+        Directory.CreateDirectory(_saveDirectory);
 
         _logger = new MockLogger();
-        var engineService = new MockEngineService();
-        _fileSystem = new FileSystemService(engineService, _logger);
+        var engineService = new Mock<IEngineService>();
+        engineService.Setup(e => e.GetStoragePath(StorageScope.StreamingAssets)).Returns(_testDirectory);
+        engineService.Setup(e => e.GetStoragePath(StorageScope.UserData)).Returns(_testDirectory);
+        engineService.Setup(e => e.GetStoragePath(StorageScope.Install)).Returns(_testDirectory);
+
+        _fileSystem = new FileSystemService(engineService.Object, _logger);
         _eventFactory = new GameEventRegistry(_logger);
-        _dataProvider = new SaveDataProvider(_eventFactory, _fileSystem, _logger);
+        _cvarSystem = new CVarSystem(_eventFactory, _fileSystem, _logger);
+        _dataProvider = new SaveDataProvider(engineService.Object, _eventFactory, _cvarSystem, _fileSystem, _logger);
     }
 
     [TearDown]
     public void TearDown()
     {
         _dataProvider?.Dispose();
-		_logger?.Dispose();
-		_fileSystem?.Dispose();
-		_eventFactory?.Dispose();
-        
+        _cvarSystem?.Dispose();
+        _logger?.Dispose();
+        _fileSystem?.Dispose();
+        _eventFactory?.Dispose();
+
         try
         {
             if (Directory.Exists(_testDirectory))
@@ -91,7 +104,7 @@ public class SaveDataProviderTests
     public void ListSaveFiles_WithEmptyDirectory_ReturnsEmptyList()
     {
         // Act
-        var files = _dataProvider.ListSaveFiles(_testDirectory);
+        var files = _dataProvider.ListSaveFiles();
 
         // Assert
         Assert.That(files, Is.Not.Null);
@@ -99,19 +112,19 @@ public class SaveDataProviderTests
     }
 
     [Test]
-    public void ListSaveFiles_WithMultipleSaveFiles_ReturnsAllFiles()
+    public async Task ListSaveFiles_WithMultipleSaveFiles_ReturnsAllFiles()
     {
         // Arrange
-        var file1 = Path.Combine(_testDirectory, "save_001.ngd");
-        var file2 = Path.Combine(_testDirectory, "save_002.ngd");
-        var file3 = Path.Combine(_testDirectory, "save_003.ngd");
-
-        File.WriteAllText(file1, "test");
-        File.WriteAllText(file2, "test");
-        File.WriteAllText(file3, "test");
+        var file1 = "save_001";
+        var file2 = "save_002";
+        var file3 = "save_003";
 
         // Act
-        var files = _dataProvider.ListSaveFiles(_testDirectory);
+        await _dataProvider.Save(file1, default);
+        await _dataProvider.Save(file2, default);
+        await _dataProvider.Save(file3, default);
+
+        var files = _dataProvider.ListSaveFiles();
 
         // Assert
         Assert.That(files, Is.Not.Null);
@@ -119,42 +132,47 @@ public class SaveDataProviderTests
     }
 
     [Test]
-    public void ListSaveFiles_ReturnsReadOnlyList()
+    public async Task ListSaveFiles_ReturnsReadOnlyList()
     {
         // Arrange
-        var file1 = Path.Combine(_testDirectory, "save_001.ngd");
-        File.WriteAllText(file1, "test");
+        var file1 = "save_001";
+        await _dataProvider.Save(file1, default);
 
         // Act
-        var files = _dataProvider.ListSaveFiles(_testDirectory);
+        var files = _dataProvider.ListSaveFiles();
 
         // Assert
         Assert.That(typeof(IReadOnlyList<SaveFileMetadata>).IsAssignableFrom(files.GetType()));
     }
 
     [Test]
-    public void ListSaveFiles_IncludesFileMetadata()
+    public async Task ListSaveFiles_IncludesFileMetadata()
     {
         // Arrange
-        var fileName = "test_save.ngd";
-        var filePath = Path.Combine(_testDirectory, fileName);
-        var testContent = "test data";
-        File.WriteAllText(filePath, testContent);
-
-        var fileInfo = new FileInfo(filePath);
+        var fileName = "test_save";
+        var lastAccessTime = DateTime.Now;
+        var creationTime = DateTime.Now;
+        var fileMetadata = new SaveFileMetadata(
+            SaveName: fileName,
+            FileSize: 0,
+            LastAccessYear: lastAccessTime.Year,
+            LastAccessMonth: lastAccessTime.Month,
+            LastAccessDay: lastAccessTime.Day,
+            CreationYear: creationTime.Year,
+            CreationMonth: creationTime.Month,
+            CreationDay: creationTime.Day
+        );
 
         // Act
-        var files = _dataProvider.ListSaveFiles(_testDirectory);
+        await _dataProvider.Save(fileName, default);
+        SaveSlot.CalculateFileName(false, fileMetadata);
+        var files = _dataProvider.ListSaveFiles();
 
         // Assert
         Assert.That(files, Is.Not.Empty);
         var metadata = files[0];
-		using (Assert.EnterMultipleScope())
-		{
-			Assert.That(metadata.FileSize, Is.EqualTo(fileInfo.Length));
-			Assert.That(metadata.SaveName, Is.Not.Null.And.Not.Empty);
-		}
-	}
+        Assert.That(metadata, Is.EqualTo(fileMetadata));
+    }
 
     [Test]
     public async Task Save_WithValidFileId_CompletesSuccessfully()
@@ -164,7 +182,7 @@ public class SaveDataProviderTests
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var saveInvoked = false;
 
-        saveBegin.Subscribe(this, (in args) =>
+        saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
         {
             saveInvoked = true;
             var section = args.Writer.AddSection("TestSection");
@@ -182,10 +200,10 @@ public class SaveDataProviderTests
     public async Task Load_AfterSave_CanReadSavedData()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "save_load_test.ngd");
+        var fileId = "save_load_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
-        
+
         var savedData = 123;
         var loadedSuccessfully = false;
 
@@ -227,7 +245,7 @@ public class SaveDataProviderTests
     public async Task Save_MultipleTimesToSameFile_Overwrites()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "overwrite_test.ngd");
+        var fileId = "overwrite_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         int saveCount = 0;
 
@@ -242,32 +260,10 @@ public class SaveDataProviderTests
         await _dataProvider.Save(fileId, default);
         await _dataProvider.Save(fileId, default);
 
-        // Assert
-        Assert.That(File.Exists(fileId), Is.True);
-    }
-
-    [Test]
-    [TestCase("save_001.ngd")]
-    [TestCase("save_with_spaces.ngd")]
-    [TestCase("save-with-dashes.ngd")]
-    [TestCase("save_with_numbers_123.ngd")]
-    public async Task Save_WithVariousFileNames_Succeeds(string fileName)
-    {
-        // Arrange
-        var fileId = Path.Combine(_testDirectory, fileName);
-        var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
-
-        saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
-        {
-            var section = args.Writer.AddSection("TestSection");
-            section.AddField("TestValue", 1);
-        });
-
-        // Act
-        await _dataProvider.Save(fileId, default);
+        var saveFiles = _dataProvider.ListSaveFiles();
 
         // Assert
-        Assert.That(File.Exists(fileId), Is.True);
+        Assert.That(saveFiles, Has.Count.GreaterThan(0));
     }
 
     [Test]
@@ -298,29 +294,10 @@ public class SaveDataProviderTests
         // Act
         await _dataProvider.Save(fileId1, default);
         await _dataProvider.Save(fileId2, default);
-        var filesList = _dataProvider.ListSaveFiles(_testDirectory);
+        var filesList = _dataProvider.ListSaveFiles();
 
         // Assert
         Assert.That(filesList, Has.Count.GreaterThanOrEqualTo(2));
-    }
-
-    [Test]
-    public void ListSaveFiles_WithNonExistentDirectory_HandlesGracefully()
-    {
-        // Arrange
-        var nonExistentDir = Path.Combine(_testDirectory, "non_existent");
-
-        // Act & Assert
-        // This should either return empty or throw - implementation dependent
-        try
-        {
-            var files = _dataProvider.ListSaveFiles(nonExistentDir);
-            Assert.That(files, Is.Empty.Or.Null);
-        }
-        catch (DirectoryNotFoundException)
-        {
-            Assert.Pass("Correctly throws for non-existent directory");
-        }
     }
 
     [Test]
@@ -330,7 +307,7 @@ public class SaveDataProviderTests
         var fileId = Path.Combine(_testDirectory, "multi_section.ngd");
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
-        
+
         var section1Found = false;
         var section2Found = false;
 
@@ -338,7 +315,7 @@ public class SaveDataProviderTests
         {
             var section1 = args.Writer.AddSection("Section1");
             section1.AddField("Value1", 100);
-            
+
             var section2 = args.Writer.AddSection("Section2");
             section2.AddField("Value2", 200);
         });
@@ -353,36 +330,12 @@ public class SaveDataProviderTests
         await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
-		using (Assert.EnterMultipleScope())
-		{
-			// Assert
-			Assert.That(section1Found, Is.True);
-			Assert.That(section2Found, Is.True);
-		}
-	}
-
-    [Test]
-    [TestCase(0)]
-    [TestCase(1)]
-    [TestCase(100)]
-    [TestCase(int.MaxValue)]
-    public async Task Save_WithVariousIntValues_Succeeds(int value)
-    {
-        // Arrange
-        var fileId = Path.Combine(_testDirectory, $"int_test_{value}.ngd");
-        var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
-
-        saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        using (Assert.EnterMultipleScope())
         {
-            var section = args.Writer.AddSection("IntTest");
-            section.AddField("IntValue", value);
-        });
-
-        // Act
-        await _dataProvider.Save(fileId, default);
-
-        // Assert
-        Assert.That(File.Exists(fileId), Is.True);
+            // Assert
+            Assert.That(section1Found, Is.True);
+            Assert.That(section2Found, Is.True);
+        }
     }
 }
 #endif

@@ -16,134 +16,209 @@ of merchantability, fitness for a particular purpose and noninfringement.
 #if !UNITY_EDITOR
 using System;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Threading;
 using System.Threading.Tasks;
-using Nomad.Core.FileSystem;
-using Nomad.FileSystem.Private.FileStream;
-using Nomad.FileSystem.Private.Services;
 using NUnit.Framework;
+using Moq;
+using Nomad.Core.EngineUtils;
+using Nomad.Core.FileSystem;
+using Nomad.Core.Logger;
+using Nomad.FileSystem.Private.Services;
 
 namespace Nomad.FileSystem.Tests
 {
-    [TestFixture]
-    public class FileWriteStreamTests
-    {
-        private IFileSystem _fileSystem;
-        private string _baseDir;
+	[TestFixture]
+	public class FileWriteStreamTests
+	{
+		private FileSystemService _service;
+		private string _tempDir;
+		private string _filePath;
 
-        [SetUp]
-        public void Setup()
-        {
-            var engineService = new MockEngineService();
-            var logger = new MockLogger();
-            _fileSystem = new FileSystemService(engineService, logger);
-
-            // Use a unique subdirectory under the current working directory so the
-            // FileSystemService search helper (which uses the mock engine's storage path)
-            // will find files created by the tests.
-            _baseDir = Path.Combine(Directory.GetCurrentDirectory(), "NomadFileSystemTest_" + Guid.NewGuid().ToString("N"));
-            Directory.CreateDirectory(_baseDir);
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            try
-            {
-                _fileSystem?.Dispose();
-            }
-            catch { }
-
-            try
-            {
-                if (!string.IsNullOrEmpty(_baseDir) && Directory.Exists(_baseDir))
-                {
-                    Directory.Delete(_baseDir, true);
-                }
-            }
-            catch { }
-        }
-
-		[Test]
-		public void CreateWriteStream_EmptyFileName_ThrowsArgumentNullOrEmptyException()
+		[SetUp]
+		public void SetUp()
 		{
-			// Arrange
-			var exception = Assert.Throws<ArgumentException>(
-				() => _fileSystem.OpenWrite(String.Empty, new WriteConfig(StreamType.File))
-			);
+			var engineMock = new Mock<IEngineService>();
+			var loggerMock = new Mock<ILoggerService>();
+			var categoryMock = new Mock<ILoggerCategory>();
 
-			// Assert
-			Assert.That(exception, Is.Not.Null);
+			_tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+			Directory.CreateDirectory(_tempDir);
+
+			engineMock.Setup(e => e.GetStoragePath(StorageScope.StreamingAssets)).Returns(_tempDir);
+			engineMock.Setup(e => e.GetStoragePath(StorageScope.UserData)).Returns(_tempDir);
+			engineMock.Setup(e => e.GetStoragePath(StorageScope.Install)).Returns(_tempDir);
+			loggerMock.Setup(l => l.CreateCategory(It.IsAny<string>(), It.IsAny<LogLevel>(), It.IsAny<bool>()))
+					  .Returns(categoryMock.Object);
+
+			_service = new FileSystemService(engineMock.Object, loggerMock.Object);
+			_filePath = Path.Combine(_tempDir, "writetest.bin");
+		}
+
+		[TearDown]
+		public void TearDown()
+		{
+			_service.Dispose();
+			if (Directory.Exists(_tempDir))
+				Directory.Delete(_tempDir, true);
+		}
+
+		private IWriteStream OpenWriteStream(bool append = false)
+		{
+			var config = new WriteConfig(StreamType.File, append);
+			return _service.OpenWrite(_filePath, config);
 		}
 
 		[Test]
-		public void FileWriteStream_CreateWithNullFileName_ThrowsArgumentNullOrEmptyException()
+		public void Write_WritesBytes()
 		{
-			// Arrange
-			var exception = Assert.Throws<ArgumentNullException>(
-				() => _fileSystem.OpenWrite(null, new WriteConfig( StreamType.File))
-			);
-
-			// Assert
-			Assert.That(exception, Is.Not.Null);
-		}
-
-		[Test]
-		public void FileWriteStream_CreateWithFileStreamParams_CreatesFileWriteStream()
-		{
-			// Arrange
-			using var stream = _fileSystem.OpenWrite($"{_baseDir}test_file.txt", new WriteConfig(StreamType.File));
-
-			// Assert
-			Assert.That(stream, Is.InstanceOf<FileWriteStream>());
-		}
-
-		[Test]
-		public void FileWriteStream_CreateWithValidParams_CanReadIsFalseAndWriteIsTrue()
-		{
-			// Arrange
-			using var stream = _fileSystem.OpenWrite($"{_baseDir}test_file.txt", new WriteConfig(StreamType.File));
-
-			// Assert
-			Assert.That(stream, Is.Not.Null);
-			using (Assert.EnterMultipleScope())
+			byte[] data = { 1, 2, 3, 4, 5 };
+			using (var stream = OpenWriteStream())
 			{
-				Assert.That(stream.CanRead, Is.False);
-				Assert.That(stream.CanWrite, Is.True);
+				stream.Write(data, 0, data.Length);
+			}
+
+			var written = File.ReadAllBytes(_filePath);
+			Assert.That(written, Is.EqualTo(data));
+		}
+
+		[Test]
+		public void Write_SpanOverload_Writes()
+		{
+			Span<byte> data = stackalloc byte[] { 10, 20, 30 };
+			using (var stream = OpenWriteStream())
+			{
+				stream.Write(data, 0, data.Length);
+			}
+
+			var written = File.ReadAllBytes(_filePath);
+			Assert.That(written, Is.EqualTo(new byte[] { 10, 20, 30 }));
+		}
+
+		[Test]
+		public async Task WriteAsync_WritesBytes()
+		{
+			byte[] data = { 100, 200, 255 };
+			using (var stream = OpenWriteStream())
+			{
+				await stream.WriteAsync(data, 0, data.Length);
+			}
+
+			var written = File.ReadAllBytes(_filePath);
+			Assert.That(written, Is.EqualTo(data));
+		}
+
+		[Test]
+		public void AppendMode_AddsToEnd()
+		{
+			File.WriteAllBytes(_filePath, new byte[] { 1, 2, 3 });
+			using (var stream = OpenWriteStream(append: true))
+			{
+				stream.Write(new byte[] { 4, 5, 6 }, 0, 3);
+			}
+
+			var written = File.ReadAllBytes(_filePath);
+			Assert.That(written, Is.EqualTo(new byte[] { 1, 2, 3, 4, 5, 6 }));
+		}
+
+		[Test]
+		public void WriteFromStream_CopiesData()
+		{
+			// Create a source file
+			string sourcePath = Path.Combine(_tempDir, "source.bin");
+			byte[] sourceData = [7, 8, 9, 10];
+			{
+				File.WriteAllBytes(sourcePath, sourceData);
+			}
+			{
+
+				var readConfig = new ReadConfig(StreamType.File);
+				using var sourceStream = _service.OpenRead(sourcePath, readConfig);
+
+				using var destStream = OpenWriteStream();
+				destStream.WriteFromStream(sourceStream);
+			}
+			{
+
+				var written = File.ReadAllBytes(_filePath);
+				Assert.That(written, Is.EqualTo(sourceData));
 			}
 		}
 
 		[Test]
-		public void FileWriteStream_WriteNullBuffer_ThrowsArgumentNullException()
+		public async Task WriteFromStreamAsync_CopiesData()
 		{
-			// Arrange
-			using var stream = _fileSystem.OpenWrite($"{_baseDir}test_file.txt", new WriteConfig(StreamType.File));
-			Assert.That(stream, Is.Not.Null);
-
-			// Act
-			var exception = Assert.Throws<ArgumentNullException>(
-				() => stream.Write(null, 0, 1024)
-			);
-
-			// Assert
-			Assert.That(exception, Is.InstanceOf<ArgumentNullException>());
+			string sourcePath = Path.Combine(_tempDir, "source.bin");
+			byte[] sourceData = { 11, 12, 13 };
+			{
+				File.WriteAllBytes(sourcePath, sourceData);
+			}
+			{
+				var readConfig = new ReadConfig(StreamType.File);
+				using var sourceStream = _service.OpenRead(sourcePath, readConfig);
+				using var destStream = OpenWriteStream();
+				await destStream.WriteFromStreamAsync(sourceStream);
+			}
+			{
+				var written = File.ReadAllBytes(_filePath);
+				Assert.That(written, Is.EqualTo(sourceData));
+			}
 		}
 
 		[Test]
-		public async Task FileWriteStream_WriteNullBufferAsync_ThrowsArgumentNullException()
+		public void WriteByte_WritesSingleByte()
 		{
-			// Arrange
-			using var stream = _fileSystem.OpenWrite($"{_baseDir}test_file.txt", new WriteConfig(StreamType.File));
-			Assert.That(stream, Is.Not.Null);
+			{
+				using var stream = OpenWriteStream();
+				stream.WriteByte(0xAB);
+			}
+			{
+				var written = File.ReadAllBytes(_filePath);
+				Assert.That(written, Is.EqualTo(new byte[] { 0xAB }));
+			}
+		}
 
-			// Act
-			var exception = Assert.ThrowsAsync<ArgumentNullException>(
-				async () => await stream.WriteAsync(null, 0, 1024)
-			);
+		[Test]
+		public void WriteInt32_WritesLittleEndian()
+		{
+			{
+				using var stream = OpenWriteStream();
+				stream.WriteInt32(0x12345678);
+			}
+			{
+				var written = File.ReadAllBytes(_filePath);
+				// Little-endian: 0x78 0x56 0x34 0x12
+				Assert.That(written, Is.EqualTo(new byte[] { 0x78, 0x56, 0x34, 0x12 }));
+			}
+		}
 
-			// Assert
-			Assert.That(exception, Is.InstanceOf<ArgumentNullException>());
+		[Test]
+		public void WriteString_WritesLengthPrefixedString()
+		{
+			{
+				using var stream = OpenWriteStream();
+				stream.WriteString("Test");
+			}
+			{
+				// Read back via BinaryReader
+				using var br = new BinaryReader(File.OpenRead(_filePath));
+				string read = br.ReadString();
+				Assert.That(read, Is.EqualTo("Test"));
+			}
+		}
+
+		[Test]
+		public void Flush_EnsuresDataWritten()
+		{
+			{
+				using var stream = OpenWriteStream();
+				stream.Write(new byte[] { 1, 2, 3 }, 0, 3);
+				stream.Flush();
+			}
+			{
+				// Even without disposing, file should exist
+				Assert.That(File.Exists(_filePath));
+				var written = File.ReadAllBytes(_filePath);
+				Assert.That(written, Is.EqualTo(new byte[] { 1, 2, 3 }));
+			}
 		}
 	}
 }

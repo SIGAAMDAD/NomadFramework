@@ -14,10 +14,10 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using System.Buffers;
 using System.Threading;
 using System.Threading.Tasks;
 using Nomad.Core.FileSystem;
+using Nomad.Core.Util.BufferHandles;
 
 namespace Nomad.FileSystem.Private.MemoryStream {
 	/*
@@ -37,12 +37,23 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// 
 		/// </summary>
 		public string FilePath => _filepath;
-		private string _filepath;
+		private readonly string _filepath;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		public bool IsOpen => _buffer != null;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public DateTime LastAccessTime => _creationTime;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public DateTime CreationTime => _creationTime;
+		private readonly DateTime _creationTime;
 
 		/*
 		===============
@@ -59,6 +70,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 			: base( length, fixedSize )
 		{
 			_filepath = filepath;
+			_creationTime = DateTime.Now;
+			Open( System.IO.FileMode.CreateNew, System.IO.FileAccess.Write );
 		}
 
 		/*
@@ -110,8 +123,9 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		public override void Flush() {
 			if ( _buffer != null ) {
-				using var stream = new System.IO.FileStream( _filepath, System.IO.FileMode.Create, System.IO.FileAccess.Write );
-				stream.Write( _buffer.AsSpan( 0, _position ) );
+				using var stream = new System.IO.FileStream( _filepath, System.IO.FileMode.Create, System.IO.FileAccess.Write, System.IO.FileShare.None );
+				stream.Write( _buffer.Buffer.AsSpan( 0, _position ) );
+				stream.Close();
 			}
 		}
 	
@@ -127,8 +141,9 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
 		public override async ValueTask FlushAsync( CancellationToken ct = default ) {
 			if ( _buffer != null ) {
-				using var stream = new System.IO.FileStream( _filepath, System.IO.FileMode.Create, System.IO.FileAccess.Write );
-				await stream.WriteAsync( _buffer.AsMemory( 0, _position ), ct );
+				using var stream = new System.IO.FileStream( _filepath, System.IO.FileMode.Create, System.IO.FileAccess.Write, System.IO.FileShare.None );
+				await stream.WriteAsync( _buffer.Buffer.AsMemory( 0, _position ), ct );
+				stream.Close();
 			}
 		}
 
@@ -140,20 +155,66 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <summary>
 		/// Opens the memory file write stream with the specified file path, open mode, and access mode.
 		/// </summary>
-		/// <param name="filepath">The path to the file to open.</param>
 		/// <param name="openMode">The mode in which to open the file.</param>
 		/// <param name="accessMode">The access mode for the file.</param>
 		/// <returns><c>true</c> if the file was opened successfully; otherwise, <c>false.</c></returns>
-		public bool Open( string filepath, System.IO.FileMode openMode, System.IO.FileAccess accessMode ) {
-			_filepath = filepath;
-			
+		private bool Open( System.IO.FileMode openMode, System.IO.FileAccess accessMode ) {
 			if ( openMode == System.IO.FileMode.Append ) {
 				throw new NotImplementedException();
 			} else {
 				_length = DEFAULT_CAPACITY;
-				_buffer = ArrayPool<byte>.Shared.Rent( _length );
+				_buffer = new PooledBufferHandle( _length );
 			}
 			return true;
 		}
+
+		/*
+		===============
+		WriteLine
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="line"></param>
+		public void WriteLine( string line )
+			=> Write( $"{line}\n" );
+
+		/*
+		===============
+		WriteLine
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="line"></param>
+		public void WriteLine( ReadOnlySpan<char> line )
+			=> WriteLine( line );
+
+		/*
+		===============
+		WriteLineAsync
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="line"></param>
+		public async ValueTask WriteLineAsync( string line )
+			=> WriteLine( line );
+
+		/*
+		===============
+		WriteLineAsync
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="line"></param>
+		/// <returns></returns>
+		public async ValueTask WriteLineAsync( ReadOnlyMemory<char> line )
+			=> WriteLine( line.Span );
 	};
 };

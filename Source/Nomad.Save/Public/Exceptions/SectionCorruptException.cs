@@ -39,10 +39,10 @@ namespace Nomad.Save.Exceptions
         /// <param name="sectionIndex"></param>
         /// <param name="fileOffset"></param>
         /// <param name="message"></param>
-        public SectionCorruptException(string sectionName, int sectionIndex, int fileOffset, string message = "")
+        public SectionCorruptException(string? sectionName, int sectionIndex, int fileOffset, string message = "")
             : base(fileOffset, message)
         {
-            _sectionName = sectionName;
+            _sectionName = sectionName ?? "(UNKNOWN)";
             _sectionIndex = sectionIndex;
         }
     }

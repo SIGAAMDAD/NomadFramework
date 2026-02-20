@@ -22,6 +22,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.FileSystem;
+using Nomad.Core.Util.BufferHandles;
 
 namespace Nomad.FileSystem.Private.MemoryStream {
 	/*
@@ -35,7 +36,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 	///
 	/// </summary>
 
-	internal class MemoryWriteStream : MemoryStreamBase, IWriteStream {
+	internal class MemoryWriteStream : MemoryStreamBase, IMemoryWriteStream {
 		private const int MAX_CAPACITY = 1 * 1024 * 1024 * 1024;
 		private const int STACK_ALLOC_THRESHOLD = 256;
 
@@ -54,11 +55,6 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		public override bool CanWrite => true;
 
-		/// <summary>
-		/// 
-		/// </summary>
-		protected byte[]? _buffer;
-
 		private bool _fixedSize;
 
 		/*
@@ -72,7 +68,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <param name="length">The initial length of the buffer.</param>
 		/// <param name="fixedSize">Whether the buffer size is fixed or can grow.</param>
 		public MemoryWriteStream( int length, bool fixedSize = false ) {
-			_buffer = ArrayPool<byte>.Shared.Rent( length );
+			_buffer = new PooledBufferHandle( length );
 			_fixedSize = fixedSize;
 
 			_length = length;
@@ -88,10 +84,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// Releases the resources used by the MemoryWriteStream.
 		/// </summary>
 		public override void Dispose() {
-			if ( _buffer != null ) {
-				ArrayPool<byte>.Shared.Return( _buffer );
-				_buffer = null;
-			}
+			_buffer?.Dispose();
+			_buffer = null;
 			GC.SuppressFinalize( this );
 		}
 
@@ -105,10 +99,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <returns>A task that represents the asynchronous dispose operation.</returns>
 		public override async ValueTask DisposeAsync() {
-			if ( _buffer != null ) {
-				ArrayPool<byte>.Shared.Return( _buffer );
-				_buffer = null;
-			}
+			_buffer?.Dispose();
+			_buffer = null;
 			GC.SuppressFinalize( this );
 		}
 
@@ -152,7 +144,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 			ArgumentGuard.ThrowIfNull( buffer );
 
 			EnsureCapacity( count );
-			Buffer.BlockCopy( buffer, offset, _buffer, _position, count );
+			_buffer.CopyFrom( buffer, offset, count, _position );
 			_position += count;
 		}
 
@@ -186,12 +178,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 			RangeGuard.ThrowIfNegativeOrZero( buffer.Length - offset );
 
 			EnsureCapacity( count );
-			unsafe {
-				fixed ( byte* src = &_buffer[ _position ] )
-				fixed ( byte* dst = &buffer[ offset ] ) {
-					Buffer.MemoryCopy( src, dst, buffer.Length, count );
-				}
-			}
+			_buffer.CopyFrom( buffer, offset, count, _position );
 			_position += count;
 		}
 
@@ -295,7 +282,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 			byte[] buffer = ArrayPool<byte>.Shared.Rent( 4096 );
 			try {
 				int bytesRead;
-				while ( (bytesRead = await stream.ReadAsync( buffer, 0, buffer.Length, cancellationToken )) > 0 ) {
+				while ( ( bytesRead = await stream.ReadAsync( buffer, 0, buffer.Length, cancellationToken ) ) > 0 ) {
 					Write( buffer, 0, bytesRead );
 				}
 			} finally {
@@ -329,7 +316,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 				int byteCount = Encoding.UTF8.GetByteCount( value );
 				Write7BitEncodedInt( byteCount );
 				EnsureCapacity( byteCount );
-				_position += Encoding.UTF8.GetBytes( value, 0, value.Length, _buffer, _position );
+				_position += Encoding.UTF8.GetBytes( value, 0, value.Length, _buffer.Buffer, _position );
 			}
 		}
 
@@ -368,7 +355,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 
 			int sizeOfData = Marshal.SizeOf<T>();
 			EnsureCapacity( sizeOfData );
-			Unsafe.WriteUnaligned( ref _buffer[ _position ], value );
+			Unsafe.WriteUnaligned( ref _buffer.Buffer[ _position ], value );
 			_position += sizeOfData;
 		}
 
@@ -650,7 +637,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 				int byteCount = Encoding.UTF8.GetByteCount( value );
 				Write7BitEncodedInt( byteCount );
 				EnsureCapacity( byteCount );
-				_position += Encoding.UTF8.GetBytes( value, 0, value.Length, _buffer, _position );
+				_position += Encoding.UTF8.GetBytes( value, 0, value.Length, _buffer.Buffer, _position );
 			}
 		}
 
@@ -673,10 +660,11 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 					throw new InvalidOperationException( $"Memory stream size has exceeded {MAX_CAPACITY} bytes... what the hell are you doing?" );
 				}
 
-				byte[] newBuffer = ArrayPool<byte>.Shared.Rent( newCapacity );
+				var newBuffer = new PooledBufferHandle( newCapacity );
 
-				Buffer.BlockCopy( _buffer, 0, newBuffer, 0, Position );
-				ArrayPool<byte>.Shared.Return( _buffer );
+				_buffer.CopyTo( newBuffer, 0, _length, _position );
+				_buffer.Dispose();
+				_buffer = null;
 				_buffer = newBuffer;
 			}
 		}

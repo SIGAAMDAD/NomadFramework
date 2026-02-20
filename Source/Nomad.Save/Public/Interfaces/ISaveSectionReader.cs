@@ -38,6 +38,14 @@ namespace Nomad.Save.Interfaces
         /// <typeparam name="T"></typeparam>
         /// <param name="fieldName"></param>
         /// <returns></returns>
-        public T GetField<T>(string fieldName);
+        T GetField<T>(string fieldName)
+            where T : unmanaged;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fieldName"></param>
+        /// <returns></returns>
+        string GetString(string fieldName);
     }
 }

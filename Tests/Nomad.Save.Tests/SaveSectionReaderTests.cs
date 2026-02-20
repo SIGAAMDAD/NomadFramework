@@ -28,6 +28,10 @@ using Nomad.Save.Events;
 using Nomad.Save.Interfaces;
 using Nomad.Save.Private.Services;
 using Nomad.Save.Services;
+using Nomad.CVars.Interfaces;
+using Nomad.CVars.Private.Services;
+using Moq;
+using Nomad.Core.EngineUtils;
 
 namespace Nomad.Save.Tests;
 
@@ -39,8 +43,10 @@ public class SaveSectionReaderTests
 {
     private ISaveDataProvider _dataProvider;
     private ILoggerService _logger;
+    private ICVarSystemService _cvarSystem;
     private IFileSystem _fileSystem;
     private IGameEventRegistryService _eventFactory;
+    private Mock<IEngineService> _engineService;
     private string _testDirectory;
 
     [SetUp]
@@ -48,18 +54,24 @@ public class SaveSectionReaderTests
     {
         _testDirectory = Path.Combine(Path.GetTempPath(), "NomadSaveSectionReaderTests", Guid.NewGuid().ToString());
         Directory.CreateDirectory(_testDirectory);
+        Directory.CreateDirectory($"{_testDirectory}/SaveData");
 
         _logger = new MockLogger();
-        var engineService = new MockEngineService();
-        _fileSystem = new FileSystemService(engineService, _logger);
+        _engineService = new Mock<IEngineService>();
+        _engineService.Setup(e => e.GetStoragePath(StorageScope.StreamingAssets)).Returns(_testDirectory);
+        _engineService.Setup(e => e.GetStoragePath(StorageScope.UserData)).Returns(_testDirectory);
+        _engineService.Setup(e => e.GetStoragePath(StorageScope.Install)).Returns(_testDirectory);
+        _fileSystem = new FileSystemService(_engineService.Object, _logger);
         _eventFactory = new GameEventRegistry(_logger);
-        _dataProvider = new SaveDataProvider(_eventFactory, _fileSystem, _logger);
+        _cvarSystem = new CVarSystem(_eventFactory, _fileSystem, _logger);
+        _dataProvider = new SaveDataProvider(_engineService.Object, _eventFactory, _cvarSystem, _fileSystem, _logger);
     }
 
     [TearDown]
     public void TearDown()
     {
         _dataProvider?.Dispose();
+        _cvarSystem?.Dispose();
         _logger?.Dispose();
         _fileSystem?.Dispose();
         _eventFactory?.Dispose();
@@ -81,7 +93,7 @@ public class SaveSectionReaderTests
     public async Task SaveSectionReader_Name_ReturnsCorrectSectionName()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "section_name_test.ngd");
+        var fileId = "section_name_test.ngd";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -119,7 +131,7 @@ public class SaveSectionReaderTests
     public async Task SaveSectionReader_FieldCount_ReturnsCorrectFieldCount()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "field_count_test.ngd");
+        var fileId = "field_count_test.ngd";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -160,7 +172,7 @@ public class SaveSectionReaderTests
     public async Task SaveSectionReader_GetField_WithIntType_ReturnsCorrectValue()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "get_int_field_test.ngd");
+        var fileId = "get_int_field_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -198,7 +210,7 @@ public class SaveSectionReaderTests
     public async Task SaveSectionReader_GetField_WithFloatType_ReturnsCorrectValue()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "get_float_field_test.ngd");
+        var fileId = "get_float_field_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -236,7 +248,7 @@ public class SaveSectionReaderTests
     public async Task SaveSectionReader_GetField_WithDoubleType_ReturnsCorrectValue()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "get_double_field_test.ngd");
+        var fileId = "get_double_field_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -274,7 +286,7 @@ public class SaveSectionReaderTests
     public async Task SaveSectionReader_GetField_WithStringType_ReturnsCorrectValue()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "get_string_field_test.ngd");
+        var fileId = "get_string_field_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -294,7 +306,7 @@ public class SaveSectionReaderTests
             var section = args.Reader.FindSection("StringTest");
             if (section != null)
             {
-                retrievedValue = section.GetField<string>("StringValue");
+                retrievedValue = section.GetString("StringValue");
             }
         }
 
@@ -312,7 +324,7 @@ public class SaveSectionReaderTests
     public async Task SaveSectionReader_GetField_WithBoolType_ReturnsCorrectValue()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "get_bool_field_test.ngd");
+        var fileId = "get_bool_field_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -350,7 +362,7 @@ public class SaveSectionReaderTests
     public async Task SaveSectionReader_GetField_WithNonExistentField_ReturnsDefault()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "nonexistent_field_test.ngd");
+        var fileId = "nonexistent_field_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -387,7 +399,7 @@ public class SaveSectionReaderTests
     public async Task SaveSectionReader_GetField_WithWrongType_ThrowsInvalidCastException()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "wrong_type_test.ngd");
+        var fileId = "wrong_type_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -407,7 +419,7 @@ public class SaveSectionReaderTests
                 try
                 {
                     // Try to read int as string
-                    var stringValue = section.GetField<string>("IntField");
+                    var stringValue = section.GetString("IntField");
                 }
                 catch (InvalidCastException)
                 {
@@ -428,7 +440,7 @@ public class SaveSectionReaderTests
     public async Task SaveSectionReader_Dispose_ClearsFields()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "dispose_test.ngd");
+        var fileId = "dispose_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -465,7 +477,7 @@ public class SaveSectionReaderTests
     public async Task SaveSectionReader_GetField_WithAllIntegerTypes_ReturnsCorrectValues()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "all_int_types_test.ngd");
+        var fileId = "all_int_types_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -524,7 +536,7 @@ public class SaveSectionReaderTests
     public async Task SaveSectionReader_GetField_MultipleTimes_ReturnsSameValue()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "multiple_reads_test.ngd");
+        var fileId = "multiple_reads_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -566,7 +578,7 @@ public class SaveSectionReaderTests
     public async Task SaveSectionReader_Name_IsNotNull()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "name_not_null_test.ngd");
+        var fileId = "name_not_null_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -599,7 +611,7 @@ public class SaveSectionReaderTests
     public async Task SaveSectionReader_FieldCount_IsNonNegative()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "field_count_nonneg_test.ngd");
+        var fileId = "field_count_nonneg_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -633,7 +645,7 @@ public class SaveSectionReaderTests
     public async Task SaveSectionReader_GetField_WithEmptyStringField_ReturnsEmptyString()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "empty_string_field_test.ngd");
+        var fileId = "empty_string_field_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -650,7 +662,7 @@ public class SaveSectionReaderTests
             var section = args.Reader.FindSection("EmptyStringTest");
             if (section != null)
             {
-                retrievedValue = section.GetField<string>("EmptyString");
+                retrievedValue = section.GetString("EmptyString");
             }
         });
 
@@ -666,7 +678,7 @@ public class SaveSectionReaderTests
     public async Task SaveSectionReader_GetField_WithLongString_ReturnsFullString()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "long_string_field_test.ngd");
+        var fileId = "long_string_field_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -685,7 +697,7 @@ public class SaveSectionReaderTests
             var section = args.Reader.FindSection("LongStringTest");
             if (section != null)
             {
-                retrievedValue = section.GetField<string>("LongString");
+                retrievedValue = section.GetString("LongString");
             }
         });
 
@@ -704,7 +716,7 @@ public class SaveSectionReaderTests
     public async Task SaveSectionReader_GetField_WithBoolValues_ReturnsExactValue(bool boolValue)
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, $"bool_test_{boolValue}.ngd");
+        var fileId = $"bool_test_{boolValue}";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -737,7 +749,7 @@ public class SaveSectionReaderTests
     public async Task SaveSectionReader_GetField_WithNegativeValues_ReturnsCorrectValues()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "negative_values_test.ngd");
+        var fileId = "negative_values_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -779,7 +791,7 @@ public class SaveSectionReaderTests
     public async Task SaveSectionReader_Dispose_CanBeCalledMultipleTimes()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "dispose_multiple_test.ngd");
+        var fileId = "dispose_multiple_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -818,7 +830,7 @@ public class SaveSectionReaderTests
     public async Task SaveSectionReader_Name_MatchesSectionWriterName()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "name_match_test.ngd");
+        var fileId = "name_match_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -857,7 +869,7 @@ public class SaveSectionReaderTests
     public async Task SaveSectionReader_FieldCount_MatchesSectionWriterFieldCount()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "field_count_match_test.ngd");
+        var fileId = "field_count_match_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 

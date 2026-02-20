@@ -23,7 +23,8 @@ namespace Nomad.Core.Console
         /// <summary>
         /// 
         /// </summary>
-        public readonly string Text;
+        public string Text => _text;
+        private readonly string _text;
 
         /// <summary>
         /// 
@@ -31,7 +32,7 @@ namespace Nomad.Core.Console
         /// <param name="text"></param>
         public HistoryPrevEventArgs(string text)
         {
-            Text = text;
+            _text = text;
         }
     }
 }

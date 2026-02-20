@@ -21,6 +21,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.FileSystem;
+using Nomad.Core.Util.BufferHandles;
 
 namespace Nomad.FileSystem.Private.MemoryStream {
 	/*
@@ -34,7 +35,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 	///
 	/// </summary>
 
-	internal class MemoryReadStream : MemoryStreamBase, IReadStream {
+	internal class MemoryReadStream : MemoryStreamBase, IMemoryReadStream {
 		/// <summary>
 		/// 
 		/// </summary>
@@ -44,11 +45,6 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// 
 		/// </summary>
 		public override bool CanWrite => false;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		protected byte[]? _buffer;
 
 		/*
 		===============
@@ -72,7 +68,9 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <param name="buffer">The byte array to read from.</param>
 		/// <param name="length">The length of the data in the buffer.</param>
 		public MemoryReadStream( byte[] buffer, int length ) {
-			_buffer = buffer;
+			_buffer = new PooledBufferHandle( length );
+			_buffer.CopyFrom( buffer, 0, length );
+
 			_length = length;
 			_position = 0;
 		}
@@ -121,12 +119,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 			if ( offset + count >= buffer.Length ) {
 				count = buffer.Length - offset;
 			}
-			unsafe {
-				fixed ( byte* dst = buffer )
-				fixed ( byte* src = _buffer ) {
-					Buffer.MemoryCopy( src + _position, dst + offset, buffer.Length, count );
-				}
-			}
+			_buffer.CopyTo( buffer, offset, count, _position );
 			_position += count;
 			return count;
 		}
@@ -160,12 +153,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 			if ( offset + count >= buffer.Length ) {
 				count = buffer.Length - offset;
 			}
-			unsafe {
-				fixed ( byte* dst = buffer )
-				fixed ( byte* src = _buffer ) {
-					Buffer.MemoryCopy( src + _position, dst + offset, buffer.Length, count );
-				}
-			}
+			_buffer.CopyTo( buffer, offset, count, _position );
 			_position += count;
 			return count;
 		}
@@ -231,7 +219,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 
 			int remaining = _length - _position;
 			byte[] result = new byte[ remaining ];
-			Buffer.BlockCopy( _buffer, _position, result, 0, remaining );
+			_buffer.CopyTo( result, 0, remaining, _position );
 			_position += remaining;
 			return result;
 		}
@@ -261,7 +249,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <returns>The underlying byte array.</returns>
 		public byte[]? ToArray()
-			=> _buffer;
+			=> _buffer.Buffer;
 
 		/*
 		===============
@@ -538,7 +526,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <returns>The string read from the stream.</returns>
 		public string ReadString() {
 			int byteCount = Read7BitEncodedInt();
-			string value = Encoding.UTF8.GetString( _buffer!, _position, byteCount );
+			string value = Encoding.UTF8.GetString( _buffer!.Buffer, _position, byteCount );
 			_position += byteCount;
 			return value;
 		}
@@ -585,7 +573,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 			where T : unmanaged
 		{
 			int sizeOfData = Marshal.SizeOf<T>();
-			T value = Unsafe.ReadUnaligned<T>( ref _buffer![ Position ] );
+			T value = Unsafe.ReadUnaligned<T>( ref _buffer!.Buffer[ Position ] );
 			_position += sizeOfData;
 			return value;
 		}

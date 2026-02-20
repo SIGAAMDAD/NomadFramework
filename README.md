@@ -52,7 +52,7 @@ NomadFramework includes a comprehensive suite of subsystems intended to serve as
 NomadFramework is built around a simple principle:
 
 **Never reinvent the wheel twice.**
-And truly
+And truly,
 **Write once, run everywhere**
 
 This framework was designed to capture the universal patterns that appear in every engine:

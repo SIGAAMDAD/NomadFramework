@@ -296,7 +296,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 				}
 			}
 
-#if NETSTANDARD2_1
+#if !NET10_0_OR_GREATER
 			Task.WaitAll( tasks.ToArray(), ct );
 #else
 			Task.WaitAll( tasks, ct );

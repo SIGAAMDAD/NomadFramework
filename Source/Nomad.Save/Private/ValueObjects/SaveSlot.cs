@@ -13,7 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
+using System.Text;
 using Nomad.Core.Util;
 using Nomad.Save.ValueObjects;
 
@@ -28,13 +28,20 @@ namespace Nomad.Save.Private.ValueObjects {
 		SaveFileMetadata Metadata
 	) {
 		public static string CalculateFileName( bool autoSave, SaveFileMetadata metadata ) {
-			int hash = HashCode.Combine(
+			var sb = new StringBuilder( 256 );
+
+			sb.AppendFormat( "{0}_{1}_{2}{3}{4}{5}{6}{7}.ngd",
+				autoSave ? "AutoSave" : "Data",
 				metadata.SaveName.HashFileName(),
 				metadata.CreationYear,
 				metadata.CreationMonth,
-				metadata.CreationDay
+				metadata.CreationDay,
+				metadata.LastAccessYear,
+				metadata.LastAccessMonth,
+				metadata.LastAccessDay
 			);
-			return autoSave ? $"AutoSave_{hash}.ngd" : $"SaveData_{hash}";
+
+			return sb.ToString();
 		}
 	}
 };

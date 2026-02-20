@@ -13,6 +13,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System;
+
 namespace Nomad.Core.FileSystem
 {
     /// <summary>
@@ -26,21 +28,33 @@ namespace Nomad.Core.FileSystem
         string FilePath { get; }
 
         /// <summary>
+        /// Indicates whether the file stream can be read from.
+        /// </summary>
+        bool CanRead { get; }
+
+        /// <summary>
+        /// Indicates whether the file stream can be written to.
+        /// </summary>
+        bool CanWrite { get; }
+
+        /// <summary>
         /// Indicates whether the file stream is currently open.
         /// </summary>
         bool IsOpen { get; }
 
         /// <summary>
-        /// Closes the file stream.
+        /// The timestamp of which this file was last accessed.
         /// </summary>
-        void Close();
+        DateTime LastAccessTime { get; }
 
         /// <summary>
-        /// Opens the file stream.
+        /// The time of the file's initial creation.
         /// </summary>
-        /// <param name="filepath">The path of the file to open.</param>
-        /// <param name="openMode">The mode to open the file with.</param>
-        /// <param name="accessMode">The access mode to open the file with.</param>
-        bool Open(string filepath, System.IO.FileMode openMode, System.IO.FileAccess accessMode);
+        DateTime CreationTime { get; }
+
+        /// <summary>
+        /// Closes the file stream. Is automatically called when object disposal happens.
+        /// </summary>
+        void Close();
     }
 }
