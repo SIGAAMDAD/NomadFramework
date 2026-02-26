@@ -15,7 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System.Runtime.InteropServices;
 using Nomad.Core.Util;
-using Nomad.CVars.ValueObjects;
+using Nomad.Core.CVars;
 
 namespace Nomad.CVars.Private.ValueObjects {
 	/*
@@ -26,7 +26,7 @@ namespace Nomad.CVars.Private.ValueObjects {
 	===================================================================================
 	*/
 	/// <summary>
-	/// Holds all a <see cref="Interfaces.ICVar"/>'s metadata.
+	/// Holds all a <see cref="ICVar"/>'s metadata.
 	/// </summary>
 
 	[StructLayout( LayoutKind.Explicit, Pack = 16, Size = 14 )]

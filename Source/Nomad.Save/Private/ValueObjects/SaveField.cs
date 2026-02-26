@@ -13,7 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Nomad.Core.FileSystem;
+using Nomad.Core.FileSystem.Streams;
 using Nomad.Core.Util;
 using Nomad.Save.Exceptions;
 using Nomad.Save.Private.Serialization.FieldSerializers;
@@ -84,7 +84,7 @@ namespace Nomad.Save.Private.ValueObjects {
 		/// <param name="stream">The file stream to read from.</param>
 		/// <returns>A new SaveField object.</returns>
 		/// <exception cref="FieldCorruptException">Thrown if the field's data is invalid.</exception>
-		public static SaveField Read( string section, int index, in IMemoryReadStream stream ) {
+		public static SaveField Read( string section, int index, IMemoryReadStream stream ) {
 			string name = stream.ReadString();
 			if ( name.Length < 0 || name.Length > Constants.MAX_FIELD_NAME_LENGTH ) {
 				throw new FieldCorruptException( section, index, stream.Position, $"Field name length corrupted (0 or string overflow, {name.Length} bytes)" );

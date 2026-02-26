@@ -157,3 +157,6 @@ dotnet_naming_style.camel_case_style.required_suffix =
 # These are commented as they require specific analyzers/IDE extensions
 csharp_space_after_control_statement_keyword = true
 csharp_space_before_control_statement_keyword = true
+
+dotnet_diagnostic.CA2224.severity = error
+dotnet_diagnostic.CA1506.severity = error

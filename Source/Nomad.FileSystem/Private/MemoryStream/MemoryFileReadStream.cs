@@ -16,7 +16,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Nomad.Core.FileSystem;
+using Nomad.Core.FileSystem.Streams;
+using Nomad.Core.FileSystem.Configs;
 using Nomad.Core.Util.BufferHandles;
 
 namespace Nomad.FileSystem.Private.MemoryStream {
@@ -41,7 +42,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <summary>
 		/// 
 		/// </summary>
-		public bool IsOpen => _buffer != null;
+		public bool IsOpen => buffer != null;
 
 		/// <summary>
 		/// 
@@ -52,7 +53,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// 
 		/// </summary>
 		public DateTime CreationTime => _creationTime;
-		private readonly DateTime _creationTime;
+		private readonly DateTime _creationTime = DateTime.UtcNow;
 
 		/*
 		===============
@@ -62,10 +63,12 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <summary>
 		/// Initializes a new instance of the MemoryFileReadStream class with the specified file path.
 		/// </summary>
-		/// <param name="filepath">The path to the file to read from.</param>
-		public MemoryFileReadStream( string filepath ) {
-			_filepath = filepath;
-			Open( filepath, FileMode.Open, FileAccess.Read );
+		/// <param name="config"></param>
+		public MemoryFileReadStream( MemoryFileReadConfig config )
+			: base( config )
+		{
+			_filepath = config.FilePath;
+			Open( _filepath, FileMode.Open, FileAccess.Read );
 		}
 
 		/*
@@ -74,25 +77,30 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		===============
 		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
-		public override void Dispose() {
-			Close();
-			base.Dispose();
+		protected override void Dispose( bool disposing ) {
+			if ( isDisposed ) {
+				return;
+			}
+			if ( disposing ) {
+				buffer?.Dispose();
+				buffer = null;
+			}
+			isDisposed = true;
+			base.Dispose( disposing );
 		}
 
 		/*
 		===============
-		DisposeAsync
+		DisposeAsyncCore
 		===============
 		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
-		/// <returns></returns>
-		public override async ValueTask DisposeAsync() {
-			Close();
-			await base.DisposeAsync();
+		protected override async ValueTask DisposeAsyncCore() {
+			await base.DisposeAsyncCore();
 		}
 
 		/*
@@ -104,8 +112,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// 
 		/// </summary>
 		public void Close() {
-			_buffer?.Dispose();
-			_buffer = null;
+			Dispose();
 		}
 
 		/*
@@ -121,12 +128,12 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <param name="accessMode">The access mode for the file.</param>
 		/// <returns><c>true</c> if the file was opened successfully; otherwise, <c>false.</c></returns>
 		private bool Open( string filepath, FileMode openMode, FileAccess accessMode ) {
-			_position = 0;
+			position = 0;
 
 			try {
 				byte[] fileBuffer = File.ReadAllBytes( filepath );
-				_length = fileBuffer.Length;
-				_buffer = new SharedBufferHandle( fileBuffer, fileBuffer.Length );
+				length = fileBuffer.Length;
+				buffer = new SharedBufferHandle( fileBuffer, fileBuffer.Length );
 				return true;
 			} catch ( IOException ) {
 				throw;

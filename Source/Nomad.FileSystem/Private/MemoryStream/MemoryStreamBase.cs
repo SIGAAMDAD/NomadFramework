@@ -16,7 +16,9 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Nomad.Core.FileSystem;
+using Nomad.Core.Compatibility.Guards;
+using Nomad.Core.FileSystem.Streams;
+using Nomad.Core.FileSystem.Configs;
 using Nomad.Core.Util;
 
 namespace Nomad.FileSystem.Private.MemoryStream {
@@ -32,19 +34,41 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 	/// </summary>
 
 	internal abstract class MemoryStreamBase : BaseStream, IMemoryStream {
-		public override int Length => _length;
-		protected int _length = 0;
+		public override long Length {
+			get => buffer != null ? length : throw new ObjectDisposedException( nameof( MemoryStreamBase ) );
+			set => SetLength( value );
+		}
+		protected long length = 0;
 
-		public override int Position {
-			get => _position;
+		public override long Position {
+			get => buffer != null ? position : throw new ObjectDisposedException( nameof( MemoryStreamBase ) );
 			set => Seek( value, SeekOrigin.Begin );
 		}
-		protected int _position = 0;
+		protected long position = 0;
 
-		public IBufferHandle Buffer => _buffer;
-		protected IBufferHandle _buffer;
+		/// <summary>
+		/// The handle to the underlying buffer.
+		/// </summary>
+		public IBufferHandle? Buffer => buffer ?? throw new ObjectDisposedException( nameof( MemoryStreamBase ) );
+		protected IBufferHandle? buffer;
 
+		/// <summary>
+		/// Always <b>true</b>.
+		/// </summary>
 		public override bool CanSeek => true;
+
+		/// <summary>
+		/// Controls how we allocate the memory for the buffer internally.
+		/// </summary>
+		protected readonly AllocationStrategy strategy;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="strategy"></param>
+		public MemoryStreamBase( AllocationStrategy strategy ) {
+			this.strategy = strategy;
+		}
 
 		/*
 		===============
@@ -52,9 +76,44 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		===============
 		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
 		public override void Dispose() {
+			Dispose( true );
+			GC.SuppressFinalize( this );
+		}
+
+		/*
+		===============
+		Dispose
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="disposing"></param>
+		protected virtual void Dispose( bool disposing ) {
+			if ( isDisposed ) {
+				return;
+			}
+			if ( disposing ) {
+				buffer?.Dispose();
+				buffer = null;
+			}
+			isDisposed = true;
+		}
+
+		/*
+		===============
+		DisposeAsync
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		public override async ValueTask DisposeAsync() {
+			await DisposeAsyncCore().ConfigureAwait( false );
+			Dispose( false );
 			GC.SuppressFinalize( this );
 		}
 
@@ -66,9 +125,17 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <summary>
 		///
 		/// </summary>
-		/// <returns></returns>
-		public override async ValueTask DisposeAsync() {
-			GC.SuppressFinalize( this );
+		/// <returns>The <see cref="ValueTask"/> for the disposal method.</returns>
+		protected virtual ValueTask DisposeAsyncCore() {
+			if ( buffer != null ) {
+				if ( buffer is IAsyncDisposable asyncBuffer ) {
+					return asyncBuffer.DisposeAsync();
+				} else {
+					buffer.Dispose();
+				}
+				buffer = null;
+			}
+			return default;
 		}
 
 		/*
@@ -83,30 +150,31 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <param name="origin"></param>
 		/// <returns></returns>
 		/// <exception cref="IOException"></exception>
-		public override int Seek( int offset, SeekOrigin origin ) {
+		public override long Seek( long offset, SeekOrigin origin ) {
+			StateGuard.ThrowIfDisposed( isDisposed, this );
 			switch ( origin ) {
 				case SeekOrigin.Begin:
-					if ( offset >= _length ) {
+					if ( offset > length ) {
 						throw new IOException( "seek (begin) offset is larger than the stream's size!" );
 					}
-					_position = offset;
+					position = offset;
 					break;
 				case SeekOrigin.Current:
-					if ( _position + offset >= _length ) {
+					if ( position + offset > length ) {
 						throw new IOException( "seek (current) offset + position is larger than the stream's size!" );
 					}
-					_position += offset;
+					position += offset;
 					break;
 				case SeekOrigin.End:
 					if ( offset > 0 ) {
 						throw new IOException( "seek (end) offset is greater than 0!" );
 					}
-					_position = _length;
+					position = length + offset;
 					break;
 				default:
 					return -1;
 			}
-			return _position;
+			return position;
 		}
 	};
 };

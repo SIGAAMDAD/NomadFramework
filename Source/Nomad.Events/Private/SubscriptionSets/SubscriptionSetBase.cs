@@ -1,11 +1,27 @@
-﻿using System;
+﻿/*
+===========================================================================
+The Nomad Framework
+Copyright (C) 2025-2026 Noah Van Til
+
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v2. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+This software is provided "as is", without warranty of any kind,
+express or implied, including but not limited to the warranties
+of merchantability, fitness for a particular purpose and noninfringement.
+===========================================================================
+*/
+
+using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.Events;
 using Nomad.Core.Logger;
 
-namespace Nomad.Events.Private {
+namespace Nomad.Events.Private.SubscriptionSets {
 	/*
 	===================================================================================
 
@@ -17,15 +33,19 @@ namespace Nomad.Events.Private {
 	///
 	/// </summary>
 
-	internal abstract class SubscriptionSetBase<TArgs, TCallback> : IDisposable
+	internal abstract class SubscriptionSetBase<TArgs> : IDisposable
 		where TArgs : struct
-		where TCallback : class
 	{
-		protected readonly ILoggerService Logger;
-		protected readonly IGameEvent<TArgs> EventData;
+		protected readonly ILoggerService logger;
+		protected readonly IGameEvent<TArgs> eventData;
 
-		// Optional: used by LockFreeSubscriptionSet
-		protected readonly int OwnerThreadId;
+		protected readonly SubscriptionCache<TArgs> genericSubscriptions;
+		protected readonly SubscriptionCache<TArgs>? asyncSubscriptions;
+		protected readonly HashSet<WeakReference<IGameEvent>> friends = new HashSet<WeakReference<IGameEvent>>();
+
+		protected bool isDisposed = false;
+
+		protected virtual bool SupportsAsync => false;
 
 		/*
 		===============
@@ -38,24 +58,22 @@ namespace Nomad.Events.Private {
 		/// <param name="eventData"></param>
 		/// <param name="logger"></param>
 		protected SubscriptionSetBase( IGameEvent<TArgs> eventData, ILoggerService logger ) {
-			EventData = eventData;
-			Logger = logger;
-			OwnerThreadId = Environment.CurrentManagedThreadId;
+			ArgumentGuard.ThrowIfNull( eventData );
+			ArgumentGuard.ThrowIfNull( logger );
+
+			this.eventData = eventData;
+			this.logger = logger;
+			genericSubscriptions = new SubscriptionCache<TArgs>( logger );
+			if ( SupportsAsync ) {
+				asyncSubscriptions = new SubscriptionCache<TArgs>( logger );
+			}
 		}
 
-		// -----------------------------
-		// Abstract storage operations
-		// -----------------------------
-
-		protected abstract void AddInternal( object subscriber, TCallback callback );
-		protected abstract void RemoveInternal( object subscriber, TCallback callback );
-		protected abstract void RemoveAllInternal( object subscriber );
-
-		protected abstract void PumpInternal( in TArgs args );
-		protected abstract void PumpAsyncInternal( TArgs args, CancellationToken ct );
-
-		protected abstract void CleanupInternal();
-		protected abstract void CleanupIncrementalInternal( int maxSteps );
+		#region Locking hooks
+		protected virtual void EnterRead() { }
+		protected virtual void ExitRead() { }
+		protected virtual void EnterWrite() { }
+		#endregion
 
 		/*
 		===============
@@ -63,129 +81,31 @@ namespace Nomad.Events.Private {
 		===============
 		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
-		public virtual void Dispose() {
-			CleanupInternal();
+		public void Dispose() {
+			Dispose( true );
+			GC.SuppressFinalize( this );
 		}
 
 		/*
 		===============
-		AddSubscription
+		Dispose
 		===============
 		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
-		/// <param name="subscriber"></param>
-		/// <param name="callback"></param>
-		public void AddSubscription( object subscriber, TCallback callback ) {
-			ArgumentGuard.ThrowIfNull( subscriber );
-			ArgumentGuard.ThrowIfNull( callback );
-
-			AddInternal( subscriber, callback );
-		}
-
-		/*
-		===============
-		RemoveSubscription
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="subscriber"></param>
-		/// <param name="callback"></param>
-		public void RemoveSubscription( object subscriber, TCallback callback ) {
-			ArgumentGuard.ThrowIfNull( subscriber );
-			ArgumentGuard.ThrowIfNull( callback );
-
-			RemoveInternal( subscriber, callback );
-		}
-
-		/*
-		===============
-		RemoveAllForSubscriber
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="subscriber"></param>
-		public void RemoveAllForSubscriber( object subscriber ) {
-			ArgumentGuard.ThrowIfNull( subscriber );
-			RemoveAllInternal( subscriber );
-		}
-
-		/*
-		===============
-		Pump
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="args"></param>
-		public void Pump( in TArgs args ) {
-			PumpInternal( in args );
-		}
-
-		/*
-		===============
-		PumpAsync
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="args"></param>
-		/// <param name="ct"></param>
-		/// <returns></returns>
-		public async Task PumpAsync( TArgs args, CancellationToken ct ) {
-			PumpAsyncInternal( args, ct );
-		}
-
-		/*
-		===============
-		Cleanup
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		public void Cleanup() {
-			CleanupInternal();
-		}
-
-		/*
-		===============
-		CleanupIncremental
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="maxSteps"></param>
-		public void CleanupIncremental( int maxSteps ) {
-			CleanupIncrementalInternal( maxSteps );
-		}
-
-		/*
-		===============
-		EnsureThread
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <exception cref="InvalidOperationException"></exception>
-		protected void EnsureThread() {
-#if DEBUG
-			if ( Environment.CurrentManagedThreadId != OwnerThreadId ) {
-				throw new InvalidOperationException(
-					$"SubscriptionSet '{EventData.DebugName}' is single-threaded and cannot be used from another thread." );
+		/// <param name="disposing"></param>
+		protected virtual void Dispose( bool disposing ) {
+			if ( isDisposed ) {
+				return;
 			}
-#endif
+			if ( disposing ) {
+				genericSubscriptions?.Dispose();
+				asyncSubscriptions?.Dispose();
+			}
+			isDisposed = true;
 		}
 	}
 }

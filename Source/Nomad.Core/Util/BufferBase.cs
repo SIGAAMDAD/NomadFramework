@@ -26,44 +26,52 @@ namespace Nomad.Core.Util
     public abstract class BufferBase : IBufferHandle
     {
         /// <summary>
-        /// The size of the owned buffer. This might not be the actual allocated size, but it is the maximum bytes we're allowed to work with
+        /// The size of the owned buffer. This might not be the actual allocated size, but it is the maximum bytes we're allowed to work with.
         /// </summary>
-        public int Length => _length;
-        private int _length;
+        public long Length => length;
+        protected readonly long length;
 
         /// <summary>
         /// The owned chunk of memory.
         /// </summary>
-        public byte[] Buffer => _buffer;
-        protected byte[] _buffer;
+        public byte[] Buffer => buffer;
+        protected readonly byte[] buffer;
 
         /// <summary>
         /// Whether the buffer owner has been killed.
         /// </summary>
-        protected bool _isDisposed = false;
+        protected bool isDisposed = false;
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="buffer"></param>
         /// <param name="length"></param>
-        protected BufferBase(byte[] buffer, int length)
+        protected BufferBase(byte[] buffer, long length)
         {
-            _buffer = buffer;
-            _length = length;
+            this.buffer = buffer;
+            this.length = length;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        public virtual void Dispose()
+        public void Dispose()
         {
-            if (_isDisposed)
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (isDisposed)
             {
                 return;
             }
-            _isDisposed = true;
-            GC.SuppressFinalize(this);
+            isDisposed = true;
         }
 
         /// <summary>
@@ -72,7 +80,7 @@ namespace Nomad.Core.Util
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Span<byte> AsSpan()
-            => _buffer.AsSpan();
+            => buffer.AsSpan();
 
         /// <summary>
         /// 
@@ -80,8 +88,8 @@ namespace Nomad.Core.Util
         /// <param name="start"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Span<byte> AsSpan(int start)
-            => _buffer.AsSpan(start);
+        public Span<byte> AsSpan(long start)
+            => buffer.AsSpan((int)start);
 
         /// <summary>
         /// 
@@ -90,8 +98,8 @@ namespace Nomad.Core.Util
         /// <param name="length"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Span<byte> AsSpan(int start, int length)
-            => _buffer.AsSpan(start, length);
+        public Span<byte> AsSpan(long start, long length)
+            => buffer.AsSpan((int)start, (int)length);
 
         /// <summary>
         /// 
@@ -99,7 +107,7 @@ namespace Nomad.Core.Util
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Memory<byte> AsMemory()
-            => _buffer.AsMemory();
+            => buffer.AsMemory();
 
         /// <summary>
         /// 
@@ -107,8 +115,8 @@ namespace Nomad.Core.Util
         /// <param name="start"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Memory<byte> AsMemory(int start)
-            => _buffer.AsMemory(start);
+        public Memory<byte> AsMemory(long start)
+            => buffer.AsMemory((int)start);
 
         /// <summary>
         /// 
@@ -117,30 +125,23 @@ namespace Nomad.Core.Util
         /// <param name="length"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Memory<byte> AsMemory(int start, int length)
-            => _buffer.AsMemory(start, length);
+        public Memory<byte> AsMemory(long start, long length)
+            => buffer.AsMemory((int)start, (int)length);
 
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MemoryHandle Pin()
-        {
-            unsafe
-            {
-                fixed (void* ptr = _buffer)
-                {
-                    return new MemoryHandle(ptr);
-                }
-            }
-        }
+            => buffer.AsMemory().Pin();
 
         /// <summary>
         /// 
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Clear()
-            => Array.Clear(_buffer, 0, _length);
+            => Array.Clear(buffer, 0, (int)length);
 
         /// <summary>
         /// 
@@ -148,8 +149,8 @@ namespace Nomad.Core.Util
         /// <param name="start"></param>
         /// <param name="length"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Clear(int start, int length)
-            => Array.Clear(_buffer, start, length);
+        public void Clear(long start, long length)
+            => Array.Clear(buffer, (int)start, (int)length);
 
         /// <summary>
         /// 
@@ -159,8 +160,12 @@ namespace Nomad.Core.Util
         public bool Equals(IBufferHandle? other)
         {
             ArgumentGuard.ThrowIfNull(other);
-            var span1 = new ReadOnlySpan<byte>(_buffer);
-            return span1.SequenceEqual(other.AsSpan());
+            if (length != other.Length)
+            {
+                return false;
+            }
+            var span1 = new ReadOnlySpan<byte>(buffer, 0, (int)length);
+            return span1.SequenceEqual(other.AsSpan(0, length));
         }
 
         /// <summary>
@@ -170,8 +175,8 @@ namespace Nomad.Core.Util
         /// <param name="length"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ReadOnlySpan<byte> GetSlice(int start, int length)
-            => _buffer.AsSpan().Slice(start, length);
+        public ReadOnlySpan<byte> GetSlice(long start, long length)
+            => buffer.AsSpan().Slice((int)start, (int)length);
 
         /// <summary>
         /// 
@@ -181,8 +186,8 @@ namespace Nomad.Core.Util
         /// <param name="length"></param>
         /// <param name="dstOffset"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void CopyFrom(byte[] source, int offset, int length, int dstOffset = 0)
-            => MemCpy(source, offset, _buffer, dstOffset, length);
+        public void CopyFrom(byte[] source, long offset, long length, long dstOffset = 0)
+            => MemCpy(source, offset, buffer, dstOffset, length);
 
         /// <summary>
         /// 
@@ -192,8 +197,8 @@ namespace Nomad.Core.Util
         /// <param name="length"></param>
         /// <param name="dstOffset"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void CopyFrom(ReadOnlySpan<byte> source, int offset, int length, int dstOffset = 0)
-            => MemCpy(source, offset, _buffer, dstOffset, length);
+        public void CopyFrom(ReadOnlySpan<byte> source, long offset, long length, long dstOffset = 0)
+            => MemCpy(source, offset, buffer, dstOffset, length);
 
         /// <summary>
         /// 
@@ -203,10 +208,10 @@ namespace Nomad.Core.Util
         /// <param name="length"></param>
         /// <param name="dstOffset"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void CopyFrom(IBufferHandle source, int offset, int length, int dstOffset = 0)
+        public void CopyFrom(IBufferHandle source, long offset, long length, long dstOffset = 0)
         {
             ArgumentGuard.ThrowIfNull(source);
-            MemCpy(source.AsSpan(), offset, _buffer, dstOffset, length);
+            MemCpy(source.AsSpan(), offset, buffer, dstOffset, length);
         }
 
         /// <summary>
@@ -217,8 +222,8 @@ namespace Nomad.Core.Util
         /// <param name="length"></param>
         /// <param name="srcOffset"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void CopyTo(byte[] dest, int offset, int length, int srcOffset = 0)
-            => MemCpy(_buffer, srcOffset, dest, offset, length);
+        public void CopyTo(byte[] dest, long offset, long length, long srcOffset = 0)
+            => MemCpy(buffer, srcOffset, dest, offset, length);
 
         /// <summary>
         /// 
@@ -228,8 +233,8 @@ namespace Nomad.Core.Util
         /// <param name="length"></param>
         /// <param name="srcOffset"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void CopyTo(Span<byte> dest, int offset, int length, int srcOffset = 0)
-            => MemCpy(_buffer, srcOffset, dest, offset, length);
+        public void CopyTo(Span<byte> dest, long offset, long length, long srcOffset = 0)
+            => MemCpy(buffer, srcOffset, dest, offset, length);
 
         /// <summary>
         /// 
@@ -239,10 +244,10 @@ namespace Nomad.Core.Util
         /// <param name="length"></param>
         /// <param name="srcOffset"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void CopyTo(IBufferHandle dest, int offset, int length, int srcOffset = 0)
+        public void CopyTo(IBufferHandle dest, long offset, long length, long srcOffset = 0)
         {
             ArgumentGuard.ThrowIfNull(dest);
-            MemCpy(_buffer, srcOffset, dest.AsSpan(), offset, length);
+            MemCpy(buffer, srcOffset, dest.AsSpan(), offset, length);
         }
 
         /// <summary>
@@ -253,12 +258,13 @@ namespace Nomad.Core.Util
         /// <param name="dst"></param>
         /// <param name="dstOffset"></param>
         /// <param name="length"></param>
-        private unsafe void MemCpy(ReadOnlySpan<byte> src, int srcOffset, Span<byte> dst, int dstOffset, int length)
+        private unsafe void MemCpy(ReadOnlySpan<byte> src, long srcOffset, Span<byte> dst, long dstOffset, long length)
         {
-            fixed (byte* srcPtr = &src[srcOffset])
-            fixed (byte* dstPtr = &dst[dstOffset])
+            long destSize = dst.Length - dstOffset;
+            fixed (byte* srcPtr = &src[(int)srcOffset])
+            fixed (byte* dstPtr = &dst[(int)dstOffset])
             {
-                System.Buffer.MemoryCopy(srcPtr, dstPtr, dst.Length, length);
+                System.Buffer.MemoryCopy(srcPtr, dstPtr, destSize, length);
             }
         }
     }

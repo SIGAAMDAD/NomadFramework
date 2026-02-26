@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-The Nomad MPL Source Code
+The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public

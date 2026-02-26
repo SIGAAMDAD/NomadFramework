@@ -29,8 +29,8 @@ namespace Nomad.Save.Exceptions
         /// <summary>
         /// 
         /// </summary>
-        public int SectionIndex => _sectionIndex;
-        private readonly int _sectionIndex;
+        public long SectionIndex => _sectionIndex;
+        private readonly long _sectionIndex;
 
         /// <summary>
         /// 
@@ -39,7 +39,7 @@ namespace Nomad.Save.Exceptions
         /// <param name="sectionIndex"></param>
         /// <param name="fileOffset"></param>
         /// <param name="message"></param>
-        public SectionCorruptException(string? sectionName, int sectionIndex, int fileOffset, string message = "")
+        public SectionCorruptException(string? sectionName, long sectionIndex, long fileOffset, string message = "")
             : base(fileOffset, message)
         {
             _sectionName = sectionName ?? "(UNKNOWN)";

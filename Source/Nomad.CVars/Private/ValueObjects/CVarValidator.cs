@@ -15,7 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Runtime.CompilerServices;
-using Nomad.CVars.ValueObjects;
+using Nomad.Core.CVars;
 
 namespace Nomad.CVars.Private.ValueObjects {
 	/*
@@ -69,7 +69,7 @@ namespace Nomad.CVars.Private.ValueObjects {
 		/// </summary>
 		/// <param name="name">The name to check</param>
 		/// <returns>Returns true if the name is valid</returns>
-		public bool IsValidName( string name ) {
+		public static bool IsValidName( string name ) {
 			if ( string.IsNullOrEmpty( name ) ) {
 				return false;
 			}

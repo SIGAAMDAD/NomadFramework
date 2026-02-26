@@ -24,6 +24,8 @@ using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.FileSystem.Private.Services;
 using Nomad.FileSystem.Private.MemoryStream;
+using Nomad.Core.FileSystem.Streams;
+using Nomad.Core.FileSystem.Configs;
 
 namespace Nomad.FileSystem.Tests
 {
@@ -64,20 +66,20 @@ namespace Nomad.FileSystem.Tests
 
         private IWriteStream OpenMemoryFileWriteStream(int length = 1024, bool fixedSize = false)
         {
-            var config = new WriteConfig(StreamType.MemoryFile, length, false);
+            var config = new MemoryFileWriteConfig{ FilePath = _filePath, InitialCapacity = length, FixedSize = fixedSize };
             // Note: The fixedSize parameter isn't directly in WriteConfig, but MemoryFileWriteStream constructor accepts it.
             // We'll need to use reflection or modify the service? For simplicity, we'll assume WriteConfig can convey fixedSize.
             // In the current code, WriteConfig only has Type, Append, Length. MemoryFileWriteStream constructor also has a fixedSize param.
             // The service passes length but not fixedSize. To test fixedSize, we might need to directly instantiate or extend.
             // We'll skip fixedSize tests here or assume default false.
-            return _service.OpenWrite(_filePath, config);
+            return _service.OpenWrite(config);
         }
 
         [Test]
         public void Write_WritesToMemory_NotFileUntilFlush()
         {
             using var stream = OpenMemoryFileWriteStream() as MemoryFileWriteStream;
-            stream.Write(new byte[] { 1, 2, 3 }, 0, 3);
+            stream.Write([1, 2, 3], 0, 3);
             // File should not exist yet
             Assert.That(File.Exists(_filePath), Is.False);
         }
@@ -86,7 +88,7 @@ namespace Nomad.FileSystem.Tests
         public void Flush_WritesToFile()
         {
             using var stream = OpenMemoryFileWriteStream() as MemoryFileWriteStream;
-            stream.Write(new byte[] { 1, 2, 3 }, 0, 3);
+            stream.Write([1, 2, 3], 0, 3);
             stream.Flush();
 
             Assert.That(File.Exists(_filePath));
@@ -98,7 +100,7 @@ namespace Nomad.FileSystem.Tests
         public async Task FlushAsync_WritesToFile()
         {
             using var stream = OpenMemoryFileWriteStream() as MemoryFileWriteStream;
-            stream.Write(new byte[] { 4, 5, 6 }, 0, 3);
+            stream.Write([4, 5, 6], 0, 3);
             await stream.FlushAsync();
 
             var content = File.ReadAllBytes(_filePath);
@@ -110,7 +112,7 @@ namespace Nomad.FileSystem.Tests
         {
             using (var stream = OpenMemoryFileWriteStream() as MemoryFileWriteStream)
             {
-                stream.Write(new byte[] { 7, 8, 9 }, 0, 3);
+                stream.Write([7, 8, 9], 0, 3);
             } // Dispose called
 
             Assert.That(File.Exists(_filePath));
@@ -144,11 +146,11 @@ namespace Nomad.FileSystem.Tests
         {
             // Create source file
             string sourcePath = Path.Combine(_tempDir, "source.bin");
-            byte[] sourceData = { 10, 20, 30 };
+            byte[] sourceData = [10, 20, 30];
             File.WriteAllBytes(sourcePath, sourceData);
 
-            var readConfig = new ReadConfig(StreamType.File);
-            using var sourceStream = _service.OpenRead("source.bin", readConfig);
+            var readConfig = new FileReadConfig{ FilePath = "source.bin" };
+            using var sourceStream = _service.OpenRead(readConfig);
 
             using var destStream = OpenMemoryFileWriteStream() as MemoryFileWriteStream;
             destStream.WriteFromStream(sourceStream);
@@ -180,6 +182,196 @@ namespace Nomad.FileSystem.Tests
             using var br = new BinaryReader(File.OpenRead(_filePath));
             string read = br.ReadString();
             Assert.That(read, Is.EqualTo(test));
+        }
+
+        [Test]
+        public void FilePath_MatchesFullFilePath()
+        {
+            var stream = OpenMemoryFileWriteStream() as MemoryFileWriteStream;
+
+            Assert.That(stream.FilePath, Is.EqualTo(_filePath));
+        }
+
+        [Test]
+        public void Create_MetadataIsCorrect()
+        {
+            var stream = OpenMemoryFileWriteStream() as MemoryFileWriteStream;
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(stream.IsOpen, Is.True);
+                Assert.That(stream.CanRead, Is.False);
+                Assert.That(stream.CanWrite, Is.True);
+            }
+        }
+
+        [Test]
+        public void Flush_CreatesAndWritesCorrectFileAndData()
+        {
+            byte[] data = [1, 2, 3, 4, 5];
+            {
+                using var stream = OpenMemoryFileWriteStream() as MemoryFileWriteStream;
+                stream.Write(data);
+                stream.Flush();
+            }
+
+			using (Assert.EnterMultipleScope())
+			{
+				Assert.That(File.Exists(_filePath));
+				Assert.That(File.ReadAllBytes(_filePath), Is.EqualTo(data));
+			}
+		}
+
+        [Test]
+        public void WriteInt8AndFlush_WritesCorrectData()
+        {
+            sbyte value = sbyte.MaxValue;
+            {
+                using var stream = OpenMemoryFileWriteStream();
+                stream.WriteInt8(value);
+            }
+
+			using (Assert.EnterMultipleScope())
+			{
+				Assert.That(File.Exists(_filePath));
+				Assert.That((sbyte)File.ReadAllBytes(_filePath)[0], Is.EqualTo(value));
+			}
+		}
+
+        [Test]
+        public void WriteUInt8AndFlush_WritesCorrectData()
+        {
+            byte value = byte.MaxValue;
+            {
+                using var stream = OpenMemoryFileWriteStream();
+                stream.WriteUInt8(value);
+            }
+
+			using (Assert.EnterMultipleScope())
+			{
+				Assert.That(File.Exists(_filePath));
+				Assert.That(File.ReadAllBytes(_filePath)[0], Is.EqualTo(value));
+			}
+		}
+
+        [Test]
+        public void WriteInt16AndFlush_WritesCorrectData()
+        {
+            short value = short.MaxValue;
+            {
+                using var stream = OpenMemoryFileWriteStream();
+                stream.WriteInt16(value);
+            }
+
+            Assert.That(File.Exists(_filePath));
+
+            short fileValue = BitConverter.ToInt16(File.ReadAllBytes(_filePath));
+            Assert.That(fileValue, Is.EqualTo(value));
+        }
+
+        [Test]
+        public void WriteUInt16AndFlush_WritesCorrectData()
+        {
+            ushort value = ushort.MaxValue;
+            {
+                using var stream = OpenMemoryFileWriteStream();
+                stream.WriteUInt16(value);
+            }
+
+            Assert.That(File.Exists(_filePath));
+
+            ushort fileValue = BitConverter.ToUInt16(File.ReadAllBytes(_filePath));
+            Assert.That(fileValue, Is.EqualTo(value));
+        }
+
+        [Test]
+        public void WriteInt32AndFlush_WritesCorrectData()
+        {
+            int value = int.MaxValue;
+            {
+                using var stream = OpenMemoryFileWriteStream();
+                stream.WriteInt32(value);
+            }
+
+            Assert.That(File.Exists(_filePath));
+
+            int fileValue = BitConverter.ToInt32(File.ReadAllBytes(_filePath));
+            Assert.That(fileValue, Is.EqualTo(value));
+        }
+
+        [Test]
+        public void WriteUInt32AndFlush_WritesCorrectData()
+        {
+            uint value = uint.MaxValue;
+            {
+                using var stream = OpenMemoryFileWriteStream();
+                stream.WriteUInt32(value);
+            }
+
+            Assert.That(File.Exists(_filePath));
+
+            uint fileValue = BitConverter.ToUInt32(File.ReadAllBytes(_filePath));
+            Assert.That(fileValue, Is.EqualTo(value));
+        }
+
+        [Test]
+        public void WriteInt64AndFlush_WritesCorrectData()
+        {
+            long value = long.MaxValue;
+            {
+                using var stream = OpenMemoryFileWriteStream();
+                stream.WriteInt64(value);
+            }
+
+            Assert.That(File.Exists(_filePath));
+
+            long fileValue = BitConverter.ToInt64(File.ReadAllBytes(_filePath));
+            Assert.That(fileValue, Is.EqualTo(value));
+        }
+
+        [Test]
+        public void WriteUInt64AndFlush_WritesCorrectData()
+        {
+            ulong value = ulong.MaxValue;
+            {
+                using var stream = OpenMemoryFileWriteStream();
+                stream.WriteUInt64(value);
+            }
+
+            Assert.That(File.Exists(_filePath));
+
+            ulong fileValue = BitConverter.ToUInt64(File.ReadAllBytes(_filePath));
+            Assert.That(fileValue, Is.EqualTo(value));
+        }
+
+        [Test]
+        public void WriteFloatAndFlush_WritesCorrectData()
+        {
+            float value = float.MaxValue;
+            {
+                using var stream = OpenMemoryFileWriteStream();
+                stream.WriteFloat(value);
+            }
+
+            Assert.That(File.Exists(_filePath));
+
+            float fileValue = BitConverter.ToSingle(File.ReadAllBytes(_filePath));
+            Assert.That(fileValue, Is.EqualTo(value));
+        }
+
+        [Test]
+        public void WriteDoubleAndFlush_WritesCorrectData()
+        {
+            double value = double.MaxValue;
+            {
+                using var stream = OpenMemoryFileWriteStream();
+                stream.WriteDouble(value);
+            }
+
+            Assert.That(File.Exists(_filePath));
+
+            double fileValue = BitConverter.ToDouble(File.ReadAllBytes(_filePath));
+            Assert.That(fileValue, Is.EqualTo(value));
         }
     }
 }

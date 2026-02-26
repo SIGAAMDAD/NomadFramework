@@ -15,7 +15,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.Util;
-using System;
 using System.Runtime.CompilerServices;
 
 namespace Nomad.Core.FileSystem
@@ -39,7 +38,6 @@ namespace Nomad.Core.FileSystem
         /// 
         /// </summary>
         /// <param name="filePath"></param>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
         public FilePath(string filePath)
         {
             ArgumentGuard.ThrowIfNull(filePath);
@@ -93,7 +91,6 @@ namespace Nomad.Core.FileSystem
         /// <summary>
         /// Removes the file path's extension if there is any starting at the character '.'
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void StripExtension()
         {
             int relativeStart = _path.LastIndexOf(System.IO.Path.DirectorySeparatorChar);

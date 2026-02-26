@@ -18,14 +18,13 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Nomad.Core.Compatibility.Guards;
+using Nomad.Core.CVars;
 using Nomad.Core.Events;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.Core.Util;
-using Nomad.CVars.Interfaces;
 using Nomad.CVars.Private.Entities;
 using Nomad.CVars.Private.Repositories;
-using Nomad.CVars.ValueObjects;
 
 namespace Nomad.CVars.Private.Services {
 	/*
@@ -46,6 +45,8 @@ namespace Nomad.CVars.Private.Services {
 		private readonly IGameEventRegistryService _eventFactory;
 		private readonly ILoggerService _logger;
 		private readonly IFileSystem _fileSystem;
+
+		private bool _isDisposed = false;
 
 		/*
 		===============
@@ -74,11 +75,15 @@ namespace Nomad.CVars.Private.Services {
 		===============
 		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
 		public void Dispose() {
-			_cvars.Clear();
-			_groups.Clear();
+			if ( !_isDisposed ) {
+				_cvars.Clear();
+				_groups.Clear();
+			}
+			GC.SuppressFinalize( this );
+			_isDisposed = true;
 		}
 
 		/*
@@ -159,7 +164,7 @@ namespace Nomad.CVars.Private.Services {
 		/// </summary>
 		/// <param name="group"></param>
 		/// <exception cref="InvalidOperationException"></exception>
-		public void AddGroup( in CVarGroup group ) {
+		public void AddGroup( CVarGroup group ) {
 			ArgumentGuard.ThrowIfNull( group );
 
 			if ( _groups.Contains( group ) ) {
@@ -327,7 +332,7 @@ namespace Nomad.CVars.Private.Services {
 			ArgumentGuard.ThrowIfNullOrEmpty( groupName );
 
 			foreach ( var group in _groups ) {
-				if ( string.Equals( group.Name, groupName ) ) {
+				if ( string.Equals( group.Name, groupName, StringComparison.CurrentCultureIgnoreCase ) ) {
 					return true;
 				}
 			}
@@ -460,7 +465,7 @@ namespace Nomad.CVars.Private.Services {
 		private bool GetCVarGroup( string name, out CVarGroup? group ) {
 			group = null;
 			foreach ( var value in _groups ) {
-				if ( string.Equals( value.Name, name ) ) {
+				if ( string.Equals( value.Name, name, StringComparison.CurrentCultureIgnoreCase ) ) {
 					group = value;
 					return true;
 				}

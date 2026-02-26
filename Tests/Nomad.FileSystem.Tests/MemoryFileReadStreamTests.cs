@@ -19,10 +19,12 @@ using System.IO;
 using NUnit.Framework;
 using Moq;
 using Nomad.Core.EngineUtils;
-using Nomad.Core.FileSystem;
+using Nomad.Core.FileSystem.Streams;
 using Nomad.Core.Logger;
 using Nomad.FileSystem.Private.Services;
 using Nomad.FileSystem.Private.MemoryStream;
+using System.Threading.Tasks;
+using Nomad.Core.FileSystem.Configs;
 
 namespace Nomad.FileSystem.Tests
 {
@@ -67,18 +69,63 @@ namespace Nomad.FileSystem.Tests
 
         private IReadStream OpenMemoryFileReadStream()
         {
-            var config = new ReadConfig(StreamType.MemoryFile);
-            return _service.OpenRead("memread.bin", config);
+            var config = new MemoryFileReadConfig{ FilePath = "memread.bin", MaxCapacity = 1024 };
+            return _service.OpenRead(config);
         }
 
         [Test]
-        public void Read_ReadsAllBytes()
+        public void ReadSpan_ReadsAllBytes()
+        {
+            using var stream = OpenMemoryFileReadStream();
+            Assert.That(stream, Is.Not.Null);
+            
+            Span<byte> buffer = stackalloc byte[_testData.Length];
+            int read = stream.Read(buffer, 0, buffer.Length);
+			using (Assert.EnterMultipleScope())
+			{
+				Assert.That(read, Is.EqualTo(_testData.Length));
+				Assert.That(buffer.SequenceEqual(_testData.AsSpan()));
+			}
+		}
+
+        [Test]
+        public async Task ReadAsync_ReadsAllBytes()
+        {
+            using var stream = OpenMemoryFileReadStream();
+            Assert.That(stream, Is.Not.Null);
+            
+            Memory<byte> buffer = new byte[_testData.Length];
+            int read = await stream.ReadAsync(buffer);
+			using (Assert.EnterMultipleScope())
+			{
+				Assert.That(read, Is.EqualTo(_testData.Length));
+				Assert.That(buffer.ToArray(), Is.EqualTo(_testData));
+			}
+		}
+
+        [Test]
+        public void ReadBytes_ReadsAllBytes()
         {
             using var stream = OpenMemoryFileReadStream();
             Assert.That(stream, Is.Not.Null);
             
             byte[] buffer = new byte[_testData.Length];
             int read = stream.Read(buffer, 0, buffer.Length);
+			using (Assert.EnterMultipleScope())
+			{
+				Assert.That(read, Is.EqualTo(_testData.Length));
+				Assert.That(buffer, Is.EqualTo(_testData));
+			}
+		}
+
+        [Test]
+        public async Task ReadBytesAsync_ReadsAllBytes()
+        {
+            using var stream = OpenMemoryFileReadStream();
+            Assert.That(stream, Is.Not.Null);
+            
+            byte[] buffer = new byte[_testData.Length];
+            int read = await stream.ReadAsync(buffer, 0, buffer.Length);
 			using (Assert.EnterMultipleScope())
 			{
 				Assert.That(read, Is.EqualTo(_testData.Length));
@@ -110,6 +157,15 @@ namespace Nomad.FileSystem.Tests
         }
 
         [Test]
+        public async Task ReadToEndAsync_ReadsRemaining()
+        {
+            using var stream = OpenMemoryFileReadStream();
+            stream.Position = 2;
+            byte[] remaining = await stream.ReadToEndAsync();
+            Assert.That(remaining, Is.EqualTo(new byte[] { 30, 40, 50 }));
+        }
+
+        [Test]
         public void ToArray_ReturnsFullBuffer()
         {
             using var stream = OpenMemoryFileReadStream() as MemoryFileReadStream;
@@ -128,16 +184,127 @@ namespace Nomad.FileSystem.Tests
         }
 
         [Test]
+        public void Seek_BeyondLength_ThrowsIOException()
+        {
+            using var stream = OpenMemoryFileReadStream();
+            Assert.Throws<IOException>(() => stream.Seek(_testData.Length + 1, SeekOrigin.Begin));
+        }
+
+        [Test]
+        public void ReadInt8_ReadsCorrectly()
+        {
+            // Overwrite file with known ints
+            using (var bw = new BinaryWriter(File.OpenWrite(_filePath)))
+            {
+                bw.Write(sbyte.MaxValue);
+            }
+            using var stream = OpenMemoryFileReadStream() as MemoryFileReadStream;
+            sbyte val = stream.ReadInt8();
+            Assert.That(val, Is.EqualTo(sbyte.MaxValue));
+        }
+
+        [Test]
+        public void ReadInt16_ReadsCorrectly()
+        {
+            // Overwrite file with known ints
+            using (var bw = new BinaryWriter(File.OpenWrite(_filePath)))
+            {
+                bw.Write(short.MaxValue);
+            }
+            using var stream = OpenMemoryFileReadStream() as MemoryFileReadStream;
+            short val = stream.ReadInt16();
+            Assert.That(val, Is.EqualTo(short.MaxValue));
+        }
+
+        [Test]
         public void ReadInt32_ReadsCorrectly()
         {
             // Overwrite file with known ints
             using (var bw = new BinaryWriter(File.OpenWrite(_filePath)))
             {
-                bw.Write(123456);
+                bw.Write(int.MaxValue);
             }
             using var stream = OpenMemoryFileReadStream() as MemoryFileReadStream;
             int val = stream.ReadInt32();
-            Assert.That(val, Is.EqualTo(123456));
+            Assert.That(val, Is.EqualTo(int.MaxValue));
+        }
+
+        [Test]
+        public void ReadInt64_ReadsCorrectly()
+        {
+            // Overwrite file with known ints
+            using (var bw = new BinaryWriter(File.OpenWrite(_filePath)))
+            {
+                bw.Write(long.MaxValue);
+            }
+            using var stream = OpenMemoryFileReadStream() as MemoryFileReadStream;
+            long val = stream.ReadInt64();
+            Assert.That(val, Is.EqualTo(long.MaxValue));
+        }
+
+        [Test]
+        public void ReadUInt8_ReadsCorrectly()
+        {
+            // Overwrite file with known ints
+            using (var bw = new BinaryWriter(File.OpenWrite(_filePath)))
+            {
+                bw.Write(byte.MaxValue);
+            }
+            using var stream = OpenMemoryFileReadStream() as MemoryFileReadStream;
+            byte val = stream.ReadUInt8();
+            Assert.That(val, Is.EqualTo(byte.MaxValue));
+        }
+
+        [Test]
+        public void ReadUInt16_ReadsCorrectly()
+        {
+            // Overwrite file with known ints
+            using (var bw = new BinaryWriter(File.OpenWrite(_filePath)))
+            {
+                bw.Write(ushort.MaxValue);
+            }
+            using var stream = OpenMemoryFileReadStream() as MemoryFileReadStream;
+            ushort val = stream.ReadUInt16();
+            Assert.That(val, Is.EqualTo(ushort.MaxValue));
+        }
+
+        [Test]
+        public void ReadUInt32_ReadsCorrectly()
+        {
+            // Overwrite file with known ints
+            using (var bw = new BinaryWriter(File.OpenWrite(_filePath)))
+            {
+                bw.Write(uint.MaxValue);
+            }
+            using var stream = OpenMemoryFileReadStream() as MemoryFileReadStream;
+            uint val = stream.ReadUInt32();
+            Assert.That(val, Is.EqualTo(uint.MaxValue));
+        }
+
+        [Test]
+        public void ReadUInt64_ReadsCorrectly()
+        {
+            // Overwrite file with known ints
+            using (var bw = new BinaryWriter(File.OpenWrite(_filePath)))
+            {
+                bw.Write(ulong.MaxValue);
+            }
+            using var stream = OpenMemoryFileReadStream() as MemoryFileReadStream;
+            ulong val = stream.ReadUInt64();
+            Assert.That(val, Is.EqualTo(ulong.MaxValue));
+        }
+
+        [Test]
+        public void ReadBoolean_ReadsCorrectly()
+        {
+            // Overwrite file with known ints
+            using (var bw = new BinaryWriter(File.OpenWrite(_filePath)))
+            {
+                bw.Write(true);
+            }
+            using var stream = OpenMemoryFileReadStream() as MemoryFileReadStream;
+            bool val = stream.ReadBoolean();
+            Assert.That(val, Is.EqualTo(true));
         }
 
         [Test]
@@ -161,6 +328,52 @@ namespace Nomad.FileSystem.Tests
             stream.Dispose();
             // After dispose, buffer is returned to pool; we can't verify directly but no exception
             Assert.DoesNotThrow(() => stream.Dispose()); // double dispose safe
+        }
+
+        [Test]
+        public async Task DisposeAsync_ReleasesBuffer()
+        {
+            var stream = OpenMemoryFileReadStream() as MemoryFileReadStream;
+            var buffer = stream.ToArray(); // internal buffer reference
+            await stream.DisposeAsync();
+            // After dispose, buffer is returned to pool; we can't verify directly but no exception
+            Assert.DoesNotThrowAsync(async () => await stream.DisposeAsync()); // double dispose safe
+        }
+
+        [Test]
+        public void FilePath_MatchesFullFilePath()
+        {
+            var stream = OpenMemoryFileReadStream() as MemoryFileReadStream;
+
+            Assert.That(stream.FilePath, Is.EqualTo(_filePath));
+        }
+
+        [Test]
+        public void Create_MetadataIsCorrect()
+        {
+            var stream = OpenMemoryFileReadStream() as MemoryFileReadStream;
+
+			using (Assert.EnterMultipleScope())
+			{
+				Assert.That(stream.IsOpen, Is.True);
+				Assert.That(stream.CanRead, Is.True);
+				Assert.That(stream.CanWrite, Is.False);
+			}
+		}
+
+        [Test]
+        public void Flush_ThrowsNotSupportedException()
+        {
+            var stream = OpenMemoryFileReadStream() as IMemoryFileReadStream;
+            Assert.Throws<NotSupportedException>( () => stream.Flush() );
+        }
+
+        [Test]
+        public async Task FlushAsync_ThrowsNotSupportedException()
+        {
+            var stream = OpenMemoryFileReadStream() as IMemoryFileReadStream;
+            
+            Assert.ThrowsAsync<NotSupportedException>( async () => await stream.FlushAsync() );
         }
     }
 }

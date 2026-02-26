@@ -60,35 +60,23 @@ namespace Nomad.Core.Events
     /// Subscriptions are tied to an owner object. Subscriptions automatically clean
     /// themselves up when the owner goes out of scope or is destroyed.
     /// </remarks>
-    /// # Subscription Examples
+    /// # Examples
     /// <example>
     /// ## Godot
-    /// <details>
     /// Here's an example of how to subscribe to an IGameEvent in Godot:
-    /// \include Documentation/Examples/Nomad.Events/Godot/Player_Subscribe.cs
-    /// </details>
+    /// \include Nomad.Events/Godot/Player_Subscribe.cs
     /// </example>
     /// <example>
     /// ## Unity
-    /// <details>
-    /// Here's an example of how to subscribe to a IGameEvent in Unity:
-    /// \include Documentation/Examples/Nomad.Events/Unity/Player_Subscribe.cs
-    /// </details>
-    /// </example>
-    /// # Publishing Examples
-    /// <example>
-    /// ## Godot
-    /// <details>
-    /// Here's an example of how to publish a IGameEvent in Godot:
-    /// \include Documentation/Examples/Nomad.Events/Unity/Enemy_Publish.cs
-    /// </details>
-    /// </example>
-    /// <example>
-    /// ## Unity
-    /// <details>
-    /// Here's an example of how to publish a IGameEvent in Unity:
-    /// \include Documentation/Examples/Nomad.Events/Unity/Enemy_Publish.cs
-    /// </details>
+    /// ### Declaring an event variable
+    /// \snippet Nomad.Events/Unity/Player_Subscribe.cs declare
+    /// ### Retrieving an event
+    /// \snippet Nomad.Events/Unity/Player_Subscribe.cs get_event
+    /// ### Subscribing to an event
+    /// \snippet Nomad.Events/Unity/Player_Subscribe.cs subscribe
+    /// ### Publishing an event
+    /// \snippet Nomad.Events/Unity/Enemy_Publish.cs publish
+    /// This will allow you to send messages between scripts without ever directly calling into them.
     /// </example>
     /// 
     /// @module Nomad.Events

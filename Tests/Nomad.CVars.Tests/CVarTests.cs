@@ -15,14 +15,12 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 #if !UNITY_EDITOR
 using System;
+using Nomad.Core.CVars;
 using Nomad.Core.EngineUtils;
 using Nomad.Core.Events;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
-using Nomad.CVars.Events;
-using Nomad.CVars.Interfaces;
 using Nomad.CVars.Private.Services;
-using Nomad.CVars.ValueObjects;
 using Nomad.Events;
 using Nomad.FileSystem.Private.Services;
 using NUnit.Framework;
@@ -55,6 +53,7 @@ public class CVarTests
 		_registry?.Dispose();
 		_fileSystem?.Dispose();
 		_cvarSystem?.Dispose();
+		_engineService?.Dispose();
 	}
 
 	#region Registration Tests

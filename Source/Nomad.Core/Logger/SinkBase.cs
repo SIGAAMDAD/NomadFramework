@@ -22,6 +22,8 @@ namespace Nomad.Core.Logger
     /// </summary>
     public abstract class SinkBase : ILoggerSink
     {
+        protected bool isDisposed = false;
+
         /// <summary>
         /// Prints a log message.
         /// </summary>
@@ -38,18 +40,29 @@ namespace Nomad.Core.Logger
         /// </summary>
         public abstract void Flush();
 
-        /*
-		===============
-		Dispose
-		===============
-		*/
+        /// <summary>
+        /// 
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
         /// <summary>
         /// Flushes the sink.
         /// </summary>
-        public virtual void Dispose()
+        protected virtual void Dispose(bool disposing)
         {
-            Flush();
-            GC.SuppressFinalize(this);
+            if (isDisposed)
+            {
+                return;
+            }
+            if (disposing)
+            {
+                Flush();
+            }
+            isDisposed = true;
         }
     }
 }

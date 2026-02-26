@@ -14,7 +14,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using Nomad.Core.Compatibility;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.Events;
 
@@ -28,6 +27,8 @@ namespace Nomad.Events
     {
         private IGameEvent<TArgs>? _event;
         private EventCallback<TArgs>? _callback;
+
+        private bool _isDisposed = false;
 
         /// <summary>
         ///
@@ -43,23 +44,24 @@ namespace Nomad.Events
             _callback = callback;
         }
 
+        /*
+        ===============
+        Dispose
+        ===============
+        */
         /// <summary>
-        ///
-        /// </summary>
-        ~DisposableSubscription()
-        {
-            Dispose();
-        }
-
-        /// <summary>
-        ///
+        /// 
         /// </summary>
         public void Dispose()
         {
-            _event?.Unsubscribe(this, _callback);
-            _event = null;
-            _callback = null;
+            if (!_isDisposed)
+            {
+                _event?.Unsubscribe(this, _callback);
+                _event = null;
+                _callback = null;
+            }
             GC.SuppressFinalize(this);
+            _isDisposed = true;
         }
     }
 }

@@ -13,14 +13,14 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
+using Nomad.Core.Exceptions;
 
 namespace Nomad.Save.Exceptions
 {
     /// <summary>
     /// 
     /// </summary>
-    public sealed class DuplicateFieldException : Exception
+    public sealed class DuplicateFieldException : NomadError
     {
         /// <summary>
         /// The field's name.
@@ -31,8 +31,10 @@ namespace Nomad.Save.Exceptions
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="sectionName"></param>
         /// <param name="fieldName"></param>
-        public DuplicateFieldException(string fieldName)
+        internal DuplicateFieldException(string sectionName, string fieldName)
+            : base($"Duplicate field '{fieldName}' was added to section '{sectionName}'")
         {
             _fieldName = fieldName;
         }

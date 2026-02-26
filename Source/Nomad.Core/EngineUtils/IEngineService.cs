@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using Nomad.Core.Events;
 using Nomad.Core.ResourceCache;
 using Nomad.Core.Util;
 
@@ -22,21 +23,18 @@ namespace Nomad.Core.EngineUtils
     /// <summary>
     ///
     /// </summary>
-    public interface IEngineService
+    public interface IEngineService : IDisposable
     {
-        /*
+        /// <summary>
+        /// 
+        /// </summary>
+        IGameEvent<WindowSizeChangedEventArgs> WindowSizeChanged { get; }
+
         /// <summary>
         /// Check if the application is currently focused.
         /// </summary>
         /// <returns></returns>
         bool IsApplicationFocused();
-
-        /// <summary>
-        /// Check if the application is currently paused.
-        /// </summary>
-        /// <returns></returns>
-        bool IsApplicationPaused();
-        */
 
         /// <summary>
         /// Gets the application version string.

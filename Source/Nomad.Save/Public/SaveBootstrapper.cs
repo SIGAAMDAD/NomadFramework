@@ -18,9 +18,9 @@ using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.EngineUtils;
 using Nomad.Core.Events;
 using Nomad.Core.FileSystem;
+using Nomad.Core.CVars;
 using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
-using Nomad.CVars.Interfaces;
 using Nomad.Save.Private.Services;
 using Nomad.Save.Services;
 

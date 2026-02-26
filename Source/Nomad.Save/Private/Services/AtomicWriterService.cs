@@ -16,7 +16,10 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.IO;
 using System.Runtime.CompilerServices;
+using Nomad.Core.FileSystem.Streams;
 using Nomad.Core.FileSystem;
+using Nomad.Core.FileSystem.Configs;
+using Nomad.Core.EngineUtils;
 
 namespace Nomad.Save.Private.Services {
 	/*
@@ -32,6 +35,7 @@ namespace Nomad.Save.Private.Services {
 
 	internal sealed class AtomicWriterService {
 		private readonly IFileSystem _fileSystem;
+		private readonly IEngineService _engineService;
 		private readonly BackupService _backupService;
 
 		/*
@@ -42,8 +46,10 @@ namespace Nomad.Save.Private.Services {
 		/// <summary>
 		/// 
 		/// </summary>
+		/// <param name="engineService"></param>
 		/// <param name="fileSystem"></param>
-		public AtomicWriterService( IFileSystem fileSystem ) {
+		public AtomicWriterService( IEngineService engineService, IFileSystem fileSystem ) {
+			_engineService = engineService;
 			_fileSystem = fileSystem;
 		}
 
@@ -73,10 +79,16 @@ namespace Nomad.Save.Private.Services {
 		public void FinalizeSaveData( string fileName, IMemoryFileWriteStream memoryWriter ) {
 			try {
 				memoryWriter.Dispose();
-				File.Move( memoryWriter.FilePath, fileName, true );
+
+				Console.WriteLine( $"Replacing '{memoryWriter.FilePath}' {_fileSystem.FileExists( memoryWriter.FilePath )} with '{fileName}' {_fileSystem.FileExists( fileName )}" );
+				_fileSystem.ReplaceFile( memoryWriter.FilePath, fileName, null! );
 			} catch {
-				_fileSystem.DeleteFile( memoryWriter.FilePath );
 				throw;
+			} finally {
+				if ( _fileSystem.FileExists( memoryWriter.FilePath ) ) {
+					_fileSystem.DeleteFile( memoryWriter.FilePath );
+				}
+				Console.WriteLine( $"Replaced '{memoryWriter.FilePath}' {_fileSystem.FileExists( memoryWriter.FilePath )} with '{fileName}' {_fileSystem.FileExists( fileName )}" );
 			}
 		}
 	};

@@ -16,8 +16,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Nomad.Core.Util;
+using Nomad.Core.CVars;
 using Nomad.CVars.Interfaces;
-using Nomad.CVars.ValueObjects;
 
 namespace Nomad.CVars.Private.Services {
 	/*

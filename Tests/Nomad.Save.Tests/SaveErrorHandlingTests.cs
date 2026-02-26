@@ -29,11 +29,10 @@ using Nomad.Save.Interfaces;
 using Nomad.Save.Private.Services;
 using Nomad.Save.Services;
 using Nomad.Save.Exceptions;
-using Nomad.CVars.Interfaces;
 using Nomad.CVars.Private.Services;
 using Nomad.Core.EngineUtils;
+using Nomad.Core.CVars;
 using Moq;
-using Nomad.Save.Private.Entities;
 
 namespace Nomad.Save.Tests;
 
@@ -50,11 +49,14 @@ public class SaveErrorHandlingTests
     private IGameEventRegistryService _eventFactory;
     private Mock<IEngineService> _engineService;
     private string _testDirectory;
+    
+    private IGameEvent<SaveBeginEventArgs> _saveBegin;
+    private IGameEvent<LoadBeginEventArgs> _loadBegin;
 
     [SetUp]
     public void Setup()
     {
-        _testDirectory = Path.Combine(Path.GetTempPath(), "NomadSaveErrorTests", Guid.NewGuid().ToString());
+        _testDirectory = Path.Combine(Path.GetTempPath(), "NomadSaveErrorTests");
         Directory.CreateDirectory(_testDirectory);
         Directory.CreateDirectory($"{_testDirectory}/SaveData");
 
@@ -67,11 +69,16 @@ public class SaveErrorHandlingTests
         _eventFactory = new GameEventRegistry(_logger);
         _cvarSystem = new CVarSystem(_eventFactory, _fileSystem, _logger);
         _dataProvider = new SaveDataProvider(_engineService.Object, _eventFactory, _cvarSystem, _fileSystem, _logger);
+
+        _saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
+        _loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
     }
 
     [TearDown]
     public void TearDown()
     {
+        _saveBegin?.Dispose();
+        _loadBegin?.Dispose();
         _dataProvider?.Dispose();
         _cvarSystem?.Dispose();
         _logger?.Dispose();
@@ -92,10 +99,24 @@ public class SaveErrorHandlingTests
     }
 
     [Test]
+    public void Constructor_WithNullEngineService_ThrowsException()
+    {
+        // Assert
+        Assert.That(() => new SaveDataProvider(null!, _eventFactory, _cvarSystem, _fileSystem, _logger), Throws.ArgumentNullException);
+    }
+
+    [Test]
     public void Constructor_WithNullEventFactory_ThrowsException()
     {
         // Assert
         Assert.That(() => new SaveDataProvider(_engineService.Object, null!, _cvarSystem, _fileSystem, _logger), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public void Constructor_WithCVarSystem_ThrowsException()
+    {
+        // Assert
+        Assert.That(() => new SaveDataProvider(_engineService.Object, _eventFactory, null!, _fileSystem, _logger), Throws.ArgumentNullException);
     }
 
     [Test]
@@ -116,9 +137,7 @@ public class SaveErrorHandlingTests
     public async Task Save_WithEmptyFileName_HandlesGracefully()
     {
         // Arrange
-        var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
-
-        saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
         {
             var section = args.Writer.AddSection("Test");
             section.AddField("Value", 1);
@@ -128,7 +147,7 @@ public class SaveErrorHandlingTests
         // Should either succeed or throw - implementation dependent
         try
         {
-            await _dataProvider.Save("", default);
+            await _dataProvider.Save(String.Empty, default);
             Assert.Pass("Handled empty filename");
         }
         catch
@@ -141,9 +160,7 @@ public class SaveErrorHandlingTests
     public async Task Load_WithNonExistentFile_HandlesGracefully()
     {
         // Arrange
-        var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
-
-        loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
+        _loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
         {
             // Should not execute if file doesn't exist
         });
@@ -166,9 +183,8 @@ public class SaveErrorHandlingTests
     public async Task SaveField_WithEmptySection_Succeeds()
     {
         // Arrange
-        var fileId = "empty_section_test";
-        var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
-        var sectionCreated = false;
+        string fileId = "empty_section_test";
+        bool sectionCreated = false;
 
         void OnSaveBegin(in SaveBeginEventArgs args)
         {
@@ -176,7 +192,7 @@ public class SaveErrorHandlingTests
             sectionCreated = section != null;
         }
 
-        saveBegin.Subscribe(this, OnSaveBegin);
+        _saveBegin.Subscribe(this, OnSaveBegin);
 
         // Act
         await _dataProvider.Save(fileId, default);
@@ -189,19 +205,16 @@ public class SaveErrorHandlingTests
     public async Task SaveField_WithEmptyString_Succeeds()
     {
         // Arrange
-        var fileId = "empty_string_test";
-        var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
-        var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
+        string fileId = "empty_string_test";
+        string loadedString = "unchanged";
 
-        var loadedString = "unchanged";
-
-        saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
         {
             var section = args.Writer.AddSection("Test");
-            section.AddField("EmptyString", "");
+            section.AddField("EmptyString", String.Empty);
         });
 
-        loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
+        _loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
         {
             var section = args.Reader.FindSection("Test");
             if (section != null)
@@ -215,28 +228,25 @@ public class SaveErrorHandlingTests
         await _dataProvider.Load(fileId);
 
         // Assert
-        Assert.That(loadedString, Is.EqualTo(""));
+        Assert.That(loadedString, Is.EqualTo(String.Empty));
     }
 
     [Test]
     public async Task SaveField_WithVeryLongString_Succeeds()
     {
         // Arrange
-        var fileId = "long_string_test";
-        var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
-        var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
+        string fileId = "long_string_test";
+        int length = 999;
+        string longString = new string('a', length);
+        string loadedString = String.Empty;
 
-        int length = 1000;
-        var longString = new string('a', length);
-        var loadedString = "";
-
-        saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
         {
             var section = args.Writer.AddSection("Test");
             section.AddField("LongString", longString);
         });
 
-        loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
+        _loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
         {
             var section = args.Reader.FindSection("Test");
             if (section != null)
@@ -267,11 +277,8 @@ public class SaveErrorHandlingTests
     public async Task GetField_WithWrongType_ThrowsInvalidCastException()
     {
         // Arrange
-        var fileId = "wrong_type_test";
-        var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
-        var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
-
-        var exceptionThrown = false;
+        string fileId = "wrong_type_test";
+        bool exceptionThrown = false;
 
         void OnSaveBegin(in SaveBeginEventArgs args)
         {
@@ -279,7 +286,7 @@ public class SaveErrorHandlingTests
             section.AddField("IntField", 42);
         }
 
-        saveBegin.Subscribe(this, OnSaveBegin);
+        _saveBegin.Subscribe(this, OnSaveBegin);
 
         void OnLoadBegin(in LoadBeginEventArgs args)
         {
@@ -298,7 +305,7 @@ public class SaveErrorHandlingTests
             }
         }
 
-        loadBegin.Subscribe(this, OnLoadBegin);
+        _loadBegin.Subscribe(this, OnLoadBegin);
 
         // Act
         await _dataProvider.Save(fileId, default);
@@ -312,11 +319,10 @@ public class SaveErrorHandlingTests
     public async Task SaveSection_WithSameName_Throws()
     {
         // Arrange
-        var fileId = "duplicate_section_test";
-        var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
-        var exceptionThrown = false;
+        string fileId = "duplicate_section_test";
+        bool exceptionThrown = false;
 
-        saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
         {
             try
             {
@@ -343,20 +349,17 @@ public class SaveErrorHandlingTests
     public async Task SaveField_WithVeryLargeInt_Succeeds()
     {
         // Arrange
-        var fileId = "large_int_test";
-        var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
-        var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
-
+        string fileId = "large_int_test";
         long largeValue = long.MaxValue;
         long loadedValue = 0;
 
-        saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
         {
             var section = args.Writer.AddSection("Test");
             section.AddField("LargeInt", largeValue);
         });
 
-        loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
+        _loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
         {
             var section = args.Reader.FindSection("Test");
             if (section != null)
@@ -377,23 +380,20 @@ public class SaveErrorHandlingTests
     public async Task SaveField_WithNegativeNumbers_Succeeds()
     {
         // Arrange
-        var fileId = "negative_test";
-        var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
-        var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
-
+        string fileId = "negative_test";
         int negativeInt = -12345;
         double negativeDouble = -3.14159;
         int loadedInt = 0;
         double loadedDouble = 0;
 
-        saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
         {
             var section = args.Writer.AddSection("Test");
             section.AddField("NegativeInt", negativeInt);
             section.AddField("NegativeDouble", negativeDouble);
         });
 
-        loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
+        _loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
         {
             var section = args.Reader.FindSection("Test");
             if (section != null)
@@ -419,18 +419,16 @@ public class SaveErrorHandlingTests
     public async Task Multiple_SaveAndLoad_Cycles_Succeed()
     {
         // Arrange
-        var fileId = "multiple_cycles_test";
-        var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
-        var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
+        string fileId = "multiple_cycles_test";
         int cycleCount = 0;
 
-        saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
         {
             var section = args.Writer.AddSection("CycleData");
             section.AddField("CycleCount", cycleCount);
         });
 
-        loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
+        _loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
         {
             var section = args.Reader.FindSection("CycleData");
             if (section != null)
@@ -455,12 +453,11 @@ public class SaveErrorHandlingTests
     public async Task SaveSection_WithEmptyName_HandlesGracefully()
     {
         // Arrange
-        var fileId = "empty_section_name_test";
-        var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
+        string fileId = "empty_section_name_test";
 
-        saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
         {
-            var section = args.Writer.AddSection("");
+            var section = args.Writer.AddSection(String.Empty);
             section.AddField("Value", 1);
         });
 
@@ -485,19 +482,16 @@ public class SaveErrorHandlingTests
     public async Task SaveField_WithExtremumIntValues_Succeeds(int value)
     {
         // Arrange
-        var fileId = $"extremum_int_test_{value.GetHashCode()}";
-        var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
-        var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
-
+        string fileId = $"extremum_int_test_{value.GetHashCode()}";
         int loadedValue = 0;
 
-        saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
         {
             var section = args.Writer.AddSection("Test");
             section.AddField("IntValue", value);
         });
 
-        loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
+        _loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
         {
             var section = args.Reader.FindSection("Test");
             if (section != null)
@@ -518,8 +512,7 @@ public class SaveErrorHandlingTests
     public async Task EventSubscriber_CanBeUnsubscribed()
     {
         // Arrange
-        var fileId = "unsubscribe_test.ngd";
-        var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
+        string fileId = "unsubscribe_test";
         var eventFired = false;
 
         void OnSaveBegin(in SaveBeginEventArgs args)
@@ -529,14 +522,14 @@ public class SaveErrorHandlingTests
             section.AddField("Value", 1);
         }
 
-        saveBegin.Subscribe(this, OnSaveBegin);
+        _saveBegin.Subscribe(this, OnSaveBegin);
 
         // Act
         await _dataProvider.Save(fileId, default);
         var firstRun = eventFired;
 
         eventFired = false;
-        saveBegin.Unsubscribe(this, OnSaveBegin);
+        _saveBegin.Unsubscribe(this, OnSaveBegin);
 
         await _dataProvider.Save(fileId, default);
         var secondRun = eventFired;
@@ -566,8 +559,7 @@ public class SaveErrorHandlingTests
     public async Task Field_DuplicateFieldCreation_ThrowsDuplicateFieldException()
     {
         // Arrange
-        var fileId = "duplicate_field_exception.ngd";
-        var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
+        string fileId = "duplicate_field_exception";
         DuplicateFieldException? exception = null;
 
         void OnSaveBegin(in SaveBeginEventArgs args)
@@ -577,7 +569,7 @@ public class SaveErrorHandlingTests
             exception = Assert.Throws<DuplicateFieldException>(() => section.AddField("Value", 1));
         }
 
-        saveBegin.Subscribe(this, OnSaveBegin);
+        _saveBegin.Subscribe(this, OnSaveBegin);
 
         // Act
         await _dataProvider.Save(fileId, default);
@@ -590,8 +582,7 @@ public class SaveErrorHandlingTests
     public async Task Section_DuplicateSectionCreation_ThrowsDuplicateSectionException()
     {
         // Arrange
-        var fileId = "duplicate_section_test.ngd";
-        var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
+        string fileId = "duplicate_section_test";
         DuplicateSectionException? exception = null;
 
         void OnSaveBegin(in SaveBeginEventArgs args)
@@ -601,7 +592,7 @@ public class SaveErrorHandlingTests
             exception = Assert.Throws<DuplicateSectionException>(() => writer.AddSection("Test"));
         }
 
-        saveBegin.Subscribe(this, OnSaveBegin);
+        _saveBegin.Subscribe(this, OnSaveBegin);
 
         // Act
         await _dataProvider.Save(fileId, default);

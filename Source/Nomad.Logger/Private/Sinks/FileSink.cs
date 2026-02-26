@@ -13,10 +13,11 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using Nomad.Core.CVars;
 using Nomad.Core.FileSystem;
+using Nomad.Core.FileSystem.Configs;
+using Nomad.Core.FileSystem.Streams;
 using Nomad.Core.Logger;
-using Nomad.CVars.Interfaces;
-using Nomad.CVars.ValueObjects;
 using System;
 using System.Runtime.CompilerServices;
 
@@ -46,7 +47,7 @@ namespace Nomad.Logger.Private.Sinks {
 		/// <param name="cvarSystem"></param>
 		/// <param name="fileSystem"></param>
 		public FileSink( ICVarSystemService cvarSystem, IFileSystem fileSystem ) {
-			ICVar<string> logfile = cvarSystem.Register(
+			var logfile = cvarSystem.Register(
 				new CVarCreateInfo<string>(
 					Name: "console.LogFile",
 					DefaultValue: "debug.log",
@@ -57,13 +58,33 @@ namespace Nomad.Logger.Private.Sinks {
 			);
 
 			try {
-				_writer = fileSystem.OpenWrite( $"{fileSystem.GetUserDataPath()}/{logfile.Value}", new WriteConfig( StreamType.File ) ) as IFileWriteStream;
+				_writer = fileSystem.OpenWrite(
+					new FileWriteConfig {
+						FilePath = logfile.Value,
+						Append = false
+					}
+				) as IFileWriteStream;
 			} catch ( Exception e ) {
 				_writer?.Close();
 				Console.WriteLine( $"FileSink: failed to create log file {logfile.Value} - {e.Message}" );
 				throw;
 			}
 			Console.WriteLine( $"Sucessfully opened logfile at {DateTime.Now}." );
+		}
+
+		/*
+		===============
+		Dispose
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		protected override void Dispose( bool disposing ) {
+			if ( !isDisposed ) {
+				_writer?.Dispose();
+			}
+			base.Dispose( disposing );
 		}
 
 		/*
@@ -77,7 +98,7 @@ namespace Nomad.Logger.Private.Sinks {
 		/// <param name="message"></param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public override void Print( in string message ) {
-			_writer?.WriteLineAsync( message );
+			_writer?.WriteLine( message );
 		}
 
 		/*
@@ -89,7 +110,7 @@ namespace Nomad.Logger.Private.Sinks {
 		/// Clears the file stream.
 		/// </summary>
 		public override void Clear() {
-//			_writer.Length = 0;
+			_writer?.SetLength( 0 );
 		}
 
 		/*

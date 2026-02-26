@@ -16,10 +16,11 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Collections.Generic;
 using Nomad.Core.Compatibility.Guards;
+using Nomad.Core.CVars;
 using Nomad.Core.FileSystem;
+using Nomad.Core.FileSystem.Configs;
+using Nomad.Core.FileSystem.Streams;
 using Nomad.Core.Logger;
-using Nomad.CVars.Interfaces;
-using Nomad.CVars.ValueObjects;
 
 namespace Nomad.CVars.Private.Repositories {
 	/*
@@ -64,10 +65,10 @@ namespace Nomad.CVars.Private.Repositories {
 					System.IO.Directory.CreateDirectory( directory );
 				}
 
-				using ( _writer = (IFileWriteStream)fileSystem.OpenWrite( configFile, new WriteConfig( StreamType.File ) ) ) {
+				using ( _writer = fileSystem.OpenWrite( new FileWriteConfig { FilePath = configFile } ) as IFileWriteStream ) {
 					WriteHeader();
 					foreach ( var cvar in cvars ) {
-						WriteVariable( in cvar );
+						WriteVariable( cvar );
 					}
 					_writer.Flush();
 				}
@@ -103,9 +104,8 @@ namespace Nomad.CVars.Private.Repositories {
 		/// Writes a cvar's value to the configuration file
 		/// </summary>
 		/// <param name="cvar">The cvar to serialize</param>
-		public readonly void WriteVariable( in ICVar? cvar ) {
+		public readonly void WriteVariable( ICVar cvar ) {
 			ArgumentGuard.ThrowIfNull( cvar );
-
 			switch ( cvar.Type ) {
 				case CVarType.Boolean:
 					_writer.WriteLine( $"{cvar.Name}={cvar.GetBooleanValue()}" );
@@ -134,7 +134,7 @@ namespace Nomad.CVars.Private.Repositories {
 		///
 		/// </summary>
 		/// <param name="group"></param>
-		private void WriteGroup( in CVarGroup group ) {
+		private void WriteGroup( CVarGroup group ) {
 			ArgumentGuard.ThrowIfNull( group );
 
 			if ( group.Cvars.Count == 0 ) {

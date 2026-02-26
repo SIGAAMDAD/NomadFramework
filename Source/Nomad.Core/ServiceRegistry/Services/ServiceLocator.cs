@@ -169,7 +169,8 @@ namespace Nomad.Core.ServiceRegistry.Services
         /// registration if you need control over constructor selection.
         /// </para>
         /// </remarks>
-        public TService CreateInstance<TService>() where TService : class
+        public TService CreateInstance<TService>()
+            where TService : class
         {
             Type type = typeof(TService);
             ConstructorInfo constructor = GetConstructor(type);
@@ -177,7 +178,7 @@ namespace Nomad.Core.ServiceRegistry.Services
 
             if (parameters.Length == 0)
             {
-                return (TService)Activator.CreateInstance(type);
+                return (TService)Activator.CreateInstance(type)!;
             }
 
             object[] args = new object[parameters.Length];
@@ -234,7 +235,8 @@ namespace Nomad.Core.ServiceRegistry.Services
         /// For optional dependencies, use <see cref="TryGetService{TService}(out TService)"/> instead.
         /// </para>
         /// </remarks>
-        public TService GetService<TService>() where TService : class
+        public TService GetService<TService>()
+            where TService : class
         {
             if (TryGetService(out TService service))
             {
@@ -265,7 +267,8 @@ namespace Nomad.Core.ServiceRegistry.Services
         /// singleton instances that have already been created and cached.
         /// </para>
         /// </remarks>
-        public IEnumerable<TService> GetServices<TService>() where TService : class
+        public IEnumerable<TService> GetServices<TService>()
+            where TService : class
         {
             var services = new List<TService>();
 
@@ -301,12 +304,13 @@ namespace Nomad.Core.ServiceRegistry.Services
         /// The resolved instance follows the same lifetime rules as <see cref="GetService{TService}"/>.
         /// </para>
         /// </remarks>
-        public bool TryGetService<TService>(out TService service) where TService : class
+        public bool TryGetService<TService>(out TService service)
+            where TService : class
         {
             ServiceDescriptor descriptor = _collection.GetDescriptor(typeof(TService));
             if (descriptor == null)
             {
-                service = default;
+                service = default!;
                 return false;
             }
             service = (TService)ResolveService(descriptor);
@@ -400,8 +404,8 @@ namespace Nomad.Core.ServiceRegistry.Services
         /// </remarks>
         private object GetOrCreateScoped(ServiceDescriptor descriptor)
         {
-            var scopeDict = _scopeInstances.Value;
-            if (scopeDict.TryGetValue(descriptor.ServiceType, out object? instance))
+            Dictionary<Type, object>? scopeDict = _scopeInstances.Value;
+            if (scopeDict!.TryGetValue(descriptor.ServiceType, out object? instance))
             {
                 return instance;
             }
@@ -504,7 +508,7 @@ namespace Nomad.Core.ServiceRegistry.Services
 
             if (parameters.Length == 0)
             {
-                object? instance = Activator.CreateInstance(type);
+                object instance = Activator.CreateInstance(type)!;
                 _collection.TrackDisposable(instance);
                 return instance;
             }
@@ -535,7 +539,7 @@ namespace Nomad.Core.ServiceRegistry.Services
         /// For types with multiple constructors, the order is undefined. Consider registering
         /// a factory if you need to select a specific constructor.
         /// </remarks>
-        private ConstructorInfo GetConstructor(Type type)
+        private static ConstructorInfo GetConstructor(Type type)
         {
             ConstructorInfo[] constructors = type.GetConstructors();
             if (constructors.Length == 0)
@@ -558,7 +562,7 @@ namespace Nomad.Core.ServiceRegistry.Services
         /// to create optimized factory delegates for each registered service type.
         /// </para>
         /// </remarks>
-        private void BuildFactoryCache()
+        private static void BuildFactoryCache()
         {
             // TODO: source generation
         }

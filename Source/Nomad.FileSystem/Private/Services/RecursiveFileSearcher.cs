@@ -33,17 +33,17 @@ namespace Nomad.FileSystem.Private.Services {
 	/// </summary>
 
 	internal sealed class RecursiveFileSearcher : IDisposable {
+		/// <summary>
+		/// Gets all search directories in their current priority order.
+		/// </summary>
+		public IReadOnlyList<string> SearchDirectories => _searchDirectories.AsReadOnly();
+
 		private readonly List<string> _searchDirectories = new List<string>();
 		private readonly bool _ignoreCase;
 		private readonly bool _useIndex;
 		private readonly Dictionary<string, List<string>> _fileIndex; // relative path -> full paths (one per base dir)
 		private readonly FileSystemWatcher _indexWatcher; // optional, to keep index fresh
-		private bool _disposed;
-
-		/// <summary>
-		/// Gets all search directories in their current priority order.
-		/// </summary>
-		public IReadOnlyList<string> SearchDirectories => _searchDirectories.AsReadOnly();
+		private bool _isDisposed = false;
 
 		private readonly ILoggerService _logger;
 
@@ -64,6 +64,7 @@ namespace Nomad.FileSystem.Private.Services {
 			_logger = logger;
 			if ( _useIndex ) {
 				_fileIndex = new Dictionary<string, List<string>>( ignoreCase ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal );
+				_indexWatcher = new FileSystemWatcher();
 				// Optional: set up a FileSystemWatcher to keep index fresh (not implemented here for simplicity)
 			}
 		}
@@ -77,10 +78,11 @@ namespace Nomad.FileSystem.Private.Services {
 		/// 
 		/// </summary>
 		public void Dispose() {
-			if ( !_disposed ) {
+			if ( !_isDisposed ) {
 				_indexWatcher?.Dispose();
-				_disposed = true;
 			}
+			GC.SuppressFinalize( this );
+			_isDisposed = true;
 		}
 
 		/*
@@ -226,7 +228,7 @@ namespace Nomad.FileSystem.Private.Services {
 		/// <returns>Full path of first matching file, or null.</returns>
 		public string? FindFileWithExtensions( string relativePathWithoutExtension, params string[] extensions ) {
 			foreach ( string ext in extensions ) {
-				string path = FindFile( relativePathWithoutExtension + ext );
+				string? path = FindFile( relativePathWithoutExtension + ext );
 				if ( path != null ) {
 					return path;
 				}
@@ -244,9 +246,9 @@ namespace Nomad.FileSystem.Private.Services {
 		/// </summary>
 		/// <param name="path"></param>
 		/// <returns></returns>
-		private string NormalizeDirectoryPath( string path ) {
+		private static string NormalizeDirectoryPath( string path ) {
 			string fullPath = Path.GetFullPath( path );
-			if ( !fullPath.EndsWith( Path.DirectorySeparatorChar.ToString() ) ) {
+			if ( !fullPath.EndsWith( Path.DirectorySeparatorChar.ToString(), StringComparison.CurrentCultureIgnoreCase ) ) {
 				fullPath += Path.DirectorySeparatorChar;
 			}
 			return fullPath;
@@ -262,7 +264,7 @@ namespace Nomad.FileSystem.Private.Services {
 		/// </summary>
 		/// <param name="path"></param>
 		/// <returns></returns>
-		private string NormalizePath( string path ) {
+		private static string NormalizePath( string path ) {
 			return path.Trim()
 				.Replace( '/', Path.DirectorySeparatorChar )
 				.Replace( '\\', Path.DirectorySeparatorChar );

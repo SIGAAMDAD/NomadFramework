@@ -25,4 +25,8 @@
     <PackageReference Include="System.Collections.Immutable" Version="10.0.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Nomad.Core\Nomad.Core.csproj" />
+  </ItemGroup>
+
 </Project>

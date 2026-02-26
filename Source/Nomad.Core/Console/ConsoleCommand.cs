@@ -20,21 +20,21 @@ namespace Nomad.Core.Console
     /// <summary>
     ///
     /// </summary>
-    public record ConsoleCommand(string name, string description, EventCallback<CommandExecutedEventArgs> callback)
+    public record ConsoleCommand
     {
         /// <summary>
         ///
         /// </summary>
-        public string Name { get; } = name;
+        public string Name { get; init; }
 
         /// <summary>
         ///
         /// </summary>
-        public string Description { get; } = description;
+        public string Description { get; init; }
 
         /// <summary>
         /// The command's callback.
         /// </summary>
-        public EventCallback<CommandExecutedEventArgs> Callback { get; } = callback;
+        public EventCallback<CommandExecutedEventArgs> Callback { get; init; }
     }
 }

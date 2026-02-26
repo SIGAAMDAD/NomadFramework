@@ -14,11 +14,11 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using Nomad.Core.Abstractions;
+using Nomad.Core.CVars;
 using Nomad.Core.Events;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
-using Nomad.CVars.Interfaces;
 using Nomad.CVars.Private.Services;
 
 namespace Nomad.CVars

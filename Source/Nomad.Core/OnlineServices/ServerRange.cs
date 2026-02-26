@@ -21,17 +21,17 @@ namespace Nomad.Core.OnlineServices
     public enum ServerRange : byte
     {
         /// <summary>
-        /// 
+        /// Only search for servers created on the same network as the user is currently connected to.
         /// </summary>
         LAN,
 
         /// <summary>
-        /// 
+        /// Only search for servers created by users marked as friends.
         /// </summary>
         Friends,
 
         /// <summary>
-        /// 
+        /// The default server range, search for any and all servers available.
         /// </summary>
         Internet,
 

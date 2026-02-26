@@ -14,6 +14,7 @@ using Nomad.FileSystem.Private.FileStream;
 using Nomad.FileSystem.Private.MemoryStream;
 using System.Linq;
 using Nomad.Core.Util.BufferHandles;
+using Nomad.Core.FileSystem.Configs;
 
 namespace Nomad.FileSystem.Tests
 {
@@ -337,8 +338,8 @@ namespace Nomad.FileSystem.Tests
 		[Test]
 		public void OpenRead_FileNotFound_ReturnsNull()
 		{
-			var config = new ReadConfig(StreamType.File);
-			var result = _service.OpenRead("nosuch.txt", config);
+			var config = new FileReadConfig{ FilePath = "nosuch.txt" };
+			var result = _service.OpenRead(config);
 			Assert.That(result, Is.Null);
 		}
 
@@ -347,8 +348,8 @@ namespace Nomad.FileSystem.Tests
 		{
 			string file = Path.Combine(_streamingAssetsDir, "test.txt");
 			File.WriteAllText(file, "hello");
-			var config = new ReadConfig(StreamType.File);
-			var result = _service.OpenRead(file, config);
+			var config = new FileReadConfig{ FilePath = file };
+			var result = _service.OpenRead(config);
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result, Is.TypeOf<FileReadStream>());
 			result.Dispose();
@@ -359,27 +360,17 @@ namespace Nomad.FileSystem.Tests
 		{
 			string file = Path.Combine(_streamingAssetsDir, "test.txt");
 			File.WriteAllText(file, "hello");
-			var config = new ReadConfig(StreamType.MemoryFile);
-			var result = _service.OpenRead(file, config);
+			var config = new MemoryFileReadConfig{ FilePath = file, MaxCapacity = 1024 };
+			using var result = _service.OpenRead(config);
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result, Is.TypeOf<MemoryFileReadStream>());
-			result.Dispose();
 		}
 
 		[Test]
-		public void OpenRead_InvalidConfig_ThrowsArgumentOutOfRangeException()
+		public void OpenRead_NullPath_ThrowsArgumentException()
 		{
-			string file = Path.Combine(_streamingAssetsDir, "test.txt");
-			File.WriteAllText(file, "hello");
-			var config = new ReadConfig((StreamType)byte.MaxValue);
-			Assert.Throws<ArgumentOutOfRangeException>(() => _service.OpenRead("test.txt", config));
-		}
-
-		[Test]
-		public void OpenRead_NullPath_ThrowsArgumentNullException()
-		{
-			var config = new ReadConfig(StreamType.File);
-			Assert.Throws<ArgumentNullException>(() => _service.OpenRead(null, config));
+			var config = new FileReadConfig{ FilePath = null };
+			Assert.Throws<ArgumentException>(() => _service.OpenRead(config));
 		}
 
 		[Test]
@@ -387,8 +378,8 @@ namespace Nomad.FileSystem.Tests
 		{
 			string file = Path.Combine(_streamingAssetsDir, "test.txt");
 			File.WriteAllText(file, "hello");
-			var config = new ReadConfig(StreamType.File);
-			var result = await _service.OpenReadAsync(file, config);
+			var config = new FileReadConfig{ FilePath = file };
+			var result = await _service.OpenReadAsync(config);
 			Assert.That(result, Is.Not.Null);
 			result.Dispose();
 		}
@@ -398,9 +389,9 @@ namespace Nomad.FileSystem.Tests
 		{
 			var cts = new CancellationTokenSource();
 			cts.Cancel();
-			var config = new ReadConfig(StreamType.File);
+			var config = new FileReadConfig{ FilePath = "any.txt" };
 			Assert.ThrowsAsync<OperationCanceledException>(async () =>
-				await _service.OpenReadAsync("any.txt", config, cts.Token));
+				await _service.OpenReadAsync(config, cts.Token));
 		}
 
 		#endregion
@@ -410,8 +401,8 @@ namespace Nomad.FileSystem.Tests
 		[Test]
 		public void OpenWrite_MemoryConfig_ReturnsMemoryWriteStream()
 		{
-			var config = new WriteConfig(StreamType.Memory, length: 1024, false);
-			var result = _service.OpenWrite("ignored", config);
+			var config = new MemoryWriteConfig{ InitialCapacity = 1024, FixedSize = false };
+			var result = _service.OpenWrite(config);
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result, Is.TypeOf<MemoryWriteStream>());
 			result.Dispose();
@@ -421,8 +412,8 @@ namespace Nomad.FileSystem.Tests
 		public void OpenWrite_FileConfig_ReturnsFileWriteStream()
 		{
 			string path = Path.Combine(_userDataDir, "out.txt");
-			var config = new WriteConfig(StreamType.File, false);
-			var result = _service.OpenWrite(path, config);
+			var config = new FileWriteConfig{ FilePath = path, Append = false };
+			var result = _service.OpenWrite(config);
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result, Is.TypeOf<FileWriteStream>());
 			result.Dispose();
@@ -432,14 +423,14 @@ namespace Nomad.FileSystem.Tests
 		public void OpenWrite_MemoryFileConfig_ReturnsMemoryFileWriteStream()
 		{
 			string path = Path.Combine(_userDataDir, "out.bin");
-			var config = new WriteConfig(StreamType.MemoryFile, length: 4096, false);
-			var result = _service.OpenWrite(path, config);
+			var config = new MemoryFileWriteConfig{ FilePath = path, InitialCapacity = 4096, FixedSize = false };
+			var result = _service.OpenWrite(config);
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result, Is.TypeOf<MemoryFileWriteStream>());
 			result.Dispose();
 		}
 
-		/*
+		/* TODO: allow file format options in FileWriteConfig
 		[Test]
 		public void OpenWrite_AppendTrue_OpensInAppendMode()
 		{
@@ -448,8 +439,8 @@ namespace Nomad.FileSystem.Tests
 				File.WriteAllText(path, "initial");
 			}
 			{
-				var config = new WriteConfig(StreamType.File, true);
-				using var stream = _service.OpenWrite(path, config) as FileWriteStream;
+				var config = new FileWriteConfig{ FilePath = path, Append = true };
+				using var stream = _service.OpenWrite(config) as FileWriteStream;
 				Assert.That(stream, Is.Not.Null);
 				stream.WriteString(" appended");
 				stream.Flush();
@@ -460,25 +451,18 @@ namespace Nomad.FileSystem.Tests
 		*/
 
 		[Test]
-		public void OpenWrite_InvalidConfig_ThrowsArgumentOutOfRangeException()
-		{
-			var config = new WriteConfig((StreamType)byte.MaxValue, false);
-			Assert.Throws<ArgumentOutOfRangeException>(() => _service.OpenWrite("any", config));
-		}
-
-		[Test]
 		public void OpenWrite_NullPath_ThrowsArgumentException()
 		{
-			var config = new WriteConfig(StreamType.File, false);
-			Assert.Throws<ArgumentNullException>(() => _service.OpenWrite(null, config));
+			var config = new FileWriteConfig{ FilePath = null, Append = false };
+			Assert.Throws<ArgumentNullException>(() => _service.OpenWrite(config));
 		}
 
 		[Test]
 		public async Task OpenWriteAsync_ReturnsSameAsSync()
 		{
 			string path = Path.Combine(_userDataDir, "out.txt");
-			var config = new WriteConfig(StreamType.File, false);
-			var result = await _service.OpenWriteAsync(path, config);
+			var config = new FileWriteConfig{ FilePath = path, Append = false};
+			var result = await _service.OpenWriteAsync(config);
 			Assert.That(result, Is.Not.Null);
 			result.Dispose();
 		}
@@ -508,7 +492,7 @@ namespace Nomad.FileSystem.Tests
 			using var handle = _service.LoadFile(path);
 			Assert.That(handle, Is.TypeOf<PooledBufferHandle>());
 			Assert.That(handle.Length, Is.EqualTo(expected.Length));
-			Assert.That(handle.Buffer.Take(handle.Length), Is.EqualTo(expected));
+			Assert.That(handle.Buffer.Take((int)handle.Length), Is.EqualTo(expected));
 		}
 
 		[Test]
@@ -526,7 +510,7 @@ namespace Nomad.FileSystem.Tests
 
 			using var handle = await _service.LoadFileAsync(path);
 			Assert.That(handle.Length, Is.EqualTo(expected.Length));
-			Assert.That(handle.Buffer.Take(handle.Length), Is.EqualTo(expected));
+			Assert.That(handle.Buffer.Take((int)handle.Length), Is.EqualTo(expected));
 		}
 
 		#endregion

@@ -19,10 +19,8 @@ using Nomad.Core.Events;
 using Nomad.Core;
 using Nomad.Core.Compatibility.Guards;
 using System.Collections.Generic;
-using Nomad.CVars.ValueObjects;
+using Nomad.Core.CVars;
 using Nomad.CVars.Private.ValueObjects;
-using Nomad.CVars.Events;
-using Nomad.CVars.Interfaces;
 
 namespace Nomad.CVars.Private.Entities {
 	/*

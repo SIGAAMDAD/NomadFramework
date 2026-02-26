@@ -25,15 +25,15 @@ namespace Nomad.Save.Exceptions
         /// <summary>
         /// 
         /// </summary>
-        public int FileOffset => _fileOffset;
-        private readonly int _fileOffset;
+        public long FileOffset => _fileOffset;
+        private readonly long _fileOffset;
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="fileOffset"></param>
         /// <param name="message"></param>
-        public SaveFileCorruptException(int fileOffset, string message)
+        public SaveFileCorruptException(long fileOffset, string message)
             : base(message)
         {
             _fileOffset = fileOffset;

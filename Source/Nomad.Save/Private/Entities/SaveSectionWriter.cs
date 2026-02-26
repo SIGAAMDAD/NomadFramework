@@ -13,14 +13,15 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System;
 using System.Collections.Generic;
-using Nomad.Core.FileSystem;
+using Nomad.Core.FileSystem.Streams;
 using Nomad.Save.Interfaces;
 using Nomad.Save.Exceptions;
 using Nomad.Save.Private.ValueObjects;
 using Nomad.Core.Util;
 using Nomad.Core.Logger;
-using System.Collections.Concurrent;
+using Nomad.Core.Compatibility.Guards;
 
 namespace Nomad.Save.Private.Entities {
 	/*
@@ -45,7 +46,9 @@ namespace Nomad.Save.Private.Entities {
 		/// The number of fields in this section.
 		/// </summary>
 		public int FieldCount => _fields.Count;
-		private readonly ConcurrentDictionary<string, SaveField> _fields;
+		private readonly Dictionary<string, SaveField> _fields;
+
+		private bool _isDisposed = false;
 
 		private readonly IMemoryFileWriteStream _writer;
 
@@ -69,7 +72,7 @@ namespace Nomad.Save.Private.Entities {
 		/// <param name="writer"></param>
 		public SaveSectionWriter( in SaveConfig config, ILoggerService logger, ILoggerCategory category, string name, IMemoryFileWriteStream writer ) {
 			_name = name;
-			_fields = new ConcurrentDictionary<string, SaveField>();
+			_fields = new Dictionary<string, SaveField>();
 			_writer = writer;
 			_config = config;
 
@@ -83,39 +86,42 @@ namespace Nomad.Save.Private.Entities {
 		===============
 		*/
 		/// <summary>
-		/// Writes the entire section to the save stream and clears all fields.
+		/// 
 		/// </summary>
 		public void Dispose() {
-			int offset = _writer.Position;
-			{
-				var header = new SectionHeader( _name, 0, FieldCount, Checksum.Empty );
-				header.Save( _writer );
-			}
-
-			int start = _writer.Position;
-			foreach ( var field in _fields ) {
-				SaveField.Write( _name, field.Value, _writer );
-			}
-
-			int position = _writer.Position;
-			int length = position - start;
-
-			_writer.Seek( offset, System.IO.SeekOrigin.Begin );
-			{
-				var header = new SectionHeader( _name, length, FieldCount, Checksum.Compute( _writer.Buffer.GetSlice( start, length ) ) );
-				header.Save( _writer );
-
-				if ( _config.LogSerializationTree ) {
-					_logger.PrintLine( in _category, "Finalized section data:" );
-					_logger.PrintLine( in _category, $"\tName: {header.Name}" );
-					_logger.PrintLine( in _category, $"\tByteLength: {header.ByteLength}" );
-					_logger.PrintLine( in _category, $"\tFieldCount: {header.FieldCount}" );
-					_logger.PrintLine( in _category, $"\tChecksum64: {header.Checksum}" );
+			if ( !_isDisposed ) {
+				long offset = _writer.Position;
+				{
+					var header = new SectionHeader( _name, 0, FieldCount, Checksum.Empty );
+					header.Save( _writer );
 				}
-			}
-			_writer.Seek( position, System.IO.SeekOrigin.Begin );
 
-			_fields.Clear();
+				long start = offset + SectionHeader.HEADER_CHECKSUM_OFFSET;
+				foreach ( var field in _fields ) {
+					SaveField.Write( _name, field.Value, _writer );
+				}
+
+				long position = _writer.Position;
+				long length = position - start;
+
+				_writer.Seek( offset, System.IO.SeekOrigin.Begin );
+				{
+					var header = new SectionHeader( _name, ( int )length, FieldCount, Checksum.Compute( _writer.Buffer!.GetSlice( start, length ) ) );
+					header.Save( _writer );
+
+					if ( _config.LogSerializationTree ) {
+						_logger.PrintLine( in _category, "Finalized section data:" );
+						_logger.PrintLine( in _category, $"\tName: {header.Name}" );
+						_logger.PrintLine( in _category, $"\tByteLength: {header.ByteLength}" );
+						_logger.PrintLine( in _category, $"\tFieldCount: {header.FieldCount}" );
+						_logger.PrintLine( in _category, $"\tChecksum64: {header.Checksum}" );
+					}
+				}
+				_writer.Seek( position, System.IO.SeekOrigin.Begin );
+				_fields.Clear();
+			}
+			GC.SuppressFinalize( this );
+			_isDisposed = true;
 		}
 
 		/*
@@ -130,19 +136,22 @@ namespace Nomad.Save.Private.Entities {
 		/// <param name="fieldId"></param>
 		/// <param name="value"></param>
 		public void AddField<T>( string fieldId, T value ) {
+			StateGuard.ThrowIfDisposed( _isDisposed, this );
+			ArgumentGuard.ThrowIfNullOrEmpty( fieldId );
 			if ( _fields.ContainsKey( fieldId ) ) {
-				throw new DuplicateFieldException( $"Field '{fieldId}' added twice!" );
+				throw new DuplicateFieldException( _name, fieldId );
 			}
 
 			var type = Any.GetType<T>();
+			var fieldValue = Any.From( value );
 
 			_fields[ fieldId ] = new SaveField(
 				fieldId,
 				type,
-				Any.From( value )
+				fieldValue
 			);
 			if ( _config.LogSerializationTree ) {
-				_logger.PrintLine( in _category, $"\t\t[Field] (NAME) {fieldId}, (TYPE) {type}, (VALUE) {value}" );
+				_logger.PrintLine( in _category, $"\t\t[Field] (NAME) {fieldId}, (TYPE) {type}, (VALUE) {fieldValue}" );
 			}
 		}
 
@@ -158,6 +167,6 @@ namespace Nomad.Save.Private.Entities {
 		/// <param name="fieldId"></param>
 		/// <returns></returns>
 		public bool HasField<T>( string fieldId )
-			=> _fields.ContainsKey( fieldId );
+			=> _fields.TryGetValue( fieldId, out var field ) && field.Type == Any.GetType<T>();
 	};
 };

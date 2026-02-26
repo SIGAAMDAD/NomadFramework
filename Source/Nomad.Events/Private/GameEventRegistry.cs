@@ -18,9 +18,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Nomad.Core.Events;
+using Nomad.Core.Exceptions;
 using Nomad.Core.Logger;
 using Nomad.Core.Util;
-using Nomad.Events.Exceptions;
 using Nomad.Events.Private;
 
 namespace Nomad.Events {

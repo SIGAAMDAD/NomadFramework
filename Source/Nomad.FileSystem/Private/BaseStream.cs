@@ -16,7 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Nomad.Core.FileSystem;
+using Nomad.Core.FileSystem.Streams;
 
 namespace Nomad.FileSystem.Private {
 	/*
@@ -34,12 +34,12 @@ namespace Nomad.FileSystem.Private {
 		/// <summary>
 		/// Gets the length of the stream in bytes.
 		/// </summary>
-		public abstract int Length { get; }
+		public abstract long Length { get; set; }
 
 		/// <summary>
 		/// Gets or sets the current position within the stream.
 		/// </summary>
-		public abstract int Position { get; set; }
+		public abstract long Position { get; set; }
 
 		/// <summary>
 		/// Gets a value indicating whether the stream supports reading.
@@ -56,6 +56,16 @@ namespace Nomad.FileSystem.Private {
 		/// </summary>
 		public abstract bool CanSeek { get; }
 
+		/// <summary>
+		/// The disposal flag.
+		/// </summary>
+		protected bool isDisposed = false;
+
+		/*
+		===============
+		Dispose
+		===============
+		*/
 		/// <summary>
 		/// Disposes the stream.
 		/// </summary>
@@ -92,7 +102,7 @@ namespace Nomad.FileSystem.Private {
 		/// </summary>
 		/// <param name="ct"></param>
 		/// <returns></returns>
-		public abstract ValueTask FlushAsync( CancellationToken ct = default( CancellationToken ) );
+		public abstract ValueTask FlushAsync( CancellationToken ct = default );
 
 		/*
 		===============
@@ -105,6 +115,17 @@ namespace Nomad.FileSystem.Private {
 		/// <param name="offset"></param>
 		/// <param name="origin"></param>
 		/// <returns></returns>
-		public abstract int Seek( int offset, SeekOrigin origin );
+		public abstract long Seek( long offset, SeekOrigin origin );
+
+		/*
+		===============
+		SetLength
+		===============
+		*/
+		/// <summary>
+		/// Sets the stream's length to <paramref name="length"/>.
+		/// </summary>
+		/// <param name="length">The new length of the stream.</param>
+		public abstract void SetLength( long length );
 	};
 };

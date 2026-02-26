@@ -16,8 +16,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Nomad.Core.FileSystem;
-using Nomad.Core.Util.BufferHandles;
+using Nomad.Core.FileSystem.Streams;
+using Nomad.Core.FileSystem.Configs;
 
 namespace Nomad.FileSystem.Private.MemoryStream {
 	/*
@@ -31,8 +31,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 	/// 
 	/// </summary>
 
-	internal sealed class MemoryFileWriteStream : MemoryWriteStream, IMemoryFileWriteStream
-	{
+	internal sealed class MemoryFileWriteStream : MemoryWriteStream, IMemoryFileWriteStream {
 		/// <summary>
 		/// 
 		/// </summary>
@@ -42,7 +41,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <summary>
 		/// 
 		/// </summary>
-		public bool IsOpen => _buffer != null;
+		public bool IsOpen => buffer != null;
 
 		/// <summary>
 		/// 
@@ -63,15 +62,13 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="filepath"></param>
-		/// <param name="length"></param>
-		/// <param name="fixedSize"></param>
-		public MemoryFileWriteStream( string filepath, int length, bool fixedSize = false )
-			: base( length, fixedSize )
+		/// <param name="config"></param>
+		public MemoryFileWriteStream( MemoryFileWriteConfig config )
+			: base( config )
 		{
-			_filepath = filepath;
+			_filepath = config.FilePath;
 			_creationTime = DateTime.Now;
-			Open( System.IO.FileMode.CreateNew, System.IO.FileAccess.Write );
+			Open( config );
 		}
 
 		/*
@@ -80,25 +77,30 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		===============
 		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
-		public override void Dispose() {
-			Flush();
-			base.Dispose();
+		protected override void Dispose( bool disposing ) {
+			if ( isDisposed ) {
+				return;
+			}
+			if ( disposing ) {
+				Flush();
+			}
+			isDisposed = true;
+			base.Dispose( disposing );
 		}
 
 		/*
 		===============
-		DisposeAsync
+		DisposeAsyncCore
 		===============
 		*/
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <returns></returns>
-		public override async ValueTask DisposeAsync() {
+		protected override async ValueTask DisposeAsyncCore() {
 			await FlushAsync();
-			await base.DisposeAsync();
+			await base.DisposeAsyncCore();
 		}
 
 		/*
@@ -122,13 +124,14 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// Flushes the memory file write stream to the underlying file.
 		/// </summary>
 		public override void Flush() {
-			if ( _buffer != null ) {
+			if ( buffer != null ) {
 				using var stream = new System.IO.FileStream( _filepath, System.IO.FileMode.Create, System.IO.FileAccess.Write, System.IO.FileShare.None );
-				stream.Write( _buffer.Buffer.AsSpan( 0, _position ) );
+				stream.Write( buffer.GetSlice( 0, position ) );
+				stream.Flush();
 				stream.Close();
 			}
 		}
-	
+
 		/*
 		===============
 		FlushAsync
@@ -138,11 +141,11 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// Asynchronously flushes the memory file write stream to the underlying file.
 		/// </summary>
 		/// <param name="ct">The cancellation token to use for the operation.</param>
-		/// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
 		public override async ValueTask FlushAsync( CancellationToken ct = default ) {
-			if ( _buffer != null ) {
+			ct.ThrowIfCancellationRequested();
+			if ( buffer != null ) {
 				using var stream = new System.IO.FileStream( _filepath, System.IO.FileMode.Create, System.IO.FileAccess.Write, System.IO.FileShare.None );
-				await stream.WriteAsync( _buffer.Buffer.AsMemory( 0, _position ), ct );
+				await stream.WriteAsync( buffer.AsMemory( 0, position ), ct );
 				stream.Close();
 			}
 		}
@@ -155,15 +158,14 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <summary>
 		/// Opens the memory file write stream with the specified file path, open mode, and access mode.
 		/// </summary>
-		/// <param name="openMode">The mode in which to open the file.</param>
-		/// <param name="accessMode">The access mode for the file.</param>
+		/// <param name="config"></param>
 		/// <returns><c>true</c> if the file was opened successfully; otherwise, <c>false.</c></returns>
-		private bool Open( System.IO.FileMode openMode, System.IO.FileAccess accessMode ) {
-			if ( openMode == System.IO.FileMode.Append ) {
+		private bool Open( MemoryFileWriteConfig config ) {
+			if ( config.Append ) {
 				throw new NotImplementedException();
 			} else {
-				_length = DEFAULT_CAPACITY;
-				_buffer = new PooledBufferHandle( _length );
+				length = config.InitialCapacity;
+				buffer = AllocateBuffer( length );
 			}
 			return true;
 		}
@@ -178,7 +180,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <param name="line"></param>
 		public void WriteLine( string line )
-			=> Write( $"{line}\n" );
+			=> WriteString( $"{line}\n" );
 
 		/*
 		===============
@@ -190,7 +192,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <param name="line"></param>
 		public void WriteLine( ReadOnlySpan<char> line )
-			=> WriteLine( line );
+			=> WriteString( new string( line ) );
 
 		/*
 		===============
@@ -201,20 +203,27 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// 
 		/// </summary>
 		/// <param name="line"></param>
-		public async ValueTask WriteLineAsync( string line )
-			=> WriteLine( line );
-
-		/*
-		===============
-		WriteLineAsync
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="line"></param>
+		/// <param name="ct"></param>
 		/// <returns></returns>
-		public async ValueTask WriteLineAsync( ReadOnlyMemory<char> line )
-			=> WriteLine( line.Span );
+		public async ValueTask WriteLineAsync( string line, CancellationToken ct = default ) {
+			ct.ThrowIfCancellationRequested();
+			WriteLine( line );
+		}
+
+		/*
+		===============
+		WriteLineAsync
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="line"></param>
+		/// <param name="ct"></param>
+		/// <returns></returns>
+		public async ValueTask WriteLineAsync( ReadOnlyMemory<char> line, CancellationToken ct ) {
+			ct.ThrowIfCancellationRequested();
+			WriteLine( line.Span );
+		}
 	};
 };

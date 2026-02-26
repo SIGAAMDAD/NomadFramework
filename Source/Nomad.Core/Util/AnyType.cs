@@ -25,6 +25,11 @@ namespace Nomad.Core.Util
     public enum AnyType : byte
     {
         /// <summary>
+        /// No type, default construction.
+        /// </summary>
+        None = 0,
+
+        /// <summary>
         /// Represents a boolean value.
         /// </summary>
         Boolean,
@@ -85,11 +90,6 @@ namespace Nomad.Core.Util
         String,
 
         /// <summary>
-        /// Represents an object.
-        /// </summary>
-        Object,
-
-        /// <summary>
         /// Represents the total count of valid <see cref="AnyType"/> values.
         /// </summary>
         /// <remarks>
@@ -97,5 +97,5 @@ namespace Nomad.Core.Util
         /// It is not a valid type for storing values in an <see cref="Any"/> instance.
         /// </remarks>
         Count
-    };
+    }
 }

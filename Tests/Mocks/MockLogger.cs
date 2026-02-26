@@ -15,11 +15,14 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 #if !UNITY_EDITOR
 using System;
+using Nomad.Core.CVars;
 using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
 
 public class MockLogger : ILoggerService
 {
+	private bool _isDisposed = false;
+
 	public void AddSink(ILoggerSink sink)
 	{
 	}
@@ -33,12 +36,15 @@ public class MockLogger : ILoggerService
 	{
 		return null;
 	}
-
+	
 	public void Dispose()
 	{
+		// DISPOSAL GOES HERE
+		GC.SuppressFinalize( this );
+		_isDisposed = true;
 	}
 
-	public void InitConfig(IServiceLocator locator)
+	public void InitConfig(ICVarSystemService cvarSystem)
 	{
 		throw new System.NotImplementedException();
 	}

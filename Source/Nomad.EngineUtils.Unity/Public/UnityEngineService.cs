@@ -19,6 +19,7 @@ using Nomad.Core.EngineUtils;
 using Nomad.Core.ResourceCache;
 using Nomad.Core.Util;
 using UnityEngine;
+using UnityEngine.Localization.Settings;
 
 namespace Nomad.EngineUtils
 {
@@ -61,12 +62,12 @@ namespace Nomad.EngineUtils
 
         public string GetLocalPath(string ospath)
         {
-            throw new NotImplementedException();
+            return String.Empty;
         }
 
         public string GetOSPath(string localpath)
         {
-            throw new NotImplementedException();
+            return String.Empty;
         }
 
         public void GetScreenResolution(out int width, out int height)
@@ -90,7 +91,7 @@ namespace Nomad.EngineUtils
 
         public string GetSystemRegion()
         {
-            return String.Empty;
+            return System.Globalization.CultureInfo.CurrentCulture.Name;
         }
 
         public void Quit(int exitCode = 0)
@@ -105,7 +106,7 @@ namespace Nomad.EngineUtils
 
         public string Translate(InternString key)
         {
-            return String.Empty;
+            return LocalizationSettings.StringDatabase.GetLocalizedString((string)key);
         }
     }
 }

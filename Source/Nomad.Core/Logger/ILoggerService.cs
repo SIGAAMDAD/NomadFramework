@@ -14,7 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using Nomad.Core.ServiceRegistry.Interfaces;
+using Nomad.Core.CVars;
 
 namespace Nomad.Core.Logger
 {
@@ -126,8 +126,8 @@ namespace Nomad.Core.Logger
         /// <summary>
         /// Initializes the logger configuration.
         /// </summary>
-        /// <param name="locator">The service locator to use for logger configuration.</param>
-        void InitConfig(IServiceLocator locator);
+        /// <param name="cvarSystem">The CVar system.</param>
+        void InitConfig(ICVarSystemService cvarSystem);
 
         /// <summary>
         /// Adds a sink to the logger.

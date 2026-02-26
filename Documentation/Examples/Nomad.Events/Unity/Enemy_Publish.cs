@@ -1,37 +1,49 @@
 using UnityEngine;
 using Nomad.Core.Events;
+using Samples.Events;
 
-// Declare the payload struct.
-public readonly struct DamagePlayerEventArgs
+namespace Samples.Unity.Publisher
 {
-    public readonly int Amount;
-
-    public DamagePlayerEventArgs(int amount)
+    /// <summary>
+    /// Example publisher that fires the <c>Player/TakeDamage</c> event.
+    /// </summary>
+    public sealed class Enemy : MonoBehaviour
     {
-        Amount = amount;
+        // Event handle retrieved from the global registry.
+        //! [declare]
+        private IGameEvent<DamagePlayerEventArgs> _damagePlayer;
+        //! [declare]
+
+        [Header("Attack Settings")]
+        [SerializeField, Min(1)]
+        private int _damageAmount = 10;
+
+        private void Awake()
+        {
+            //! [get_event]
+            _damagePlayer = GameEventRegistry.GetEvent<DamagePlayerEventArgs>("TakeDamage", "Player");
+
+            if (_damagePlayer == null)
+            {
+                Debug.LogError("[Enemy] TakeDamage event not found in registry (namespace 'Player').");
+                enabled = false;
+            }
+            //! [get_event]
+        }
+
+        /// <summary>
+        /// Simulates an attack—publishes an event that subscribers will handle.
+        /// </summary>
+        public void AttackPlayer()
+        {
+            if (_damagePlayer == null) return;
+
+            //! [publish]
+            var payload = new DamagePlayerEventArgs(_damageAmount);
+            _damagePlayer.Publish(payload);
+            //! [publish]
+
+            Debug.Log($"[Enemy] Hit the player for {_damageAmount} damage!");
+        }
     }
-}
-
-public class Enemy : MonoBehaviour
-{
-	// Declare the event.
-	private IGameEvent<DamagePlayerEventArgs> _damagePlayer;
-
-	private void Awake()
-    {
-        // Retrieve the event from the global registry, its name is "TakeDamage", and it's within the player's
-		// namespace, so "Player".
-        _damagePlayer = GameEventRegistry.GetEvent( "TakeDamage", "Player" );
-        
-        // Don't subscribe to the event because we're the publisher, and the player is the client.
-		// We are not catching the event.
-	}
-	
-	private void AttackPlayer()
-    {
-        // This will make sure the player's "OnTakeDamage" is called, and any other subscribers will
-		// also be called whenever this event is published.
-        _damagePlayer.Publish( new DamagePlayerEventArgs( 10 ) );
-		Debug.Log( "Hit the player for 10 damage!" );
-	}
 }

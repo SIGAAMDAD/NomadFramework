@@ -31,7 +31,7 @@ public class SaveFileMetadataTests
     public void Constructor_WithValidParameters_CreatesInstance()
     {
         // Arrange
-        var fileName = "save_001";
+        string fileName = "save_001";
         long fileSize = 1024;
         var lastAccessTime = DateTime.Now;
         var creationTime = DateTime.Now;
@@ -67,7 +67,7 @@ public class SaveFileMetadataTests
     public void Constructor_WithZeroFileSize_CreatesInstance()
     {
         // Arrange
-        var fileName = "empty_save";
+        string fileName = "empty_save";
         long fileSize = 0;
         var lastAccessTime = DateTime.Now;
         var creationTime = DateTime.Now;
@@ -92,7 +92,7 @@ public class SaveFileMetadataTests
     public void Constructor_WithLargeFileSize_CreatesInstance()
     {
         // Arrange
-        var fileName = "large_save";
+        string fileName = "large_save";
         long fileSize = long.MaxValue;
         var lastAccessTime = DateTime.Now;
         var creationTime = DateTime.Now;
@@ -117,7 +117,7 @@ public class SaveFileMetadataTests
     public void Constructor_WithOldDateTime_CreatesInstance()
     {
         // Arrange
-        var fileName = "old_save";
+        string fileName = "old_save";
         long fileSize = 2048;
         var lastAccessTime = new DateTime(2020, 1, 1, 0, 0, 0);
         var creationTime = DateTime.Now;
@@ -142,7 +142,7 @@ public class SaveFileMetadataTests
     public void Constructor_WithCurrentDateTime_CreatesInstance()
     {
         // Arrange
-        var fileName = "current_save.ngd";
+        string fileName = "current_save";
         long fileSize = 5120;
         var lastAccessTime = DateTime.UtcNow;
         var creationTime = DateTime.Now;
@@ -172,7 +172,7 @@ public class SaveFileMetadataTests
     public void Equality_TwoInstancesWithSameValues_AreEqual()
     {
         // Arrange
-        var fileName = "save_001.ngd";
+        string fileName = "save_001.ngd";
         long fileSize = 1024;
         var lastAccessTime = DateTime.Now;
         var creationTime = DateTime.Now;
@@ -239,7 +239,7 @@ public class SaveFileMetadataTests
     public void Equality_TwoInstancesWithDifferentFileSizes_AreNotEqual()
     {
         // Arrange
-        var fileName = "save_001";
+        string fileName = "save_001";
         var lastAccessTime = DateTime.Now;
         var creationTime = DateTime.Now;
 
@@ -272,7 +272,7 @@ public class SaveFileMetadataTests
     public void Equality_TwoInstancesWithDifferentAccessTimes_AreNotEqual()
     {
         // Arrange
-        var fileName = "save_001";
+        string fileName = "save_001";
         var now = DateTime.Now;
         var creationTime = DateTime.Now;
         long fileSize = 1024;
@@ -307,7 +307,7 @@ public class SaveFileMetadataTests
     public void GetHashCode_TwoInstancesWithSameValues_HaveSameHashCode()
     {
         // Arrange
-        var fileName = "save_001";
+        string fileName = "save_001";
         long fileSize = 1024;
         var lastAccessTime = new DateTime(2025, 1, 1);
         var creationTime = DateTime.Now;
@@ -365,7 +365,7 @@ public class SaveFileMetadataTests
     public void RecordBehavior_AllPropertiesAccessible()
     {
         // Arrange
-        var fileName = "save_001";
+        string fileName = "save_001";
         long fileSize = 2048;
         var lastAccessTime = DateTime.Now;
         var creationTime = DateTime.Now;
@@ -395,7 +395,7 @@ public class SaveFileMetadataTests
     public void FileName_PropertyIsAccessible()
     {
         // Arrange
-        var fileName = "test_save";
+        string fileName = "test_save";
         var now = DateTime.Now;
         var creationTime = DateTime.Now;
         var metadata = new SaveFileMetadata(
@@ -473,7 +473,7 @@ public class SaveFileMetadataTests
         // Note: This tests that the constructor allows negative values
         // In real usage this would be invalid, but records don't validate
         // Arrange
-        var fileName = "test";
+        string fileName = "test";
         long fileSize = -100;
         var creationTime = DateTime.Now;
         var lastAccessTime = DateTime.Now;

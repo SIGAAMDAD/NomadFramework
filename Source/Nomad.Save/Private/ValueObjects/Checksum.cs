@@ -17,8 +17,6 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO.Hashing;
 using System.Runtime.CompilerServices;
-using Nomad.Core.Compatibility.Guards;
-using Nomad.Core.Util;
 
 namespace Nomad.Save.Private.ValueObjects {
 	/*

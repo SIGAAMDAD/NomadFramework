@@ -13,13 +13,10 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Nomad.Core.Events;
-using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
 using Nomad.Core.Abstractions;
-using Nomad.CVars.Interfaces;
-using Nomad.Logger.Private.Sinks;
+using Nomad.Logger.Private.Services;
 
 namespace Nomad.Logger
 {

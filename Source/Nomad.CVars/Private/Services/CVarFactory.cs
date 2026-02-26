@@ -17,16 +17,5 @@ namespace Nomad.CVars.Private.Services {
 	internal sealed class CVarFactory {
 		public CVarFactory() {
 		}
-
-		/*
-		===============
-		Dispose
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		public void Dispose() {
-		}
 	};
 };

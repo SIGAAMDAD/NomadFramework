@@ -21,6 +21,8 @@ using NUnit.Framework;
 using Moq;
 using Nomad.Core.EngineUtils;
 using Nomad.Core.FileSystem;
+using Nomad.Core.FileSystem.Configs;
+using Nomad.Core.FileSystem.Streams;
 using Nomad.Core.Logger;
 using Nomad.FileSystem.Private.Services;
 
@@ -63,14 +65,14 @@ namespace Nomad.FileSystem.Tests
 
 		private IWriteStream OpenWriteStream(bool append = false)
 		{
-			var config = new WriteConfig(StreamType.File, append);
-			return _service.OpenWrite(_filePath, config);
+			var config = new FileWriteConfig{ FilePath = _filePath, Append = append };
+			return _service.OpenWrite(config);
 		}
 
 		[Test]
 		public void Write_WritesBytes()
 		{
-			byte[] data = { 1, 2, 3, 4, 5 };
+			byte[] data = [1, 2, 3, 4, 5];
 			using (var stream = OpenWriteStream())
 			{
 				stream.Write(data, 0, data.Length);
@@ -96,7 +98,7 @@ namespace Nomad.FileSystem.Tests
 		[Test]
 		public async Task WriteAsync_WritesBytes()
 		{
-			byte[] data = { 100, 200, 255 };
+			byte[] data = [100, 200, 255];
 			using (var stream = OpenWriteStream())
 			{
 				await stream.WriteAsync(data, 0, data.Length);
@@ -109,10 +111,10 @@ namespace Nomad.FileSystem.Tests
 		[Test]
 		public void AppendMode_AddsToEnd()
 		{
-			File.WriteAllBytes(_filePath, new byte[] { 1, 2, 3 });
+			File.WriteAllBytes(_filePath, [1, 2, 3]);
 			using (var stream = OpenWriteStream(append: true))
 			{
-				stream.Write(new byte[] { 4, 5, 6 }, 0, 3);
+				stream.Write([4, 5, 6], 0, 3);
 			}
 
 			var written = File.ReadAllBytes(_filePath);
@@ -130,8 +132,8 @@ namespace Nomad.FileSystem.Tests
 			}
 			{
 
-				var readConfig = new ReadConfig(StreamType.File);
-				using var sourceStream = _service.OpenRead(sourcePath, readConfig);
+				var readConfig = new FileReadConfig{ FilePath = sourcePath };
+				using var sourceStream = _service.OpenRead(readConfig);
 
 				using var destStream = OpenWriteStream();
 				destStream.WriteFromStream(sourceStream);
@@ -147,13 +149,13 @@ namespace Nomad.FileSystem.Tests
 		public async Task WriteFromStreamAsync_CopiesData()
 		{
 			string sourcePath = Path.Combine(_tempDir, "source.bin");
-			byte[] sourceData = { 11, 12, 13 };
+			byte[] sourceData = [11, 12, 13];
 			{
 				File.WriteAllBytes(sourcePath, sourceData);
 			}
 			{
-				var readConfig = new ReadConfig(StreamType.File);
-				using var sourceStream = _service.OpenRead(sourcePath, readConfig);
+				var readConfig = new FileReadConfig{ FilePath = sourcePath };
+				using var sourceStream = _service.OpenRead(readConfig);
 				using var destStream = OpenWriteStream();
 				await destStream.WriteFromStreamAsync(sourceStream);
 			}
@@ -210,7 +212,7 @@ namespace Nomad.FileSystem.Tests
 		{
 			{
 				using var stream = OpenWriteStream();
-				stream.Write(new byte[] { 1, 2, 3 }, 0, 3);
+				stream.Write([1, 2, 3], 0, 3);
 				stream.Flush();
 			}
 			{

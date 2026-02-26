@@ -43,13 +43,9 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		private readonly IGameEvent<TArgs> _eventData;
 		private readonly SubscriptionCache<TArgs> _genericSubscriptions;
 
-		/// <summary>
-		/// The number of pumps before initiating a purge.
-		/// </summary>
-		private readonly int _cleanupInterval;
-		private int _cleanupCounter = 0;
-
 		private readonly HashSet<WeakReference<IGameEvent>> _friends = new HashSet<WeakReference<IGameEvent>>();
+
+		private bool _isDisposed;
 
 		/*
 		===============
@@ -61,11 +57,9 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// </summary>
 		/// <param name="eventData"></param>
 		/// <param name="logger"></param>
-		/// <param name="cleanupInterval"></param>
-		public LockFreeSubscriptionSet( IGameEvent<TArgs> eventData, ILoggerService logger, int cleanupInterval = 100 ) {
+		public LockFreeSubscriptionSet( IGameEvent<TArgs> eventData, ILoggerService logger ) {
 			_logger = logger;
 			_genericSubscriptions = new SubscriptionCache<TArgs>( logger );
-			_cleanupInterval = cleanupInterval;
 			_eventData = eventData;
 		}
 
@@ -75,10 +69,16 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		===============
 		*/
 		/// <summary>
-		/// Clears all the subscriptions within this set.
+		/// 
 		/// </summary>
 		public void Dispose() {
-			_friends.Clear();
+			if ( !_isDisposed ) {
+				_logger?.PrintLine( $"Releasing subscription set for event {_eventData.DebugName}..." );
+				_friends.Clear();
+				_genericSubscriptions?.Dispose();
+			}
+			GC.SuppressFinalize( this );
+			_isDisposed = true;
 		}
 
 		/*
@@ -94,6 +94,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 			var refEvent = new WeakReference<IGameEvent>( friend );
 			if ( _friends.Contains( refEvent ) ) {
 				_logger?.PrintWarning( $"LockFreeSubscriptionSet.BindEventFriend: event '{_eventData.DebugName}' already has friendship with event '{friend.DebugName}'" );
+				return;
 			}
 #if EVENT_DEBUG
 			_logger?.PrintLine( $"LockFreeSubscriptionSet.BindEventFriend: friendship created between events '{_eventData.DebugName}' and '{friend.DebugName}'" );
@@ -157,7 +158,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 			ArgumentGuard.ThrowIfNull( callback );
 
 			if ( !ContainsCallback( subscriber, callback, out int index ) ) {
-				_logger.PrintWarning( $"" );
+				_logger.PrintWarning( $"LockFreeSubscriptionSet.RemoveSubscription: " );
 				return false;
 			}
 

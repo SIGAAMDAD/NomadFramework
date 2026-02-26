@@ -22,6 +22,10 @@ using Nomad.Save.Private.ValueObjects;
 using Nomad.Save.Private.Serialization.FieldSerializers;
 using Nomad.FileSystem.Private.MemoryStream;
 using Nomad.Core.Util;
+using Nomad.Save.Private;
+using System;
+using Nomad.Core.FileSystem.Configs;
+using Nomad.Core.Util.BufferHandles;
 
 namespace Nomad.Save.Tests
 {
@@ -50,7 +54,7 @@ namespace Nomad.Save.Tests
             writer.Write(12345);
 
             ms.Position = 0;
-            var stream = new MemoryReadStream(ms.ToArray(), (int)ms.Length);
+            var stream = new MemoryReadStream(new MemoryReadConfig { Buffer = new SharedBufferHandle( ms.ToArray(), (int)ms.Length ), MaxCapacity = 8192 });
 
             var ex = Assert.Throws<FieldCorruptException>(() =>
                 SaveField.Read("TestSection", 0, stream));
@@ -77,7 +81,7 @@ namespace Nomad.Save.Tests
             writer.Write((byte)255);
 
             ms.Position = 0;
-            var stream = new MemoryReadStream(ms.ToArray(), (int)ms.Length);
+            var stream = new MemoryReadStream(new MemoryReadConfig { Buffer = new SharedBufferHandle( ms.ToArray(), (int)ms.Length ), MaxCapacity = 8192 });
 
             var ex = Assert.Throws<FieldCorruptException>(() =>
                 SaveField.Read("TestSection", 1, stream));
@@ -95,19 +99,26 @@ namespace Nomad.Save.Tests
         public void LoadSectionHeader_InvalidNameLength_ThrowsSectionCorruptionException()
         {
             // Arrange
-            const int maxSectionNameLength = 128;
+            const int maxSectionNameLength = Constants.SECTION_NAME_MAX_LENGTH;
             string longName = new string('B', maxSectionNameLength + 10); // 138 chars
             
             // Act
             using var ms = new MemoryStream();
             using var writer = new BinaryWriter(ms, Encoding.UTF8, true);
 
-            writer.Write(longName);
             writer.Write(0);
-            writer.Write(5);
-            writer.Write(0x12345678UL);
+            writer.Write(0UL);
+            writer.Write(0);
+            writer.Write(longName);
+
+            ms.Position = SectionHeader.HEADER_CHECKSUM_OFFSET;
+            int byteLength = (int)writer.BaseStream.Length - SectionHeader.HEADER_CHECKSUM_OFFSET;
             ms.Position = 0;
-            var stream = new MemoryReadStream(ms.ToArray(), (int)ms.Length);
+            writer.Write(byteLength);
+            writer.Write(Checksum.Compute(ms.ToArray().AsSpan().Slice(sizeof(int) + sizeof(ulong))).Value);
+
+            ms.Position = 0;
+            var stream = new MemoryReadStream(new MemoryReadConfig { Buffer = new SharedBufferHandle( ms.ToArray(), (int)ms.Length ), MaxCapacity = 8192 });
             var ex = Assert.Throws<SectionCorruptException>(() => SectionHeader.Load(0, stream));
 
             // Assert
@@ -123,12 +134,12 @@ namespace Nomad.Save.Tests
 
             // Act
             string name = "ValidSection";
-            writer.Write(name);
             writer.Write(0);
+            writer.Write((ulong)0);
+            writer.Write(name);
             writer.Write(-1);
-            writer.Write(0x87654321UL);
             ms.Position = 0;
-            var stream = new MemoryReadStream(ms.ToArray(), (int)ms.Length);
+            var stream = new MemoryReadStream(new MemoryReadConfig { Buffer = new SharedBufferHandle( ms.ToArray(), (int)ms.Length ), MaxCapacity = 8192 });
             var ex = Assert.Throws<SectionCorruptException>(() => SectionHeader.Load(0, stream));
 
             // Assert
@@ -148,13 +159,12 @@ namespace Nomad.Save.Tests
 
             // Act
             string name = "ValidSection";
-            writer.Write(name);
             writer.Write(-1);
-            writer.Write(0);
             writer.Write(0x87654321UL);
-
+            writer.Write(name);
+            writer.Write(0);
             ms.Position = 0;
-            var stream = new MemoryReadStream(ms.ToArray(), (int)ms.Length);
+            var stream = new MemoryReadStream(new MemoryReadConfig { Buffer = new SharedBufferHandle( ms.ToArray(), (int)ms.Length ), MaxCapacity = 8192 });
 
             var ex = Assert.Throws<SectionCorruptException>(() => SectionHeader.Load(0, stream));
 

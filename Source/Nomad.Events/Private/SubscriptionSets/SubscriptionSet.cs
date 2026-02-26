@@ -36,15 +36,13 @@ namespace Nomad.Events.Private.SubscriptionSets {
 	internal sealed class SubscriptionSet<TArgs> : ISubscriptionSet<TArgs>
 		where TArgs : struct
 	{
-		/// <summary>
-		/// The number of pumps before initiating a purge.
-		/// </summary>
-		private readonly int _cleanupInterval;
 		private readonly ILoggerService _logger;
 		private readonly IGameEvent<TArgs> _eventData;
 
 		private readonly SubscriptionCache<TArgs> _genericSubscriptions;
 		private readonly SubscriptionCache<TArgs> _asyncSubscriptions;
+
+		private bool _isDisposed = false;
 
 		private readonly HashSet<WeakReference<IGameEvent>> _friends = new HashSet<WeakReference<IGameEvent>>();
 		private readonly ReaderWriterLockSlim _pumpLock = new ReaderWriterLockSlim();
@@ -59,12 +57,10 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// </summary>
 		/// <param name="eventData"></param>
 		/// <param name="logger"></param>
-		/// <param name="cleanupInterval"></param>
-		public SubscriptionSet( IGameEvent<TArgs> eventData, ILoggerService logger, int cleanupInterval = 30 ) {
+		public SubscriptionSet( IGameEvent<TArgs> eventData, ILoggerService logger ) {
 			_genericSubscriptions = new SubscriptionCache<TArgs>( logger );
 			_asyncSubscriptions = new SubscriptionCache<TArgs>( logger );
 			_logger = logger;
-			_cleanupInterval = cleanupInterval;
 			_eventData = eventData;
 		}
 
@@ -74,13 +70,18 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		===============
 		*/
 		/// <summary>
-		/// Clears all the subscriptions within this set.
+		/// 
 		/// </summary>
 		public void Dispose() {
-			_logger.PrintLine( $"Releasing subscription set for event {_eventData.DebugName}..." );
-			_genericSubscriptions.Dispose();
-			_asyncSubscriptions.Dispose();
-			_friends.Clear();
+			if ( !_isDisposed ) {
+				_logger?.PrintLine( $"Releasing subscription set for event {_eventData.DebugName}..." );
+				_genericSubscriptions?.Dispose();
+				_asyncSubscriptions?.Dispose();
+				_friends.Clear();
+				_pumpLock?.Dispose();
+			}
+			GC.SuppressFinalize( this );
+			_isDisposed = true;
 		}
 
 		/*
@@ -96,6 +97,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 			var refEvent = new WeakReference<IGameEvent>( friend );
 			if ( _friends.Contains( refEvent ) ) {
 				_logger?.PrintWarning( $"SubscriptionSet.BindEventFriend: event '{_eventData.DebugName}' already has friendship with event '{friend.DebugName}'" );
+				return;
 			}
 
 			_logger?.PrintLine( $"SubscriptionSet.BindEventFriend: friendship created between events '{_eventData.DebugName}' and '{friend.DebugName}'" );
@@ -170,8 +172,6 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// </summary>
 		/// <param name="subscriber"></param>
 		/// <param name="callback">The callback to remove from the subscription list.</param>
-		/// <exception cref="ArgumentNullException">Thrown if <paramref name="callback"/> is null.</exception>
-		/// <exception cref="ArgumentOutOfRangeException">Thrown if the returned index from <see cref="ContainsCallback"/> is invalid.</exception>
 		public bool RemoveSubscription( object subscriber, EventCallback<TArgs> callback ) {
 			ArgumentGuard.ThrowIfNull( subscriber );
 			ArgumentGuard.ThrowIfNull( callback );
@@ -288,11 +288,11 @@ namespace Nomad.Events.Private.SubscriptionSets {
 
 			for ( int i = 0; i < subscriptionCount; i++ ) {
 				var subscription = _asyncSubscriptions[ i ];
-				if ( subscription.IsAlive ) {
+				if ( !subscription.IsAlive ) {
 					continue;
 				}
 				if ( subscription.TryGetAsyncCallback( out var callback ) ) {
-					tasks.Add( callback.Invoke( args, ct ) );
+					tasks.Add( callback!.Invoke( args, ct ) );
 				}
 			}
 

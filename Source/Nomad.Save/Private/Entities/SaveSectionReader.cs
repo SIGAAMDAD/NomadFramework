@@ -15,11 +15,11 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Collections.Generic;
-using Nomad.Core.Compatibility;
 using Nomad.Core.Compatibility.Guards;
-using Nomad.Core.FileSystem;
+using Nomad.Core.FileSystem.Streams;
 using Nomad.Core.Logger;
 using Nomad.Core.Util;
+using Nomad.Save.Exceptions;
 using Nomad.Save.Interfaces;
 using Nomad.Save.Private.ValueObjects;
 
@@ -36,11 +36,22 @@ namespace Nomad.Save.Private.Entities {
 	/// </summary>
 
 	internal sealed class SaveSectionReader : ISaveSectionReader {
-		public string Name { get; private set; }
+		/// <summary>
+		/// 
+		/// </summary>
+		public string Name {
+			get => _isDisposed ? throw new ObjectDisposedException( nameof( SaveSectionReader ) ) : _name;
+		}
+		private readonly string _name;
 
+		/// <summary>
+		/// 
+		/// </summary>
 		public int FieldCount => _fields.Count;
 
 		private readonly Dictionary<string, SaveField> _fields;
+
+		private bool _isDisposed = false;
 
 		private readonly ILoggerService _logger;
 
@@ -56,21 +67,32 @@ namespace Nomad.Save.Private.Entities {
 		/// <param name="index"></param>
 		/// <param name="reader"></param>
 		/// <param name="logger"></param>
-		public SaveSectionReader( in SaveConfig config, int index, in IMemoryReadStream reader, ILoggerService logger ) {
+		public SaveSectionReader( SaveConfig config, int index, IMemoryReadStream reader, ILoggerService logger ) {
 			_fields = new Dictionary<string, SaveField>();
+			_logger = logger;
 
 			var header = SectionHeader.Load( index, in reader );
 
+			if ( config.LogSerializationTree ) {
+				_logger.PrintLine( $"\t[Section] (NAME) {header.Name}" );
+			}
+
 			int fieldCount = header.FieldCount;
-			Name = header.Name;
+			_name = header.Name;
 
 			_fields.EnsureCapacity( fieldCount );
 			for ( int i = 0; i < fieldCount; i++ ) {
-				var field = SaveField.Read( Name, i, in reader );
+				var field = SaveField.Read( Name, i, reader );
+
+				if ( config.LogSerializationTree ) {
+					_logger.PrintLine( $"\t\t[Field] (NAME) {field.Name}, (TYPE) {field.Type}, (VALUE) {field.Value}" );
+				}
+				if ( _fields.ContainsKey( field.Name ) ) {
+					throw new DuplicateFieldException( _name, field.Name );
+				}
+
 				_fields[ field.Name ] = field;
 			}
-
-			_logger = logger;
 		}
 
 		/*
@@ -79,10 +101,14 @@ namespace Nomad.Save.Private.Entities {
 		===============
 		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
 		public void Dispose() {
-			_fields.Clear();
+			if ( !_isDisposed ) {
+				_fields.Clear();
+			}
+			GC.SuppressFinalize( this );
+			_isDisposed = true;
 		}
 
 		/*
@@ -100,6 +126,7 @@ namespace Nomad.Save.Private.Entities {
 		public T GetField<T>( string fieldName )
 			where T : unmanaged
 		{
+			StateGuard.ThrowIfDisposed( _isDisposed, this );
 			ArgumentGuard.ThrowIfNullOrEmpty( fieldName );
 			
 			T value = default;
@@ -124,6 +151,7 @@ namespace Nomad.Save.Private.Entities {
 		/// <returns></returns>
 		/// <exception cref="InvalidCastException"></exception>
 		public string GetString( string fieldName ) {
+			StateGuard.ThrowIfDisposed( _isDisposed, this );
 			ArgumentGuard.ThrowIfNullOrEmpty( fieldName );
 			
 			string value = String.Empty;

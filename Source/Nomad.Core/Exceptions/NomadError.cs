@@ -50,7 +50,7 @@ namespace Nomad.Core.Exceptions
         public NomadError(string message)
             : base(message)
         {
-            _module = ResolveNomadModuleName() ?? "(UNKNOWN)";
+            _module = ResolveNomadModuleInfo() ?? "(UNKNOWN)";
             _timeStamp = DateTime.Now;
         }
 
@@ -61,7 +61,12 @@ namespace Nomad.Core.Exceptions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private string GetMessage()
         {
-            return $"FROM {_module} AT {_timeStamp}\n\t[ERROR STRING]: {base.Message}";
+            // looks like this:
+            // FROM (module id) AT (time)
+            //     [ERROR STRING] (error message)
+            // [STACKTRACE]:
+            // (stacktrace)
+            return $"FROM {_module} AT {_timeStamp}\n\t[ERROR STRING]: {base.Message}\n[STACKTRACE]:\n{base.StackTrace}";
         }
 
         /// <summary>
@@ -69,7 +74,7 @@ namespace Nomad.Core.Exceptions
         /// </summary>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.NoInlining)]
-        private static string? ResolveNomadModuleName()
+        private static string? ResolveNomadModuleInfo()
         {
             Assembly thisAssembly = typeof(NomadError).Assembly;
 
@@ -83,19 +88,19 @@ namespace Nomad.Core.Exceptions
 
             for (int i = 0; i < frames.Length; i++)
             {
-                var method = frames[i].GetMethod();
+                MethodBase? method = frames[i].GetMethod();
                 if (method == null)
                 {
                     continue;
                 }
 
-                var asm = method.Module.Assembly;
+                Assembly asm = method.Module.Assembly;
                 if (asm == thisAssembly)
                 {
                     continue;
                 }
 
-                var attribute = asm.GetCustomAttribute<NomadModule>();
+                NomadModule? attribute = asm.GetCustomAttribute<NomadModule>();
                 if (attribute != null)
                 {
                     return attribute.Name;

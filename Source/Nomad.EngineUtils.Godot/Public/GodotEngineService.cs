@@ -23,6 +23,8 @@ using Nomad.Core.Logger;
 using Nomad.Core.Events;
 using Nomad.Core.ResourceCache;
 using Nomad.Core.Input;
+using Nomad.Core.Compatibility.Guards;
+using Nomad.Core;
 
 namespace Nomad.EngineUtils
 {
@@ -34,15 +36,21 @@ namespace Nomad.EngineUtils
         private readonly SceneTree _sceneTree;
         private readonly Node _root;
 
-        private readonly string _installDirectory;
-        private readonly string _assetDirectory;
-
-        private readonly NotificationNode _notificationNode;
         private readonly GodotLoader<Resource> _loader;
         private readonly GodotInputPump _inputPump;
 
         private readonly ILoggerService _logger;
         private readonly IGameEventRegistryService _eventFactory;
+
+        private bool _isFocused = false;
+
+        private bool _isDisposed = false;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public IGameEvent<WindowSizeChangedEventArgs> WindowSizeChanged => _windowSizeChanged;
+        private readonly IGameEvent<WindowSizeChangedEventArgs> _windowSizeChanged;
 
         /*
         ===============
@@ -58,9 +66,13 @@ namespace Nomad.EngineUtils
         /// <param name="eventFactory"></param>
         public GodotEngineService(SceneTree sceneTree, IInputSystem inputSystem, ILoggerService logger, IGameEventRegistryService eventFactory)
         {
+            ArgumentGuard.ThrowIfNull(sceneTree);
+            ArgumentGuard.ThrowIfNull(inputSystem);
+            ArgumentGuard.ThrowIfNull(logger);
+            ArgumentGuard.ThrowIfNull(eventFactory);
+
             _sceneTree = sceneTree;
-            _root = (Node)sceneTree.Get(SceneTree.PropertyName.Root);
-            _notificationNode = new NotificationNode();
+            _root = (Node)sceneTree.Get(SceneTree.PropertyName.Root).AsGodotObject();
 
             _inputPump = new GodotInputPump(inputSystem);
             _root.CallDeferred(Node.MethodName.AddChild, _inputPump);
@@ -69,6 +81,28 @@ namespace Nomad.EngineUtils
 
             _logger = logger;
             _eventFactory = eventFactory;
+
+            _windowSizeChanged = eventFactory.GetEvent<WindowSizeChangedEventArgs>(Constants.Events.EngineUtils.WINDOW_SIZE_CHANGED, Constants.Events.EngineUtils.NAMESPACE);
+
+            _root.GetWindow().SizeChanged += OnWindowSizeChanged;
+            _root.GetWindow().FocusEntered += OnFocusEntered;
+            _root.GetWindow().FocusExited += OnFocusExited;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void Dispose()
+        {
+            if (!_isDisposed)
+            {
+                _windowSizeChanged?.Dispose();
+                _loader?.Dispose();
+                _inputPump?.Dispose();
+                _root?.Dispose();
+            }
+            GC.SuppressFinalize(this);
+            _isDisposed = true;
         }
 
         /// <summary>
@@ -120,31 +154,48 @@ namespace Nomad.EngineUtils
             return TranslationServer.Translate((string)key);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public bool IsApplicationFocused()
         {
-            throw new NotImplementedException();
+            return _isFocused;
         }
 
-        public bool IsApplicationPaused()
-        {
-            throw new NotImplementedException();
-        }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public string GetApplicationVersion()
         {
-            throw new NotImplementedException();
+            return ProjectSettings.GetSetting("application/config/version").AsString();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public string GetEngineVersion()
         {
-            throw new NotImplementedException();
+            var version = Engine.GetVersionInfo();
+            return version["string"].AsString();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="exitCode"></param>
         public void Quit(int exitCode = 0)
         {
             OS.Kill(OS.GetProcessId());
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="scope"></param>
+        /// <returns></returns>
         public string GetStoragePath(StorageScope scope) => scope switch
         {
             StorageScope.Install => ProjectSettings.GlobalizePath("res://"),
@@ -153,16 +204,31 @@ namespace Nomad.EngineUtils
             _ => ProjectSettings.GlobalizePath("user://")
         };
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="relativePath"></param>
+        /// <param name="scope"></param>
+        /// <returns></returns>
         public string GetStoragePath(string relativePath, StorageScope scope)
         {
-            throw new NotImplementedException();
+            return $"{GetStoragePath(scope)}/{relativePath}";
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public string GetSystemRegion()
         {
-            return OS.GetLocale();
+            return System.Globalization.CultureInfo.CurrentCulture.Name;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
         public void GetScreenResolution(out int width, out int height)
         {
             Vector2I size = DisplayServer.WindowGetSize();
@@ -170,14 +236,51 @@ namespace Nomad.EngineUtils
             height = size.Y;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
         public void SetScreenResolution(int width, int height)
         {
             DisplayServer.WindowSetSize(new Vector2I(width, height));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <returns></returns>
         public IDisposable CreateImageRGBA(byte[] image, int width, int height)
         {
             return Image.CreateFromData(width, height, false, Image.Format.Rgba8, image);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private void OnWindowSizeChanged()
+        {
+            GetScreenResolution(out int width, out int height);
+            _windowSizeChanged.Publish(new WindowSizeChangedEventArgs(width, height));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private void OnFocusEntered()
+        {
+            _isFocused = true;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private void OnFocusExited()
+        {
+            _isFocused = false;
         }
     }
 }

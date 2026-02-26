@@ -24,17 +24,9 @@ namespace Nomad.Core.Util.BufferHandles
         /// 
         /// </summary>
         /// <param name="length"></param>
-        public StandardBufferHandle(int length)
+        public StandardBufferHandle(long length)
             : base(new byte[length], length)
         {
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public override void Dispose()
-        {
-            base.Dispose();
         }
     }
 }

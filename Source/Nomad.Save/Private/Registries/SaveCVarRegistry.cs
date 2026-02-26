@@ -13,9 +13,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using Nomad.Core.CVars;
 using Nomad.Core.EngineUtils;
-using Nomad.CVars.Interfaces;
-using Nomad.CVars.ValueObjects;
 
 namespace Nomad.Save.Private.Registries {
 	/*

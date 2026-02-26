@@ -15,6 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Collections.Generic;
+using Nomad.Core.Exceptions;
 
 namespace Nomad.Core.Events
 {
@@ -36,9 +37,7 @@ namespace Nomad.Core.Events
         /// <param name="nameSpace">The namespace the event belongs to.</param>
         /// <param name="flags">Optional flags that control event behavior.</param>
         /// <returns>A new <see cref="IGameEvent{TArgs}"/> instance.</returns>
-        /// <exception cref="ArgumentException">
-        /// Thrown if an event with the same name and namespace already exists.
-        /// </exception>
+        /// <exception cref="InvalidEventRegistrationException">Thrown if an event with the same name and namespace already exists.</exception>
         IGameEvent<TArgs> GetEvent<TArgs>(string name, string nameSpace, EventFlags flags = EventFlags.Default)
             where TArgs : struct;
 

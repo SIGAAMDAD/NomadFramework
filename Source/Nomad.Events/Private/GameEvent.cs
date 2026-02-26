@@ -51,6 +51,8 @@ namespace Nomad.Events.Private {
 		public int Id => _hashCode;
 		private readonly int _hashCode;
 
+		private bool _isDisposed;
+
 		public event EventCallback<TArgs> OnPublished {
 			add => Subscribe( this, value );
 			remove => Unsubscribe( this, value );
@@ -83,9 +85,9 @@ namespace Nomad.Events.Private {
 			_name = name;
 			_hashCode = HashCode.Combine( GetHashCode(), _name.GetHashCode() );
 
-			bool isSynchronous = (flags & EventFlags.Synchronous) != 0;
-			bool isAsync = (flags & EventFlags.Asynchronous) != 0;
-			bool lockFree = (flags & EventFlags.NoLock) != 0;
+			bool isSynchronous = flags.HasFlag( EventFlags.Synchronous );
+			bool isAsync = flags.HasFlag( EventFlags.Asynchronous );
+			bool lockFree = flags.HasFlag( EventFlags.NoLock );
 
 			if ( lockFree && isAsync ) {
 				throw new NotSupportedException( "Cannot have an event that is both lock free and asynchronous!" );
@@ -96,6 +98,22 @@ namespace Nomad.Events.Private {
 			} else if ( isAsync ) {
 				_subscriptions = new SubscriptionSet<TArgs>( this, logger );
 			}
+		}
+
+		/*
+		===============
+		Dispose
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		public void Dispose() {
+			if ( !_isDisposed ) {
+				_subscriptions?.Dispose();
+			}
+			GC.SuppressFinalize( this );
+			_isDisposed = true;
 		}
 
 		/*
@@ -111,18 +129,6 @@ namespace Nomad.Events.Private {
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public bool Equals( IGameEvent? other ) {
 			return other != null && Id.Equals( other.Id );
-		}
-
-		/*
-		===============
-		Dispose
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		public void Dispose() {
-			_subscriptions.Dispose();
 		}
 
 		/*

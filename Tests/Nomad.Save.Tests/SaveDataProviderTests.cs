@@ -22,6 +22,7 @@ using NUnit.Framework;
 using Nomad.Core.Events;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
+using Nomad.Core.CVars;
 using Nomad.Events;
 using Nomad.FileSystem.Private.Services;
 using Nomad.Save.Data;
@@ -29,7 +30,6 @@ using Nomad.Save.Events;
 using Nomad.Save.Private.Services;
 using Nomad.Save.Services;
 using Nomad.Save.ValueObjects;
-using Nomad.CVars.Interfaces;
 using Nomad.CVars.Private.Services;
 using Moq;
 using Nomad.Core.EngineUtils;
@@ -51,6 +51,9 @@ public class SaveDataProviderTests
     private string _testDirectory;
     private string _saveDirectory;
 
+    private IGameEvent<SaveBeginEventArgs> _saveBegin;
+    private IGameEvent<LoadBeginEventArgs> _loadBegin;
+
     [SetUp]
     public void Setup()
     {
@@ -69,11 +72,16 @@ public class SaveDataProviderTests
         _eventFactory = new GameEventRegistry(_logger);
         _cvarSystem = new CVarSystem(_eventFactory, _fileSystem, _logger);
         _dataProvider = new SaveDataProvider(engineService.Object, _eventFactory, _cvarSystem, _fileSystem, _logger);
+
+        _saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
+        _loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
     }
 
     [TearDown]
     public void TearDown()
     {
+        _saveBegin?.Dispose();
+        _loadBegin?.Dispose();
         _dataProvider?.Dispose();
         _cvarSystem?.Dispose();
         _logger?.Dispose();
@@ -115,9 +123,9 @@ public class SaveDataProviderTests
     public async Task ListSaveFiles_WithMultipleSaveFiles_ReturnsAllFiles()
     {
         // Arrange
-        var file1 = "save_001";
-        var file2 = "save_002";
-        var file3 = "save_003";
+        string file1 = "save_001";
+        string file2 = "save_002";
+        string file3 = "save_003";
 
         // Act
         await _dataProvider.Save(file1, default);
@@ -135,7 +143,7 @@ public class SaveDataProviderTests
     public async Task ListSaveFiles_ReturnsReadOnlyList()
     {
         // Arrange
-        var file1 = "save_001";
+        string file1 = "save_001";
         await _dataProvider.Save(file1, default);
 
         // Act
@@ -149,7 +157,7 @@ public class SaveDataProviderTests
     public async Task ListSaveFiles_IncludesFileMetadata()
     {
         // Arrange
-        var fileName = "test_save";
+        string fileName = "test_save";
         var lastAccessTime = DateTime.Now;
         var creationTime = DateTime.Now;
         var fileMetadata = new SaveFileMetadata(
@@ -178,11 +186,10 @@ public class SaveDataProviderTests
     public async Task Save_WithValidFileId_CompletesSuccessfully()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "save_001.ngd");
-        var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
-        var saveInvoked = false;
+        string fileId = "save_001";
+        bool saveInvoked = false;
 
-        saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
         {
             saveInvoked = true;
             var section = args.Writer.AddSection("TestSection");
@@ -190,7 +197,7 @@ public class SaveDataProviderTests
         });
 
         // Act
-        await _dataProvider.Save(fileId, new GameVersion());
+        await _dataProvider.Save(fileId, default);
 
         // Assert
         Assert.That(saveInvoked, Is.True);
@@ -200,20 +207,18 @@ public class SaveDataProviderTests
     public async Task Load_AfterSave_CanReadSavedData()
     {
         // Arrange
-        var fileId = "save_load_test";
-        var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
-        var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
+        string fileId = "save_load_test";
 
-        var savedData = 123;
-        var loadedSuccessfully = false;
+        int savedData = 123;
+        bool loadedSuccessfully = false;
 
-        saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
         {
             var section = args.Writer.AddSection("DataSection");
             section.AddField("SavedInt", savedData);
         });
 
-        loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
+        _loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
         {
             var section = args.Reader.FindSection("DataSection");
             if (section != null)
@@ -245,11 +250,10 @@ public class SaveDataProviderTests
     public async Task Save_MultipleTimesToSameFile_Overwrites()
     {
         // Arrange
-        var fileId = "overwrite_test";
-        var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
+        string fileId = "overwrite_test";
         int saveCount = 0;
 
-        saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
         {
             saveCount++;
             var section = args.Writer.AddSection("SaveCount");
@@ -270,7 +274,7 @@ public class SaveDataProviderTests
     public async Task Save_WithNoSubscribers_CompletesSuccessfully()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "no_subscribers.ngd");
+        string fileId = "no_subscribers";
 
         // Act & Assert
         await _dataProvider.Save(fileId, default);
@@ -281,11 +285,10 @@ public class SaveDataProviderTests
     public async Task ListSaveFiles_AfterMultipleSaves_ReturnsAccurateMetadata()
     {
         // Arrange
-        var fileId1 = Path.Combine(_testDirectory, "save_001.ngd");
-        var fileId2 = Path.Combine(_testDirectory, "save_002.ngd");
-        var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
+        string fileId1 = "save_001";
+        string fileId2 = "save_002";
 
-        saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
         {
             var section = args.Writer.AddSection("TestSection");
             section.AddField("TestValue", 1);
@@ -304,14 +307,11 @@ public class SaveDataProviderTests
     public async Task Save_AndLoad_WithMultipleSections_PreservesData()
     {
         // Arrange
-        var fileId = Path.Combine(_testDirectory, "multi_section.ngd");
-        var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
-        var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
+        string fileId = "multi_section";
+        bool section1Found = false;
+        bool section2Found = false;
 
-        var section1Found = false;
-        var section2Found = false;
-
-        saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
         {
             var section1 = args.Writer.AddSection("Section1");
             section1.AddField("Value1", 100);
@@ -320,7 +320,7 @@ public class SaveDataProviderTests
             section2.AddField("Value2", 200);
         });
 
-        loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
+        _loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
         {
             section1Found = args.Reader.FindSection("Section1") != null;
             section2Found = args.Reader.FindSection("Section2") != null;

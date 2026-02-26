@@ -165,25 +165,34 @@ dotnet_naming_symbols.godot_signals.descriptions = Godot signals
 # ============================================================================
 
 # Maintainability rules
-dotnet_diagnostic.CA1001.severity = warning      # Types that own disposable fields should be disposable
-dotnet_diagnostic.CA1051.severity = warning      # Do not declare visible instance fields
-dotnet_diagnostic.CA1062.severity = warning      # Validate arguments of public methods
-dotnet_diagnostic.CA1303.severity = warning      # Do not pass literals as localized parameters
-dotnet_diagnostic.CA1707.severity = none         # Identifiers should not contain underscores (disabled for Godot)
-dotnet_diagnostic.CA1716.severity = warning      # Identifiers should not match keywords
-dotnet_diagnostic.CA1822.severity = suggestion   # Mark members as static
-dotnet_diagnostic.CA2007.severity = suggestion   # Consider calling ConfigureAwait on the awaited task
+dotnet_diagnostic.CA1001.severity = error      	# Types that own disposable fields should be disposable
+dotnet_diagnostic.CA1051.severity = warning     # Do not declare visible instance fields
+dotnet_diagnostic.CA1062.severity = warning     # Validate arguments of public methods
+dotnet_diagnostic.CA1303.severity = warning     # Do not pass literals as localized parameters
+dotnet_diagnostic.CA1707.severity = none        # Identifiers should not contain underscores (disabled for Godot)
+dotnet_diagnostic.CA1716.severity = warning     # Identifiers should not match keywords
+dotnet_diagnostic.CA1822.severity = warning  	# Mark members as static
+dotnet_diagnostic.CA2007.severity = suggestion  # Consider calling ConfigureAwait on the awaited task
 
 # Design rules
 dotnet_diagnostic.CA1031.severity = warning      # Do not catch general exception types
 dotnet_diagnostic.CA1065.severity = warning      # Do not raise exceptions in unexpected locations
 dotnet_diagnostic.CA1725.severity = warning      # Parameter names should match base declaration
 
+dotnet_diagnostic.CA2200.severity = error
+dotnet_diagnostic.CA2213.severity = error
+dotnet_diagnostic.CA2215.severity = error
+dotnet_diagnostic.CA2218.severity = error
+dotnet_diagnostic.CA2219.severity = error
+dotnet_diagnostic.CA2224.severity = error
+dotnet_diagnostic.CA2227.severity = error
+dotnet_diagnostic.CA2241.severity = error
+
 # Performance rules
-dotnet_diagnostic.CA1806.severity = warning      # Do not ignore method results
-dotnet_diagnostic.CA1816.severity = warning      # Call GC.SuppressFinalize correctly
-dotnet_diagnostic.CA1823.severity = warning      # Avoid unused private fields
-dotnet_diagnostic.CA1829.severity = suggestion   # Use Length/Count property instead of Count() method
+dotnet_diagnostic.CA1806.severity = warning     # Do not ignore method results
+dotnet_diagnostic.CA1816.severity = error  	    # Call GC.SuppressFinalize correctly
+dotnet_diagnostic.CA1823.severity = warning     # Avoid unused private fields
+dotnet_diagnostic.CA1829.severity = error  		# Use Length/Count property instead of Count() method
 
 # Security rules
 dotnet_diagnostic.CA1305.severity = warning      # Specify IFormatProvider

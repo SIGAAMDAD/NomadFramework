@@ -84,7 +84,7 @@ namespace Nomad.Logger.Private {
 		/// <returns></returns>
 		/// <exception cref="ArgumentOutOfRangeException"></exception>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		private string FormatLogColorBegin( LogLevel level ) => level switch {
+		private static string FormatLogColorBegin( LogLevel level ) => level switch {
 			LogLevel.Info => String.Empty,
 			LogLevel.Warning => "[color=gold]",
 			LogLevel.Error => "[color=red]",
@@ -104,7 +104,7 @@ namespace Nomad.Logger.Private {
 		/// <returns></returns>
 		/// <exception cref="ArgumentOutOfRangeException"></exception>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		private string FormatLogColorEnd( LogLevel level ) => level switch {
+		private static string FormatLogColorEnd( LogLevel level ) => level switch {
 			LogLevel.Info => String.Empty,
 			LogLevel.Warning or LogLevel.Error or LogLevel.Debug => "[/color]",
 			_ => throw new ArgumentOutOfRangeException( nameof( level ) )

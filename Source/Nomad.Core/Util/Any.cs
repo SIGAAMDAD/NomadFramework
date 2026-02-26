@@ -16,8 +16,10 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Nomad.Core.Compatibility.Guards;
 
 namespace Nomad.Core.Util
 {
@@ -36,10 +38,11 @@ namespace Nomad.Core.Util
     /// while maintaining type safety through explicit conversion or retrieval.
     /// </para>
     /// </remarks>
+    [StructLayout(LayoutKind.Explicit, Pack = 1, Size = 24)]
     public struct Any
     {
         [StructLayout(LayoutKind.Explicit, Pack = 1, Size = 16)]
-        private struct Union
+        internal struct Union
         {
             [FieldOffset(0)] public bool Boolean;
 
@@ -57,7 +60,6 @@ namespace Nomad.Core.Util
             [FieldOffset(0)] public double Float64;
 
             [FieldOffset(8)] public string? String;
-            [FieldOffset(8)] public object Reference;
         }
 
         private static readonly ImmutableDictionary<Type, AnyType> _systemTypeToAnyType = new Dictionary<Type, AnyType>() {
@@ -72,8 +74,7 @@ namespace Nomad.Core.Util
             { typeof( ulong ), AnyType.UInt64 },
             { typeof( float ), AnyType.Float32 },
             { typeof( double ), AnyType.Float64 },
-            { typeof( string ), AnyType.String },
-            { typeof( object ), AnyType.Object }
+            { typeof( string ), AnyType.String }
         }.ToImmutableDictionary();
 
         private static readonly ImmutableDictionary<AnyType, Type> _anyTypeToSystemType = new Dictionary<AnyType, Type>() {
@@ -88,17 +89,16 @@ namespace Nomad.Core.Util
             { AnyType.UInt64, typeof( ulong ) },
             { AnyType.Float32, typeof( float ) },
             { AnyType.Float64, typeof( double ) },
-            { AnyType.String, typeof( string ) },
-            { AnyType.Object, typeof( object ) }
+            { AnyType.String, typeof( string ) }
         }.ToImmutableDictionary();
 
-        private Union _value;
+        [FieldOffset(0)] private Union _value;
 
         /// <summary>
         /// The internal system type.
         /// </summary>
         public readonly AnyType Type => _type;
-        private AnyType _type;
+        [FieldOffset(16)] private AnyType _type;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Any"/> struct with a boolean value.
@@ -230,17 +230,6 @@ namespace Nomad.Core.Util
         {
             _value = new Union { String = str };
             _type = AnyType.String;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Any"/> struct with an object.
-        /// </summary>
-        /// <param name="obj">The <see cref="object"/> value to store.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Any(object obj)
-        {
-            _value = new Union { Reference = obj };
-            _type = AnyType.Object;
         }
 
         /// <summary>
@@ -441,7 +430,7 @@ namespace Nomad.Core.Util
         /// reinterpret the underlying bytes as an <see cref="string"/>, which may produce unexpected results.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator string(Any value)
+        public static implicit operator string?(Any value)
         {
             value._type = AnyType.String;
             return value._value.String;
@@ -480,9 +469,8 @@ namespace Nomad.Core.Util
             ulong u64 => new Any(u64),
             float f32 => new Any(f32),
             double f64 => new Any(f64),
-            null when typeof(T) == typeof(string) => new Any((string)(object)value),
+            null when typeof(T) == typeof(string) => new Any((string)(object)value!),
             string str => new Any(str),
-            object obj => new Any(obj),
             _ => throw new InvalidCastException($"An Any object cannot hold a value of type {typeof(T)}")
         };
 
@@ -505,22 +493,25 @@ namespace Nomad.Core.Util
         /// </para>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly T GetPrimitiveValue<T>() where T : unmanaged
-            => typeof(T) switch
+        public T GetPrimitiveValue<T>()
+            where T : unmanaged
+        {
+            return typeof(T) switch
             {
-                Type t when t == typeof(bool) => Unsafe.As<bool, T>(ref Unsafe.AsRef(in _value.Boolean)),
-                Type t when t == typeof(sbyte) => Unsafe.As<sbyte, T>(ref Unsafe.AsRef(in _value.Int8)),
-                Type t when t == typeof(short) => Unsafe.As<short, T>(ref Unsafe.AsRef(in _value.Int16)),
-                Type t when t == typeof(int) => Unsafe.As<int, T>(ref Unsafe.AsRef(in _value.Int32)),
-                Type t when t == typeof(long) => Unsafe.As<long, T>(ref Unsafe.AsRef(in _value.Int64)),
-                Type t when t == typeof(byte) => Unsafe.As<byte, T>(ref Unsafe.AsRef(in _value.UInt8)),
-                Type t when t == typeof(ushort) => Unsafe.As<ushort, T>(ref Unsafe.AsRef(in _value.UInt16)),
-                Type t when t == typeof(uint) => Unsafe.As<uint, T>(ref Unsafe.AsRef(in _value.UInt32)),
-                Type t when t == typeof(ulong) => Unsafe.As<ulong, T>(ref Unsafe.AsRef(in _value.UInt64)),
-                Type t when t == typeof(float) => Unsafe.As<float, T>(ref Unsafe.AsRef(in _value.Float32)),
-                Type t when t == typeof(double) => Unsafe.As<double, T>(ref Unsafe.AsRef(in _value.Float64)),
+                Type t when t == typeof(bool) => Convert<bool, T>(in _value.Boolean, AnyType.Boolean),
+                Type t when t == typeof(sbyte) => Convert<sbyte, T>(in _value.Int8, AnyType.Int8),
+                Type t when t == typeof(short) => Convert<short, T>(in _value.Int16, AnyType.Int16),
+                Type t when t == typeof(int) => Convert<int, T>(in _value.Int32, AnyType.Int32),
+                Type t when t == typeof(long) => Convert<long, T>(in _value.Int64, AnyType.Int64),
+                Type t when t == typeof(byte) => Convert<byte, T>(in _value.UInt8, AnyType.UInt8),
+                Type t when t == typeof(ushort) => Convert<ushort, T>(in _value.UInt16, AnyType.UInt16),
+                Type t when t == typeof(uint) => Convert<uint, T>(in _value.UInt32, AnyType.UInt32),
+                Type t when t == typeof(ulong) => Convert<ulong, T>(in _value.UInt64, AnyType.UInt64),
+                Type t when t == typeof(float) => Convert<float, T>(in _value.Float32, AnyType.Float32),
+                Type t when t == typeof(double) => Convert<double, T>(in _value.Float64, AnyType.Float64),
                 _ => throw new InvalidOperationException()
             };
+        }
 
         /// <summary>
         /// 
@@ -532,10 +523,30 @@ namespace Nomad.Core.Util
         public readonly T? GetReferenceValue<T>() where T : class
             => typeof(T) switch
             {
-                Type t when t == typeof(object) => Unsafe.As<object, T>(ref Unsafe.AsRef(in _value.Reference)),
-                Type t when t == typeof(string) => Unsafe.As<string, T>(ref Unsafe.AsRef(in _value.String)),
+                Type t when t == typeof(string) => Unsafe.As<string, T>(ref Unsafe.AsRef(in _value.String!)),
                 _ => throw new InvalidOperationException()
             };
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public override readonly string? ToString() => _type switch
+        {
+            AnyType.Boolean => _value.Boolean.ToString(),
+            AnyType.Int8 => _value.Int8.ToString(CultureInfo.CurrentCulture),
+            AnyType.Int16 => _value.Int16.ToString(CultureInfo.CurrentCulture),
+            AnyType.Int32 => _value.Int32.ToString(CultureInfo.CurrentCulture),
+            AnyType.Int64 => _value.Int64.ToString(CultureInfo.CurrentCulture),
+            AnyType.UInt8 => _value.UInt8.ToString(CultureInfo.CurrentCulture),
+            AnyType.UInt16 => _value.UInt16.ToString(CultureInfo.CurrentCulture),
+            AnyType.UInt32 => _value.UInt32.ToString(CultureInfo.CurrentCulture),
+            AnyType.UInt64 => _value.UInt64.ToString(CultureInfo.CurrentCulture),
+            AnyType.Float32 => _value.Float32.ToString(CultureInfo.CurrentCulture),
+            AnyType.Float64 => _value.Float64.ToString(CultureInfo.CurrentCulture),
+            AnyType.String => _value.String,
+            _ => null
+        };
 
         /// <summary>
         /// Gets the .NET <see cref="Type"/> corresponding to the specified <see cref="AnyType"/>.
@@ -566,5 +577,57 @@ namespace Nomad.Core.Util
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static AnyType GetType<T>() =>
             _systemTypeToAnyType.TryGetValue(typeof(T), out AnyType type) ? type : throw new InvalidCastException();
-    };
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="F"></typeparam>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="from"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidCastException"></exception>
+        private T Convert<F, T>(in F from, AnyType type)
+        {
+            if (_type == AnyType.String && type != AnyType.String)
+            {
+                _value = type switch
+                {
+                    AnyType.Boolean => new Union { Boolean = bool.Parse(_value.String!) },
+                    AnyType.Int8 => new Union { Int8 = sbyte.Parse(_value.String!, CultureInfo.CurrentCulture) },
+                    AnyType.Int16 => new Union { Int16 = short.Parse(_value.String!, CultureInfo.CurrentCulture) },
+                    AnyType.Int32 => new Union { Int32 = int.Parse(_value.String!, CultureInfo.CurrentCulture) },
+                    AnyType.Int64 => new Union { Int64 = long.Parse(_value.String!, CultureInfo.CurrentCulture) },
+                    AnyType.UInt8 => new Union { UInt8 = byte.Parse(_value.String!, CultureInfo.CurrentCulture) },
+                    AnyType.UInt16 => new Union { UInt16 = ushort.Parse(_value.String!, CultureInfo.CurrentCulture) },
+                    AnyType.UInt32 => new Union { UInt32 = uint.Parse(_value.String!, CultureInfo.CurrentCulture) },
+                    AnyType.UInt64 => new Union { UInt64 = ulong.Parse(_value.String!, CultureInfo.CurrentCulture) },
+                    AnyType.Float32 => new Union { Float32 = float.Parse(_value.String!, CultureInfo.CurrentCulture) },
+                    AnyType.Float64 => new Union { Float64 = double.Parse(_value.String!, CultureInfo.CurrentCulture) },
+                    _ => throw new InvalidCastException(nameof(type))
+                };
+            }
+            else
+            {
+                _value = type switch
+                {
+                    AnyType.Boolean => new Union { Boolean = Unsafe.As<F, bool>(ref Unsafe.AsRef(in from)) },
+                    AnyType.Int8 => new Union { Int8 = Unsafe.As<F, sbyte>(ref Unsafe.AsRef(in from)) },
+                    AnyType.Int16 => new Union { Int16 = Unsafe.As<F, short>(ref Unsafe.AsRef(in from)) },
+                    AnyType.Int32 => new Union { Int32 = Unsafe.As<F, int>(ref Unsafe.AsRef(in from)) },
+                    AnyType.Int64 => new Union { Int64 = Unsafe.As<F, long>(ref Unsafe.AsRef(in from)) },
+                    AnyType.UInt8 => new Union { UInt8 = Unsafe.As<F, byte>(ref Unsafe.AsRef(in from)) },
+                    AnyType.UInt16 => new Union { UInt16 = Unsafe.As<F, ushort>(ref Unsafe.AsRef(in from)) },
+                    AnyType.UInt32 => new Union { UInt32 = Unsafe.As<F, uint>(ref Unsafe.AsRef(in from)) },
+                    AnyType.UInt64 => new Union { UInt64 = Unsafe.As<F, ulong>(ref Unsafe.AsRef(in from)) },
+                    AnyType.Float32 => new Union { Float32 = Unsafe.As<F, float>(ref Unsafe.AsRef(in from)) },
+                    AnyType.Float64 => new Union { Float64 = Unsafe.As<F, double>(ref Unsafe.AsRef(in from)) },
+                    AnyType.String => new Union { String = from!.ToString() },
+                    _ => throw new InvalidCastException(nameof(type))
+                };
+            }
+            _type = type;
+            return Unsafe.As<F, T>(ref Unsafe.AsRef(in from));
+        }
+    }
 }

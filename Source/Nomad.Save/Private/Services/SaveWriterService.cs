@@ -17,6 +17,8 @@ using System;
 using System.Collections.Concurrent;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.FileSystem;
+using Nomad.Core.FileSystem.Configs;
+using Nomad.Core.FileSystem.Streams;
 using Nomad.Core.Logger;
 using Nomad.Save.Exceptions;
 using Nomad.Save.Interfaces;
@@ -54,6 +56,8 @@ namespace Nomad.Save.Private.Services {
 
 		private readonly AtomicWriterService _atomicWriter;
 
+		private bool _isDisposed = false;
+
 		/*
 		===============
 		SaveWriterService
@@ -63,10 +67,11 @@ namespace Nomad.Save.Private.Services {
 		/// 
 		/// </summary>
 		/// <param name="config"></param>
+		/// <param name="atomicWriter"></param>
 		/// <param name="slotRepository"></param>
 		/// <param name="fileSystem"></param>
 		/// <param name="logger"></param>
-		public SaveWriterService( in SaveConfig config, SlotRepository slotRepository, IFileSystem fileSystem, ILoggerService logger ) {
+		public SaveWriterService( SaveConfig config, AtomicWriterService atomicWriter, SlotRepository slotRepository, IFileSystem fileSystem, ILoggerService logger ) {
 			_slotRepository = slotRepository;
 			_fileSystem = fileSystem;
 
@@ -75,7 +80,7 @@ namespace Nomad.Save.Private.Services {
 			_logger = logger;
 			_category = _logger.CreateCategory( Constants.Logger.WRITER_SERVICE_CATEGORY_NAME, LogLevel.Info, true );
 
-			_atomicWriter = new AtomicWriterService( fileSystem );
+			_atomicWriter = atomicWriter;
 		}
 
 		/*
@@ -84,9 +89,16 @@ namespace Nomad.Save.Private.Services {
 		===============
 		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
 		public void Dispose() {
+			if ( !_isDisposed ) {
+				_category?.Dispose();
+				_slotRepository?.Dispose();
+				_writer?.Dispose();
+			}
+			GC.SuppressFinalize( this );
+			_isDisposed = true;
 		}
 
 		/*
@@ -102,7 +114,7 @@ namespace Nomad.Save.Private.Services {
 		void ISaveWriterService.BeginSave( string name, GameVersion gameVersion ) {
 			var filepath = _slotRepository.AddSaveFile( name, false );
 
-			_writer = _fileSystem.OpenWrite( AtomicWriterService.GetAtomicPathName(), new WriteConfig( StreamType.MemoryFile ) ) as IMemoryFileWriteStream;
+			_writer = _fileSystem.OpenWrite( new MemoryFileWriteConfig { FilePath = AtomicWriterService.GetAtomicPathName() } ) as IMemoryFileWriteStream;
 			if ( _writer == null ) {
 				_logger.PrintError( in _category, $"Couldn't create save file {filepath}!" );
 				return;
@@ -134,7 +146,7 @@ namespace Nomad.Save.Private.Services {
 				section.Value.Dispose();
 			}
 
-			var checksum = Checksum.Compute( _writer.Buffer.Buffer );
+			var checksum = Checksum.Compute( _writer.Buffer!.Buffer );
 
 			_writer.Seek( 0, System.IO.SeekOrigin.Begin );
 			var header = new SaveHeader( name, gameVersion, sectionCount, checksum );

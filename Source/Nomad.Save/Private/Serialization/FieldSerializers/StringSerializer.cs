@@ -15,7 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Runtime.CompilerServices;
-using Nomad.Core.FileSystem;
+using Nomad.Core.FileSystem.Streams;
 using Nomad.Core.Util;
 
 namespace Nomad.Save.Private.Serialization.FieldSerializers {
@@ -45,7 +45,8 @@ namespace Nomad.Save.Private.Serialization.FieldSerializers {
 		/// <param name="stream"></param>
 		/// <param name="value"></param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public void Serialize( IWriteStream stream, in Any value ) => stream.WriteString( value.GetReferenceValue<string>()! );
+		public void Serialize( IWriteStream stream, in Any value )
+			=> stream.WriteString( value.GetReferenceValue<string>() );
 
 		/*
 		===============
@@ -58,6 +59,7 @@ namespace Nomad.Save.Private.Serialization.FieldSerializers {
 		/// <param name="stream"></param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public Any Deserialize( IReadStream stream ) => new Any( stream.ReadString() );
+		public Any Deserialize( IReadStream stream )
+			=> new Any( stream.ReadString() );
 	};
 };

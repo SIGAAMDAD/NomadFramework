@@ -16,11 +16,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
 using Nomad.Core.Exceptions;
 using Nomad.Core.FileSystem;
-using Nomad.CVars.Events;
-using Nomad.CVars.Interfaces;
 using Nomad.Save.Private.Entities;
 using Nomad.Save.Private.ValueObjects;
 
@@ -47,6 +44,8 @@ namespace Nomad.Save.Private.Services {
 
 		private readonly IFileSystem _fileSystem;
 
+		private bool _isDisposed = false;
+
 		/*
 		===============
 		BackupService
@@ -58,7 +57,7 @@ namespace Nomad.Save.Private.Services {
 		/// <param name="config"></param>
 		/// <param name="fileSystem"></param>
 		/// <exception cref="CVarMissing"></exception>
-		public BackupService( in SaveConfig config, IFileSystem fileSystem ) {
+		public BackupService( SaveConfig config, IFileSystem fileSystem ) {
 			_config = config;
 			_fileSystem = fileSystem;
 		}
@@ -72,6 +71,9 @@ namespace Nomad.Save.Private.Services {
 		/// 
 		/// </summary>
 		public void Dispose() {
+			// DISPOSAL GOES HERE
+			GC.SuppressFinalize( this );
+			_isDisposed = true;
 		}
 
 		/*

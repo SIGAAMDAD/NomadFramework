@@ -14,6 +14,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using Nomad.Core.Util;
+using Nomad.Save.Exceptions;
 
 namespace Nomad.Save.Interfaces
 {
@@ -23,21 +25,26 @@ namespace Nomad.Save.Interfaces
     public interface ISaveSectionWriter : IDisposable
     {
         /// <summary>
-        ///
+        /// The section's name.
         /// </summary>
         string Name { get; }
 
         /// <summary>
-        ///
+        /// The number of fields currently added to the section.
         /// </summary>
         int FieldCount { get; }
 
         /// <summary>
-        ///
+        /// Adds a new field with the data <paramref name="fieldId"/> and <paramref name="value"/>.
         /// </summary>
+        /// <remarks>
+        /// If a similar field was added to this with the same name and type, a <see cref="DuplicateFieldException"/> exception will be thrown.
+        /// </remarks>
+        /// <example>
+        /// </example>
         /// <typeparam name="T"></typeparam>
-        /// <param name="fieldId"></param>
-        /// <param name="value"></param>
+        /// <param name="fieldId">The field's unique id.</param>
+        /// <param name="value">The field's value. Must be a valid <see cref="AnyType"/> to avoid an </param>
         void AddField<T>(string fieldId, T value);
 
         /// <summary>

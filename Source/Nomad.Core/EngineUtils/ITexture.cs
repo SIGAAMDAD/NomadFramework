@@ -35,6 +35,6 @@ namespace Nomad.Core.EngineUtils
         /// <summary>
         /// 
         /// </summary>
-        byte[] ImageBuffer { get; }
+        ReadOnlyMemory<byte> ImageBuffer { get; }
     }
 }

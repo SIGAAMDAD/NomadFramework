@@ -15,7 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Runtime.CompilerServices;
-using Nomad.CVars.ValueObjects;
+using Nomad.Core.CVars;
 
 namespace Nomad.CVars.Private.Entities {
 	/*

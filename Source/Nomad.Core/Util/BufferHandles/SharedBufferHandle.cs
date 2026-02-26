@@ -25,7 +25,7 @@ namespace Nomad.Core.Util.BufferHandles
         /// </summary>
         /// <param name="buffer"></param>
         /// <param name="length"></param>
-        public SharedBufferHandle(byte[] buffer, int length)
+        public SharedBufferHandle(byte[] buffer, long length)
             : base(buffer, length)
         {
         }

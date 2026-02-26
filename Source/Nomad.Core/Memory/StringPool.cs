@@ -16,6 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using Nomad.Core.Util;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Nomad.Core.Memory
@@ -30,14 +31,16 @@ namespace Nomad.Core.Memory
 
         [ThreadStatic]
         private static StringPool? _currentStringPool;
+        private static readonly object _lockObject = new object();
 
-        private static StringPool _current => _currentStringPool ??= new();
+        private static StringPool _current => _currentStringPool ??= new StringPool();
 
         /// <summary>
         ///
         /// </summary>
         /// <param name="str"></param>
         /// <returns>Returns the interned string if it exists, null if not found.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string? FromInterned(in InternString str)
         {
             return _current._idToString.TryGetValue(str.GetHashCode(), out string? value) ? value : null;
@@ -56,17 +59,20 @@ namespace Nomad.Core.Memory
             }
 
             string converted = new string(str);
-#if !NETSTANDARD2_1 || NET6_0_OR_GREATER
-            ref int id = ref CollectionsMarshal.GetValueRefOrAddDefault(_current._stringToIds, converted, out bool exists);
-            if (!exists)
-#else
-            if (!_current._stringToIds.TryGetValue(converted, out int id))
-#endif
+            lock (_lockObject)
             {
-                id = converted.GetHashCode();
-                _current._idToString[id] = converted;
+#if !NETSTANDARD2_1 || NET6_0_OR_GREATER
+                ref int id = ref CollectionsMarshal.GetValueRefOrAddDefault(_current._stringToIds, converted, out bool exists);
+                if (!exists)
+#else
+                if (!_current._stringToIds.TryGetValue(converted, out int id))
+#endif
+                {
+                    id = converted.GetHashCode(StringComparison.CurrentCultureIgnoreCase);
+                    _current._idToString[id] = converted;
+                }
+                return new InternString(id);
             }
-            return new InternString(id);
         }
 
         /// <summary>

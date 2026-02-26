@@ -19,7 +19,8 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Nomad.Core.Compatibility.Guards;
-using Nomad.Core.FileSystem;
+using Nomad.Core.FileSystem.Streams;
+using Nomad.Core.FileSystem.Configs;
 
 namespace Nomad.FileSystem.Private.FileStream {
 	/*
@@ -57,13 +58,12 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <summary>
 		/// Initializes a new instance of the FileWriteStream class with the specified file path, mode, and access.
 		/// </summary>
-		/// <param name="filepath">The path to the file to write to.</param>
-		/// <param name="append">Whether to append to the file or overwrite it.</param>
-		public FileWriteStream( string filepath, bool append = false )
-			: base( filepath, append ? FileMode.Append : FileMode.CreateNew, FileAccess.Write)
+		/// <param name="config"></param>
+		public FileWriteStream( FileWriteConfig config )
+			: base( config.FilePath, config.Append ? FileMode.Append : FileMode.CreateNew, FileAccess.Write )
 		{
-			ArgumentGuard.ThrowIfNull( _fileStream );
-			_streamWriter = new BinaryWriter( _fileStream );
+			ArgumentGuard.ThrowIfNull( fileStream );
+			_streamWriter = new BinaryWriter( fileStream );
 		}
 
 		/*
@@ -72,25 +72,17 @@ namespace Nomad.FileSystem.Private.FileStream {
 		===============
 		*/
 		/// <summary>
-		/// Disposes the file write stream and releases all associated resources.
+		/// 
 		/// </summary>
-		public override void Dispose() {
-			_streamWriter.Dispose();
-			base.Dispose();
-		}
-
-		/*
-		===============
-		DisposeAsync
-		===============
-		*/
-		/// <summary>
-		/// Asynchronously disposes the file write stream and releases all associated resources.
-		/// </summary>
-		/// <returns>A task that represents the asynchronous dispose operation.</returns>
-		public override async ValueTask DisposeAsync() {
-			await _streamWriter.DisposeAsync();
-			await base.DisposeAsync();
+		protected override void Dispose( bool disposing ) {
+			if ( isDisposed ) {
+				return;
+			}
+			if ( disposing ) {
+				_streamWriter?.Dispose();
+			}
+			isDisposed = true;
+			base.Dispose( disposing );
 		}
 
 		/*
@@ -118,8 +110,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <param name="offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
 		/// <param name="count">The number of bytes to be written to the current stream.</param>
 		public void Write( byte[] buffer, int offset, int count ) {
-			ArgumentGuard.ThrowIfNull( _fileStream );
-			_fileStream.Write( buffer, offset, count );
+			ArgumentGuard.ThrowIfNull( fileStream );
+			fileStream.Write( buffer, offset, count );
 		}
 
 		/*
@@ -146,8 +138,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <param name="offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
 		/// <param name="count">The number of bytes to be written to the current stream.</param>
 		public void Write( ReadOnlySpan<byte> buffer, int offset, int count ) {
-			ArgumentGuard.ThrowIfNull( _fileStream );
-			_fileStream.Write( buffer.Slice( offset, count ) );
+			ArgumentGuard.ThrowIfNull( fileStream );
+			fileStream.Write( buffer.Slice( offset, count ) );
 		}
 		
 		/*
@@ -176,11 +168,11 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <param name="ct">A token to cancel the operation.</param>
 		/// <returns>A task that represents the asynchronous write operation.</returns>
 		public async ValueTask WriteAsync( byte[] buffer, int offset, int count, CancellationToken ct = default ) {
-			ArgumentGuard.ThrowIfNull( _fileStream );
+			ArgumentGuard.ThrowIfNull( fileStream );
 			ArgumentGuard.ThrowIfNull( buffer );
 
 			ct.ThrowIfCancellationRequested();
-			await _fileStream.WriteAsync( buffer.AsMemory( offset, count ), ct );
+			await fileStream.WriteAsync( buffer.AsMemory( offset, count ), ct );
 		}
 
 		/*
@@ -197,11 +189,11 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <param name="ct">A token to cancel the operation.</param>
 		/// <returns>A task that represents the asynchronous write operation.</returns>
 		public async ValueTask WriteAsync( ReadOnlyMemory<byte> buffer, int offset, int count, CancellationToken ct = default ) {
-			ArgumentGuard.ThrowIfNull( _fileStream );
+			ArgumentGuard.ThrowIfNull( fileStream );
 			ArgumentGuard.ThrowIfNull( buffer );
 
 			ct.ThrowIfCancellationRequested();
-			await _fileStream.WriteAsync( buffer, ct );
+			await fileStream.WriteAsync( buffer.Slice( offset, count ), ct );
 		}
 
 		/*
@@ -216,11 +208,31 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <param name="ct">A token to cancel the operation.</param>
 		/// <returns>A task that represents the asynchronous write operation.</returns>
 		public async ValueTask WriteAsync( ReadOnlyMemory<byte> buffer, CancellationToken ct = default ) {
-			ArgumentGuard.ThrowIfNull( _fileStream );
+			ArgumentGuard.ThrowIfNull( fileStream );
 			ArgumentGuard.ThrowIfNull( buffer );
 
 			ct.ThrowIfCancellationRequested();
-			await _fileStream.WriteAsync( buffer, ct );
+			await fileStream.WriteAsync( buffer, ct );
+		}
+
+		/*
+		===============
+		Write7BitEncodedInteger
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="value"></param>
+		public void Write7BitEncodedInt( int value ) {
+			StateGuard.ThrowIfDisposed( _streamWriter == null, this );
+
+			uint uValue = ( uint )value;
+			while ( uValue >= 0x80 ) {
+				WriteUInt8( ( byte )(uValue | 0x80) );
+				uValue >>= 7;
+			}
+			WriteUInt8( ( byte )uValue );
 		}
 
 		/*
@@ -294,13 +306,17 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <param name="stream">The read stream to copy from.</param>
 		public void WriteFromStream( IReadStream stream ) {
 			ArgumentGuard.ThrowIfNull( stream );
-			ArgumentGuard.ThrowIfNull( _fileStream );
+			ArgumentGuard.ThrowIfNull( fileStream );
+
+			long current = stream.Position;
 
 			byte[] buffer = ArrayPool<byte>.Shared.Rent( 4096 );
 			int bytesRead;
+			stream.Position = 0;
 			while ( ( bytesRead = stream.Read( buffer, 0, buffer.Length ) ) > 0 ) {
-				_fileStream.Write( buffer, 0, bytesRead );
+				fileStream.Write( buffer, 0, bytesRead );
 			}
+			stream.Position = current;
 		}
 
 		/*
@@ -316,12 +332,12 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <returns>A task that represents the asynchronous copy operation.</returns>
 		public async ValueTask WriteFromStreamAsync( IReadStream stream, CancellationToken ct = default ) {
 			ArgumentGuard.ThrowIfNull( stream );
-			ArgumentGuard.ThrowIfNull( _fileStream );
+			ArgumentGuard.ThrowIfNull( fileStream );
 
 			byte[] buffer = ArrayPool<byte>.Shared.Rent( 4096 );
 			int bytesRead;
 			while ( ( bytesRead = await stream.ReadAsync( buffer, 0, buffer.Length, ct ) ) > 0 ) {
-				await _fileStream.WriteAsync( buffer.AsMemory( 0, bytesRead ), ct );
+				await fileStream.WriteAsync( buffer.AsMemory( 0, bytesRead ), ct );
 			}
 		}
 
@@ -576,8 +592,10 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// 
 		/// </summary>
 		/// <param name="line"></param>
+		/// <param name="ct"></param>
 		/// <returns></returns>
-		public async ValueTask WriteLineAsync( string line ) {
+		public async ValueTask WriteLineAsync( string line, CancellationToken ct = default ) {
+			ct.ThrowIfCancellationRequested();
 			_streamWriter.Write( $"{line}\n" );
 		}
 
@@ -590,8 +608,10 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// 
 		/// </summary>
 		/// <param name="line"></param>
+		/// <param name="ct"></param>
 		/// <returns></returns>
-		public async ValueTask WriteLineAsync( ReadOnlyMemory<char> line ) {
+		public async ValueTask WriteLineAsync( ReadOnlyMemory<char> line, CancellationToken ct = default ) {
+			ct.ThrowIfCancellationRequested();
 			_streamWriter.Write( line.Span );
 			_streamWriter.Write( '\n' );
 		}

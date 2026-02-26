@@ -22,13 +22,5 @@ namespace Nomad.Events.Private
     /// </summary>
     public sealed class EventQueue
     {
-        /// <summary>
-        /// Publish an event with different priority than it was assigned at creation.
-        /// </summary>
-        /// <param name="event"></param>
-        /// <param name="priority"></param>
-        public void Publish(IGameEvent @event, EventPriority priority)
-        {
-        }
     }
 }

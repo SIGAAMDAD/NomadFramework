@@ -13,6 +13,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System.Collections.Generic;
+
 namespace Nomad.Core.OnlineServices
 {
     /// <summary>
@@ -23,11 +25,13 @@ namespace Nomad.Core.OnlineServices
     /// <param name="GameMode"></param>
     /// <param name="MaxPlayers"></param>
     /// <param name="Visibility"></param>
+    /// <param name="Metadata"></param>
     public record LobbyInfo(
         string Name,
         string Map,
         string GameMode,
         int MaxPlayers,
-        LobbyVisibility Visibility
+        LobbyVisibility Visibility,
+        Dictionary<string, object> Metadata
     );
 }

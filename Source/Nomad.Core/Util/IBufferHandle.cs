@@ -27,7 +27,7 @@ namespace Nomad.Core.Util
         /// <summary>
         /// The length in bytes of the owned memory.
         /// </summary>
-        int Length { get; }
+        long Length { get; }
 
         /// <summary>
         /// The memory we have ownership over.
@@ -45,7 +45,7 @@ namespace Nomad.Core.Util
         /// </summary>
         /// <param name="start"></param>
         /// <returns></returns>
-        Span<byte> AsSpan(int start);
+        Span<byte> AsSpan(long start);
 
         /// <summary>
         /// 
@@ -53,7 +53,7 @@ namespace Nomad.Core.Util
         /// <param name="start"></param>
         /// <param name="length"></param>
         /// <returns></returns>
-        Span<byte> AsSpan(int start, int length);
+        Span<byte> AsSpan(long start, long length);
 
         /// <summary>
         /// 
@@ -66,7 +66,7 @@ namespace Nomad.Core.Util
         /// </summary>
         /// <param name="start"></param>
         /// <returns></returns>
-        Memory<byte> AsMemory(int start);
+        Memory<byte> AsMemory(long start);
 
         /// <summary>
         /// 
@@ -74,7 +74,7 @@ namespace Nomad.Core.Util
         /// <param name="start"></param>
         /// <param name="length"></param>
         /// <returns></returns>
-        Memory<byte> AsMemory(int start, int length);
+        Memory<byte> AsMemory(long start, long length);
 
         /// <summary>
         /// 
@@ -92,7 +92,7 @@ namespace Nomad.Core.Util
         /// </summary>
         /// <param name="start"></param>
         /// <param name="length"></param>
-        void Clear(int start, int length);
+        void Clear(long start, long length);
 
         /// <summary>
         /// 
@@ -100,7 +100,7 @@ namespace Nomad.Core.Util
         /// <param name="start"></param>
         /// <param name="length"></param>
         /// <returns></returns>
-        ReadOnlySpan<byte> GetSlice(int start, int length);
+        ReadOnlySpan<byte> GetSlice(long start, long length);
 
         /// <summary>
         /// Copies the <paramref name="source"/> buffer into the owned buffer starting at <paramref name="offset"/> to <paramref name="length"/>
@@ -109,7 +109,7 @@ namespace Nomad.Core.Util
         /// <param name="offset"></param>
         /// <param name="length"></param>
         /// <param name="dstOffset"></param>
-        void CopyFrom(byte[] source, int offset, int length, int dstOffset = 0);
+        void CopyFrom(byte[] source, long offset, long length, long dstOffset = 0);
 
         /// <summary>
         /// Copies the <paramref name="source"/> buffer into the owned buffer starting at <paramref name="offset"/> to <paramref name="length"/>
@@ -118,7 +118,7 @@ namespace Nomad.Core.Util
         /// <param name="offset"></param>
         /// <param name="length"></param>
         /// <param name="dstOffset"></param>
-        void CopyFrom(ReadOnlySpan<byte> source, int offset, int length, int dstOffset = 0);
+        void CopyFrom(ReadOnlySpan<byte> source, long offset, long length, long dstOffset = 0);
 
         /// <summary>
         /// Copies the <paramref name="source"/> buffer into the owned buffer starting at <paramref name="offset"/> to <paramref name="length"/>
@@ -127,7 +127,7 @@ namespace Nomad.Core.Util
         /// <param name="offset"></param>
         /// <param name="length"></param>
         /// <param name="dstOffset"></param>
-        void CopyFrom(IBufferHandle source, int offset, int length, int dstOffset = 0);
+        void CopyFrom(IBufferHandle source, long offset, long length, long dstOffset = 0);
 
         /// <summary>
         /// Copies to the <paramref name="dest"/> buffer from the owned buffer starting at <paramref name="offset"/> to <paramref name="length"/>
@@ -136,7 +136,7 @@ namespace Nomad.Core.Util
         /// <param name="offset"></param>
         /// <param name="length"></param>
         /// <param name="srcOffset"></param>
-        void CopyTo(byte[] dest, int offset, int length, int srcOffset = 0);
+        void CopyTo(byte[] dest, long offset, long length, long srcOffset = 0);
 
         /// <summary>
         /// Copies to the <paramref name="dest"/> buffer from the owned buffer starting at <paramref name="offset"/> to <paramref name="length"/>
@@ -145,7 +145,7 @@ namespace Nomad.Core.Util
         /// <param name="offset"></param>
         /// <param name="length"></param>
         /// <param name="srcOffset"></param>
-        void CopyTo(Span<byte> dest, int offset, int length, int srcOffset = 0);
+        void CopyTo(Span<byte> dest, long offset, long length, long srcOffset = 0);
 
         /// <summary>
         /// Copies to the <paramref name="dest"/> buffer from the owned buffer starting at <paramref name="offset"/> to <paramref name="length"/>
@@ -154,6 +154,6 @@ namespace Nomad.Core.Util
         /// <param name="offset"></param>
         /// <param name="length"></param>
         /// <param name="srcOffset"></param>
-        void CopyTo(IBufferHandle dest, int offset, int length, int srcOffset = 0);
+        void CopyTo(IBufferHandle dest, long offset, long length, long srcOffset = 0);
     }
 }

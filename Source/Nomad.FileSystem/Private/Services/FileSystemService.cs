@@ -26,6 +26,8 @@ using System.IO;
 using Nomad.FileSystem.Private.MemoryStream;
 using Nomad.Core.Util;
 using Nomad.Core.Util.BufferHandles;
+using Nomad.Core.FileSystem.Configs;
+using Nomad.Core.FileSystem.Streams;
 
 namespace Nomad.FileSystem.Private.Services {
 	/*
@@ -45,6 +47,8 @@ namespace Nomad.FileSystem.Private.Services {
 
 		private readonly ILoggerService _logger;
 		private readonly ILoggerCategory _category;
+
+		private bool _isDisposed = false;
 
 		/*
 		===============
@@ -69,6 +73,7 @@ namespace Nomad.FileSystem.Private.Services {
 			_searchHelper.AddSearchDirectory( engineService.GetStoragePath( StorageScope.StreamingAssets ) );
 			_searchHelper.AddSearchDirectory( engineService.GetStoragePath( StorageScope.UserData ) );
 			_searchHelper.AddSearchDirectory( engineService.GetStoragePath( StorageScope.Install ) );
+			_searchHelper.AddSearchDirectory( Path.GetTempPath() );
 		}
 
 		/*
@@ -80,6 +85,12 @@ namespace Nomad.FileSystem.Private.Services {
 		/// 
 		/// </summary>
 		public void Dispose() {
+			if ( !_isDisposed ) {
+				_searchHelper?.Dispose();
+				_category?.Dispose();
+			}
+			GC.SuppressFinalize( this );
+			_isDisposed = true;
 		}
 
 		/*
@@ -106,7 +117,6 @@ namespace Nomad.FileSystem.Private.Services {
 		/// <param name="sourcePath"></param>
 		/// <param name="destinationPath"></param>
 		/// <param name="overwrite"></param>
-		/// <exception cref="NotImplementedException"></exception>
 		public void CopyFile( string sourcePath, string destinationPath, bool overwrite ) {
 			File.Copy( sourcePath, destinationPath, overwrite );
 		}
@@ -123,7 +133,59 @@ namespace Nomad.FileSystem.Private.Services {
 		/// <param name="destPath"></param>
 		/// <param name="destBackupPath"></param>
 		public void ReplaceFile( string sourcePath, string destPath, string destBackupPath ) {
-			File.Replace( sourcePath, destPath, destBackupPath );
+			//
+			// NOTE: File.Replace does not work reliably with the VFS nor does it play very nice with temporary files. So this is here
+			// because it is the only way to reliably replace files across platforms. In testing, the temporary file existed, and File.Replace
+			// was given a valid file path (File.Exists succeeded on it), yet File.Replace threw FileNotFoundException each time it was attempted,
+			// even when the source file exists and is accessible, likely due to VFS path translation issues. No fix has been found yet, and this
+			// works for now.
+			// 
+			// It mimics the exact same behavior as File.Replace, but within the VFS. If there is a way to make File.Replace behave, then
+			// do tell and open a PR, but until then, this is what we've got.
+			//
+
+			// TODO: this copies only the contents, not the metadata, of the file. Do find a way of copying the metadata in the long run.
+
+			ArgumentGuard.ThrowIfNullOrEmpty( sourcePath );
+			ArgumentGuard.ThrowIfNullOrEmpty( destPath );
+
+			if ( sourcePath.Equals( destPath, StringComparison.OrdinalIgnoreCase ) ) {
+				return; // nothing to do
+			}
+
+			// ensure the source file exists
+			if ( !FileExists( sourcePath ) ) {
+				throw new FileNotFoundException( "Source file not found", sourcePath );
+			}
+
+			string destDir = Path.GetDirectoryName( destPath );
+			string tempFileName = Path.GetRandomFileName();
+			string tempPath = Path.Combine( destDir, tempFileName );
+
+			try {
+				using ( var sourceStream = OpenRead( new FileReadConfig { FilePath = sourcePath } ) )
+				using ( var tempStream = OpenWrite( new FileWriteConfig { FilePath = tempPath } ) ) {
+					sourceStream.WriteToStream( tempStream );
+				}
+				if ( !string.IsNullOrEmpty( destBackupPath ) && FileExists( destPath ) ) {
+					// if the backup already exists delete it, File.Replace does this already
+					if ( FileExists( destBackupPath ) ) {
+						DeleteFile( destBackupPath );
+					}
+					MoveFile( destPath, destBackupPath );
+				}
+				if ( FileExists( destPath ) ) {
+					DeleteFile( destPath );
+				}
+
+				MoveFile( tempPath, destPath );
+			} catch {
+				// cleanup the temp file if it still exists
+				if ( FileExists( tempPath ) ) {
+					DeleteFile( tempPath );
+				}
+				throw;
+			}
 		}
 
 		/*
@@ -316,8 +378,16 @@ namespace Nomad.FileSystem.Private.Services {
 		/// </summary>
 		/// <param name="sourcePath">The path of the file to move.</param>
 		/// <param name="destinationPath">The path to move the file to.</param>
-		public void MoveFile( string sourcePath, string destinationPath ) {
+		/// <param name="overwrite"></param>
+		public void MoveFile( string sourcePath, string destinationPath, bool overwrite = false ) {
+#if NETSTANDARD2_1
+			if ( overwrite && FileExists( destinationPath ) ) {
+				DeleteFile( destinationPath );
+			}
 			File.Move( sourcePath, destinationPath );
+#else
+			File.Move( sourcePath, destinationPath, overwrite );
+#endif
 		}
 
 		/*
@@ -328,22 +398,39 @@ namespace Nomad.FileSystem.Private.Services {
 		/// <summary>
 		/// Opens a read stream for the specified file path.
 		/// </summary>
-		/// <param name="path">The path of the file to open.</param>
 		/// <param name="config">How to create the stream and rules around how it should be handled.</param>
 		/// <returns>The read stream for the specified file path.</returns>
-		public IReadStream? OpenRead( string path, in ReadConfig config ) {
-			ArgumentGuard.ThrowIfNullOrEmpty( path );
+		public IReadStream? OpenRead( IReadConfig config ) {
+			ArgumentGuard.ThrowIfNull( config );
 
-			var fullPath = _searchHelper.FindFile( path );
-			if ( fullPath == null ) {
-				return null;
+			switch ( config.Type ) {
+				case StreamType.File: {
+					var fileConfig = config as FileReadConfig ?? throw new InvalidCastException();
+					var fullPath = _searchHelper.FindFile( fileConfig.FilePath );
+					if ( fullPath == null ) {
+						_logger.PrintLine( in _category, $"FileSystemService.OpenRead: couldn't find file '{fileConfig.FilePath}'" );
+						return null;
+					}
+					fileConfig = fileConfig with { FilePath = fullPath };
+					return new FileReadStream( fileConfig );
+				}
+				case StreamType.MemoryFile: {
+					var memoryFileConfig = config as MemoryFileReadConfig ?? throw new InvalidCastException();
+					var fullPath = _searchHelper.FindFile( memoryFileConfig.FilePath );
+					if ( fullPath == null ) {
+						_logger.PrintLine( in _category, $"FileSystemService.OpenRead: couldn't find file '{memoryFileConfig.FilePath}'" );
+						return null;
+					}
+					memoryFileConfig = memoryFileConfig with { FilePath = fullPath };
+					return new MemoryFileReadStream( memoryFileConfig );
+				}
+				case StreamType.Memory:
+					return new MemoryReadStream(
+						config is MemoryReadConfig memoryConfig ? memoryConfig : throw new InvalidCastException()
+					);
+				default:
+					throw new ArgumentOutOfRangeException( nameof( config ) );
 			}
-
-			return config.Type switch {
-				StreamType.File => new FileReadStream( fullPath ),
-				StreamType.MemoryFile => new MemoryFileReadStream( fullPath ),
-				_ => throw new ArgumentOutOfRangeException( nameof( config ) )
-			};
 		}
 
 		/*
@@ -354,14 +441,12 @@ namespace Nomad.FileSystem.Private.Services {
 		/// <summary>
 		/// Opens a read stream for the specified file path asynchronously.
 		/// </summary>
-		/// <param name="path">The path of the file to open.</param>
 		/// <param name="config">How to create the stream and rules around how it should be handled.</param>
 		/// <param name="ct">The cancellation token.</param>
 		/// <returns>The read stream for the specified file path.</returns>
-		public async ValueTask<IReadStream?> OpenReadAsync( string path, ReadConfig config, CancellationToken ct = default ) {
+		public async ValueTask<IReadStream?> OpenReadAsync( IReadConfig config, CancellationToken ct = default ) {
 			ct.ThrowIfCancellationRequested();
-
-			return OpenRead( path, in config );
+			return OpenRead( config );
 		}
 
 		/*
@@ -372,16 +457,21 @@ namespace Nomad.FileSystem.Private.Services {
 		/// <summary>
 		/// Opens a write stream for the specified file path.
 		/// </summary>
-		/// <param name="path">The path of the file to open.</param>
 		/// <param name="config">How to create the stream and rules around how it should be handled.</param>
 		/// <returns>The write stream for the specified file path.</returns>
-		public IWriteStream? OpenWrite( string path, in WriteConfig config ) {
-			ArgumentGuard.ThrowIfNullOrEmpty( path );
+		public IWriteStream? OpenWrite( IWriteConfig config ) {
+			ArgumentGuard.ThrowIfNull( config );
 
 			return config.Type switch {
-				StreamType.Memory => new MemoryWriteStream( config.Length ),
-				StreamType.File => new FileWriteStream( path, config.Append ),
-				StreamType.MemoryFile => new MemoryFileWriteStream( path, config.Length ),
+				StreamType.File => new FileWriteStream(
+					config is FileWriteConfig fileConfig ? fileConfig : throw new InvalidCastException()
+				),
+				StreamType.MemoryFile => new MemoryFileWriteStream(
+					config is MemoryFileWriteConfig memoryFileConfig ? memoryFileConfig : throw new InvalidCastException()
+				),
+				StreamType.Memory => new MemoryWriteStream(
+					config is MemoryWriteConfig memoryConfig ? memoryConfig : throw new InvalidCastException()
+				),
 				_ => throw new ArgumentOutOfRangeException( nameof( config ) )
 			};
 		}
@@ -392,16 +482,14 @@ namespace Nomad.FileSystem.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// Opens a write stream for the specified file path asynchronously.
+		/// Opens a write stream with the specified configuration asynchronously.
 		/// </summary>
-		/// <param name="path">The path of the file to open.</param>
 		/// <param name="config">How to create the stream and rules around how it should be handled.</param>
 		/// <param name="ct">The cancellation token.</param>
-		/// <returns>The write stream for the specified file path.</returns>
-		public async ValueTask<IWriteStream?> OpenWriteAsync( string path, WriteConfig config, CancellationToken ct = default ) {
+		/// <returns>The write stream with the specified configuration.</returns>
+		public async ValueTask<IWriteStream?> OpenWriteAsync( IWriteConfig config, CancellationToken ct = default ) {
 			ct.ThrowIfCancellationRequested();
-
-			return OpenWrite( path, in config );
+			return OpenWrite( config );
 		}
 
 		/*
@@ -438,10 +526,10 @@ namespace Nomad.FileSystem.Private.Services {
 			if ( fullPath == null ) {
 				return null;
 			}
-			using var stream = OpenRead( path, new ReadConfig( StreamType.File ) ) ?? throw new IOException();
+			using var stream = OpenRead( new FileReadConfig { FilePath = fullPath } ) ?? throw new IOException();
 
 			var handle = new PooledBufferHandle( stream.Length );
-			stream.Read( handle.Buffer, 0, handle.Length );
+			stream.Read( handle.Buffer, 0, (int)handle.Length );
 
 			return handle;
 		}
@@ -463,10 +551,10 @@ namespace Nomad.FileSystem.Private.Services {
 				return null;
 			}
 
-			using var stream = OpenRead( fullPath, new ReadConfig( StreamType.File ) ) ?? throw new IOException();
+			using var stream = OpenRead( new FileReadConfig { FilePath = fullPath } ) ?? throw new IOException();
 
 			var handle = new PooledBufferHandle( stream.Length );
-			await stream.ReadAsync( handle.Buffer, 0, handle.Length );
+			await stream.ReadAsync( handle.AsMemory() );
 
 			return handle;
 		}
@@ -484,7 +572,7 @@ namespace Nomad.FileSystem.Private.Services {
 		/// <param name="offset"></param>
 		/// <param name="length"></param>
 		public void WriteFile( string path, in ReadOnlySpan<byte> buffer, int offset, int length ) {
-			using var stream = OpenWrite( path, new WriteConfig( StreamType.File, false ) ) ?? throw new IOException( $"Error opening file {path}" );
+			using var stream = OpenWrite( new FileWriteConfig { FilePath = path } ) ?? throw new IOException( $"Error opening file {path}" );
 			stream.Write( buffer, offset, length );
 		}
 
@@ -504,7 +592,8 @@ namespace Nomad.FileSystem.Private.Services {
 		public async ValueTask WriteFileAsync( string path, ReadOnlyMemory<byte> buffer, int offset, int length, CancellationToken ct = default ) {
 			ArgumentGuard.ThrowIfNull( buffer );
 
-			using var stream = await OpenWriteAsync( path, new WriteConfig( StreamType.File ), ct ) ?? throw new IOException( $"Error opening file {path}" );
+			ct.ThrowIfCancellationRequested();
+			using var stream = await OpenWriteAsync( new FileWriteConfig { FilePath = path }, ct ) ?? throw new IOException( $"Error opening file {path}" );
 			await stream.WriteAsync( buffer.Slice( offset, length ), ct );
 		}
 	};

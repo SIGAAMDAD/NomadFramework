@@ -17,8 +17,10 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Nomad.Core.FileSystem;
+using Nomad.Core.FileSystem.Streams;
 using Nomad.Core.Compatibility.Guards;
+using Nomad.Core.FileSystem.Configs;
+using System.Buffers;
 
 namespace Nomad.FileSystem.Private.FileStream {
 	/*
@@ -56,12 +58,30 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <summary>
 		/// Initializes a new instance of the FileReadStream class with the specified file path, mode, and access.
 		/// </summary>
-		/// <param name="filepath">The path to the file to read from.</param>
-		public FileReadStream( string filepath )
-			: base( filepath, FileMode.Open, FileAccess.Read )
-		{
-			ArgumentGuard.ThrowIfNull( _fileStream );
-			_streamReader = new BinaryReader( _fileStream );
+		/// <param name="config">The path to the file to read from.</param>
+		public FileReadStream( FileReadConfig config )
+			: base( config.FilePath, FileMode.Open, FileAccess.Read ) {
+			ArgumentGuard.ThrowIfNull( fileStream );
+			_streamReader = new BinaryReader( fileStream );
+		}
+
+		/*
+		===============
+		Dispose
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		protected override void Dispose( bool disposing ) {
+			if ( isDisposed ) {
+				return;
+			}
+			if ( disposing ) {
+				_streamReader?.Dispose();
+			}
+			isDisposed = true;
+			base.Dispose( disposing );
 		}
 
 		/*
@@ -77,9 +97,9 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <param name="count">The maximum number of bytes to be read from the current stream.</param>
 		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many bytes are not currently available, or zero if the end of the stream has been reached.</returns>
 		public int Read( byte[] buffer, int offset, int count ) {
-			ArgumentGuard.
-			ThrowIfNull( _fileStream );
-			return _fileStream.Read( buffer, offset, count );
+			ArgumentGuard.ThrowIfNull( buffer );
+			StateGuard.ThrowIfDisposed( isDisposed, this );
+			return fileStream!.Read( buffer, offset, count );
 		}
 
 		/*
@@ -94,7 +114,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many bytes are not currently available, or zero if the end of the stream has been reached.</returns>
 		public int Read( byte[] buffer )
 			=> Read( buffer, 0, buffer.Length );
-		
+
 		/*
 		===============
 		Read
@@ -108,8 +128,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <param name="count">The maximum number of bytes to be read from the current stream.</param>
 		/// <returns>The total number of bytes read into the span. This can be less than the length of the span if that many bytes are not currently available, or zero if the end of the stream has been reached.</returns>
 		public int Read( Span<byte> buffer, int offset, int count ) {
-			ArgumentGuard.ThrowIfNull( _fileStream );
-			return _fileStream.Read( buffer.Slice( offset, count  ) );
+			StateGuard.ThrowIfDisposed( isDisposed, this );
+			return fileStream!.Read( buffer.Slice( offset, count ) );
 		}
 
 		/*
@@ -139,9 +159,9 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <param name="ct">A token to cancel the operation.</param>
 		/// <returns>A task that represents the asynchronous read operation, containing the total number of bytes read into the buffer.</returns>
 		public ValueTask<int> ReadAsync( byte[] buffer, int offset, int count, CancellationToken ct = default ) {
-			ArgumentGuard.ThrowIfNull( _fileStream );
+			StateGuard.ThrowIfDisposed( isDisposed, this );
 			ct.ThrowIfCancellationRequested();
-			return _fileStream.ReadAsync( buffer.AsMemory( offset, count ), ct );
+			return fileStream!.ReadAsync( buffer.AsMemory( offset, count ), ct );
 		}
 
 		/*
@@ -156,9 +176,9 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <param name="ct">A token to cancel the operation.</param>
 		/// <returns>A task that represents the asynchronous read operation, containing the total number of bytes read into the buffer.</returns>
 		public ValueTask<int> ReadAsync( Memory<byte> buffer, CancellationToken ct = default ) {
-			ArgumentGuard.ThrowIfNull( _fileStream );
+			StateGuard.ThrowIfDisposed( isDisposed, this );
 			ct.ThrowIfCancellationRequested();
-			return _fileStream.ReadAsync( buffer, ct );
+			return fileStream!.ReadAsync( buffer, ct );
 		}
 
 		/*
@@ -171,17 +191,14 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <returns>A byte array containing the remaining data in the stream.</returns>
 		public byte[] ReadToEnd() {
-			ArgumentGuard.ThrowIfNull( _fileStream );
-			
-			long remaining = _fileStream.Length - _fileStream.Position;
+			StateGuard.ThrowIfDisposed( isDisposed, this );
+
+			long remaining = fileStream!.Length - fileStream.Position;
 			if ( remaining > int.MaxValue ) {
 				throw new InvalidOperationException( "File is too large to read into a single array." );
 			}
-			byte[] buffer = new byte[remaining];
-			int bytesRead = _fileStream.Read( buffer, 0, (int)remaining );
-			if ( bytesRead < remaining ) {
-				Array.Resize( ref buffer, bytesRead );
-			}
+			byte[] buffer = new byte[ remaining ];
+			fileStream.Read( buffer, 0, ( int )remaining );
 			return buffer;
 		}
 
@@ -196,20 +213,67 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <param name="ct">A token to cancel the operation.</param>
 		/// <returns>A task that represents the asynchronous read operation, containing a byte array with the remaining data.</returns>
 		public async ValueTask<byte[]> ReadToEndAsync( CancellationToken ct = default ) {
-			ArgumentGuard.ThrowIfNull( _fileStream );
+			StateGuard.ThrowIfDisposed( isDisposed, this );
 
 			ct.ThrowIfCancellationRequested();
 
-			long remaining = _fileStream.Length - _fileStream.Position;
+			long remaining = fileStream!.Length - fileStream.Position;
 			if ( remaining > int.MaxValue ) {
 				throw new InvalidOperationException( "File is too large to read into a single array." );
 			}
-			byte[] buffer = new byte[remaining];
-			int bytesRead = await _fileStream.ReadAsync( buffer.AsMemory( 0, (int)remaining ), ct );
+			byte[] buffer = new byte[ remaining ];
+			int bytesRead = await fileStream.ReadAsync( buffer.AsMemory( 0, ( int )remaining ), ct );
 			if ( bytesRead < remaining ) {
 				Array.Resize( ref buffer, bytesRead );
 			}
 			return buffer;
+		}
+
+		/*
+		===============
+		WriteToStream
+		===============
+		*/
+		/// <summary>
+		/// Writes the entire content of this stream to the provided stream.
+		/// </summary>
+		/// <param name="stream">The stream to write to.</param>
+		public void WriteToStream( IWriteStream stream ) {
+			StateGuard.ThrowIfDisposed( isDisposed, this );
+
+			long position = _streamReader.BaseStream.Position;
+			_streamReader.BaseStream.Position = 0;
+
+			int length = (int)Length;
+			byte[] buffer = ArrayPool<byte>.Shared.Rent( length );
+			Read( buffer, 0, length );
+			stream.Write( buffer );
+			ArrayPool<byte>.Shared.Return( buffer );
+			_streamReader.BaseStream.Position = position;
+		}
+
+		/*
+		===============
+		WriteToStreamAsync
+		===============
+		*/
+		/// <summary>
+		/// Asynchronously writes the entire content of this stream to the provided stream.
+		/// </summary>
+		/// <param name="stream">The stream to write to.</param>
+		/// <param name="ct">The token to monitor for cancellation requests.</param>
+		public async ValueTask WriteToStreamAsync( IWriteStream stream, CancellationToken ct = default ) {
+			StateGuard.ThrowIfDisposed( isDisposed, this );
+
+			long position = _streamReader.BaseStream.Position;
+			_streamReader.BaseStream.Position = 0;
+
+			int length = (int)Length;
+			byte[] buffer = new byte[ length ];
+			await ReadAsync( buffer, 0, length, ct );
+			await stream.WriteAsync( buffer, ct );
+			
+			_streamReader.BaseStream.Position = position;
 		}
 
 		/*
@@ -222,24 +286,51 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <returns>A byte array containing all data from the file stream.</returns>
 		public byte[] ToArray() {
-			ArgumentGuard.ThrowIfNull( _fileStream );
+			StateGuard.ThrowIfDisposed( isDisposed, this );
 
-			long originalPosition = _fileStream.Position;
-			_fileStream.Position = 0;
+			long originalPosition = fileStream!.Position;
+			fileStream.Position = 0;
 			try {
-				long length = _fileStream.Length;
-				if ( length > int.MaxValue ) {
+				long length = fileStream.Length;
+				if ( length > long.MaxValue ) {
 					throw new InvalidOperationException( "File is too large to read into a single array." );
 				}
-				byte[] buffer = new byte[length];
-				int bytesRead = _fileStream.Read( buffer, 0, (int)length );
+				byte[] buffer = new byte[ length ];
+				long bytesRead = fileStream.Read( buffer, 0, ( int )length );
 				if ( bytesRead < length ) {
-					Array.Resize( ref buffer, bytesRead );
+
 				}
 				return buffer;
 			} finally {
-				_fileStream.Position = originalPosition;
+				fileStream.Position = originalPosition;
 			}
+		}
+
+		/*
+		===============
+		Read7BitEncodedInt
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		/// <exception cref="FormatException"></exception>
+		public int Read7BitEncodedInt() {
+			int value = 0;
+			int shift = 0;
+			byte b;
+
+			do {
+				b = ReadUInt8();
+				value |= (b & 0x7F) << shift;
+				shift += 7;
+				if ( shift > 35 ) {
+					throw new FormatException( "Invalid 7-bit encoded integer formatting in file." );
+				}
+			} while ( (b & 0x80) != 0 );
+
+			return value;
 		}
 
 		/*

@@ -427,7 +427,10 @@ namespace Nomad.Core
             /// </summary>
             public static partial class Rendering
             {
-                private const string NAMESPACE = nameof(Rendering);
+                /// <summary>
+                /// 
+                /// </summary>
+                public const string NAMESPACE = nameof(Rendering);
 
                 /// <summary>
                 /// 
@@ -458,6 +461,22 @@ namespace Nomad.Core
                 /// 
                 /// </summary>
                 public const string SPRITE_FRAMES_CHANGED_EVENT = NAMESPACE + ":SpriteFramesChanged";
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public static partial class EngineUtils
+            {
+                /// <summary>
+                /// 
+                /// </summary>
+                public const string NAMESPACE = nameof(Nomad.Core.EngineUtils);
+
+                /// <summary>
+                /// 
+                /// </summary>
+                public const string WINDOW_SIZE_CHANGED = NAMESPACE + ":WindowSizeChanged";
             }
         }
 

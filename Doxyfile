@@ -9,7 +9,7 @@ GENERATE_HTML          = YES
 GENERATE_LATEX         = NO
 STRIP_FROM_PATH        = Source/
 EXCLUDE_PATTERNS      += */obj/* */bin/* */intermediate/*
-
+EXAMPLE_PATH           = Documentation/Examples
 
 INPUT                  = Source Documentation/Modules.dox
 FILE_PATTERNS          = *.cs *.dox

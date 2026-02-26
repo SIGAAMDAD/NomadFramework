@@ -26,21 +26,34 @@ namespace Nomad.Core.Util.BufferHandles
         /// 
         /// </summary>
         /// <param name="length"></param>
-        public PooledBufferHandle(int length)
-            : base(ArrayPool<byte>.Shared.Rent(length), length)
+        public PooledBufferHandle(long length)
+            : base(ArrayPool<byte>.Shared.Rent((int)length), length)
         {
         }
 
+        /*
+        ===============
+        Dispose
+        ===============
+        */
         /// <summary>
         /// 
         /// </summary>
-        public override void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            if (!_isDisposed)
+            if (isDisposed)
             {
-                ArrayPool<byte>.Shared.Return(_buffer);
-                base.Dispose();
+                return;
             }
+            if (disposing)
+            {
+                if (buffer != null)
+                {
+                    ArrayPool<byte>.Shared.Return(buffer);
+                }
+            }
+            isDisposed = true;
+            base.Dispose(disposing);
         }
     }
 }

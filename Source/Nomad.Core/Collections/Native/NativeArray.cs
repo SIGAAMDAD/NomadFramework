@@ -25,11 +25,20 @@ namespace Nomad.Core.Collections.Native
     /// <typeparam name="T"></typeparam>
     public unsafe class NativeArray<T> : IDisposable where T : unmanaged
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public int Length => _length;
         private readonly int _length;
 
         private readonly T* _data;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         public ref T this[int index]
         {
             get
@@ -37,7 +46,7 @@ namespace Nomad.Core.Collections.Native
 #if DEBUG
                 if (index < 0 || index >= _length)
                 {
-                    throw new IndexOutOfRangeException();
+                    throw new ArgumentOutOfRangeException(nameof(index));
                 }
 #endif
                 return ref _data[index];

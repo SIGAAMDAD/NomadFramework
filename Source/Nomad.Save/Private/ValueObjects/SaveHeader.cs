@@ -13,7 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Nomad.Core.FileSystem;
+using Nomad.Core.FileSystem.Streams;
 using Nomad.Save.ValueObjects;
 
 namespace Nomad.Save.Private.ValueObjects {
@@ -96,7 +96,7 @@ namespace Nomad.Save.Private.ValueObjects {
 		/// <param name="reader"></param>
 		/// <param name="magicMatches"></param>
 		/// <returns></returns>
-		internal static SaveHeader Deserialize(IReadStream reader, out bool magicMatches ) {
+		internal static SaveHeader Deserialize( IReadStream reader, out bool magicMatches ) {
 			ulong headerMagic = reader.ReadUInt64();
 			magicMatches = headerMagic == Constants.HEADER_MAGIC;
 

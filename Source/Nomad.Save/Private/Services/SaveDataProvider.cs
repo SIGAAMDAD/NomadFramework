@@ -26,14 +26,12 @@ using Nomad.Save.Interfaces;
 using Nomad.Save.Exceptions;
 using Nomad.Save.Services;
 using Nomad.Save.ValueObjects;
-using Nomad.CVars.Interfaces;
 using Nomad.Save.Private.Entities;
 using Nomad.Core.Exceptions;
-using Nomad.CVars.Events;
-using Nomad.Save.Private.ValueObjects;
 using Nomad.Save.Private.Registries;
 using Nomad.Core.EngineUtils;
 using Nomad.Save.Private.Repositories;
+using Nomad.Core.CVars;
 
 namespace Nomad.Save.Private.Services {
 	/*
@@ -66,6 +64,8 @@ namespace Nomad.Save.Private.Services {
 		private readonly IGameEvent<SaveBeginEventArgs> _saveBegin;
 		private readonly IGameEvent<LoadBeginEventArgs> _loadBegin;
 
+		private bool _isDisposed = false;
+
 		/*
 		===============
 		SaveDataProvider
@@ -95,13 +95,13 @@ namespace Nomad.Save.Private.Services {
 
 			_saveFiles = new List<SaveFileMetadata>();
 
-			InitConfiguration( engineService, cvarSystem );
+			_config = InitConfiguration( engineService, cvarSystem );
+
+			_atomicWriter = new AtomicWriterService( engineService, fileSystem );
 
 			_slotRepository = new SlotRepository( fileSystem, logger, _config );
-			_readerService = new SaveReaderService( in _config, _slotRepository, _vfs, _logger );
-			_writerService = new SaveWriterService( in _config, _slotRepository, _vfs, _logger );
-
-			_atomicWriter = new AtomicWriterService( fileSystem );
+			_readerService = new SaveReaderService( _config, _slotRepository, _vfs, _logger );
+			_writerService = new SaveWriterService( _config, _atomicWriter, _slotRepository, _vfs, _logger );
 		}
 
 		/*
@@ -110,14 +110,20 @@ namespace Nomad.Save.Private.Services {
 		===============
 		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
 		public void Dispose() {
-			_readerService?.Dispose();
-			_writerService?.Dispose();
+			if ( !_isDisposed ) {
+				_readerService?.Dispose();
+				_writerService?.Dispose();
+				_slotRepository?.Dispose();
+				_category?.Dispose();
 
-			_saveBegin?.Dispose();
-			_loadBegin?.Dispose();
+				_saveBegin?.Dispose();
+				_loadBegin?.Dispose();
+			}
+			GC.SuppressFinalize( this );
+			_isDisposed = true;
 		}
 
 		/*
@@ -186,7 +192,7 @@ namespace Nomad.Save.Private.Services {
 		/// <param name="engineService"></param>
 		/// <param name="cvarSystem"></param>
 		/// <exception cref="CVarMissing"></exception>
-		private void InitConfiguration( IEngineService engineService, ICVarSystemService cvarSystem ) {
+		private SaveConfig InitConfiguration( IEngineService engineService, ICVarSystemService cvarSystem ) {
 			SaveCVarRegistry.RegisterCVars( engineService, cvarSystem );
 
 			var dataPath = cvarSystem.GetCVar<string>( Constants.CVars.DATA_PATH ) ?? throw new CVarMissing( Constants.CVars.DATA_PATH );
@@ -206,12 +212,12 @@ namespace Nomad.Save.Private.Services {
 			var logWriteTimings = cvarSystem.GetCVar<bool>( Constants.CVars.LOG_WRITE_TIMINGS ) ?? throw new CVarMissing( Constants.CVars.LOG_WRITE_TIMINGS );
 			var debugLogging = cvarSystem.GetCVar<bool>( Constants.CVars.DEBUG_LOGGING ) ?? throw new CVarMissing( Constants.CVars.DEBUG_LOGGING );
 
-			_config = new SaveConfig {
+			return new SaveConfig {
 				DataPath = dataPath.Value,
 
 				BackupPath = backupPath.Value,
 				MaxBackups = maxBackups.Value,
-				
+
 				AutoSaveInterval = autoSaveInterval.Value,
 				AutoSave = autoSaveEnabled.Value,
 

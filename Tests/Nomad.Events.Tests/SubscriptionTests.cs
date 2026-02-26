@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using Nomad.Core.Events;
 using Nomad.Core.Logger;
-using Nomad.Events;
 
 namespace Nomad.Events.Tests;
 

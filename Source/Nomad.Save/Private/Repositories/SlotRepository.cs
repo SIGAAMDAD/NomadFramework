@@ -17,6 +17,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Nomad.Core.FileSystem;
+using Nomad.Core.FileSystem.Configs;
+using Nomad.Core.FileSystem.Streams;
 using Nomad.Core.Logger;
 using Nomad.Save.Private.Entities;
 using Nomad.Save.Private.ValueObjects;
@@ -43,6 +45,8 @@ namespace Nomad.Save.Private.Repositories {
 		private readonly FileSystemWatcher _fileWatcher;
 
 		private readonly SaveConfig _config;
+
+		private bool _isDisposed = false;
 		
 		/*
 		===============
@@ -55,7 +59,7 @@ namespace Nomad.Save.Private.Repositories {
 		/// <param name="fileSystem"></param>
 		/// <param name="logger"></param>
 		/// <param name="config"></param>
-		public SlotRepository( IFileSystem fileSystem, ILoggerService logger, in SaveConfig config ) {
+		public SlotRepository( IFileSystem fileSystem, ILoggerService logger, SaveConfig config ) {
 			_fileSystem = fileSystem;
 			_logger = logger;
 			_config = config;
@@ -65,7 +69,7 @@ namespace Nomad.Save.Private.Repositories {
 
 			RefreshSlots();
 		}
-
+		
 		/*
 		===============
 		Dispose
@@ -75,7 +79,11 @@ namespace Nomad.Save.Private.Repositories {
 		/// 
 		/// </summary>
 		public void Dispose() {
-			_saveSlots?.Clear();
+			if ( !_isDisposed ) {
+				_fileWatcher?.Dispose();
+			}
+			GC.SuppressFinalize( this );
+			_isDisposed = true;
 		}
 
 		/*
@@ -158,7 +166,7 @@ namespace Nomad.Save.Private.Repositories {
 			var slots = _fileSystem.GetFiles( _config.DataPath, "*.ngd", false );
 
 			for ( int i = 0; i < slots.Count; i++ ) {
-				using var reader = _fileSystem.OpenRead( slots[ i ], new ReadConfig( StreamType.File ) );
+				using var reader = _fileSystem.OpenRead( new FileReadConfig { FilePath = slots[ i ] } );
 				if ( reader == null || reader is not IFileReadStream fileReader ) {
 					_logger.PrintError( $"SlotRepository.RefreshSlots: error opening save data file '{slots[ i ]}'!" );
 					continue;

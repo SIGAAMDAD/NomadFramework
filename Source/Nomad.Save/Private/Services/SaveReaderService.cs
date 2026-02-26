@@ -16,6 +16,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Collections.Concurrent;
 using Nomad.Core.FileSystem;
+using Nomad.Core.FileSystem.Streams;
+using Nomad.Core.FileSystem.Configs;
 using Nomad.Core.Logger;
 using Nomad.Save.Interfaces;
 using Nomad.Save.Private.Entities;
@@ -47,6 +49,8 @@ namespace Nomad.Save.Private.Services {
 		private readonly ILoggerService _logger;
 		private readonly ILoggerCategory _category;
 
+		private bool _isDisposed = false;
+
 		/*
 		===============
 		SaveReaderService
@@ -59,7 +63,7 @@ namespace Nomad.Save.Private.Services {
 		/// <param name="slotRepository"></param>
 		/// <param name="fileSystem"></param>
 		/// <param name="logger"></param>
-		public SaveReaderService( in SaveConfig config, SlotRepository slotRepository, IFileSystem fileSystem, ILoggerService logger ) {
+		public SaveReaderService( SaveConfig config, SlotRepository slotRepository, IFileSystem fileSystem, ILoggerService logger ) {
 			_slotRepository = slotRepository;
 			_fileSystem = fileSystem;
 			_sections = new ConcurrentDictionary<string, SaveSectionReader>();
@@ -76,10 +80,14 @@ namespace Nomad.Save.Private.Services {
 		===============
 		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
 		public void Dispose() {
-			_sections.Clear();
+			if ( !_isDisposed ) {
+				_category?.Dispose();
+			}
+			GC.SuppressFinalize( this );
+			_isDisposed = true;
 		}
 
 		/*
@@ -96,7 +104,7 @@ namespace Nomad.Save.Private.Services {
 
 			_logger.PrintLine( in _category, $"Loading save data from {filepath}..." );
 
-			using var reader = _fileSystem.OpenRead( filepath, new ReadConfig( StreamType.MemoryFile ) ) as IMemoryReadStream;
+			using var reader = _fileSystem.OpenRead( new MemoryFileReadConfig { FilePath = filepath, MaxCapacity = 8 * 1024 * 1024 } ) as IMemoryReadStream;
 			if ( reader == null ) {
 				_logger.PrintError( in _category, $"SaveReaderService.Load: couldn't open save file '{filepath}'!" );
 				return;
@@ -113,7 +121,7 @@ namespace Nomad.Save.Private.Services {
 			}
 
 			for ( int i = 0; i < header.SectionCount; i++ ) {
-				var section = new SaveSectionReader( in _config, i, in reader, _logger );
+				var section = new SaveSectionReader( _config, i, reader, _logger );
 				_sections[ section.Name ] = section;
 			}
 

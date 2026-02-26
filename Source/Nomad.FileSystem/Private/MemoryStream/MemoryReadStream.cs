@@ -15,12 +15,12 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Nomad.Core.Compatibility.Guards;
-using Nomad.Core.FileSystem;
+using Nomad.Core.FileSystem.Configs;
+using Nomad.Core.FileSystem.Streams;
 using Nomad.Core.Util.BufferHandles;
 
 namespace Nomad.FileSystem.Private.MemoryStream {
@@ -52,27 +52,20 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		===============
 		*/
 		/// <summary>
-		///
-		/// </summary>
-		public MemoryReadStream() {
-		}
-
-		/*
-		===============
-		MemoryReadStream
-		===============
-		*/
-		/// <summary>
 		/// Initializes a new instance of the MemoryReadStream class with the specified buffer and length.
 		/// </summary>
-		/// <param name="buffer">The byte array to read from.</param>
-		/// <param name="length">The length of the data in the buffer.</param>
-		public MemoryReadStream( byte[] buffer, int length ) {
-			_buffer = new PooledBufferHandle( length );
-			_buffer.CopyFrom( buffer, 0, length );
-
-			_length = length;
-			_position = 0;
+		/// <param name="config"></param>
+		public MemoryReadStream( MemoryReadConfig config )
+			: base( config.Strategy )
+		{
+			// FIXME: MAGIC NUMBER!!!
+			long maxCapacity = config.MaxCapacity.HasValue ? config.MaxCapacity.Value : 8 * 1024 * 1024;
+			buffer = new PooledBufferHandle( maxCapacity );
+			buffer = config.Buffer;
+			if ( config.Buffer != null ) {
+				length = config.Buffer.Length;
+			}
+			position = 0;
 		}
 
 		/*
@@ -83,9 +76,9 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <summary>
 		/// Flushes the stream. (Not implemented for read-only streams)
 		/// </summary>
-		/// <exception cref="NotImplementedException"></exception>
+		/// <exception cref="NotSupportedException"></exception>
 		public override void Flush() {
-			throw new NotImplementedException();
+			throw new NotSupportedException( "Cannot flush a MemoryReadStream" );
 		}
 
 		/*
@@ -98,9 +91,23 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <param name="ct">A token to cancel the operation.</param>
 		/// <returns>A task that represents the asynchronous flush operation.</returns>
-		/// <exception cref="NotImplementedException"></exception>
+		/// <exception cref="NotSupportedException"></exception>
 		public override async ValueTask FlushAsync( CancellationToken ct = default ) {
-			throw new NotImplementedException();
+			throw new NotSupportedException( "Cannot flush a MemoryReadStream" );
+		}
+
+		/*
+		===============
+		SetLength
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="length"></param>
+		public override void SetLength( long length ) {
+			StateGuard.ThrowIfDisposed( isDisposed, this );
+			this.length = length;
 		}
 
 		/*
@@ -116,11 +123,13 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <param name="count">The maximum number of bytes to be read from the current stream.</param>
 		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many bytes are not currently available, or zero if the end of the stream has been reached.</returns>
 		public int Read( byte[] buffer, int offset, int count ) {
+			StateGuard.ThrowIfDisposed( isDisposed, this );
+
 			if ( offset + count >= buffer.Length ) {
 				count = buffer.Length - offset;
 			}
-			_buffer.CopyTo( buffer, offset, count, _position );
-			_position += count;
+			this.buffer!.CopyTo( buffer, offset, count, position );
+			position += count;
 			return count;
 		}
 
@@ -136,7 +145,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many bytes are not currently available, or zero if the end of the stream has been reached.</returns>
 		public int Read( byte[] buffer )
 			=> Read( buffer, 0, buffer.Length );
-		
+
 		/*
 		===============
 		Read
@@ -150,11 +159,13 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <param name="count">The maximum number of bytes to be read from the current stream.</param>
 		/// <returns>The total number of bytes read into the span. This can be less than the length of the span if that many bytes are not currently available, or zero if the end of the stream has been reached.</returns>
 		public int Read( Span<byte> buffer, int offset, int count ) {
+			StateGuard.ThrowIfDisposed( isDisposed, this );
+
 			if ( offset + count >= buffer.Length ) {
 				count = buffer.Length - offset;
 			}
-			_buffer.CopyTo( buffer, offset, count, _position );
-			_position += count;
+			this.buffer!.CopyTo( buffer, offset, count, position );
+			position += count;
 			return count;
 		}
 
@@ -184,7 +195,9 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <param name="count">The maximum number of bytes to be read from the current stream.</param>
 		/// <param name="ct">A token to cancel the operation.</param>
 		/// <returns>A task that represents the asynchronous read operation, containing the total number of bytes read into the buffer.</returns>
-		public async ValueTask<int> ReadAsync( byte[] buffer, int offset, int count, CancellationToken ct = default( CancellationToken ) ) {
+		public async ValueTask<int> ReadAsync( byte[] buffer, int offset, int count, CancellationToken ct = default ) {
+			StateGuard.ThrowIfDisposed( isDisposed, this );
+
 			ct.ThrowIfCancellationRequested();
 			return Read( buffer, offset, count );
 		}
@@ -200,7 +213,10 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <param name="buffer">A memory buffer. When this method returns, the buffer contains the bytes read from the current source.</param>
 		/// <param name="ct">A token to cancel the operation.</param>
 		/// <returns>A task that represents the asynchronous read operation, containing the total number of bytes read into the buffer.</returns>
-		public async ValueTask<int> ReadAsync( Memory<byte> buffer, CancellationToken ct = default( CancellationToken ) ) {
+		public async ValueTask<int> ReadAsync( Memory<byte> buffer, CancellationToken ct = default ) {
+			StateGuard.ThrowIfDisposed( isDisposed, this );
+			ArgumentGuard.ThrowIfNull( buffer );
+
 			ct.ThrowIfCancellationRequested();
 			return Read( buffer.Span );
 		}
@@ -215,12 +231,12 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <returns>A byte array containing the remaining data in the stream.</returns>
 		public byte[] ReadToEnd() {
-			ArgumentGuard.ThrowIfNull( _buffer );
+			StateGuard.ThrowIfDisposed( isDisposed, this );
 
-			int remaining = _length - _position;
+			long remaining = length - position;
 			byte[] result = new byte[ remaining ];
-			_buffer.CopyTo( result, 0, remaining, _position );
-			_position += remaining;
+			buffer!.CopyTo( result, 0, remaining, position );
+			position += remaining;
 			return result;
 		}
 
@@ -234,9 +250,43 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <param name="cancellationToken">A token to cancel the operation.</param>
 		/// <returns>A task that represents the asynchronous read operation, containing a byte array with the remaining data.</returns>
-		public async ValueTask<byte[]> ReadToEndAsync( CancellationToken cancellationToken = default( CancellationToken ) ) {
+		public async ValueTask<byte[]> ReadToEndAsync( CancellationToken cancellationToken = default ) {
+			StateGuard.ThrowIfDisposed( isDisposed, this );
+
 			cancellationToken.ThrowIfCancellationRequested();
 			return ReadToEnd();
+		}
+
+		/*
+		===============
+		WriteToStream
+		===============
+		*/
+		/// <summary>
+		/// Writes the entire content of this stream to the provided stream.
+		/// </summary>
+		/// <param name="stream">The stream to write to.</param>
+		public void WriteToStream( IWriteStream stream ) {
+			StateGuard.ThrowIfDisposed( isDisposed, this );
+
+			stream.Write( buffer!.Buffer, 0, (int)length );
+		}
+
+		/*
+		===============
+		WriteToStreamAsync
+		===============
+		*/
+		/// <summary>
+		/// Asynchronously writes the entire content of this stream to the provided stream.
+		/// </summary>
+		/// <param name="stream">The stream to write to.</param>
+		/// <param name="ct">The token to monitor for cancellation requests.</param>
+		public async ValueTask WriteToStreamAsync( IWriteStream stream, CancellationToken ct = default ) {
+			StateGuard.ThrowIfDisposed( isDisposed, this );
+			ct.ThrowIfCancellationRequested();
+
+			await stream.WriteAsync( buffer!.Buffer, ct );
 		}
 
 		/*
@@ -248,8 +298,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// Returns the underlying buffer as a byte array.
 		/// </summary>
 		/// <returns>The underlying byte array.</returns>
-		public byte[]? ToArray()
-			=> _buffer.Buffer;
+		public byte[] ToArray()
+			=> buffer!.Buffer;
 
 		/*
 		===============
@@ -261,7 +311,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <returns>The signed byte value read from the stream.</returns>
 		public sbyte ReadSByte()
-			=> Read<sbyte>();
+			=> Read<sbyte>( sizeof( sbyte ) );
 
 		/*
 		===============
@@ -273,7 +323,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <returns>The 16-bit signed integer value read from the stream.</returns>
 		public short ReadShort()
-			=> Read<short>();
+			=> Read<short>( sizeof( short ) );
 
 		/*
 		===============
@@ -285,7 +335,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <returns>The 32-bit signed integer value read from the stream.</returns>
 		public int ReadInt()
-			=> Read<int>();
+			=> Read<int>( sizeof( int ) );
 
 		/*
 		===============
@@ -297,7 +347,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <returns>The 64-bit signed integer value read from the stream.</returns>
 		public long ReadLong()
-			=> Read<long>();
+			=> Read<long>( sizeof( long ) );
 
 		/*
 		===============
@@ -309,7 +359,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <returns>The unsigned byte value read from the stream.</returns>
 		public byte ReadByte()
-			=> Read<byte>();
+			=> Read<byte>( sizeof( byte ) );
 
 		/*
 		===============
@@ -321,7 +371,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <returns>The 16-bit unsigned integer value read from the stream.</returns>
 		public ushort ReadUShort()
-			=> Read<ushort>();
+			=> Read<ushort>( sizeof( ushort ) );
 
 		/*
 		===============
@@ -333,7 +383,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <returns>The 32-bit unsigned integer value read from the stream.</returns>
 		public uint ReadUInt()
-			=> Read<uint>();
+			=> Read<uint>( sizeof( uint ) );
 
 		/*
 		===============
@@ -345,7 +395,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <returns>The 64-bit unsigned integer value read from the stream.</returns>
 		public ulong ReadULong()
-			=> Read<ulong>();
+			=> Read<ulong>( sizeof( ulong ) );
 
 		/*
 		===============
@@ -357,7 +407,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <returns>The 8-bit signed integer value read from the stream.</returns>
 		public sbyte ReadInt8()
-			=> Read<sbyte>();
+			=> Read<sbyte>( sizeof( sbyte ) );
 
 		/*
 		===============
@@ -369,7 +419,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <returns>The 16-bit signed integer value read from the stream.</returns>
 		public short ReadInt16()
-			=> Read<short>();
+			=> Read<short>( sizeof( short ) );
 
 		/*
 		===============
@@ -381,7 +431,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <returns>The 32-bit signed integer value read from the stream.</returns>
 		public int ReadInt32()
-			=> Read<int>();
+			=> Read<int>( sizeof( int ) );
 
 		/*
 		===============
@@ -393,7 +443,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <returns>The 64-bit signed integer value read from the stream.</returns>
 		public long ReadInt64()
-			=> Read<long>();
+			=> Read<long>( sizeof( long ) );
 
 		/*
 		===============
@@ -405,7 +455,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <returns>The 8-bit unsigned integer value read from the stream.</returns>
 		public byte ReadUInt8()
-			=> Read<byte>();
+			=> Read<byte>( sizeof( byte ) );
 
 		/*
 		===============
@@ -417,7 +467,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <returns>The 16-bit unsigned integer value read from the stream.</returns>
 		public ushort ReadUInt16()
-			=> Read<ushort>();
+			=> Read<ushort>( sizeof( ushort ) );
 
 		/*
 		===============
@@ -429,7 +479,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <returns>The 32-bit unsigned integer value read from the stream.</returns>
 		public uint ReadUInt32()
-			=> Read<uint>();
+			=> Read<uint>( sizeof( uint ) );
 
 		/*
 		===============
@@ -441,7 +491,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <returns>The 64-bit unsigned integer value read from the stream.</returns>
 		public ulong ReadUInt64()
-			=> Read<ulong>();
+			=> Read<ulong>( sizeof( ulong ) );
 
 		/*
 		===============
@@ -453,7 +503,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <returns>The 32-bit floating-point value read from the stream.</returns>
 		public float ReadFloat()
-			=> Read<float>();
+			=> Read<float>( sizeof( float ) );
 
 		/*
 		===============
@@ -465,7 +515,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <returns>The single-precision floating-point value read from the stream.</returns>
 		public float ReadSingle()
-			=> Read<float>();
+			=> Read<float>( sizeof( float ) );
 
 		/*
 		===============
@@ -477,7 +527,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <returns>The double-precision floating-point value read from the stream.</returns>
 		public double ReadDouble()
-			=> Read<double>();
+			=> Read<double>( sizeof( double ) );
 
 		/*
 		===============
@@ -489,7 +539,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <returns>The 32-bit floating-point value read from the stream.</returns>
 		public float ReadFloat32()
-			=> Read<float>();
+			=> Read<float>( sizeof( float ) );
 
 		/*
 		===============
@@ -501,7 +551,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <returns>The 64-bit floating-point value read from the stream.</returns>
 		public double ReadFloat64()
-			=> Read<double>();
+			=> Read<double>( sizeof( double ) );
 
 		/*
 		===============
@@ -513,7 +563,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <returns>The 8-bit value read from the stream</returns>
 		public bool ReadBoolean()
-			=> Read<bool>();
+			=> Read<bool>( sizeof( bool ) );
 
 		/*
 		===============
@@ -525,9 +575,11 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <returns>The string read from the stream.</returns>
 		public string ReadString() {
+			StateGuard.ThrowIfDisposed( isDisposed, this );
+
 			int byteCount = Read7BitEncodedInt();
-			string value = Encoding.UTF8.GetString( _buffer!.Buffer, _position, byteCount );
-			_position += byteCount;
+			string value = Encoding.UTF8.GetString( buffer!.Buffer, ( int )position, byteCount );
+			position += byteCount;
 			return value;
 		}
 
@@ -542,18 +594,20 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <returns></returns>
 		/// <exception cref="FormatException"></exception>
 		public int Read7BitEncodedInt() {
+			StateGuard.ThrowIfDisposed( isDisposed, this );
+
 			int value = 0;
 			int shift = 0;
 			byte b;
 
 			do {
-				b = Read<byte>();
-				value |= ( b & 0x7F ) << shift;
+				b = ReadUInt8();
+				value |= (b & 0x7F) << shift;
 				shift += 7;
 				if ( shift > 35 ) {
-					throw new FormatException( "Invalid 7-bit encoded integer formatting in save file." );
+					throw new FormatException( "Invalid 7-bit encoded integer formatting in stream." );
 				}
-			} while ( ( b & 0x80 ) != 0 );
+			} while ( (b & 0x80) != 0 );
 
 			return value;
 		}
@@ -569,12 +623,11 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <typeparam name="T"></typeparam>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		private T Read<T>()
-			where T : unmanaged
-		{
-			int sizeOfData = Marshal.SizeOf<T>();
-			T value = Unsafe.ReadUnaligned<T>( ref _buffer!.Buffer[ Position ] );
-			_position += sizeOfData;
+		private T Read<T>( int size )
+			where T : unmanaged {
+			StateGuard.ThrowIfDisposed( isDisposed, this );
+			T value = Unsafe.ReadUnaligned<T>( ref buffer!.Buffer[ ( int )Position ] );
+			position += size;
 			return value;
 		}
 	};

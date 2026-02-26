@@ -26,6 +26,6 @@ namespace Nomad.Core.Events
         /// <summary>
         /// Represents no arguments.
         /// </summary>
-        public static readonly EmptyEventArgs Args = new EmptyEventArgs();
+        public static readonly EmptyEventArgs Args;
     }
 }

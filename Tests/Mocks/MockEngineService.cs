@@ -16,11 +16,14 @@ of merchantability, fitness for a particular purpose and noninfringement.
 #if !UNITY_EDITOR
 using System;
 using Nomad.Core.EngineUtils;
+using Nomad.Core.Events;
 using Nomad.Core.ResourceCache;
 using Nomad.Core.Util;
 
 public class MockEngineService : IEngineService
 {
+	public IGameEvent<WindowSizeChangedEventArgs> WindowSizeChanged => throw new NotImplementedException();
+
 	public IConsoleObject CreateConsoleObject()
 	{
 		throw new NotImplementedException();
@@ -89,6 +92,16 @@ public class MockEngineService : IEngineService
 	public IResourceLoader GetResourceLoader()
 	{
 		throw new NotImplementedException();
+	}
+
+	public bool IsApplicationFocused()
+	{
+		throw new NotImplementedException();
+	}
+
+	public void Dispose()
+	{
+		GC.SuppressFinalize(this);
 	}
 }
 #endif
