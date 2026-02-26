@@ -101,7 +101,7 @@ namespace Nomad.Save.Private.Registries {
 #if DEBUG
 					DefaultValue: true,
 #else
-					DefaultValue: false
+					DefaultValue: false,
 #endif
 					Description: "Enables debug logging within the save system.",
 					Flags: CVarFlags.Archive
@@ -113,7 +113,7 @@ namespace Nomad.Save.Private.Registries {
 #if DEBUG
 					DefaultValue: true,
 #else
-					DefaultValue: false
+					DefaultValue: false,
 #endif
 					Description: "Dumps the entire section/field tree to the logger.",
 					Flags: CVarFlags.Archive
@@ -125,7 +125,7 @@ namespace Nomad.Save.Private.Registries {
 #if DEBUG
 					DefaultValue: true,
 #else
-					DefaultValue: false
+					DefaultValue: false,
 #endif
 					Description: "Records and prints the amount of time it takes to complete write operations within the save system.",
 					Flags: CVarFlags.Archive | CVarFlags.Developer

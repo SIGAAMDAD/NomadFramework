@@ -2,6 +2,7 @@
   <PropertyGroup>
     <!-- NuGet Package Information -->
     <PackageId>NomadFramework.Nomad.Save</PackageId>
+    <Version>1.1.0</Version>
   </PropertyGroup>
 
   <!-- SPECIAL PROPS -->

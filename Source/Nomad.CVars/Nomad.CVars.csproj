@@ -3,6 +3,7 @@
   <PropertyGroup>
     <!-- NuGet Package Information -->
     <PackageId>NomadFramework.Nomad.CVars</PackageId>
+    <Version>1.1.0</Version>
   </PropertyGroup>
 
   <!-- SPECIAL PROPS -->
