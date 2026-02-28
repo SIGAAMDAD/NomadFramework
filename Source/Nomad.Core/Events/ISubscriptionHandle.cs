@@ -22,5 +22,9 @@ namespace Nomad.Core.Events
     /// </summary>
     public interface ISubscriptionHandle : IDisposable
     {
+        /// <summary>
+        /// <c>True</c> if the subscription is alive, <c>false</c> if not.
+        /// </summary>
+        bool IsDisposed { get; }
     }
 }

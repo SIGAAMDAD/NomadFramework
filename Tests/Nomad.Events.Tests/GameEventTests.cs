@@ -5,7 +5,9 @@ using NUnit.Framework;
 using Nomad.Core.Events;
 using Nomad.Core.Logger;
 using Nomad.Events.Private;
-using Nomad.Core.Util;            // InternString
+using Nomad.Core.Util;
+using Nomad.Events.Extensions;
+using NSubstitute.Core;            // InternString
 
 namespace Nomad.Events.Tests
 {
@@ -474,6 +476,73 @@ namespace Nomad.Events.Tests
                     EventFlags.NoLock | EventFlags.Asynchronous
                 );
             });
+        }
+
+        #endregion
+
+        #region One Time Susbcription
+
+        [Test]
+        public void OneTimeSubscription_CallsOriginalMethod()
+        {
+            // Arrange
+            var evt = CreateEvent<EmptyEventArgs>();
+            bool called = false;
+
+            var handle = evt.SubscribeOnce((in EmptyEventArgs args) => called = true);
+
+            // Act
+            evt.Publish(default);
+
+            // Assert
+            Assert.That(called, Is.True);
+        }
+
+        [Test]
+        public void OneTimeSubscription_KillsItself()
+        {
+            // Arrange
+            var evt = CreateEvent<EmptyEventArgs>();
+            bool notCalled = true;
+
+            var handle = evt.SubscribeOnce((in EmptyEventArgs args) => notCalled = false);
+
+            // Act
+            evt.Publish(default);
+            notCalled = true;
+            evt.Publish(default);
+
+			using (Assert.EnterMultipleScope())
+			{
+				// Assert
+				Assert.That(notCalled, Is.True);
+				Assert.That(handle.IsDisposed, Is.True);
+			}
+		}
+
+        [Test]
+        public void OneTimeSubscription_UsedWithEventQueue_KillsItself()
+        {
+            // Arrange
+            var evt = CreateEvent<EmptyEventArgs>();
+            var eventQueue = new EventQueue();
+            bool notCalled = true;
+
+            var handle = evt.SubscribeOnce((in EmptyEventArgs args) => notCalled = false);
+
+            // Act
+            eventQueue.Enqueue(evt, default);
+            eventQueue.ProcessAll();
+            notCalled = true;
+            eventQueue.Enqueue(evt, default);
+            eventQueue.ProcessAll();
+
+			using (Assert.EnterMultipleScope())
+			{
+				// Assert
+				Assert.That(notCalled, Is.True);
+				Assert.That(handle.IsDisposed, Is.True);
+			}
         }
 
         #endregion

@@ -28,6 +28,10 @@ namespace Nomad.Events
         private readonly ISubscriptionSet<TArgs> _set;
         private readonly EventCallback<TArgs> _callback;
 
+        /// <summary>
+        /// <c>True</c> if the subscription is alive, <c>false</c> if not.
+        /// </summary>
+        public bool IsDisposed => _isDisposed;
         private bool _isDisposed = false;
 
         /// <summary>
