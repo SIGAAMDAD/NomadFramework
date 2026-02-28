@@ -93,22 +93,18 @@ jobs:
     - name: 🔧 Install Doxygen (Ubuntu)
       if: runner.os == 'Linux'
       run: sudo apt-get update && sudo apt-get install -y doxygen
-    
+
     - name: 🔧 Install Doxygen (macOS)
       if: runner.os == 'macOS'
       run: brew install doxygen
-    
+
     - name: 🔧 Install Doxygen (Windows)
       if: runner.os == 'Windows'
       run: choco install doxygen.install --no-progress
-    
+
     - name: 📚 Generate Doxygen documentation
       run: doxygen Doxyfile
       continue-on-error: true
-    
-    - name: 📚 Generate Doxygen documentation
-      run: doxygen Doxyfile   # assumes Doxyfile is in root
-      continue-on-error: true # optional
 
     - name: 🚀 Deploy docs to Wiki
       if: github.ref == 'refs/heads/main'
@@ -119,6 +115,10 @@ jobs:
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
         git add .
-        git commit -m "Update Wiki documentation from CI"
-        git push https://x-access-token:${{ secrets.API_TOKEN }}@github.com/${{ github.repository }}.wiki.git
+        if ! git diff --quiet --cached; then
+            git commit -m "Update Wiki documentation from CI"
+            git push https://x-access-token:${{ secrets.API_TOKEN }}@github.com/${{ github.repository }}.wiki.git
+        else
+            echo "No changes to wiki; skipping commit and push."
+        fi
       
