@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="Source/Nomad.Core/Nomad.Core.csproj" />
+  <Project Path="Source/Nomad.CVars/Nomad.CVars.csproj" />
+  <Project Path="Source/Nomad.Events/Nomad.Events.csproj" />
+  <Project Path="Source/Nomad.FileSystem/Nomad.FileSystem.csproj" />
+  <Project Path="Source/Nomad.Logger/Nomad.Logger.csproj" />
+  <Project Path="Source/Nomad.Save/Nomad.Save.csproj" />
+</Solution>
