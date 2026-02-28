@@ -51,15 +51,26 @@ namespace Nomad.Events.Private {
 		public int Id => _hashCode;
 		private readonly int _hashCode;
 
-		private bool _isDisposed;
+#if DEBUG
+		public TArgs LastPayload => _lastPayload;
+		private TArgs _lastPayload;
+
+		public DateTime LastPublishTime => _lastPublishTime;
+		private DateTime _lastPublishTime;
+
+		public int SubscriberCount => _subscriptions.SubscriberCount;
+		public long PublishCount => _subscriptions.PublishCount;
+#endif
+
+		private bool _isDisposed = false;
 
 		public event EventCallback<TArgs> OnPublished {
-			add => Subscribe( this, value );
-			remove => Unsubscribe( this, value );
+			add => Subscribe( value );
+			remove => Unsubscribe( value );
 		}
 		public event AsyncEventCallback<TArgs> OnPublishedAsync {
-			add => SubscribeAsync( this, value );
-			remove => UnsubscribeAsync( this, value );
+			add => SubscribeAsync( value );
+			remove => UnsubscribeAsync( value );
 		}
 
 		internal ISubscriptionSet<TArgs> SubscriptionSet => _subscriptions;
@@ -142,6 +153,10 @@ namespace Nomad.Events.Private {
 		/// <param name="eventArgs"></param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void Publish( in TArgs eventArgs ) {
+#if DEBUG
+			_lastPayload = eventArgs;
+			_lastPublishTime = DateTime.Now;
+#endif
 			_subscriptions.Pump( in eventArgs );
 		}
 
@@ -172,11 +187,9 @@ namespace Nomad.Events.Private {
 		/// <param name="callback">The lambda or method to call when the event is triggered.</param>
 		/// <exception cref="ArgumentNullException">Thrown if <paramref name="callback"/> is null.</exception>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public IDisposable Subscribe( EventCallback<TArgs> callback ) {
+		public ISubscriptionHandle Subscribe( EventCallback<TArgs> callback ) {
 			ArgumentGuard.ThrowIfNull( callback );
-
-			_subscriptions.AddSubscription( this, callback );
-			return this;
+			return new SubscriptionHandle<TArgs>( _subscriptions, callback );
 		}
 
 		/*
@@ -190,49 +203,9 @@ namespace Nomad.Events.Private {
 		/// <param name="callback">The lambda or method to call when the event is triggered.</param>
 		/// <exception cref="ArgumentNullException">Thrown if <paramref name="callback"/> is null.</exception>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public IDisposable SubscribeAsync( AsyncEventCallback<TArgs> callback ) {
+		public ISubscriptionHandle SubscribeAsync( AsyncEventCallback<TArgs> callback ) {
 			ArgumentGuard.ThrowIfNull( callback );
-
-			_subscriptions.AddSubscriptionAsync( this, callback );
-			return this;
-		}
-
-		/*
-		===============
-		Subscribe
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="owner"></param>
-		/// <param name="callback">The lambda or method to call when the event is triggered.</param>
-		/// <exception cref="ArgumentNullException">Thrown if <paramref name="callback"/> is null.</exception>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public ISubscriptionHandle Subscribe( object owner, EventCallback<TArgs> callback ) {
-			ArgumentGuard.ThrowIfNull( owner );
-			ArgumentGuard.ThrowIfNull( callback );
-
-			return new SubscriptionHandle<TArgs>( owner, _subscriptions, callback );
-		}
-
-		/*
-		===============
-		SubscribeAsync
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="owner"></param>
-		/// <param name="callback">The lambda or method to call when the event is triggered.</param>
-		/// <exception cref="ArgumentNullException">Thrown if <paramref name="callback"/> is null.</exception>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public ISubscriptionHandle SubscribeAsync( object owner, AsyncEventCallback<TArgs> callback ) {
-			ArgumentGuard.ThrowIfNull( owner );
-			ArgumentGuard.ThrowIfNull( callback );
-
-			return new AsyncSubscriptionHandle<TArgs>( owner, _subscriptions, callback );
+			return new AsyncSubscriptionHandle<TArgs>( _subscriptions, callback );
 		}
 
 		/*
@@ -243,15 +216,12 @@ namespace Nomad.Events.Private {
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="owner"></param>
 		/// <param name="callback">The lambda or method to remove from the subscription list.</param>
 		/// <exception cref="ArgumentNullException">Thrown if <paramref name="callback"/> is null.</exception>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public void Unsubscribe( object owner, EventCallback<TArgs> callback ) {
-			ArgumentGuard.ThrowIfNull( owner );
+		public void Unsubscribe( EventCallback<TArgs> callback ) {
 			ArgumentGuard.ThrowIfNull( callback );
-
-			_subscriptions.RemoveSubscription( owner, callback );
+			_subscriptions.RemoveSubscription( callback );
 		}
 
 		/*
@@ -262,44 +232,12 @@ namespace Nomad.Events.Private {
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="owner"></param>
 		/// <param name="callback">The lambda or method to remove from the subscription list.</param>
 		/// <exception cref="ArgumentNullException">Thrown if <paramref name="callback"/> is null.</exception>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public void UnsubscribeAsync( object owner, AsyncEventCallback<TArgs> callback ) {
-			ArgumentGuard.ThrowIfNull( owner );
+		public void UnsubscribeAsync( AsyncEventCallback<TArgs> callback ) {
 			ArgumentGuard.ThrowIfNull( callback );
-
-			_subscriptions.RemoveSubscriptionAsync( owner, callback );
-		}
-
-		/*
-		===============
-		UnsubscriberAll
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="owner"></param>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public void UnsubscribeAll( object owner ) {
-			ArgumentGuard.ThrowIfNull( owner );
-
-			_subscriptions.RemoveAllForSubscriber( owner );
-		}
-
-		/*
-		===============
-		CleanupSubscriptions
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public void CleanupSubscriptions() {
-			_subscriptions.CleanupSubscriptions();
+			_subscriptions.RemoveSubscriptionAsync( callback );
 		}
 
 #if NET10_0_OR_GREATER
@@ -313,7 +251,7 @@ namespace Nomad.Events.Private {
 		/// </summary>
 		/// <param name="callback"></param>
 		public void operator +=( EventCallback<TArgs> callback ) {
-			_subscriptions.AddSubscription( this, callback );
+			_subscriptions.AddSubscription( callback );
 		}
 
 		/*
@@ -326,7 +264,7 @@ namespace Nomad.Events.Private {
 		/// </summary>
 		/// <param name="callback"></param>
 		public void operator +=( AsyncEventCallback<TArgs> callback ) {
-			_subscriptions.AddSubscriptionAsync( this, callback );
+			_subscriptions.AddSubscriptionAsync( callback );
 		}
 
 		/*
@@ -339,7 +277,7 @@ namespace Nomad.Events.Private {
 		/// </summary>
 		/// <param name="callback"></param>
 		public void operator -=( EventCallback<TArgs> callback ) {
-			_subscriptions.RemoveSubscription( this, callback );
+			_subscriptions.RemoveSubscription( callback );
 		}
 
 		/*
@@ -352,7 +290,7 @@ namespace Nomad.Events.Private {
 		/// </summary>
 		/// <param name="callback"></param>
 		public void operator -=( AsyncEventCallback<TArgs> callback ) {
-			_subscriptions.RemoveSubscriptionAsync( this, callback );
+			_subscriptions.RemoveSubscriptionAsync( callback );
 		}
 #endif
 	};

@@ -13,8 +13,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Nomad.Save.ValueObjects;
-
 namespace Nomad.Save.Private {
 	internal static class Constants {
 		internal static class CVars {
@@ -52,8 +50,8 @@ namespace Nomad.Save.Private {
 		};
 
 		public const uint API_VERSION_MAJOR = 1;
-		public const uint API_VERSION_MINOR = 0;
-		public const uint API_VERSION_PATCH = 2;
+		public const uint API_VERSION_MINOR = 1;
+		public const uint API_VERSION_PATCH = 0;
 
 		public const int SECTION_NAME_MAX_LENGTH = 128;
 		public const int MAX_FIELD_NAME_LENGTH = 256;

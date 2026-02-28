@@ -24,7 +24,7 @@ namespace Nomad.Core.CVars
     public interface ICVar
     {
         /// <summary>
-        /// The CVar's name.
+        /// The CVar's name. This is a required element.
         /// </summary>
         string Name { get; }
 
@@ -92,13 +92,6 @@ namespace Nomad.Core.CVars
         /// </summary>
         /// <returns></returns>
         bool GetBooleanValue();
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        T GetValue<T>();
 
         /// <summary>
         ///

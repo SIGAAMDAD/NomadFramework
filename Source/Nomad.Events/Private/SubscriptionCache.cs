@@ -15,6 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Collections.Generic;
+using Nomad.Core.Events;
 using Nomad.Core.Logger;
 
 namespace Nomad.Events.Private {
@@ -29,7 +30,7 @@ namespace Nomad.Events.Private {
 	///
 	/// </summary>
 
-	internal sealed class SubscriptionCache<TArgs> : IDisposable
+	internal sealed class SubscriptionCache<TArgs, TCallback> : IDisposable
 		where TArgs : struct
 	{
 #if EVENT_DEBUG
@@ -47,9 +48,9 @@ namespace Nomad.Events.Private {
 #endif
 
 		public int Count => _subscriptions.Count;
-		public SubscriptionEntry<TArgs> this[ int index ] => _subscriptions[ index ];
+		public TCallback this[ int index ] => _subscriptions[ index ];
 
-		private readonly List<SubscriptionEntry<TArgs>> _subscriptions = new List<SubscriptionEntry<TArgs>>( 16 );
+		private readonly List<TCallback> _subscriptions = new List<TCallback>( 16 );
 
 		private int _cleanupCursor = 0;
 		private readonly ILoggerService _logger;
@@ -88,7 +89,7 @@ namespace Nomad.Events.Private {
 		///
 		/// </summary>
 		/// <param name="entry"></param>
-		public void Add( SubscriptionEntry<TArgs> entry ) {
+		public void Add( TCallback entry ) {
 			_subscriptions.Add( entry );
 		}
 
@@ -103,70 +104,6 @@ namespace Nomad.Events.Private {
 		/// <param name="index"></param>
 		public void RemoveAt( int index ) {
 			_subscriptions.RemoveAt( index );
-		}
-
-		/*
-		===============
-		RemoveAllOwnedBy
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="owner"></param>
-		public void RemoveAllOwnedBy( object owner ) {
-			for ( int i = _subscriptions.Count - 1; i >= 0; i-- ) {
-				if ( _subscriptions[ i ].OwnerMatches( owner  ) ) {
-					_subscriptions.RemoveAt( i );
-				}
-			}
-		}
-
-		/*
-		===============
-		CleanupFull
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		public void CleanupFull() {
-			for ( int i = _subscriptions.Count - 1; i >= 0; i-- ) {
-				if ( !_subscriptions[ i ].IsAlive ) {
-					_subscriptions.RemoveAt( i );
-				}
-			}
-			_cleanupCursor = 0;
-		}
-
-		/*
-		===============
-		CleanupIncremental
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="maxSteps"></param>
-		public void CleanupIncremental( int maxSteps ) {
-			if ( maxSteps <= 0 ) {
-				return;
-			}
-
-			int count = _subscriptions.Count;
-			for ( int step = 0; step < maxSteps && count > 0; step++ ) {
-				if ( _cleanupCursor >= count ) {
-					_cleanupCursor = 0;
-					break;
-				}
-				if ( !_subscriptions[ _cleanupCursor ].IsAlive ) {
-					_subscriptions.RemoveAt( _cleanupCursor );
-					count--;
-					continue;
-				}
-
-				_cleanupCursor++;
-			}
 		}
 	};
 };

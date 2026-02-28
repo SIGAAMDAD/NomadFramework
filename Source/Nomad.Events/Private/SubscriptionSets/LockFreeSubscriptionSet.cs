@@ -15,6 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Nomad.Core.Compatibility.Guards;
@@ -39,13 +40,26 @@ namespace Nomad.Events.Private.SubscriptionSets {
 	internal sealed class LockFreeSubscriptionSet<TArgs> : ISubscriptionSet<TArgs>
 		where TArgs : struct
 	{
+#if DEBUG
+		public int SubscriberCount => _subscriberCount;
+		private int _subscriberCount = 0;
+
+		public long PublishCount => _publishCount;
+		private long _publishCount = 0;
+
+		public long MaxSyncDurationTicks => _maxSyncDurationTicks;
+		private long _maxSyncDurationTicks = 0;
+
+		private long _totalSyncDurationTicks = 0;
+#endif
+
 		private readonly ILoggerService _logger;
 		private readonly IGameEvent<TArgs> _eventData;
-		private readonly SubscriptionCache<TArgs> _genericSubscriptions;
+		private readonly SubscriptionCache<TArgs, EventCallback<TArgs>> _genericSubscriptions;
 
 		private readonly HashSet<WeakReference<IGameEvent>> _friends = new HashSet<WeakReference<IGameEvent>>();
 
-		private bool _isDisposed;
+		private bool _isDisposed = false;
 
 		/*
 		===============
@@ -59,7 +73,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// <param name="logger"></param>
 		public LockFreeSubscriptionSet( IGameEvent<TArgs> eventData, ILoggerService logger ) {
 			_logger = logger;
-			_genericSubscriptions = new SubscriptionCache<TArgs>( logger );
+			_genericSubscriptions = new SubscriptionCache<TArgs, EventCallback<TArgs>>( logger );
 			_eventData = eventData;
 		}
 
@@ -110,19 +124,20 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// <summary>
 		/// Adds a callback method to the subscriptions list.
 		/// </summary>
-		/// <param name="subscriber"></param>
 		/// <param name="callback">The method that is called whenever the event triggers.</param>
 		/// <exception cref="ArgumentNullException">Thrown if <paramref name="callback"/> is null.</exception>
-		public bool AddSubscription( object subscriber, EventCallback<TArgs> callback ) {
-			ArgumentGuard.ThrowIfNull( subscriber );
+		public bool AddSubscription( EventCallback<TArgs> callback ) {
 			ArgumentGuard.ThrowIfNull( callback );
 
-			if ( ContainsCallback( subscriber, callback, out _ ) ) {
+			if ( ContainsCallback( callback, out _ ) ) {
 				_logger.PrintWarning( $"" );
 				return false;
 			}
 
-			_genericSubscriptions.Add( SubscriptionEntry<TArgs>.Create( subscriber, callback ) );
+			_genericSubscriptions.Add( callback);
+#if DEBUG
+			Interlocked.Increment( ref _subscriberCount );
+#endif
 			return true;
 		}
 
@@ -134,10 +149,9 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// <summary>
 		///
 		/// </summary>
-		/// <param name="subscriber"></param>
 		/// <param name="callback"></param>
 		/// <exception cref="NotSupportedException"></exception>
-		public bool AddSubscriptionAsync( object subscriber, AsyncEventCallback<TArgs> callback ) {
+		public bool AddSubscriptionAsync( AsyncEventCallback<TArgs> callback ) {
 			throw new NotSupportedException();
 		}
 
@@ -149,20 +163,20 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// <summary>
 		/// Removes the provided <paramref name="callback"/> from the event's subscription list.
 		/// </summary>
-		/// <param name="subscriber"></param>
 		/// <param name="callback">The callback to remove from the subscription list.</param>
 		/// <exception cref="ArgumentNullException">Thrown if <paramref name="callback"/> is null.</exception>
-		/// <exception cref="ArgumentOutOfRangeException">Thrown if the returned index from <see cref="ContainsCallback"/> is invalid.</exception>
-		public bool RemoveSubscription( object subscriber, EventCallback<TArgs> callback ) {
-			ArgumentGuard.ThrowIfNull( subscriber );
+		public bool RemoveSubscription( EventCallback<TArgs> callback ) {
 			ArgumentGuard.ThrowIfNull( callback );
 
-			if ( !ContainsCallback( subscriber, callback, out int index ) ) {
+			if ( !ContainsCallback( callback, out int index ) ) {
 				_logger.PrintWarning( $"LockFreeSubscriptionSet.RemoveSubscription: " );
 				return false;
 			}
 
 			_genericSubscriptions.RemoveAt( index );
+#if DEBUG
+			Interlocked.Decrement( ref _subscriberCount );
+#endif
 			return true;
 		}
 
@@ -174,26 +188,10 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// <summary>
 		///
 		/// </summary>
-		/// <param name="subscriber"></param>
 		/// <param name="callback"></param>
 		/// <exception cref="NotSupportedException"></exception>
-		public bool RemoveSubscriptionAsync( object subscriber, AsyncEventCallback<TArgs> callback ) {
+		public bool RemoveSubscriptionAsync( AsyncEventCallback<TArgs> callback ) {
 			throw new NotSupportedException();
-		}
-
-		/*
-		===============
-		RemoveAllForSubscriber
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="subscriber"></param>
-		public void RemoveAllForSubscriber( object subscriber ) {
-			ArgumentGuard.ThrowIfNull( subscriber );
-
-			_genericSubscriptions.RemoveAllOwnedBy( subscriber );
 		}
 
 		/*
@@ -209,13 +207,31 @@ namespace Nomad.Events.Private.SubscriptionSets {
 #if EVENT_DEBUG
 			_logger?.PrintLine( $"SubscriptionSet.Pump: publishing event {eventData.DebugName}" );
 #endif
+#if DEBUG
+			var sw = Stopwatch.StartNew();
+#endif
 			for ( int i = 0; i < _genericSubscriptions.Count; i++ ) {
-				var subscription = _genericSubscriptions[ i ];
-				if ( subscription.TryGetCallback( out EventCallback<TArgs>? callback ) ) {
-					callback?.Invoke( in args );
+				try {
+					_genericSubscriptions[i].Invoke( in args );
+				} catch {
+#if DEBUG
+#endif
 				}
 			}
-			_genericSubscriptions.CleanupIncremental( 24 );
+#if DEBUG
+			sw.Stop();
+			Interlocked.Increment( ref _publishCount );
+			Interlocked.Add( ref _totalSyncDurationTicks, sw.ElapsedTicks );
+
+			long ticks = sw.ElapsedTicks;
+			long original;
+			do {
+				original = _maxSyncDurationTicks;
+				if ( ticks <= original ) {
+					break;
+				}
+			} while ( Interlocked.CompareExchange( ref _maxSyncDurationTicks, ticks, original ) != original );
+#endif
 		}
 
 		/*
@@ -242,14 +258,13 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// <summary>
 		/// Public method that acquires the read lock and checks for callback existence.
 		/// </summary>s
-		/// <param name="subscriber"></param>
 		/// <param name="callback"></param>
 		/// <param name="index"></param>
 		/// <returns></returns>
-		public bool ContainsCallback( object subscriber, EventCallback<TArgs> callback, out int index ) {
+		public bool ContainsCallback( EventCallback<TArgs> callback, out int index ) {
 			index = -1;
 			for ( int i = 0; i < _genericSubscriptions.Count; i++ ) {
-				if ( _genericSubscriptions[ i ].Matches( subscriber, callback ) ) {
+				if ( _genericSubscriptions[ i ] == callback ) {
 					index = i;
 					return true;
 				}
@@ -265,25 +280,12 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// <summary>
 		///
 		/// </summary>
-		/// <param name="subscriber"></param>
 		/// <param name="callback"></param>
 		/// <param name="index"></param>
 		/// <returns></returns>
 		/// <exception cref="NotSupportedException"></exception>
-		public bool ContainsCallbackAsync( object subscriber, AsyncEventCallback<TArgs> callback, out int index ) {
+		public bool ContainsCallbackAsync( AsyncEventCallback<TArgs> callback, out int index ) {
 			throw new NotSupportedException();
-		}
-
-		/*
-		===============
-		CleanupSubscriptions
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		public void CleanupSubscriptions() {
-			_genericSubscriptions.CleanupFull();
 		}
 	};
 };

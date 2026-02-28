@@ -106,7 +106,7 @@ namespace Nomad.Save.Private.Entities {
 
 				_writer.Seek( offset, System.IO.SeekOrigin.Begin );
 				{
-					var header = new SectionHeader( _name, ( int )length, FieldCount, Checksum.Compute( _writer.Buffer!.GetSlice( start, length ) ) );
+					var header = new SectionHeader( _name, (int)length, FieldCount, Checksum.Compute( _writer.Buffer!.GetSlice( (int)start, (int)length ) ) );
 					header.Save( _writer );
 
 					if ( _config.LogSerializationTree ) {

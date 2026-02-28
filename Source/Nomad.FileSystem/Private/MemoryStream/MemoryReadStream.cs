@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
@@ -21,7 +22,7 @@ using System.Threading.Tasks;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.FileSystem.Configs;
 using Nomad.Core.FileSystem.Streams;
-using Nomad.Core.Util.BufferHandles;
+using Nomad.Core.Memory.Buffers;
 
 namespace Nomad.FileSystem.Private.MemoryStream {
 	/*
@@ -59,8 +60,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 			: base( config.Strategy )
 		{
 			// FIXME: MAGIC NUMBER!!!
-			long maxCapacity = config.MaxCapacity.HasValue ? config.MaxCapacity.Value : 8 * 1024 * 1024;
-			buffer = new PooledBufferHandle( maxCapacity );
+			long maxCapacity = config.MaxCapacity ?? 8 * 1024 * 1024;
+			buffer = new PooledBufferHandle( (int)maxCapacity );
 			buffer = config.Buffer;
 			if ( config.Buffer != null ) {
 				length = config.Buffer.Length;
@@ -128,7 +129,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 			if ( offset + count >= buffer.Length ) {
 				count = buffer.Length - offset;
 			}
-			this.buffer!.CopyTo( buffer, offset, count, position );
+			this.buffer!.CopyTo( buffer, offset, count, (int)position );
 			position += count;
 			return count;
 		}
@@ -164,7 +165,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 			if ( offset + count >= buffer.Length ) {
 				count = buffer.Length - offset;
 			}
-			this.buffer!.CopyTo( buffer, offset, count, position );
+			this.buffer!.CopyTo( buffer, offset, count, (int)position );
 			position += count;
 			return count;
 		}
@@ -235,7 +236,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 
 			long remaining = length - position;
 			byte[] result = new byte[ remaining ];
-			buffer!.CopyTo( result, 0, remaining, position );
+			buffer!.CopyTo( result, 0, (int)remaining, (int)position );
 			position += remaining;
 			return result;
 		}
@@ -269,7 +270,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		public void WriteToStream( IWriteStream stream ) {
 			StateGuard.ThrowIfDisposed( isDisposed, this );
 
-			stream.Write( buffer!.Buffer, 0, (int)length );
+			stream.Write( buffer!.Span, 0, (int)length );
 		}
 
 		/*
@@ -286,7 +287,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 			StateGuard.ThrowIfDisposed( isDisposed, this );
 			ct.ThrowIfCancellationRequested();
 
-			await stream.WriteAsync( buffer!.Buffer, ct );
+			await stream.WriteAsync( buffer!.Memory, ct );
 		}
 
 		/*
@@ -299,7 +300,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <returns>The underlying byte array.</returns>
 		public byte[] ToArray()
-			=> buffer!.Buffer;
+			=> buffer!.ToArray();
 
 		/*
 		===============
@@ -578,7 +579,16 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 			StateGuard.ThrowIfDisposed( isDisposed, this );
 
 			int byteCount = Read7BitEncodedInt();
-			string value = Encoding.UTF8.GetString( buffer!.Buffer, ( int )position, byteCount );
+			if ( byteCount == 0 ) {
+				return string.Empty;
+			}
+
+			string value;
+			unsafe {
+				fixed ( byte* src = buffer!.GetSlice( (int)position, byteCount ) ) {
+					value = Encoding.UTF8.GetString( src, byteCount );
+				}
+			}
 			position += byteCount;
 			return value;
 		}
@@ -624,9 +634,19 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		private T Read<T>( int size )
-			where T : unmanaged {
+			where T : unmanaged
+		{
 			StateGuard.ThrowIfDisposed( isDisposed, this );
-			T value = Unsafe.ReadUnaligned<T>( ref buffer!.Buffer[ ( int )Position ] );
+			if ( position + size > length ) {
+				throw new EndOfStreamException();
+			}
+
+			T value;
+			unsafe {
+				fixed ( void* ptr = buffer!.GetSlice( (int)position, size ) ) {
+					value = Unsafe.ReadUnaligned<T>( ptr );
+				}
+			}
 			position += size;
 			return value;
 		}

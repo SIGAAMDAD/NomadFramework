@@ -43,13 +43,22 @@ namespace Nomad.Core.Events
         /// </summary>
         int Id { get; }
 
+#if DEBUG
         /// <summary>
-        /// Removes all active subscriptions.
+        /// 
         /// </summary>
-        /// <remarks>
-        /// Useful when resetting systems or shutting down the event entirely.
-        /// </remarks>
-        void CleanupSubscriptions();
+        int SubscriberCount { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        long PublishCount { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        DateTime LastPublishTime { get; }
+#endif
     }
 
     /// <summary>
@@ -86,6 +95,13 @@ namespace Nomad.Core.Events
     public interface IGameEvent<TArgs> : IGameEvent
         where TArgs : struct
     {
+#if DEBUG
+        /// <summary>
+        /// 
+        /// </summary>
+        TArgs LastPayload { get; }
+#endif
+
         /// <summary>
         /// Occurs when <see cref="Publish"/> is invoked.
         /// </summary>
@@ -119,38 +135,28 @@ namespace Nomad.Core.Events
         /// <summary>
         /// Subscribes an asynchronous callback to this event.
         /// </summary>
-        /// <param name="owner">The object that owns this subscription.</param>
         /// <param name="asyncCallback">The callback invoked when the event is published asynchronously.</param>
         /// <returns>A subscription handle that can be used to manage the subscription.</returns>
-        ISubscriptionHandle SubscribeAsync(object owner, AsyncEventCallback<TArgs> asyncCallback);
+        ISubscriptionHandle SubscribeAsync(AsyncEventCallback<TArgs> asyncCallback);
 
         /// <summary>
         /// Subscribes a synchronous callback to this event.
         /// </summary>
-        /// <param name="owner">The object that owns this subscription.</param>
         /// <param name="callback">The callback invoked when the event is published synchronously.</param>
         /// <returns>A subscription handle that can be used to manage the subscription.</returns>
-        ISubscriptionHandle Subscribe(object owner, EventCallback<TArgs> callback);
+        ISubscriptionHandle Subscribe(EventCallback<TArgs> callback);
 
         /// <summary>
-        /// Unsubscribes a specific asynchronous callback for the specified owner.
+        /// Unsubscribes a specific asynchronous callback.
         /// </summary>
-        /// <param name="owner">The subscription owner.</param>
         /// <param name="asyncCallback">The asynchronous callback to remove.</param>
-        void UnsubscribeAsync(object owner, AsyncEventCallback<TArgs> asyncCallback);
+        void UnsubscribeAsync(AsyncEventCallback<TArgs> asyncCallback);
 
         /// <summary>
-        /// Unsubscribes a specific synchronous callback for the specified owner.
+        /// Unsubscribes a specific synchronous callback.
         /// </summary>
-        /// <param name="owner">The subscription owner.</param>
         /// <param name="callback">The callback to remove.</param>
-        void Unsubscribe(object owner, EventCallback<TArgs> callback);
-
-        /// <summary>
-        /// Unsubscribes all callbacks associated with the specified owner.
-        /// </summary>
-        /// <param name="owner">The owner whose subscriptions should be removed.</param>
-        void UnsubscribeAll(object owner);
+        void Unsubscribe(EventCallback<TArgs> callback);
 
 #if NET7_OR_GREATER
         /// <summary>

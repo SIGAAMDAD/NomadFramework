@@ -109,7 +109,7 @@ namespace Nomad.Save.Private.ValueObjects {
 			Checksum loadedChecksum = new Checksum( stream.ReadUInt64() );
 
 			long position = stream.Position;
-			Checksum actualChecksum = Checksum.Compute( stream.Buffer!.GetSlice( stream.Position, byteLength ) );
+			Checksum actualChecksum = Checksum.Compute( stream.Buffer!.GetSlice( (int)stream.Position, byteLength ) );
 			if ( loadedChecksum != actualChecksum ) {
 				throw new SectionCorruptException( null, index, stream.Position, $"Section checksum64 does not match the value found in the save file data ({loadedChecksum.Value} != {actualChecksum.Value})" );
 			}

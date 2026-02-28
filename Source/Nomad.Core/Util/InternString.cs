@@ -15,6 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using Nomad.Core.Memory;
 using System;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace Nomad.Core.Util
@@ -41,9 +42,22 @@ namespace Nomad.Core.Util
     /// without boxing. See the remarks on the <see cref="Equals(InternString)"/> method for details.
     /// </para>
     /// </remarks>
+    [DebuggerDisplay("{ToString()}")]
     public readonly struct InternString : IEquatable<InternString>
     {
-        private readonly int _id;
+        /// <summary>
+        /// Gets an empty <see cref="InternString"/> instance.
+        /// </summary>
+        /// <value>
+        /// An <see cref="InternString"/> instance representing an empty string.
+        /// </value>
+        /// <remarks>
+        /// The empty <see cref="InternString"/> has an identifier of 0, which is
+        /// reserved for the empty string in the string pool.
+        /// </remarks>
+        public static readonly InternString Empty = new InternString();
+
+        private readonly ulong _id;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InternString"/> struct with a specific identifier.
@@ -61,7 +75,7 @@ namespace Nomad.Core.Util
         /// undefined behavior when the string is accessed.
         /// </para>
         /// </remarks>
-        public InternString(int id) => _id = id;
+        internal InternString(ulong id) => _id = id;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InternString"/> struct from a character span.
@@ -77,19 +91,7 @@ namespace Nomad.Core.Util
         /// is not already present.
         /// </para>
         /// </remarks>
-        public InternString(ReadOnlySpan<char> value) => _id = StringPool.Intern(value);
-
-        /// <summary>
-        /// Gets an empty <see cref="InternString"/> instance.
-        /// </summary>
-        /// <value>
-        /// An <see cref="InternString"/> instance representing an empty string.
-        /// </value>
-        /// <remarks>
-        /// The empty <see cref="InternString"/> has an identifier of 0, which is
-        /// reserved for the empty string in the string pool.
-        /// </remarks>
-        public static readonly InternString Empty = new InternString();
+        public InternString(string? value) => _id = StringPool.Intern(value);
 
         /// <summary>
         /// Determines whether this instance and another specified <see cref="InternString"/> are equal.
@@ -150,7 +152,14 @@ namespace Nomad.Core.Util
         /// </para>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override int GetHashCode() => _id;
+        public override int GetHashCode() => _id.GetHashCode();
+
+        /// <summary>
+        /// Converts the interned string to a <see cref="string"/>.
+        /// </summary>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override string? ToString() => this;
 
         /// <summary>
         /// Converts an <see cref="InternString"/> to a regular string.
@@ -172,7 +181,7 @@ namespace Nomad.Core.Util
         /// </para>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator string(InternString value) => StringPool.FromInterned(value) ?? String.Empty;
+        public static implicit operator string?(InternString value) => StringPool.TryGetString(value, out string? str) ? str : string.Empty;
 
         /// <summary>
         /// Converts an <see cref="InternString"/> to its integer identifier.
@@ -184,7 +193,7 @@ namespace Nomad.Core.Util
         /// which can be useful for serialization or low-level operations.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator int(InternString value) => value._id;
+        public static implicit operator ulong(InternString value) => value._id;
 
         /// <summary>
         /// Determines whether two <see cref="InternString"/> instances are equal.

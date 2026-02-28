@@ -26,9 +26,8 @@ namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="Name"></param>
 	
-	internal record SteamAppData(
-		AppId_t AppId
-	);
+	internal record SteamAppData {
+		public AppId_t AppId { get; init; }
+	};
 };

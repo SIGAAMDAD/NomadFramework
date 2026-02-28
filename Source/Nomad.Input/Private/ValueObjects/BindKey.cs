@@ -42,6 +42,16 @@ namespace Nomad.Input.Private.ValueObjects {
 
 		private readonly int _hashCode;
 
+		/*
+		===============
+		BindKey
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="name"></param>
+		/// <param name="inputData"></param>
 		public BindKey( InternString name, InputEventData inputData ) {
 			Name = name;
 			InputData = inputData;

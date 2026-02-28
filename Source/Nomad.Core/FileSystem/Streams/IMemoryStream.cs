@@ -13,7 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Nomad.Core.Util;
+using Nomad.Core.Memory.Buffers;
 
 namespace Nomad.Core.FileSystem.Streams
 {

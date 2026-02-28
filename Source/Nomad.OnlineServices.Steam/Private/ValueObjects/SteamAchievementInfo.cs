@@ -83,6 +83,7 @@ namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
 		/// Sets the achievement icon from the fetched data.
 		/// </summary>
 		/// <param name="pAchievement">The achievement data fetched from Steam.</param>
+		/// <param name="service"></param>
 		public void SetIcon( UserAchievementIconFetched_t pAchievement, IEngineService service ) {
 			SteamUtils.GetImageSize( pAchievement.m_nIconHandle, out uint width, out uint height );
 

@@ -16,9 +16,12 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
+using Nomad.Core.CVars;
+using Nomad.Core.Exceptions;
+using Nomad.Core.FileSystem;
+using Nomad.Input.Interfaces;
+using Nomad.Input.Private.Services;
 using Nomad.Input.Private.ValueObjects;
-using Nomad.Input.ValueObjects;
 
 namespace Nomad.Input.Private.Repositories {
 	/*
@@ -33,10 +36,13 @@ namespace Nomad.Input.Private.Repositories {
 	/// </summary>
 	
 	internal sealed class BindRepository : IDisposable {
-		private readonly Dictionary<BindKey, Binding> _bindings;
+		private readonly Dictionary<BindKey, IInputAction> _bindings;
 		private readonly Dictionary<InputEventData, BindKey> _bindTriggers;
 
-		private readonly ImmutableDictionary<BindKey, Binding> _defaultMap;
+		private readonly ImmutableArray<InputEventData, IInputBinding> _defaultMap;
+		private readonly BindLoader _loader;
+
+		private bool _isDisposed = false;
 
 		/*
 		===============
@@ -46,11 +52,16 @@ namespace Nomad.Input.Private.Repositories {
 		/// <summary>
 		/// 
 		/// </summary>
-		public BindRepository( ImmutableDictionary<BindKey, Binding> defaults ) {
-			_bindings = new Dictionary<BindKey, Binding>();
-			_bindTriggers = new Dictionary<InputEventData, BindKey>();
+		/// <param name="fileSystem"></param>
+		/// <param name="cvarSystem"></param>
+		public BindRepository( IFileSystem fileSystem, ICVarSystemService cvarSystem ) {
+			_loader = new BindLoader( fileSystem );
 
-			_defaultMap = defaults;
+			var defaultsPath = cvarSystem.GetCVar<string>( Constants.CVars.DEFAULTS_PATH ) ?? throw new CVarMissing( Constants.CVars.DEFAULTS_PATH );
+			_loader.LoadBindDatabase( defaultsPath.Value, out var defaults );
+			if ( defaults == null ) {
+				// TODO: throw error
+			}
 		}
 
 		/*
@@ -62,56 +73,25 @@ namespace Nomad.Input.Private.Repositories {
 		/// 
 		/// </summary>
 		public void Dispose() {
-		}
-
-		/*
-		===============
-		TryGetBind
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="key"></param>
-		/// <param name="binding"></param>
-		/// <returns></returns>
-		public bool TryGetBind( in InputEventData key, out Binding? binding ) {
-			if ( _bindTriggers.TryGetValue( key, out var bindKey ) ) {
-				binding = _bindings[ bindKey ];
-				return true;
+			if ( !_isDisposed ) {
 			}
-			binding = null;
-			return false;
-		}
-		
-		/*
-		===============
-		SetBindingTrigger
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="bindId"></param>
-		/// <param name="trigger"></param>
-		public void SetBindingTrigger( in BindKey bindId, in InputEventData trigger ) {
-			_bindTriggers[ trigger ] = bindId;
+			GC.SuppressFinalize( this );
+			_isDisposed = true;
 		}
 
-		/*
-		===============
-		Reset
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		public void Reset() {
-			_bindings.Clear();
-			_bindings.EnsureCapacity( _defaultMap.Count );
+		public IInputAction? MapInput( InputEventData eventData ) {
+			switch ( eventData.Type ) {
+				case InputType.Keyboard:
 
-			foreach ( var binding in _defaultMap ) {
-				_bindings[ binding.Key ] = binding.Value;
+					break;
+				case InputType.GamepadButton:
+					break;
+				case InputType.GamepadMotion:
+					break;
+				case InputType.MouseButton:
+					break;
+				case InputType.MouseMotion:
+					break;
 			}
 		}
 	};

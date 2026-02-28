@@ -65,15 +65,16 @@ namespace Nomad.CVars.Private.ValueObjects {
 		===============
 		*/
 		/// <summary>
-		/// Ensures the provided <paramref name="name"/> string doesn't contain any invalid non alphanumeric characters
+		/// Ensures the provided <paramref name="name"/> string doesn't contain any invalid non alphanumeric characters.
 		/// </summary>
-		/// <param name="name">The name to check</param>
-		/// <returns>Returns true if the name is valid</returns>
+		/// <param name="name">The name to check.</param>
+		/// <returns>Returns true if the name is valid.</returns>
 		public static bool IsValidName( string name ) {
 			if ( string.IsNullOrEmpty( name ) ) {
 				return false;
+			} else if ( name[ 0 ] == '.' || name[ name.Length - 1 ] == '.' ) {
+				return false;
 			}
-
 			for ( int i = 0; i < name.Length; i++ ) {
 				if ( !IsValidNameCharacter( name[ i ] ) ) {
 					return false;

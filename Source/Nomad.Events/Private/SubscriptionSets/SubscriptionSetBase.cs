@@ -15,8 +15,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.Events;
 using Nomad.Core.Logger;
@@ -32,6 +30,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 	/// <summary>
 	///
 	/// </summary>
+	/// TODO: finish this as the base class for all subscription sets, we have duplicated behaviors
 
 	internal abstract class SubscriptionSetBase<TArgs> : IDisposable
 		where TArgs : struct
@@ -39,8 +38,8 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		protected readonly ILoggerService logger;
 		protected readonly IGameEvent<TArgs> eventData;
 
-		protected readonly SubscriptionCache<TArgs> genericSubscriptions;
-		protected readonly SubscriptionCache<TArgs>? asyncSubscriptions;
+		protected readonly SubscriptionCache<TArgs, EventCallback<TArgs>> genericSubscriptions;
+		protected readonly SubscriptionCache<TArgs, AsyncEventCallback<TArgs>>? asyncSubscriptions;
 		protected readonly HashSet<WeakReference<IGameEvent>> friends = new HashSet<WeakReference<IGameEvent>>();
 
 		protected bool isDisposed = false;
@@ -63,10 +62,6 @@ namespace Nomad.Events.Private.SubscriptionSets {
 
 			this.eventData = eventData;
 			this.logger = logger;
-			genericSubscriptions = new SubscriptionCache<TArgs>( logger );
-			if ( SupportsAsync ) {
-				asyncSubscriptions = new SubscriptionCache<TArgs>( logger );
-			}
 		}
 
 		#region Locking hooks

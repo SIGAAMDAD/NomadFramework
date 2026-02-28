@@ -22,7 +22,7 @@ using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.Exceptions;
 using Nomad.Core.FileSystem;
 using Nomad.Core.FileSystem.Streams;
-using Nomad.Core.Util;
+using Nomad.Core.Memory.Buffers;
 
 namespace Nomad.FileSystem.Global
 {

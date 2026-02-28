@@ -3,13 +3,13 @@
   <PropertyGroup>
     <!-- NuGet Package Information -->
     <PackageId>NomadFramework.Nomad.Input</PackageId>
+    <Version>0.0.1-alpha1</Version>
   </PropertyGroup>
   
   <!-- SPECIAL PROPS -->
 
   <PropertyGroup>
     <!-- Performance -->
-    <PubishAOT>true</PubishAOT>
     <TieredCompilation>true</TieredCompilation>
     <Deterministic>true</Deterministic>
     <UseSharedCompilation>true</UseSharedCompilation>
@@ -22,6 +22,10 @@
     <ProjectReference Include="..\Nomad.Events\Nomad.Events.csproj" />
     <ProjectReference Include="..\Nomad.Logger\Nomad.Logger.csproj" />
     <ProjectReference Include="..\Nomad.CVars\Nomad.CVars.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="10.0.3" />
   </ItemGroup>
 
 </Project>

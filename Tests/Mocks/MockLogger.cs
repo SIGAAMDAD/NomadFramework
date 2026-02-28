@@ -17,7 +17,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using Nomad.Core.CVars;
 using Nomad.Core.Logger;
-using Nomad.Core.ServiceRegistry.Interfaces;
 
 public class MockLogger : ILoggerService
 {

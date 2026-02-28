@@ -65,11 +65,11 @@ public class CVarTypeTests
 	public void CreateCVar_WithCorrectType_MatchesExpectedType<T>(T value, CVarType type)
 	{
 		// Arrange
-		var createInfo = new CVarCreateInfo<T>(
-			Name: "TestCVar",
-			DefaultValue: value,
-			Description: "A test cvar."
-		);
+		var createInfo = new CVarCreateInfo<T> {
+			Name = "TestCVar",
+			DefaultValue = value,
+			Description = "A test cvar."
+		};
 
 		// Act
 		var cvar = _cvarSystem.Register(createInfo);
@@ -89,11 +89,11 @@ public class CVarTypeTests
 	public void CreateCVar_WithInvalidPrimitiveType_ThrowsInvalidCastException<T>(T value)
 	{
 		// Arrange
-		var createInfo = new CVarCreateInfo<T>(
-			Name: "TestCVar",
-			DefaultValue: value,
-			Description: "A test cvar."
-		);
+		var createInfo = new CVarCreateInfo<T> {
+			Name = "TestCVar",
+			DefaultValue = value,
+			Description = "A test cvar."
+		};
 
 		// Assert
 		Assert.Throws<InvalidCastException>(

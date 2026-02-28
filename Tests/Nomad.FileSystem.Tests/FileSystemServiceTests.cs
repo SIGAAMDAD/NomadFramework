@@ -13,7 +13,7 @@ using Nomad.FileSystem.Private.Services;
 using Nomad.FileSystem.Private.FileStream;
 using Nomad.FileSystem.Private.MemoryStream;
 using System.Linq;
-using Nomad.Core.Util.BufferHandles;
+using Nomad.Core.Memory.Buffers;
 using Nomad.Core.FileSystem.Configs;
 
 namespace Nomad.FileSystem.Tests
@@ -82,13 +82,13 @@ namespace Nomad.FileSystem.Tests
 		[Test]
 		public void Constructor_NullEngine_ThrowsArgumentNullException()
 		{
-			Assert.Throws<ArgumentNullException>(() => new FileSystemService(null, _loggerMock.Object));
+			Assert.Throws<ArgumentNullException>(() => new FileSystemService(null!, _loggerMock.Object));
 		}
 
 		[Test]
 		public void Constructor_NullLogger_ThrowsArgumentNullException()
 		{
-			Assert.Throws<ArgumentNullException>(() => new FileSystemService(_engineMock.Object, null));
+			Assert.Throws<ArgumentNullException>(() => new FileSystemService(_engineMock.Object, null!));
 		}
 
 		#region Basic File/Directory Operations
@@ -177,7 +177,7 @@ namespace Nomad.FileSystem.Tests
 		{
 			using (Assert.EnterMultipleScope())
 			{
-				Assert.That(_service.DirectoryExists(null), Is.False);
+				Assert.That(_service.DirectoryExists(null!), Is.False);
 				Assert.That(_service.DirectoryExists(""), Is.False);
 			}
 		}
@@ -369,7 +369,7 @@ namespace Nomad.FileSystem.Tests
 		[Test]
 		public void OpenRead_NullPath_ThrowsArgumentException()
 		{
-			var config = new FileReadConfig{ FilePath = null };
+			var config = new FileReadConfig{ FilePath = null! };
 			Assert.Throws<ArgumentException>(() => _service.OpenRead(config));
 		}
 
@@ -453,7 +453,7 @@ namespace Nomad.FileSystem.Tests
 		[Test]
 		public void OpenWrite_NullPath_ThrowsArgumentException()
 		{
-			var config = new FileWriteConfig{ FilePath = null, Append = false };
+			var config = new FileWriteConfig{ FilePath = null!, Append = false };
 			Assert.Throws<ArgumentNullException>(() => _service.OpenWrite(config));
 		}
 
@@ -492,7 +492,7 @@ namespace Nomad.FileSystem.Tests
 			using var handle = _service.LoadFile(path);
 			Assert.That(handle, Is.TypeOf<PooledBufferHandle>());
 			Assert.That(handle.Length, Is.EqualTo(expected.Length));
-			Assert.That(handle.Buffer.Take((int)handle.Length), Is.EqualTo(expected));
+			Assert.That(handle.ToArray().Take((int)handle.Length), Is.EqualTo(expected));
 		}
 
 		[Test]
@@ -509,8 +509,8 @@ namespace Nomad.FileSystem.Tests
 			File.WriteAllBytes(path, expected);
 
 			using var handle = await _service.LoadFileAsync(path);
-			Assert.That(handle.Length, Is.EqualTo(expected.Length));
-			Assert.That(handle.Buffer.Take((int)handle.Length), Is.EqualTo(expected));
+			Assert.That(handle!.Length, Is.EqualTo(expected.Length));
+			Assert.That(handle.ToArray().Take(handle.Length), Is.EqualTo(expected));
 		}
 
 		#endregion

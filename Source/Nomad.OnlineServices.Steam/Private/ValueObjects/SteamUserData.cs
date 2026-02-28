@@ -19,18 +19,8 @@ namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
 	/// <summary>
 	/// 
 	/// </summary>
-	internal readonly struct SteamUserData {
-		public readonly CSteamID UserID;
-		public readonly string UserName;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="userId"></param>
-		/// <param name="userName"></param>
-		public SteamUserData(CSteamID userId, string userName) {
-			UserID = userId;
-			UserName = userName;
-		}
+	internal record SteamUserData {
+		public CSteamID UserID { get; init; }
+		public string UserName { get; init; }
 	};
 };

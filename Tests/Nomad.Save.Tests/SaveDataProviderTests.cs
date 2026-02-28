@@ -189,7 +189,7 @@ public class SaveDataProviderTests
         string fileId = "save_001";
         bool saveInvoked = false;
 
-        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
         {
             saveInvoked = true;
             var section = args.Writer.AddSection("TestSection");
@@ -212,13 +212,13 @@ public class SaveDataProviderTests
         int savedData = 123;
         bool loadedSuccessfully = false;
 
-        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
         {
             var section = args.Writer.AddSection("DataSection");
             section.AddField("SavedInt", savedData);
         });
 
-        _loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
+        _loadBegin.Subscribe((in LoadBeginEventArgs args) =>
         {
             var section = args.Reader.FindSection("DataSection");
             if (section != null)
@@ -253,7 +253,7 @@ public class SaveDataProviderTests
         string fileId = "overwrite_test";
         int saveCount = 0;
 
-        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
         {
             saveCount++;
             var section = args.Writer.AddSection("SaveCount");
@@ -288,7 +288,7 @@ public class SaveDataProviderTests
         string fileId1 = "save_001";
         string fileId2 = "save_002";
 
-        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
         {
             var section = args.Writer.AddSection("TestSection");
             section.AddField("TestValue", 1);
@@ -311,7 +311,7 @@ public class SaveDataProviderTests
         bool section1Found = false;
         bool section2Found = false;
 
-        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
         {
             var section1 = args.Writer.AddSection("Section1");
             section1.AddField("Value1", 100);
@@ -320,7 +320,7 @@ public class SaveDataProviderTests
             section2.AddField("Value2", 200);
         });
 
-        _loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
+        _loadBegin.Subscribe((in LoadBeginEventArgs args) =>
         {
             section1Found = args.Reader.FindSection("Section1") != null;
             section2Found = args.Reader.FindSection("Section2") != null;

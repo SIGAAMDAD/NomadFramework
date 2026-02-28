@@ -22,324 +22,323 @@ using Nomad.Events;
 using Nomad.Events.Private;
 using Nomad.Events.Private.SubscriptionSets;
 
-namespace Nomad.Events.Tests;
-
-/// <summary>
-/// Tests for EventFlags and event configuration options
-/// </summary>
-[TestFixture]
-public class EventFlagsTests
+namespace Nomad.Events.Tests
 {
-	private ILoggerService _logger;
-	private IGameEventRegistryService _registry;
-
-	[SetUp]
-	public void Setup()
+	/// <summary>
+	/// Tests for EventFlags and event configuration options
+	/// </summary>
+	[TestFixture]
+	public class EventFlagsTests
 	{
-		_logger = new MockLogger();
-		_registry = new GameEventRegistry(_logger);
-	}
+		private ILoggerService _logger;
+		private IGameEventRegistryService _registry;
 
-	[TearDown]
-	public void TearDown()
-	{
-		_logger?.Dispose();
-		_registry?.Dispose();
-	}
-
-	#region EventFlags Enum Tests
-
-	[Test]
-	public void EventFlags_Synchronous_ValueIsSet()
-	{
-		// Act
-		uint value = (uint)EventFlags.Synchronous;
-
-		// Assert
-		Assert.That(value, Is.EqualTo(1u));
-	}
-
-	[Test]
-	public void EventFlags_Asynchronous_ValueIsSet()
-	{
-		// Act
-		uint value = (uint)EventFlags.Asynchronous;
-
-		// Assert
-		Assert.That(value, Is.EqualTo(2u));
-	}
-
-	[Test]
-	public void EventFlags_StrongSubscriptions_ValueIsSet()
-	{
-		// Act
-		uint value = (uint)EventFlags.StrongSubscriptions;
-
-		// Assert
-		Assert.That(value, Is.EqualTo(4u));
-	}
-
-	[Test]
-	public void EventFlags_NoLock_ValueIsSet()
-	{
-		// Act
-		uint value = (uint)EventFlags.NoLock;
-
-		// Assert
-		Assert.That(value, Is.EqualTo(8u));
-	}
-
-	[Test]
-	public void EventFlags_Default_ContainsSynchronousAndAsynchronous()
-	{
-		// Act
-		EventFlags defaultFlags = EventFlags.Default;
-		bool hasSynchronous = (defaultFlags & EventFlags.Synchronous) != 0;
-		bool hasAsynchronous = (defaultFlags & EventFlags.Asynchronous) != 0;
-
-		using (Assert.EnterMultipleScope())
+		[SetUp]
+		public void Setup()
 		{
-			// Assert
-			Assert.That(hasSynchronous, Is.True);
-			Assert.That(hasAsynchronous, Is.True);
+			_logger = new MockLogger();
+			_registry = new GameEventRegistry(_logger);
 		}
-	}
 
-	#endregion
-
-	#region Flag Combination Tests
-
-	[Test]
-	public void EventFlags_CanCombineFlags()
-	{
-		// Act
-		EventFlags combined = EventFlags.Synchronous | EventFlags.StrongSubscriptions;
-		bool hasSync = (combined & EventFlags.Synchronous) != 0;
-		bool hasStrong = (combined & EventFlags.StrongSubscriptions) != 0;
-
-		using (Assert.EnterMultipleScope())
+		[TearDown]
+		public void TearDown()
 		{
-			// Assert
-			Assert.That(hasSync, Is.True);
-			Assert.That(hasStrong, Is.True);
+			_logger?.Dispose();
+			_registry?.Dispose();
 		}
-	}
 
-	[Test]
-	public void EventFlags_CanCheckForFlag()
-	{
-		// Arrange
-		EventFlags flags = EventFlags.Synchronous | EventFlags.Asynchronous;
+		#region EventFlags Enum Tests
 
-		// Act
-		bool hasSynchronous = (flags & EventFlags.Synchronous) != 0;
-		bool hasNoLock = (flags & EventFlags.NoLock) != 0;
-
-		using (Assert.EnterMultipleScope())
+		[Test]
+		public void EventFlags_Synchronous_ValueIsSet()
 		{
+			// Act
+			uint value = (uint)EventFlags.Synchronous;
+
 			// Assert
-			Assert.That(hasSynchronous, Is.True);
-			Assert.That(hasNoLock, Is.False);
+			Assert.That(value, Is.EqualTo(1u));
 		}
-	}
 
-	#endregion
-
-	#region Event Configuration Tests
-
-	[Test]
-	public void EventFlags_Default_CreatesAsyncCapableEvent()
-	{
-		// Arrange
-		var registry = new GameEventRegistry(_logger);
-
-		// Act
-		var gameEvent = registry.GetEvent<EmptyEventArgs>("Test", "Event");
-
-		// Assert
-		Assert.That(gameEvent, Is.Not.Null);
-
-		registry.Dispose();
-	}
-
-	#endregion
-
-	#region Flag Invalidation Tests
-
-	[Test]
-	public void EventFlags_SynchronousOnly_IsValid()
-	{
-		// Arrange
-		EventFlags flags = EventFlags.Synchronous;
-
-		// Act
-		bool isValid = flags != 0;
-
-		// Assert
-		Assert.That(isValid, Is.True);
-	}
-
-	[Test]
-	public void EventFlags_AsynchronousOnly_IsValid()
-	{
-		// Arrange
-		EventFlags flags = EventFlags.Asynchronous;
-
-		// Act
-		bool isValid = flags != 0;
-
-		// Assert
-		Assert.That(isValid, Is.True);
-	}
-
-	[Test]
-	public void EventFlags_NoLockOnly_DisablesAsync()
-	{
-		// Arrange
-		EventFlags flags = EventFlags.NoLock;
-
-		// Act
-		bool hasAsync = (flags & EventFlags.Asynchronous) != 0;
-
-		// Assert
-		Assert.That(hasAsync, Is.False);
-	}
-
-	#endregion
-
-	#region Flag Behavior Tests
-
-	[Test]
-	public void EventFlags_Synchronous_AllowsSynchronousCallbacks()
-	{
-		// Arrange
-		EventFlags flags = EventFlags.Synchronous;
-
-		// Act
-		bool allowsSync = (flags & EventFlags.Synchronous) != 0;
-
-		// Assert
-		Assert.That(allowsSync, Is.True);
-	}
-
-	[Test]
-	public void EventFlags_Asynchronous_AllowsAsyncCallbacks()
-	{
-		// Arrange
-		EventFlags flags = EventFlags.Asynchronous;
-
-		// Act
-		bool allowsAsync = (flags & EventFlags.Asynchronous) != 0;
-
-		// Assert
-		Assert.That(allowsAsync, Is.True);
-	}
-
-	[Test]
-	public void EventFlags_StrongSubscriptions_IndicatesStrongReferences()
-	{
-		// Arrange
-		EventFlags flags = EventFlags.StrongSubscriptions;
-
-		// Act
-		bool useStrong = (flags & EventFlags.StrongSubscriptions) != 0;
-
-		// Assert
-		Assert.That(useStrong, Is.True);
-	}
-
-	[Test]
-	public void EventFlags_NoLock_IndicatesLockFree()
-	{
-		// Arrange
-		EventFlags flags = EventFlags.NoLock;
-
-		// Act
-		bool isLockFree = (flags & EventFlags.NoLock) != 0;
-
-		// Assert
-		Assert.That(isLockFree, Is.True);
-	}
-
-	#endregion
-
-	#region Default Behavior Tests
-
-	[Test]
-	public void EventFlags_Default_SupportsBothSyncAndAsync()
-	{
-		// Arrange
-		EventFlags defaultFlags = EventFlags.Default;
-
-		// Act
-		bool hasSynchronous = (defaultFlags & EventFlags.Synchronous) != 0;
-		bool hasAsynchronous = (defaultFlags & EventFlags.Asynchronous) != 0;
-		bool hasNoLock = (defaultFlags & EventFlags.NoLock) != 0;
-
-		using (Assert.EnterMultipleScope())
+		[Test]
+		public void EventFlags_Asynchronous_ValueIsSet()
 		{
+			// Act
+			uint value = (uint)EventFlags.Asynchronous;
+
 			// Assert
-			Assert.That(hasSynchronous, Is.True);
-			Assert.That(hasAsynchronous, Is.True);
-			Assert.That(hasNoLock, Is.False);
+			Assert.That(value, Is.EqualTo(2u));
 		}
-	}
 
-	#endregion
-
-	#region Flag Exclusivity Tests
-
-	[Test]
-	public void EventFlags_FlagsAreDistinct()
-	{
-		// These flags should not interfere with each other when combined
-		EventFlags flags1 = EventFlags.Synchronous | EventFlags.StrongSubscriptions;
-		EventFlags flags2 = EventFlags.Asynchronous | EventFlags.NoLock;
-
-		// Act
-		bool flags1HasSync = (flags1 & EventFlags.Synchronous) != 0;
-		bool flags1HasStrong = (flags1 & EventFlags.StrongSubscriptions) != 0;
-		bool flags2HasAsync = (flags2 & EventFlags.Asynchronous) != 0;
-		bool flags2HasNoLock = (flags2 & EventFlags.NoLock) != 0;
-
-		using (Assert.EnterMultipleScope())
+		[Test]
+		public void EventFlags_StrongSubscriptions_ValueIsSet()
 		{
+			// Act
+			uint value = (uint)EventFlags.StrongSubscriptions;
+
 			// Assert
-			Assert.That(flags1HasSync, Is.True);
-			Assert.That(flags1HasStrong, Is.True);
-			Assert.That(flags2HasAsync, Is.True);
-			Assert.That(flags2HasNoLock, Is.True);
+			Assert.That(value, Is.EqualTo(4u));
 		}
-	}
 
-	#endregion
+		[Test]
+		public void EventFlags_NoLock_ValueIsSet()
+		{
+			// Act
+			uint value = (uint)EventFlags.NoLock;
 
-	[Test]
-	public void NoLock_UsesLockFreeSubscriptionSet()
-	{
-		// Arrange
-		var ev = _registry.GetEvent<EmptyEventArgs>("Test", "Event",
-			EventFlags.NoLock);
+			// Assert
+			Assert.That(value, Is.EqualTo(8u));
+		}
 
-		Assert.That(ev, Is.InstanceOf<GameEvent<EmptyEventArgs>>());
+		[Test]
+		public void EventFlags_Default_ContainsSynchronousAndAsynchronous()
+		{
+			// Act
+			EventFlags defaultFlags = EventFlags.Default;
+			bool hasSynchronous = (defaultFlags & EventFlags.Synchronous) != 0;
+			bool hasAsynchronous = (defaultFlags & EventFlags.Asynchronous) != 0;
 
-		// Assert
-		var typedEvent = (GameEvent<EmptyEventArgs>)ev;
-		Assert.That(typedEvent.SubscriptionSet, Is.TypeOf<LockFreeSubscriptionSet<EmptyEventArgs>>());
-	}
+			using (Assert.EnterMultipleScope())
+			{
+				// Assert
+				Assert.That(hasSynchronous, Is.True);
+				Assert.That(hasAsynchronous, Is.True);
+			}
+		}
 
-	[Test]
-	public void Async_UsesSubscriptionSet()
-	{
-		// Arrange
-		var ev = _registry.GetEvent<EmptyEventArgs>("Test", "Event",
-			EventFlags.Asynchronous);
+		#endregion
 
-		Assert.That(ev, Is.InstanceOf<GameEvent<EmptyEventArgs>>());
+		#region Flag Combination Tests
 
-		// Assert
-		var typedEvent = (GameEvent<EmptyEventArgs>)ev;
-		Assert.That(typedEvent.SubscriptionSet, Is.TypeOf<SubscriptionSet<EmptyEventArgs>>());
+		[Test]
+		public void EventFlags_CanCombineFlags()
+		{
+			// Act
+			EventFlags combined = EventFlags.Synchronous | EventFlags.StrongSubscriptions;
+			bool hasSync = (combined & EventFlags.Synchronous) != 0;
+			bool hasStrong = (combined & EventFlags.StrongSubscriptions) != 0;
+
+			using (Assert.EnterMultipleScope())
+			{
+				// Assert
+				Assert.That(hasSync, Is.True);
+				Assert.That(hasStrong, Is.True);
+			}
+		}
+
+		[Test]
+		public void EventFlags_CanCheckForFlag()
+		{
+			// Arrange
+			EventFlags flags = EventFlags.Synchronous | EventFlags.Asynchronous;
+
+			// Act
+			bool hasSynchronous = (flags & EventFlags.Synchronous) != 0;
+			bool hasNoLock = (flags & EventFlags.NoLock) != 0;
+
+			using (Assert.EnterMultipleScope())
+			{
+				// Assert
+				Assert.That(hasSynchronous, Is.True);
+				Assert.That(hasNoLock, Is.False);
+			}
+		}
+
+		#endregion
+
+		#region Event Configuration Tests
+
+		[Test]
+		public void EventFlags_Default_CreatesAsyncCapableEvent()
+		{
+			// Arrange
+			var registry = new GameEventRegistry(_logger);
+
+			// Act
+			var gameEvent = registry.GetEvent<EmptyEventArgs>("Test", "Event");
+
+			// Assert
+			Assert.That(gameEvent, Is.Not.Null);
+
+			registry.Dispose();
+		}
+
+		#endregion
+
+		#region Flag Invalidation Tests
+
+		[Test]
+		public void EventFlags_SynchronousOnly_IsValid()
+		{
+			// Arrange
+			EventFlags flags = EventFlags.Synchronous;
+
+			// Act
+			bool isValid = flags != 0;
+
+			// Assert
+			Assert.That(isValid, Is.True);
+		}
+
+		[Test]
+		public void EventFlags_AsynchronousOnly_IsValid()
+		{
+			// Arrange
+			EventFlags flags = EventFlags.Asynchronous;
+
+			// Act
+			bool isValid = flags != 0;
+
+			// Assert
+			Assert.That(isValid, Is.True);
+		}
+
+		[Test]
+		public void EventFlags_NoLockOnly_DisablesAsync()
+		{
+			// Arrange
+			EventFlags flags = EventFlags.NoLock;
+
+			// Act
+			bool hasAsync = (flags & EventFlags.Asynchronous) != 0;
+
+			// Assert
+			Assert.That(hasAsync, Is.False);
+		}
+
+		#endregion
+
+		#region Flag Behavior Tests
+
+		[Test]
+		public void EventFlags_Synchronous_AllowsSynchronousCallbacks()
+		{
+			// Arrange
+			EventFlags flags = EventFlags.Synchronous;
+
+			// Act
+			bool allowsSync = (flags & EventFlags.Synchronous) != 0;
+
+			// Assert
+			Assert.That(allowsSync, Is.True);
+		}
+
+		[Test]
+		public void EventFlags_Asynchronous_AllowsAsyncCallbacks()
+		{
+			// Arrange
+			EventFlags flags = EventFlags.Asynchronous;
+
+			// Act
+			bool allowsAsync = (flags & EventFlags.Asynchronous) != 0;
+
+			// Assert
+			Assert.That(allowsAsync, Is.True);
+		}
+
+		[Test]
+		public void EventFlags_StrongSubscriptions_IndicatesStrongReferences()
+		{
+			// Arrange
+			EventFlags flags = EventFlags.StrongSubscriptions;
+
+			// Act
+			bool useStrong = (flags & EventFlags.StrongSubscriptions) != 0;
+
+			// Assert
+			Assert.That(useStrong, Is.True);
+		}
+
+		[Test]
+		public void EventFlags_NoLock_IndicatesLockFree()
+		{
+			// Arrange
+			EventFlags flags = EventFlags.NoLock;
+
+			// Act
+			bool isLockFree = (flags & EventFlags.NoLock) != 0;
+
+			// Assert
+			Assert.That(isLockFree, Is.True);
+		}
+
+		#endregion
+
+		#region Default Behavior Tests
+
+		[Test]
+		public void EventFlags_Default_SupportsBothSyncAndAsync()
+		{
+			// Arrange
+			EventFlags defaultFlags = EventFlags.Default;
+
+			// Act
+			bool hasSynchronous = (defaultFlags & EventFlags.Synchronous) != 0;
+			bool hasAsynchronous = (defaultFlags & EventFlags.Asynchronous) != 0;
+			bool hasNoLock = (defaultFlags & EventFlags.NoLock) != 0;
+
+			using (Assert.EnterMultipleScope())
+			{
+				// Assert
+				Assert.That(hasSynchronous, Is.True);
+				Assert.That(hasAsynchronous, Is.True);
+				Assert.That(hasNoLock, Is.False);
+			}
+		}
+
+		#endregion
+
+		#region Flag Exclusivity Tests
+
+		[Test]
+		public void EventFlags_FlagsAreDistinct()
+		{
+			// These flags should not interfere with each other when combined
+			EventFlags flags1 = EventFlags.Synchronous | EventFlags.StrongSubscriptions;
+			EventFlags flags2 = EventFlags.Asynchronous | EventFlags.NoLock;
+
+			// Act
+			bool flags1HasSync = (flags1 & EventFlags.Synchronous) != 0;
+			bool flags1HasStrong = (flags1 & EventFlags.StrongSubscriptions) != 0;
+			bool flags2HasAsync = (flags2 & EventFlags.Asynchronous) != 0;
+			bool flags2HasNoLock = (flags2 & EventFlags.NoLock) != 0;
+
+			using (Assert.EnterMultipleScope())
+			{
+				// Assert
+				Assert.That(flags1HasSync, Is.True);
+				Assert.That(flags1HasStrong, Is.True);
+				Assert.That(flags2HasAsync, Is.True);
+				Assert.That(flags2HasNoLock, Is.True);
+			}
+		}
+
+		#endregion
+
+		[Test]
+		public void NoLock_UsesLockFreeSubscriptionSet()
+		{
+			// Arrange
+			var ev = _registry.GetEvent<EmptyEventArgs>("Test", "Event", EventFlags.NoLock);
+
+			Assert.That(ev, Is.InstanceOf<GameEvent<EmptyEventArgs>>());
+
+			// Assert
+			var typedEvent = (GameEvent<EmptyEventArgs>)ev;
+			Assert.That(typedEvent.SubscriptionSet, Is.TypeOf<LockFreeSubscriptionSet<EmptyEventArgs>>());
+		}
+
+		[Test]
+		public void Async_UsesSubscriptionSet()
+		{
+			// Arrange
+			var ev = _registry.GetEvent<EmptyEventArgs>("Test", "Event", EventFlags.Asynchronous);
+
+			Assert.That(ev, Is.InstanceOf<GameEvent<EmptyEventArgs>>());
+
+			// Assert
+			var typedEvent = (GameEvent<EmptyEventArgs>)ev;
+			Assert.That(typedEvent.SubscriptionSet, Is.TypeOf<SubscriptionSet<EmptyEventArgs>>());
+		}
 	}
 }
 #endif

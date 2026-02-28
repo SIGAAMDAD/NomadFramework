@@ -21,6 +21,8 @@ using Nomad.Core.Compatibility.Guards;
 using System.Collections.Generic;
 using Nomad.Core.CVars;
 using Nomad.CVars.Private.ValueObjects;
+using Nomad.Core.Exceptions;
+using Nomad.CVars.Exceptions;
 
 namespace Nomad.CVars.Private.Entities {
 	/*
@@ -39,7 +41,7 @@ namespace Nomad.CVars.Private.Entities {
 		/// The current value of the CVar.
 		/// </summary>
 		public T Value {
-			get => _converter.GetValue<T>();
+			get => _converter.Value;
 			set => Set( value );
 		}
 
@@ -57,12 +59,12 @@ namespace Nomad.CVars.Private.Entities {
 		/// <summary>
 		/// Name of the CVar, should preferrably be prefixed with the system it's tied to, for instance: display.WindowMode
 		/// </summary>
-		public string Name => _metadata.Name;
+		public string Name => (string)_metadata.Name;
 
 		/// <summary>
 		/// A description of what the CVar does or impacts. Can be empty but preferrably shouldn't be.
 		/// </summary>
-		public string Description => _metadata.Description;
+		public string Description => (string)_metadata.Description;
 
 		/// <summary>
 		/// The CVar's flags (permissions, abilities, capabilities).
@@ -89,9 +91,19 @@ namespace Nomad.CVars.Private.Entities {
 		/// </summary>
 		public bool IsHidden => _metadata.IsHidden;
 
+		/// <summary>
+		/// 
+		/// </summary>
+		public bool IsDeveloper => _metadata.IsDeveloper;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public bool IsInitializationOnly => _metadata.IsInitializationOnly;
+
 		private readonly CVarMetadata _metadata;
 		private readonly CVarValidator<T> _validator;
-		private readonly CVarConverter<T> _converter;
+		private CVarConverter<T> _converter;
 
 		/// <summary>
 		/// Event triggered the <see cref="Value"/> changes.
@@ -110,6 +122,9 @@ namespace Nomad.CVars.Private.Entities {
 		/// <param name="eventFactory"></param>
 		/// <param name="createInfo"></param>
 		internal CVar( IGameEventRegistryService eventFactory, in CVarCreateInfo<T> createInfo ) {
+			ArgumentGuard.ThrowIfNullOrEmpty( createInfo.Name );
+			ArgumentGuard.ThrowIfNull( createInfo.Description );
+
 			_validator = new CVarValidator<T>( createInfo.Validator );
 			if ( !CVarValidator<T>.ValidateCVarType() ) {
 				throw new InvalidCastException( "Invalid CVar type!" );
@@ -154,7 +169,7 @@ namespace Nomad.CVars.Private.Entities {
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void SetFromString( string value ) {
 			ArgumentGuard.ThrowIfNull( value );
-			if ( !CVarConverter<T>.TryConvertStringToType( value, typeof( T ), out object convertedValue ) ) {
+			if ( !CVarStringConverter.TryParse( value, typeof( T ), out object convertedValue ) ) {
 				throw new ArgumentException( $"Failed to convert cvar value '{value}' to type {typeof( T ).Name}" );
 			}
 			Value = (T)convertedValue;
@@ -171,11 +186,11 @@ namespace Nomad.CVars.Private.Entities {
 		/// <param name="value">The new value of the CVar.</param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void Set( T value ) {
-			if ( IsReadOnly || !_validator.ValidateValue( value ) || EqualityComparer<T>.Default.Equals( _converter.GetValue<T>(), value ) ) {
+			if ( IsReadOnly || !_validator.ValidateValue( value ) || EqualityComparer<T>.Default.Equals( _converter.Value, value ) ) {
 				return;
 			}
-			T? old = _converter.GetValue<T>();
-			_converter.SetValue( value );
+			T old = _converter.Value;
+			_converter.Value = value;
 			_valueChanged.Publish( new CVarValueChangedEventArgs<T>( old, value ) );
 		}
 
@@ -212,39 +227,62 @@ namespace Nomad.CVars.Private.Entities {
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <typeparam name="T1"></typeparam>
-		/// <returns></returns>
-		public T1 GetValue<T1>() => _converter.GetValue<T1>();
+		/// <param name="value"></param>
+		/// <exception cref="CVarTypeMismatchException"></exception>
+		public void SetDecimalValue( float value ) {
+			if ( _metadata.Type != CVarType.Decimal ) {
+				throw new CVarTypeMismatchException( typeof( float ), _metadata.Type.GetSystemType() );
+			}
+			Set( Unsafe.As<float, T>( ref value ) );
+		}
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <param name="value"></param>
-		public void SetDecimalValue( float value ) => _converter.SetDecimalValue( value );
+		/// <exception cref="CVarTypeMismatchException"></exception>
+		public void SetIntegerValue( int value ) {
+			if ( _metadata.Type != CVarType.Int ) {
+				throw new CVarTypeMismatchException( typeof( int ), _metadata.Type.GetSystemType() );
+			}
+			Set( Unsafe.As<int, T>( ref value ) );
+		}
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <param name="value"></param>
-		public void SetIntegerValue( int value ) => _converter.SetIntegerValue( value );
+		/// <exception cref="CVarTypeMismatchException"></exception>
+		public void SetUIntegerValue( uint value ) {
+			if ( _metadata.Type != CVarType.UInt ) {
+				throw new CVarTypeMismatchException( typeof( uint ), _metadata.Type.GetSystemType() );
+			}
+			Set( Unsafe.As<uint, T>( ref value ) );
+		}
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <param name="value"></param>
-		public void SetUIntegerValue( uint value ) => _converter.SetUIntegerValue( value );
+		/// <exception cref="CVarTypeMismatchException"></exception>
+		public void SetBooleanValue( bool value ) {
+			if ( _metadata.Type != CVarType.Boolean ) {
+				throw new CVarTypeMismatchException( typeof( bool ), _metadata.Type.GetSystemType() );
+			}
+			Set( Unsafe.As<bool, T>( ref value ) );
+		}
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <param name="value"></param>
-		public void SetBooleanValue( bool value ) => _converter.SetBooleanValue( value );
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="value"></param>
-		public void SetStringValue( string value ) => _converter.SetStringValue( value );
+		/// <exception cref="CVarTypeMismatchException"></exception>
+		public void SetStringValue( string value ) {
+			if ( _metadata.Type != CVarType.String ) {
+				throw new CVarTypeMismatchException( typeof( string ), _metadata.Type.GetSystemType() );
+			}
+			Set( Unsafe.As<string, T>( ref value ) );
+		}
 
 		/*
 		===============

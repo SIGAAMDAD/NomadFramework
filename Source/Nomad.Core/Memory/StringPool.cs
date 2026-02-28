@@ -13,76 +13,102 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using Nomad.Core.Exceptions;
 using Nomad.Core.Util;
-using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace Nomad.Core.Memory
 {
     /// <summary>
     ///
     /// </summary>
-    public sealed class StringPool : IDisposable
+    public sealed class StringPool
     {
-        private readonly Dictionary<string, int> _stringToIds = new Dictionary<string, int>(2048);
-        private readonly Dictionary<int, string> _idToString = new Dictionary<int, string>(2048);
+        private readonly ConcurrentDictionary<string, ulong> _stringToIds = new ConcurrentDictionary<string, ulong>();
+        private readonly ConcurrentDictionary<ulong, string> _idToString = new ConcurrentDictionary<ulong, string>();
+        private ulong _nextId = 1; // 0 reserved for empty
+        private readonly object _newStringLock = new object();
 
-        [ThreadStatic]
-        private static StringPool? _currentStringPool;
-        private static readonly object _lockObject = new object();
-
-        private static StringPool _current => _currentStringPool ??= new StringPool();
+        private static readonly StringPool _global = new();
 
         /// <summary>
-        ///
+        /// Retrieves an interned string's UTF-16 representation.
         /// </summary>
-        /// <param name="str"></param>
-        /// <returns>Returns the interned string if it exists, null if not found.</returns>
+        /// <remarks>
+        /// If a lookup is attempted on a string that hasn't been interned yet, a <see cref="StringNotInternedException"/> exception will be thrown.
+        /// </remarks>
+        /// <param name="str">The interned string representation.</param>
+        /// <returns>Returns the interned string if it exists</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string? FromInterned(in InternString str)
+        public static string FromInterned(InternString str)
         {
-            return _current._idToString.TryGetValue(str.GetHashCode(), out string? value) ? value : null;
+            return str == InternString.Empty ?
+                    string.Empty
+                :
+                    _global._idToString.TryGetValue(str, out string? s) ? s : throw new StringNotInternedException((ulong)str);
         }
 
         /// <summary>
-        ///
+        /// 
         /// </summary>
         /// <param name="str"></param>
+        /// <param name="value"></param>
         /// <returns></returns>
-        public static InternString Intern(ReadOnlySpan<char> str)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryGetString(InternString str, out string? value)
         {
-            if (str.IsEmpty)
+            if (str == InternString.Empty)
+            {
+                value = string.Empty;
+                return true;
+            }
+            return _global._idToString.TryGetValue(str, out value);
+        }
+
+        /// <summary>
+        /// Adds/retrieves an interned string from the global string pool.
+        /// </summary>
+        /// <param name="str">The string to intern.</param>
+        /// <returns>A new intern string or the retrieved cache value.</returns>
+        public static InternString Intern(string? str)
+        {
+            if (string.IsNullOrEmpty(str))
             {
                 return InternString.Empty;
             }
-
-            string converted = new string(str);
-            lock (_lockObject)
+            if (_global._stringToIds.TryGetValue(str, out ulong existingId))
             {
-#if !NETSTANDARD2_1 || NET6_0_OR_GREATER
-                ref int id = ref CollectionsMarshal.GetValueRefOrAddDefault(_current._stringToIds, converted, out bool exists);
-                if (!exists)
-#else
-                if (!_current._stringToIds.TryGetValue(converted, out int id))
-#endif
+                return new InternString(existingId);
+            }
+
+            lock (_global._newStringLock)
+            {
+                if (_global._stringToIds.TryGetValue(str, out existingId))
                 {
-                    id = converted.GetHashCode(StringComparison.CurrentCultureIgnoreCase);
-                    _current._idToString[id] = converted;
+                    return new InternString(existingId);
                 }
-                return new InternString(id);
+                ulong newId = _global._nextId++;
+                _global._stringToIds[str] = newId;
+                _global._idToString[newId] = str;
+                return new InternString(newId);
             }
         }
 
         /// <summary>
-        ///
+        /// Clears all string pool values and resets all interned strings.
         /// </summary>
-        public void Dispose()
+        /// <remarks>
+        /// All instances of <see cref="InternString"/> become invalidated after calling this, they must be interned again to not throw a <see cref="StringNotInternedException"/>.
+        /// </remarks>
+        public static void Clear()
         {
-            _stringToIds.Clear();
-            _idToString.Clear();
-            _currentStringPool = null;
+            lock (_global._newStringLock)
+            {
+                _global._idToString.Clear();
+                _global._stringToIds.Clear();
+                _global._nextId = 1;
+            }
         }
     }
 }

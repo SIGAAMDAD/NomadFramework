@@ -53,6 +53,7 @@ namespace Nomad.Core.Compatibility.Guards
         public static void ThrowIfNullOrEmpty(string? value, string? paramName = null)
         {
 #if NETSTANDARD2_1 || !NET6_0_OR_GREATER
+            ArgumentGuard.ThrowIfNull(value, paramName);
             if (string.IsNullOrEmpty(value))
             {
                 throw new ArgumentException("Value cannot be null or empty.", paramName);

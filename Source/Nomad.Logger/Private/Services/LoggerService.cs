@@ -114,13 +114,13 @@ namespace Nomad.Logger.Private.Services {
 		/// <exception cref="Exception"></exception>
 		public void InitConfig( ICVarSystemService cvarSystem ) {
 			_logDepth = cvarSystem.Register(
-				new CVarCreateInfo<LogLevel>(
-					Name: Constants.CVars.Console.CONSOLE_LOG_LEVEL,
-					DefaultValue: LogLevel.Info,
-					Description: "The verbosity of the logger.",
-					Flags: CVarFlags.Archive,
-					Validator: value => value >= LogLevel.Error && value < LogLevel.Count
-				)
+				new CVarCreateInfo<LogLevel> {
+					Name = Constants.CVars.Console.CONSOLE_LOG_LEVEL,
+					DefaultValue = LogLevel.Info,
+					Description = "The verbosity of the logger.",
+					Flags = CVarFlags.Archive,
+					Validator = value => value >= LogLevel.Error && value < LogLevel.Count
+				}
 			);
 		}
 

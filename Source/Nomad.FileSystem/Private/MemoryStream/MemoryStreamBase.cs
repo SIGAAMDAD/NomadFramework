@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.FileSystem.Streams;
 using Nomad.Core.FileSystem.Configs;
-using Nomad.Core.Util;
+using Nomad.Core.Memory.Buffers;
 
 namespace Nomad.FileSystem.Private.MemoryStream {
 	/*
@@ -35,13 +35,13 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 
 	internal abstract class MemoryStreamBase : BaseStream, IMemoryStream {
 		public override long Length {
-			get => buffer != null ? length : throw new ObjectDisposedException( nameof( MemoryStreamBase ) );
+			get => !isDisposed ? length : throw new ObjectDisposedException( nameof( MemoryStreamBase ) );
 			set => SetLength( value );
 		}
 		protected long length = 0;
 
 		public override long Position {
-			get => buffer != null ? position : throw new ObjectDisposedException( nameof( MemoryStreamBase ) );
+			get => !isDisposed ? position : throw new ObjectDisposedException( nameof( MemoryStreamBase ) );
 			set => Seek( value, SeekOrigin.Begin );
 		}
 		protected long position = 0;
@@ -49,7 +49,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <summary>
 		/// The handle to the underlying buffer.
 		/// </summary>
-		public IBufferHandle? Buffer => buffer ?? throw new ObjectDisposedException( nameof( MemoryStreamBase ) );
+		public IBufferHandle? Buffer => !isDisposed ? buffer : throw new ObjectDisposedException( nameof( MemoryStreamBase ) );
 		protected IBufferHandle? buffer;
 
 		/// <summary>

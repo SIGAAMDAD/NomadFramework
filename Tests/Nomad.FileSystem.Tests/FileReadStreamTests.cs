@@ -71,7 +71,7 @@ namespace Nomad.FileSystem.Tests
         private IReadStream OpenReadStream()
         {
             var config = new FileReadConfig{ FilePath = "readtest.bin" };
-            return _service.OpenRead(config);
+            return _service.OpenRead(config)!;
         }
 
         [Test]
@@ -211,7 +211,7 @@ namespace Nomad.FileSystem.Tests
 
             var config = new FileReadConfig{ FilePath = stringFilePath };
             using var stream = _service.OpenRead(config) as FileReadStream;
-            string read = stream.ReadString();
+            string read = stream!.ReadString();
             Assert.That(read, Is.EqualTo(testString));
         }
 
@@ -223,7 +223,7 @@ namespace Nomad.FileSystem.Tests
             File.WriteAllBytes(boolFilePath, new byte[] { 1 });
             var config = new FileReadConfig{ FilePath = boolFilePath };
             using var stream = _service.OpenRead(config) as FileReadStream;
-            bool val = stream.ReadBoolean();
+            bool val = stream!.ReadBoolean();
             Assert.That(val, Is.True);
         }
     }

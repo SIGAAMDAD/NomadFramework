@@ -103,7 +103,7 @@ public class SaveSectionTests
         bool sectionAdded = false;
         string sectionName = String.Empty;
 
-        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
         {
             var section = args.Writer.AddSection("TestSection");
             sectionAdded = true;
@@ -140,7 +140,7 @@ public class SaveSectionTests
         string loadedString = String.Empty;
         bool loadedBool = false;
 
-        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
         {
             var section = args.Writer.AddSection("TypesSection");
             section.AddField("FloatField", floatValue);
@@ -150,7 +150,7 @@ public class SaveSectionTests
             section.AddField("BoolField", boolValue);
         });
 
-        _loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
+        _loadBegin.Subscribe((in LoadBeginEventArgs args) =>
         {
             var section = args.Reader.FindSection("TypesSection");
             if (section != null)
@@ -196,7 +196,7 @@ public class SaveSectionTests
             fieldCount = section.FieldCount;
         }
 
-        _saveBegin.Subscribe(this, OnSaveBegin);
+        _saveBegin.Subscribe(OnSaveBegin);
 
         // Act
         await _dataProvider.Save(fileId, default);
@@ -213,7 +213,7 @@ public class SaveSectionTests
         string expectedSectionName = "MyCustomSection";
         string actualSectionName = String.Empty;
 
-        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
         {
             var section = args.Writer.AddSection(expectedSectionName);
             actualSectionName = section.Name;
@@ -233,13 +233,13 @@ public class SaveSectionTests
         string fileId =  "nonexistent_field_test";
         int retrievedValue = int.MinValue;
 
-        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
         {
             var section = args.Writer.AddSection("TestSection");
             section.AddField("ExistingField", 10);
         });
 
-        _loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
+        _loadBegin.Subscribe((in LoadBeginEventArgs args) =>
         {
             var section = args.Reader.FindSection("TestSection");
             if (section != null)
@@ -263,7 +263,7 @@ public class SaveSectionTests
         string fileId =  "has_field_test";
         bool hasField = false;
 
-        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
         {
             var section = args.Writer.AddSection("TestSection");
             section.AddField("KnownField", 100);
@@ -284,13 +284,13 @@ public class SaveSectionTests
         string fileId =  "find_section_test";
         bool foundSection = false;
 
-        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
         {
             var section = args.Writer.AddSection("SpecificSection");
             section.AddField("Value", 999);
         });
 
-        _loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
+        _loadBegin.Subscribe((in LoadBeginEventArgs args) =>
         {
             var section = args.Reader.FindSection("SpecificSection");
             foundSection = section != null;
@@ -311,13 +311,13 @@ public class SaveSectionTests
         string fileId =  "find_section_invalid_test";
         bool foundSection = true;
 
-        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
         {
             var section = args.Writer.AddSection("ExistingSection");
             section.AddField("Value", 1);
         });
 
-        _loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
+        _loadBegin.Subscribe((in LoadBeginEventArgs args) =>
         {
             var section = args.Reader.FindSection("NonExistentSection");
             foundSection = section != null;
@@ -357,7 +357,7 @@ public class SaveSectionTests
         var loaded_uint = 0U;
         var loaded_ulong = 0UL;
 
-        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
         {
             var section = args.Writer.AddSection("IntegerTypes");
             section.AddField("SByteField", sbyte_val);
@@ -370,7 +370,7 @@ public class SaveSectionTests
             section.AddField("ULongField", ulong_val);
         });
 
-        _loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
+        _loadBegin.Subscribe((in LoadBeginEventArgs args) =>
         {
             var section = args.Reader.FindSection("IntegerTypes");
             if (section != null)
@@ -418,14 +418,14 @@ public class SaveSectionTests
         var loaded_float = 0f;
         var loaded_double = 0d;
 
-        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
         {
             var section = args.Writer.AddSection("FloatTypes");
             section.AddField("FloatField", float_val);
             section.AddField("DoubleField", double_val);
         });
 
-        _loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
+        _loadBegin.Subscribe((in LoadBeginEventArgs args) =>
         {
             var section = args.Reader.FindSection("FloatTypes");
             if (section != null)
@@ -457,7 +457,7 @@ public class SaveSectionTests
 
         var readerFieldCount = 0;
 
-        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
         {
             var section = args.Writer.AddSection("CountTest");
             section.AddField("F1", 1);
@@ -467,7 +467,7 @@ public class SaveSectionTests
 
         Console.WriteLine( "Testing save files..." );
 
-        _loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
+        _loadBegin.Subscribe((in LoadBeginEventArgs args) =>
         {
             var section = args.Reader.FindSection("CountTest");
             if (section != null)
@@ -493,7 +493,7 @@ public class SaveSectionTests
         int enemyValue = 0;
         int worldValue = 0;
 
-        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
         {
             var playerSection = args.Writer.AddSection("Player");
             playerSection.AddField("Health", 100);
@@ -506,7 +506,7 @@ public class SaveSectionTests
             worldSection.AddField("Level", 5);
         });
 
-        _loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
+        _loadBegin.Subscribe((in LoadBeginEventArgs args) =>
         {
             var playerSection = args.Reader.FindSection("Player");
             var enemySection = args.Reader.FindSection("Enemy");
@@ -549,7 +549,7 @@ public class SaveSectionTests
         string fileId = "various_names_test";
         string createdSectionName = String.Empty;
 
-        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
         {
             var section = args.Writer.AddSection(sectionName);
             createdSectionName = section.Name;

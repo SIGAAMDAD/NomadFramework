@@ -24,8 +24,7 @@ using Nomad.Core.Logger;
 using Nomad.FileSystem.Private.FileStream;
 using System.IO;
 using Nomad.FileSystem.Private.MemoryStream;
-using Nomad.Core.Util;
-using Nomad.Core.Util.BufferHandles;
+using Nomad.Core.Memory.Buffers;
 using Nomad.Core.FileSystem.Configs;
 using Nomad.Core.FileSystem.Streams;
 
@@ -528,8 +527,8 @@ namespace Nomad.FileSystem.Private.Services {
 			}
 			using var stream = OpenRead( new FileReadConfig { FilePath = fullPath } ) ?? throw new IOException();
 
-			var handle = new PooledBufferHandle( stream.Length );
-			stream.Read( handle.Buffer, 0, (int)handle.Length );
+			var handle = new PooledBufferHandle( (int)stream.Length );
+			stream.Read( handle.Span, 0, handle.Length );
 
 			return handle;
 		}
@@ -543,9 +542,10 @@ namespace Nomad.FileSystem.Private.Services {
 		/// 
 		/// </summary>
 		/// <param name="path"></param>
+		/// <param name="ct"></param>
 		/// <returns></returns>
 		/// <exception cref="IOException"></exception>
-		public async ValueTask<IBufferHandle?> LoadFileAsync( string path ) {
+		public async ValueTask<IBufferHandle?> LoadFileAsync( string path, CancellationToken ct = default ) {
 			var fullPath = _searchHelper.FindFile( path );
 			if ( fullPath == null ) {
 				return null;
@@ -553,8 +553,8 @@ namespace Nomad.FileSystem.Private.Services {
 
 			using var stream = OpenRead( new FileReadConfig { FilePath = fullPath } ) ?? throw new IOException();
 
-			var handle = new PooledBufferHandle( stream.Length );
-			await stream.ReadAsync( handle.AsMemory() );
+			var handle = new PooledBufferHandle( (int)stream.Length );
+			await stream.ReadAsync( handle.Memory, ct );
 
 			return handle;
 		}

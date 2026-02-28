@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Nomad.Core.FileSystem.Streams;
-using Nomad.Core.Util;
+using Nomad.Core.Memory.Buffers;
 
 namespace Nomad.Core.FileSystem
 {
@@ -195,8 +195,9 @@ namespace Nomad.Core.FileSystem
         /// Loads a file into memory asynchronously.
         /// </summary>
         /// <param name="path">The file to open and load.</param>
+        /// <param name="ct"></param>
         /// <returns>The data retrieved from the file.</returns>
-        ValueTask<IBufferHandle?> LoadFileAsync(string path);
+        ValueTask<IBufferHandle?> LoadFileAsync(string path, CancellationToken ct = default);
 
         /// <summary>
         /// Writes a buffer to disk.

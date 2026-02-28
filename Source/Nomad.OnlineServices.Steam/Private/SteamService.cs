@@ -55,6 +55,8 @@ namespace Nomad.OnlineServices.Steam.Private {
 		public ICloudStorageService CloudStorage => _cloudStorageService;
 		private readonly SteamCloudStorageService _cloudStorageService;
 
+		private bool _isDisposed = false;
+
 		/*
 		===============
 		SteamService
@@ -73,14 +75,14 @@ namespace Nomad.OnlineServices.Steam.Private {
 				logger.PrintError( $"SteamService: failed to initialize SteamAPI - {result}, {errorMessage}" );
 			}
 
-			_userData = new SteamUserData(
-				SteamUser.GetSteamID(),
-				SteamFriends.GetPersonaName()
-			);
+			_userData = new SteamUserData {
+				UserID = SteamUser.GetSteamID(),
+				UserName = SteamFriends.GetPersonaName()
+			};
 
-			_appData = new SteamAppData(
-				AppId: SteamUtils.GetAppID()
-			);
+			_appData = new SteamAppData {
+				AppId = SteamUtils.GetAppID()
+			};
 
 			_logger = logger;
 			_category = logger.CreateCategory( nameof( Nomad.OnlineServices.Steam ), LogLevel.Info, true );
@@ -96,13 +98,17 @@ namespace Nomad.OnlineServices.Steam.Private {
 		===============
 		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
 		public void Dispose() {
-			_category?.Dispose();
-			_statsService?.Dispose();
-			_achievementsService?.Dispose();
-			_cloudStorageService?.Dispose();
+			if ( !_isDisposed ) {
+				_category?.Dispose();
+				_statsService?.Dispose();
+				_achievementsService?.Dispose();
+				_cloudStorageService?.Dispose();
+			}
+			GC.SuppressFinalize( this );
+			_isDisposed = true;
 		}
 
 		/*

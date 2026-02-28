@@ -15,13 +15,24 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Input.Events
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public readonly struct BindPressedEventArgs
     {
-        public readonly int BindId;
+        /// <summary>
+        /// 
+        /// </summary>
+        public int BindId => _bindId;
+        private readonly int _bindId;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="bindId"></param>
         public BindPressedEventArgs(int bindId)
         {
-            BindId = bindId;
+            _bindId = bindId;
         }
     }
 }

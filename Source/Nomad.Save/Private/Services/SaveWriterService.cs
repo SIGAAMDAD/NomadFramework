@@ -146,7 +146,7 @@ namespace Nomad.Save.Private.Services {
 				section.Value.Dispose();
 			}
 
-			var checksum = Checksum.Compute( _writer.Buffer!.Buffer );
+			var checksum = Checksum.Compute( _writer.Buffer!.Span );
 
 			_writer.Seek( 0, System.IO.SeekOrigin.Begin );
 			var header = new SaveHeader( name, gameVersion, sectionCount, checksum );

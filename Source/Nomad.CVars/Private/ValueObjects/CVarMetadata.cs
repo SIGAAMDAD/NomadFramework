@@ -29,12 +29,12 @@ namespace Nomad.CVars.Private.ValueObjects {
 	/// Holds all a <see cref="ICVar"/>'s metadata.
 	/// </summary>
 
-	[StructLayout( LayoutKind.Explicit, Pack = 16, Size = 14 )]
+	[StructLayout( LayoutKind.Explicit, Pack = 16, Size = 24 )]
 	internal readonly struct CVarMetadata {
 		[FieldOffset( 0 )] public readonly InternString Name;
-		[FieldOffset( 4 )] public readonly InternString Description;
-		[FieldOffset( 8 )] public readonly CVarFlags Flags;
-		[FieldOffset( 12 )] public readonly CVarType Type;
+		[FieldOffset( 8 )] public readonly InternString Description;
+		[FieldOffset( 16 )] public readonly CVarFlags Flags;
+		[FieldOffset( 20 )] public readonly CVarType Type;
 
 		public bool IsReadOnly => Flags.HasFlag( CVarFlags.ReadOnly );
 		public bool IsHidden => Flags.HasFlag( CVarFlags.Hidden );

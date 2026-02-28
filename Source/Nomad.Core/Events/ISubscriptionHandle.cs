@@ -17,10 +17,10 @@ using System;
 
 namespace Nomad.Core.Events
 {
-	/// <summary>
-	/// 
-	/// </summary>
-	public interface ISubscriptionHandle : IDisposable
-	{
-	}
+    /// <summary>
+    /// 
+    /// </summary>
+    public interface ISubscriptionHandle : IDisposable
+    {
+    }
 }

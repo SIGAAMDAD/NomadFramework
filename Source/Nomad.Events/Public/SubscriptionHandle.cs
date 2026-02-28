@@ -14,7 +14,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using System.Threading;
 using Nomad.Core.Events;
 using Nomad.Events.Private.SubscriptionSets;
 
@@ -26,7 +25,6 @@ namespace Nomad.Events
     public sealed class SubscriptionHandle<TArgs> : ISubscriptionHandle
         where TArgs : struct
     {
-        private readonly object _owner;
         private readonly ISubscriptionSet<TArgs> _set;
         private readonly EventCallback<TArgs> _callback;
 
@@ -35,15 +33,13 @@ namespace Nomad.Events
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="owner"></param>
         /// <param name="set"></param>
         /// <param name="callback"></param>
-        internal SubscriptionHandle(object owner, ISubscriptionSet<TArgs> set, EventCallback<TArgs> callback)
+        internal SubscriptionHandle(ISubscriptionSet<TArgs> set, EventCallback<TArgs> callback)
         {
-            _owner = owner;
             _set = set;
             _callback = callback;
-            _set.AddSubscription(owner, callback);
+            _set.AddSubscription(callback);
         }
 
         /// <summary>
@@ -53,7 +49,7 @@ namespace Nomad.Events
         {
             if (!_isDisposed)
             {
-                _set.RemoveSubscription(_owner, _callback);
+                _set.RemoveSubscription(_callback);
             }
             GC.SuppressFinalize(this);
             _isDisposed = true;

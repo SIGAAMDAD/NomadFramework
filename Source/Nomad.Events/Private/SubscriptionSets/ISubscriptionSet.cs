@@ -33,21 +33,30 @@ namespace Nomad.Events.Private.SubscriptionSets {
 	internal interface ISubscriptionSet<TArgs> : IDisposable
 		where TArgs : struct
 	{
+#if DEBUG
+		/// <summary>
+		/// 
+		/// </summary>
+		long PublishCount { get; }
+
+		/// <summary>
+		/// 
+		/// </summary>
+		int SubscriberCount { get; }
+#endif
+
 		void BindEventFriend( IGameEvent friend );
-		void RemoveAllForSubscriber( object subscriber );
 
-		bool AddSubscription( object subscriber, EventCallback<TArgs> callback );
-		bool AddSubscriptionAsync( object subscriber, AsyncEventCallback<TArgs> callback );
+		bool AddSubscription( EventCallback<TArgs> callback );
+		bool AddSubscriptionAsync( AsyncEventCallback<TArgs> callback );
 
-		bool RemoveSubscription( object subscriber, EventCallback<TArgs> callback );
-		bool RemoveSubscriptionAsync( object subscriber, AsyncEventCallback<TArgs> callback );
+		bool RemoveSubscription( EventCallback<TArgs> callback );
+		bool RemoveSubscriptionAsync( AsyncEventCallback<TArgs> callback );
 
 		void Pump( in TArgs args );
 		Task PumpAsync( TArgs args, CancellationToken ct );
 
-		bool ContainsCallback( object subscriber, EventCallback<TArgs> callback, out int index );
-		bool ContainsCallbackAsync( object subscriber, AsyncEventCallback<TArgs> callback, out int index );
-
-		void CleanupSubscriptions();
+		bool ContainsCallback( EventCallback<TArgs> callback, out int index );
+		bool ContainsCallbackAsync( AsyncEventCallback<TArgs> callback, out int index );
 	};
 };

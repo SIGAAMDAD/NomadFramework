@@ -20,6 +20,7 @@ namespace Nomad.Events.Private
     /// <summary>
     /// 
     /// </summary>
+    /// TODO: Finish this up w/ various priorities, sorting, and potentially multithreaded extensions
     public sealed class EventQueue
     {
     }

@@ -126,8 +126,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		public override void Flush() {
 			if ( buffer != null ) {
 				using var stream = new System.IO.FileStream( _filepath, System.IO.FileMode.Create, System.IO.FileAccess.Write, System.IO.FileShare.None );
-				stream.Write( buffer.GetSlice( 0, position ) );
-				stream.Flush();
+				stream.Write( buffer.GetSlice( 0, (int)position ) );
 				stream.Close();
 			}
 		}
@@ -145,7 +144,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 			ct.ThrowIfCancellationRequested();
 			if ( buffer != null ) {
 				using var stream = new System.IO.FileStream( _filepath, System.IO.FileMode.Create, System.IO.FileAccess.Write, System.IO.FileShare.None );
-				await stream.WriteAsync( buffer.AsMemory( 0, position ), ct );
+				await stream.WriteAsync( buffer.AsMemory( 0, (int)position ), ct );
 				stream.Close();
 			}
 		}

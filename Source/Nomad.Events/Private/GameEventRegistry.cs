@@ -62,9 +62,8 @@ namespace Nomad.Events {
 		/// </summary>
 		/// <param name="nameSpace"></param>
 		public void ClearEventsInNamespace( string nameSpace ) {
-			InternString nameSpaceCmp = new InternString( nameSpace );
-			foreach ( KeyValuePair<EventKey, IGameEvent> @event in _eventCache ) {
-				if ( @event.Value.NameSpace == nameSpaceCmp ) {
+			foreach ( var @event in _eventCache ) {
+				if ( @event.Value.NameSpace.Equals( nameSpace, StringComparison.InvariantCulture ) ) {
 					@event.Value.Dispose();
 					_eventCache.Remove( @event.Key, out _ );
 				}
@@ -166,38 +165,7 @@ namespace Nomad.Events {
 			}
 			return false;
 		}
-
-		/*
-		===============
-		CleanupAllEvents
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		public void CleanupAllEvents() {
-			foreach ( var @event in _eventCache ) {
-				@event.Value.CleanupSubscriptions();
-			}
-		}
-
-		/*
-		===============
-		CleanupNamespace
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="nameSpace"></param>
-		public void CleanupNamespace( string nameSpace ) {
-			foreach ( var @event in _eventCache ) {
-				if ( @event.Value.NameSpace == nameSpace ) {
-					@event.Value.CleanupSubscriptions();
-				}
-			}
-		}
-
+		
 		/*
 		===============
 		ClearAllEvents

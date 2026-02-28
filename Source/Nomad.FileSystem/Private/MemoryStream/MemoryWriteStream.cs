@@ -21,8 +21,7 @@ using System.Threading.Tasks;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.FileSystem.Configs;
 using Nomad.Core.FileSystem.Streams;
-using Nomad.Core.Util;
-using Nomad.Core.Util.BufferHandles;
+using Nomad.Core.Memory.Buffers;
 
 namespace Nomad.FileSystem.Private.MemoryStream {
 	/*
@@ -159,12 +158,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 			}
 
 			EnsureCapacity( count );
-			this.buffer!.CopyFrom( buffer, offset, count, position );
-			long newPosition = position + count;
-			if ( newPosition > length ) {
-				length = newPosition;
-			}
-			position += count;
+			this.buffer!.CopyFrom( buffer, offset, count, (int)position );
+			BumpPosition( count );
 		}
 
 		/*
@@ -203,12 +198,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 			}
 
 			EnsureCapacity( count );
-			this.buffer!.CopyFrom( buffer, offset, count, position );
-			long newPosition = position + count;
-			if ( newPosition > length ) {
-				length = newPosition;
-			}
-			position += count;
+			this.buffer!.CopyFrom( buffer, offset, count, (int)position );
+			BumpPosition( count );
 		}
 
 		/*
@@ -327,29 +318,25 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 			}
 
 			int maxByteCount = Encoding.UTF8.GetMaxByteCount( value.Length );
-			long newPosition = 0;
+			int byteCount;
 
 			if ( maxByteCount <= STACK_ALLOC_THRESHOLD ) {
 				Span<byte> tempBuffer = stackalloc byte[ maxByteCount ];
-				int actualByteCount = Encoding.UTF8.GetBytes( value, tempBuffer );
-				Write7BitEncodedInt( actualByteCount );
-				EnsureCapacity( actualByteCount );
-				buffer!.CopyFrom( tempBuffer.Slice( 0, actualByteCount ), 0, actualByteCount, position );
 
-				newPosition = position + actualByteCount;
-				position += actualByteCount;
-			} else {
-				int byteCount = Encoding.UTF8.GetByteCount( value );
+				byteCount = Encoding.UTF8.GetBytes( value, tempBuffer );
 				Write7BitEncodedInt( byteCount );
 				EnsureCapacity( byteCount );
 
-				long size = Encoding.UTF8.GetBytes( value, 0, value.Length, buffer!.Buffer, ( int )position );
-				newPosition = position + size;
-				position += size;
+				buffer!.CopyFrom( tempBuffer.Slice( 0, byteCount ), 0, byteCount, (int)position );
+			} else {
+				byteCount = Encoding.UTF8.GetByteCount( value );
+				Write7BitEncodedInt( byteCount );
+				EnsureCapacity( byteCount );
+
+				byteCount = Encoding.UTF8.GetBytes( value.AsSpan(), buffer!.GetSlice( (int)position, byteCount ) );
 			}
-			if ( newPosition > length ) {
-				length = newPosition;
-			}
+
+			BumpPosition( byteCount );
 		}
 
 		/*
@@ -650,8 +637,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <param name="required">The bytes needed to write the data.</param>
 		private void EnsureCapacity( long required ) {
 			if ( position + required > buffer!.Length ) {
-				long newCapacity = Math.Max( buffer.Length * 2, position + required );
-				ResizeBuffer( newCapacity );
+				ResizeBuffer( Math.Max( buffer.Length * 2, position + required ) );
 			}
 		}
 
@@ -672,9 +658,9 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 			if ( newLength > MAX_CAPACITY ) {
 				throw new InvalidOperationException( $"MemoryWriteStream size has exceeded {MAX_CAPACITY} bytes... what the hell are you doing?" );
 			}
-			var newBuffer = new PooledBufferHandle( newLength );
+			var newBuffer = new PooledBufferHandle( (int)newLength );
 			if ( length > 0 ) {
-				buffer!.CopyTo( newBuffer, 0, length, 0 );
+				buffer!.CopyTo( newBuffer, 0, (int)length, 0 );
 			}
 			buffer?.Dispose();
 			buffer = newBuffer;
@@ -693,8 +679,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		protected IBufferHandle AllocateBuffer( long length )
 			=> strategy switch {
 				AllocationStrategy.FromFile => throw new NotSupportedException( "AllocationStrategy cannot be 'FromFile' when writing to a stream." ),
-				AllocationStrategy.Pooled => new PooledBufferHandle( length ),
-				AllocationStrategy.Standard => new StandardBufferHandle( length ),
+				AllocationStrategy.Pooled => new PooledBufferHandle( (int)length ),
+				AllocationStrategy.Standard => new StandardBufferHandle( (int)length ),
 				_ => throw new IndexOutOfRangeException( nameof( strategy ) )
 			};
 
@@ -709,18 +695,33 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <typeparam name="T">The type of the value to write.</typeparam>
 		/// <param name="value">The value to write.</param>
 		/// <param name="size">The size in bytes of the primitive we're writing.</param>
-		private void Write<T>( T value, int size )
-			where T : unmanaged {
-			StateGuard.ThrowIfDisposed( buffer == null, this );
+		private void Write<T>( T value, int size ) {
+			StateGuard.ThrowIfDisposed( isDisposed, this );
 
 			EnsureCapacity( size );
-			Unsafe.WriteUnaligned( ref buffer!.Buffer[ ( int )position ], value );
+			unsafe {
+				fixed ( void* dest = buffer!.GetSlice( (int)position, size ) ) {
+					Unsafe.WriteUnaligned( dest, value );
+				}
+			}
+			BumpPosition( size );
+		}
 
-			long newPosition = position + size;
+		/*
+		===============
+		BumpPosition
+		===============
+		*/
+		/// <summary>
+		/// Adds <paramref name="byteCount"/> to the position, increasing the stream's length if required.
+		/// </summary>
+		/// <param name="byteCount">The number of bytes we're adding to the stream.</param>
+		private void BumpPosition( int byteCount ) {
+			long newPosition = position + byteCount;
 			if ( newPosition > length ) {
 				length = newPosition;
 			}
-			position += size;
+			position += byteCount;
 		}
 	};
 };

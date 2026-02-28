@@ -146,7 +146,6 @@ namespace Nomad.CVars.Private.Services {
 		/// <param name="cvar">The cvar to remove</param>
 		public void Unregister( ICVar cvar ) {
 			ArgumentGuard.ThrowIfNull( cvar );
-
 			try {
 				_cvars.TryRemove( new InternString( cvar.Name ), out _ );
 			} catch ( Exception e ) {

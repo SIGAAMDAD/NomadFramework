@@ -61,6 +61,9 @@ namespace Nomad.Save.Private.Services {
 
 		private SaveConfig _config;
 
+		private readonly ISubscriptionHandle _autoSaveChanged;
+		private readonly ISubscriptionHandle _autoSaveIntervalChanged;
+
 		private readonly IGameEvent<SaveBeginEventArgs> _saveBegin;
 		private readonly IGameEvent<LoadBeginEventArgs> _loadBegin;
 
@@ -97,6 +100,12 @@ namespace Nomad.Save.Private.Services {
 
 			_config = InitConfiguration( engineService, cvarSystem );
 
+			var autoSaveEnabled = cvarSystem.GetCVar<bool>( Constants.CVars.AUTO_SAVE_ENABLED ) ?? throw new CVarMissing( Constants.CVars.AUTO_SAVE_ENABLED );
+			_autoSaveChanged = autoSaveEnabled.ValueChanged.Subscribe( OnAutoSaveEnabledChanged );
+
+			var autoSaveInterval = cvarSystem.GetCVar<int>( Constants.CVars.AUTO_SAVE_INTERVAL ) ?? throw new CVarMissing( Constants.CVars.AUTO_SAVE_INTERVAL );
+			_autoSaveIntervalChanged = autoSaveInterval.ValueChanged.Subscribe( OnAutoSaveIntervalChanged );
+
 			_atomicWriter = new AtomicWriterService( engineService, fileSystem );
 
 			_slotRepository = new SlotRepository( fileSystem, logger, _config );
@@ -118,6 +127,9 @@ namespace Nomad.Save.Private.Services {
 				_writerService?.Dispose();
 				_slotRepository?.Dispose();
 				_category?.Dispose();
+
+				_autoSaveChanged?.Dispose();
+				_autoSaveIntervalChanged?.Dispose();
 
 				_saveBegin?.Dispose();
 				_loadBegin?.Dispose();
@@ -192,7 +204,7 @@ namespace Nomad.Save.Private.Services {
 		/// <param name="engineService"></param>
 		/// <param name="cvarSystem"></param>
 		/// <exception cref="CVarMissing"></exception>
-		private SaveConfig InitConfiguration( IEngineService engineService, ICVarSystemService cvarSystem ) {
+		private static SaveConfig InitConfiguration( IEngineService engineService, ICVarSystemService cvarSystem ) {
 			SaveCVarRegistry.RegisterCVars( engineService, cvarSystem );
 
 			var dataPath = cvarSystem.GetCVar<string>( Constants.CVars.DATA_PATH ) ?? throw new CVarMissing( Constants.CVars.DATA_PATH );
@@ -201,10 +213,7 @@ namespace Nomad.Save.Private.Services {
 			var maxBackups = cvarSystem.GetCVar<int>( Constants.CVars.MAX_BACKUPS ) ?? throw new CVarMissing( Constants.CVars.MAX_BACKUPS );
 
 			var autoSaveEnabled = cvarSystem.GetCVar<bool>( Constants.CVars.AUTO_SAVE_ENABLED ) ?? throw new CVarMissing( Constants.CVars.AUTO_SAVE_ENABLED );
-			autoSaveEnabled.ValueChanged.Subscribe( this, OnAutoSaveEnabledChanged );
-
 			var autoSaveInterval = cvarSystem.GetCVar<int>( Constants.CVars.AUTO_SAVE_INTERVAL ) ?? throw new CVarMissing( Constants.CVars.AUTO_SAVE_INTERVAL );
-			autoSaveInterval.ValueChanged.Subscribe( this, OnAutoSaveIntervalChanged );
 
 			var checksumsEnabled = cvarSystem.GetCVar<bool>( Constants.CVars.CHECKSUM_ENABLED ) ?? throw new CVarMissing( Constants.CVars.CHECKSUM_ENABLED );
 			var verifyAfterWrite = cvarSystem.GetCVar<bool>( Constants.CVars.VERIFY_AFTER_WRITE ) ?? throw new CVarMissing( Constants.CVars.VERIFY_AFTER_WRITE );

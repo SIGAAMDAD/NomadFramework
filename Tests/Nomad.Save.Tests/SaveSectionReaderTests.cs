@@ -118,7 +118,7 @@ public class SaveSectionReaderTests
             section.AddField("TestField", 42);
         }
 
-        _saveBegin.Subscribe(this, OnSaveBegin);
+        _saveBegin.Subscribe(OnSaveBegin);
 
         void OnLoadBegin(in LoadBeginEventArgs args)
         {
@@ -129,7 +129,7 @@ public class SaveSectionReaderTests
             }
         }
 
-        _loadBegin.Subscribe(this, OnLoadBegin);
+        _loadBegin.Subscribe(OnLoadBegin);
 
         // Act
         await _dataProvider.Save(fileId, default);
@@ -156,7 +156,7 @@ public class SaveSectionReaderTests
             section.AddField("Field5", 5);
         }
 
-        _saveBegin.Subscribe(this, OnSaveBegin);
+        _saveBegin.Subscribe(OnSaveBegin);
 
         void OnLoadBegin(in LoadBeginEventArgs args)
         {
@@ -167,7 +167,7 @@ public class SaveSectionReaderTests
             }
         }
 
-        _loadBegin.Subscribe(this, OnLoadBegin);
+        _loadBegin.Subscribe(OnLoadBegin);
 
         // Act
         await _dataProvider.Save(fileId, default);
@@ -191,7 +191,7 @@ public class SaveSectionReaderTests
             section.AddField("IntValue", expectedValue);
         }
 
-        _saveBegin.Subscribe(this, OnSaveBegin);
+        _saveBegin.Subscribe(OnSaveBegin);
 
         void OnLoadBegin(in LoadBeginEventArgs args)
         {
@@ -202,7 +202,7 @@ public class SaveSectionReaderTests
             }
         }
 
-        _loadBegin.Subscribe(this, OnLoadBegin);
+        _loadBegin.Subscribe(OnLoadBegin);
 
         // Act
         await _dataProvider.Save(fileId, default);
@@ -226,7 +226,7 @@ public class SaveSectionReaderTests
             section.AddField("FloatValue", expectedValue);
         }
 
-        _saveBegin.Subscribe(this, OnSaveBegin);
+        _saveBegin.Subscribe(OnSaveBegin);
 
         void OnLoadBegin(in LoadBeginEventArgs args)
         {
@@ -237,7 +237,7 @@ public class SaveSectionReaderTests
             }
         }
 
-        _loadBegin.Subscribe(this, OnLoadBegin);
+        _loadBegin.Subscribe(OnLoadBegin);
 
         // Act
         await _dataProvider.Save(fileId, default);
@@ -261,7 +261,7 @@ public class SaveSectionReaderTests
             section.AddField("DoubleValue", expectedValue);
         }
 
-        _saveBegin.Subscribe(this, OnSaveBegin);
+        _saveBegin.Subscribe(OnSaveBegin);
 
         void OnLoadBegin(in LoadBeginEventArgs args)
         {
@@ -272,7 +272,7 @@ public class SaveSectionReaderTests
             }
         }
 
-        _loadBegin.Subscribe(this, OnLoadBegin);
+        _loadBegin.Subscribe(OnLoadBegin);
 
         // Act
         await _dataProvider.Save(fileId, default);
@@ -296,7 +296,7 @@ public class SaveSectionReaderTests
             section.AddField("StringValue", expectedValue);
         }
 
-        _saveBegin.Subscribe(this, OnSaveBegin);
+        _saveBegin.Subscribe(OnSaveBegin);
 
         void OnLoadBegin(in LoadBeginEventArgs args)
         {
@@ -307,7 +307,7 @@ public class SaveSectionReaderTests
             }
         }
 
-        _loadBegin.Subscribe(this, OnLoadBegin);
+        _loadBegin.Subscribe(OnLoadBegin);
 
         // Act
         await _dataProvider.Save(fileId, default);
@@ -331,7 +331,7 @@ public class SaveSectionReaderTests
             section.AddField("BoolValue", expectedValue);
         }
 
-        _saveBegin.Subscribe(this, OnSaveBegin);
+        _saveBegin.Subscribe(OnSaveBegin);
 
         void OnLoadBegin(in LoadBeginEventArgs args)
         {
@@ -342,7 +342,7 @@ public class SaveSectionReaderTests
             }
         }
 
-        _loadBegin.Subscribe(this, OnLoadBegin);
+        _loadBegin.Subscribe(OnLoadBegin);
 
         // Act
         await _dataProvider.Save(fileId, default);
@@ -365,7 +365,7 @@ public class SaveSectionReaderTests
             section.AddField("ExistingField", 100);
         }
 
-        _saveBegin.Subscribe(this, OnSaveBegin);
+        _saveBegin.Subscribe(OnSaveBegin);
 
         void OnLoadBegin(in LoadBeginEventArgs args)
         {
@@ -376,7 +376,7 @@ public class SaveSectionReaderTests
             }
         }
 
-        _loadBegin.Subscribe(this, OnLoadBegin);
+        _loadBegin.Subscribe(OnLoadBegin);
 
         // Act
         await _dataProvider.Save(fileId, default);
@@ -393,13 +393,13 @@ public class SaveSectionReaderTests
         string fileId = "wrong_type_test";
         bool exceptionThrown = false;
 
-        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
         {
             var section = args.Writer.AddSection("WrongTypeTest");
             section.AddField("IntField", 42);
         });
 
-        _loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
+        _loadBegin.Subscribe((in LoadBeginEventArgs args) =>
         {
             var section = args.Reader.FindSection("WrongTypeTest");
             if (section != null)
@@ -431,13 +431,13 @@ public class SaveSectionReaderTests
         string fileId = "dispose_test";
         ISaveSectionReader? sectionReader = null;
 
-        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
         {
             var section = args.Writer.AddSection("DisposeTest");
             section.AddField("TestField", 99);
         });
 
-        _loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
+        _loadBegin.Subscribe((in LoadBeginEventArgs args) =>
         {
             sectionReader = args.Reader.FindSection("DisposeTest");
         });
@@ -474,7 +474,7 @@ public class SaveSectionReaderTests
 
         ISaveSectionReader? reader = null;
 
-        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
         {
             var section = args.Writer.AddSection("IntTypes");
             section.AddField("sbyte", sbyte_val);
@@ -487,7 +487,7 @@ public class SaveSectionReaderTests
             section.AddField("ulong", ulong_val);
         });
 
-        _loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
+        _loadBegin.Subscribe((in LoadBeginEventArgs args) =>
         {
             reader = args.Reader.FindSection("IntTypes");
         });
@@ -522,13 +522,13 @@ public class SaveSectionReaderTests
         ISaveSectionReader? sectionReader = null;
         int expectedValue = 777;
 
-        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
         {
             var section = args.Writer.AddSection("MultiRead");
             section.AddField("Value", expectedValue);
         });
 
-        _loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
+        _loadBegin.Subscribe((in LoadBeginEventArgs args) =>
         {
             sectionReader = args.Reader.FindSection("MultiRead");
         });
@@ -560,13 +560,13 @@ public class SaveSectionReaderTests
         string fileId = "name_not_null_test";
         ISaveSectionReader? sectionReader = null;
 
-        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
         {
             var section = args.Writer.AddSection("ValidSection");
             section.AddField("TestField", 1);
         });
 
-        _loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
+        _loadBegin.Subscribe((in LoadBeginEventArgs args) =>
         {
             sectionReader = args.Reader.FindSection("ValidSection");
         });
@@ -590,14 +590,14 @@ public class SaveSectionReaderTests
         string fileId = "field_count_nonneg_test";
         ISaveSectionReader? sectionReader = null;
 
-        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
         {
             var section = args.Writer.AddSection("CountTest");
             section.AddField("Field1", 1);
             section.AddField("Field2", 2);
         });
 
-        _loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
+        _loadBegin.Subscribe((in LoadBeginEventArgs args) =>
         {
             sectionReader = args.Reader.FindSection("CountTest");
         });
@@ -621,13 +621,13 @@ public class SaveSectionReaderTests
         string fileId = "empty_string_field_test";
         string retrievedValue = "unchanged";
 
-        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
         {
             var section = args.Writer.AddSection("EmptyStringTest");
             section.AddField("EmptyString", String.Empty);
         });
 
-        _loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
+        _loadBegin.Subscribe((in LoadBeginEventArgs args) =>
         {
             var section = args.Reader.FindSection("EmptyStringTest");
             if (section != null)
@@ -653,13 +653,13 @@ public class SaveSectionReaderTests
         string longString = new string('X', length);
         string retrievedValue = "";
 
-        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
         {
             var section = args.Writer.AddSection("LongStringTest");
             section.AddField("LongString", longString);
         });
 
-        _loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
+        _loadBegin.Subscribe((in LoadBeginEventArgs args) =>
         {
             var section = args.Reader.FindSection("LongStringTest");
             if (section != null)
@@ -686,13 +686,13 @@ public class SaveSectionReaderTests
         string fileId = $"bool_test_{boolValue}";
         bool retrievedValue = !boolValue; // Opposite to verify it changes
 
-        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
         {
             var section = args.Writer.AddSection("BoolTest");
             section.AddField("BoolValue", boolValue);
         });
 
-        _loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
+        _loadBegin.Subscribe((in LoadBeginEventArgs args) =>
         {
             var section = args.Reader.FindSection("BoolTest");
             if (section != null)
@@ -719,14 +719,14 @@ public class SaveSectionReaderTests
         int retrievedInt = 0;
         double retrievedDouble = 0;
 
-        _saveBegin.Subscribe(this, (in SaveBeginEventArgs args) =>
+        _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
         {
             var section = args.Writer.AddSection("NegativeTest");
             section.AddField("NegInt", negInt);
             section.AddField("NegDouble", negDouble);
         });
 
-        _loadBegin.Subscribe(this, (in LoadBeginEventArgs args) =>
+        _loadBegin.Subscribe((in LoadBeginEventArgs args) =>
         {
             var section = args.Reader.FindSection("NegativeTest");
             if (section != null)
@@ -761,14 +761,14 @@ public class SaveSectionReaderTests
             section.AddField("TestField", 1);
         }
 
-        _saveBegin.Subscribe(this, OnSaveBegin);
+        _saveBegin.Subscribe(OnSaveBegin);
 
         void OnLoadBegin(in LoadBeginEventArgs args)
         {
             sectionReader = args.Reader.FindSection("DisposeMultipleTest");
         }
 
-        _loadBegin.Subscribe(this, OnLoadBegin);
+        _loadBegin.Subscribe(OnLoadBegin);
 
         // Act & Assert
         await _dataProvider.Save(fileId, default);
@@ -799,7 +799,7 @@ public class SaveSectionReaderTests
             section.AddField("TestField", 1);
         }
 
-        _saveBegin.Subscribe(this, OnSaveBegin);
+        _saveBegin.Subscribe(OnSaveBegin);
 
         void OnLoadBegin(in LoadBeginEventArgs args)
         {
@@ -810,7 +810,7 @@ public class SaveSectionReaderTests
             }
         }
 
-        _loadBegin.Subscribe(this, OnLoadBegin);
+        _loadBegin.Subscribe(OnLoadBegin);
 
         // Act
         await _dataProvider.Save(fileId, default);
@@ -838,7 +838,7 @@ public class SaveSectionReaderTests
             writerFieldCount = section.FieldCount;
         }
 
-        _saveBegin.Subscribe(this, OnSaveBegin);
+        _saveBegin.Subscribe(OnSaveBegin);
 
         void OnLoadBegin(in LoadBeginEventArgs args)
         {
@@ -849,7 +849,7 @@ public class SaveSectionReaderTests
             }
         }
 
-        _loadBegin.Subscribe(this, OnLoadBegin);
+        _loadBegin.Subscribe(OnLoadBegin);
 
         // Act
         await _dataProvider.Save(fileId, default);

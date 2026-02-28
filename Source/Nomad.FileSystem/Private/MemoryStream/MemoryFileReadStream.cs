@@ -18,7 +18,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Nomad.Core.FileSystem.Streams;
 using Nomad.Core.FileSystem.Configs;
-using Nomad.Core.Util.BufferHandles;
+using Nomad.Core.Memory.Buffers;
 
 namespace Nomad.FileSystem.Private.MemoryStream {
 	/*

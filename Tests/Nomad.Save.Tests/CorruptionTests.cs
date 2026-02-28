@@ -25,7 +25,7 @@ using Nomad.Core.Util;
 using Nomad.Save.Private;
 using System;
 using Nomad.Core.FileSystem.Configs;
-using Nomad.Core.Util.BufferHandles;
+using Nomad.Core.Memory.Buffers;
 
 namespace Nomad.Save.Tests
 {

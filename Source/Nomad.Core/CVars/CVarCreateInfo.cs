@@ -21,16 +21,31 @@ namespace Nomad.Core.CVars
     /// 
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    /// <param name="Name"></param>
-    /// <param name="DefaultValue"></param>
-    /// <param name="Description"></param>
-    /// <param name="Flags"></param>
-    /// <param name="Validator"></param>
-    public record CVarCreateInfo<T>(
-        string Name,
-        T DefaultValue,
-        string Description,
-        CVarFlags Flags = CVarFlags.None,
-        Func<T, bool>? Validator = null
-    );
+    public record CVarCreateInfo<T>
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Name { get; init; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public T DefaultValue { get; init; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Description { get; init; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public CVarFlags Flags { get; init; } = CVarFlags.None;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public Func<T, bool>? Validator { get; init; } = null;
+    }
 }
