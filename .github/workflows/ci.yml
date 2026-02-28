@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        dotnet-version: ['10.0.x', '8.0.x']
+        dotnet-version: ['10.0.x', '8.0.x', '11.0.x']
     
     runs-on: ${{ matrix.os }}
     timeout-minutes: 25
@@ -34,6 +34,9 @@ jobs:
       with:
         dotnet-version: ${{ matrix.dotnet-version }}
         cache-depdendency-path: '**/*.csproj'
+    
+    - name: ✅ Validate solution
+      run: dotnet sln NomadFramework.slnx list
     
     - name: 🔒 Check for vulnerable packages
       run: dotnet list NomadFramework.slnx package --vulnerable --include-transitive
@@ -101,5 +104,5 @@ jobs:
         git config user.email "github-actions[bot]@users.noreply.github.com"
         git add .
         git commit -m "Update Wiki documentation from CI"
-        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.wiki.git
+        git push https://x-access-token:${{ secrets.API_TOKEN }}@github.com/${{ github.repository }}.wiki.git
       
