@@ -69,8 +69,8 @@ namespace Nomad.Save.Private.Serialization.FieldSerializers {
 		/// <param name="serializer"></param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public static void Register<T>( IFieldSerializer<T> serializer ) {
-			_serializers[ typeof( T ) ] = serializer;
-			_serializerByFieldType[ serializer.FieldType ] = serializer;
+			_serializers[typeof( T )] = serializer;
+			_serializerByFieldType[serializer.FieldType] = serializer;
 		}
 
 		/*
@@ -100,6 +100,6 @@ namespace Nomad.Save.Private.Serialization.FieldSerializers {
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public static IFieldSerializer GetSerializer( Type type )
-			=> _serializers[ type ];
+			=> _serializers[type];
 	};
 };

@@ -30,7 +30,7 @@ namespace Nomad.CVars.Private.Repositories {
 	/// </summary>
 
 	internal readonly ref struct ConfigFileReader {
-		private readonly IniLoader Loader;
+		private readonly IniLoader _loader;
 
 		/*
 		===============
@@ -48,7 +48,7 @@ namespace Nomad.CVars.Private.Repositories {
 
 			logger.PrintLine( $"Loading configuration file {configFile}..." );
 
-			Loader = new IniLoader( configFile, logger, fileSystem );
+			_loader = new IniLoader( configFile, logger, fileSystem );
 		}
 
 		/*
@@ -64,8 +64,7 @@ namespace Nomad.CVars.Private.Repositories {
 		/// <returns></returns>
 		public bool TryGetValue( string name, out string value ) {
 			ArgumentGuard.ThrowIfNullOrEmpty( name );
-
-			return Loader.LoadConfigValue( name, out value );
+			return _loader.LoadConfigValue( name, out value );
 		}
 	};
 };

@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -26,7 +26,7 @@ namespace Nomad.Input.Private.ValueObjects {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal sealed class BindMapping {
 		/// <summary>
 		/// 

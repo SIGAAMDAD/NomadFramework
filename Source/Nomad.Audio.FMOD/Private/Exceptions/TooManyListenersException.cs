@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025 Noah Van Til
@@ -18,8 +18,7 @@ using System;
 namespace Nomad.Audio.Fmod.Private.Exceptions {
 	internal sealed class TooManyListenersException : Exception {
 		public TooManyListenersException()
-			: base( "Too many registered listeners!" )
-		{
+			: base( "Too many registered listeners!" ) {
 		}
 	};
 };

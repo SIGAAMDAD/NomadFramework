@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025 Noah Van Til
@@ -16,13 +16,11 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using Nomad.Core.Exceptions;
 
 namespace Nomad.Audio.Fmod {
-	public sealed class FMODException : NomadError
-	{
+	public sealed class FMODException : NomadError {
 		public readonly string Error;
 
 		public FMODException( string errorString )
-			: base( errorString )
-		{
+			: base( errorString ) {
 			Error = errorString;
 		}
 	}

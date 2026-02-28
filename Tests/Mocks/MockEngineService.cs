@@ -22,86 +22,86 @@ using Nomad.Core.Util;
 
 public class MockEngineService : IEngineService
 {
-	public IGameEvent<WindowSizeChangedEventArgs> WindowSizeChanged => throw new NotImplementedException();
+    public IGameEvent<WindowSizeChangedEventArgs> WindowSizeChanged => throw new NotImplementedException();
 
-	public IConsoleObject CreateConsoleObject()
-	{
-		throw new NotImplementedException();
-	}
+    public IConsoleObject CreateConsoleObject()
+    {
+        throw new NotImplementedException();
+    }
 
-	public IDisposable CreateImageRGBA(byte[] image, int width, int height)
-	{
-		throw new NotImplementedException();
-	}
+    public IDisposable CreateImageRGBA(byte[] image, int width, int height)
+    {
+        throw new NotImplementedException();
+    }
 
-	public string GetApplicationVersion()
-	{
-		throw new NotImplementedException();
-	}
+    public string GetApplicationVersion()
+    {
+        throw new NotImplementedException();
+    }
 
-	public string GetEngineVersion()
-	{
-		throw new NotImplementedException();
-	}
+    public string GetEngineVersion()
+    {
+        throw new NotImplementedException();
+    }
 
-	public string GetLocalPath(string ospath)
-	{
-		throw new NotImplementedException();
-	}
+    public string GetLocalPath(string ospath)
+    {
+        throw new NotImplementedException();
+    }
 
-	public string GetOSPath(string localpath)
-	{
-		throw new NotImplementedException();
-	}
+    public string GetOSPath(string localpath)
+    {
+        throw new NotImplementedException();
+    }
 
-	public void GetScreenResolution(out int width, out int height)
-	{
-		throw new NotImplementedException();
-	}
+    public void GetScreenResolution(out int width, out int height)
+    {
+        throw new NotImplementedException();
+    }
 
-	public string GetStoragePath(StorageScope scope)
-	{
-		return System.IO.Directory.GetCurrentDirectory();
-	}
+    public string GetStoragePath(StorageScope scope)
+    {
+        return System.IO.Directory.GetCurrentDirectory();
+    }
 
-	public string GetStoragePath(string relativePath, StorageScope scope)
-	{
-		return $"{System.IO.Directory.GetCurrentDirectory()}/{relativePath}";
-	}
+    public string GetStoragePath(string relativePath, StorageScope scope)
+    {
+        return $"{System.IO.Directory.GetCurrentDirectory()}/{relativePath}";
+    }
 
-	public string GetSystemRegion()
-	{
-		throw new NotImplementedException();
-	}
+    public string GetSystemRegion()
+    {
+        throw new NotImplementedException();
+    }
 
-	public void Quit(int exitCode = 0)
-	{
-		throw new NotImplementedException();
-	}
+    public void Quit(int exitCode = 0)
+    {
+        throw new NotImplementedException();
+    }
 
-	public void SetScreenResolution(int width, int height)
-	{
-		throw new NotImplementedException();
-	}
+    public void SetScreenResolution(int width, int height)
+    {
+        throw new NotImplementedException();
+    }
 
-	public string Translate(InternString key)
-	{
-		throw new NotImplementedException();
-	}
+    public string Translate(InternString key)
+    {
+        throw new NotImplementedException();
+    }
 
-	public IResourceLoader GetResourceLoader()
-	{
-		throw new NotImplementedException();
-	}
+    public IResourceLoader GetResourceLoader()
+    {
+        throw new NotImplementedException();
+    }
 
-	public bool IsApplicationFocused()
-	{
-		throw new NotImplementedException();
-	}
+    public bool IsApplicationFocused()
+    {
+        throw new NotImplementedException();
+    }
 
-	public void Dispose()
-	{
-		GC.SuppressFinalize(this);
-	}
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
+    }
 }
 #endif

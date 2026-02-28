@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -28,7 +28,7 @@ namespace Nomad.Input.Private.ValueObjects {
 	/// <summary>
 	/// Represents an input binding's unique identifier.
 	/// </summary>
-	
+
 	internal readonly struct BindKey : IEquatable<BindKey> {
 		/// <summary>
 		/// The bind's name. Used for generating the hashkey.
@@ -73,7 +73,7 @@ namespace Nomad.Input.Private.ValueObjects {
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public bool Equals( BindKey other )
 			=> _hashCode == other._hashCode;
-		
+
 		/*
 		===============
 		GetHashCode

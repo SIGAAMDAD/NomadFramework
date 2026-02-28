@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -92,7 +92,7 @@ namespace Nomad.CVars.Private.Services {
 		===============
 		*/
 		public ICVar<T>? GetCVar<T>( string name ) {
-			if ( _cvars.TryGetValue( new InternString( name ), out ICVar cvar ) ) {
+			if ( _cvars.TryGetValue( new InternString( name ), out ICVar? cvar ) ) {
 				if ( cvar is ICVar<T> typedVar ) {
 					return typedVar;
 				} else {

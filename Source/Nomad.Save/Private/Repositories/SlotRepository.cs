@@ -35,7 +35,7 @@ namespace Nomad.Save.Private.Repositories {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal sealed class SlotRepository : IDisposable {
 		private readonly Dictionary<string, SaveSlot> _saveSlots = new Dictionary<string, SaveSlot>();
 
@@ -47,7 +47,7 @@ namespace Nomad.Save.Private.Repositories {
 		private readonly SaveConfig _config;
 
 		private bool _isDisposed = false;
-		
+
 		/*
 		===============
 		SlotRepository
@@ -69,7 +69,7 @@ namespace Nomad.Save.Private.Repositories {
 
 			RefreshSlots();
 		}
-		
+
 		/*
 		===============
 		Dispose
@@ -106,7 +106,7 @@ namespace Nomad.Save.Private.Repositories {
 			if ( _saveSlots.TryGetValue( name, out var slotData ) ) {
 				// update the metadata
 				metadata = slotData.Metadata;
-				_saveSlots[ name ] = slotData with {
+				_saveSlots[name] = slotData with {
 					Metadata = slotData.Metadata with {
 						LastAccessYear = lastAccessTime.Year,
 						LastAccessMonth = lastAccessTime.Month,
@@ -144,11 +144,11 @@ namespace Nomad.Save.Private.Repositories {
 		/// </summary>
 		/// <returns></returns>
 		public IReadOnlyList<SaveFileMetadata> GetMetadataList() {
-			SaveFileMetadata[] metadata = new SaveFileMetadata[ _saveSlots.Count ];
+			SaveFileMetadata[] metadata = new SaveFileMetadata[_saveSlots.Count];
 			int index = 0;
 
 			foreach ( var slot in _saveSlots ) {
-				metadata[ index++ ] = slot.Value.Metadata;
+				metadata[index++] = slot.Value.Metadata;
 			}
 
 			return metadata;
@@ -166,23 +166,23 @@ namespace Nomad.Save.Private.Repositories {
 			var slots = _fileSystem.GetFiles( _config.DataPath, "*.ngd", false );
 
 			for ( int i = 0; i < slots.Count; i++ ) {
-				using var reader = _fileSystem.OpenRead( new FileReadConfig { FilePath = slots[ i ] } );
+				using var reader = _fileSystem.OpenRead( new FileReadConfig { FilePath = slots[i] } );
 				if ( reader == null || reader is not IFileReadStream fileReader ) {
-					_logger.PrintError( $"SlotRepository.RefreshSlots: error opening save data file '{slots[ i ]}'!" );
+					_logger.PrintError( $"SlotRepository.RefreshSlots: error opening save data file '{slots[i]}'!" );
 					continue;
 				}
 
-				_logger.PrintLine( $"SlotRepository.RefreshSlots: adding save file '{slots[ i ]}' to data cache..." );
+				_logger.PrintLine( $"SlotRepository.RefreshSlots: adding save file '{slots[i]}' to data cache..." );
 
 				var fileInfo = new FileInfo( fileReader.FilePath );
 				DateTime lastAccessTime = fileInfo.LastAccessTime;
 				DateTime creationTime = fileInfo.CreationTime;
-				
+
 				var header = SaveHeader.Deserialize( fileReader, out bool magicMatches );
 				_saveSlots.Add(
 					header.Name,
 					new SaveSlot(
-						slots[ i ],
+						slots[i],
 						new SaveFileMetadata(
 							SaveName: header.Name,
 							FileSize: reader.Length,

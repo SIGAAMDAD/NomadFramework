@@ -78,9 +78,9 @@ public class SaveSectionTests
         _loadBegin?.Dispose();
         _dataProvider?.Dispose();
         _cvarSystem?.Dispose();
-		_logger?.Dispose();
-		_fileSystem?.Dispose();
-		_eventFactory?.Dispose();
+        _logger?.Dispose();
+        _fileSystem?.Dispose();
+        _eventFactory?.Dispose();
 
         try
         {
@@ -114,19 +114,19 @@ public class SaveSectionTests
         // Act
         await _dataProvider.Save(fileId, default);
 
-		using (Assert.EnterMultipleScope())
-		{
-			// Assert
-			Assert.That(sectionAdded, Is.True);
-			Assert.That(sectionName, Is.EqualTo("TestSection"));
-		}
-	}
+        using (Assert.EnterMultipleScope())
+        {
+            // Assert
+            Assert.That(sectionAdded, Is.True);
+            Assert.That(sectionName, Is.EqualTo("TestSection"));
+        }
+    }
 
     [Test]
     public async Task AddField_WithVariousTypes_PreservesValues()
     {
         // Arrange
-        string fileId =  "field_types_test";
+        string fileId = "field_types_test";
 
         float floatValue = 3.14159f;
         double doubleValue = 2.71828d;
@@ -167,16 +167,16 @@ public class SaveSectionTests
         await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
-		using (Assert.EnterMultipleScope())
-		{
-			// Assert
-			Assert.That(loadedFloat, Is.EqualTo(floatValue).Within(0.00001f));
-			Assert.That(loadedDouble, Is.EqualTo(doubleValue).Within(0.00001f));
-			Assert.That(loadedInt, Is.EqualTo(intValue));
-			Assert.That(loadedString, Is.EqualTo(stringValue));
-			Assert.That(loadedBool, Is.EqualTo(boolValue));
-		}
-	}
+        using (Assert.EnterMultipleScope())
+        {
+            // Assert
+            Assert.That(loadedFloat, Is.EqualTo(floatValue).Within(0.00001f));
+            Assert.That(loadedDouble, Is.EqualTo(doubleValue).Within(0.00001f));
+            Assert.That(loadedInt, Is.EqualTo(intValue));
+            Assert.That(loadedString, Is.EqualTo(stringValue));
+            Assert.That(loadedBool, Is.EqualTo(boolValue));
+        }
+    }
 
     [Test]
     public async Task FieldCount_ReturnsCorrectCount()
@@ -209,7 +209,7 @@ public class SaveSectionTests
     public async Task SectionName_PropertyIsAccessible()
     {
         // Arrange
-        string fileId =  "section_name_test";
+        string fileId = "section_name_test";
         string expectedSectionName = "MyCustomSection";
         string actualSectionName = String.Empty;
 
@@ -230,7 +230,7 @@ public class SaveSectionTests
     public async Task GetField_WithNonExistentField_ReturnsDefault()
     {
         // Arrange
-        string fileId =  "nonexistent_field_test";
+        string fileId = "nonexistent_field_test";
         int retrievedValue = int.MinValue;
 
         _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
@@ -260,7 +260,7 @@ public class SaveSectionTests
     public async Task HasField_WithExistingField_ReturnsTrue()
     {
         // Arrange
-        string fileId =  "has_field_test";
+        string fileId = "has_field_test";
         bool hasField = false;
 
         _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
@@ -281,7 +281,7 @@ public class SaveSectionTests
     public async Task FindSection_WithValidSectionName_ReturnsSection()
     {
         // Arrange
-        string fileId =  "find_section_test";
+        string fileId = "find_section_test";
         bool foundSection = false;
 
         _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
@@ -308,7 +308,7 @@ public class SaveSectionTests
     public async Task FindSection_WithInvalidSectionName_ReturnsNull()
     {
         // Arrange
-        string fileId =  "find_section_invalid_test";
+        string fileId = "find_section_invalid_test";
         bool foundSection = true;
 
         _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
@@ -335,7 +335,7 @@ public class SaveSectionTests
     public async Task AddField_WithIntegerTypes_PreservesValues()
     {
         // Arrange
-        string fileId =  "integer_types_test";
+        string fileId = "integer_types_test";
         var saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
         var loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
 
@@ -390,19 +390,19 @@ public class SaveSectionTests
         await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
-		using (Assert.EnterMultipleScope())
-		{
-			// Assert
-			Assert.That(loaded_sbyte, Is.EqualTo(sbyte_val));
-			Assert.That(loaded_short, Is.EqualTo(short_val));
-			Assert.That(loaded_int, Is.EqualTo(int_val));
-			Assert.That(loaded_long, Is.EqualTo(long_val));
-			Assert.That(loaded_byte, Is.EqualTo(byte_val));
-			Assert.That(loaded_ushort, Is.EqualTo(ushort_val));
-			Assert.That(loaded_uint, Is.EqualTo(uint_val));
-			Assert.That(loaded_ulong, Is.EqualTo(ulong_val));
-		}
-	}
+        using (Assert.EnterMultipleScope())
+        {
+            // Assert
+            Assert.That(loaded_sbyte, Is.EqualTo(sbyte_val));
+            Assert.That(loaded_short, Is.EqualTo(short_val));
+            Assert.That(loaded_int, Is.EqualTo(int_val));
+            Assert.That(loaded_long, Is.EqualTo(long_val));
+            Assert.That(loaded_byte, Is.EqualTo(byte_val));
+            Assert.That(loaded_ushort, Is.EqualTo(ushort_val));
+            Assert.That(loaded_uint, Is.EqualTo(uint_val));
+            Assert.That(loaded_ulong, Is.EqualTo(ulong_val));
+        }
+    }
 
     [Test]
     public async Task AddField_WithFloatingPointTypes_PreservesValues()
@@ -439,13 +439,13 @@ public class SaveSectionTests
         await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
-		using (Assert.EnterMultipleScope())
-		{
-			// Assert
-			Assert.That(loaded_float, Is.EqualTo(float_val).Within(0.00001f));
-			Assert.That(loaded_double, Is.EqualTo(double_val).Within(0.00001));
-		}
-	}
+        using (Assert.EnterMultipleScope())
+        {
+            // Assert
+            Assert.That(loaded_float, Is.EqualTo(float_val).Within(0.00001f));
+            Assert.That(loaded_double, Is.EqualTo(double_val).Within(0.00001));
+        }
+    }
 
     [Test]
     public async Task SectionReader_FieldCount_ReturnsCorrectCount()
@@ -465,7 +465,7 @@ public class SaveSectionTests
             section.AddField("F3", 3);
         });
 
-        Console.WriteLine( "Testing save files..." );
+        Console.WriteLine("Testing save files...");
 
         _loadBegin.Subscribe((in LoadBeginEventArgs args) =>
         {
@@ -488,7 +488,7 @@ public class SaveSectionTests
     public async Task Multiple_Sections_IndependentStorage()
     {
         // Arrange
-        string fileId =  "multiple_sections_test";
+        string fileId = "multiple_sections_test";
         int playerValue = 0;
         int enemyValue = 0;
         int worldValue = 0;
@@ -530,14 +530,14 @@ public class SaveSectionTests
         await _dataProvider.Save(fileId, default);
         await _dataProvider.Load(fileId);
 
-		using (Assert.EnterMultipleScope())
-		{
-			// Assert
-			Assert.That(playerValue, Is.EqualTo(100));
-			Assert.That(enemyValue, Is.EqualTo(80));
-			Assert.That(worldValue, Is.EqualTo(5));
-		}
-	}
+        using (Assert.EnterMultipleScope())
+        {
+            // Assert
+            Assert.That(playerValue, Is.EqualTo(100));
+            Assert.That(enemyValue, Is.EqualTo(80));
+            Assert.That(worldValue, Is.EqualTo(5));
+        }
+    }
 
     [Test]
     [TestCase("SimpleSection")]

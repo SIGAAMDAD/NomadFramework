@@ -8,6 +8,10 @@ on:
   schedule:
     - cron: '0 2 * * *'  # Run at 2 AM daily
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     strategy:
@@ -29,15 +33,8 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ matrix.dotnet-version }}
-    
-    # CACHE for faster builds
-    - name: 💾 Cache NuGet packages
-      uses: actions/cache@v4
-      with:
-        path: ~/.nuget/packages
-        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
-        restore-keys: |
-          ${{ runner.os }}-nuget-
+        cache: true
+        cache-depdendency-path: '**/*.csproj'
     
     - name: 🔒 Check for vulnerable packages
       run: dotnet list NomadFramework.slnx package --vulnerable --include-transitive
@@ -69,6 +66,12 @@ jobs:
     - name: 📦 Restore
       run: |
         dotnet restore NomadFramework.slnx
+
+    - name: 🔍 Check code format
+      run: dotnet format --verify-no-changes
+    - name: 🔬 Run static analysis
+      run: dotnet list package --vulnerable   # you already have this
+      # Optionally add Roslyn analyzers: dotnet build -p:RunAnalyzers=true
     
     - name: 🔨 Build
       run: |
@@ -78,9 +81,26 @@ jobs:
       run: |
         dotnet test --configuration Release --no-build --collect:"XPlat Code Coverage" --settings coverlet.runsettings
 
-    - name: ☁️ Upload coverage to Codecov
-      uses: codecov/codecov-action@v5
+    - name: 📎 Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
       with:
-        files: '**/coverage.cobertura.xml'
-        flags: ${{ runner.os }}
+        name: test-results-${{ matrix.os }}-${{ matrix.dotnet-version }}
+        path: ./TestResults
+    
+    - name: 📚 Generate Doxygen documentation
+      run: doxygen Doxyfile   # assumes Doxyfile is in root
+      continue-on-error: true # optional
+
+    - name: 🚀 Deploy docs to Wiki
+      if: github.ref == 'refs/heads/main'
+      run: |
+        git clone https://github.com/${{ github.repository }}.wiki.git ./wiki
+        cp -r ./Documentation/html/* ./wiki/
+        cd wiki
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add .
+        git commit -m "Update Wiki documentation from CI"
+        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.wiki.git
       

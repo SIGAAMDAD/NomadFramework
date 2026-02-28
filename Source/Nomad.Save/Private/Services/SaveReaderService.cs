@@ -122,7 +122,7 @@ namespace Nomad.Save.Private.Services {
 
 			for ( int i = 0; i < header.SectionCount; i++ ) {
 				var section = new SaveSectionReader( _config, i, reader, _logger );
-				_sections[ section.Name ] = section;
+				_sections[section.Name] = section;
 			}
 
 			_logger.PrintLine( in _category, "...Finished loading save data" );

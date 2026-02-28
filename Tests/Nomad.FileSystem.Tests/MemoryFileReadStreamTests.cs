@@ -69,7 +69,7 @@ namespace Nomad.FileSystem.Tests
 
         private IReadStream OpenMemoryFileReadStream()
         {
-            var config = new MemoryFileReadConfig{ FilePath = "memread.bin", MaxCapacity = 1024 };
+            var config = new MemoryFileReadConfig { FilePath = "memread.bin", MaxCapacity = 1024 };
             return _service.OpenRead(config);
         }
 
@@ -78,60 +78,60 @@ namespace Nomad.FileSystem.Tests
         {
             using var stream = OpenMemoryFileReadStream();
             Assert.That(stream, Is.Not.Null);
-            
+
             Span<byte> buffer = stackalloc byte[_testData.Length];
             int read = stream.Read(buffer, 0, buffer.Length);
-			using (Assert.EnterMultipleScope())
-			{
-				Assert.That(read, Is.EqualTo(_testData.Length));
-				Assert.That(buffer.SequenceEqual(_testData.AsSpan()));
-			}
-		}
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(read, Is.EqualTo(_testData.Length));
+                Assert.That(buffer.SequenceEqual(_testData.AsSpan()));
+            }
+        }
 
         [Test]
         public async Task ReadAsync_ReadsAllBytes()
         {
             using var stream = OpenMemoryFileReadStream();
             Assert.That(stream, Is.Not.Null);
-            
+
             Memory<byte> buffer = new byte[_testData.Length];
             int read = await stream.ReadAsync(buffer);
-			using (Assert.EnterMultipleScope())
-			{
-				Assert.That(read, Is.EqualTo(_testData.Length));
-				Assert.That(buffer.ToArray(), Is.EqualTo(_testData));
-			}
-		}
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(read, Is.EqualTo(_testData.Length));
+                Assert.That(buffer.ToArray(), Is.EqualTo(_testData));
+            }
+        }
 
         [Test]
         public void ReadBytes_ReadsAllBytes()
         {
             using var stream = OpenMemoryFileReadStream();
             Assert.That(stream, Is.Not.Null);
-            
+
             byte[] buffer = new byte[_testData.Length];
             int read = stream.Read(buffer, 0, buffer.Length);
-			using (Assert.EnterMultipleScope())
-			{
-				Assert.That(read, Is.EqualTo(_testData.Length));
-				Assert.That(buffer, Is.EqualTo(_testData));
-			}
-		}
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(read, Is.EqualTo(_testData.Length));
+                Assert.That(buffer, Is.EqualTo(_testData));
+            }
+        }
 
         [Test]
         public async Task ReadBytesAsync_ReadsAllBytes()
         {
             using var stream = OpenMemoryFileReadStream();
             Assert.That(stream, Is.Not.Null);
-            
+
             byte[] buffer = new byte[_testData.Length];
             int read = await stream.ReadAsync(buffer, 0, buffer.Length);
-			using (Assert.EnterMultipleScope())
-			{
-				Assert.That(read, Is.EqualTo(_testData.Length));
-				Assert.That(buffer, Is.EqualTo(_testData));
-			}
-		}
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(read, Is.EqualTo(_testData.Length));
+                Assert.That(buffer, Is.EqualTo(_testData));
+            }
+        }
 
         [Test]
         public void Read_Partial_AdvancesPosition()
@@ -139,13 +139,13 @@ namespace Nomad.FileSystem.Tests
             using var stream = OpenMemoryFileReadStream();
             byte[] buffer = new byte[2];
             int read = stream.Read(buffer, 0, 2);
-			using (Assert.EnterMultipleScope())
-			{
-				Assert.That(read, Is.EqualTo(2));
-				Assert.That(buffer, Is.EqualTo(new byte[] { 10, 20 }));
-				Assert.That(stream.Position, Is.EqualTo(2));
-			}
-		}
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(read, Is.EqualTo(2));
+                Assert.That(buffer, Is.EqualTo(new byte[] { 10, 20 }));
+                Assert.That(stream.Position, Is.EqualTo(2));
+            }
+        }
 
         [Test]
         public void ReadToEnd_ReadsRemaining()
@@ -353,27 +353,27 @@ namespace Nomad.FileSystem.Tests
         {
             var stream = OpenMemoryFileReadStream() as MemoryFileReadStream;
 
-			using (Assert.EnterMultipleScope())
-			{
-				Assert.That(stream.IsOpen, Is.True);
-				Assert.That(stream.CanRead, Is.True);
-				Assert.That(stream.CanWrite, Is.False);
-			}
-		}
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(stream.IsOpen, Is.True);
+                Assert.That(stream.CanRead, Is.True);
+                Assert.That(stream.CanWrite, Is.False);
+            }
+        }
 
         [Test]
         public void Flush_ThrowsNotSupportedException()
         {
             var stream = OpenMemoryFileReadStream() as IMemoryFileReadStream;
-            Assert.Throws<NotSupportedException>( () => stream.Flush() );
+            Assert.Throws<NotSupportedException>(() => stream.Flush());
         }
 
         [Test]
         public async Task FlushAsync_ThrowsNotSupportedException()
         {
             var stream = OpenMemoryFileReadStream() as IMemoryFileReadStream;
-            
-            Assert.ThrowsAsync<NotSupportedException>( async () => await stream.FlushAsync() );
+
+            Assert.ThrowsAsync<NotSupportedException>(async () => await stream.FlushAsync());
         }
     }
 }

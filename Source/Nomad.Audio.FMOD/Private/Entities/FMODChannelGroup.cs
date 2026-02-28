@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -91,8 +91,8 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 		/// <param name="category"></param>
 		/// <param name="system">The core FMOD system.</param>
 		public FMODChannelGroup( SoundCategoryCreateInfo category, FMOD.Studio.System system ) {
-//			FMODValidator.ValidateCall( system.getBus( "Master", out _bus ) );
-//			FMODValidator.ValidateCall( _bus.getChannelGroup( out _group ) );
+			//			FMODValidator.ValidateCall( system.getBus( "Master", out _bus ) );
+			//			FMODValidator.ValidateCall( _bus.getChannelGroup( out _group ) );
 		}
 
 		/*

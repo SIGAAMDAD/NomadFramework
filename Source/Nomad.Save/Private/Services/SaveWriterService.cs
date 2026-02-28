@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -188,8 +188,8 @@ namespace Nomad.Save.Private.Services {
 				throw new DuplicateSectionException( $"Section {sectionId} added twice!" );
 			}
 			var writer = new SaveSectionWriter( in _config, _logger, _category, sectionId, _writer );
-			_sections[ sectionId ] = writer;
-			
+			_sections[sectionId] = writer;
+
 			if ( _config.LogSerializationTree ) {
 				_logger.PrintLine( in _category, $"\t[Section] (NAME) {sectionId}" );
 			}

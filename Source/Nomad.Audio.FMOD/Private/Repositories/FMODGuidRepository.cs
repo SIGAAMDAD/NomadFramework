@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -34,8 +34,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 
 	internal sealed class FMODGuidRepository : IGuidRepository<FMOD.GUID, FMOD.GUID> {
 		private sealed class GUIDCache<TGuid, TId>
-			where TId : notnull
-		{
+			where TId : notnull {
 			private readonly Dictionary<TGuid, TId> _guids = new Dictionary<TGuid, TId>();
 			private readonly Dictionary<TId, TGuid> _reverseLookup = new Dictionary<TId, TGuid>();
 
@@ -92,8 +91,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			_lock.EnterWriteLock();
 			try {
 				_eventGuids.Add( path, guid );
-			}
-			finally {
+			} finally {
 				_lock.ExitWriteLock();
 			}
 		}
@@ -112,8 +110,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			_lock.EnterWriteLock();
 			try {
 				_bankGuids.Add( path, guid );
-			}
-			finally {
+			} finally {
 				_lock.ExitWriteLock();
 			}
 		}
@@ -127,8 +124,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			_lock.EnterUpgradeableReadLock();
 			try {
 				return _eventGuids[ guid ];
-			}
-			finally {
+			} finally {
 				_lock.ExitUpgradeableReadLock();
 			}
 		}
@@ -142,8 +138,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			_lock.EnterUpgradeableReadLock();
 			try {
 				return _eventGuids[ id ];
-			}
-			finally {
+			} finally {
 				_lock.ExitUpgradeableReadLock();
 			}
 		}
@@ -162,8 +157,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			_lock.EnterUpgradeableReadLock();
 			try {
 				return _bankGuids[ guid ];
-			}
-			finally {
+			} finally {
 				_lock.ExitUpgradeableReadLock();
 			}
 		}
@@ -182,8 +176,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			_lock.EnterUpgradeableReadLock();
 			try {
 				return _bankGuids[ id ];
-			}
-			finally {
+			} finally {
 				_lock.ExitUpgradeableReadLock();
 			}
 		}

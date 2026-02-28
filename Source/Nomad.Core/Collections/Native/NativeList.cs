@@ -29,13 +29,13 @@ namespace Nomad.Core.Collections.Native
         /// <summary>
         /// 
         /// </summary>
-        public int Count => _length;
-        private int _length;
+        public readonly int Count => _length;
+        private readonly int _length;
 
         /// <summary>
         /// 
         /// </summary>
-        public int Capacity => _capacity;
+        public readonly int Capacity => _capacity;
         private int _capacity;
 
         private readonly int _growGranularity;

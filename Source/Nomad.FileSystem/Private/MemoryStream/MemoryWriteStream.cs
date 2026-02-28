@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -61,7 +61,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		public override bool CanWrite => true;
 
-		private bool _fixedSize;
+		private readonly bool _fixedSize;
 
 		/*
 		===============
@@ -73,8 +73,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <param name="config"></param>
 		public MemoryWriteStream( MemoryWriteConfig config )
-			: base( config.Strategy )
-		{
+			: base( config.Strategy ) {
 			if ( config.InitialCapacity < 0 || config.InitialCapacity > config.MaxCapacity || config.InitialCapacity > MAX_CAPACITY || config.MaxCapacity > MAX_CAPACITY ) {
 				throw new ArgumentOutOfRangeException( nameof( config ) );
 			}
@@ -321,7 +320,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 			int byteCount;
 
 			if ( maxByteCount <= STACK_ALLOC_THRESHOLD ) {
-				Span<byte> tempBuffer = stackalloc byte[ maxByteCount ];
+				Span<byte> tempBuffer = stackalloc byte[maxByteCount];
 
 				byteCount = Encoding.UTF8.GetBytes( value, tempBuffer );
 				Write7BitEncodedInt( byteCount );
@@ -351,12 +350,12 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		public void Write7BitEncodedInt( int value ) {
 			StateGuard.ThrowIfDisposed( isDisposed, this );
 
-			uint uValue = ( uint )value;
+			uint uValue = (uint)value;
 			while ( uValue >= 0x80 ) {
-				Write( ( byte )(uValue | 0x80), sizeof( byte ) );
+				Write( (byte)(uValue | 0x80), sizeof( byte ) );
 				uValue >>= 7;
 			}
-			Write( ( byte )uValue, sizeof( byte ) );
+			Write( (byte)uValue, sizeof( byte ) );
 		}
 
 		/*

@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -34,7 +34,7 @@ namespace Nomad.Input.Private.Repositories {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal sealed class BindRepository : IDisposable {
 		private readonly Dictionary<BindKey, IInputAction> _bindings;
 		private readonly Dictionary<InputEventData, BindKey> _bindTriggers;

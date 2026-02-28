@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -33,7 +33,7 @@ namespace Nomad.Input.Private.Services {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal sealed class BindLoader {
 		private readonly IFileSystem _fileSystem;
 
@@ -68,8 +68,7 @@ namespace Nomad.Input.Private.Services {
 
 			var database = JsonSerializer.Deserialize<BindMapping>(
 				_fileSystem.LoadFile( filePath )!.Span,
-				new JsonSerializerOptions
-				{
+				new JsonSerializerOptions {
 					ReadCommentHandling = JsonCommentHandling.Skip,
 					AllowTrailingCommas = true,
 					PropertyNameCaseInsensitive = true
@@ -100,7 +99,7 @@ namespace Nomad.Input.Private.Services {
 				throw new Exception( $"Invalid InputMapping ButtonId '{mapping.ButtonId}' when loading Keyboard binding, it must be a valid KeyNum!" );
 			}
 
-			return new KeyboardEvent( (KeyNum)keyNum, )
+			return new KeyboardEvent( ( KeyNum )keyNum, )
 		}
 
 		private InputEventData ParseInputEvent( InputMapping mapping ) {
@@ -109,7 +108,7 @@ namespace Nomad.Input.Private.Services {
 			switch ( mapping.DeviceId ) {
 				case Constants.KEYBOARD_DEVICE_ID:
 					data = new InputEventData(
-						new KeyboardEvent( )
+						new KeyboardEvent()
 					);
 					break;
 				case Constants.GAMEPAD_DEVICE_ID:

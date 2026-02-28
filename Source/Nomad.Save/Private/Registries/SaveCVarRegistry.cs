@@ -27,7 +27,7 @@ namespace Nomad.Save.Private.Registries {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal static class SaveCVarRegistry {
 		/*
 		===============
@@ -61,7 +61,7 @@ namespace Nomad.Save.Private.Registries {
 					Name = Constants.CVars.MAX_BACKUPS,
 					DefaultValue = 3,
 					Description = "The maximum number of automatically created backups that are allowed to exist per save file.",
-					Flags =CVarFlags.Init | CVarFlags.Archive
+					Flags = CVarFlags.Init | CVarFlags.Archive
 				}
 			);
 			cvarSystem.Register(
@@ -69,7 +69,7 @@ namespace Nomad.Save.Private.Registries {
 					Name = Constants.CVars.AUTO_SAVE_ENABLED,
 					DefaultValue = true,
 					Description = "Enables auto-saving features.",
-					Flags =CVarFlags.Archive
+					Flags = CVarFlags.Archive
 				}
 			);
 			cvarSystem.Register(
@@ -77,7 +77,7 @@ namespace Nomad.Save.Private.Registries {
 					Name = Constants.CVars.AUTO_SAVE_INTERVAL,
 					DefaultValue = 5,
 					Description = "The interval at which an auto-save is triggered. The value is represented in minutes.",
-					Flags =CVarFlags.Archive
+					Flags = CVarFlags.Archive
 				}
 			);
 			cvarSystem.Register(
@@ -85,7 +85,7 @@ namespace Nomad.Save.Private.Registries {
 					Name = Constants.CVars.CHECKSUM_ENABLED,
 					DefaultValue = true,
 					Description = "Toggles save file checksums for corruption/hash validation.",
-					Flags =CVarFlags.Init | CVarFlags.Developer
+					Flags = CVarFlags.Init | CVarFlags.Developer
 				}
 			);
 			cvarSystem.Register(
@@ -104,7 +104,7 @@ namespace Nomad.Save.Private.Registries {
 					DefaultValue = false,
 #endif
 					Description = "Enables debug logging within the save system.",
-					Flags =CVarFlags.Archive
+					Flags = CVarFlags.Archive
 				}
 			);
 			cvarSystem.Register(
@@ -116,7 +116,7 @@ namespace Nomad.Save.Private.Registries {
 					DefaultValue = false,
 #endif
 					Description = "Dumps the entire section/field tree to the logger.",
-					Flags =CVarFlags.Archive
+					Flags = CVarFlags.Archive
 				}
 			);
 			cvarSystem.Register(

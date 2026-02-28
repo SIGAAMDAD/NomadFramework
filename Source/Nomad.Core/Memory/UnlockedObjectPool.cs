@@ -28,7 +28,7 @@ namespace Nomad.Core.Memory
         /// 
         /// </summary>
         public int TotalCount => _currentSize;
-        private int _currentSize = 0;
+        private readonly int _currentSize = 0;
 
         /// <summary>
         /// 
@@ -81,8 +81,6 @@ namespace Nomad.Core.Memory
         /// </summary>
         /// <param name="value"></param>
         public void Return(T value)
-        {
-            _pool.Add(value);
-        }
+            => _pool.Add(value);
     }
 }

@@ -29,24 +29,24 @@ namespace Nomad.CVars.Private.Entities {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal static class CVarStringConverter {
 		private delegate bool TryParseDelegate( string s, out object? result );
 		private delegate bool TryParseUnmanaged<T>( string s, NumberStyles styles, IFormatProvider provider, out T value ) where T : unmanaged;
 
 		private static readonly Dictionary<Type, TryParseDelegate> _parsers = new Dictionary<Type, TryParseDelegate>() {
-			[ typeof( sbyte ) ] = ( string s, out object? r ) => TryParsePrimitive<sbyte>( s, out r, NumberStyles.Integer, sbyte.TryParse ),
-			[ typeof( short ) ] = ( string s, out object? r ) => TryParsePrimitive<short>( s, out r, NumberStyles.Integer, short.TryParse ),
-			[ typeof( int ) ] = ( string s, out object? r ) => TryParsePrimitive<int>( s, out r, NumberStyles.Integer, int.TryParse ),
-			[ typeof( long ) ] = ( string s, out object? r ) => TryParsePrimitive<long>( s, out r, NumberStyles.Integer, long.TryParse ),
-			[ typeof( byte ) ] = ( string s, out object? r ) => TryParsePrimitive<byte>( s, out r, NumberStyles.Integer, byte.TryParse ),
-			[ typeof( ushort ) ] = ( string s, out object? r ) => TryParsePrimitive<ushort>( s, out r, NumberStyles.Integer, ushort.TryParse ),
-			[ typeof( uint ) ] = ( string s, out object? r ) => TryParsePrimitive<uint>( s, out r, NumberStyles.Integer, uint.TryParse ),
-			[ typeof( ulong ) ] = ( string s, out object? r ) => TryParsePrimitive<ulong>( s, out r, NumberStyles.Integer, ulong.TryParse ),
-			[ typeof( float ) ] = ( string s, out object? r ) => TryParsePrimitive<float>( s, out r, NumberStyles.Float, float.TryParse ),
-			[ typeof( double ) ] = ( string s, out object? r ) => TryParsePrimitive<double>( s, out r, NumberStyles.Float, double.TryParse ),
-			[ typeof( bool ) ] = ( string s, out object? r ) => TryParseBool( s, out r ),
-			[ typeof( string ) ] = ( string s, out object? r ) => { r = s; return true; }
+			[typeof( sbyte )] = ( string s, out object? r ) => TryParsePrimitive<sbyte>( s, out r, NumberStyles.Integer, sbyte.TryParse ),
+			[typeof( short )] = ( string s, out object? r ) => TryParsePrimitive<short>( s, out r, NumberStyles.Integer, short.TryParse ),
+			[typeof( int )] = ( string s, out object? r ) => TryParsePrimitive<int>( s, out r, NumberStyles.Integer, int.TryParse ),
+			[typeof( long )] = ( string s, out object? r ) => TryParsePrimitive<long>( s, out r, NumberStyles.Integer, long.TryParse ),
+			[typeof( byte )] = ( string s, out object? r ) => TryParsePrimitive<byte>( s, out r, NumberStyles.Integer, byte.TryParse ),
+			[typeof( ushort )] = ( string s, out object? r ) => TryParsePrimitive<ushort>( s, out r, NumberStyles.Integer, ushort.TryParse ),
+			[typeof( uint )] = ( string s, out object? r ) => TryParsePrimitive<uint>( s, out r, NumberStyles.Integer, uint.TryParse ),
+			[typeof( ulong )] = ( string s, out object? r ) => TryParsePrimitive<ulong>( s, out r, NumberStyles.Integer, ulong.TryParse ),
+			[typeof( float )] = ( string s, out object? r ) => TryParsePrimitive<float>( s, out r, NumberStyles.Float, float.TryParse ),
+			[typeof( double )] = ( string s, out object? r ) => TryParsePrimitive<double>( s, out r, NumberStyles.Float, double.TryParse ),
+			[typeof( bool )] = ( string s, out object? r ) => TryParseBool( s, out r ),
+			[typeof( string )] = ( string s, out object? r ) => { r = s; return true; }
 		};
 
 		/*
@@ -84,8 +84,7 @@ namespace Nomad.CVars.Private.Entities {
 		/// <param name="parser"></param>
 		/// <returns></returns>
 		private static bool TryParsePrimitive<T>( string s, out object? result, NumberStyles style, TryParseUnmanaged<T> parser )
-			where T : unmanaged
-		{
+			where T : unmanaged {
 			if ( parser.Invoke( s, style, CultureInfo.InvariantCulture, out var value ) ) {
 				result = value;
 				return true;

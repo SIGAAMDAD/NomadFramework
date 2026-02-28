@@ -20,82 +20,82 @@ using Nomad.Core.Logger;
 
 public class MockLogger : ILoggerService
 {
-	private bool _isDisposed = false;
+    private bool _isDisposed = false;
 
-	public void AddSink(ILoggerSink sink)
-	{
-	}
+    public void AddSink(ILoggerSink sink)
+    {
+    }
 
-	public void Clear()
-	{
-		Console.Clear();
-	}
+    public void Clear()
+    {
+        Console.Clear();
+    }
 
-	public ILoggerCategory CreateCategory(in string name, LogLevel level, bool enabled)
-	{
-		return null;
-	}
-	
-	public void Dispose()
-	{
-		// DISPOSAL GOES HERE
-		GC.SuppressFinalize( this );
-		_isDisposed = true;
-	}
+    public ILoggerCategory CreateCategory(in string name, LogLevel level, bool enabled)
+    {
+        return null;
+    }
 
-	public void InitConfig(ICVarSystemService cvarSystem)
-	{
-		throw new System.NotImplementedException();
-	}
+    public void Dispose()
+    {
+        // DISPOSAL GOES HERE
+        GC.SuppressFinalize(this);
+        _isDisposed = true;
+    }
 
-	public void Print(in string message)
-	{
-		Console.WriteLine(message);
-	}
+    public void InitConfig(ICVarSystemService cvarSystem)
+    {
+        throw new System.NotImplementedException();
+    }
 
-	public void Print(in ILoggerCategory category, in string message)
-	{
-		Console.WriteLine(message);
-	}
+    public void Print(in string message)
+    {
+        Console.WriteLine(message);
+    }
 
-	public void PrintDebug(in string message)
-	{
-		Console.WriteLine($"DEBUG: {message}");
-	}
+    public void Print(in ILoggerCategory category, in string message)
+    {
+        Console.WriteLine(message);
+    }
 
-	public void PrintDebug(in ILoggerCategory category, in string message)
-	{
-		Console.WriteLine($"DEBUG: {message}");
-	}
+    public void PrintDebug(in string message)
+    {
+        Console.WriteLine($"DEBUG: {message}");
+    }
 
-	public void PrintError(in string message)
-	{
-		Console.WriteLine($"ERROR: {message}");
-	}
+    public void PrintDebug(in ILoggerCategory category, in string message)
+    {
+        Console.WriteLine($"DEBUG: {message}");
+    }
 
-	public void PrintError(in ILoggerCategory category, in string message)
-	{
-		Console.WriteLine($"ERROR: {message}");
-	}
+    public void PrintError(in string message)
+    {
+        Console.WriteLine($"ERROR: {message}");
+    }
 
-	public void PrintLine(in string message)
-	{
-		Console.WriteLine(message);
-	}
+    public void PrintError(in ILoggerCategory category, in string message)
+    {
+        Console.WriteLine($"ERROR: {message}");
+    }
 
-	public void PrintLine(in ILoggerCategory category, in string message)
-	{
-		Console.WriteLine(message);
-	}
+    public void PrintLine(in string message)
+    {
+        Console.WriteLine(message);
+    }
 
-	public void PrintWarning(in string message)
-	{
-		Console.WriteLine($"WARNING: {message}");
-	}
+    public void PrintLine(in ILoggerCategory category, in string message)
+    {
+        Console.WriteLine(message);
+    }
 
-	public void PrintWarning(in ILoggerCategory category, in string message)
-	{
-		Console.WriteLine($"WARNING: {message}");
-	}
+    public void PrintWarning(in string message)
+    {
+        Console.WriteLine($"WARNING: {message}");
+    }
+
+    public void PrintWarning(in ILoggerCategory category, in string message)
+    {
+        Console.WriteLine($"WARNING: {message}");
+    }
 }
 #endif

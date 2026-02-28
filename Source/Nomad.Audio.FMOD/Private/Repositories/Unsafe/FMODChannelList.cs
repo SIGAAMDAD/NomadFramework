@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025 Noah Van Til
@@ -15,5 +15,5 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 
 namespace Nomad.Audio.Fmod.Private.Repositories.Unsafe {
-//	[System.Runtime.CompilerServices.InlineArray( 512 )]
+	//	[System.Runtime.CompilerServices.InlineArray( 512 )]
 };

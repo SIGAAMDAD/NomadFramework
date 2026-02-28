@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -93,8 +93,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// <param name="fmodSystem"></param>
 		/// <exception cref="CVarMissing"></exception>
 		public FMODChannelRepository( ILoggerService logger, ICVarSystemService cvarSystem, IListenerService listenerService,
-			FMODDevice fmodSystem )
-		{
+			FMODDevice fmodSystem ) {
 			_logger = logger;
 			_listenerService = listenerService;
 
@@ -238,7 +237,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 					continue;
 				}
 
-				float distanceFactor = CalculateDistanceFactor( (float)channel.Instance.Position.DistanceTo( listenerPos ) );
+				float distanceFactor = CalculateDistanceFactor( ( float )channel.Instance.Position.DistanceTo( listenerPos ) );
 				channel.Volume = distanceFactor;
 				channel.CurrentPriority = channel.BasePriority * channel.Category.Config.PriorityScale * distanceFactor;
 			}
@@ -314,7 +313,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			float priority =
 				basePriority *
 				category.Config.PriorityScale * // category multiplier
-				CalculateDistanceFactor( (float)position.DistanceTo( listenerPos ) );
+				CalculateDistanceFactor( ( float )position.DistanceTo( listenerPos ) );
 
 			priority *= 1.0f - CalculateTimePenalty( startTime, id ) * _timePenaltyMultiplier;
 			priority *= 1.0f - CalculateFrequencyPenalty( id ) * _frequencyPenalty;
@@ -484,7 +483,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// <returns></returns>
 		private float CalculateStealScore( float currentTime, FMODChannel candidate, float newPriority, SoundCategory category ) {
 			Vector2 listenerPos = _listenerService.ActiveListener;
-			float distance = (float)candidate.Instance.Position.DistanceTo( listenerPos );
+			float distance = ( float )candidate.Instance.Position.DistanceTo( listenerPos );
 
 			float priorityDiff = newPriority - candidate.CurrentPriority;
 			float ageFactor = Math.Min( candidate.Age / 5.0f, 1.0f );

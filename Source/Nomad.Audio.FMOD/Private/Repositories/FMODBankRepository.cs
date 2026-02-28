@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025 Noah Van Til
@@ -34,8 +34,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 
 	internal sealed class FMODBankRepository : BaseCache<IAudioResource, string> {
 		public FMODBankRepository( ILoggerService logger, IGameEventRegistryService eventFactory, FMODDevice fmodSystem )
-			: base( logger, eventFactory, new FMODBankLoader( fmodSystem, fmodSystem.GuidRepository, logger ) )
-		{
+			: base( logger, eventFactory, new FMODBankLoader( fmodSystem, fmodSystem.GuidRepository, logger ) ) {
 		}
 	};
 };

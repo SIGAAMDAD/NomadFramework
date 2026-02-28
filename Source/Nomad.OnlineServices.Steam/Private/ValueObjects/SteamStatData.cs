@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -27,14 +27,14 @@ namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
 	/// <summary>
 	/// Stores stat data for a steam value.
 	/// </summary>
-	
+
 	internal struct SteamStatData {
 		/// <summary>
 		///
 		/// </summary>
 		public readonly string Name => _name;
 		private readonly InternString _name;
-		
+
 		public float Value {
 			readonly get => _value;
 			set {

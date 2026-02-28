@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -145,7 +145,7 @@ namespace Nomad.Save.Private.Entities {
 			var type = Any.GetType<T>();
 			var fieldValue = Any.From( value );
 
-			_fields[ fieldId ] = new SaveField(
+			_fields[fieldId] = new SaveField(
 				fieldId,
 				type,
 				fieldValue

@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025 Noah Van Til
@@ -28,7 +28,7 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	[StructLayout( LayoutKind.Sequential, Pack = 1, Size = 8 )]
 	internal struct FMODChannelResource {
 		public readonly FMOD.Studio.PLAYBACK_STATE PlaybackState {

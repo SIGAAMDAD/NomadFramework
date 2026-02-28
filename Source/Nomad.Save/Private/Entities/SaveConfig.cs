@@ -28,7 +28,7 @@ namespace Nomad.Save.Private.Entities {
 
 		public bool ChecksumEnabled { get; init; }
 		public bool VerifyAfterWrite { get; init; }
-		
+
 		public bool LogSerializationTree { get; init; }
 		public bool LogWriteTimings { get; init; }
 		public bool DebugLogging { get; init; }

@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -151,7 +151,7 @@ namespace Nomad.EngineUtils.Private {
 		private void OnPageUp( in EmptyEventArgs args ) {
 			VScrollBar scroll = _richLabel.GetVScrollBar();
 			Tween tween = _richLabel.CreateTween();
-			tween.TweenProperty( scroll, _valueNodePath, scroll.Value - ( scroll.Page - scroll.Page * 0.1f ), 0.1f );
+			tween.TweenProperty( scroll, _valueNodePath, scroll.Value - (scroll.Page - scroll.Page * 0.1f), 0.1f );
 			_richLabel.GetViewport().SetInputAsHandled();
 		}
 
@@ -167,7 +167,7 @@ namespace Nomad.EngineUtils.Private {
 		private void OnPageDown( in EmptyEventArgs args ) {
 			VScrollBar scroll = _richLabel.GetVScrollBar();
 			Tween tween = _richLabel.CreateTween();
-			tween.TweenProperty( scroll, _valueNodePath, scroll.Value + ( scroll.Page - scroll.Page * 0.1f ), 0.1f );
+			tween.TweenProperty( scroll, _valueNodePath, scroll.Value + (scroll.Page - scroll.Page * 0.1f), 0.1f );
 			_richLabel.GetViewport().SetInputAsHandled();
 		}
 	};

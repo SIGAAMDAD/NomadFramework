@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -86,14 +86,14 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 
 			_supportedAudioDrivers = new Dictionary<FMOD.OUTPUTTYPE, string>() {
 				[ FMOD.OUTPUTTYPE.AUTODETECT ] = "Auto Detect",
-			#if WINDOWS
+#if WINDOWS
 				[ FMOD.OUTPUTTYPE.ASIO ] = "ASIO",
 				[ FMOD.OUTPUTTYPE.WASAPI ] = "WasAPI",
 				[ FMOD.OUTPUTTYPE.WINSONIC ] = "WinSonic",
-			#elif LINUX
+#elif LINUX
 				[ FMOD.OUTPUTTYPE.ALSA ] = "ALSA",
 				[ FMOD.OUTPUTTYPE.PULSEAUDIO ] = "PulseAudio"
-			#endif
+#endif
 			}.ToImmutableDictionary();
 
 			var audioDriver = cvarSystem.GetCVar<string>( Constants.CVars.Audio.AUDIO_DRIVER ) ?? throw new CVarMissing( Constants.CVars.Audio.AUDIO_DRIVER );

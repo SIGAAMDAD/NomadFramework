@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -31,8 +31,7 @@ namespace Nomad.Events.Private {
 	/// </summary>
 
 	internal sealed class SubscriptionCache<TArgs, TCallback> : IDisposable
-		where TArgs : struct
-	{
+		where TArgs : struct {
 #if EVENT_DEBUG
 		public int DeadCount {
 			get {
@@ -48,7 +47,7 @@ namespace Nomad.Events.Private {
 #endif
 
 		public int Count => _subscriptions.Count;
-		public TCallback this[ int index ] => _subscriptions[ index ];
+		public TCallback this[int index] => _subscriptions[index];
 
 		private readonly List<TCallback> _subscriptions = new List<TCallback>( 16 );
 

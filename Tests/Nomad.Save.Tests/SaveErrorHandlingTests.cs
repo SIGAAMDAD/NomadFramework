@@ -49,7 +49,7 @@ public class SaveErrorHandlingTests
     private IGameEventRegistryService _eventFactory;
     private Mock<IEngineService> _engineService;
     private string _testDirectory;
-    
+
     private IGameEvent<SaveBeginEventArgs> _saveBegin;
     private IGameEvent<LoadBeginEventArgs> _loadBegin;
 

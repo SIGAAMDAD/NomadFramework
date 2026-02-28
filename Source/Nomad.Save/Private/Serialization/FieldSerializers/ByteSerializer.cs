@@ -28,7 +28,7 @@ namespace Nomad.Save.Private.Serialization.FieldSerializers {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal sealed class ByteSerializer : IFieldSerializer<byte> {
 		public AnyType FieldType => AnyType.UInt8;
 		public Type DataType => typeof( byte );

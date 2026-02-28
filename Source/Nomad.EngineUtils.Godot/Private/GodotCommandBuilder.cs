@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -35,7 +35,7 @@ namespace Nomad.EngineUtils.Private {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	public sealed partial class GodotCommandBuilder : LineEdit, ICommandBuilder {
 		public int ArgumentCount => _arguments.Count;
 

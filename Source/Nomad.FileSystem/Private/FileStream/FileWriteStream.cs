@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -60,8 +60,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <param name="config"></param>
 		public FileWriteStream( FileWriteConfig config )
-			: base( config.FilePath, config.Append ? FileMode.Append : FileMode.CreateNew, FileAccess.Write )
-		{
+			: base( config.FilePath, config.Append ? FileMode.Append : FileMode.CreateNew, FileAccess.Write ) {
 			ArgumentGuard.ThrowIfNull( fileStream );
 			_streamWriter = new BinaryWriter( fileStream );
 		}
@@ -141,7 +140,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 			ArgumentGuard.ThrowIfNull( fileStream );
 			fileStream.Write( buffer.Slice( offset, count ) );
 		}
-		
+
 		/*
 		===============
 		Write
@@ -227,12 +226,12 @@ namespace Nomad.FileSystem.Private.FileStream {
 		public void Write7BitEncodedInt( int value ) {
 			StateGuard.ThrowIfDisposed( _streamWriter == null, this );
 
-			uint uValue = ( uint )value;
+			uint uValue = (uint)value;
 			while ( uValue >= 0x80 ) {
-				WriteUInt8( ( byte )(uValue | 0x80) );
+				WriteUInt8( (byte)(uValue | 0x80) );
 				uValue >>= 7;
 			}
-			WriteUInt8( ( byte )uValue );
+			WriteUInt8( (byte)uValue );
 		}
 
 		/*
@@ -313,7 +312,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 			byte[] buffer = ArrayPool<byte>.Shared.Rent( 4096 );
 			int bytesRead;
 			stream.Position = 0;
-			while ( ( bytesRead = stream.Read( buffer, 0, buffer.Length ) ) > 0 ) {
+			while ( (bytesRead = stream.Read( buffer, 0, buffer.Length )) > 0 ) {
 				fileStream.Write( buffer, 0, bytesRead );
 			}
 			stream.Position = current;
@@ -336,7 +335,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 
 			byte[] buffer = ArrayPool<byte>.Shared.Rent( 4096 );
 			int bytesRead;
-			while ( ( bytesRead = await stream.ReadAsync( buffer, 0, buffer.Length, ct ) ) > 0 ) {
+			while ( (bytesRead = await stream.ReadAsync( buffer, 0, buffer.Length, ct )) > 0 ) {
 				await fileStream.WriteAsync( buffer.AsMemory( 0, bytesRead ), ct );
 			}
 		}

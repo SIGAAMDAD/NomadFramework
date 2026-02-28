@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -26,7 +26,7 @@ namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal record SteamAppData {
 		public AppId_t AppId { get; init; }
 	};

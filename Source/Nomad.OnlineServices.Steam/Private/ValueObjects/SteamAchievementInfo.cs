@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -90,7 +90,7 @@ namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
 			byte[] imageBuffer = new byte[ width * height * 4 ];
 			SteamUtils.GetImageRGBA( pAchievement.m_nIconHandle, imageBuffer, imageBuffer.Length );
 
-			IDisposable texture = service.CreateImageRGBA( imageBuffer, (int)width, (int)height );
+			IDisposable texture = service.CreateImageRGBA( imageBuffer, ( int )width, ( int )height );
 		}
 
 		/*
@@ -113,7 +113,7 @@ namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
 				Progress = value
 			};
 
-			SteamUserStats.IndicateAchievementProgress( _name, (uint)value, (uint)_progress.Value.MaxProgress );
+			SteamUserStats.IndicateAchievementProgress( _name, ( uint )value, ( uint )_progress.Value.MaxProgress );
 			if ( value >= _progress.Value.MaxProgress ) {
 				_achieved = true;
 				SteamUserStats.SetAchievement( _name );

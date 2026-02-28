@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -34,7 +34,7 @@ namespace Nomad.Events {
 	/// <summary>
 	/// Handles event registration and lookup.
 	/// </summary>
-	
+
 	public sealed class GameEventRegistry : IGameEventRegistryService {
 		private readonly ConcurrentDictionary<EventKey, IGameEvent> _eventCache = new ConcurrentDictionary<EventKey, IGameEvent>();
 		private readonly ILoggerService _logger;
@@ -85,8 +85,7 @@ namespace Nomad.Events {
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public IGameEvent<TArgs> GetEvent<TArgs>( string nameSpace, string name, EventFlags flags = EventFlags.Default )
-			where TArgs : struct
-		{
+			where TArgs : struct {
 			var key = new EventKey(
 				name: new InternString( name ),
 				nameSpace: new InternString( nameSpace ),
@@ -102,7 +101,7 @@ namespace Nomad.Events {
 
 			value = new GameEvent<TArgs>( key.NameSpace, key.Name, _logger, flags );
 			_eventCache.TryAdd( key, value );
-			return ( IGameEvent<TArgs> )value;
+			return (IGameEvent<TArgs>)value;
 		}
 
 		/*
@@ -121,8 +120,7 @@ namespace Nomad.Events {
 		/// </param>
 		/// <returns><c>true</c> if the event exists; otherwise <c>false</c>.</returns>
 		public bool TryGetEvent<TArgs>( string name, string nameSpace, out IGameEvent<TArgs>? gameEvent )
-			where TArgs : struct
-		{
+			where TArgs : struct {
 			var key = new EventKey(
 				name: new InternString( name ),
 				nameSpace: new InternString( nameSpace ),
@@ -152,8 +150,7 @@ namespace Nomad.Events {
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public bool TryRemoveEvent<TArgs>( string nameSpace, string name )
-			where TArgs : struct
-		{
+			where TArgs : struct {
 			var key = new EventKey(
 				name: new InternString( name ),
 				nameSpace: new InternString( nameSpace ),
@@ -165,7 +162,7 @@ namespace Nomad.Events {
 			}
 			return false;
 		}
-		
+
 		/*
 		===============
 		ClearAllEvents

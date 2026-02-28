@@ -54,19 +54,19 @@ namespace Nomad.Save.Tests
             writer.Write(12345);
 
             ms.Position = 0;
-            var stream = new MemoryReadStream(new MemoryReadConfig { Buffer = new SharedBufferHandle( ms.ToArray(), (int)ms.Length ), MaxCapacity = 8192 });
+            var stream = new MemoryReadStream(new MemoryReadConfig { Buffer = new SharedBufferHandle(ms.ToArray(), (int)ms.Length), MaxCapacity = 8192 });
 
             var ex = Assert.Throws<FieldCorruptException>(() =>
                 SaveField.Read("TestSection", 0, stream));
 
             // Assert
-			using (Assert.EnterMultipleScope())
-			{
-				Assert.That(ex.Message, Does.Contain("Field name length corrupted"));
-				Assert.That(ex.SectionName, Is.EqualTo("TestSection"));
-				Assert.That(ex.FieldIndex, Is.Zero);
-			}
-		}
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(ex.Message, Does.Contain("Field name length corrupted"));
+                Assert.That(ex.SectionName, Is.EqualTo("TestSection"));
+                Assert.That(ex.FieldIndex, Is.Zero);
+            }
+        }
 
         [Test]
         public void ReadField_InvalidType_ThrowsFieldCorruptException()
@@ -81,19 +81,19 @@ namespace Nomad.Save.Tests
             writer.Write((byte)255);
 
             ms.Position = 0;
-            var stream = new MemoryReadStream(new MemoryReadConfig { Buffer = new SharedBufferHandle( ms.ToArray(), (int)ms.Length ), MaxCapacity = 8192 });
+            var stream = new MemoryReadStream(new MemoryReadConfig { Buffer = new SharedBufferHandle(ms.ToArray(), (int)ms.Length), MaxCapacity = 8192 });
 
             var ex = Assert.Throws<FieldCorruptException>(() =>
                 SaveField.Read("TestSection", 1, stream));
 
             // Assert
-			using (Assert.EnterMultipleScope())
-			{
-				Assert.That(ex.Message, Does.Contain("Field type '255' isn't valid"));
-				Assert.That(ex.SectionName, Is.EqualTo("TestSection"));
-				Assert.That(ex.FieldIndex, Is.EqualTo(1));
-			}
-		}
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(ex.Message, Does.Contain("Field type '255' isn't valid"));
+                Assert.That(ex.SectionName, Is.EqualTo("TestSection"));
+                Assert.That(ex.FieldIndex, Is.EqualTo(1));
+            }
+        }
 
         [Test]
         public void LoadSectionHeader_InvalidNameLength_ThrowsSectionCorruptionException()
@@ -101,7 +101,7 @@ namespace Nomad.Save.Tests
             // Arrange
             const int maxSectionNameLength = Constants.SECTION_NAME_MAX_LENGTH;
             string longName = new string('B', maxSectionNameLength + 10); // 138 chars
-            
+
             // Act
             using var ms = new MemoryStream();
             using var writer = new BinaryWriter(ms, Encoding.UTF8, true);
@@ -118,7 +118,7 @@ namespace Nomad.Save.Tests
             writer.Write(Checksum.Compute(ms.ToArray().AsSpan().Slice(sizeof(int) + sizeof(ulong))).Value);
 
             ms.Position = 0;
-            var stream = new MemoryReadStream(new MemoryReadConfig { Buffer = new SharedBufferHandle( ms.ToArray(), (int)ms.Length ), MaxCapacity = 8192 });
+            var stream = new MemoryReadStream(new MemoryReadConfig { Buffer = new SharedBufferHandle(ms.ToArray(), (int)ms.Length), MaxCapacity = 8192 });
             var ex = Assert.Throws<SectionCorruptException>(() => SectionHeader.Load(0, stream));
 
             // Assert
@@ -139,16 +139,16 @@ namespace Nomad.Save.Tests
             writer.Write(name);
             writer.Write(-1);
             ms.Position = 0;
-            var stream = new MemoryReadStream(new MemoryReadConfig { Buffer = new SharedBufferHandle( ms.ToArray(), (int)ms.Length ), MaxCapacity = 8192 });
+            var stream = new MemoryReadStream(new MemoryReadConfig { Buffer = new SharedBufferHandle(ms.ToArray(), (int)ms.Length), MaxCapacity = 8192 });
             var ex = Assert.Throws<SectionCorruptException>(() => SectionHeader.Load(0, stream));
 
             // Assert
-			using (Assert.EnterMultipleScope())
-			{
-				Assert.That(ex.Message, Does.Contain("Field count is invalid"));
-				Assert.That(ex.SectionIndex, Is.Zero);
-			}
-		}
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(ex.Message, Does.Contain("Field count is invalid"));
+                Assert.That(ex.SectionIndex, Is.Zero);
+            }
+        }
 
         [Test]
         public void LoadSectionHeader_NegativeByteCount_ThrowsSectionCorruptionException()
@@ -164,17 +164,17 @@ namespace Nomad.Save.Tests
             writer.Write(name);
             writer.Write(0);
             ms.Position = 0;
-            var stream = new MemoryReadStream(new MemoryReadConfig { Buffer = new SharedBufferHandle( ms.ToArray(), (int)ms.Length ), MaxCapacity = 8192 });
+            var stream = new MemoryReadStream(new MemoryReadConfig { Buffer = new SharedBufferHandle(ms.ToArray(), (int)ms.Length), MaxCapacity = 8192 });
 
             var ex = Assert.Throws<SectionCorruptException>(() => SectionHeader.Load(0, stream));
 
             // Assert
-			using (Assert.EnterMultipleScope())
-			{
-				Assert.That(ex.Message, Does.Contain("Byte length is invalid"));
-				Assert.That(ex.SectionIndex, Is.Zero);
-			}
-		}
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(ex.Message, Does.Contain("Byte length is invalid"));
+                Assert.That(ex.SectionIndex, Is.Zero);
+            }
+        }
     }
 }
 #endif

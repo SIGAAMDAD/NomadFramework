@@ -70,7 +70,7 @@ namespace Nomad.FileSystem.Tests
 
         private IReadStream OpenReadStream()
         {
-            var config = new FileReadConfig{ FilePath = "readtest.bin" };
+            var config = new FileReadConfig { FilePath = "readtest.bin" };
             return _service.OpenRead(config)!;
         }
 
@@ -80,12 +80,12 @@ namespace Nomad.FileSystem.Tests
             using var stream = OpenReadStream();
             byte[] buffer = new byte[_testData.Length];
             int bytesRead = stream.Read(buffer, 0, buffer.Length);
-			using (Assert.EnterMultipleScope())
-			{
-				Assert.That(bytesRead, Is.EqualTo(_testData.Length));
-				Assert.That(buffer, Is.EqualTo(_testData));
-			}
-		}
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(bytesRead, Is.EqualTo(_testData.Length));
+                Assert.That(buffer, Is.EqualTo(_testData));
+            }
+        }
 
         [Test]
         public void Read_PartialRead_AdvancesPosition()
@@ -93,13 +93,13 @@ namespace Nomad.FileSystem.Tests
             using var stream = OpenReadStream();
             byte[] buffer = new byte[4];
             int bytesRead = stream.Read(buffer, 0, 4);
-			using (Assert.EnterMultipleScope())
-			{
-				Assert.That(bytesRead, Is.EqualTo(4));
-				Assert.That(buffer, Is.EqualTo(new byte[] { 0, 1, 2, 3 }));
-				Assert.That(stream.Position, Is.EqualTo(4));
-			}
-		}
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(bytesRead, Is.EqualTo(4));
+                Assert.That(buffer, Is.EqualTo(new byte[] { 0, 1, 2, 3 }));
+                Assert.That(stream.Position, Is.EqualTo(4));
+            }
+        }
 
         [Test]
         public void Read_BeyondEnd_ReturnsZero()
@@ -117,12 +117,12 @@ namespace Nomad.FileSystem.Tests
             using var stream = OpenReadStream();
             Span<byte> span = new byte[5];
             int bytesRead = stream.Read(span, 0, 5);
-			using (Assert.EnterMultipleScope())
-			{
-				Assert.That(bytesRead, Is.EqualTo(5));
-				Assert.That(span.ToArray(), Is.EqualTo(new byte[] { 0, 1, 2, 3, 4 }));
-			}
-		}
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(bytesRead, Is.EqualTo(5));
+                Assert.That(span.ToArray(), Is.EqualTo(new byte[] { 0, 1, 2, 3, 4 }));
+            }
+        }
 
         [Test]
         public async Task ReadAsync_ReadsAllBytes()
@@ -130,12 +130,12 @@ namespace Nomad.FileSystem.Tests
             using var stream = OpenReadStream();
             byte[] buffer = new byte[_testData.Length];
             int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
-			using (Assert.EnterMultipleScope())
-			{
-				Assert.That(bytesRead, Is.EqualTo(_testData.Length));
-				Assert.That(buffer, Is.EqualTo(_testData));
-			}
-		}
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(bytesRead, Is.EqualTo(_testData.Length));
+                Assert.That(buffer, Is.EqualTo(_testData));
+            }
+        }
 
         [Test]
         public void ReadToEnd_ReadsRemaining()
@@ -152,25 +152,25 @@ namespace Nomad.FileSystem.Tests
             using var stream = OpenReadStream();
             stream.Position = 5;
             byte[] all = stream.ToArray();
-			using (Assert.EnterMultipleScope())
-			{
-				Assert.That(all, Is.EqualTo(_testData));
-				Assert.That(stream.Position, Is.EqualTo(5));
-			}
-		}
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(all, Is.EqualTo(_testData));
+                Assert.That(stream.Position, Is.EqualTo(5));
+            }
+        }
 
         [Test]
         public void Seek_SetsPosition()
         {
             using var stream = OpenReadStream();
             long newPos = stream.Seek(4, SeekOrigin.Begin);
-			using (Assert.EnterMultipleScope())
-			{
-				Assert.That(newPos, Is.EqualTo(4));
-				Assert.That(stream.Position, Is.EqualTo(4));
-			}
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(newPos, Is.EqualTo(4));
+                Assert.That(stream.Position, Is.EqualTo(4));
+            }
 
-			newPos = stream.Seek(2, SeekOrigin.Current);
+            newPos = stream.Seek(2, SeekOrigin.Current);
             Assert.That(newPos, Is.EqualTo(6));
 
             newPos = stream.Seek(-2, SeekOrigin.End);
@@ -182,12 +182,12 @@ namespace Nomad.FileSystem.Tests
         {
             using var stream = OpenReadStream();
             byte b = stream.ReadByte();
-			using (Assert.EnterMultipleScope())
-			{
-				Assert.That(b, Is.Zero);
-				Assert.That(stream.Position, Is.EqualTo(1));
-			}
-		}
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(b, Is.Zero);
+                Assert.That(stream.Position, Is.EqualTo(1));
+            }
+        }
 
         [Test]
         public void ReadInt32_ReadsLittleEndian()
@@ -209,7 +209,7 @@ namespace Nomad.FileSystem.Tests
                 bw.Write(testString);
             }
 
-            var config = new FileReadConfig{ FilePath = stringFilePath };
+            var config = new FileReadConfig { FilePath = stringFilePath };
             using var stream = _service.OpenRead(config) as FileReadStream;
             string read = stream!.ReadString();
             Assert.That(read, Is.EqualTo(testString));
@@ -221,7 +221,7 @@ namespace Nomad.FileSystem.Tests
             // Prepare file with bool (1 byte)
             string boolFilePath = Path.Combine(_tempDir, "booltest.bin");
             File.WriteAllBytes(boolFilePath, new byte[] { 1 });
-            var config = new FileReadConfig{ FilePath = boolFilePath };
+            var config = new FileReadConfig { FilePath = boolFilePath };
             using var stream = _service.OpenRead(config) as FileReadStream;
             bool val = stream!.ReadBoolean();
             Assert.That(val, Is.True);

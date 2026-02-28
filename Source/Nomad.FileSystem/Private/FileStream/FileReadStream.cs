@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -197,8 +197,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 			if ( remaining > int.MaxValue ) {
 				throw new InvalidOperationException( "File is too large to read into a single array." );
 			}
-			byte[] buffer = new byte[ remaining ];
-			fileStream.Read( buffer, 0, ( int )remaining );
+			byte[] buffer = new byte[remaining];
+			fileStream.ReadExactly( buffer, 0, (int)remaining );
 			return buffer;
 		}
 
@@ -221,8 +221,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 			if ( remaining > int.MaxValue ) {
 				throw new InvalidOperationException( "File is too large to read into a single array." );
 			}
-			byte[] buffer = new byte[ remaining ];
-			int bytesRead = await fileStream.ReadAsync( buffer.AsMemory( 0, ( int )remaining ), ct );
+			byte[] buffer = new byte[remaining];
+			int bytesRead = await fileStream.ReadAsync( buffer.AsMemory( 0, (int)remaining ), ct );
 			if ( bytesRead < remaining ) {
 				Array.Resize( ref buffer, bytesRead );
 			}
@@ -269,10 +269,10 @@ namespace Nomad.FileSystem.Private.FileStream {
 			_streamReader.BaseStream.Position = 0;
 
 			int length = (int)Length;
-			byte[] buffer = new byte[ length ];
+			byte[] buffer = new byte[length];
 			await ReadAsync( buffer, 0, length, ct );
 			await stream.WriteAsync( buffer, ct );
-			
+
 			_streamReader.BaseStream.Position = position;
 		}
 
@@ -295,8 +295,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 				if ( length > long.MaxValue ) {
 					throw new InvalidOperationException( "File is too large to read into a single array." );
 				}
-				byte[] buffer = new byte[ length ];
-				long bytesRead = fileStream.Read( buffer, 0, ( int )length );
+				byte[] buffer = new byte[length];
+				long bytesRead = fileStream.Read( buffer, 0, (int)length );
 				if ( bytesRead < length ) {
 
 				}

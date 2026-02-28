@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -129,7 +129,7 @@ namespace Nomad.CVars.Private.Entities {
 			if ( !CVarValidator<T>.ValidateCVarType() ) {
 				throw new InvalidCastException( "Invalid CVar type!" );
 			}
-			
+
 			_metadata = new CVarMetadata(
 				createInfo.Name,
 				createInfo.Description,
@@ -169,10 +169,10 @@ namespace Nomad.CVars.Private.Entities {
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void SetFromString( string value ) {
 			ArgumentGuard.ThrowIfNull( value );
-			if ( !CVarStringConverter.TryParse( value, typeof( T ), out object convertedValue ) ) {
+			if ( !CVarStringConverter.TryParse( value, typeof( T ), out object? convertedValue ) ) {
 				throw new ArgumentException( $"Failed to convert cvar value '{value}' to type {typeof( T ).Name}" );
 			}
-			Value = (T)convertedValue;
+			Value = (T)convertedValue!;
 		}
 
 		/*
@@ -184,7 +184,6 @@ namespace Nomad.CVars.Private.Entities {
 		/// Sets the CVar's <see cref="Value"/> to the given value.
 		/// </summary>
 		/// <param name="value">The new value of the CVar.</param>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void Set( T value ) {
 			if ( IsReadOnly || !_validator.ValidateValue( value ) || EqualityComparer<T>.Default.Equals( _converter.Value, value ) ) {
 				return;
@@ -194,36 +193,66 @@ namespace Nomad.CVars.Private.Entities {
 			_valueChanged.Publish( new CVarValueChangedEventArgs<T>( old, value ) );
 		}
 
+		/*
+		===============
+		GetDecimalValue
+		===============
+		*/
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns></returns>
 		public float GetDecimalValue() => _converter.GetDecimalValue();
 
+		/*
+		===============
+		GetIntegerValue
+		===============
+		*/
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns></returns>
 		public int GetIntegerValue() => _converter.GetIntegerValue();
-
+		
+		/*
+		===============
+		GetUIntegerValue
+		===============
+		*/
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns></returns>
 		public uint GetUIntegerValue() => _converter.GetUIntegerValue();
 
+		/*
+		===============
+		GetStringValue
+		===============
+		*/
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns></returns>
 		public string? GetStringValue() => _converter.GetStringValue();
 
+		/*
+		===============
+		GetBooleanValue
+		===============
+		*/
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns></returns>
 		public bool GetBooleanValue() => _converter.GetBooleanValue();
 
+		/*
+		===============
+		SetDecimalValue
+		===============
+		*/
 		/// <summary>
 		/// 
 		/// </summary>
@@ -236,6 +265,11 @@ namespace Nomad.CVars.Private.Entities {
 			Set( Unsafe.As<float, T>( ref value ) );
 		}
 
+		/*
+		===============
+		SetIntegerValue
+		===============
+		*/
 		/// <summary>
 		/// 
 		/// </summary>
@@ -248,6 +282,11 @@ namespace Nomad.CVars.Private.Entities {
 			Set( Unsafe.As<int, T>( ref value ) );
 		}
 
+		/*
+		===============
+		SetUIntegerValue
+		===============
+		*/
 		/// <summary>
 		/// 
 		/// </summary>
@@ -260,6 +299,11 @@ namespace Nomad.CVars.Private.Entities {
 			Set( Unsafe.As<uint, T>( ref value ) );
 		}
 
+		/*
+		===============
+		SetBooleanValue
+		===============
+		*/
 		/// <summary>
 		/// 
 		/// </summary>
@@ -272,6 +316,11 @@ namespace Nomad.CVars.Private.Entities {
 			Set( Unsafe.As<bool, T>( ref value ) );
 		}
 
+		/*
+		===============
+		SetStringValue
+		===============
+		*/
 		/// <summary>
 		/// 
 		/// </summary>

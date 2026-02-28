@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framewrk
 Copyright (C) 2025-2026 Noah Van Til
@@ -29,7 +29,7 @@ namespace Nomad.OnlineServices.Steam.Private.Services.LobbyServices {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	public sealed class LobbyLocator : IDisposable {
 
 		/// <summary>

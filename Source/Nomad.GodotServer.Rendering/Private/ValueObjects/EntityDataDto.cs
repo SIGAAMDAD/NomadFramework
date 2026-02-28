@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -29,7 +29,7 @@ namespace Nomad.GodotServer.Rendering.Private.ValueObjects {
 	/// <param name="scale"></param>
 	/// <param name="rotation"></param>
 	/// <param name="visible"></param>
-	internal readonly unsafe struct EntityDataDto( Color* modulate, Rid* rid, int *zindex, int *lightmask, uint* visibilityLayer, Vector2* position, Vector2* scale, float* rotation, bool* visible ) {
+	internal readonly unsafe struct EntityDataDto( Color* modulate, Rid* rid, int* zindex, int* lightmask, uint* visibilityLayer, Vector2* position, Vector2* scale, float* rotation, bool* visible ) {
 		public readonly Color* Modulate = modulate;
 		public readonly Rid* Rid = rid;
 		public readonly int* ZIndex = zindex;

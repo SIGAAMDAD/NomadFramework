@@ -26,8 +26,8 @@ namespace Nomad.FileSystem.Tests
     [TestFixture]
     public class RecursiveFileSearcherTests
     {
-		private Mock<ILoggerService> _loggerMock;
-		private Mock<ILoggerCategory> _categoryMock;
+        private Mock<ILoggerService> _loggerMock;
+        private Mock<ILoggerCategory> _categoryMock;
         private string _tempDir;
         private string _dir1;
         private string _dir2;
@@ -36,11 +36,11 @@ namespace Nomad.FileSystem.Tests
         [SetUp]
         public void SetUp()
         {
-			_loggerMock = new Mock<ILoggerService>();
-			_categoryMock = new Mock<ILoggerCategory>();
+            _loggerMock = new Mock<ILoggerService>();
+            _categoryMock = new Mock<ILoggerCategory>();
 
-			_loggerMock.Setup(l => l.CreateCategory(nameof(FileSystem), LogLevel.Info, true))
-				.Returns(_categoryMock.Object);
+            _loggerMock.Setup(l => l.CreateCategory(nameof(FileSystem), LogLevel.Info, true))
+                .Returns(_categoryMock.Object);
 
             _tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             _dir1 = Path.Combine(_tempDir, "Search1");
@@ -56,8 +56,8 @@ namespace Nomad.FileSystem.Tests
         {
             if (Directory.Exists(_tempDir))
                 Directory.Delete(_tempDir, true);
-			
-			_searcher?.Dispose();
+
+            _searcher?.Dispose();
         }
 
         #region AddSearchDirectory
@@ -75,12 +75,12 @@ namespace Nomad.FileSystem.Tests
         {
             _searcher.AddSearchDirectory(_dir1);
             _searcher.AddSearchDirectory(_dir2, highPriority: true);
-			using (Assert.EnterMultipleScope())
-			{
-				Assert.That(_searcher.SearchDirectories[0], Does.StartWith(_dir2));
-				Assert.That(_searcher.SearchDirectories[1], Does.StartWith(_dir1));
-			}
-		}
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(_searcher.SearchDirectories[0], Does.StartWith(_dir2));
+                Assert.That(_searcher.SearchDirectories[1], Does.StartWith(_dir1));
+            }
+        }
 
         [Test]
         public void AddSearchDirectory_NullOrEmpty_ThrowsArgumentException()
@@ -170,11 +170,11 @@ namespace Nomad.FileSystem.Tests
             File.WriteAllText(Path.Combine(_dir1, "c.log"), "");
 
             var results = _searcher.FindFiles(_dir1, "*.txt");
-			using (Assert.EnterMultipleScope())
-			{
-				Assert.That(results, Has.Count.EqualTo(2));
-			}
-		}
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(results, Has.Count.EqualTo(2));
+            }
+        }
 
         #endregion
 
@@ -193,12 +193,12 @@ namespace Nomad.FileSystem.Tests
 
             var all = _searcher.FindAllFiles("common.txt");
             Assert.That(all, Has.Count.EqualTo(2));
-			using (Assert.EnterMultipleScope())
-			{
-				Assert.That(all[0], Is.EqualTo(file1)); // first directory added
-				Assert.That(all[1], Is.EqualTo(file2));
-			}
-		}
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(all[0], Is.EqualTo(file1)); // first directory added
+                Assert.That(all[1], Is.EqualTo(file2));
+            }
+        }
 
         #endregion
 

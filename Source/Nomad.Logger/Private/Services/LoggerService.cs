@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -226,7 +226,7 @@ namespace Nomad.Logger.Private.Services {
 		public void PrintError( in string message ) {
 			PrintMessage( in _defaultCategory, LogLevel.Error, in message, true );
 		}
-		
+
 		/*
 		===============
 		Print

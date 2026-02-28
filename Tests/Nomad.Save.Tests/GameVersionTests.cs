@@ -36,14 +36,14 @@ public class GameVersionTests
         // Act
         var version = new GameVersion(major, minor, patch);
 
-		using (Assert.EnterMultipleScope())
-		{
-			// Assert
-			Assert.That(version.Major, Is.EqualTo(major));
-			Assert.That(version.Minor, Is.EqualTo(minor));
-			Assert.That(version.Patch, Is.EqualTo(patch));
-		}
-	}
+        using (Assert.EnterMultipleScope())
+        {
+            // Assert
+            Assert.That(version.Major, Is.EqualTo(major));
+            Assert.That(version.Minor, Is.EqualTo(minor));
+            Assert.That(version.Patch, Is.EqualTo(patch));
+        }
+    }
 
     [Test]
     public void Constructor_WithZeroValues_CreatesInstance()
@@ -56,14 +56,14 @@ public class GameVersionTests
         // Act
         var version = new GameVersion(major, minor, patch);
 
-		using (Assert.EnterMultipleScope())
-		{
-			// Assert
-			Assert.That(version.Major, Is.EqualTo(0));
-			Assert.That(version.Minor, Is.EqualTo(0));
-			Assert.That(version.Patch, Is.EqualTo(0));
-		}
-	}
+        using (Assert.EnterMultipleScope())
+        {
+            // Assert
+            Assert.That(version.Major, Is.EqualTo(0));
+            Assert.That(version.Minor, Is.EqualTo(0));
+            Assert.That(version.Patch, Is.EqualTo(0));
+        }
+    }
 
     [Test]
     public void Constructor_WithMaxValues_CreatesInstance()
@@ -76,14 +76,14 @@ public class GameVersionTests
         // Act
         var version = new GameVersion(major, minor, patch);
 
-		using (Assert.EnterMultipleScope())
-		{
-			// Assert
-			Assert.That(version.Major, Is.EqualTo(uint.MaxValue));
-			Assert.That(version.Minor, Is.EqualTo(uint.MaxValue));
-			Assert.That(version.Patch, Is.EqualTo(uint.MaxValue));
-		}
-	}
+        using (Assert.EnterMultipleScope())
+        {
+            // Assert
+            Assert.That(version.Major, Is.EqualTo(uint.MaxValue));
+            Assert.That(version.Minor, Is.EqualTo(uint.MaxValue));
+            Assert.That(version.Patch, Is.EqualTo(uint.MaxValue));
+        }
+    }
 
     [Test]
     [TestCase(1u, 0u, 0u)]
@@ -95,14 +95,14 @@ public class GameVersionTests
         // Act
         var version = new GameVersion(major, minor, patch);
 
-		using (Assert.EnterMultipleScope())
-		{
-			// Assert
-			Assert.That(version.Major, Is.EqualTo(major));
-			Assert.That(version.Minor, Is.EqualTo(minor));
-			Assert.That(version.Patch, Is.EqualTo(patch));
-		}
-	}
+        using (Assert.EnterMultipleScope())
+        {
+            // Assert
+            Assert.That(version.Major, Is.EqualTo(major));
+            Assert.That(version.Minor, Is.EqualTo(minor));
+            Assert.That(version.Patch, Is.EqualTo(patch));
+        }
+    }
 
     [Test]
     public void ToInt_WithSimpleVersion_CalculatesCorrectly()
@@ -224,13 +224,13 @@ public class GameVersionTests
         var version2 = version1;
         version2 = new GameVersion(1, 0, 0);
 
-		using (Assert.EnterMultipleScope())
-		{
-			// Assert
-			Assert.That(version1.Major, Is.EqualTo(2));
-			Assert.That(version2.Major, Is.EqualTo(1));
-		}
-	}
+        using (Assert.EnterMultipleScope())
+        {
+            // Assert
+            Assert.That(version1.Major, Is.EqualTo(2));
+            Assert.That(version2.Major, Is.EqualTo(1));
+        }
+    }
 
     [Test]
     public void Major_PropertyIsImmutable()
@@ -295,14 +295,14 @@ public class GameVersionTests
         // Arrange & Act
         var version = default(GameVersion);
 
-		using (Assert.EnterMultipleScope())
-		{
-			// Assert
-			Assert.That(version.Major, Is.EqualTo(0u));
-			Assert.That(version.Minor, Is.EqualTo(0u));
-			Assert.That(version.Patch, Is.EqualTo(0ul));
-		}
-	}
+        using (Assert.EnterMultipleScope())
+        {
+            // Assert
+            Assert.That(version.Major, Is.EqualTo(0u));
+            Assert.That(version.Minor, Is.EqualTo(0u));
+            Assert.That(version.Patch, Is.EqualTo(0ul));
+        }
+    }
 
     [Test]
     [Sequential]
@@ -311,13 +311,13 @@ public class GameVersionTests
         // Act
         var version = new GameVersion(major, minor, patch);
 
-		using (Assert.EnterMultipleScope())
-		{
-			// Assert
-			Assert.That(version.Major, Is.EqualTo(major));
-			Assert.That(version.Minor, Is.EqualTo(minor));
-			Assert.That(version.Patch, Is.EqualTo(patch));
-		}
-	}
+        using (Assert.EnterMultipleScope())
+        {
+            // Assert
+            Assert.That(version.Major, Is.EqualTo(major));
+            Assert.That(version.Minor, Is.EqualTo(minor));
+            Assert.That(version.Patch, Is.EqualTo(patch));
+        }
+    }
 }
 #endif

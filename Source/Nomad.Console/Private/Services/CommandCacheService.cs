@@ -39,7 +39,7 @@ namespace Nomad.Console.Private.Services {
 
 	internal sealed class CommandCacheService : ICommandService {
 		private readonly ConcurrentDictionary<InternString, ConsoleCommand> _commands = new ConcurrentDictionary<InternString, ConsoleCommand>();
-		
+
 		private readonly ILoggerService _logger;
 		private readonly ICVarSystemService _cvarSystem;
 

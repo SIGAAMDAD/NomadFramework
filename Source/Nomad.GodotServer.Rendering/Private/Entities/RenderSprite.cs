@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -44,8 +44,7 @@ namespace Nomad.GodotServer.Rendering {
 		/// <param name="entityDto"></param>
 		/// <param name="sprite"></param>
 		public RenderSprite( EntityDataDto entityDto, Sprite2D sprite )
-			: base( sprite )
-		{
+			: base( sprite ) {
 			_texture = sprite.Texture;
 			_textureRid = sprite.Texture.GetRid();
 			_texture.Reference();

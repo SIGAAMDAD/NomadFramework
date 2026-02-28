@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -34,7 +34,7 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal sealed class SteamCloudStorageService : ICloudStorageService {
 		private static bool IsEnabled => SteamRemoteStorage.IsCloudEnabledForApp() && SteamRemoteStorage.IsCloudEnabledForAccount();
 
@@ -253,7 +253,7 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 		/// <param name="fileName"></param>
 		private void RetrieveCloudFile( string fileName ) {
 			int fileSize = SteamRemoteStorage.GetFileSize( fileName );
-			SteamRemoteStorage.FileReadAsync( fileName, 0, (uint)fileSize );
+			SteamRemoteStorage.FileReadAsync( fileName, 0, ( uint )fileSize );
 		}
 	};
 };

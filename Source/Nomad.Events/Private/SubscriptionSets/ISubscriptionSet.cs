@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -31,8 +31,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 	/// </summary>
 
 	internal interface ISubscriptionSet<TArgs> : IDisposable
-		where TArgs : struct
-	{
+		where TArgs : struct {
 #if DEBUG
 		/// <summary>
 		/// 

@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -18,11 +18,11 @@ namespace Nomad.Logger.Private {
 	/// 
 	/// </summary>
 	internal enum SinkType : byte {
-		InGame,		// the in-game console
-		Engine,		// the engine console
-		File,		// a logfile
-		Console,	// the tty/command line
-		
+		InGame,     // the in-game console
+		Engine,     // the engine console
+		File,       // a logfile
+		Console,    // the tty/command line
+
 		/// <summary>
 		/// 
 		/// </summary>

@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -348,7 +348,7 @@ namespace Nomad.FileSystem.Private.Services {
 				string relative = Path.GetRelativePath( directory, file );
 				if ( !_fileIndex.TryGetValue( relative, out var list ) ) {
 					list = new List<string>();
-					_fileIndex[ relative ] = list;
+					_fileIndex[relative] = list;
 				}
 				list.Add( file );
 			}
@@ -421,7 +421,7 @@ namespace Nomad.FileSystem.Private.Services {
 					var subDirs = Directory.GetDirectories( dir, "*", SearchOption.TopDirectoryOnly );
 					for ( int i = 0; i < subDirs.Length; i++ ) {
 						// You can insert custom rules here (e.g., exclude hidden/system)
-						stack.Push( subDirs[ i ] );
+						stack.Push( subDirs[i] );
 					}
 				} catch ( UnauthorizedAccessException ) {
 					// Skip directories you can't access

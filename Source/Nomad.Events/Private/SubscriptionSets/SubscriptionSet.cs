@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -90,7 +90,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		public void Dispose() {
 			if ( !_isDisposed ) {
 				_logger?.PrintLine( $"Releasing subscription set for event {_eventData.DebugName}..." );
-				
+
 				_genericSubscriptions?.Dispose();
 				_asyncSubscriptions?.Dispose();
 				_friends.Clear();
@@ -251,7 +251,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// <param name="args"></param>
 		public void Pump( in TArgs args ) {
 			StateGuard.ThrowIfDisposed( _isDisposed, this );
-			
+
 #if EVENT_DEBUG
 			_logger?.PrintLine( $"SubscriptionSet.Pump: publishing event {eventData.DebugName}" );
 #endif
@@ -262,7 +262,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 			try {
 				for ( int i = 0; i < _genericSubscriptions.Count; i++ ) {
 					try {
-						_genericSubscriptions[ i ].Invoke( in args );
+						_genericSubscriptions[i].Invoke( in args );
 					} catch {
 #if DEBUG
 #endif
@@ -309,10 +309,10 @@ namespace Nomad.Events.Private.SubscriptionSets {
 			ct.ThrowIfCancellationRequested();
 
 			// TODO: optimize
-			Task[] tasks = new Task[ subscriptionCount ];
+			Task[] tasks = new Task[subscriptionCount];
 			for ( int i = 0; i < subscriptionCount; i++ ) {
 				ct.ThrowIfCancellationRequested();
-				tasks[i] = _asyncSubscriptions[ i ].Invoke( args, ct );
+				tasks[i] = _asyncSubscriptions[i].Invoke( args, ct );
 			}
 
 			ct.ThrowIfCancellationRequested();
@@ -333,11 +333,11 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// <returns></returns>
 		public bool ContainsCallback( EventCallback<TArgs> callback, out int index ) {
 			StateGuard.ThrowIfDisposed( _isDisposed, this );
-			
+
 			_pumpLock.EnterReadLock();
 			try {
 				for ( int i = 0; i < _genericSubscriptions.Count; i++ ) {
-					if ( _genericSubscriptions[ i ] == callback ) {
+					if ( _genericSubscriptions[i] == callback ) {
 						index = i;
 						return true;
 					}
@@ -366,7 +366,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 			_pumpLock.EnterUpgradeableReadLock();
 			try {
 				for ( int i = 0; i < _asyncSubscriptions.Count; i++ ) {
-					if ( _asyncSubscriptions[ i ] == callback ) {
+					if ( _asyncSubscriptions[i] == callback ) {
 						index = i;
 						return true;
 					}

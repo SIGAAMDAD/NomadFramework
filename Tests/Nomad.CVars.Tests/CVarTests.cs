@@ -79,9 +79,9 @@ namespace Nomad.CVars.Tests
             // Act
             var cvar = new CVar<int>(_eventFactory, info);
 
-			// Assert
-			using (Assert.EnterMultipleScope())
-			{
+            // Assert
+            using (Assert.EnterMultipleScope())
+            {
                 Assert.That(cvar.Name, Is.EqualTo(info.Name));
                 Assert.That(cvar.Description, Is.EqualTo(info.Description));
                 Assert.That(cvar.DefaultValue, Is.EqualTo(info.DefaultValue));
@@ -218,9 +218,9 @@ namespace Nomad.CVars.Tests
             // Act
             cvar.Value = 100;
 
-			// Assert
-			using (Assert.EnterMultipleScope())
-			{
+            // Assert
+            using (Assert.EnterMultipleScope())
+            {
                 Assert.That(cvar.Value, Is.EqualTo(100));
                 Assert.That(fakeEvent.PublishCount, Is.EqualTo(1));
                 Assert.That(fakeEvent.LastPayload.OldValue, Is.EqualTo(42));
@@ -238,9 +238,9 @@ namespace Nomad.CVars.Tests
             // Act
             cvar.Value = 42;
 
-			// Assert
-			using (Assert.EnterMultipleScope())
-			{
+            // Assert
+            using (Assert.EnterMultipleScope())
+            {
                 Assert.That(cvar.Value, Is.EqualTo(42));
                 Assert.That(fakeEvent.PublishCount, Is.Zero);
             }
@@ -256,9 +256,9 @@ namespace Nomad.CVars.Tests
             // Act
             cvar.Value = 200u;
 
-			// Assert
-			using (Assert.EnterMultipleScope())
-			{
+            // Assert
+            using (Assert.EnterMultipleScope())
+            {
                 Assert.That(cvar.Value, Is.EqualTo(100u)); // unchanged
                 Assert.That(fakeEvent.PublishCount, Is.Zero);
             }
@@ -275,9 +275,9 @@ namespace Nomad.CVars.Tests
             // Act
             cvar.Value = -5;
 
-			// Assert
-			using (Assert.EnterMultipleScope())
-			{
+            // Assert
+            using (Assert.EnterMultipleScope())
+            {
                 Assert.That(cvar.Value, Is.EqualTo(42)); // unchanged
                 Assert.That(fakeEvent.PublishCount, Is.Zero);
             }
@@ -294,9 +294,9 @@ namespace Nomad.CVars.Tests
             // Act
             cvar.Value = 10;
 
-			// Assert
-			using (Assert.EnterMultipleScope())
-			{
+            // Assert
+            using (Assert.EnterMultipleScope())
+            {
                 Assert.That(cvar.Value, Is.EqualTo(10));
                 Assert.That(fakeEvent.PublishCount, Is.EqualTo(1));
             }
@@ -309,14 +309,14 @@ namespace Nomad.CVars.Tests
         [Test]
         public void Reset_SetsValueToDefault()
         {
-			// Arrange
-			var cvar = new CVar<int>(_eventFactory, _intCreateInfo)
-			{
-				Value = 100
-			};
+            // Arrange
+            var cvar = new CVar<int>(_eventFactory, _intCreateInfo)
+            {
+                Value = 100
+            };
 
-			// Act
-			cvar.Reset();
+            // Act
+            cvar.Reset();
 
             // Assert
             Assert.That(cvar.Value, Is.EqualTo(42));
@@ -339,23 +339,23 @@ namespace Nomad.CVars.Tests
         [Test]
         public void Reset_WhenReadOnly_DoesNotChangeValue()
         {
-			// Arrange
-			var cvar = new CVar<uint>(_eventFactory, _uintCreateInfo with { Flags = CVarFlags.ReadOnly })
-			{
-				Value = 200u,
-			};
-			var fakeEvent = cvar.ValueChanged;
+            // Arrange
+            var cvar = new CVar<uint>(_eventFactory, _uintCreateInfo with { Flags = CVarFlags.ReadOnly })
+            {
+                Value = 200u,
+            };
+            var fakeEvent = cvar.ValueChanged;
 
             // Act
             cvar.Reset();
 
-			using (Assert.EnterMultipleScope())
-			{
-				// Assert
-				Assert.That(cvar.Value, Is.EqualTo(100u)); // unchanged
-				Assert.That(fakeEvent.PublishCount, Is.Zero);
-			}
-		}
+            using (Assert.EnterMultipleScope())
+            {
+                // Assert
+                Assert.That(cvar.Value, Is.EqualTo(100u)); // unchanged
+                Assert.That(fakeEvent.PublishCount, Is.Zero);
+            }
+        }
 
         // -------------------------------------------------------------------------
         // SetFromString Tests
@@ -709,9 +709,9 @@ namespace Nomad.CVars.Tests
             // Act
             cvar.Value = 100;
 
-			// Assert
-			using (Assert.EnterMultipleScope())
-			{
+            // Assert
+            using (Assert.EnterMultipleScope())
+            {
                 Assert.That(receivedOld, Is.EqualTo(42));
                 Assert.That(receivedNew, Is.EqualTo(100));
             }
@@ -735,15 +735,15 @@ namespace Nomad.CVars.Tests
             // Act
             cvar.Value = 100;
 
-			using (Assert.EnterMultipleScope())
-			{
-				// Assert
-				Assert.That(count1, Is.EqualTo(1));
-				Assert.That(count2, Is.EqualTo(1));
-			}
+            using (Assert.EnterMultipleScope())
+            {
+                // Assert
+                Assert.That(count1, Is.EqualTo(1));
+                Assert.That(count2, Is.EqualTo(1));
+            }
 
-			// Cleanup
-			fakeEvent.OnPublished -= handler1;
+            // Cleanup
+            fakeEvent.OnPublished -= handler1;
             fakeEvent.OnPublished -= handler2;
         }
 

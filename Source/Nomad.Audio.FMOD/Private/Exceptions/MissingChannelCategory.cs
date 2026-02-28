@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -18,8 +18,7 @@ using System;
 namespace Nomad.Audio.Fmod.Private.Exceptions {
 	internal sealed class MissingChannelCategory : Exception {
 		public MissingChannelCategory( string channelName )
-			: base( $"Missing channel group {channelName}!" )
-		{
+			: base( $"Missing channel group {channelName}!" ) {
 		}
 	};
 };

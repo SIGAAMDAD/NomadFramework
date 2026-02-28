@@ -29,7 +29,7 @@ namespace Nomad.Save.Private.ValueObjects {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	public readonly struct Checksum {
 		/// <summary>
 		/// 
@@ -112,8 +112,8 @@ namespace Nomad.Save.Private.ValueObjects {
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public static bool operator ==( Checksum a, Checksum b )
 			=> a.Value == b.Value;
-		
-		
+
+
 		/*
 		===============
 		operator !=

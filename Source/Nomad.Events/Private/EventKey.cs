@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -34,7 +34,7 @@ namespace Nomad.Events.Private {
 		/// The event's name. Used for generating the hashkey.
 		/// </summary>
 		public readonly InternString Name { get; }
-		
+
 		/// <summary>
 		/// The event's namespace. Used for generating the hashkey.
 		/// </summary>

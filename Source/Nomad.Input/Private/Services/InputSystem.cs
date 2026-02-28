@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -36,7 +36,7 @@ namespace Nomad.Input.Private.Services {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal sealed class InputSystem : IInputSystem {
 		public InputMode Mode => _mode;
 		private InputMode _mode;
@@ -146,7 +146,7 @@ namespace Nomad.Input.Private.Services {
 		private async Task InputPumpWorker() {
 			while ( true ) {
 				while ( _eventPump.TryTake( out var inputEvent ) ) {
-					
+
 				}
 				await Task.Delay( _inputDelayMs );
 			}

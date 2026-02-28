@@ -72,11 +72,11 @@ namespace Nomad.CVars.Private.ValueObjects {
 		public static bool IsValidName( string name ) {
 			if ( string.IsNullOrEmpty( name ) ) {
 				return false;
-			} else if ( name[ 0 ] == '.' || name[ name.Length - 1 ] == '.' ) {
+			} else if ( name[0] == '.' || name[name.Length - 1] == '.' ) {
 				return false;
 			}
 			for ( int i = 0; i < name.Length; i++ ) {
-				if ( !IsValidNameCharacter( name[ i ] ) ) {
+				if ( !IsValidNameCharacter( name[i] ) ) {
 					return false;
 				}
 			}

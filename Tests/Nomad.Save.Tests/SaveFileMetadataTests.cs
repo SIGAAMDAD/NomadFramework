@@ -50,18 +50,18 @@ public class SaveFileMetadataTests
 
         // Assert
         Assert.That(metadata, Is.Not.Null);
-		using (Assert.EnterMultipleScope())
-		{
-			Assert.That(metadata.SaveName, Is.EqualTo(fileName));
-			Assert.That(metadata.FileSize, Is.EqualTo(fileSize));
-			Assert.That(metadata.LastAccessYear, Is.EqualTo(lastAccessTime.Year));
-			Assert.That(metadata.LastAccessMonth, Is.EqualTo(lastAccessTime.Month));
-			Assert.That(metadata.LastAccessDay, Is.EqualTo(lastAccessTime.Day));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(metadata.SaveName, Is.EqualTo(fileName));
+            Assert.That(metadata.FileSize, Is.EqualTo(fileSize));
+            Assert.That(metadata.LastAccessYear, Is.EqualTo(lastAccessTime.Year));
+            Assert.That(metadata.LastAccessMonth, Is.EqualTo(lastAccessTime.Month));
+            Assert.That(metadata.LastAccessDay, Is.EqualTo(lastAccessTime.Day));
             Assert.That(metadata.CreationYear, Is.EqualTo(creationTime.Year));
-			Assert.That(metadata.CreationMonth, Is.EqualTo(creationTime.Month));
-			Assert.That(metadata.CreationDay, Is.EqualTo(creationTime.Day));
-		}
-	}
+            Assert.That(metadata.CreationMonth, Is.EqualTo(creationTime.Month));
+            Assert.That(metadata.CreationDay, Is.EqualTo(creationTime.Day));
+        }
+    }
 
     [Test]
     public void Constructor_WithZeroFileSize_CreatesInstance()
@@ -159,14 +159,14 @@ public class SaveFileMetadataTests
             creationTime.Day
         );
 
-		using (Assert.EnterMultipleScope())
-		{
-			// Assert
-			Assert.That(metadata.LastAccessYear, Is.EqualTo(lastAccessTime.Year));
-			Assert.That(metadata.LastAccessMonth, Is.EqualTo(lastAccessTime.Month));
-			Assert.That(metadata.LastAccessDay, Is.EqualTo(lastAccessTime.Day));
-		}
-	}
+        using (Assert.EnterMultipleScope())
+        {
+            // Assert
+            Assert.That(metadata.LastAccessYear, Is.EqualTo(lastAccessTime.Year));
+            Assert.That(metadata.LastAccessMonth, Is.EqualTo(lastAccessTime.Month));
+            Assert.That(metadata.LastAccessDay, Is.EqualTo(lastAccessTime.Day));
+        }
+    }
 
     [Test]
     public void Equality_TwoInstancesWithSameValues_AreEqual()
@@ -380,16 +380,16 @@ public class SaveFileMetadataTests
             creationTime.Day
         );
 
-		using (Assert.EnterMultipleScope())
-		{
-			// Act & Assert
-			Assert.That(metadata.SaveName, Is.EqualTo(fileName));
-			Assert.That(metadata.FileSize, Is.EqualTo(fileSize));
-			Assert.That(metadata.LastAccessYear, Is.EqualTo(lastAccessTime.Year));
-			Assert.That(metadata.LastAccessMonth, Is.EqualTo(lastAccessTime.Month));
-			Assert.That(metadata.LastAccessDay, Is.EqualTo(lastAccessTime.Day));
-		}
-	}
+        using (Assert.EnterMultipleScope())
+        {
+            // Act & Assert
+            Assert.That(metadata.SaveName, Is.EqualTo(fileName));
+            Assert.That(metadata.FileSize, Is.EqualTo(fileSize));
+            Assert.That(metadata.LastAccessYear, Is.EqualTo(lastAccessTime.Year));
+            Assert.That(metadata.LastAccessMonth, Is.EqualTo(lastAccessTime.Month));
+            Assert.That(metadata.LastAccessDay, Is.EqualTo(lastAccessTime.Day));
+        }
+    }
 
     [Test]
     public void FileName_PropertyIsAccessible()
@@ -458,14 +458,14 @@ public class SaveFileMetadataTests
             creationTime.Day
         );
 
-		using (Assert.EnterMultipleScope())
-		{
-			// Assert
-			Assert.That(metadata.LastAccessYear, Is.EqualTo(expectedTime.Year));
-			Assert.That(metadata.LastAccessMonth, Is.EqualTo(expectedTime.Month));
-			Assert.That(metadata.LastAccessDay, Is.EqualTo(expectedTime.Day));
-		}
-	}
+        using (Assert.EnterMultipleScope())
+        {
+            // Assert
+            Assert.That(metadata.LastAccessYear, Is.EqualTo(expectedTime.Year));
+            Assert.That(metadata.LastAccessMonth, Is.EqualTo(expectedTime.Month));
+            Assert.That(metadata.LastAccessDay, Is.EqualTo(expectedTime.Day));
+        }
+    }
 
     [Test]
     public void Constructor_WithNegativeFileSize_CreatesInstance()

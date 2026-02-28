@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -57,8 +57,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <param name="config"></param>
 		public MemoryReadStream( MemoryReadConfig config )
-			: base( config.Strategy )
-		{
+			: base( config.Strategy ) {
 			// FIXME: MAGIC NUMBER!!!
 			long maxCapacity = config.MaxCapacity ?? 8 * 1024 * 1024;
 			buffer = new PooledBufferHandle( (int)maxCapacity );
@@ -235,7 +234,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 			StateGuard.ThrowIfDisposed( isDisposed, this );
 
 			long remaining = length - position;
-			byte[] result = new byte[ remaining ];
+			byte[] result = new byte[remaining];
 			buffer!.CopyTo( result, 0, (int)remaining, (int)position );
 			position += remaining;
 			return result;
@@ -634,8 +633,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		private T Read<T>( int size )
-			where T : unmanaged
-		{
+			where T : unmanaged {
 			StateGuard.ThrowIfDisposed( isDisposed, this );
 			if ( position + size > length ) {
 				throw new EndOfStreamException();

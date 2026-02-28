@@ -27,7 +27,7 @@ namespace Nomad.Save.Private.ValueObjects {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal record SaveHeader {
 		/// <summary>
 		/// 
@@ -104,7 +104,7 @@ namespace Nomad.Save.Private.ValueObjects {
 			string name = reader.ReadString();
 			int sectionCount = reader.ReadInt32();
 			ulong checksum = reader.ReadUInt64();
-			
+
 			return new SaveHeader(
 				name: name,
 				version: version,

@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -289,7 +289,7 @@ namespace Nomad.CVars.Private.Services {
 		/// </summary>
 		/// <returns></returns>
 		public ICVar[] GetCVars() {
-			return  _cvars.Values.ToArray();
+			return _cvars.Values.ToArray();
 		}
 
 		/*

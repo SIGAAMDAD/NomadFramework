@@ -28,7 +28,7 @@ namespace Nomad.Save.Private.Serialization.FieldSerializers {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal interface IFieldSerializer {
 		AnyType FieldType { get; }
 		Type DataType { get; }
@@ -36,7 +36,7 @@ namespace Nomad.Save.Private.Serialization.FieldSerializers {
 		Any Deserialize( IReadStream stream );
 		void Serialize( IWriteStream stream, in Any value );
 	};
-	
+
 	/*
 	===================================================================================
 	

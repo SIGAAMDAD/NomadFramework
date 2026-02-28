@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -91,7 +91,7 @@ namespace Nomad.Save.Private.Entities {
 					throw new DuplicateFieldException( _name, field.Name );
 				}
 
-				_fields[ field.Name ] = field;
+				_fields[field.Name] = field;
 			}
 		}
 
@@ -124,11 +124,10 @@ namespace Nomad.Save.Private.Entities {
 		/// <returns></returns>
 		/// <exception cref="InvalidCastException"></exception>
 		public T GetField<T>( string fieldName )
-			where T : unmanaged
-		{
+			where T : unmanaged {
 			StateGuard.ThrowIfDisposed( _isDisposed, this );
 			ArgumentGuard.ThrowIfNullOrEmpty( fieldName );
-			
+
 			T value = default;
 			if ( _fields.TryGetValue( fieldName, out var field ) ) {
 				if ( Any.GetType<T>() != field.Type ) {
@@ -153,7 +152,7 @@ namespace Nomad.Save.Private.Entities {
 		public string GetString( string fieldName ) {
 			StateGuard.ThrowIfDisposed( _isDisposed, this );
 			ArgumentGuard.ThrowIfNullOrEmpty( fieldName );
-			
+
 			string value = String.Empty;
 			if ( _fields.TryGetValue( fieldName, out var field ) ) {
 				if ( field.Type != AnyType.String ) {

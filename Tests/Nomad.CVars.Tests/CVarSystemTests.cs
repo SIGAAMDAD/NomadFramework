@@ -27,204 +27,214 @@ using NUnit.Framework;
 
 namespace Nomad.CVars.Tests
 {
-	[TestFixture]
-	public class CVarSystemServiceTests
-	{
-		private CVarSystem _cvarSystem;
-		private IGameEventRegistryService _registry;
-		private IEngineService _engineService;
-		private IFileSystem _fileSystem;
-		private ILoggerService _logger;
+    [TestFixture]
+    public class CVarSystemServiceTests
+    {
+        private CVarSystem _cvarSystem;
+        private IGameEventRegistryService _registry;
+        private IEngineService _engineService;
+        private IFileSystem _fileSystem;
+        private ILoggerService _logger;
 
-		[SetUp]
-		public void Setup()
-		{
-			_logger = new MockLogger();
-			_registry = new GameEventRegistry(_logger);
-			_engineService = new MockEngineService();
-			_fileSystem = new FileSystemService(_engineService, _logger);
-			_cvarSystem = new CVarSystem(_registry, _fileSystem, _logger);
-		}
+        [SetUp]
+        public void Setup()
+        {
+            _logger = new MockLogger();
+            _registry = new GameEventRegistry(_logger);
+            _engineService = new MockEngineService();
+            _fileSystem = new FileSystemService(_engineService, _logger);
+            _cvarSystem = new CVarSystem(_registry, _fileSystem, _logger);
+        }
 
-		[TearDown]
-		public void TearDown()
-		{
-			_logger?.Dispose();
-			_registry?.Dispose();
-			_fileSystem?.Dispose();
-			_cvarSystem?.Dispose();
-			_engineService?.Dispose();
-		}
+        [TearDown]
+        public void TearDown()
+        {
+            _logger?.Dispose();
+            _registry?.Dispose();
+            _fileSystem?.Dispose();
+            _cvarSystem?.Dispose();
+            _engineService?.Dispose();
+        }
 
-		#region CVar Registration Tests
+        #region CVar Registration Tests
 
-		[Test]
-		public void RegisterCVar_WithNullParameters_ThrowsArgumentNullException()
-		{
-			// Assert
-			Assert.Throws<ArgumentNullException>(
-				() => _cvarSystem.Register(new CVarCreateInfo<int> {
-					Name = null!,
-					DefaultValue = default,
-					Description = null!
-				})
-			);
-		}
+        [Test]
+        public void RegisterCVar_WithNullParameters_ThrowsArgumentNullException()
+        {
+            // Assert
+            Assert.Throws<ArgumentNullException>(
+                () => _cvarSystem.Register(new CVarCreateInfo<int>
+                {
+                    Name = null!,
+                    DefaultValue = default,
+                    Description = null!
+                })
+            );
+        }
 
-		[Test]
-		public void RegisterCVar_WithEmptyParameters_ThrowsArgumentException()
-		{
-			// Assert
-			Assert.Throws<ArgumentException>(
-				() => _cvarSystem.Register(new CVarCreateInfo<int> {
-					Name = string.Empty,
-					DefaultValue = default,
-					Description = string.Empty
-				})
-			);
-		}
+        [Test]
+        public void RegisterCVar_WithEmptyParameters_ThrowsArgumentException()
+        {
+            // Assert
+            Assert.Throws<ArgumentException>(
+                () => _cvarSystem.Register(new CVarCreateInfo<int>
+                {
+                    Name = string.Empty,
+                    DefaultValue = default,
+                    Description = string.Empty
+                })
+            );
+        }
 
-		[Test]
-		public void RegisterCVar_CalledTwiceWithSameTypeAndParameters_ReturnsSameInstance()
-		{
-			// Arrange
-			var createInfo = new CVarCreateInfo<int> {
-				Name = "TestCVar",
-				DefaultValue = default,
-				Description = "A test cvar."
-			};
+        [Test]
+        public void RegisterCVar_CalledTwiceWithSameTypeAndParameters_ReturnsSameInstance()
+        {
+            // Arrange
+            var createInfo = new CVarCreateInfo<int>
+            {
+                Name = "TestCVar",
+                DefaultValue = default,
+                Description = "A test cvar."
+            };
 
-			// Act
-			var cvar1 = _cvarSystem.Register(createInfo);
-			var cvar2 = _cvarSystem.Register(createInfo);
+            // Act
+            var cvar1 = _cvarSystem.Register(createInfo);
+            var cvar2 = _cvarSystem.Register(createInfo);
 
-			// Assert
-			Assert.That(cvar1, Is.SameAs(cvar2));
-		}
+            // Assert
+            Assert.That(cvar1, Is.SameAs(cvar2));
+        }
 
-		[Test]
-		public void RegisterCVar_CalledTwiceWithDifferentTypeSameParameters_ThrowsInvalidCast()
-		{
-			// Arrange
-			var createInfo1 = new CVarCreateInfo<int> {
-				Name = "TestCVar",
-				DefaultValue = default,
-				Description = "A test cvar."
-			};
-			var createInfo2 = new CVarCreateInfo<float> {
-				Name = "TestCVar",
-				DefaultValue = default,
-				Description = "A test cvar."
-			};
+        [Test]
+        public void RegisterCVar_CalledTwiceWithDifferentTypeSameParameters_ThrowsInvalidCast()
+        {
+            // Arrange
+            var createInfo1 = new CVarCreateInfo<int>
+            {
+                Name = "TestCVar",
+                DefaultValue = default,
+                Description = "A test cvar."
+            };
+            var createInfo2 = new CVarCreateInfo<float>
+            {
+                Name = "TestCVar",
+                DefaultValue = default,
+                Description = "A test cvar."
+            };
 
-			// Act
-			_cvarSystem.Register(createInfo1);
+            // Act
+            _cvarSystem.Register(createInfo1);
 
-			// Assert
-			Assert.Throws<InvalidCastException>(
-				() => _cvarSystem.Register(createInfo2)
-			);
-		}
+            // Assert
+            Assert.Throws<InvalidCastException>(
+                () => _cvarSystem.Register(createInfo2)
+            );
+        }
 
-		[Test]
-		[TestCase<bool>(false)]
-		[TestCase<string>("")]
-		[TestCase<uint>(0)]
-		[TestCase<int>(0)]
-		[TestCase<float>(0.0f)]
-		public void RegisterCVar_CreatedWithExplicitType_CanBeFoundWithExplicitTypeSearch<T>(T value)
-		{
-			// Arrange
-			var createInfo = new CVarCreateInfo<T> {
-				Name = "TestCVar",
-				DefaultValue = value,
-				Description = "A test cvar."
-			};
+        [Test]
+        [TestCase<bool>(false)]
+        [TestCase<string>("")]
+        [TestCase<uint>(0)]
+        [TestCase<int>(0)]
+        [TestCase<float>(0.0f)]
+        public void RegisterCVar_CreatedWithExplicitType_CanBeFoundWithExplicitTypeSearch<T>(T value)
+        {
+            // Arrange
+            var createInfo = new CVarCreateInfo<T>
+            {
+                Name = "TestCVar",
+                DefaultValue = value,
+                Description = "A test cvar."
+            };
 
-			// Act
-			_cvarSystem.Register(createInfo);
+            // Act
+            _cvarSystem.Register(createInfo);
 
-			// Assert
-			Assert.That(_cvarSystem.CVarExists<T>("TestCVar"), Is.True);
-		}
+            // Assert
+            Assert.That(_cvarSystem.CVarExists<T>("TestCVar"), Is.True);
+        }
 
-		[Test]
-		[TestCase<bool>(false)]
-		[TestCase<uint>(0)]
-		[TestCase<int>(0)]
-		[TestCase<float>(0.0f)]
-		[TestCase<string>("")]
-		public void RegisterCVar_CreatedWithExplicitType_CanBeFoundWithNameOnly<T>(T value)
-		{
-			// Arrange
-			var createInfo = new CVarCreateInfo<T> {
-				Name = "TestCVar",
-				DefaultValue = default!,
-				Description = "A test cvar."
-			};
+        [Test]
+        [TestCase<bool>(false)]
+        [TestCase<uint>(0)]
+        [TestCase<int>(0)]
+        [TestCase<float>(0.0f)]
+        [TestCase<string>("")]
+        public void RegisterCVar_CreatedWithExplicitType_CanBeFoundWithNameOnly<T>(T value)
+        {
+            // Arrange
+            var createInfo = new CVarCreateInfo<T>
+            {
+                Name = "TestCVar",
+                DefaultValue = default!,
+                Description = "A test cvar."
+            };
 
-			// Act
-			_cvarSystem.Register(createInfo);
+            // Act
+            _cvarSystem.Register(createInfo);
 
-			// Assert
-			Assert.That(_cvarSystem.CVarExists("TestCVar"), Is.True);
-		}
+            // Assert
+            Assert.That(_cvarSystem.CVarExists("TestCVar"), Is.True);
+        }
 
-		[Test]
-		public void RegisterCVar_CalledTwiceWithDifferentTypes_ThrowsInvalidCastException()
-		{
-			// Arrange
-			var createInfo1 = new CVarCreateInfo<int> {
-				Name = "TestCVar",
-				DefaultValue = default,
-				Description = "A test cvar."
-			};
-			var createInfo2 = new CVarCreateInfo<float> {
-				Name = "TestCVar",
-				DefaultValue = default,
-				Description = "A test cvar."
-			};
+        [Test]
+        public void RegisterCVar_CalledTwiceWithDifferentTypes_ThrowsInvalidCastException()
+        {
+            // Arrange
+            var createInfo1 = new CVarCreateInfo<int>
+            {
+                Name = "TestCVar",
+                DefaultValue = default,
+                Description = "A test cvar."
+            };
+            var createInfo2 = new CVarCreateInfo<float>
+            {
+                Name = "TestCVar",
+                DefaultValue = default,
+                Description = "A test cvar."
+            };
 
-			// Act
-			_cvarSystem.Register(createInfo1);
+            // Act
+            _cvarSystem.Register(createInfo1);
 
-			// Assert
-			Assert.Throws<InvalidCastException>(
-				() => _cvarSystem.Register(createInfo2)
-			);
-		}
+            // Assert
+            Assert.Throws<InvalidCastException>(
+                () => _cvarSystem.Register(createInfo2)
+            );
+        }
 
-		#endregion
+        #endregion
 
-		#region CVar Unregistration Tests
+        #region CVar Unregistration Tests
 
-		[Test]
-		public void UnregisterCVar_CalledWithNullValue_ThrowsArgumentNullException()
-		{
-			Assert.Throws<ArgumentNullException>(
-				() => _cvarSystem.Unregister(null!)
-			);
-		}
+        [Test]
+        public void UnregisterCVar_CalledWithNullValue_ThrowsArgumentNullException()
+        {
+            Assert.Throws<ArgumentNullException>(
+                () => _cvarSystem.Unregister(null!)
+            );
+        }
 
-		[Test]
-		public void UnregisterCVar_CalledWithValueCVar_DoesntExist()
-		{
-			// Arrange
-			var createInfo = new CVarCreateInfo<int> {
-				Name = "TestCVar",
-				DefaultValue = default,
-				Description = "A test cvar."
-			};
+        [Test]
+        public void UnregisterCVar_CalledWithValueCVar_DoesntExist()
+        {
+            // Arrange
+            var createInfo = new CVarCreateInfo<int>
+            {
+                Name = "TestCVar",
+                DefaultValue = default,
+                Description = "A test cvar."
+            };
 
-			// Act
-			var cvar = _cvarSystem.Register(createInfo);
-			_cvarSystem.Unregister(cvar);
+            // Act
+            var cvar = _cvarSystem.Register(createInfo);
+            _cvarSystem.Unregister(cvar);
 
-			// Assert
-			Assert.That(!_cvarSystem.CVarExists<int>(cvar.Name));
-		}
+            // Assert
+            Assert.That(!_cvarSystem.CVarExists<int>(cvar.Name));
+        }
 
-		#endregion
-	}
+        #endregion
+    }
 }
 #endif

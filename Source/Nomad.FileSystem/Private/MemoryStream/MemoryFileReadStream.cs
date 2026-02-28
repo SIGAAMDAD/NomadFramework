@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -65,8 +65,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <param name="config"></param>
 		public MemoryFileReadStream( MemoryFileReadConfig config )
-			: base( config )
-		{
+			: base( config ) {
 			_filepath = config.FilePath;
 			Open( _filepath, FileMode.Open, FileAccess.Read );
 		}

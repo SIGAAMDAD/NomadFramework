@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -38,8 +38,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 	/// </remarks>
 
 	internal sealed class LockFreeSubscriptionSet<TArgs> : ISubscriptionSet<TArgs>
-		where TArgs : struct
-	{
+		where TArgs : struct {
 #if DEBUG
 		public int SubscriberCount => _subscriberCount;
 		private int _subscriberCount = 0;
@@ -134,7 +133,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 				return false;
 			}
 
-			_genericSubscriptions.Add( callback);
+			_genericSubscriptions.Add( callback );
 #if DEBUG
 			Interlocked.Increment( ref _subscriberCount );
 #endif
@@ -264,7 +263,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		public bool ContainsCallback( EventCallback<TArgs> callback, out int index ) {
 			index = -1;
 			for ( int i = 0; i < _genericSubscriptions.Count; i++ ) {
-				if ( _genericSubscriptions[ i ] == callback ) {
+				if ( _genericSubscriptions[i] == callback ) {
 					index = i;
 					return true;
 				}

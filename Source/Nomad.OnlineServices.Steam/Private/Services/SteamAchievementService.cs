@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -63,7 +63,7 @@ namespace Nomad.OnlineServices.Steam {
 			_engineService = engineService;
 			_appData = appData;
 
-			int numAchievements = (int)SteamUserStats.GetNumAchievements();
+			int numAchievements = ( int )SteamUserStats.GetNumAchievements();
 			_achievements = new ConcurrentDictionary<string, SteamAchievementInfo>( numAchievements, numAchievements );
 
 			_userAchievementIconFetched = CallResult<UserAchievementIconFetched_t>.Create( OnAchievementIconFetched );

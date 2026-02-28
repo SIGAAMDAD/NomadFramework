@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -84,8 +84,7 @@ namespace Nomad.GodotServer.Rendering {
 		/// </summary>
 		/// <param name="animatedSprite"></param>
 		public RenderAnimator( AnimatedSprite2D animatedSprite, IGameEventRegistryService eventFactory )
-			: base( animatedSprite )
-		{
+			: base( animatedSprite ) {
 			_animationChanged = eventFactory.GetEvent<EmptyEventArgs>( nameof( IAnimationEntity ), nameof( IAnimationEntity.AnimationChanged ) );
 			_animationFinished = eventFactory.GetEvent<EmptyEventArgs>( nameof( IAnimationEntity ), nameof( IAnimationEntity.AnimationFinished ) );
 
@@ -117,7 +116,7 @@ namespace Nomad.GodotServer.Rendering {
 						regionPtr,
 						durationsPtr,
 						frameCount,
-						(float)spriteFrames.GetAnimationSpeed( animationName ),
+						( float )spriteFrames.GetAnimationSpeed( animationName ),
 						spriteFrames.GetAnimationLoop( animationName )
 					);
 				}

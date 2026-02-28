@@ -135,9 +135,9 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ```
 
 ## Naming Conventions
-* PascalCase: Classes, Methods, Properties, Fields (only public fields)
-* _snakeCamelCase: Properties, Fields (only private & public fields)
-* camelCase: Parameters and Local Variables
+* PascalCase: Classes, Methods, Properties, Fields (only public fields/properties)
+* _snakeCamelCase: Properties, Fields (only private fields/properties)
+* camelCase: Parameters, Local Variables, and Protected Fields/Properties
 * SNAKE_CASE: Constants
 
 The only exception to the casing is if you're creating a static readonly StringName to reduce string allocations, in which case, use Godot's PascalCasing for those constants as that's consistent with the source-generators and reduces refactoring costs.

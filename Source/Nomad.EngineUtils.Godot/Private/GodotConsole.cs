@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -31,7 +31,7 @@ namespace Nomad.EngineUtils.Private {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal sealed class GodotConsole : IConsoleObject {
 		public ICommandBuilder CommandBuilder => _commandBuilder;
 		private readonly GodotCommandBuilder _commandBuilder;

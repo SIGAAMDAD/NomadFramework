@@ -15,7 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Steam
 {
-	public interface ISteamService
-	{
-	}
+    public interface ISteamService
+    {
+    }
 }

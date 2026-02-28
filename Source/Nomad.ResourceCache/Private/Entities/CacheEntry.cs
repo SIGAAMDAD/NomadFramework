@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -31,8 +31,7 @@ namespace Nomad.ResourceCache.Private.Entities {
 
 	internal sealed class CacheEntry<TResource, TId> : ICacheEntry<TResource, TId>
 		where TResource : notnull, IDisposable
-		where TId : IEquatable<TId>
-	{
+		where TId : IEquatable<TId> {
 		public TId Id => _id;
 		private readonly TId _id;
 

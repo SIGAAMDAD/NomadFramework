@@ -1,4 +1,4 @@
-/*
+﻿/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -205,7 +205,7 @@ namespace Nomad.GodotServer.Rendering {
 						i,
 						delta
 					);
-//					DrawAnimation( i );
+					//					DrawAnimation( i );
 				}
 			}
 		}
@@ -252,17 +252,17 @@ namespace Nomad.GodotServer.Rendering {
 		/// <param name="speedScale"></param>
 		/// <param name="index"></param>
 		/// <param name="delta"></param>
-		private unsafe void UpdateFrameData( int* currentFrame, float *frameTimer, bool* playing, bool backwards, float speedScale, int index, float delta ) {
+		private unsafe void UpdateFrameData( int* currentFrame, float* frameTimer, bool* playing, bool backwards, float speedScale, int index, float delta ) {
 			fixed ( bool* loopsPtr = _framesBatchData.Loops[ index ] )
 			fixed ( int* frameCountPtr = _framesBatchData.FrameCounts[ index ] )
 			fixed ( float* frameDurationsPtr = _framesBatchData.FrameDurations[ index ] ) {
-				*frameTimer += delta *speedScale;
+				*frameTimer += delta * speedScale;
 				while ( *frameTimer >= frameDurationsPtr[ *currentFrame ] ) {
 					*frameTimer -= frameDurationsPtr[ *currentFrame ];
 					if ( backwards ) {
-						( *currentFrame )--;
+						(*currentFrame)--;
 					} else {
-						( *currentFrame )++;
+						(*currentFrame)++;
 					}
 					if ( *currentFrame >= frameCountPtr[ index ] ) {
 						if ( loopsPtr[ index ] ) {

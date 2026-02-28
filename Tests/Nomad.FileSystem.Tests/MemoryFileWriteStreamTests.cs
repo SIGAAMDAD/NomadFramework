@@ -66,7 +66,7 @@ namespace Nomad.FileSystem.Tests
 
         private IWriteStream OpenMemoryFileWriteStream(int length = 1024, bool fixedSize = false)
         {
-            var config = new MemoryFileWriteConfig{ FilePath = _filePath, InitialCapacity = length, FixedSize = fixedSize };
+            var config = new MemoryFileWriteConfig { FilePath = _filePath, InitialCapacity = length, FixedSize = fixedSize };
             // Note: The fixedSize parameter isn't directly in WriteConfig, but MemoryFileWriteStream constructor accepts it.
             // We'll need to use reflection or modify the service? For simplicity, we'll assume WriteConfig can convey fixedSize.
             // In the current code, WriteConfig only has Type, Append, Length. MemoryFileWriteStream constructor also has a fixedSize param.
@@ -149,7 +149,7 @@ namespace Nomad.FileSystem.Tests
             byte[] sourceData = [10, 20, 30];
             File.WriteAllBytes(sourcePath, sourceData);
 
-            var readConfig = new FileReadConfig{ FilePath = "source.bin" };
+            var readConfig = new FileReadConfig { FilePath = "source.bin" };
             using var sourceStream = _service.OpenRead(readConfig);
 
             using var destStream = OpenMemoryFileWriteStream() as MemoryFileWriteStream;
@@ -215,12 +215,12 @@ namespace Nomad.FileSystem.Tests
                 stream.Flush();
             }
 
-			using (Assert.EnterMultipleScope())
-			{
-				Assert.That(File.Exists(_filePath));
-				Assert.That(File.ReadAllBytes(_filePath), Is.EqualTo(data));
-			}
-		}
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(File.Exists(_filePath));
+                Assert.That(File.ReadAllBytes(_filePath), Is.EqualTo(data));
+            }
+        }
 
         [Test]
         public void WriteInt8AndFlush_WritesCorrectData()
@@ -231,12 +231,12 @@ namespace Nomad.FileSystem.Tests
                 stream.WriteInt8(value);
             }
 
-			using (Assert.EnterMultipleScope())
-			{
-				Assert.That(File.Exists(_filePath));
-				Assert.That((sbyte)File.ReadAllBytes(_filePath)[0], Is.EqualTo(value));
-			}
-		}
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(File.Exists(_filePath));
+                Assert.That((sbyte)File.ReadAllBytes(_filePath)[0], Is.EqualTo(value));
+            }
+        }
 
         [Test]
         public void WriteUInt8AndFlush_WritesCorrectData()
@@ -247,12 +247,12 @@ namespace Nomad.FileSystem.Tests
                 stream.WriteUInt8(value);
             }
 
-			using (Assert.EnterMultipleScope())
-			{
-				Assert.That(File.Exists(_filePath));
-				Assert.That(File.ReadAllBytes(_filePath)[0], Is.EqualTo(value));
-			}
-		}
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(File.Exists(_filePath));
+                Assert.That(File.ReadAllBytes(_filePath)[0], Is.EqualTo(value));
+            }
+        }
 
         [Test]
         public void WriteInt16AndFlush_WritesCorrectData()

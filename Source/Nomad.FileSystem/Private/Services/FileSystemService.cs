@@ -404,25 +404,25 @@ namespace Nomad.FileSystem.Private.Services {
 
 			switch ( config.Type ) {
 				case StreamType.File: {
-					var fileConfig = config as FileReadConfig ?? throw new InvalidCastException();
-					var fullPath = _searchHelper.FindFile( fileConfig.FilePath );
-					if ( fullPath == null ) {
-						_logger.PrintLine( in _category, $"FileSystemService.OpenRead: couldn't find file '{fileConfig.FilePath}'" );
-						return null;
+						var fileConfig = config as FileReadConfig ?? throw new InvalidCastException();
+						var fullPath = _searchHelper.FindFile( fileConfig.FilePath );
+						if ( fullPath == null ) {
+							_logger.PrintLine( in _category, $"FileSystemService.OpenRead: couldn't find file '{fileConfig.FilePath}'" );
+							return null;
+						}
+						fileConfig = fileConfig with { FilePath = fullPath };
+						return new FileReadStream( fileConfig );
 					}
-					fileConfig = fileConfig with { FilePath = fullPath };
-					return new FileReadStream( fileConfig );
-				}
 				case StreamType.MemoryFile: {
-					var memoryFileConfig = config as MemoryFileReadConfig ?? throw new InvalidCastException();
-					var fullPath = _searchHelper.FindFile( memoryFileConfig.FilePath );
-					if ( fullPath == null ) {
-						_logger.PrintLine( in _category, $"FileSystemService.OpenRead: couldn't find file '{memoryFileConfig.FilePath}'" );
-						return null;
+						var memoryFileConfig = config as MemoryFileReadConfig ?? throw new InvalidCastException();
+						var fullPath = _searchHelper.FindFile( memoryFileConfig.FilePath );
+						if ( fullPath == null ) {
+							_logger.PrintLine( in _category, $"FileSystemService.OpenRead: couldn't find file '{memoryFileConfig.FilePath}'" );
+							return null;
+						}
+						memoryFileConfig = memoryFileConfig with { FilePath = fullPath };
+						return new MemoryFileReadStream( memoryFileConfig );
 					}
-					memoryFileConfig = memoryFileConfig with { FilePath = fullPath };
-					return new MemoryFileReadStream( memoryFileConfig );
-				}
 				case StreamType.Memory:
 					return new MemoryReadStream(
 						config is MemoryReadConfig memoryConfig ? memoryConfig : throw new InvalidCastException()
