@@ -34,6 +34,7 @@ jobs:
       with:
         dotnet-version: ${{ matrix.dotnet-version }}
         cache: true
+        cache-depdendency-path: '**/*.csproj'
     
     - name: 🔒 Check for vulnerable packages
       run: dotnet list NomadFramework.slnx package --vulnerable --include-transitive

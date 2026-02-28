@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <!-- Output format: cobertura, opencover, lcov, or teamcity -->
+          <Format>cobertura</Format>
+          <!-- Exclude by assembly name, namespace, or attributes -->
+          <Exclude>[xunit.*]*</Exclude>
+          <Exclude>[*.Tests]*</Exclude>
+          <!-- Include only specific assemblies (optional) -->
+          <Include>[Nomad*]*</Include>
+          <!-- Thresholds (optional) -->
+          <Threshold>75</Threshold>
+          <ThresholdType>line,branch,method</ThresholdType>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>
