@@ -72,8 +72,8 @@ jobs:
     - name: 🔍 Check code format
       run: dotnet format --verify-no-changes
     - name: 🔬 Run static analysis
-      run: dotnet list package --vulnerable   # you already have this
-      # Optionally add Roslyn analyzers: dotnet build -p:RunAnalyzers=true
+      run: |
+        dotnet build NomadFramework.slnx --configuration Release --no-restore -p:RunAnalyzers=true
     
     - name: 🔨 Build
       run: |
@@ -105,20 +105,13 @@ jobs:
     - name: 📚 Generate Doxygen documentation
       run: doxygen Doxyfile
       continue-on-error: true
-
-    - name: 🚀 Deploy docs to Wiki
-      if: github.ref == 'refs/heads/main'
-      run: |
-        git clone https://github.com/${{ github.repository }}.wiki.git ./wiki
-        cp -r ./Documentation/html/* ./wiki/
-        cd wiki
-        git config user.name "github-actions[bot]"
-        git config user.email "github-actions[bot]@users.noreply.github.com"
-        git add .
-        if ! git diff --quiet --cached; then
-            git commit -m "Update Wiki documentation from CI"
-            git push https://x-access-token:${{ secrets.API_TOKEN }}@github.com/${{ github.repository }}.wiki.git
-        else
-            echo "No changes to wiki; skipping commit and push."
-        fi
-      
+    
+    - name: Deploy to GitHub Wiki
+      uses: crazy-max/ghaction-github-wiki@v3
+      with:
+        path: ./Documentation/html
+        commit-message: "Update Wiki from CI"
+        git-commit-user-name: "github-actions[bot]"
+        git-commit-user-email: "github-actions[bot]@users.noreply.github.com"
+      env:
+        GITHUB_TOKEN: ${{ secrets.API_TOKEN }}
