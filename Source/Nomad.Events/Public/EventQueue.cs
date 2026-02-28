@@ -13,6 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System;
 using System.Runtime.CompilerServices;
 using Nomad.Core.Collections;
 using Nomad.Core.Events;
@@ -49,9 +50,9 @@ namespace Nomad.Events.Private
         public EventQueue()
         {
             _queues = new LockFreePooledQueue<QueuedEvent>[(int)EventPriority.Count];
-            for (int i = 0; i < _queues.Length; i++)
+            for (var priority = EventPriority.Critical; priority >= EventPriority.VeryLow; priority--)
             {
-                _queues[i] = new LockFreePooledQueue<QueuedEvent>();
+                _queues[(int)priority] = new LockFreePooledQueue<QueuedEvent>();
             }
         }
 

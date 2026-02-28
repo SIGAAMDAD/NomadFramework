@@ -18,7 +18,7 @@ namespace Nomad.Events
     /// <summary>
     /// Defines the priority levels for event handling.
     /// </summary>
-    public enum EventPriority : byte
+    public enum EventPriority : sbyte
     {
         /// <summary>
         /// Very low priority.
