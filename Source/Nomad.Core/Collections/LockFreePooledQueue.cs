@@ -13,58 +13,60 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System.Collections;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
+using Nomad.Core.Compatibility.Guards;
 
 namespace Nomad.Core.Collections
 {
     /// <summary>
-    /// High-performance lock-free queue using object pooling
-    /// Reduces GC pressure for high-throughput scenarios
+    /// Lock-free queue with object pooling to reduce GC pressure.
+    /// This is a C# adaptation of boost::lockfree::queue.
     /// </summary>
-    public class LockFreePooledQueue<T>
+    /// <remarks>
+    /// WARNING: Node reuse via pooling makes this implementation susceptible to the ABA problem.
+    /// In practice, with .NET's memory model and typical usage, the risk is low, but it exists.
+    /// For mission‑critical scenarios, consider using <see cref="System.Collections.Concurrent.ConcurrentQueue{T}"/>
+    /// or a versioned approach (e.g., packing pointer+version into a long).
+    /// </remarks>
+    /// <typeparam name="T">Type of elements in the queue.</typeparam>
+    public class LockFreePooledQueue<T> : IProducerConsumerCollection<T>
     {
         private class PooledNode
         {
             public T Value;
-            public PooledNode? Next;
-            public int Version; // For ABA protection
-
-            public void Reset(T value)
-            {
-                Value = value;
-                Next = null;
-                Version++;
-            }
+            public volatile PooledNode Next;  // Marked volatile for thread‑safe reads/writes
         }
+
         private class NodePool
         {
             private readonly ConcurrentStack<PooledNode> _pool = new();
-            private int _createdCount;
             private readonly int _maxPoolSize;
 
-            public NodePool(int maxPoolSize = 1000)
+            public NodePool(int maxPoolSize)
             {
                 _maxPoolSize = maxPoolSize;
             }
 
             public PooledNode Get(T value)
             {
-                if (_pool.TryPop(out PooledNode? node))
+                if (_pool.TryPop(out var node))
                 {
-                    node.Reset(value);
+                    node.Value = value;
+                    node.Next = null!;
                     return node;
                 }
-
-                Interlocked.Increment(ref _createdCount);
-                return new PooledNode { Value = value, Version = 0 };
+                return new PooledNode { Value = value, Next = null! };
             }
 
             public void Return(PooledNode node)
             {
+                node.Value = default!; // Release reference
+                node.Next = null!;
                 if (_pool.Count < _maxPoolSize)
                 {
-                    node.Value = default; // Release reference
                     _pool.Push(node);
                 }
             }
@@ -73,11 +75,23 @@ namespace Nomad.Core.Collections
         private volatile PooledNode _head;
         private volatile PooledNode _tail;
         private readonly NodePool _pool;
+        private int _count; // Volatile access via Interlocked
 
         /// <summary>
-        ///
+        /// Gets the number of elements contained in the queue.
         /// </summary>
-        /// <param name="poolSize"></param>
+        /// <remarks>This count is approximate and may not reflect concurrent operations.</remarks>
+        public int Count => Interlocked.CompareExchange(ref _count, 0, 0);
+
+        /// <summary>
+        /// Gets a value indicating whether the queue is empty.
+        /// </summary>
+        public bool IsEmpty => _head.Next == null;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LockFreePooledQueue{T}"/> class.
+        /// </summary>
+        /// <param name="poolSize">Maximum number of nodes to keep in the pool.</param>
         public LockFreePooledQueue(int poolSize = 1000)
         {
             var dummy = new PooledNode();
@@ -87,76 +101,178 @@ namespace Nomad.Core.Collections
         }
 
         /// <summary>
-        ///
+        /// Tries to add an item to the queue.
         /// </summary>
-        /// <param name="item"></param>
-        /// <returns></returns>
-        public bool TryEnqueue(in T item)
-        {
-            PooledNode node = _pool.Get(item);
-            PooledNode oldTail, oldNext;
+        /// <param name="item">The item to add.</param>
+        /// <returns>Always true (unbounded queue).</returns>
+        public bool TryAdd(T item) => TryEnqueue(item);
 
+        /// <summary>
+        /// Tries to take an item from the queue.
+        /// </summary>
+        /// <param name="item">When this method returns, contains the item removed, if successful.</param>
+        /// <returns>true if an item was removed; otherwise, false.</returns>
+        public bool TryTake(out T item) => TryDequeue(out item);
+
+        /// <summary>
+        /// Tries to enqueue an item.
+        /// </summary>
+        public bool TryEnqueue(T item)
+        {
+            var node = _pool.Get(item);
             while (true)
             {
-                oldTail = _tail;
-                oldNext = oldTail.Next;
+                var oldTail = _tail;
+                var oldNext = oldTail.Next;
 
-                if (oldTail == _tail)
+                if (oldTail != _tail) // Tail changed while we were reading
                 {
-                    if (oldNext == null)
+                    continue;
+                }
+
+                if (oldNext == null)
+                {
+                    // Try to link the new node at the end
+                    if (Interlocked.CompareExchange(ref oldTail.Next, node, null) == null)
                     {
-                        if (Interlocked.CompareExchange(ref oldTail.Next, node, null) == null)
-                        {
-                            Interlocked.CompareExchange(ref _tail, node, oldTail);
-                            return true;
-                        }
+                        // Success – try to advance the tail (non‑critical)
+                        Interlocked.CompareExchange(ref _tail, node, oldTail);
+                        Interlocked.Increment(ref _count);
+                        return true;
                     }
-                    else
+                }
+                else
+                {
+                    // Tail is lagging – help advance it
+                    Interlocked.CompareExchange(ref _tail, oldNext, oldTail);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Tries to dequeue an item.
+        /// </summary>
+        public bool TryDequeue(out T item)
+        {
+            while (true)
+            {
+                var head = _head;
+                var tail = _tail;
+                var next = head.Next;
+
+                if (head != _head) // Head changed
+                {
+                    continue;
+                }
+
+                if (head == tail)
+                {
+                    if (next == null)
                     {
-                        Interlocked.CompareExchange(ref _tail, oldNext, oldTail);
+                        item = default!;
+                        return false;
+                    }
+                    // Tail is lagging – help advance it
+                    Interlocked.CompareExchange(ref _tail, next, tail);
+                }
+                else
+                {
+                    item = next!.Value;
+                    if (Interlocked.CompareExchange(ref _head, next, head) == head)
+                    {
+                        Interlocked.Decrement(ref _count);
+                        _pool.Return(head); // Return old dummy node to pool
+                        return true;
                     }
                 }
             }
         }
 
         /// <summary>
-        ///
+        /// Removes all items from the queue.
         /// </summary>
-        /// <param name="item"></param>
-        /// <returns></returns>
-        public bool TryDequeue(out T item)
+        /// <remarks>
+        /// This operation is NOT thread‑safe with concurrent enqueues/dequeues.
+        /// It should only be used when no other threads are accessing the queue.
+        /// </remarks>
+        public void Clear()
         {
-            while (true)
+            // Drain the queue by dequeuing all items
+            while (TryDequeue(out _))
             {
-                PooledNode head = _head;
-                PooledNode tail = _tail;
-                PooledNode? next = head.Next;
-
-                if (head == _head)
-                {
-                    if (head == tail)
-                    {
-                        if (next == null)
-                        {
-                            item = default;
-                            return false;
-                        }
-
-                        Interlocked.CompareExchange(ref _tail, next, tail);
-                    }
-                    else
-                    {
-                        item = next.Value;
-
-                        if (Interlocked.CompareExchange(ref _head, next, head) == head)
-                        {
-                            // Return node to pool
-                            _pool.Return(head);
-                            return true;
-                        }
-                    }
-                }
             }
         }
+
+        /// <summary>
+        /// Copies the queue elements to an array.
+        /// </summary>
+        public T[] ToArray()
+        {
+            var list = new List<T>();
+            var current = _head.Next;
+            while (current != null)
+            {
+                list.Add(current.Value);
+                current = current.Next;
+            }
+            return list.ToArray();
+        }
+
+        /// <summary>
+        /// Copies the queue elements to an array starting at the specified index.
+        /// </summary>
+        public void CopyTo(T[] array, int index)
+        {
+            ArgumentGuard.ThrowIfNull(array);
+            if (index < 0 || index >= array.Length)
+            {
+                throw new System.ArgumentOutOfRangeException(nameof(index));
+            }
+
+            var current = _head.Next;
+            while (current != null && index < array.Length)
+            {
+                array[index++] = current.Value;
+                current = current.Next;
+            }
+        }
+
+        /// <summary>
+        /// Copies the queue elements to an array.
+        /// </summary>
+        public void CopyTo(System.Array array, int index)
+        {
+            ArgumentGuard.ThrowIfNull(array);
+
+            var typedArray = array as T[];
+            ArgumentGuard.ThrowIfNull(typedArray);
+
+            CopyTo(typedArray, index);
+        }
+
+        /// <summary>
+        /// Gets an enumerator for the queue.
+        /// </summary>
+        public IEnumerator<T> GetEnumerator()
+        {
+            var current = _head.Next;
+            while (current != null)
+            {
+                yield return current.Value;
+                current = current.Next;
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        /// <summary>
+        /// Synchronizes the queue (not supported, always returns false).
+        /// </summary>
+        public object SyncRoot => throw new System.NotSupportedException();
+
+        /// <summary>
+        /// Indicates whether access to the queue is synchronized (always false).
+        /// </summary>
+        public bool IsSynchronized => false;
     }
 }

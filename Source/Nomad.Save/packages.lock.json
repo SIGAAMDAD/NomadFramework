@@ -127,6 +127,7 @@
           "Microsoft.Extensions.Configuration.Ini": "[10.0.2, )",
           "Microsoft.NET.ILLink.Tasks": "[10.0.3, )",
           "NomadFramework.Nomad.Core": "[1.1.0, )",
+          "System.Collections.Immutable": "[10.0.3, )",
           "System.Runtime.CompilerServices.Unsafe": "[6.1.2, )"
         }
       }
@@ -360,9 +361,9 @@
       "NomadFramework.Nomad.Events": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.Extensions.Configuration.Ini": "[10.0.2, )",
-          "Microsoft.NET.ILLink.Tasks": "[10.0.3, )",
-          "NomadFramework.Nomad.Core": "[1.1.0, )"
+          "Microsoft.Extensions.Configuration.Ini": "[10.0.3, )",
+          "NomadFramework.Nomad.Core": "[1.1.0, )",
+          "System.Collections.Immutable": "[10.0.3, )"
         }
       }
     }
