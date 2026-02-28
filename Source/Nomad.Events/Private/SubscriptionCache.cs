@@ -51,7 +51,6 @@ namespace Nomad.Events.Private {
 
 		private readonly List<TCallback> _subscriptions = new List<TCallback>( 16 );
 
-		private int _cleanupCursor = 0;
 		private readonly ILoggerService _logger;
 
 		/*

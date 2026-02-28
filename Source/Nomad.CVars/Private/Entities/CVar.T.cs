@@ -214,7 +214,7 @@ namespace Nomad.CVars.Private.Entities {
 		/// </summary>
 		/// <returns></returns>
 		public int GetIntegerValue() => _converter.GetIntegerValue();
-		
+
 		/*
 		===============
 		GetUIntegerValue
