@@ -17,25 +17,25 @@ using Nomad.Core.Events;
 
 namespace Nomad.Events.Extensions
 {
-	/// <summary>
-	/// 
-	/// </summary>
-	public static class GameEventExtensions
-	{
-		/// <summary>
-		/// Creates a one-time subscription handle for the provided GameEvent.
-		/// </summary>
-		/// <typeparam name="TArgs"></typeparam>
-		/// <param name="gameEvent"></param>
-		/// <param name="callback"></param>
-		/// <returns></returns>
-		public static ISubscriptionHandle SubscribeOnce<TArgs>(this IGameEvent<TArgs> gameEvent, EventCallback<TArgs> callback)
-			where TArgs : struct
-		{
-			ISubscriptionHandle handle = null;
-			EventCallback<TArgs> killAfterPublish = (in TArgs args) => { callback(in args); handle?.Dispose(); };
-			handle = gameEvent.Subscribe(killAfterPublish);
-			return handle;
-		}
-	}
+    /// <summary>
+    /// 
+    /// </summary>
+    public static class GameEventExtensions
+    {
+        /// <summary>
+        /// Creates a one-time subscription handle for the provided GameEvent.
+        /// </summary>
+        /// <typeparam name="TArgs"></typeparam>
+        /// <param name="gameEvent"></param>
+        /// <param name="callback"></param>
+        /// <returns></returns>
+        public static ISubscriptionHandle SubscribeOnce<TArgs>(this IGameEvent<TArgs> gameEvent, EventCallback<TArgs> callback)
+            where TArgs : struct
+        {
+            ISubscriptionHandle handle = null;
+            EventCallback<TArgs> killAfterPublish = (in TArgs args) => { callback(in args); handle?.Dispose(); };
+            handle = gameEvent.Subscribe(killAfterPublish);
+            return handle;
+        }
+    }
 }
