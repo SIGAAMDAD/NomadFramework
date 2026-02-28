@@ -9,7 +9,6 @@
 
   <PropertyGroup>
     <!-- Performance -->
-    <PubishAOT>true</PubishAOT>
     <TieredCompilation>true</TieredCompilation>
     <Deterministic>true</Deterministic>
     <UseSharedCompilation>true</UseSharedCompilation>

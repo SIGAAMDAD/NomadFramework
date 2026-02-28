@@ -13,6 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System;
 using System.Threading.Tasks;
 
 namespace Nomad.Core.OnlineServices
@@ -20,7 +21,7 @@ namespace Nomad.Core.OnlineServices
     /// <summary>
     /// 
     /// </summary>
-    public interface IStatsService
+    public interface IStatsService : IDisposable
     {
         /// <summary>
         /// 

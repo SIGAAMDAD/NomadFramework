@@ -37,8 +37,5 @@ namespace Nomad.OnlineServices.Steam.Private.Services.LobbyServices {
 		/// </summary>
 		public void Dispose() {
 		}
-
-		public async ValueTask LocateLobbies() {
-		}
 	};
 };

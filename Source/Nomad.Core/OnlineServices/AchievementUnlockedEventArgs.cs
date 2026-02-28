@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -13,14 +13,28 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Steamworks;
+using Nomad.Core.Util;
 
-namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
-	/// <summary>
-	/// 
-	/// </summary>
-	internal record SteamUserData {
-		public CSteamID UserID { get; init; }
-		public string? UserName { get; init; }
-	};
-};
+namespace Nomad.Core.OnlineServices
+{
+    /// <summary>
+    /// 
+    /// </summary>
+    public readonly struct AchievementUnlockedEventArgs
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public string AchievementId => _achievementId!;
+        private readonly InternString _achievementId;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="achievementId"></param>
+        public AchievementUnlockedEventArgs(InternString achievementId)
+        {
+            _achievementId = achievementId;
+        }
+    }
+}

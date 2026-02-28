@@ -13,14 +13,19 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Nomad.Core.EngineUtils;
+using Nomad.Core.Events;
+using Nomad.Core.Logger;
 using Nomad.Core.OnlineServices;
+using Nomad.Core.Util;
+using Nomad.OnlineServices.Steam.Private.Repositories;
 using Nomad.OnlineServices.Steam.Private.ValueObjects;
 using Steamworks;
 
-namespace Nomad.OnlineServices.Steam {
+namespace Nomad.OnlineServices.Steam.Private.Services {
 	/*
 	===================================================================================
 
@@ -33,22 +38,21 @@ namespace Nomad.OnlineServices.Steam {
 	/// </summary>
 
 	internal sealed class SteamAchievementService : IAchievementService {
-		private record AchievementInfo(
-			string Id,
-			bool Achieved,
-			float Progress,
-			float MaxProgress
-		);
-
 		public bool SupportsAchievements => true;
 
-		private readonly ConcurrentDictionary<string, SteamAchievementInfo> _achievements;
+		public int NumAchievements => _statsRepository.NumAchievements;
 
-		private readonly SteamAppData _appData;
-		private readonly IEngineService _engineService;
+		private readonly SteamStatsRepository _statsRepository;
+		private readonly ILoggerService _logger;
+		private readonly ILoggerCategory _category;
 
-		private readonly CallResult<UserAchievementIconFetched_t> _userAchievementIconFetched;
-		private readonly CallResult<UserAchievementStored_t> _userAchievementStored;
+		private bool _isDisposed = false;
+
+		public IGameEvent<AchievementUnlockedEventArgs> Unlocked => _unlocked;
+		private readonly IGameEvent<AchievementUnlockedEventArgs> _unlocked;
+
+		public IGameEvent<AchievementProgressChangedEventArgs> ProgressChanged => _progressChanged;
+		private readonly IGameEvent<AchievementProgressChangedEventArgs> _progressChanged;
 
 		/*
 		===============
@@ -56,25 +60,21 @@ namespace Nomad.OnlineServices.Steam {
 		===============
 		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
-		/// <param name="engineService"></param>
-		public SteamAchievementService( SteamAppData appData, IEngineService engineService ) {
-			_engineService = engineService;
-			_appData = appData;
+		/// <param name="statsRepository"></param>
+		/// <param name="logger"></param>
+		/// <param name="eventFactory"></param>
+		public SteamAchievementService( SteamStatsRepository statsRepository, ILoggerService logger, IGameEventRegistryService eventFactory ) {
+			_statsRepository = statsRepository;
+			_logger = logger;
+			_category = _logger.CreateCategory( nameof( SteamAchievementService ), LogLevel.Info, true );
 
-			int numAchievements = ( int )SteamUserStats.GetNumAchievements();
-			_achievements = new ConcurrentDictionary<string, SteamAchievementInfo>( numAchievements, numAchievements );
+			_unlocked = eventFactory.GetEvent<AchievementUnlockedEventArgs>( Constants.Events.ACHIEVEMENT_UNLOCKED, Constants.Events.NAMESPACE );
+			_progressChanged = eventFactory.GetEvent<AchievementProgressChangedEventArgs>( Constants.Events.ACHIEVEMENT_PROGRESS_CHANGED, Constants.Events.NAMESPACE );
 
-			_userAchievementIconFetched = CallResult<UserAchievementIconFetched_t>.Create( OnAchievementIconFetched );
-			_userAchievementStored = CallResult<UserAchievementStored_t>.Create( OnUserAchievementStored );
-
-			for ( uint i = 0; i < numAchievements; i++ ) {
-				string name = SteamUserStats.GetAchievementName( i );
-				_achievements[ name ] = new SteamAchievementInfo( name );
-			}
-
-			SteamUserStats.RequestCurrentStats();
+			_statsRepository.AchievementProgressChanged += OnAchievementProgressChanged;
+			_statsRepository.AchievementUnlocked += OnAchievementUnlocked;
 		}
 
 		/*
@@ -86,41 +86,27 @@ namespace Nomad.OnlineServices.Steam {
 		/// 
 		/// </summary>
 		public void Dispose() {
-		}
+			if ( !_isDisposed ) {
+				_unlocked?.Dispose();
+				_progressChanged?.Dispose();
 
-		/*
-		===============
-		OnAchievementIconFetched
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="pCallback"></param>
-		/// <param name="bIOFailure"></param>
-		private void OnAchievementIconFetched( UserAchievementIconFetched_t pCallback, bool bIOFailure ) {
-			if ( !_achievements.TryGetValue( pCallback.m_rgchAchievementName, out var achievementInfo ) ) {
-				return;
+				_category?.Dispose();
 			}
-			achievementInfo.SetIcon( pCallback, _engineService );
+			GC.SuppressFinalize( this );
+			_isDisposed = true;
 		}
 
 		/*
 		===============
-		OnUserAchievementStored
+		LockAchievement
 		===============
 		*/
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="pCallback"></param>
-		/// <param name="bIOFailure"></param>
-		private void OnUserAchievementStored( UserAchievementStored_t pCallback, bool bIOFailure ) {
-		}
-
-		public ValueTask LockAchievement( string achievementId ) {
-			throw new System.NotImplementedException();
-		}
+		/// <param name="achievementId"></param>
+		public async Task LockAchievement( string achievementId )
+			=> _statsRepository.LockAchievement( achievementId );
 
 		/*
 		===============
@@ -132,18 +118,60 @@ namespace Nomad.OnlineServices.Steam {
 		/// </summary>
 		/// <param name="achievementId"></param>
 		/// <param name="current"></param>
-		/// <param name="max"></param>
-		/// <returns></returns>
-		public async ValueTask SetAchievementProgress( string achievementId, float current ) {
-			if ( !_achievements.TryGetValue( achievementId, out var achievementInfo ) ) {
-				return;
-			}
+		public async Task SetAchievementProgress( string achievementId, float current )
+			=> _statsRepository.SetAchievementProgress( achievementId, current );
 
-			achievementInfo.SetAchievementProgress( current );
+		/*
+		===============
+		UnlockAchievement
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="achievementId"></param>
+		public async Task UnlockAchievement( string achievementId )
+			=> _statsRepository.UnlockAchievement( achievementId );
+
+		/*
+		===============
+		GetAchievementInfo
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="achievementId"></param>
+		/// <returns></returns>
+		public IAchievementInfo? GetAchievementInfo( string achievementId ) 
+			=> _statsRepository.GetAchievementInfo( achievementId );
+		
+		/*
+		===============
+		OnAchievementProgressChanged
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="achievementId"></param>
+		/// <param name="current"></param>
+		/// <param name="max"></param>
+		private void OnAchievementProgressChanged( string achievementId, float current, float max ) {
+			_progressChanged.Publish( new AchievementProgressChangedEventArgs( new InternString( achievementId ), current ) );
 		}
 
-		public ValueTask UnlockAchievement( string achievementId ) {
-			throw new System.NotImplementedException();
+		/*
+		===============
+		OnAchievementUnlocked
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="achievementId"></param>
+		private void OnAchievementUnlocked( string achievementId ) {
+			_unlocked.Publish( new AchievementUnlockedEventArgs( new InternString( achievementId ) ) );
 		}
 	};
 };
