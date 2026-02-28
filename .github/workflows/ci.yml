@@ -47,6 +47,17 @@ jobs:
 
     - name: 🔍 Check code format
       run: dotnet format --verify-no-changes
+    - name: Install SonarScanner
+      run: dotnet tool install --global dotnet-sonarscanner
+
+    - name: Begin SonarCloud scan
+      run: |
+        dotnet sonarscanner begin /k:"your-project-key" \
+          /o:"your-org" \
+          /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
+          /d:sonar.host.url="https://sonarcloud.io" \
+          /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/coverage.opencover.xml" \
+          /d:sonar.coverage.exclusions="**Tests*.cs"  # optional exclusions
 
     - name: 🔨 Build with analyzers
       run: dotnet build --configuration Release --no-restore -p:RunAnalyzers=true
@@ -54,15 +65,12 @@ jobs:
     - name: 🧪 Run tests with coverage
       run: dotnet test --configuration Release --no-build --collect:"XPlat Code Coverage" --settings coverlet.runsettings
 
-    - name: 📊 Upload coverage to Codecov
-      uses: codecov/codecov-action@v4
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: ./TestResults/**/coverage.cobertura.xml
-
     - name: 📎 Upload test results
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: test-results-${{ matrix.os }}-${{ matrix.dotnet-version }}
         path: ./TestResults
+    
+    - name: End SonarCloud scan
+      run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
