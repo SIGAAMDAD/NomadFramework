@@ -4,6 +4,21 @@
 .githooks/pre-commit text eol=lf
 .githooks/*.sh text eol=lf
 
+* text=auto
+*.cs text eol=lf
+*.csproj text eol=lf
+*.slnx text eol=lf
+*.yml text eol=lf
+*.md text eol=lf
+*.editorconfig text eol=lf
+*.props eol=lf
+*.targets eol=lf
+
+*.png binary
+*.jpg binary
+*.dll binary
+*.exe binary
+
 # Preserve executable permissions
 .githooks/pre-commit -text
 .githooks/*.sh -text
