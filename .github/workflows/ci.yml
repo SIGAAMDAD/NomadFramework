@@ -33,7 +33,6 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ matrix.dotnet-version }}
-        cache: true
         cache-depdendency-path: '**/*.csproj'
     
     - name: 🔒 Check for vulnerable packages
