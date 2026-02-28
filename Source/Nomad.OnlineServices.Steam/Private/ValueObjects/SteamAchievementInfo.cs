@@ -15,6 +15,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using Nomad.Core.EngineUtils;
+using Nomad.Core.OnlineServices;
+using Nomad.Core.Util;
 using Steamworks;
 
 namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
@@ -29,7 +31,7 @@ namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
 	/// The Steam achievement information value object.
 	/// </summary>
 
-	internal sealed class SteamAchievementInfo {
+	internal sealed class SteamAchievementInfo : IAchievementInfo {
 		private struct AchievementProgress {
 			public float Progress;
 			public float MinProgress;
@@ -39,8 +41,8 @@ namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
 		public bool Achieved => _achieved;
 		private bool _achieved = false;
 
-		public string Name => _name;
-		private readonly string _name;
+		public string Id => _name!;
+		private readonly InternString _name;
 
 		public bool HasProgress => _progress.HasValue;
 		public float Progress => _progress.HasValue ? _progress.Value.Progress : 0.0f;
@@ -48,7 +50,7 @@ namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
 		public float MaxProgress => _progress.HasValue ? _progress.Value.MaxProgress : 0.0f;
 		private AchievementProgress? _progress;
 
-		private IDisposable _icon;
+		private IDisposable? _icon;
 
 		/*
 		===============
@@ -60,7 +62,7 @@ namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
 		/// </summary>
 		/// <param name="name">The name of the achievement.</param>
 		public SteamAchievementInfo( string name ) {
-			_name = name;
+			_name = new InternString( name );
 			SteamUserStats.GetAchievementAndUnlockTime( _name, out _achieved, out uint unlockedTime );
 
 			if ( SteamUserStats.GetAchievementProgressLimits( _name, out float minProgress, out float maxProgress ) ) {

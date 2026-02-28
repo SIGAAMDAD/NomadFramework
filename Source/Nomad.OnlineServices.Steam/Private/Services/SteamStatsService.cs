@@ -13,9 +13,11 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System;
 using System.Threading.Tasks;
 using Nomad.Core.Logger;
 using Nomad.Core.OnlineServices;
+using Nomad.OnlineServices.Steam.Private.ValueObjects;
 using Steamworks;
 
 namespace Nomad.OnlineServices.Steam {
@@ -40,6 +42,8 @@ namespace Nomad.OnlineServices.Steam {
 		private readonly ILoggerService _logger;
 		private readonly ILoggerCategory _category;
 
+		private bool _isDisposed = false;
+
 		/*
 		===============
 		SteamStatsService
@@ -48,7 +52,7 @@ namespace Nomad.OnlineServices.Steam {
 		/// <summary>
 		///
 		/// </summary>
-		public SteamStatsService( ILoggerService logger ) {
+		public SteamStatsService( SteamUserData userData, ILoggerService logger ) {
 			_userStatsRecieved = CallResult<UserStatsReceived_t>.Create( OnUserStatsReceived );
 			_userStatsStored = CallResult<UserStatsStored_t>.Create( OnUserStatsStored );
 			_userStatsUnloaded = CallResult<UserStatsUnloaded_t>.Create( OnUserStatsUnloaded );
@@ -56,7 +60,7 @@ namespace Nomad.OnlineServices.Steam {
 			_logger = logger;
 			_category = _logger.CreateCategory( nameof( SteamStatsService ), LogLevel.Info, true );
 
-			SteamUserStats.RequestCurrentStats();
+			SteamAPICall_t hCallback = SteamUserStats.RequestUserStats( userData.UserID );
 		}
 
 		/*
@@ -65,12 +69,18 @@ namespace Nomad.OnlineServices.Steam {
 		===============
 		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
 		public void Dispose() {
-			_userStatsRecieved.Dispose();
-			_userStatsStored.Dispose();
-			_userStatsUnloaded.Dispose();
+			if ( !_isDisposed ) {
+				_userStatsRecieved?.Dispose();
+				_userStatsStored?.Dispose();
+				_userStatsUnloaded?.Dispose();
+
+				_category?.Dispose();
+			}
+			GC.SuppressFinalize( this );
+			_isDisposed = true;
 		}
 
 		/*
