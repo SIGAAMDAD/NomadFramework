@@ -28,21 +28,21 @@ namespace Nomad.Core.OnlineServices
         public string AchievementId => _achievementId!;
         private readonly InternString _achievementId;
 
-		/// <summary>
-		/// 
-		/// </summary>
-		public float Progress => _progress;
-		private readonly float _progress;
+        /// <summary>
+        /// 
+        /// </summary>
+        public float Progress => _progress;
+        private readonly float _progress;
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="achievementId"></param>
-		/// <param name="progress"></param>
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="achievementId"></param>
+        /// <param name="progress"></param>
         public AchievementProgressChangedEventArgs(InternString achievementId, float progress)
         {
             _achievementId = achievementId;
-			_progress = progress;
+            _progress = progress;
         }
     }
 }

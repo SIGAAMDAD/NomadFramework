@@ -39,7 +39,7 @@ namespace Nomad.Core.OnlineServices
         /// How much progress we have on the achievement.
         /// </summary>
         float Progress { get; }
-        
+
         /// <summary>
         /// The maximum allowed progress for this achievement.
         /// </summary>
