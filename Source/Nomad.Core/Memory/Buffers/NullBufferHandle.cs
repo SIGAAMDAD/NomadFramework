@@ -13,6 +13,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System;
+
 namespace Nomad.Core.Memory.Buffers
 {
     /// <summary>
@@ -29,7 +31,7 @@ namespace Nomad.Core.Memory.Buffers
         /// 
         /// </summary>
         public NullBufferHandle()
-            : base([], 0)
+            : base(Array.Empty<byte>(), 0)
         {
         }
     }
