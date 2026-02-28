@@ -18,7 +18,22 @@ if [ -d "Tests" ]; then
   else 
     echo "✅ Tests passed!" 
     exit 0 
-  fi 
+  fi
+
+  cd ../Source/Nomad.Core
+  dotnet format whitespace --folder
+
+  cd ../Source/Nomad.Events
+  dotnet format whitespace --folder
+
+  cd ../Source/Nomad.CVars
+  dotnet format whitespace --folder
+
+  cd ../Source/Nomad.Logger
+  dotnet format whitespace --folder
+
+  cd ../Source/Nomad.Save
+  dotnet format whitespace --folder
 else 
   echo "⚠️  No Tests/ directory found" 
   exit 0 
