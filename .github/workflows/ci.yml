@@ -51,7 +51,7 @@ jobs:
       run: dotnet tool install --global dotnet-sonarscanner
 
     - name: Begin SonarCloud scan
-      if: runner.os == 'Linux' && matrix.dotnet-version == '10.0.x' && ${{ github.ref_name == 'main' }}
+      if: runner.os == 'Linux' && matrix.dotnet-version == '10.0.x' && github.ref == 'ref/heads/main'
       run: |
         dotnet sonarscanner begin /k:"SIGAAMDAD_NomadFramework" \
           /o:"sigaamdad" \
@@ -74,5 +74,5 @@ jobs:
         path: ./TestResults
     
     - name: End SonarCloud scan
-      if: runner.os == 'Linux' && matrix.dotnet-version == '10.0.x' && ${{ github.ref_name == 'main' }}
+      if: runner.os == 'Linux' && matrix.dotnet-version == '10.0.x' && github.ref == 'ref/heads/main'
       run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
