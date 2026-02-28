@@ -19,6 +19,7 @@ using Nomad.Core.Events;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.Core.OnlineServices;
+using Nomad.OnlineServices.Steam.Private.Repositories;
 using Nomad.OnlineServices.Steam.Private.Services;
 using Nomad.OnlineServices.Steam.Private.ValueObjects;
 using Steamworks;
@@ -41,6 +42,8 @@ namespace Nomad.OnlineServices.Steam.Private {
 
 		private readonly SteamUserData _userData;
 		private readonly SteamAppData _appData;
+
+		private readonly SteamStatsRepository _statsRepository;
 
 		public OnlinePlatform Platform => OnlinePlatform.Steam;
 		public string PlatformName => nameof( OnlinePlatform.Steam );
@@ -87,8 +90,9 @@ namespace Nomad.OnlineServices.Steam.Private {
 			_logger = logger;
 			_category = logger.CreateCategory( nameof( Nomad.OnlineServices.Steam ), LogLevel.Info, true );
 
-			_statsService = new SteamStatsService( _userData, logger );
-			_achievementsService = new SteamAchievementService( _userData, _appData, logger, engineService, eventFactory );
+			_statsRepository = new SteamStatsRepository( _userData, logger, engineService );
+			_statsService = new SteamStatsService( _statsRepository, logger );
+			_achievementsService = new SteamAchievementService( _statsRepository, logger, eventFactory );
 			_cloudStorageService = new SteamCloudStorageService( logger, fileSystem );
 		}
 
@@ -102,10 +106,12 @@ namespace Nomad.OnlineServices.Steam.Private {
 		/// </summary>
 		public void Dispose() {
 			if ( !_isDisposed ) {
-				_category?.Dispose();
 				_statsService?.Dispose();
 				_achievementsService?.Dispose();
 				_cloudStorageService?.Dispose();
+				_statsRepository?.Dispose();
+
+				_category?.Dispose();
 			}
 			GC.SuppressFinalize( this );
 			_isDisposed = true;

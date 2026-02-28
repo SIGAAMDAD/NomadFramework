@@ -20,10 +20,10 @@ using Nomad.OnlineServices.Steam.Private.Services;
 using Nomad.Core.OnlineServices;
 using Nomad.OnlineServices.Steam.Private.ValueObjects;
 using Nomad.Events;
-using System.Threading.Tasks;
 using System.Collections.Generic;
-using NUnit.Framework.Internal.Execution;
 using System.Threading;
+using Nomad.OnlineServices.Steam.Private.Repositories;
+using NUnit.Framework.Internal;
 
 namespace Nomad.OnlineServices.Steam.Tests
 {
@@ -68,7 +68,11 @@ namespace Nomad.OnlineServices.Steam.Tests
 			var engineService = new MockEngineService();
 			var logger = new MockLogger();
 			var eventFactory = new GameEventRegistry(logger);
-			_service = new SteamAchievementService(new SteamUserData { UserID = SteamUser.GetSteamID(), UserName = SteamFriends.GetPersonaName() }, new SteamAppData { AppId = new AppId_t(480) }, logger, engineService, eventFactory);
+			var statsRepository = new SteamStatsRepository(new SteamUserData { UserID = SteamUser.GetSteamID(), UserName = SteamFriends.GetPersonaName() }, logger, engineService);
+			_service = new SteamAchievementService(statsRepository, logger, eventFactory);
+
+			ResetAllStats();
+			PumpSteamCallbacks(500);
 		}
 
 		private static void PumpSteamCallbacks(int millisecondsTimeout)
@@ -105,11 +109,9 @@ namespace Nomad.OnlineServices.Steam.Tests
 		[Test]
 		public void UnlockAchievement_RaisesUnlockedEvent()
 		{
+			// Arrange
 			const string testAchievement = "ACH_WIN_ONE_GAME";
 			CreateService();
-
-			ResetAllStats();
-			PumpSteamCallbacks(100);
 
 			bool eventFired = false;
 			string unlockedId = null!;
@@ -119,6 +121,7 @@ namespace Nomad.OnlineServices.Steam.Tests
 				unlockedId = args.AchievementId;
 			});
 
+			// Act
 			_service.UnlockAchievement(testAchievement).Wait();
 
 			int maxWait = 5000;
@@ -130,10 +133,69 @@ namespace Nomad.OnlineServices.Steam.Tests
 				waited += 50;
 			}
 
+			// Assert
 			using (Assert.EnterMultipleScope())
 			{
 				// Assert
 				Assert.That(eventFired, Is.True);
+				Assert.That(unlockedId, Is.EqualTo(testAchievement));
+				Assert.That(_service.GetAchievementInfo(testAchievement).Achieved, Is.True);
+			}
+		}
+
+		[Test]
+		public void LockAchievement_LocksAchievement()
+		{
+			// Arrange
+			const string testAchievement = "ACH_WIN_ONE_GAME";
+			CreateService();
+
+			// ACt
+			_service.LockAchievement(testAchievement);
+
+			// Assert
+			Assert.That(_service.GetAchievementInfo(testAchievement).Achieved, Is.False);
+		}
+
+		[Test]
+		public void SetAchievementProgress_RaisesProgressChangedEvent()
+		{
+			// Arrange
+			const string testAchievement = "ACH_TRAVEL_FAR_ACCUM";
+			CreateService();
+
+			bool eventFired = false;
+			string unlockedId = null!;
+			float progress = 0.0f;
+			float newProgress = 50.0f;
+
+			_service.ProgressChanged.Subscribe((in AchievementProgressChangedEventArgs args) =>
+			{
+				eventFired = true;
+				progress = args.Progress;
+				unlockedId = args.AchievementId;
+			});
+
+			// Act
+			_service.SetAchievementProgress(testAchievement, newProgress).Wait();
+
+			int maxWait = 5000;
+			int waited = 0;
+			while (!eventFired && waited < maxWait)
+			{
+				SteamAPI.RunCallbacks();
+				Thread.Sleep(50);
+				waited += 50;
+			}
+
+			// Assert
+			using (Assert.EnterMultipleScope())
+			{
+				// Assert
+				Assert.That(eventFired, Is.True);
+				Assert.That(_service.GetAchievementInfo(testAchievement).Achieved, Is.False);
+				Assert.That(_service.GetAchievementInfo(testAchievement).Progress, Is.EqualTo(newProgress));
+				Assert.That(progress, Is.EqualTo(newProgress));
 				Assert.That(unlockedId, Is.EqualTo(testAchievement));
 			}
 		}

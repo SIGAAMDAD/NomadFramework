@@ -21,6 +21,6 @@ namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
 	/// </summary>
 	internal record SteamUserData {
 		public CSteamID UserID { get; init; }
-		public string UserName { get; init; }
+		public string? UserName { get; init; }
 	};
 };

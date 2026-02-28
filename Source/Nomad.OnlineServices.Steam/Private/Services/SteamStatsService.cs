@@ -17,8 +17,7 @@ using System;
 using System.Threading.Tasks;
 using Nomad.Core.Logger;
 using Nomad.Core.OnlineServices;
-using Nomad.OnlineServices.Steam.Private.ValueObjects;
-using Steamworks;
+using Nomad.OnlineServices.Steam.Private.Repositories;
 
 namespace Nomad.OnlineServices.Steam {
 	/*
@@ -35,9 +34,7 @@ namespace Nomad.OnlineServices.Steam {
 	internal sealed class SteamStatsService : IStatsService {
 		public bool SupportsLeaderboards => true;
 
-		private readonly CallResult<UserStatsReceived_t> _userStatsRecieved;
-		private readonly CallResult<UserStatsStored_t> _userStatsStored;
-		private readonly CallResult<UserStatsUnloaded_t> _userStatsUnloaded;
+		private readonly SteamStatsRepository _statsRepository;
 
 		private readonly ILoggerService _logger;
 		private readonly ILoggerCategory _category;
@@ -52,15 +49,11 @@ namespace Nomad.OnlineServices.Steam {
 		/// <summary>
 		///
 		/// </summary>
-		public SteamStatsService( SteamUserData userData, ILoggerService logger ) {
-			_userStatsRecieved = CallResult<UserStatsReceived_t>.Create( OnUserStatsReceived );
-			_userStatsStored = CallResult<UserStatsStored_t>.Create( OnUserStatsStored );
-			_userStatsUnloaded = CallResult<UserStatsUnloaded_t>.Create( OnUserStatsUnloaded );
-
+		public SteamStatsService( SteamStatsRepository statsRepository, ILoggerService logger ) {
 			_logger = logger;
 			_category = _logger.CreateCategory( nameof( SteamStatsService ), LogLevel.Info, true );
 
-			SteamAPICall_t hCallback = SteamUserStats.RequestUserStats( userData.UserID );
+			_statsRepository = statsRepository;
 		}
 
 		/*
@@ -73,10 +66,6 @@ namespace Nomad.OnlineServices.Steam {
 		/// </summary>
 		public void Dispose() {
 			if ( !_isDisposed ) {
-				_userStatsRecieved?.Dispose();
-				_userStatsStored?.Dispose();
-				_userStatsUnloaded?.Dispose();
-
 				_category?.Dispose();
 			}
 			GC.SuppressFinalize( this );
@@ -93,10 +82,8 @@ namespace Nomad.OnlineServices.Steam {
 		/// </summary>
 		/// <param name="statName"></param>
 		/// <returns></returns>
-		public async ValueTask<float> GetStatFloat( string statName ) {
-			SteamUserStats.GetStat( statName, out float statValue );
-			return statValue;
-		}
+		public async ValueTask<float> GetStatFloat( string statName )
+			=> _statsRepository.GetStatFloat( statName );
 
 		/*
 		===============
@@ -108,10 +95,8 @@ namespace Nomad.OnlineServices.Steam {
 		/// </summary>
 		/// <param name="statName"></param>
 		/// <returns></returns>
-		public async ValueTask<int> GetStatInt( string statName ) {
-			SteamUserStats.GetStat( statName, out int statValue );
-			return statValue;
-		}
+		public async ValueTask<int> GetStatInt( string statName )
+			=> _statsRepository.GetStatInt( statName );
 
 		/*
 		===============
@@ -124,11 +109,8 @@ namespace Nomad.OnlineServices.Steam {
 		/// <param name="statName"></param>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		public async ValueTask SetStatFloat( string statName, float value ) {
-			if ( !SteamUserStats.SetStat( statName, value ) ) {
-				_logger.PrintWarning( $"SteamStatsService.SetStatFloat: SteamUserStats.SetStat failed on statistic '{statName}'!" );
-			}
-		}
+		public async ValueTask SetStatFloat( string statName, float value )
+			=> _statsRepository.SetStatFloat( statName, value );
 
 		/*
 		===============
@@ -141,71 +123,10 @@ namespace Nomad.OnlineServices.Steam {
 		/// <param name="statName"></param>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		public async ValueTask SetStatInt( string statName, int value ) {
-			if ( !SteamUserStats.SetStat( statName, value ) ) {
-				_logger.PrintWarning( $"SteamStatsService.SetStatInt: SteamUserStats.SetStat failed on statistic '{statName}'!" );
-			}
-		}
-
-		/*
-		===============
-		StoreStats
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <returns></returns>
-		public async ValueTask<bool> StoreStats() {
-			return SteamUserStats.StoreStats();
-		}
-
-		/*
-		===============
-		OnUserStatsReceived
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="pCallback"></param>
-		/// <param name="bIOFailure"></param>
-		private void OnUserStatsReceived( UserStatsReceived_t pCallback, bool bIOFailure ) {
-			if ( pCallback.m_eResult != EResult.k_EResultOK ) {
-				return;
-			}
-		}
-
-		/*
-		===============
-		OnUserStatsUnloaded
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="param"></param>
-		/// <param name="bIOFailure"></param>
-		private void OnUserStatsUnloaded( UserStatsUnloaded_t param, bool bIOFailure ) {
-			if ( bIOFailure ) {
-				return;
-			}
-		}
-
-		/*
-		===============
-		OnUserStatsStored
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="param"></param>
-		/// <param name="bIOFailure"></param>
-		private void OnUserStatsStored( UserStatsStored_t param, bool bIOFailure ) {
-			if ( param.m_eResult != EResult.k_EResultOK ) {
-				return;
-			}
-		}
+		public async ValueTask SetStatInt( string statName, int value )
+			=> _statsRepository.SetStatInt( statName, value );
+		
+		public async ValueTask<bool> StoreStats()
+			=> _statsRepository.StoreStats();
 	};
 };

@@ -32,6 +32,7 @@ namespace Nomad.OnlineServices.Steam
             public const string NAMESPACE = nameof(Nomad.OnlineServices.Steam);
             
             public const string ACHIEVEMENT_UNLOCKED = NAMESPACE + ":AchievementUnlocked";
+            public const string ACHIEVEMENT_PROGRESS_CHANGED = NAMESPACE + ":AchievementProgressChanged";
         }
     }
 }

@@ -40,6 +40,11 @@ namespace Nomad.Core.OnlineServices
         IGameEvent<AchievementUnlockedEventArgs> Unlocked { get; }
 
         /// <summary>
+        /// Event that triggers whenever an achievement's progress has been changed.
+        /// </summary>
+        IGameEvent<AchievementProgressChangedEventArgs> ProgressChanged { get; }
+
+        /// <summary>
         /// Unlocks the specified achievement.
         /// </summary>
         /// <param name="achievementId">The ID of the achievement to unlock.</param>

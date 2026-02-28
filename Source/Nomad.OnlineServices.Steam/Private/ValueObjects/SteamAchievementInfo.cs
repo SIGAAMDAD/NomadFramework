@@ -32,7 +32,8 @@ namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
 	/// </summary>
 
 	internal sealed class SteamAchievementInfo : IAchievementInfo {
-		private struct AchievementProgress {
+		private record AchievementProgress {
+			public InternString StatId;
 			public float Progress;
 			public float MinProgress;
 			public float MaxProgress;
@@ -44,10 +45,11 @@ namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
 		public string Id => _name!;
 		private readonly InternString _name;
 
-		public bool HasProgress => _progress.HasValue;
-		public float Progress => _progress.HasValue ? _progress.Value.Progress : 0.0f;
-		public float MinProgress => _progress.HasValue ? _progress.Value.MinProgress : 0.0f;
-		public float MaxProgress => _progress.HasValue ? _progress.Value.MaxProgress : 0.0f;
+		public bool HasProgress => _progress != null;
+		public string StatId => _progress != null ? _progress.StatId! : string.Empty;
+		public float Progress => _progress != null ? _progress.Progress : 0.0f;
+		public float MinProgress => _progress != null ? _progress.MinProgress : 0.0f;
+		public float MaxProgress => _progress != null ? _progress.MaxProgress : 0.0f;
 		private AchievementProgress? _progress;
 
 		private IDisposable? _icon;
@@ -67,7 +69,9 @@ namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
 
 			if ( SteamUserStats.GetAchievementProgressLimits( _name, out float minProgress, out float maxProgress ) ) {
 				SteamUserStats.GetAchievementAchievedPercent( _name, out float progress );
+				string statId = SteamUserStats.GetAchievementDisplayAttribute( _name, "progress_stat" );
 				_progress = new AchievementProgress {
+					StatId = new InternString( statId ),
 					MinProgress = minProgress,
 					MaxProgress = maxProgress,
 					Progress = progress
@@ -86,42 +90,40 @@ namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
 		/// <summary>
 		/// Sets the achievement icon from the fetched data.
 		/// </summary>
-		/// <param name="pAchievement">The achievement data fetched from Steam.</param>
+		/// <param name="hIconHandle">The achievement icon.</param>
 		/// <param name="service"></param>
-		public void SetIcon( UserAchievementIconFetched_t pAchievement, IEngineService service ) {
-			SteamUtils.GetImageSize( pAchievement.m_nIconHandle, out uint width, out uint height );
+		public void SetIcon( int hIconHandle, IEngineService service ) {
+			SteamUtils.GetImageSize( hIconHandle, out uint width, out uint height );
 
-			byte[] imageBuffer = new byte[ width * height * 4 ];
-			SteamUtils.GetImageRGBA( pAchievement.m_nIconHandle, imageBuffer, imageBuffer.Length );
+			byte[] imageBuffer = new byte[width * height * 4];
+			SteamUtils.GetImageRGBA( hIconHandle, imageBuffer, imageBuffer.Length );
 
-			_icon = service.CreateImageRGBA( imageBuffer, ( int )width, ( int )height );
+			_icon = service.CreateImageRGBA( imageBuffer, (int)width, (int)height );
 		}
 
 		/*
 		===============
-		SetAchievementProgress
+		SetAchieved
 		===============
 		*/
 		/// <summary>
-		/// Sets a steam achievment's progress.
+		/// 
 		/// </summary>
-		/// <param name="value">The progress value to set.</param>
-		public void SetAchievementProgress( float value ) {
-			if ( !_progress.HasValue ) {
-				return;
-			}
+		/// <param name="achieved"></param>
+		/// <returns></returns>
+		public bool SetAchieved( bool achieved )
+			=> _achieved = achieved;
 
-			_progress = new AchievementProgress {
-				MinProgress = _progress.Value.MinProgress,
-				MaxProgress = _progress.Value.MaxProgress,
-				Progress = value
-			};
-
-			SteamUserStats.IndicateAchievementProgress( _name, ( uint )value, ( uint )_progress.Value.MaxProgress );
-			if ( value >= _progress.Value.MaxProgress ) {
-				_achieved = true;
-				SteamUserStats.SetAchievement( _name );
-			}
-		}
+		/*
+		===============
+		UpdateProgress
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="progress"></param>
+		public void UpdateProgress( float progress )
+			=> _progress = _progress! with { Progress = progress };
 	};
 };

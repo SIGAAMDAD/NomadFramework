@@ -13,36 +13,36 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using Nomad.Core.Util;
+
 namespace Nomad.Core.OnlineServices
 {
     /// <summary>
     /// 
     /// </summary>
-    public interface IAchievementInfo
+    public readonly struct AchievementProgressChangedEventArgs
     {
         /// <summary>
-        /// The achievement's internal id.
+        /// 
         /// </summary>
-        string? Id { get; }
+        public string AchievementId => _achievementId!;
+        private readonly InternString _achievementId;
 
-        /// <summary>
-        /// The id of the statistic tied to this achievement's progress.
-        /// </summary>
-        string? StatId { get; }
+		/// <summary>
+		/// 
+		/// </summary>
+		public float Progress => _progress;
+		private readonly float _progress;
 
-        /// <summary>
-        /// Whether the achievement has been unlocked or not.
-        /// </summary>
-        bool Achieved { get; }
-
-        /// <summary>
-        /// How much progress we have on the achievement.
-        /// </summary>
-        float Progress { get; }
-        
-        /// <summary>
-        /// The maximum allowed progress for this achievement.
-        /// </summary>
-        float MaxProgress { get; }
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="achievementId"></param>
+		/// <param name="progress"></param>
+        public AchievementProgressChangedEventArgs(InternString achievementId, float progress)
+        {
+            _achievementId = achievementId;
+			_progress = progress;
+        }
     }
 }
