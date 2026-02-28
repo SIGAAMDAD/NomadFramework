@@ -106,12 +106,36 @@ jobs:
       run: doxygen Doxyfile
       continue-on-error: true
     
-    - name: Deploy to GitHub Wiki
-      uses: crazy-max/ghaction-github-wiki@v3
-      with:
-        path: ./Documentation/html
-        commit-message: "Update Wiki from CI"
-        git-commit-user-name: "github-actions[bot]"
-        git-commit-user-email: "github-actions[bot]@users.noreply.github.com"
-      env:
-        GITHUB_TOKEN: ${{ secrets.API_TOKEN }}
+    - name: 🚀 Deploy docs to Wiki
+      if: github.ref == 'refs/heads/main'
+      run: |
+        # Clone the wiki repo
+        git clone https://github.com/${{ github.repository }}.wiki.git ./wiki
+        cd wiki
+
+        # Remove old docs (optional, depending on your needs)
+        rm -rf ./*
+
+        # Copy new docs
+        cp -r ../Documentation/html/* .
+
+        # Configure git
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+        # Add all changes
+        git add --all
+
+        # Commit if there are changes
+        if git diff --cached --quiet; then
+          echo "No changes to commit"
+          exit 0
+        fi
+
+        git commit -m "Update Wiki documentation from CI"
+
+        # Pull remote changes (with rebase) before pushing
+        git pull --rebase origin master
+
+        # Push safely using --force-with-lease
+        git push https://x-access-token:${{ secrets.API_TOKEN }}@github.com/${{ github.repository }}.wiki.git master --force-with-lease
