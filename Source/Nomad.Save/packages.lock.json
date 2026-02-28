@@ -121,6 +121,7 @@
         "dependencies": {
           "Microsoft.Extensions.Configuration.Ini": "[10.0.3, )",
           "NomadFramework.Nomad.Core": "[1.1.0, )",
+          "System.Collections.Immutable": "[10.0.3, )",
           "System.Runtime.CompilerServices.Unsafe": "[6.1.2, )"
         }
       }
@@ -344,7 +345,8 @@
         "type": "Project",
         "dependencies": {
           "Microsoft.Extensions.Configuration.Ini": "[10.0.3, )",
-          "NomadFramework.Nomad.Core": "[1.1.0, )"
+          "NomadFramework.Nomad.Core": "[1.1.0, )",
+          "System.Collections.Immutable": "[10.0.3, )"
         }
       }
     }

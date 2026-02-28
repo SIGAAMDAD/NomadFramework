@@ -22,7 +22,7 @@ namespace Nomad.Core.Memory
     /// </summary>
     /// <typeparam name="TObject"></typeparam>
     public interface IObjectPool<TObject> : IDisposable
-        where TObject : new()
+        where TObject : class
     {
         /// <summary>
         /// The total amount of objects allocated.

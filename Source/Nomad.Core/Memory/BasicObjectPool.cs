@@ -16,6 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System.Collections.Concurrent;
 using System;
 using Nomad.Core.Compatibility.Guards;
+using System.Threading;
 
 namespace Nomad.Core.Memory
 {
@@ -23,7 +24,7 @@ namespace Nomad.Core.Memory
     ///
     /// </summary>
     public class BasicObjectPool<T> : IObjectPool<T>
-        where T : new()
+        where T : class, new()
     {
         /// <summary>
         /// 
@@ -85,7 +86,7 @@ namespace Nomad.Core.Memory
 
             if (_currentSize < _maxSize)
             {
-                _currentSize++;
+                Interlocked.Increment(ref _currentSize);
                 return _createObject.Invoke();
             }
             throw new InvalidOperationException("Object pool exhausted and maximum size reached");
@@ -118,7 +119,7 @@ namespace Nomad.Core.Memory
                 {
                     disposable.Dispose();
                 }
-                _currentSize--;
+                Interlocked.Decrement(ref _currentSize);
             }
         }
 
@@ -141,7 +142,7 @@ namespace Nomad.Core.Memory
                     disposable.Dispose();
                 }
             }
-            _currentSize = 0;
+            Interlocked.Exchange(ref _currentSize, 0);
 
             GC.SuppressFinalize(this);
         }

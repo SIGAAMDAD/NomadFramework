@@ -116,7 +116,7 @@ namespace Nomad.Core.Collections
             Node? current = _head.Next;
             while (current != null && i < array.Length)
             {
-                array[i++] = current.Value;
+                array[i++] = current.Value!;
                 current = current.Next;
             }
         }
@@ -128,9 +128,7 @@ namespace Nomad.Core.Collections
         /// <param name="index"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void CopyTo(Array array, int index)
-        {
-            CopyTo((T[])array, index);
-        }
+            => CopyTo((T[])array, index);
 
         /// <summary>
         ///
@@ -239,7 +237,7 @@ namespace Nomad.Core.Collections
                             // Queue might be empty or tail needs updating
                             if (next == null)
                             {
-                                item = default;
+                                item = default!;
                                 return false; // Queue is empty
                             }
 
@@ -249,7 +247,7 @@ namespace Nomad.Core.Collections
                         else
                         {
                             // Read value before CAS (important!)
-                            item = next.Value;
+                            item = next!.Value!;
 
                             // Try to move head forward
                             if (Interlocked.CompareExchange(ref _head, next, head) == head)
@@ -271,11 +269,11 @@ namespace Nomad.Core.Collections
 
                 if (next == null)
                 {
-                    item = default;
+                    item = default!;
                     return false;
                 }
 
-                item = next.Value;
+                item = next!.Value!;
                 _head = next;
                 DecrementCount();
                 head.Value = default; // Help GC

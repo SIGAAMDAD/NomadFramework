@@ -118,7 +118,7 @@ namespace Nomad.Logger.Private {
 		/// </summary>
 		/// <param name="message"></param>
 		public void QueueMessage( in string message ) {
-			_messageQueue.TryEnqueue( in message );
+			_messageQueue.TryEnqueue( message );
 		}
 
 		/*
