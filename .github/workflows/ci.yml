@@ -68,44 +68,21 @@ jobs:
         $process = Get-Process -Id $PID
         $process.PriorityClass = [System.Diagnostics.ProcessPriorityClass]::High
     
-    - name: 📦 Restore packages
+    - name: 📦 Restore
       run: |
-        dotnet restore Source/Nomad.Core/Nomad.Core.csproj
-        dotnet restore Source/Nomad.CVars/Nomad.CVars.csproj
-        dotnet restore Source/Nomad.FileSystem/Nomad.FileSystem.csproj
-        dotnet restore Source/Nomad.Events/Nomad.Events.csproj
-        dotnet restore Source/Nomad.Console/Nomad.Console.csproj
-        dotnet restore Source/Nomad.Logger/Nomad.Logger.csproj
+        dotnet restore NomadFramework.slnx
     
-    - name: 🔨 Build for multiple frameworks
+    - name: 🔨 Build
       run: |
-        # Build for all target frameworks in your csproj
-        dotnet build Source/Nomad.Core/Nomad.Core.csproj --configuration Release --no-restore --verbosity minimal
-        dotnet build Source/Nomad.CVars/Nomad.CVars.csproj --configuration Release --no-restore --verbosity minimal
-        dotnet build Source/Nomad.FileSystem/Nomad.FileSystem.csproj --configuration Release --no-restore --verbosity minimal
-        dotnet build Source/Nomad.Events/Nomad.Events.csproj --configuration Release --no-restore --verbosity minimal
-        dotnet build Source/Nomad.Console/Nomad.Console.csproj --configuration Release --no-restore --verbosity minimal
-        dotnet build Source/Nomad.Logger/Nomad.Logger.csproj --configuration Release --no-restore --verbosity minimal
-        
-        # Or force specific frameworks:
-        # dotnet build -f net10.0 --configuration Release
-        # dotnet build -f netstandard2.1 --configuration Release
+        dotnet build NomadFramework.slnx --configuration Release --no-restore
     
-    - name: 🧪 Run tests (Linux)
-      if: runner.os != 'Windows'
-      shell: bash
+    - name: 🧪 Run tests with coverage
       run: |
-        echo "Testing with .NET ${{ matrix.dotnet-version }} on ${{ matrix.os }}"
-        dotnet test Tests/Nomad.Tests.csproj --configuration Release --no-build
+        dotnet test --configuration Release --no-build --collect:"XPlat Code Coverage" --settings coverlet.runsettings
 
-    - name: 🧪 Run tests (Windows)
-      if: runner.os == 'Windows'
-      shell: pwsh
-      run: |
-        echo "Testing with .NET ${{ matrix.dotnet-version }} on ${{ matrix.os }}"
-        $testProjects = Get-ChildItem -Path . -Recurse -Filter "*Test*.csproj"
-        foreach ($proj in $testProjects) {
-          echo "Testing: $($proj.Name)"
-          dotnet test $proj.FullName --configuration Release --no-build
-        }
-      timeout-minutes: 15
+    - name: ☁️ Upload coverage to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        files: '**/coverage.cobertura.xml'
+        flags: ${{ runner.os }}
+      
