@@ -84,11 +84,6 @@
         "resolved": "3.0.1",
         "contentHash": "s/s20YTVY9r9TPfTrN5g8zPF1YhwxyqO6PxUkrYTGI2B+OGPe9AdajWZrLhFqXIvqIW23fnUE4+ztrUWNU1+9g=="
       },
-      "Microsoft.NET.ILLink.Tasks": {
-        "type": "Transitive",
-        "resolved": "10.0.3",
-        "contentHash": "0B6nZyCHWXnvmlB559oduOspVdNOnpNXPjhpWVMovLPAsDVG7A4jJR9rzECf67JUzxP8/ee/wA8clwIzJcWNFA=="
-      },
       "System.Collections.Immutable": {
         "type": "Transitive",
         "resolved": "10.0.3",
@@ -99,15 +94,15 @@
       },
       "System.IO.Hashing": {
         "type": "Transitive",
-        "resolved": "10.0.2",
-        "contentHash": "AKJknIFi9O3+rGExxTry188JPvUoZAPcCtS2qdqyFhIzsxQ1Ap94BeGDG0VzVEHakhmRxmJtVih6TsHoghIt/g=="
+        "resolved": "10.0.3",
+        "contentHash": "La6ICwsdTKhVX+LKN+pvFjQRR3LhLwq3uKdi2knjLzRyPYBSydF4cjXidYxIiTcDD6XVYdsBWQEI8ZxiZ/OdIg=="
       },
       "NomadFramework.Nomad.Core": {
         "type": "Project",
         "dependencies": {
           "Microsoft.IO.RecyclableMemoryStream": "[3.0.1, )",
           "System.Collections.Immutable": "[10.0.3, )",
-          "System.IO.Hashing": "[10.0.2, )",
+          "System.IO.Hashing": "[10.0.3, )",
           "System.Runtime.CompilerServices.Unsafe": "[6.1.2, )"
         }
       },
@@ -124,8 +119,7 @@
       "NomadFramework.Nomad.Events": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.Extensions.Configuration.Ini": "[10.0.2, )",
-          "Microsoft.NET.ILLink.Tasks": "[10.0.3, )",
+          "Microsoft.Extensions.Configuration.Ini": "[10.0.3, )",
           "NomadFramework.Nomad.Core": "[1.1.0, )",
           "System.Runtime.CompilerServices.Unsafe": "[6.1.2, )"
         }
@@ -211,21 +205,16 @@
         "resolved": "3.0.1",
         "contentHash": "s/s20YTVY9r9TPfTrN5g8zPF1YhwxyqO6PxUkrYTGI2B+OGPe9AdajWZrLhFqXIvqIW23fnUE4+ztrUWNU1+9g=="
       },
-      "Microsoft.NET.ILLink.Tasks": {
-        "type": "Transitive",
-        "resolved": "10.0.3",
-        "contentHash": "0B6nZyCHWXnvmlB559oduOspVdNOnpNXPjhpWVMovLPAsDVG7A4jJR9rzECf67JUzxP8/ee/wA8clwIzJcWNFA=="
-      },
       "System.IO.Hashing": {
         "type": "Transitive",
-        "resolved": "10.0.2",
-        "contentHash": "AKJknIFi9O3+rGExxTry188JPvUoZAPcCtS2qdqyFhIzsxQ1Ap94BeGDG0VzVEHakhmRxmJtVih6TsHoghIt/g=="
+        "resolved": "10.0.3",
+        "contentHash": "La6ICwsdTKhVX+LKN+pvFjQRR3LhLwq3uKdi2knjLzRyPYBSydF4cjXidYxIiTcDD6XVYdsBWQEI8ZxiZ/OdIg=="
       },
       "NomadFramework.Nomad.Core": {
         "type": "Project",
         "dependencies": {
           "Microsoft.IO.RecyclableMemoryStream": "[3.0.1, )",
-          "System.IO.Hashing": "[10.0.2, )"
+          "System.IO.Hashing": "[10.0.3, )"
         }
       },
       "NomadFramework.Nomad.CVars": {
@@ -239,8 +228,7 @@
       "NomadFramework.Nomad.Events": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.Extensions.Configuration.Ini": "[10.0.2, )",
-          "Microsoft.NET.ILLink.Tasks": "[10.0.3, )",
+          "Microsoft.Extensions.Configuration.Ini": "[10.0.3, )",
           "NomadFramework.Nomad.Core": "[1.1.0, )"
         }
       }
@@ -325,11 +313,6 @@
         "resolved": "3.0.1",
         "contentHash": "s/s20YTVY9r9TPfTrN5g8zPF1YhwxyqO6PxUkrYTGI2B+OGPe9AdajWZrLhFqXIvqIW23fnUE4+ztrUWNU1+9g=="
       },
-      "Microsoft.NET.ILLink.Tasks": {
-        "type": "Transitive",
-        "resolved": "10.0.3",
-        "contentHash": "0B6nZyCHWXnvmlB559oduOspVdNOnpNXPjhpWVMovLPAsDVG7A4jJR9rzECf67JUzxP8/ee/wA8clwIzJcWNFA=="
-      },
       "System.Collections.Immutable": {
         "type": "Transitive",
         "resolved": "10.0.3",
@@ -337,15 +320,15 @@
       },
       "System.IO.Hashing": {
         "type": "Transitive",
-        "resolved": "10.0.2",
-        "contentHash": "AKJknIFi9O3+rGExxTry188JPvUoZAPcCtS2qdqyFhIzsxQ1Ap94BeGDG0VzVEHakhmRxmJtVih6TsHoghIt/g=="
+        "resolved": "10.0.3",
+        "contentHash": "La6ICwsdTKhVX+LKN+pvFjQRR3LhLwq3uKdi2knjLzRyPYBSydF4cjXidYxIiTcDD6XVYdsBWQEI8ZxiZ/OdIg=="
       },
       "NomadFramework.Nomad.Core": {
         "type": "Project",
         "dependencies": {
           "Microsoft.IO.RecyclableMemoryStream": "[3.0.1, )",
           "System.Collections.Immutable": "[10.0.3, )",
-          "System.IO.Hashing": "[10.0.2, )"
+          "System.IO.Hashing": "[10.0.3, )"
         }
       },
       "NomadFramework.Nomad.CVars": {
@@ -360,8 +343,7 @@
       "NomadFramework.Nomad.Events": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.Extensions.Configuration.Ini": "[10.0.2, )",
-          "Microsoft.NET.ILLink.Tasks": "[10.0.3, )",
+          "Microsoft.Extensions.Configuration.Ini": "[10.0.3, )",
           "NomadFramework.Nomad.Core": "[1.1.0, )"
         }
       }
