@@ -198,7 +198,10 @@ namespace Nomad.FileSystem.Private.FileStream {
 				throw new InvalidOperationException( "File is too large to read into a single array." );
 			}
 			byte[] buffer = new byte[remaining];
-			fileStream.ReadExactly( buffer, 0, (int)remaining );
+			int bytesRead = fileStream.Read( buffer, 0, (int)remaining );
+			if ( bytesRead != remaining ) {
+				throw new IOException( $"FileStream failed to read exactly {remaining} bytes!" );
+			}
 			return buffer;
 		}
 
