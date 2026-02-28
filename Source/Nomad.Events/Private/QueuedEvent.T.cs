@@ -27,10 +27,9 @@ namespace Nomad.Events.Private {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal sealed class QueuedEvent<TArgs> : QueuedEvent
-		where TArgs : struct
-	{
+		where TArgs : struct {
 		private readonly IGameEvent<TArgs> _gameEvent;
 		private readonly TArgs _args;
 

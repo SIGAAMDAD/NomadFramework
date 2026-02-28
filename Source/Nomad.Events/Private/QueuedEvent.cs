@@ -24,7 +24,7 @@ namespace Nomad.Events.Private {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal abstract class QueuedEvent {
 		public abstract void Process();
 	};
