@@ -39,6 +39,8 @@ namespace Nomad.OnlineServices.Steam.Private {
 		private readonly CallResult<LobbyCreated_t> _lobbyCreated;
 		private readonly CallResult<LobbyEnter_t> _lobbyEnter;
 
+		private bool _isDisposed = false;
+
 		/*
 		===============
 		SteamMatchMakingService
@@ -59,9 +61,16 @@ namespace Nomad.OnlineServices.Steam.Private {
 		===============
 		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
 		public void Dispose() {
+			if ( !_isDisposed ) {
+				_lobbyMatchList?.Dispose();
+				_lobbyCreated?.Dispose();
+				_lobbyEnter?.Dispose();
+			}
+			GC.SuppressFinalize( this );
+			_isDisposed = true;
 		}
 
 		/*

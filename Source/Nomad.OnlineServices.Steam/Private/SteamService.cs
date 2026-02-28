@@ -88,7 +88,7 @@ namespace Nomad.OnlineServices.Steam.Private {
 			_category = logger.CreateCategory( nameof( Nomad.OnlineServices.Steam ), LogLevel.Info, true );
 
 			_statsService = new SteamStatsService( logger );
-			_achievementsService = new SteamAchievementService( _appData, engineService );
+			_achievementsService = new SteamAchievementService( _appData, logger, engineService );
 			_cloudStorageService = new SteamCloudStorageService( logger, fileSystem );
 		}
 

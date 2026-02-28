@@ -13,14 +13,16 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Nomad.Core.EngineUtils;
+using Nomad.Core.Logger;
 using Nomad.Core.OnlineServices;
 using Nomad.OnlineServices.Steam.Private.ValueObjects;
 using Steamworks;
 
-namespace Nomad.OnlineServices.Steam {
+namespace Nomad.OnlineServices.Steam.Private.Services {
 	/*
 	===================================================================================
 
@@ -33,13 +35,6 @@ namespace Nomad.OnlineServices.Steam {
 	/// </summary>
 
 	internal sealed class SteamAchievementService : IAchievementService {
-		private record AchievementInfo(
-			string Id,
-			bool Achieved,
-			float Progress,
-			float MaxProgress
-		);
-
 		public bool SupportsAchievements => true;
 
 		private readonly ConcurrentDictionary<string, SteamAchievementInfo> _achievements;
@@ -50,20 +45,24 @@ namespace Nomad.OnlineServices.Steam {
 		private readonly CallResult<UserAchievementIconFetched_t> _userAchievementIconFetched;
 		private readonly CallResult<UserAchievementStored_t> _userAchievementStored;
 
+		private bool _isDisposed = false;
+
 		/*
 		===============
 		SteamAchievementService
 		===============
 		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
+		/// <param name="appData"></param>
+		/// <param name="logger"></param>
 		/// <param name="engineService"></param>
-		public SteamAchievementService( SteamAppData appData, IEngineService engineService ) {
+		public SteamAchievementService( SteamAppData appData, ILoggerService logger, IEngineService engineService ) {
 			_engineService = engineService;
 			_appData = appData;
 
-			int numAchievements = ( int )SteamUserStats.GetNumAchievements();
+			int numAchievements = (int)SteamUserStats.GetNumAchievements();
 			_achievements = new ConcurrentDictionary<string, SteamAchievementInfo>( numAchievements, numAchievements );
 
 			_userAchievementIconFetched = CallResult<UserAchievementIconFetched_t>.Create( OnAchievementIconFetched );
@@ -71,7 +70,7 @@ namespace Nomad.OnlineServices.Steam {
 
 			for ( uint i = 0; i < numAchievements; i++ ) {
 				string name = SteamUserStats.GetAchievementName( i );
-				_achievements[ name ] = new SteamAchievementInfo( name );
+				_achievements[name] = new SteamAchievementInfo( name );
 			}
 
 			SteamUserStats.RequestCurrentStats();
@@ -86,6 +85,13 @@ namespace Nomad.OnlineServices.Steam {
 		/// 
 		/// </summary>
 		public void Dispose() {
+			if ( !_isDisposed ) {
+				_userAchievementIconFetched?.Dispose();
+				_userAchievementStored?.Dispose();
+
+			}
+			GC.SuppressFinalize( this );
+			_isDisposed = true;
 		}
 
 		/*
@@ -118,8 +124,19 @@ namespace Nomad.OnlineServices.Steam {
 		private void OnUserAchievementStored( UserAchievementStored_t pCallback, bool bIOFailure ) {
 		}
 
-		public ValueTask LockAchievement( string achievementId ) {
-			throw new System.NotImplementedException();
+		/*
+		===============
+		LockAchievement
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="achievementId"></param>
+		/// <returns></returns>
+		public async ValueTask LockAchievement( string achievementId ) {
+			if ( !SteamUserStats.ClearAchievement( achievementId ) ) {
+			}
 		}
 
 		/*
@@ -132,7 +149,6 @@ namespace Nomad.OnlineServices.Steam {
 		/// </summary>
 		/// <param name="achievementId"></param>
 		/// <param name="current"></param>
-		/// <param name="max"></param>
 		/// <returns></returns>
 		public async ValueTask SetAchievementProgress( string achievementId, float current ) {
 			if ( !_achievements.TryGetValue( achievementId, out var achievementInfo ) ) {
@@ -142,8 +158,10 @@ namespace Nomad.OnlineServices.Steam {
 			achievementInfo.SetAchievementProgress( current );
 		}
 
-		public ValueTask UnlockAchievement( string achievementId ) {
-			throw new System.NotImplementedException();
+		public async ValueTask UnlockAchievement( string achievementId ) {
+			if ( SteamUserStats.SetAchievement( achievementId ) ) {
+				
+			}
 		}
 	};
 };

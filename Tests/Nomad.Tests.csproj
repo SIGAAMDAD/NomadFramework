@@ -18,6 +18,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="NUnit3TestAdapter" Version="5.0.0" />
+    <PackageReference Include="Steamworks.NET" Version="2024.8.0" />
   </ItemGroup>
   <PropertyGroup>
     <DefineConstants>$(DefineConstants);EVENT_DEBUG</DefineConstants>
@@ -28,6 +29,7 @@
     <ProjectReference Include="..\Source\Nomad.FileSystem\Nomad.FileSystem.csproj" />
     <ProjectReference Include="..\Source\Nomad.Save\Nomad.Save.csproj" />
     <ProjectReference Include="..\Source\Nomad.Events\Nomad.Events.csproj" />
+    <ProjectReference Include="..\Source\Nomad.OnlineServices.Steam\Nomad.OnlineServices.Steam.csproj" />
   </ItemGroup>
 
 </Project>

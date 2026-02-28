@@ -48,6 +48,8 @@ namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
 		public float MaxProgress => _progress.HasValue ? _progress.Value.MaxProgress : 0.0f;
 		private AchievementProgress? _progress;
 
+		private IDisposable _icon;
+
 		/*
 		===============
 		SteamAchievementInfo
@@ -90,7 +92,7 @@ namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
 			byte[] imageBuffer = new byte[ width * height * 4 ];
 			SteamUtils.GetImageRGBA( pAchievement.m_nIconHandle, imageBuffer, imageBuffer.Length );
 
-			IDisposable texture = service.CreateImageRGBA( imageBuffer, ( int )width, ( int )height );
+			_icon = service.CreateImageRGBA( imageBuffer, ( int )width, ( int )height );
 		}
 
 		/*

@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Nomad.Core.FileSystem;
+using Nomad.Core.FileSystem.Streams;
 using Nomad.Core.Logger;
 using Nomad.Core.OnlineServices;
 using Steamworks;
@@ -74,8 +75,6 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 			_fileSystem = fileSystem;
 
 			_fileChangeResult = CallResult<RemoteStorageLocalFileChange_t>.Create( OnFileChange );
-
-			RefreshCloudFiles();
 		}
 
 		/*
@@ -165,36 +164,6 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 				_logger.PrintWarning( in _category, "Cloud storage is not enabled for this application." );
 				return;
 			}
-
-			int cloudFileCount = SteamRemoteStorage.GetFileCount();
-			if ( _cloudFiles.Count != cloudFileCount ) {
-				// we need to retrieve some files
-				RefreshCloudFiles();
-			}
-
-			for ( int i = 0; i < fileCount; i++ ) {
-				string name = SteamRemoteStorage.GetFileNameAndSize( i, out int fileSize );
-
-				IReadStream? stream = _fileSystem.OpenRead( name );
-				if ( stream == null ) {
-					_logger.PrintWarning( in _category, $"SteamCloudStorageService.Synchronize: there is a cloud file that does not exist on the user's machine ('{name}'), starting download..." );
-					RetrieveCloudFile( name );
-					continue;
-				}
-
-				long timeStamp = SteamRemoteStorage.GetFileTimestamp( name );
-				FileInfo info = new FileInfo( name );
-
-				_logger.PrintLine( in _category, $"SteamCloudStorageService.Synchronize" );
-				_cloudFiles.Add(
-					new CloudFile(
-						Name: name,
-						Size: fileSize,
-						CloudAccessTime: DateTimeOffset.FromUnixTimeMilliseconds( timeStamp ).UtcDateTime,
-						LocalAccessTime: info.LastAccessTime
-					)
-				);
-			}
 		}
 
 		/*
@@ -208,52 +177,6 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 		/// <param name="fileName"></param>
 		/// <returns></returns>
 		public async ValueTask WriteFile( string fileName ) {
-		}
-
-		/*
-		===============
-		RefreshCloudFiles
-		===============
-		*/
-		/// <summary>
-		/// Updates the current cloud-files list.
-		/// </summary>
-		private void RefreshCloudFiles() {
-			int cloudFileCount = SteamRemoteStorage.GetFileCount();
-
-			_cloudFiles.Clear();
-			_cloudFiles.EnsureCapacity( cloudFileCount );
-
-			for ( int i = 0; i < cloudFileCount; i++ ) {
-				string name = SteamRemoteStorage.GetFileNameAndSize( i, out int fileSize );
-
-				long timeStamp = SteamRemoteStorage.GetFileTimestamp( name );
-				FileInfo info = new FileInfo( name );
-
-				_logger.PrintLine( in _category, $"SteamCloudStorageService.Synchronize" );
-				_cloudFiles.Add(
-					name,
-					new CloudFile(
-						Size: fileSize,
-						CloudAccessTime: DateTimeOffset.FromUnixTimeMilliseconds( timeStamp ).UtcDateTime,
-						LocalAccessTime: info.LastAccessTime
-					)
-				);
-			}
-		}
-
-		/*
-		===============
-		RetrieveCloudFile
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="fileName"></param>
-		private void RetrieveCloudFile( string fileName ) {
-			int fileSize = SteamRemoteStorage.GetFileSize( fileName );
-			SteamRemoteStorage.FileReadAsync( fileName, 0, ( uint )fileSize );
 		}
 	};
 };
