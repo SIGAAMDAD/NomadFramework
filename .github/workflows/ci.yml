@@ -91,8 +91,9 @@ jobs:
         path: ./TestResults
     
     - name: 📚 Generate Doxygen documentation
-      run: doxygen Doxyfile   # assumes Doxyfile is in root
-      continue-on-error: true # optional
+      uses: ammaraskar/doxygen-action@v1
+      with:
+        doxyfile-path: './Doxyfile'   # path to your Doxyfile
 
     - name: 🚀 Deploy docs to Wiki
       if: github.ref == 'refs/heads/main'

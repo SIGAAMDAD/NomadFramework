@@ -5,10 +5,11 @@
 *.cs.uid
 *.cs.doxy_temp
 NuGet/
-Documentation/html/
 Build/
 
 Tools/
+
+Documentation/html/
 
 # Unity specific ignores
 UnityIntegration/
