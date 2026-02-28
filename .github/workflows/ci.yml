@@ -40,7 +40,7 @@ jobs:
           ${{ runner.os }}-nuget-
     
     - name: 🔒 Check for vulnerable packages
-      run: dotnet list package --vulnerable --include-transitive
+      run: dotnet list package NomadFramework.slnx --vulnerable --include-transitive
     
     - name: 💾 Cache build output
       uses: actions/cache@v4
