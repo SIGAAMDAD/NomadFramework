@@ -90,10 +90,25 @@ jobs:
         name: test-results-${{ matrix.os }}-${{ matrix.dotnet-version }}
         path: ./TestResults
     
+    - name: 🔧 Install Doxygen (Ubuntu)
+      if: runner.os == 'Linux'
+      run: sudo apt-get update && sudo apt-get install -y doxygen
+    
+    - name: 🔧 Install Doxygen (macOS)
+      if: runner.os == 'macOS'
+      run: brew install doxygen
+    
+    - name: 🔧 Install Doxygen (Windows)
+      if: runner.os == 'Windows'
+      run: choco install doxygen.install --no-progress
+    
     - name: 📚 Generate Doxygen documentation
-      uses: ammaraskar/doxygen-action@v1
-      with:
-        doxyfile-path: './Doxyfile'   # path to your Doxyfile
+      run: doxygen Doxyfile
+      continue-on-error: true
+    
+    - name: 📚 Generate Doxygen documentation
+      run: doxygen Doxyfile   # assumes Doxyfile is in root
+      continue-on-error: true # optional
 
     - name: 🚀 Deploy docs to Wiki
       if: github.ref == 'refs/heads/main'
