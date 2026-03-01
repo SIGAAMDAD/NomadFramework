@@ -547,6 +547,37 @@ namespace Nomad.Events.Tests
 
         #endregion
 
+        #region Filtered Events
+
+        [Test]
+        public void CreateFilteredEvent_IsFilteredEvent()
+        {
+            // Arrange
+            var evt = CreateEvent<int>().Where(args => args > 10);
+            
+            // Assert
+            Assert.That(evt, Is.InstanceOf<FilteredGameEvent<int>>());
+        }
+
+        [Test]
+        public void PublishFilteredEvent_MultipleTimesVariousArgs_PredicateFiltersCorrectly()
+        {
+            // Arrange
+            var evt = CreateEvent<int>().Where(args => args > 10);
+            int callCount = 0;
+            evt.Subscribe((in int args) => callCount++);
+
+            // Act
+            evt.Publish(9);
+            evt.Publish(2);
+            evt.Publish(14);
+
+            // Assert
+            Assert.That(callCount, Is.EqualTo(1));
+        }
+
+        #endregion
+
         #region Debug Members (if DEBUG)
 
 #if DEBUG

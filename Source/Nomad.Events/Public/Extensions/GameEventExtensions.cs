@@ -13,7 +13,9 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System;
 using Nomad.Core.Events;
+using Nomad.Events.Private;
 
 namespace Nomad.Events.Extensions
 {
@@ -36,6 +38,19 @@ namespace Nomad.Events.Extensions
             EventCallback<TArgs> killAfterPublish = (in TArgs args) => { callback(in args); handle?.Dispose(); };
             handle = gameEvent.Subscribe(killAfterPublish);
             return handle;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TArgs"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
+        public static IGameEvent<TArgs> Where<TArgs>(this IGameEvent<TArgs> source, Func<TArgs, bool> predicate)
+            where TArgs : struct
+        {
+            return new FilteredGameEvent<TArgs>(source, predicate);
         }
     }
 }
