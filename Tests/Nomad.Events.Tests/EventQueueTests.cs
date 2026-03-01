@@ -9,140 +9,147 @@ using Nomad.Core.Events; // Contains EventQueue
 
 namespace Nomad.Events.Tests
 {
-    // Mock implementation of IGameEvent<T> that records when Publish is called.
-    public class MockGameEvent<T> : IGameEvent<T> where T : struct
-    {
-        public string DebugName { get; set; }
-        public string NameSpace { get; set; }
-        public int Id { get; set; }
+	// Mock implementation of IGameEvent<T> that records when Publish is called.
+	public class MockGameEvent<T> : IGameEvent<T> where T : struct
+	{
+		private readonly object _lock = new object();
+		private readonly List<T> _publishedArgs = new List<T>();
 
-        // For tracking calls
-        public List<T> PublishedArgs { get; } = new List<T>();
-        public int PublishCount => PublishedArgs.Count;
+		public string DebugName { get; set; }
+		public string NameSpace { get; set; }
+		public int Id { get; set; }
+
+		// For non‑threaded tests that need the actual list
+		public IReadOnlyList<T> PublishedArgs
+		{
+			get { lock (_lock) return _publishedArgs.ToArray(); }
+		}
+
+		public int PublishCount
+		{
+			get { lock (_lock) return _publishedArgs.Count; }
+		}
 
 		public T LastPayload => throw new NotImplementedException();
-
 		public int SubscriberCount => throw new NotImplementedException();
-
 		long IGameEvent.PublishCount => PublishCount;
-
 		public DateTime LastPublishTime => throw new NotImplementedException();
 
 		public event EventCallback<T> OnPublished;
 		public event AsyncEventCallback<T> OnPublishedAsync;
 
 		public void Publish(in T args)
-        {
-            PublishedArgs.Add(args);
-        }
+		{
+			lock (_lock)
+			{
+				_publishedArgs.Add(args);
+			}
+		}
 
-        // Other interface members can be stubbed as needed
-        public void Dispose() { GC.SuppressFinalize( this ); }
-        public ISubscriptionHandle Subscribe(EventCallback<T> callback) => throw new NotImplementedException();
-        public ISubscriptionHandle SubscribeAsync(AsyncEventCallback<T> callback) => throw new NotImplementedException();
-        public void Unsubscribe(EventCallback<T> callback) => throw new NotImplementedException();
-        public void UnsubscribeAsync(AsyncEventCallback<T> callback) => throw new NotImplementedException();
-        public Task PublishAsync(T args, CancellationToken ct = default) => throw new NotImplementedException();
+		public void Dispose() => GC.SuppressFinalize(this);
+		public ISubscriptionHandle Subscribe(EventCallback<T> callback) => throw new NotImplementedException();
+		public ISubscriptionHandle SubscribeAsync(AsyncEventCallback<T> callback) => throw new NotImplementedException();
+		public void Unsubscribe(EventCallback<T> callback) => throw new NotImplementedException();
+		public void UnsubscribeAsync(AsyncEventCallback<T> callback) => throw new NotImplementedException();
+		public Task PublishAsync(T args, CancellationToken ct = default) => throw new NotImplementedException();
+	}
 
-        // Also implement the non-generic IGameEvent if needed (but we only need generic)
-    }
+	// Test structs for event arguments
+	public struct TestArgs
+	{
+		public int Value { get; set; }
+	}
 
-    // Test structs for event arguments
-    public struct TestArgs
-    {
-        public int Value { get; set; }
-    }
+	public struct OtherArgs
+	{
+		public string Text { get; set; }
+	}
 
-    public struct OtherArgs
-    {
-        public string Text { get; set; }
-    }
+	[TestFixture]
+	public class EventQueueTests
+	{
+		private EventQueue _queue;
 
-    [TestFixture]
-    public class EventQueueTests
-    {
-        private EventQueue _queue;
+		[SetUp]
+		public void Setup()
+		{
+			_queue = new EventQueue();
+		}
 
-        [SetUp]
-        public void Setup()
-        {
-            _queue = new EventQueue();
-        }
+		[Test]
+		public void Constructor_InitializesQueuesForAllPriorities()
+		{
+			// Count should be zero initially
+			Assert.That(_queue.Count, Is.Zero);
+		}
 
-        [Test]
-        public void Constructor_InitializesQueuesForAllPriorities()
-        {
-            // Count should be zero initially
-            Assert.That(_queue.Count, Is.Zero);
-        }
+		[Test]
+		public void Enqueue_SingleEvent_CountIncrements()
+		{
+			var mockEvent = new MockGameEvent<TestArgs>();
+			var args = new TestArgs { Value = 42 };
 
-        [Test]
-        public void Enqueue_SingleEvent_CountIncrements()
-        {
-            var mockEvent = new MockGameEvent<TestArgs>();
-            var args = new TestArgs { Value = 42 };
+			_queue.Enqueue(mockEvent, args, EventPriority.Normal);
 
-            _queue.Enqueue(mockEvent, args, EventPriority.Normal);
+			Assert.That(_queue.Count, Is.EqualTo(1));
+		}
 
-            Assert.That(_queue.Count, Is.EqualTo(1));
-        }
+		[Test]
+		public void Enqueue_MultipleEvents_CountMatches()
+		{
+			var mockEvent1 = new MockGameEvent<TestArgs>();
+			var mockEvent2 = new MockGameEvent<TestArgs>();
+			var args1 = new TestArgs { Value = 1 };
+			var args2 = new TestArgs { Value = 2 };
 
-        [Test]
-        public void Enqueue_MultipleEvents_CountMatches()
-        {
-            var mockEvent1 = new MockGameEvent<TestArgs>();
-            var mockEvent2 = new MockGameEvent<TestArgs>();
-            var args1 = new TestArgs { Value = 1 };
-            var args2 = new TestArgs { Value = 2 };
+			_queue.Enqueue(mockEvent1, args1, EventPriority.Low);
+			_queue.Enqueue(mockEvent2, args2, EventPriority.High);
 
-            _queue.Enqueue(mockEvent1, args1, EventPriority.Low);
-            _queue.Enqueue(mockEvent2, args2, EventPriority.High);
+			Assert.That(_queue.Count, Is.EqualTo(2));
+		}
 
-            Assert.That(_queue.Count, Is.EqualTo(2));
-        }
+		[Test]
+		public void Enqueue_DifferentArgumentTypes_Works()
+		{
+			var mockEvent1 = new MockGameEvent<TestArgs>();
+			var mockEvent2 = new MockGameEvent<OtherArgs>();
+			var args1 = new TestArgs { Value = 10 };
+			var args2 = new OtherArgs { Text = "Hello" };
 
-        [Test]
-        public void Enqueue_DifferentArgumentTypes_Works()
-        {
-            var mockEvent1 = new MockGameEvent<TestArgs>();
-            var mockEvent2 = new MockGameEvent<OtherArgs>();
-            var args1 = new TestArgs { Value = 10 };
-            var args2 = new OtherArgs { Text = "Hello" };
+			_queue.Enqueue(mockEvent1, args1, EventPriority.Normal);
+			_queue.Enqueue(mockEvent2, args2, EventPriority.Normal);
 
-            _queue.Enqueue(mockEvent1, args1, EventPriority.Normal);
-            _queue.Enqueue(mockEvent2, args2, EventPriority.Normal);
+			Assert.That(_queue.Count, Is.EqualTo(2));
+		}
 
-            Assert.That(_queue.Count, Is.EqualTo(2));
-        }
+		[Test]
+		public void ProcessAll_EmptyQueue_DoesNothing()
+		{
+			_queue.ProcessAll();
+			Assert.That(_queue.Count, Is.Zero);
+		}
 
-        [Test]
-        public void ProcessAll_EmptyQueue_DoesNothing()
-        {
-            _queue.ProcessAll();
-            Assert.That(_queue.Count, Is.Zero);
-        }
+		[Test]
+		public void ProcessAll_ProcessesEventsInPriorityOrder()
+		{
+			var processedOrder = new List<(string EventName, EventPriority Priority, int Value)>();
+			var criticalEvent = CreateTrackingEvent<TestArgs>("Critical", (args) => processedOrder.Add(("Critical", EventPriority.Critical, args.Value)));
+			var highEvent = CreateTrackingEvent<TestArgs>("High", (args) => processedOrder.Add(("High", EventPriority.High, args.Value)));
+			var normalEvent = CreateTrackingEvent<TestArgs>("Normal", (args) => processedOrder.Add(("Normal", EventPriority.Normal, args.Value)));
+			var lowEvent = CreateTrackingEvent<TestArgs>("Low", (args) => processedOrder.Add(("Low", EventPriority.Low, args.Value)));
+			var veryLowEvent = CreateTrackingEvent<TestArgs>("VeryLow", (args) => processedOrder.Add(("VeryLow", EventPriority.VeryLow, args.Value)));
 
-        [Test]
-        public void ProcessAll_ProcessesEventsInPriorityOrder()
-        {
-            var processedOrder = new List<(string EventName, EventPriority Priority, int Value)>();
-            var criticalEvent = CreateTrackingEvent<TestArgs>("Critical", (args) => processedOrder.Add(("Critical", EventPriority.Critical, args.Value)));
-            var highEvent = CreateTrackingEvent<TestArgs>("High", (args) => processedOrder.Add(("High", EventPriority.High, args.Value)));
-            var normalEvent = CreateTrackingEvent<TestArgs>("Normal", (args) => processedOrder.Add(("Normal", EventPriority.Normal, args.Value)));
-            var lowEvent = CreateTrackingEvent<TestArgs>("Low", (args) => processedOrder.Add(("Low", EventPriority.Low, args.Value)));
-            var veryLowEvent = CreateTrackingEvent<TestArgs>("VeryLow", (args) => processedOrder.Add(("VeryLow", EventPriority.VeryLow, args.Value)));
+			// Enqueue in mixed order
+			_queue.Enqueue(normalEvent, new TestArgs { Value = 3 }, EventPriority.Normal);
+			_queue.Enqueue(veryLowEvent, new TestArgs { Value = 5 }, EventPriority.VeryLow);
+			_queue.Enqueue(criticalEvent, new TestArgs { Value = 1 }, EventPriority.Critical);
+			_queue.Enqueue(lowEvent, new TestArgs { Value = 4 }, EventPriority.Low);
+			_queue.Enqueue(highEvent, new TestArgs { Value = 2 }, EventPriority.High);
 
-            // Enqueue in mixed order
-            _queue.Enqueue(normalEvent, new TestArgs { Value = 3 }, EventPriority.Normal);
-            _queue.Enqueue(veryLowEvent, new TestArgs { Value = 5 }, EventPriority.VeryLow);
-            _queue.Enqueue(criticalEvent, new TestArgs { Value = 1 }, EventPriority.Critical);
-            _queue.Enqueue(lowEvent, new TestArgs { Value = 4 }, EventPriority.Low);
-            _queue.Enqueue(highEvent, new TestArgs { Value = 2 }, EventPriority.High);
+			_queue.ProcessAll();
 
-            _queue.ProcessAll();
-
-            // Expected order: Critical (1), High (2), Normal (3), Low (4), VeryLow (5)
-            Assert.That(processedOrder, Has.Count.EqualTo(5));
+			// Expected order: Critical (1), High (2), Normal (3), Low (4), VeryLow (5)
+			Assert.That(processedOrder, Has.Count.EqualTo(5));
 			using (Assert.EnterMultipleScope())
 			{
 				Assert.That(processedOrder[0].Priority, Is.EqualTo(EventPriority.Critical));
@@ -158,33 +165,221 @@ namespace Nomad.Events.Tests
 			}
 		}
 
-        [Test]
-        public void ProcessAll_SamePriority_FIFO()
-        {
-            var processedOrder = new List<int>();
-            var mockEvent = CreateTrackingEvent<TestArgs>("Test", (args) => processedOrder.Add(args.Value));
+		[Test]
+		public void ConcurrentEnqueue_ProcessAll_NoLoss()
+		{
+			const int threadCount = 4;
+			const int eventsPerThread = 1000;
+			var queue = new EventQueue();
+			var mockEvent = new MockGameEvent<TestArgs>();
+			var enqueuedCount = 0;
 
-            // Enqueue three events with same priority
-            _queue.Enqueue(mockEvent, new TestArgs { Value = 1 }, EventPriority.Normal);
-            _queue.Enqueue(mockEvent, new TestArgs { Value = 2 }, EventPriority.Normal);
-            _queue.Enqueue(mockEvent, new TestArgs { Value = 3 }, EventPriority.Normal);
+			var tasks = new Task[threadCount];
+			for (int t = 0; t < threadCount; t++)
+			{
+				tasks[t] = Task.Run(() =>
+				{
+					for (int i = 0; i < eventsPerThread; i++)
+					{
+						queue.Enqueue(mockEvent, new TestArgs { Value = i }, EventPriority.Normal);
+						Interlocked.Increment(ref enqueuedCount);
+					}
+				});
+			}
 
-            _queue.ProcessAll();
+			Task.WaitAll(tasks);
 
-            Assert.That(processedOrder, Is.EqualTo(new[] { 1, 2, 3 }));
-        }
+			queue.ProcessAll();
 
-        [Test]
-        public void ProcessNext_ReturnsTrueAndProcessesHighestPriority()
-        {
-            var processed = new List<int>();
-            var lowEvent = CreateTrackingEvent<TestArgs>("Low", (args) => processed.Add(args.Value));
-            var highEvent = CreateTrackingEvent<TestArgs>("High", (args) => processed.Add(args.Value));
+			using (Assert.EnterMultipleScope())
+			{
+				Assert.That(mockEvent.PublishCount, Is.EqualTo(enqueuedCount));
+				Assert.That(queue.Count, Is.Zero);
+			}
+		}
 
-            _queue.Enqueue(lowEvent, new TestArgs { Value = 10 }, EventPriority.Low);
-            _queue.Enqueue(highEvent, new TestArgs { Value = 20 }, EventPriority.High);
+		[Test]
+		public void ConcurrentEnqueueAndProcessNext_AllEventsProcessed()
+		{
+			const int threadCount = 4;
+			const int eventsPerThread = 500;
+			var queue = new EventQueue();
+			var mockEvent = new MockGameEvent<TestArgs>();
+			var enqueuedCount = 0;
+			var processedCount = 0;
+			int totalEvents = threadCount * eventsPerThread;
 
-            bool result = _queue.ProcessNext();
+			var barrier = new Barrier(threadCount * 2); // producers + consumers
+			var producers = new Task[threadCount];
+			var consumers = new Task[threadCount];
+
+			// Producers
+			for (int t = 0; t < threadCount; t++)
+			{
+				producers[t] = Task.Run(() =>
+				{
+					barrier.SignalAndWait();
+					for (int i = 0; i < eventsPerThread; i++)
+					{
+						queue.Enqueue(mockEvent, new TestArgs { Value = i }, EventPriority.Normal);
+						Interlocked.Increment(ref enqueuedCount);
+					}
+				});
+			}
+
+			// Consumers
+			for (int t = 0; t < threadCount; t++)
+			{
+				consumers[t] = Task.Run(() =>
+				{
+					barrier.SignalAndWait();
+					while (true)
+					{
+						if (queue.ProcessNext())
+						{
+							Interlocked.Increment(ref processedCount);
+						}
+						else
+						{
+							// Stop when all events are processed
+							if (Volatile.Read(ref processedCount) >= totalEvents)
+								break;
+							Thread.SpinWait(10);
+						}
+					}
+				});
+			}
+
+			Task.WaitAll(producers);
+			Task.WaitAll(consumers);
+
+			using (Assert.EnterMultipleScope())
+			{
+				Assert.That(processedCount, Is.EqualTo(totalEvents));
+				Assert.That(mockEvent.PublishCount, Is.EqualTo(totalEvents));
+				Assert.That(queue.Count, Is.Zero);
+			}
+		}
+
+		[Test]
+		public void StressTest_MultipleProducersAndConsumers()
+		{
+			const int producerCount = 8;
+			const int consumerCount = 4;
+			const int eventsPerProducer = 2000;
+			var queue = new EventQueue();
+			var mockEvent = new MockGameEvent<TestArgs>();
+			var enqueuedCount = 0;
+			var processedCount = 0;
+			int totalEvents = producerCount * eventsPerProducer;
+
+			var producers = new Task[producerCount];
+			var consumers = new Task[consumerCount];
+			var cts = new CancellationTokenSource();
+
+			// Start consumers (they run until cancelled)
+			for (int i = 0; i < consumerCount; i++)
+			{
+				consumers[i] = Task.Run(() =>
+				{
+					while (!cts.IsCancellationRequested)
+					{
+						if (queue.ProcessNext())
+							Interlocked.Increment(ref processedCount);
+						else
+							Thread.SpinWait(100);
+					}
+				}, cts.Token);
+			}
+
+			// Start producers
+			for (int i = 0; i < producerCount; i++)
+			{
+				producers[i] = Task.Run(() =>
+				{
+					for (int j = 0; j < eventsPerProducer; j++)
+					{
+						queue.Enqueue(mockEvent, new TestArgs { Value = j }, EventPriority.Normal);
+						Interlocked.Increment(ref enqueuedCount);
+					}
+				});
+			}
+
+			Task.WaitAll(producers);
+
+			// Wait for consumers to finish processing (timeout 10s)
+			int timeout = 10000;
+			int elapsed = 0;
+			while (Volatile.Read(ref processedCount) < totalEvents && elapsed < timeout)
+			{
+				Thread.Sleep(100);
+				elapsed += 100;
+			}
+
+			cts.Cancel();
+			try { Task.WaitAll(consumers); } catch (AggregateException) { }
+
+			using (Assert.EnterMultipleScope())
+			{
+				Assert.That(processedCount, Is.EqualTo(totalEvents));
+				Assert.That(mockEvent.PublishCount, Is.EqualTo(totalEvents));
+				Assert.That(queue.Count, Is.Zero);
+			}
+		}
+
+		[Test]
+		public void ConcurrentClearAndEnqueue_DoesNotCorrupt()
+		{
+			var queue = new EventQueue();
+			var mockEvent = new MockGameEvent<TestArgs>();
+			const int iterations = 1000;
+
+			var t1 = Task.Run(() =>
+			{
+				for (int i = 0; i < iterations; i++)
+					queue.Enqueue(mockEvent, new TestArgs { Value = i }, EventPriority.Normal);
+			});
+
+			var t2 = Task.Run(() =>
+			{
+				for (int i = 0; i < iterations; i++)
+					queue.Clear();
+			});
+
+			Task.WaitAll(t1, t2);
+
+			// Just ensure no exception was thrown – the queue should be usable
+			queue.ProcessAll();
+			Assert.Pass();
+		}
+
+		[Test]
+		public void ProcessAll_SamePriority_FIFO()
+		{
+			var processedOrder = new List<int>();
+			var mockEvent = CreateTrackingEvent<TestArgs>("Test", (args) => processedOrder.Add(args.Value));
+
+			// Enqueue three events with same priority
+			_queue.Enqueue(mockEvent, new TestArgs { Value = 1 }, EventPriority.Normal);
+			_queue.Enqueue(mockEvent, new TestArgs { Value = 2 }, EventPriority.Normal);
+			_queue.Enqueue(mockEvent, new TestArgs { Value = 3 }, EventPriority.Normal);
+
+			_queue.ProcessAll();
+
+			Assert.That(processedOrder, Is.EqualTo(new[] { 1, 2, 3 }));
+		}
+
+		[Test]
+		public void ProcessNext_ReturnsTrueAndProcessesHighestPriority()
+		{
+			var processed = new List<int>();
+			var lowEvent = CreateTrackingEvent<TestArgs>("Low", (args) => processed.Add(args.Value));
+			var highEvent = CreateTrackingEvent<TestArgs>("High", (args) => processed.Add(args.Value));
+
+			_queue.Enqueue(lowEvent, new TestArgs { Value = 10 }, EventPriority.Low);
+			_queue.Enqueue(highEvent, new TestArgs { Value = 20 }, EventPriority.High);
+
+			bool result = _queue.ProcessNext();
 
 			using (Assert.EnterMultipleScope())
 			{
@@ -194,25 +389,25 @@ namespace Nomad.Events.Tests
 			}
 		}
 
-        [Test]
-        public void ProcessNext_EmptyQueue_ReturnsFalse()
-        {
-            bool result = _queue.ProcessNext();
-            Assert.That(result, Is.False);
-        }
+		[Test]
+		public void ProcessNext_EmptyQueue_ReturnsFalse()
+		{
+			bool result = _queue.ProcessNext();
+			Assert.That(result, Is.False);
+		}
 
-        [Test]
-        public void ProcessNext_ProcessesOnlyOneEvent()
-        {
-            var processed = new List<int>();
-            var mockEvent = CreateTrackingEvent<TestArgs>("Test", (args) => processed.Add(args.Value));
+		[Test]
+		public void ProcessNext_ProcessesOnlyOneEvent()
+		{
+			var processed = new List<int>();
+			var mockEvent = CreateTrackingEvent<TestArgs>("Test", (args) => processed.Add(args.Value));
 
-            _queue.Enqueue(mockEvent, new TestArgs { Value = 1 }, EventPriority.Normal);
-            _queue.Enqueue(mockEvent, new TestArgs { Value = 2 }, EventPriority.Normal);
+			_queue.Enqueue(mockEvent, new TestArgs { Value = 1 }, EventPriority.Normal);
+			_queue.Enqueue(mockEvent, new TestArgs { Value = 2 }, EventPriority.Normal);
 
-            bool result1 = _queue.ProcessNext();
-            bool result2 = _queue.ProcessNext();
-            bool result3 = _queue.ProcessNext();
+			bool result1 = _queue.ProcessNext();
+			bool result2 = _queue.ProcessNext();
+			bool result3 = _queue.ProcessNext();
 
 			using (Assert.EnterMultipleScope())
 			{
@@ -224,40 +419,40 @@ namespace Nomad.Events.Tests
 			}
 		}
 
-        [Test]
-        public void Clear_RemovesAllEvents()
-        {
-            var mockEvent = new MockGameEvent<TestArgs>();
-            _queue.Enqueue(mockEvent, new TestArgs { Value = 1 }, EventPriority.Normal);
-            _queue.Enqueue(mockEvent, new TestArgs { Value = 2 }, EventPriority.High);
-            _queue.Enqueue(mockEvent, new TestArgs { Value = 3 }, EventPriority.Low);
+		[Test]
+		public void Clear_RemovesAllEvents()
+		{
+			var mockEvent = new MockGameEvent<TestArgs>();
+			_queue.Enqueue(mockEvent, new TestArgs { Value = 1 }, EventPriority.Normal);
+			_queue.Enqueue(mockEvent, new TestArgs { Value = 2 }, EventPriority.High);
+			_queue.Enqueue(mockEvent, new TestArgs { Value = 3 }, EventPriority.Low);
 
-            Assert.That(_queue.Count, Is.EqualTo(3));
+			Assert.That(_queue.Count, Is.EqualTo(3));
 
-            _queue.Clear();
+			_queue.Clear();
 
-            Assert.That(_queue.Count, Is.Zero);
+			Assert.That(_queue.Count, Is.Zero);
 
-            // ProcessAll should do nothing
-            _queue.ProcessAll();
-            Assert.That(mockEvent.PublishCount, Is.Zero);
-        }
+			// ProcessAll should do nothing
+			_queue.ProcessAll();
+			Assert.That(mockEvent.PublishCount, Is.Zero);
+		}
 
-        [Test]
-        public void Clear_AfterPartialProcessing_StillClears()
-        {
-            var processed = new List<int>();
-            var mockEvent = CreateTrackingEvent<TestArgs>("Test", (args) => processed.Add(args.Value));
+		[Test]
+		public void Clear_AfterPartialProcessing_StillClears()
+		{
+			var processed = new List<int>();
+			var mockEvent = CreateTrackingEvent<TestArgs>("Test", (args) => processed.Add(args.Value));
 
-            _queue.Enqueue(mockEvent, new TestArgs { Value = 1 }, EventPriority.High);
-            _queue.Enqueue(mockEvent, new TestArgs { Value = 2 }, EventPriority.Normal);
-            _queue.Enqueue(mockEvent, new TestArgs { Value = 3 }, EventPriority.Low);
+			_queue.Enqueue(mockEvent, new TestArgs { Value = 1 }, EventPriority.High);
+			_queue.Enqueue(mockEvent, new TestArgs { Value = 2 }, EventPriority.Normal);
+			_queue.Enqueue(mockEvent, new TestArgs { Value = 3 }, EventPriority.Low);
 
-            _queue.ProcessNext(); // processes High (1)
+			_queue.ProcessNext(); // processes High (1)
 
-            _queue.Clear();
+			_queue.Clear();
 
-            _queue.ProcessAll(); // should process nothing
+			_queue.ProcessAll(); // should process nothing
 
 			using (Assert.EnterMultipleScope())
 			{
@@ -266,51 +461,51 @@ namespace Nomad.Events.Tests
 			}
 		}
 
-        [Test]
-        public void Count_ReflectsQueuedItemsAcrossPriorities()
-        {
-            Assert.That(_queue.Count, Is.Zero);
+		[Test]
+		public void Count_ReflectsQueuedItemsAcrossPriorities()
+		{
+			Assert.That(_queue.Count, Is.Zero);
 
-            var mockEvent = new MockGameEvent<TestArgs>();
-            _queue.Enqueue(mockEvent, new TestArgs(), EventPriority.VeryLow);
-            Assert.That(_queue.Count, Is.EqualTo(1));
+			var mockEvent = new MockGameEvent<TestArgs>();
+			_queue.Enqueue(mockEvent, new TestArgs(), EventPriority.VeryLow);
+			Assert.That(_queue.Count, Is.EqualTo(1));
 
-            _queue.Enqueue(mockEvent, new TestArgs(), EventPriority.VeryHigh);
-            Assert.That(_queue.Count, Is.EqualTo(2));
+			_queue.Enqueue(mockEvent, new TestArgs(), EventPriority.VeryHigh);
+			Assert.That(_queue.Count, Is.EqualTo(2));
 
-            _queue.Enqueue(mockEvent, new TestArgs(), EventPriority.Critical);
-            Assert.That(_queue.Count, Is.EqualTo(3));
+			_queue.Enqueue(mockEvent, new TestArgs(), EventPriority.Critical);
+			Assert.That(_queue.Count, Is.EqualTo(3));
 
-            _queue.ProcessNext(); // removes Critical
-            Assert.That(_queue.Count, Is.EqualTo(2));
-        }
+			_queue.ProcessNext(); // removes Critical
+			Assert.That(_queue.Count, Is.EqualTo(2));
+		}
 
-        // Helper to create an event that invokes an action when published.
-        private static IGameEvent<T> CreateTrackingEvent<T>(string name, Action<T> onPublish) where T : struct
-        {
-            var mock = new MockGameEvent<T> { DebugName = name };
-            // We need to override Publish to call the action.
-            // Since we can't easily override, we can modify MockGameEvent to accept a callback.
-            // Let's enhance MockGameEvent to allow a callback.
-            return new CallbackGameEvent<T>(onPublish);
-        }
+		// Helper to create an event that invokes an action when published.
+		private static IGameEvent<T> CreateTrackingEvent<T>(string name, Action<T> onPublish) where T : struct
+		{
+			var mock = new MockGameEvent<T> { DebugName = name };
+			// We need to override Publish to call the action.
+			// Since we can't easily override, we can modify MockGameEvent to accept a callback.
+			// Let's enhance MockGameEvent to allow a callback.
+			return new CallbackGameEvent<T>(onPublish);
+		}
 
-        // A more flexible mock that executes a callback on publish.
-        private class CallbackGameEvent<T> : IGameEvent<T> where T : struct
-        {
-            private readonly Action<T> _callback;
+		// A more flexible mock that executes a callback on publish.
+		private class CallbackGameEvent<T> : IGameEvent<T> where T : struct
+		{
+			private readonly Action<T> _callback;
 
 			public event EventCallback<T> OnPublished;
 			public event AsyncEventCallback<T> OnPublishedAsync;
 
 			public CallbackGameEvent(Action<T> callback)
-            {
-                _callback = callback;
-            }
+			{
+				_callback = callback;
+			}
 
-            public string DebugName { get; set; }
-            public string NameSpace { get; set; }
-            public int Id { get; set; }
+			public string DebugName { get; set; }
+			public string NameSpace { get; set; }
+			public int Id { get; set; }
 
 			public T LastPayload => throw new NotImplementedException();
 
@@ -321,16 +516,16 @@ namespace Nomad.Events.Tests
 			public DateTime LastPublishTime => throw new NotImplementedException();
 
 			public void Publish(in T args)
-            {
-                _callback(args);
-            }
+			{
+				_callback(args);
+			}
 
-            public void Dispose() { }
-            public ISubscriptionHandle Subscribe(EventCallback<T> callback) => throw new NotImplementedException();
-            public ISubscriptionHandle SubscribeAsync(AsyncEventCallback<T> callback) => throw new NotImplementedException();
-            public void Unsubscribe(EventCallback<T> callback) => throw new NotImplementedException();
-            public void UnsubscribeAsync(AsyncEventCallback<T> callback) => throw new NotImplementedException();
-            public Task PublishAsync(T args, CancellationToken ct = default) => throw new NotImplementedException();
-        }
-    }
+			public void Dispose() { }
+			public ISubscriptionHandle Subscribe(EventCallback<T> callback) => throw new NotImplementedException();
+			public ISubscriptionHandle SubscribeAsync(AsyncEventCallback<T> callback) => throw new NotImplementedException();
+			public void Unsubscribe(EventCallback<T> callback) => throw new NotImplementedException();
+			public void UnsubscribeAsync(AsyncEventCallback<T> callback) => throw new NotImplementedException();
+			public Task PublishAsync(T args, CancellationToken ct = default) => throw new NotImplementedException();
+		}
+	}
 }
