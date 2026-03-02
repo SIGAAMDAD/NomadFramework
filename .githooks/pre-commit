@@ -8,20 +8,28 @@ if ! command -v dotnet > /dev/null 2>&1; then
 fi 
  
 if [ -d "Tests" ]; then 
-  cd ../Source/Nomad.Core
-  dotnet format whitespace --folder
+  cd Source
 
-  cd ../Source/Nomad.Events
-  dotnet format whitespace --folder
+  # ensure we don't forget anything
+  git add *
 
-  cd ../Source/Nomad.CVars
-  dotnet format whitespace --folder
+  for dir in */ ; do
+    echo "Formatting whitespace for $dir..."
+    cd $dir
+    if [[ -d "Public" ]]; then
+      cd Public
+      dotnet format whitespace --folder
+      cd ..
+    fi
+    if [[ -d "Private" ]]; then
+      cd Private
+      dotnet format whitespace --folder
+      cd ..
+    fi
+    cd ..
+  done
 
-  cd ../Source/Nomad.Logger
-  dotnet format whitespace --folder
-
-  cd ../Source/Nomad.Save
-  dotnet format whitespace --folder
+  cd ..
 
   cd Tests
   dotnet test --configuration Release --verbosity minimal 
