@@ -96,6 +96,20 @@ namespace Nomad.OnlineServices.Steam.Private.Services.LobbyServices {
 			};
 			SteamMatchmaking.AddRequestLobbyListDistanceFilter( distanceFilter );
 
+			if ( info.Map != null ) {
+				SteamMatchmaking.AddRequestLobbyListStringFilter( nameof( LobbyInfo.Map ), info.Map, ELobbyComparison.k_ELobbyComparisonEqual );
+			}
+			if ( info.GameMode != null ) {
+				SteamMatchmaking.AddRequestLobbyListStringFilter( nameof( LobbyInfo.GameMode ), info.GameMode, ELobbyComparison.k_ELobbyComparisonEqual );
+			}
+			if ( info.Metadata != null ) {
+				int index = 0;
+				foreach ( var metadata in info.Metadata ) {
+					SteamMatchmaking.AddRequestLobbyListStringFilter( $"MetadataKey{index}", $"MetadataValue{index}", ELobbyComparison.k_ELobbyComparisonEqual );
+					index++;
+				}
+			}
+
 			await RequestLobbyList( ct );
 		}
 
