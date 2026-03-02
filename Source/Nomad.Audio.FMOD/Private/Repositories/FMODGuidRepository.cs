@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -13,12 +13,10 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
-using Nomad.Audio.Fmod.Private.ValueObjects;
-using Nomad.Audio.Fmod.ValueObjects;
 using Nomad.Audio.Interfaces;
-using Nomad.Core.Abstractions;
 
 namespace Nomad.Audio.Fmod.Private.Repositories {
 	/*
@@ -38,8 +36,8 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			private readonly Dictionary<TGuid, TId> _guids = new Dictionary<TGuid, TId>();
 			private readonly Dictionary<TId, TGuid> _reverseLookup = new Dictionary<TId, TGuid>();
 
-			public TGuid this[ TId id ] => _reverseLookup[ id ];
-			public TId this[ TGuid guid ] => _guids[ guid ];
+			public TGuid this[TId id] => _reverseLookup[id];
+			public TId this[TGuid guid] => _guids[guid];
 
 			/*
 			===============
@@ -47,8 +45,8 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			===============
 			*/
 			public void Add( TId path, TGuid guid ) {
-				_guids[ guid ] = path;
-				_reverseLookup[ path ] = guid;
+				_guids[guid] = path;
+				_reverseLookup[path] = guid;
 			}
 
 			/*
@@ -67,14 +65,22 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 
 		private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
 
+		private bool _isDisposed = false;
+
 		/*
 		===============
 		Dispose
 		===============
 		*/
+		/// <summary>
+		/// 
+		/// </summary>
 		public void Dispose() {
-			_eventGuids.Clear();
-			_bankGuids.Clear();
+			if ( !_isDisposed ) {
+				_lock?.Dispose();
+			}
+			GC.SuppressFinalize( this );
+			_isDisposed = true;
 		}
 
 		/*
@@ -123,7 +129,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		public string GetEventId( FMOD.GUID guid ) {
 			_lock.EnterUpgradeableReadLock();
 			try {
-				return _eventGuids[ guid ];
+				return _eventGuids[guid];
 			} finally {
 				_lock.ExitUpgradeableReadLock();
 			}
@@ -137,7 +143,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		public FMOD.GUID GetEventGuid( string id ) {
 			_lock.EnterUpgradeableReadLock();
 			try {
-				return _eventGuids[ id ];
+				return _eventGuids[id];
 			} finally {
 				_lock.ExitUpgradeableReadLock();
 			}
@@ -156,7 +162,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		public string GetBankId( FMOD.GUID guid ) {
 			_lock.EnterUpgradeableReadLock();
 			try {
-				return _bankGuids[ guid ];
+				return _bankGuids[guid];
 			} finally {
 				_lock.ExitUpgradeableReadLock();
 			}
@@ -175,7 +181,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		public FMOD.GUID GetBankGuid( string id ) {
 			_lock.EnterUpgradeableReadLock();
 			try {
-				return _bankGuids[ id ];
+				return _bankGuids[id];
 			} finally {
 				_lock.ExitUpgradeableReadLock();
 			}

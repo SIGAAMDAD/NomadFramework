@@ -79,7 +79,7 @@ namespace Nomad.Input.Private.Repositories {
 			_isDisposed = true;
 		}
 
-		public IInputAction? MapInput( InputEventData eventData ) {
+		public static IInputAction? MapInput( InputEventData eventData ) {
 			switch ( eventData.Type ) {
 				case InputType.Keyboard:
 
@@ -93,6 +93,7 @@ namespace Nomad.Input.Private.Repositories {
 				case InputType.MouseMotion:
 					break;
 			}
+			return null;
 		}
 	};
 };

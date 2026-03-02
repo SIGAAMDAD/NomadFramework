@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -13,7 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-#if !UNITY_EDITOR
+using System;
 using Godot;
 using Nomad.Core.Console;
 using Nomad.Core.EngineUtils;
@@ -40,6 +40,8 @@ namespace Nomad.EngineUtils.Private {
 
 		private readonly CanvasLayer _node;
 		private readonly InGameSink _godotSink;
+
+		private bool _isDisposed = false;
 
 		/*
 		===============
@@ -71,7 +73,13 @@ namespace Nomad.EngineUtils.Private {
 		/// 
 		/// </summary>
 		public void Dispose() {
-			_godotSink.Dispose();
+			if ( !_isDisposed ) {
+				_commandBuilder?.Dispose();
+				_godotSink?.Dispose();
+				_node?.Dispose();
+			}
+			GC.SuppressFinalize( this );
+			_isDisposed = true;
 		}
 
 		/*
@@ -95,7 +103,7 @@ namespace Nomad.EngineUtils.Private {
 		/// 
 		/// </summary>
 		/// <param name="message"></param>
-		public void PrintString( in string message ) {
+		public static void PrintString( in string message ) {
 		}
 
 		/*
@@ -123,4 +131,3 @@ namespace Nomad.EngineUtils.Private {
 		}
 	};
 };
-#endif

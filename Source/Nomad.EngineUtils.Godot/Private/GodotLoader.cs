@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -83,7 +83,7 @@ namespace Nomad.EngineUtils.Private {
 			}
 
 			Godot.ResourceLoader.ThreadLoadStatus status = Godot.ResourceLoader.ThreadLoadStatus.Failed;
-			var sceneTree = ( Godot.SceneTree )Godot.Engine.GetMainLoop();
+			var sceneTree = (Godot.SceneTree)Godot.Engine.GetMainLoop();
 
 			do {
 				if ( status == Godot.ResourceLoader.ThreadLoadStatus.InProgress ) {

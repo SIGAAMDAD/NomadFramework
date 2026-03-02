@@ -87,9 +87,9 @@ namespace Nomad.Console.Private.Services {
 			_unknownCommand = eventFactory.GetEvent<CommandExecutedEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.UNKNOWN_COMMAND_EVENT );
 			_commandExecuted = eventFactory.GetEvent<CommandExecutedEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.COMMAND_EXECUTED_EVENT );
 
-			eventFactory.GetEvent<EmptyEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.CONSOLE_CLOSED_EVENT ).Subscribe( this, OnConsoleClosed );
+			eventFactory.GetEvent<EmptyEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.CONSOLE_CLOSED_EVENT ).Subscribe( OnConsoleClosed );
 
-			builder.TextEntered.Subscribe( this, OnCommandExecuted );
+			builder.TextEntered.Subscribe( OnCommandExecuted );
 		}
 
 		/*
@@ -155,7 +155,7 @@ namespace Nomad.Console.Private.Services {
 		/// </summary>
 		/// <param name="textEntered"></param>
 		private void OnCommandExecuted( in TextEnteredEventArgs textEntered ) {
-			string textCommand = _commandBuilder.ArgumentCount > 0 ? _commandBuilder.GetArgumentAt( 0 ) : String.Empty;
+			string textCommand = _commandBuilder.ArgumentCount > 0 ? _commandBuilder.GetArgumentAt( 0 ) : string.Empty;
 
 			if ( !string.IsNullOrEmpty( textCommand ) && _commandService.TryGetCommand( textCommand, out ConsoleCommand consoleCommand ) ) {
 				var arguments = _commandBuilder.GetArgs();
@@ -180,9 +180,8 @@ namespace Nomad.Console.Private.Services {
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="eventArgsCommandExecutedEventArgs"></param>
 		/// <param name="args"></param>
-		private void OnConsoleClosed( in EmptyEventArgs args ) {
+		private static void OnConsoleClosed( in EmptyEventArgs args ) {
 			//ResetAutocomplete();
 		}
 

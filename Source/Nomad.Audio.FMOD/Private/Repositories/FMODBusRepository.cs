@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -49,7 +49,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		public FMODBusRepository( FMODDevice fmodSystem ) {
 			_fmodSystem = fmodSystem;
 
-			_categories[ "SoundCategory:UI" ] = new SoundCategory(
+			_categories["SoundCategory:UI"] = new SoundCategory(
 				Config: new SoundCategoryCreateInfo(
 					Name: "SoundCategory:UI",
 					MaxSimultaneous: 4,
@@ -73,7 +73,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public SoundCategory GetSoundCategory( string categoryName ) {
-			return _categories[ categoryName ];
+			return _categories[categoryName];
 		}
 
 		/*
@@ -87,7 +87,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// <param name="createInfo"></param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void CreateCategory( SoundCategoryCreateInfo createInfo ) {
-			_categories[ createInfo.Name ] = new SoundCategory(
+			_categories[createInfo.Name] = new SoundCategory(
 				Config: createInfo,
 				_fmodSystem.StudioSystem
 			);

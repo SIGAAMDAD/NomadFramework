@@ -8,27 +8,9 @@ if ! command -v dotnet > /dev/null 2>&1; then
 fi 
  
 if [ -d "Tests" ]; then 
-  cd Source
-
   # ensure we don't forget anything
+  cd Source
   git add *
-
-  for dir in */ ; do
-    echo "Formatting whitespace for $dir..."
-    cd $dir
-    if [[ -d "Public" ]]; then
-      cd Public
-      dotnet format whitespace --folder
-      cd ..
-    fi
-    if [[ -d "Private" ]]; then
-      cd Private
-      dotnet format whitespace --folder
-      cd ..
-    fi
-    cd ..
-  done
-
   cd ..
 
   cd Tests

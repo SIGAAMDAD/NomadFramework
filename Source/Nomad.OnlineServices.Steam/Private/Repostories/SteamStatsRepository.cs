@@ -219,12 +219,12 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 		/// <returns></returns>
 		public float GetStatFloat( string statId ) {
 			if ( _stats.TryGetValue( statId, out var stat ) && stat.IsFloat ) {
-				return stat.Value.fValue;
+				return stat.Value.FloatValue;
 			}
 			SteamUserStats.GetStat( statId, out float value );
 			_stats[statId] = new SteamStatData {
 				Name = new InternString( statId ),
-				Value = new SteamStatData.Data { fValue = value },
+				Value = new SteamStatData.Data { FloatValue = value },
 				IsDirty = false,
 				IsFloat = true
 			};
@@ -243,12 +243,12 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 		/// <returns></returns>
 		public int GetStatInt( string statId ) {
 			if ( _stats.TryGetValue( statId, out var stat ) && !stat.IsFloat ) {
-				return stat.Value.iValue;
+				return stat.Value.IntValue;
 			}
 			SteamUserStats.GetStat( statId, out int value );
 			_stats[statId] = new SteamStatData {
 				Name = new InternString( statId ),
-				Value = new SteamStatData.Data { iValue = value },
+				Value = new SteamStatData.Data { IntValue = value },
 				IsDirty = false,
 				IsFloat = false
 			};
@@ -268,7 +268,7 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 		public void SetStatFloat( string statId, float value ) {
 			_stats[statId] = new SteamStatData {
 				Name = new InternString( statId ),
-				Value = new SteamStatData.Data { fValue = value },
+				Value = new SteamStatData.Data { FloatValue = value },
 				IsDirty = true,
 				IsFloat = true
 			};
@@ -290,7 +290,7 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 		public void SetStatInt( string statId, int value ) {
 			_stats[statId] = new SteamStatData {
 				Name = new InternString( statId ),
-				Value = new SteamStatData.Data { iValue = value },
+				Value = new SteamStatData.Data { IntValue = value },
 				IsDirty = true,
 				IsFloat = false
 			};
@@ -320,9 +320,9 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 
 					bool success;
 					if ( stat.IsFloat ) {
-						success = SteamUserStats.SetStat( name, stat.Value.fValue );
+						success = SteamUserStats.SetStat( name, stat.Value.FloatValue );
 					} else {
-						success = SteamUserStats.SetStat( name, stat.Value.iValue );
+						success = SteamUserStats.SetStat( name, stat.Value.IntValue );
 					}
 
 					if ( success ) {

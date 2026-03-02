@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -19,6 +19,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Nomad.Audio.Fmod.Private.ValueObjects;
 using Nomad.Core;
+using Nomad.Core.CVars;
 using Nomad.Core.Exceptions;
 using Nomad.Core.Logger;
 using Nomad.CVars;
@@ -61,7 +62,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// <summary>
 		///
 		/// </summary>
-		public string Driver => _supportedAudioDrivers[ _audioDriver ];
+		public string Driver => _supportedAudioDrivers[_audioDriver];
 		private FMOD.OUTPUTTYPE _audioDriver;
 
 		private readonly ImmutableDictionary<FMOD.OUTPUTTYPE, string> _supportedAudioDrivers;
@@ -85,11 +86,11 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			_system = system;
 
 			_supportedAudioDrivers = new Dictionary<FMOD.OUTPUTTYPE, string>() {
-				[ FMOD.OUTPUTTYPE.AUTODETECT ] = "Auto Detect",
+				[FMOD.OUTPUTTYPE.AUTODETECT] = "Auto Detect",
 #if WINDOWS
-				[ FMOD.OUTPUTTYPE.ASIO ] = "ASIO",
-				[ FMOD.OUTPUTTYPE.WASAPI ] = "WasAPI",
-				[ FMOD.OUTPUTTYPE.WINSONIC ] = "WinSonic",
+				[FMOD.OUTPUTTYPE.ASIO] = "ASIO",
+				[FMOD.OUTPUTTYPE.WASAPI] = "WasAPI",
+				[FMOD.OUTPUTTYPE.WINSONIC] = "WinSonic",
 #elif LINUX
 				[ FMOD.OUTPUTTYPE.ALSA ] = "ALSA",
 				[ FMOD.OUTPUTTYPE.PULSEAUDIO ] = "PulseAudio"
@@ -97,10 +98,10 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			}.ToImmutableDictionary();
 
 			var audioDriver = cvarSystem.GetCVar<string>( Constants.CVars.Audio.AUDIO_DRIVER ) ?? throw new CVarMissing( Constants.CVars.Audio.AUDIO_DRIVER );
-			audioDriver.ValueChanged.Subscribe( this, OnAudioDriverValueChanged );
+			audioDriver.ValueChanged.Subscribe( OnAudioDriverValueChanged );
 
 			var outputDeviceIndex = cvarSystem.GetCVar<int>( Constants.CVars.Audio.OUTPUT_DEVICE_INDEX ) ?? throw new CVarMissing( Constants.CVars.Audio.OUTPUT_DEVICE_INDEX );
-			outputDeviceIndex.ValueChanged.Subscribe( this, OnAudioDeviceValueChanged );
+			outputDeviceIndex.ValueChanged.Subscribe( OnAudioDeviceValueChanged );
 
 			FMODValidator.ValidateCall( _system.setCallback( OnAudioOutputDeviceListChanged, FMOD.SYSTEM_CALLBACK_TYPE.DEVICELISTCHANGED ) );
 
@@ -133,7 +134,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			if ( deviceIndex < 0 || deviceIndex >= _devices.Length ) {
 				throw new ArgumentOutOfRangeException( nameof( deviceIndex ) );
 			}
-			var device = _devices[ deviceIndex ];
+			var device = _devices[deviceIndex];
 
 			_logger.PrintLine( $"FMODDriverRepository.SetOutputDevice: setting output audio device to '{device.Name}'..." );
 			FMODValidator.ValidateCall( _system.setDriver( deviceIndex ) );
@@ -151,10 +152,10 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		private void GetAudioDeviceData() {
 			FMODValidator.ValidateCall( _system.getNumDrivers( out int numDrivers ) );
 
-			_devices = new FMODDeviceInfo[ numDrivers ];
+			_devices = new FMODDeviceInfo[numDrivers];
 			for ( int i = 0; i < numDrivers; i++ ) {
 				FMODValidator.ValidateCall( _system.getDriverInfo( i, out string name, 256, out var guid, out int systemRate, out FMOD.SPEAKERMODE speakerMode, out int speakerChannels ) );
-				_devices[ i ] = new FMODDeviceInfo( name, guid, systemRate, speakerMode, speakerChannels );
+				_devices[i] = new FMODDeviceInfo( name, guid, systemRate, speakerMode, speakerChannels );
 				_logger.PrintLine( $"FMODDevice.GetAudioDeviceData: found audio output device '{name}' - speakerMode = '{speakerMode}', channelCount = '{speakerChannels}'" );
 			}
 
@@ -174,7 +175,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			FMOD.OUTPUTTYPE outputType = FMOD.OUTPUTTYPE.MAX;
 
 			foreach ( var drivers in _supportedAudioDrivers ) {
-				if ( drivers.Value.Equals( args.NewValue ) ) {
+				if ( drivers.Value.Equals( args.NewValue, StringComparison.InvariantCulture ) ) {
 					outputType = drivers.Key;
 					break;
 				}

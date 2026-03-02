@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025 Noah Van Til
@@ -43,7 +43,7 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 			_parameters = new Dictionary<string, FMOD.Studio.PARAMETER_ID>( parameterCount );
 			for ( int i = 0; i < parameterCount; i++ ) {
 				FMODValidator.ValidateCall( owner.getParameterDescriptionByIndex( i, out var parameter ) );
-				_parameters[ parameter.name ] = parameter.id;
+				_parameters[parameter.name] = parameter.id;
 			}
 		}
 

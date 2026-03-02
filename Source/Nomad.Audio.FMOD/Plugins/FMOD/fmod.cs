@@ -3964,7 +3964,7 @@ namespace FMOD
             public bool InUse() { return inUse; }
             public void SetInUse() { inUse = true; }
 
-            private int roundUpPowerTwo(int number)
+            private static int roundUpPowerTwo(int number)
             {
                 int newNumber = 1;
                 while (newNumber <= number)
@@ -4059,6 +4059,7 @@ namespace FMOD
                 {
                     inUse = false;
                 }
+                GC.SuppressFinalize(this);
             }
         }
 

@@ -498,6 +498,7 @@ namespace FMOD
             private float ch16, ch17, ch18, ch19, ch20, ch21, ch22, ch23;
             private float ch24, ch25, ch26, ch27, ch28, ch29, ch30, ch31;
 
+#pragma warning disable CA1502
             // Indexer for access to elements
             public readonly float this[int index]
             {
@@ -541,14 +542,15 @@ namespace FMOD
                     }
                 }
             }
+#pragma warning restore CA1825
 
-            public readonly int Length => 32;
+            public const int Length = 32;
 
             // Implicit conversion for unchanged access to entire array
             public static implicit operator float[](LEVEL_ARRAY levels)
             {
-                float[] buffer = new float[levels.Length];
-                for (int i = 0; i < levels.Length; i++)
+                float[] buffer = new float[Length];
+                for (int i = 0; i < Length; i++)
                 {
                     buffer[i] = levels[i];
                 }
@@ -558,7 +560,7 @@ namespace FMOD
             // Zero allocation copy-to
             public readonly void CopyTo(float[] buffer)
             {
-                int len = buffer.Length >= this.Length ? this.Length : buffer.Length;
+                int len = buffer.Length >= Length ? Length : buffer.Length;
                 for (int i = 0; i < len; i++)
                 {
                     buffer[i] = this[i];

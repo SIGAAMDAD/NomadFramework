@@ -13,17 +13,17 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Nomad.Core.Events;
-using Nomad.Core.ServiceRegistry.Interfaces;
-using Nomad.CVars;
-using Nomad.Core;
 using Nomad.Console.Interfaces;
 using Nomad.Console.Private.Services;
-using Nomad.Core.Logger;
+using Nomad.Core;
 using Nomad.Core.Abstractions;
-using Nomad.Core.EngineUtils;
 using Nomad.Core.Compatibility.Guards;
+using Nomad.Core.CVars;
+using Nomad.Core.EngineUtils;
+using Nomad.Core.Events;
 using Nomad.Core.FileSystem;
+using Nomad.Core.Logger;
+using Nomad.Core.ServiceRegistry.Interfaces;
 
 namespace Nomad.Console
 {
@@ -49,12 +49,13 @@ namespace Nomad.Console
 
             var cvarSystem = locator.GetService<ICVarSystemService>();
             var configFile = cvarSystem.Register(
-                new CVarCreateInfo<string>(
-                    Name: Constants.CVars.Console.DEFAULT_CONFIG_FILE,
-                    DefaultValue: "res://Assets/Config/default.ini",
-                    Description: "The default configuration file.",
-                    Flags: CVarFlags.Init | CVarFlags.ReadOnly
-                )
+                new CVarCreateInfo<string>
+                {
+                    Name = Constants.CVars.Console.DEFAULT_CONFIG_FILE,
+                    DefaultValue = "res://Assets/Config/default.ini",
+                    Description = "The default configuration file.",
+                    Flags = CVarFlags.Init | CVarFlags.ReadOnly
+                }
             );
             cvarSystem.Load(configFile.Value);
 

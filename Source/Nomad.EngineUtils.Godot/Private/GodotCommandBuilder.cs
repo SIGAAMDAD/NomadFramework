@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -70,7 +70,7 @@ namespace Nomad.EngineUtils.Private {
 		*/
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public string GetArgumentAt( int index ) {
-			return _arguments[ index ];
+			return _arguments[index];
 		}
 
 		/*
@@ -80,7 +80,7 @@ namespace Nomad.EngineUtils.Private {
 		*/
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public string[] GetArgs() {
-			return [ .. _arguments.Skip( 1 ) ];
+			return [.. _arguments.Skip( 1 )];
 		}
 
 		/*
@@ -151,7 +151,7 @@ namespace Nomad.EngineUtils.Private {
 			_commandBuilder.Clear();
 
 			for ( int i = 0; i < text.Length; i++ ) {
-				char c = text[ i ];
+				char c = text[i];
 
 				if ( escaped ) {
 					_commandBuilder.Append( c );

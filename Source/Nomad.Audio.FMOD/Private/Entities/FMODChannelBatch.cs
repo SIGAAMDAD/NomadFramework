@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -43,9 +43,9 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 		/// </summary>
 		/// <param name="maxChannels"></param>
 		public FMODChannelBatch( int maxChannels ) {
-			Volumes = new float[ maxChannels ];
-			Pitches = new float[ maxChannels ];
-			ConsecutiveStealCounts = new int[ maxChannels ];
+			Volumes = new float[maxChannels];
+			Pitches = new float[maxChannels];
+			ConsecutiveStealCounts = new int[maxChannels];
 		}
 
 		/*
@@ -59,7 +59,7 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 		public void DecayStealCounts() {
 			int maxChannels = ConsecutiveStealCounts.Length;
 			for ( int i = 0; i < maxChannels; i++ ) {
-				int stealCount = ConsecutiveStealCounts[ i ];
+				int stealCount = ConsecutiveStealCounts[i];
 				stealCount = Math.Min( 0, stealCount - 1 );
 				if ( stealCount == 0 ) {
 				}

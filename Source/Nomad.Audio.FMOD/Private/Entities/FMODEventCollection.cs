@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025 Noah Van Til
@@ -51,8 +51,8 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 			_events = events;
 			_eventIds = new List<string>( _events.Length );
 			for ( int i = 0; i < _events.Length; i++ ) {
-				FMODValidator.ValidateCall( _events[ i ].getID( out var guid ) );
-				FMODValidator.ValidateCall( _events[ i ].getPath( out var path ) );
+				FMODValidator.ValidateCall( _events[i].getID( out var guid ) );
+				FMODValidator.ValidateCall( _events[i].getPath( out var path ) );
 				guidRepository.AddEventId( path, guid );
 			}
 		}

@@ -14,17 +14,16 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Nomad.Console.Interfaces;
-using Nomad.Core.Events;
-using Nomad.Core.Logger;
 using Nomad.Core;
-using Nomad.Core.FileSystem;
-using Nomad.Core.Console;
-using Nomad.Core.Compatibility;
 using Nomad.Core.Compatibility.Guards;
+using Nomad.Core.Console;
+using Nomad.Core.Events;
+using Nomad.Core.FileSystem;
+using Nomad.Core.Logger;
 
 namespace Nomad.Console.Private.Services {
 	/*
@@ -71,14 +70,15 @@ namespace Nomad.Console.Private.Services {
 			ArgumentGuard.ThrowIfNull( builder );
 			ArgumentGuard.ThrowIfNull( eventFactory );
 			ArgumentGuard.ThrowIfNull( logger );
+			ArgumentGuard.ThrowIfNull( fileSystem );
 
 			_logger = logger;
-			_historyPath = $"{_fileSystem.GetUserDataPath()}/history.txt";
+			_historyPath = $"{_fileSystem!.GetUserDataPath()}/history.txt";
 
-			builder.TextEntered.Subscribe( this, OnTextEntered );
+			builder.TextEntered.Subscribe( OnTextEntered );
 
-			eventFactory.GetEvent<EmptyEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.HISTORY_PREV_EVENT ).Subscribe( this, OnHistoryPrev );
-			eventFactory.GetEvent<EmptyEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.HISTORY_NEXT_EVENT ).Subscribe( this, OnHistoryNext );
+			eventFactory.GetEvent<EmptyEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.HISTORY_PREV_EVENT ).Subscribe( OnHistoryPrev );
+			eventFactory.GetEvent<EmptyEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.HISTORY_NEXT_EVENT ).Subscribe( OnHistoryNext );
 
 			_historyPrev = eventFactory.GetEvent<HistoryPrevEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.HISTORY_PREV_EVENT );
 			_historyNext = eventFactory.GetEvent<HistoryNextEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.HISTORY_NEXT_EVENT );
@@ -97,7 +97,7 @@ namespace Nomad.Console.Private.Services {
 		public void Clear() {
 			_consoleHistory.Clear();
 			_historyIndex = 0;
-			File.Delete( _historyPath );
+			_fileSystem.DeleteFile( _historyPath );
 		}
 
 		/*
@@ -177,7 +177,7 @@ namespace Nomad.Console.Private.Services {
 				using StreamReader reader = new StreamReader( _historyPath );
 
 				string? text;
-				while ( ( text = reader.ReadLine() ) != null ) {
+				while ( (text = reader.ReadLine()) != null ) {
 					AddInputHistory( text );
 				}
 			} catch ( Exception ) {

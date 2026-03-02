@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -29,6 +29,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Nomad.Core.Memory;
 using Nomad.Core.Util;
+using Nomad.Core.CVars;
 
 namespace Nomad.Audio.Fmod.Private.Repositories {
 	/*
@@ -57,7 +58,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		private readonly ILoggerCategory _fmodChannelCategory;
 
 		private bool _shouldDecay = false;
-		private float _timePenaltyMultiplier = 0.5f;
+		private readonly float _timePenaltyMultiplier = 0.5f;
 		private float _distanceWeight = 0.3f;
 		private float _volumeWeight = 0.2f;
 		private float _frequencyPenalty = 0.4f;
@@ -78,6 +79,8 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		private readonly ICVar<int> _maxActiveChannels;
 
 		private readonly BasicObjectPool<FMODChannel> _channelPool = new BasicObjectPool<FMODChannel>( BasicObjectPool<FMODChannel>.DefaultFactory );
+
+		private bool _isDisposed = false;
 
 		/*
 		===============
@@ -101,7 +104,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 
 			_maxActiveChannels = cvarSystem.GetCVar<int>( Constants.CVars.Audio.MAX_ACTIVE_CHANNELS ) ?? throw new CVarMissing( Constants.CVars.Audio.MAX_ACTIVE_CHANNELS );
 			_maxChannels.Value = _maxActiveChannels.Value;
-			_maxActiveChannels.ValueChanged.Subscribe( this, OnMaxActiveChannelsValueChanged );
+			_maxActiveChannels.ValueChanged.Subscribe( OnMaxActiveChannelsValueChanged );
 			ValidateMaxChannels();
 			InitConfig( cvarSystem );
 
@@ -127,9 +130,12 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// 
 		/// </summary>
 		public void Dispose() {
-			_freeChannelIds.Clear();
-			_lastPlayTimes.Clear();
-			_consecutiveStealCounts.Clear();
+			if ( !_isDisposed ) {
+				_channelPool?.Dispose();
+				_fmodChannelCategory?.Dispose();
+			}
+			GC.SuppressFinalize( this );
+			_isDisposed = true;
 		}
 
 		/*
@@ -198,11 +204,12 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		===============
 		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
+		/// <param name="startTime"></param>
 		/// <param name="id"></param>
 		public void UpdateLastPlayTime( float startTime, IntPtr id ) {
-			_lastPlayTimes[ id ] = startTime;
+			_lastPlayTimes[id] = startTime;
 		}
 
 		/*
@@ -231,13 +238,13 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			Vector2 listenerPos = _listenerService.ActiveListener;
 
 			for ( int i = 0; i < _allocatedChannels.Count; i++ ) {
-				var channel = _allocatedChannels[ i ];
+				var channel = _allocatedChannels[i];
 
 				if ( !channel.IsPlaying ) {
 					continue;
 				}
 
-				float distanceFactor = CalculateDistanceFactor( ( float )channel.Instance.Position.DistanceTo( listenerPos ) );
+				float distanceFactor = CalculateDistanceFactor( (float)channel.Instance.Position.DistanceTo( listenerPos ) );
 				channel.Volume = distanceFactor;
 				channel.CurrentPriority = channel.BasePriority * channel.Category.Config.PriorityScale * distanceFactor;
 			}
@@ -250,8 +257,8 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		*/
 		private void CleanupFinishedSounds( float startTime ) {
 			for ( int i = _allocatedChannels.Count - 1; i >= 0; i-- ) {
-				if ( !_allocatedChannels[ i ].IsPlaying ) {
-					StopSound( startTime, _allocatedChannels[ i ], false );
+				if ( !_allocatedChannels[i].IsPlaying ) {
+					StopSound( startTime, _allocatedChannels[i], false );
 				}
 			}
 		}
@@ -281,7 +288,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			float lowestPriorityValue = float.MaxValue;
 
 			for ( int i = 0; i < _allocatedChannels.Count; i++ ) {
-				var channel = _allocatedChannels[ i ];
+				var channel = _allocatedChannels[i];
 				if ( channel.Category.Config.Name == category && channel.IsPlaying && !channel.IsEssential ) {
 					if ( channel.CurrentPriority < lowestPriorityValue ) {
 						lowestPriorityValue = channel.CurrentPriority;
@@ -313,7 +320,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			float priority =
 				basePriority *
 				category.Config.PriorityScale * // category multiplier
-				CalculateDistanceFactor( ( float )position.DistanceTo( listenerPos ) );
+				CalculateDistanceFactor( (float)position.DistanceTo( listenerPos ) );
 
 			priority *= 1.0f - CalculateTimePenalty( startTime, id ) * _timePenaltyMultiplier;
 			priority *= 1.0f - CalculateFrequencyPenalty( id ) * _frequencyPenalty;
@@ -433,7 +440,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			FMODChannel? bestCandidate = null;
 
 			for ( int i = 0; i < _allocatedChannels.Count; i++ ) {
-				var sound = _allocatedChannels[ i ];
+				var sound = _allocatedChannels[i];
 				if ( !sound.IsPlaying || sound.IsEssential ) {
 					continue;
 				}
@@ -483,7 +490,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// <returns></returns>
 		private float CalculateStealScore( float currentTime, FMODChannel candidate, float newPriority, SoundCategory category ) {
 			Vector2 listenerPos = _listenerService.ActiveListener;
-			float distance = ( float )candidate.Instance.Position.DistanceTo( listenerPos );
+			float distance = (float)candidate.Instance.Position.DistanceTo( listenerPos );
 
 			float priorityDiff = newPriority - candidate.CurrentPriority;
 			float ageFactor = Math.Min( candidate.Age / 5.0f, 1.0f );
@@ -522,7 +529,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			} else {
 				count++;
 			}
-			_consecutiveStealCounts[ stolenEventId ] = count;
+			_consecutiveStealCounts[stolenEventId] = count;
 			_shouldDecay = true;
 		}
 
@@ -609,7 +616,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			FMODChannel? channel = null;
 
 			for ( int i = 0; i < _allocatedChannels.Count; i++ ) {
-				var sound = _allocatedChannels[ i ];
+				var sound = _allocatedChannels[i];
 				if ( sound.Instance == eventInstance ) {
 					channel = sound;
 					break;
@@ -635,7 +642,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		private int CountSoundsInCategory( string category ) {
 			int count = 0;
 			for ( int i = 0; i < _allocatedChannels.Count; i++ ) {
-				var channel = _allocatedChannels[ i ];
+				var channel = _allocatedChannels[i];
 				if ( channel.Category.Config.Name == category && channel.IsPlaying ) {
 					count++;
 				}
@@ -656,31 +663,31 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		private void InitConfig( ICVarSystemService cvarSystem ) {
 			var effectsVolume = cvarSystem.GetCVar<float>( Constants.CVars.Audio.EFFECTS_VOLUME ) ?? throw new CVarMissing( Constants.CVars.Audio.EFFECTS_VOLUME );
 			_effectsVolume = effectsVolume.Value;
-			effectsVolume.ValueChanged.Subscribe( this, OnEffectsVolumeChanged );
+			effectsVolume.ValueChanged.Subscribe( OnEffectsVolumeChanged );
 
 			var distanceFalloffStart = cvarSystem.GetCVar<float>( Constants.CVars.Audio.DISTANCE_FALLOFF_START ) ?? throw new CVarMissing( Constants.CVars.Audio.DISTANCE_FALLOFF_START );
 			_distanceFalloffStart = distanceFalloffStart.Value;
-			distanceFalloffStart.ValueChanged.Subscribe( this, OnDistanceFalloffStartValueChanged );
+			distanceFalloffStart.ValueChanged.Subscribe( OnDistanceFalloffStartValueChanged );
 
 			var distanceFalloffEnd = cvarSystem.GetCVar<float>( Constants.CVars.Audio.DISTANCE_FALLOFF_END ) ?? throw new CVarMissing( Constants.CVars.Audio.DISTANCE_FALLOFF_END );
 			_distanceFalloffEnd = distanceFalloffEnd.Value;
-			distanceFalloffEnd.ValueChanged.Subscribe( this, OnDistanceFalloffEndValueChanged );
+			distanceFalloffEnd.ValueChanged.Subscribe( OnDistanceFalloffEndValueChanged );
 
 			var minTimeBetweenChannelSteals = cvarSystem.GetCVar<float>( Constants.CVars.Audio.MIN_TIME_BETWEEN_CHANNEL_STEALS ) ?? throw new CVarMissing( Constants.CVars.Audio.MIN_TIME_BETWEEN_CHANNEL_STEALS );
 			_minTimeBetweenChannelSteals = minTimeBetweenChannelSteals.Value;
-			minTimeBetweenChannelSteals.ValueChanged.Subscribe( this, OnMinTimeBetweenChannelStealsValueChanged );
+			minTimeBetweenChannelSteals.ValueChanged.Subscribe( OnMinTimeBetweenChannelStealsValueChanged );
 
 			var frequencyPenalty = cvarSystem.GetCVar<float>( Constants.CVars.Audio.FREQUENCY_PENALTY ) ?? throw new CVarMissing( Constants.CVars.Audio.FREQUENCY_PENALTY );
 			_frequencyPenalty = frequencyPenalty.Value;
-			frequencyPenalty.ValueChanged.Subscribe( this, OnFrequencyPenaltyValueChanged );
+			frequencyPenalty.ValueChanged.Subscribe( OnFrequencyPenaltyValueChanged );
 
 			var volumeWeight = cvarSystem.GetCVar<float>( Constants.CVars.Audio.VOLUME_WEIGHT ) ?? throw new CVarMissing( Constants.CVars.Audio.VOLUME_WEIGHT );
 			_volumeWeight = volumeWeight.Value;
-			volumeWeight.ValueChanged.Subscribe( this, OnVolumeWeightValueChanged );
+			volumeWeight.ValueChanged.Subscribe( OnVolumeWeightValueChanged );
 
 			var distanceWeight = cvarSystem.GetCVar<float>( Constants.CVars.Audio.DISTANCE_WEIGHT ) ?? throw new CVarMissing( Constants.CVars.Audio.DISTANCE_WEIGHT );
 			_distanceWeight = distanceWeight.Value;
-			distanceWeight.ValueChanged.Subscribe( this, OnDistanceWeightValueChanged );
+			distanceWeight.ValueChanged.Subscribe( OnDistanceWeightValueChanged );
 		}
 
 		/*
@@ -688,7 +695,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		UpdateChannelVolumes
 		===============
 		*/
-		private void UpdateChannelVolumes() {
+		private static void UpdateChannelVolumes() {
 		}
 
 		/*

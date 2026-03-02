@@ -18,7 +18,6 @@ using Steamworks;
 
 namespace Nomad.OnlineServices.Steam {
 	internal sealed class SteamLobbyRepository : IDisposable {
-		private readonly Callback<LobbyCreated_t> ;
 
 		private bool _isDisposed = false;
 
@@ -32,7 +31,7 @@ namespace Nomad.OnlineServices.Steam {
 		/// </summary>
 		public void Dispose() {
 			if ( !_isDisposed ) {
-				
+
 			}
 			GC.SuppressFinalize( this );
 			_isDisposed = true;

@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025 Noah Van Til
@@ -41,7 +41,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		public Vector2 ActiveListener => _currentListener.Position;
 		private FMODListener _currentListener;
 
-		private readonly FMODListener?[] _listeners = new FMODListener[ MAX_LISTENERS ];
+		private readonly FMODListener?[] _listeners = new FMODListener[MAX_LISTENERS];
 		private readonly FMODDevice _system;
 		private readonly ILoggerService _logger;
 
@@ -87,9 +87,9 @@ namespace Nomad.Audio.Fmod.Private.Services {
 
 			if ( listenerIndex > _listenerCount ) {
 				FMODValidator.ValidateCall( _system.StudioSystem.setNumListeners( listenerIndex ) );
-				_listeners[ listenerIndex ] = new FMODListener( _system.StudioSystem, listenerIndex ) { Position = position };
+				_listeners[listenerIndex] = new FMODListener( _system.StudioSystem, listenerIndex ) { Position = position };
 			}
-			_listeners[ listenerIndex ].Position = position;
+			_listeners[listenerIndex].Position = position;
 		}
 
 		/*
@@ -104,7 +104,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			_logger.PrintLine( $"FMODListenerService.ClearListeners: cleaning up listener data..." );
 
 			for ( int i = 0; i < _listenerCount; i++ ) {
-				_listeners[ i ] = null;
+				_listeners[i] = null;
 			}
 			if ( _listenerCount > 0 ) {
 				_system.StudioSystem.setNumListeners( 0 );
@@ -123,7 +123,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		/// </summary>
 		private void CreateDefaultListener() {
 			_currentListener = new FMODListener( _system.StudioSystem, 0 ) { Position = Vector2.Zero };
-			_listeners[ 0 ] = _currentListener;
+			_listeners[0] = _currentListener;
 			_listenerCount++;
 
 			_system.StudioSystem.setNumListeners( 1 );

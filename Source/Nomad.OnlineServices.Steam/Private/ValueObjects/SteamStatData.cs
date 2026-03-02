@@ -31,8 +31,8 @@ namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
 	internal record SteamStatData {
 		[StructLayout( LayoutKind.Explicit, Pack = 1, Size = 4 )]
 		public struct Data {
-			[FieldOffset( 0 )] public float fValue;
-			[FieldOffset( 0 )] public int iValue;
+			[FieldOffset( 0 )] public float FloatValue;
+			[FieldOffset( 0 )] public int IntValue;
 		};
 
 		public InternString Name { get; init; }

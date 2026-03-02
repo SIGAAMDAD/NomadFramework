@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -68,9 +68,28 @@ namespace Nomad.EngineUtils.Private {
 			owner.CallDeferred( CanvasLayer.MethodName.AddChild, _richLabel );
 			node.CallDeferred( Control.MethodName.AddChild, owner );
 
-			eventRegistry.GetEvent<EmptyEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.CONSOLE_CLOSED_EVENT ).Subscribe( this, OnConsoleOpened );
-			eventRegistry.GetEvent<EmptyEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.PAGE_UP_EVENT ).Subscribe( this, OnPageUp );
-			eventRegistry.GetEvent<EmptyEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.PAGE_DOWN_EVENT ).Subscribe( this, OnPageDown );
+			eventRegistry.GetEvent<EmptyEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.CONSOLE_CLOSED_EVENT ).Subscribe( OnConsoleOpened );
+			eventRegistry.GetEvent<EmptyEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.PAGE_UP_EVENT ).Subscribe( OnPageUp );
+			eventRegistry.GetEvent<EmptyEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.PAGE_DOWN_EVENT ).Subscribe( OnPageDown );
+		}
+
+		/*
+		===============
+		Dispose
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		protected override void Dispose( bool disposing ) {
+			if ( isDisposed ) {
+				return;
+			}
+			if ( disposing ) {
+				_richLabel?.Dispose();
+			}
+			isDisposed = true;
+			base.Dispose( disposing );
 		}
 
 		/*

@@ -14,12 +14,11 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using Nomad.Console.Interfaces;
-using Nomad.Core.Compatibility;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.Console;
+using Nomad.Core.CVars;
 using Nomad.Core.Logger;
 using Nomad.Core.Util;
-using Nomad.CVars;
 using System;
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
@@ -96,7 +95,7 @@ namespace Nomad.Console.Private.Services {
 		/// <param name="command">The command that's being added to the global cache.</param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void RegisterCommand( ConsoleCommand command ) {
-			_commands[ new( command.Name ) ] = command;
+			_commands[new( command.Name )] = command;
 		}
 
 		/*
@@ -112,7 +111,7 @@ namespace Nomad.Console.Private.Services {
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public ConsoleCommand GetCommand( string command ) {
 			ArgumentGuard.ThrowIfNullOrEmpty( command );
-			return _commands[ new( command ) ];
+			return _commands[new( command )];
 		}
 
 		/*
@@ -129,7 +128,7 @@ namespace Nomad.Console.Private.Services {
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public bool TryGetCommand( string name, out ConsoleCommand command ) {
 			ArgumentGuard.ThrowIfNullOrEmpty( name );
-			return _commands.TryGetValue( new( name ), out command );
+			return _commands.TryGetValue( new( name ), out command! );
 		}
 
 		/*
@@ -177,11 +176,11 @@ namespace Nomad.Console.Private.Services {
 			var flagsSb = new StringBuilder( 128 );
 
 			_logger.PrintLine( "\n[CVARS]" );
-			for ( int i = 0; i < cvars.Length; i++ ) {
-				var cvar = cvars[ i ];
+			for ( int i = 0; i < cvars!.Length; i++ ) {
+				var cvar = cvars[i];
 
 				flagsSb.Clear();
-				flagsSb.Append( String.Empty );
+				flagsSb.Append( string.Empty );
 				if ( cvar.IsReadOnly ) {
 					flagsSb.Append( " ReadOnly" );
 				}

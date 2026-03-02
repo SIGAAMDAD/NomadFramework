@@ -729,7 +729,7 @@ namespace FMOD.Studio
             }
             if (capacity == 0)
             {
-                array = new Bank[0];
+                array = Array.Empty<Bank>();
                 return result;
             }
 
@@ -767,7 +767,7 @@ namespace FMOD.Studio
             }
             if (capacity == 0)
             {
-                array = new PARAMETER_DESCRIPTION[0];
+                array = Array.Empty<PARAMETER_DESCRIPTION>();
                 return RESULT.OK;
             }
 
@@ -1159,7 +1159,7 @@ namespace FMOD.Studio
             }
             if (capacity == 0)
             {
-                array = new EventInstance[0];
+                array = Array.Empty<EventInstance>();
                 return result;
             }
 
@@ -1908,7 +1908,7 @@ namespace FMOD.Studio
             }
             if (capacity == 0)
             {
-                array = new EventDescription[0];
+                array = Array.Empty<EventDescription>();
                 return result;
             }
 
@@ -1947,7 +1947,7 @@ namespace FMOD.Studio
             }
             if (capacity == 0)
             {
-                array = new Bus[0];
+                array = Array.Empty<Bus>();
                 return result;
             }
 
@@ -1986,7 +1986,7 @@ namespace FMOD.Studio
             }
             if (capacity == 0)
             {
-                array = new VCA[0];
+                array = Array.Empty<VCA>();
                 return result;
             }
 

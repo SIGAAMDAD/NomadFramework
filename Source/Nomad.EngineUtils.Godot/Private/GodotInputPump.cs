@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -80,8 +80,8 @@ namespace Nomad.EngineUtils.Private {
 				case InputEventMouseMotion mouseMotion:
 					_system.PushMouseMotionEvent(
 						new MouseMotionEvent(
-							( int )mouseMotion.Position.X,
-							( int )mouseMotion.Position.Y
+							(int)mouseMotion.Position.X,
+							(int)mouseMotion.Position.Y
 						)
 					);
 					break;
@@ -103,7 +103,7 @@ namespace Nomad.EngineUtils.Private {
 		/// <param name="button"></param>
 		/// <returns></returns>
 		/// <exception cref="ArgumentOutOfRangeException"></exception>
-		private Core.Input.MouseButton GodotMouseButtonToNomadMouseButton( Godot.MouseButton button ) => button switch {
+		private static Core.Input.MouseButton GodotMouseButtonToNomadMouseButton( Godot.MouseButton button ) => button switch {
 			Godot.MouseButton.Left => Core.Input.MouseButton.Left,
 			Godot.MouseButton.Right => Core.Input.MouseButton.Right,
 			Godot.MouseButton.Middle => Core.Input.MouseButton.Middle,
@@ -123,7 +123,7 @@ namespace Nomad.EngineUtils.Private {
 		/// <param name="keyCode"></param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		private KeyNum GodotKeyToNomadKey( Key keyCode ) => keyCode switch {
+		private static KeyNum GodotKeyToNomadKey( Key keyCode ) => keyCode switch {
 			Key.Q => KeyNum.Q,
 			Key.W => KeyNum.W,
 			Key.E => KeyNum.E,

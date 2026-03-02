@@ -13,18 +13,17 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-#if !UNITY_EDITOR
 using System;
 using Godot;
-using Nomad.Core.Util;
-using Nomad.Core.EngineUtils;
-using Nomad.EngineUtils.Private;
-using Nomad.Core.Logger;
-using Nomad.Core.Events;
-using Nomad.Core.ResourceCache;
-using Nomad.Core.Input;
-using Nomad.Core.Compatibility.Guards;
 using Nomad.Core;
+using Nomad.Core.Compatibility.Guards;
+using Nomad.Core.EngineUtils;
+using Nomad.Core.Events;
+using Nomad.Core.Input;
+using Nomad.Core.Logger;
+using Nomad.Core.ResourceCache;
+using Nomad.Core.Util;
+using Nomad.EngineUtils.Private;
 
 namespace Nomad.EngineUtils
 {
@@ -151,7 +150,7 @@ namespace Nomad.EngineUtils
         /// <returns></returns>
         public string Translate(InternString key)
         {
-            return TranslationServer.Translate((string)key);
+            return TranslationServer.Translate((string)key!);
         }
 
         /// <summary>
@@ -284,4 +283,3 @@ namespace Nomad.EngineUtils
         }
     }
 }
-#endif

@@ -86,6 +86,8 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 				_locator?.Dispose();
 
 				_lobbyInvite?.Dispose();
+				_lobbyChatMsg?.Dispose();
+				_lobbyChatUpdate?.Dispose();
 			}
 			GC.SuppressFinalize( this );
 			_isDisposed = true;
@@ -115,7 +117,7 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 		/// </summary>
 		/// <returns></returns>
 		public async ValueTask<bool> DeleteLobby() {
-			return false;
+			throw new NotImplementedException();
 		}
 
 		public async ValueTask<bool> JoinLobby( string lobbyName ) {

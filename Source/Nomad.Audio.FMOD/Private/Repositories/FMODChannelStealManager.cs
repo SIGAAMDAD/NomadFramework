@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -51,7 +51,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// </summary>
 		/// <param name="maxChannels"></param>
 		public FMODChannelStealTracker( int maxChannels ) {
-			_buffer = new StolenChannelData[ maxChannels ];
+			_buffer = new StolenChannelData[maxChannels];
 			_indexMap = new Dictionary<nint, int>( maxChannels );
 		}
 
@@ -74,14 +74,14 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 #endif
 			{
 				index = _stealChannelCount++;
-				_buffer[ index ].Id = stolenChannelId;
-				_buffer[ index ].StealCount = 0;
+				_buffer[index].Id = stolenChannelId;
+				_buffer[index].StealCount = 0;
 #if USE_COMPATIBILITY_EXTENSIONS && !UNITY_EDITOR
 				_indexMap[ stolenChannelId ] = index;
 #endif
 			}
 
-			ref StolenChannelData channel = ref _buffer[ index ];
+			ref StolenChannelData channel = ref _buffer[index];
 			channel.LastStealTime = stealTime;
 			channel.StealCount++;
 		}
