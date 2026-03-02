@@ -8,18 +8,6 @@ if ! command -v dotnet > /dev/null 2>&1; then
 fi 
  
 if [ -d "Tests" ]; then 
-  cd Tests 
-  dotnet test --configuration Release --verbosity minimal 
- 
-  if [ $? -ne 0 ]; then 
-    echo "❌ Tests failed!" 
-    echo "Use: git commit --no-verify to skip" 
-    exit 1 
-  else 
-    echo "✅ Tests passed!" 
-    exit 0 
-  fi
-
   cd ../Source/Nomad.Core
   dotnet format whitespace --folder
 
@@ -34,6 +22,18 @@ if [ -d "Tests" ]; then
 
   cd ../Source/Nomad.Save
   dotnet format whitespace --folder
+
+  cd Tests
+  dotnet test --configuration Release --verbosity minimal 
+ 
+  if [ $? -ne 0 ]; then 
+    echo "❌ Tests failed!" 
+    echo "Use: git commit --no-verify to skip" 
+    exit 1 
+  else 
+    echo "✅ Tests passed!" 
+    exit 0 
+  fi
 else 
   echo "⚠️  No Tests/ directory found" 
   exit 0 

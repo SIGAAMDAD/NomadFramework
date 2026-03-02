@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -125,7 +125,7 @@ namespace Nomad.OnlineServices.Steam {
 		/// <returns></returns>
 		public async ValueTask SetStatInt( string statName, int value )
 			=> _statsRepository.SetStatInt( statName, value );
-		
+
 		public async ValueTask<bool> StoreStats()
 			=> _statsRepository.StoreStats();
 	};

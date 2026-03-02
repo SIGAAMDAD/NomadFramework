@@ -7,7 +7,9 @@ using Nomad.Core.Logger;
 using Nomad.Events.Private;
 using Nomad.Core.Util;
 using Nomad.Events.Extensions;
-using NSubstitute.Core;            // InternString
+using NSubstitute.Core;
+using Nomad.Events.Private.EventTypes;            // InternString
+
 
 namespace Nomad.Events.Tests
 {
@@ -512,13 +514,13 @@ namespace Nomad.Events.Tests
             notCalled = true;
             evt.Publish(default);
 
-			using (Assert.EnterMultipleScope())
-			{
-				// Assert
-				Assert.That(notCalled, Is.True);
-				Assert.That(handle.IsDisposed, Is.True);
-			}
-		}
+            using (Assert.EnterMultipleScope())
+            {
+                // Assert
+                Assert.That(notCalled, Is.True);
+                Assert.That(handle.IsDisposed, Is.True);
+            }
+        }
 
         [Test]
         public void OneTimeSubscription_UsedWithEventQueue_KillsItself()
@@ -537,12 +539,12 @@ namespace Nomad.Events.Tests
             eventQueue.Enqueue(evt, default);
             eventQueue.ProcessAll();
 
-			using (Assert.EnterMultipleScope())
-			{
-				// Assert
-				Assert.That(notCalled, Is.True);
-				Assert.That(handle.IsDisposed, Is.True);
-			}
+            using (Assert.EnterMultipleScope())
+            {
+                // Assert
+                Assert.That(notCalled, Is.True);
+                Assert.That(handle.IsDisposed, Is.True);
+            }
         }
 
         #endregion
@@ -554,7 +556,7 @@ namespace Nomad.Events.Tests
         {
             // Arrange
             var evt = CreateEvent<int>().Where(args => args > 10);
-            
+
             // Assert
             Assert.That(evt, Is.InstanceOf<FilteredGameEvent<int>>());
         }
@@ -574,6 +576,41 @@ namespace Nomad.Events.Tests
 
             // Assert
             Assert.That(callCount, Is.EqualTo(1));
+        }
+
+        #endregion
+
+        #region Scheduled Events
+
+        [Test]
+        public void CreateScheduledEvent_IsScheduledEvent()
+        {
+            // Arrange
+            var evt = CreateEvent<EmptyEventArgs>().PublishEvery(default, 1000);
+
+            // Assert
+            Assert.That(evt, Is.InstanceOf<ScheduledEvent<EmptyEventArgs>>());
+        }
+
+        [Test]
+        public void PublishScheduledEvent_DoesNotPublishBeforeInterval_WaitAndCheckPublish()
+        {
+            // Arrange
+            var evt = CreateEvent<EmptyEventArgs>().PublishEvery(default, 900);
+            bool called = false;
+            evt.Subscribe((in EmptyEventArgs args) => called = true);
+
+            // Act
+            System.Threading.Thread.Sleep(800);
+            Assert.That(called, Is.False);
+            System.Threading.Thread.Sleep(200);
+
+            using (Assert.EnterMultipleScope())
+            {
+                // Assert
+                Assert.That(evt, Is.InstanceOf<ScheduledEvent<EmptyEventArgs>>());
+                Assert.That(called, Is.True);
+            }
         }
 
         #endregion

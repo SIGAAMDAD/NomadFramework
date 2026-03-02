@@ -16,6 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using Nomad.Core.Events;
 using Nomad.Events.Private;
+using Nomad.Events.Private.EventTypes;
 
 namespace Nomad.Events.Extensions
 {
@@ -51,6 +52,20 @@ namespace Nomad.Events.Extensions
             where TArgs : struct
         {
             return new FilteredGameEvent<TArgs>(source, predicate);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TArgs"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="payload"></param>
+        /// <param name="publishIntervalMS"></param>
+        /// <returns></returns>
+        public static IGameEvent<TArgs> PublishEvery<TArgs>(this IGameEvent<TArgs> source, TArgs payload, int publishIntervalMS)
+            where TArgs : struct
+        {
+            return new ScheduledEvent<TArgs>(source, payload, publishIntervalMS);
         }
     }
 }

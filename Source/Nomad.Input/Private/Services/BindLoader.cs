@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -77,7 +77,7 @@ namespace Nomad.Input.Private.Services {
 
 			var mapping = new Dictionary<BindKey, InputEventData>();
 			foreach ( var bind in database.Bindings ) {
-				mapping[ bind. ];
+				mapping[bind. ];
 			}
 
 			return true;
@@ -99,7 +99,7 @@ namespace Nomad.Input.Private.Services {
 				throw new Exception( $"Invalid InputMapping ButtonId '{mapping.ButtonId}' when loading Keyboard binding, it must be a valid KeyNum!" );
 			}
 
-			return new KeyboardEvent( ( KeyNum )keyNum, )
+			return new KeyboardEvent( (KeyNum)keyNum, )
 		}
 
 		private InputEventData ParseInputEvent( InputMapping mapping ) {

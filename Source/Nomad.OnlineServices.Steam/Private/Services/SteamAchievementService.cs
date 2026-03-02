@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -143,9 +143,9 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 		/// </summary>
 		/// <param name="achievementId"></param>
 		/// <returns></returns>
-		public IAchievementInfo? GetAchievementInfo( string achievementId ) 
+		public IAchievementInfo? GetAchievementInfo( string achievementId )
 			=> _statsRepository.GetAchievementInfo( achievementId );
-		
+
 		/*
 		===============
 		OnAchievementProgressChanged
