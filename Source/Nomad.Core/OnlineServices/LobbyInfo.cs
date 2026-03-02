@@ -20,18 +20,35 @@ namespace Nomad.Core.OnlineServices
     /// <summary>
     /// Creation information for lobbies.
     /// </summary>
-    /// <param name="Name"></param>
-    /// <param name="Map"></param>
-    /// <param name="GameMode"></param>
-    /// <param name="MaxPlayers"></param>
-    /// <param name="Visibility"></param>
-    /// <param name="Metadata"></param>
-    public record LobbyInfo(
-        string Name,
-        string Map,
-        string GameMode,
-        int MaxPlayers,
-        LobbyVisibility Visibility,
-        Dictionary<string, object> Metadata
-    );
+    public record LobbyInfo {
+        /// <summary>
+        /// 
+        /// </summary>
+        public string? Name { get; init; }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        public string? Map { get; init; }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        public string? GameMode { get; init; }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        public int MaxPlayers { get; init; }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        public LobbyVisibility Visibility { get; init; }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        public Dictionary<string, string>? Metadata { get; init; }
+    }
 }

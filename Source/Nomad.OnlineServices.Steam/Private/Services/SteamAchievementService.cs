@@ -14,16 +14,12 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using System.Collections.Concurrent;
 using System.Threading.Tasks;
-using Nomad.Core.EngineUtils;
 using Nomad.Core.Events;
 using Nomad.Core.Logger;
 using Nomad.Core.OnlineServices;
 using Nomad.Core.Util;
 using Nomad.OnlineServices.Steam.Private.Repositories;
-using Nomad.OnlineServices.Steam.Private.ValueObjects;
-using Steamworks;
 
 namespace Nomad.OnlineServices.Steam.Private.Services {
 	/*

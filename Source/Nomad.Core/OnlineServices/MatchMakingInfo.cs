@@ -13,11 +13,38 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System.Collections.Generic;
+
 namespace Nomad.Core.OnlineServices
 {
     /// <summary>
     /// 
     /// </summary>
-    public record MatchMakingInfo(
-    );
+    public record MatchMakingInfo
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public string? Map { get; init; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string? GameMode { get; init; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public Dictionary<string, string>? Metadata { get; init; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool FriendsOnly { get; init; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public ServerRange Range { get; init; }
+    }
 }

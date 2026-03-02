@@ -13,6 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System;
 using System.Threading.Tasks;
 using Nomad.Core.OnlineServices;
 using Nomad.OnlineServices.Steam.Private.Services.LobbyServices;
@@ -33,6 +34,8 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 	public sealed class SteamLobbyService : ILobbyService {
 		private readonly LobbyLocator _locator;
 
+		private bool _isDisposed = false;
+
 		/*
 		===============
 		SteamLobbyService
@@ -44,11 +47,29 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 		public SteamLobbyService() {
 		}
 
+		/*
+		===============
+		Dispose
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
 		public void Dispose() {
+			if ( !_isDisposed ) {
+				_locator?.Dispose();
+			}
+			GC.SuppressFinalize( this );
+			_isDisposed = true;
 		}
 
+		/*
+		===============
+		CreateLobby
+		===============
+		*/
 		public async ValueTask<bool> CreateLobby( LobbyInfo lobbyInfo ) {
-			throw new System.NotImplementedException();
+			return false;
 		}
 
 		public async ValueTask<bool> DeleteLobby() {

@@ -16,10 +16,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 using Nomad.Core.FileSystem;
-using Nomad.Core.FileSystem.Streams;
 using Nomad.Core.Logger;
 using Nomad.Core.OnlineServices;
 using Steamworks;

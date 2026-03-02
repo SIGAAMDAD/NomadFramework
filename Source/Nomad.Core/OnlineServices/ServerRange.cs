@@ -31,9 +31,19 @@ namespace Nomad.Core.OnlineServices
         Friends,
 
         /// <summary>
-        /// The default server range, search for any and all servers available.
+        /// The default server range, search for servers within the same region.
         /// </summary>
-        Internet,
+        Region,
+
+        /// <summary>
+        /// Search for servers within a much farther range, as far as halfway across the globe.
+        /// </summary>
+        Continental,
+
+        /// <summary>
+        /// Pair someone up with whoever we find. Fuckin' Antartica if need be.
+        /// </summary>
+        NoLimit,
 
         /// <summary>
         /// 
