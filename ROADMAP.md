@@ -20,8 +20,5 @@
 ### MonoGame Support
 ## Fixes
 * Implement AtomicSubscriptionSet
-* Finish SubscriptionSetBase
 * Optimize PumpAsync using an ObjectPool, we're allocating a new array each pump
-* Implement EventQueue
-* Implement EventPriority to priority sorting/pumping
 

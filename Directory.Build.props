@@ -1,17 +1,12 @@
 <Project>
-	<PropertyGroup>
-		<Nullable>annotations</Nullable>
-	</PropertyGroup>
-
-  <PropertyGroup Condition="'$(IsTestProject)' != 'true'" >
+  <PropertyGroup Condition="'$(IsTestProject)' != 'true' And '$(IsSourceGenerator)' != 'true'" >
     <!-- Build Configuration -->
-    <TargetFrameworks>net10.0;net8.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>net10.0;net8.0;netstandard2.1;netstandard2.0</TargetFrameworks>
     <LangVersion Condition="'$(TargetFramework)' == 'net10.0'">14.0</LangVersion>
     <LangVersion Condition="'$(TargetFramework)' == 'net8.0'">12.0</LangVersion>
     <LangVersion Condition="'$(TargetFramework)' == 'netstandard2.1'">9.0</LangVersion>
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Nullable>enable</Nullable>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <EnforceCodeStyleInBuilds>true</EnforceCodeStyleInBuilds>
     <EnableUnsafeBinaryFormatterSerialization>false</EnableUnsafeBinaryFormatterSerialization>
@@ -19,7 +14,9 @@
 
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AnalysisLevel>latest</AnalysisLevel>
+  </PropertyGroup>
 
+  <PropertyGroup Condition="'$(IsTestProject)' != 'true' And '$(IsSourceGenerator)' != 'true'" >
     <!-- NuGet Package Information -->
     <Authors>Noah Van Til</Authors>
     <Company>GDR Software</Company>
@@ -36,10 +33,10 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <WarningsAsErrors>CA1816;CA2200;CA2213;CA2215;CA2218:CA2219;CA2224;CA2227;CA2241;CA1506;CA1501;CA1502;CA1307;CA1308;CA1310;CA2119;CA2013;CA2012;CA2011;CA1836;CA1834;CA1830;CA1835;CA1829;CA1827;CA1825;CA1822</WarningsAsErrors>
+    <WarningsAsErrors>CA1816;CA2200;CA2213;CA2215;CA2218:CA2219;CA2224;CA2227;CA2241;CA1506;CA1502;CA1307;CA1308;CA1310;CA2119;CA2013;CA2012;CA2011;CA1836;CA1834;CA1830;CA1835;CA1829;CA1827;CA1825;CA1822</WarningsAsErrors>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(IsFrameworkModule)' == 'true'">
     <Content Include="NomadFramework.png" Pack="true" PackagePath="\" />
     <Content Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>

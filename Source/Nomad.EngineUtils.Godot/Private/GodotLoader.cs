@@ -13,7 +13,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-#if !UNITY_EDITOR
 using System;
 using System.Threading.Tasks;
 using System.Threading;
@@ -56,7 +55,7 @@ namespace Nomad.EngineUtils.Private {
 		private Result<Resource> LoadResource( string path ) {
 			Godot.Resource resource = Godot.ResourceLoader.Load( path, String.Empty, Godot.ResourceLoader.CacheMode.ReplaceDeep );
 			if ( resource == null ) {
-				return Result<Resource>.Failure( Error.Create( $"Error loading godot resource '{path}'" ) );
+				return Result<Resource>.Failure( InternalError.Create( $"Error loading godot resource '{path}'" ) );
 			} else if ( resource is Resource loadedResource ) {
 				return Result<Resource>.Success( loadedResource );
 			}
@@ -79,7 +78,7 @@ namespace Nomad.EngineUtils.Private {
 
 			Godot.Error requestError = Godot.ResourceLoader.LoadThreadedRequest( path, String.Empty, true, Godot.ResourceLoader.CacheMode.ReplaceDeep );
 			if ( requestError != Godot.Error.Ok ) {
-				return Result<Resource>.Failure( Error.Create( $"Error loading godot resource '{path}' - {requestError}" ) );
+				return Result<Resource>.Failure( InternalError.Create( $"Error loading godot resource '{path}' - {requestError}" ) );
 			}
 
 			Godot.ResourceLoader.ThreadLoadStatus status = Godot.ResourceLoader.ThreadLoadStatus.Failed;
@@ -98,8 +97,7 @@ namespace Nomad.EngineUtils.Private {
 				}
 				throw new InvalidCastException();
 			}
-			return Result<Resource>.Failure( Error.Create( $"godot resource '{path}' failed to load with thread status '{status}" ) );
+			return Result<Resource>.Failure( InternalError.Create( $"godot resource '{path}' failed to load with thread status '{status}" ) );
 		}
 	};
 };
-#endif

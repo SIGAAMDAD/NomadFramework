@@ -1,9 +1,5 @@
 # NomadFramework
 
-[![CI](https://github.com/SIGAAMDAD/NomadFramework/actions/workflows/ci.yml/badge.svg)](https://github.com/SIGAAMDAD/NomadFramework/actions/workflows/ci.yml) [![codecov](https://codecov.io/gh/SIGAAMDAD/NomadFramework/branch/main/graph/badge.svg)](https://codecov.io/gh/SIGAAMDAD/NomadFramework)
-
-
-:wumpus:
 NomadFramework is an engine‑agnostic, C#‑based game backend designed to eliminate wheel‑reinvention across projects. It provides a unified runtime layer that can be embedded into Unity, Godot, Unreal (via C# bindings), or custom engines. The framework is modular, subsystem‑complete, and built on universal engine principles found in idTech, Doom, Unreal, and Godot.
 
 NomadFramework is licensed under **MPL‑2.0**, with an optional **commercial license** (1% royalty after store fees).
@@ -15,24 +11,23 @@ NomadFramework is licensed under **MPL‑2.0**, with an optional **commercial li
 NomadFramework includes a comprehensive suite of subsystems intended to serve as the foundation for any game project:
 
 ### Core Architecture
-- Engine‑agnostic design
-- C# version‑agnostic
-- Modular subsystem architecture
-- Clean, documented API surface
-- Optional commercial licensing
+- Engine‑agnostic design  
+- C# version‑agnostic  
+- Modular subsystem architecture  
+- Clean, documented API surface  
+- Optional commercial licensing  
 
 ### Runtime Subsystems
-- **Nomad.Core** — general utilities, types used across the framework [![NuGet Version](https://img.shields.io/nuget/v/NomadFramework.Nomad.Core.svg)](https://www.nuget.org/packages/NomadFramework.Nomad.Core/) [![NuGet Downloads](https://img.shields.io/nuget/dt/NomadFramework.Nomad.Core.svg)](https://www.nuget.org/packages/NomadFramework.Nomad.Core/)
-- **Nomad.Events** — decoupled, high‑performance event dispatching [![NuGet Version](https://img.shields.io/nuget/v/NomadFramework.Nomad.Events.svg)](https://www.nuget.org/packages/NomadFramework.Nomad.Events/) [![NuGet Downloads](https://img.shields.io/nuget/dt/NomadFramework.Nomad.Events.svg)](https://www.nuget.org/packages/NomadFramework.Nomad.Events/)
-- **Nomad.CVars** — idTech‑style configuration variables [![NuGet Version](https://img.shields.io/nuget/v/NomadFramework.Nomad.CVars.svg)](https://www.nuget.org/packages/NomadFramework.Nomad.CVars/) [![NuGet Downloads](https://img.shields.io/nuget/dt/NomadFramework.Nomad.CVars.svg)](https://www.nuget.org/packages/NomadFramework.Nomad.CVars/)
+- **Nomad.Events** — decoupled, high‑performance event dispatching
+- **Nomad.CVars** — idTech‑style configuration variables
 - **Nomad.Console** — runtime command execution and debugging
 - **Nomad.ECS** — lightweight, cache‑friendly entity‑component system
 - **Nomad.Input** — unified input abstraction across engines, multiple binds, coyote time, etc.
-- **Nomad.Logger** — structured, configurable logging with custom sink suppoort [![NuGet Version](https://img.shields.io/nuget/v/NomadFramework.Nomad.Logger.svg)](https://www.nuget.org/packages/NomadFramework.Nomad.Logger/) [![NuGet Downloads](https://img.shields.io/nuget/dt/NomadFramework.Nomad.Logger.svg)](https://www.nuget.org/packages/NomadFramework.Nomad.Logger/)
+- **Nomad.Logging** — structured, configurable logging with custom sink suppoort
 
 ### Data & Persistence
-- **Nomad.Save** — deterministic serialization, versioning, and state restoration [![NuGet Version](https://img.shields.io/nuget/v/NomadFramework.Nomad.Save.svg)](https://www.nuget.org/packages/NomadFramework.Nomad.Save/) [![NuGet Downloads](https://img.shields.io/nuget/dt/NomadFramework.Nomad.Save.svg)](https://www.nuget.org/packages/NomadFramework.Nomad.Save/)
-- **Nomad.FileSystem - Virtual File System (VFS)** — Quake 3‑style layered filesystem [![NuGet Version](https://img.shields.io/nuget/v/NomadFramework.Nomad.FileSystem.svg)](https://www.nuget.org/packages/NomadFramework.Nomad.FileSystem/) [![NuGet Downloads](https://img.shields.io/nuget/dt/NomadFramework.Nomad.FileSystem.svg)](https://www.nuget.org/packages/NomadFramework.Nomad.FileSystem/)
+- **Nomad.Save** — deterministic serialization, versioning, and state restoration  
+- **Nomad.FileSystem - Virtual File System (VFS)** — Quake 3‑style layered filesystem  
 - **Nomad.ResourceCache** — unified asset access across engines  
 
 ### Audio & Media
@@ -57,7 +52,7 @@ NomadFramework includes a comprehensive suite of subsystems intended to serve as
 NomadFramework is built around a simple principle:
 
 **Never reinvent the wheel twice.**
-And truly,
+And truly
 **Write once, run everywhere**
 
 This framework was designed to capture the universal patterns that appear in every engine:
