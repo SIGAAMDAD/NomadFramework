@@ -15,6 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Threading.Tasks;
+using Nomad.Core.Memory.Buffers;
 
 namespace Nomad.Core.OnlineServices
 {
@@ -39,8 +40,8 @@ namespace Nomad.Core.OnlineServices
         /// Reads a file from cloud storage.
         /// </summary>
         /// <param name="fileName">The name of the file to read.</param>
-        /// <returns>The file data as a byte array.</returns>
-        ValueTask<byte[]> ReadFile(string fileName);
+        /// <returns>The file data as a <see cref="IBufferHandle"/>.</returns>
+        ValueTask<IBufferHandle?> ReadFile(string fileName);
 
         /// <summary>
         /// Checks if a file exists in cloud storage.
@@ -62,6 +63,6 @@ namespace Nomad.Core.OnlineServices
         /// <param name="localData"></param>
         /// <param name="cloudData"></param>
         /// <returns></returns>
-        ValueTask ResolveConflict(string fileName, byte[] localData, byte[] cloudData);
+        ValueTask ResolveConflict(string fileName, IBufferHandle localData, IBufferHandle cloudData);
     }
 }

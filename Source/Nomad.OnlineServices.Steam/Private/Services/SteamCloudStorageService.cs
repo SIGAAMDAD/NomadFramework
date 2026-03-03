@@ -16,9 +16,11 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
+using Nomad.Core.Memory.Buffers;
 using Nomad.Core.OnlineServices;
 using Steamworks;
 
@@ -39,11 +41,11 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 
 		public bool SupportsCloudStorage => true;
 
-		private record CloudFile(
-			int Size,
-			DateTime CloudAccessTime,
-			DateTime LocalAccessTime
-		);
+		private struct CloudFile {
+			public int Size { get; set; }
+			public DateTime CloudAccessTime { get; set; }
+			public DateTime LocalAccessTime { get; set; }
+		};
 
 		private readonly Dictionary<string, CloudFile> _cloudFiles = new Dictionary<string, CloudFile>();
 
@@ -55,6 +57,8 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 		private readonly CallResult<RemoteStorageLocalFileChange_t> _fileChangeResult;
 		private readonly CallResult<RemoteStorageFileWriteAsyncComplete_t> _fileWriteAsyncComplete;
 		private readonly CallResult<RemoteStorageFileReadAsyncComplete_t> _fileReadAsyncComplete;
+
+		private bool _isDisposed = false;
 
 		/*
 		===============
@@ -68,7 +72,7 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 		/// <param name="fileSystem"></param>
 		public SteamCloudStorageService( ILoggerService logger, IFileSystem fileSystem ) {
 			_logger = logger;
-			_category = _logger.CreateCategory( nameof( SteamCloudStorageService ), LogLevel.Info, true );
+			_category = logger.CreateCategory( nameof( SteamCloudStorageService ), LogLevel.Info, true );
 
 			_fileSystem = fileSystem;
 
@@ -84,8 +88,12 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 		/// 
 		/// </summary>
 		public void Dispose() {
-			_category?.Dispose();
-			_fileChangeResult?.Dispose();
+			if ( !_isDisposed ) {
+				_fileChangeResult?.Dispose();
+				_category?.Dispose();
+			}
+			GC.SuppressFinalize( this );
+			_isDisposed = true;
 		}
 
 		/*
@@ -99,6 +107,27 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 		/// <param name="param"></param>
 		/// <param name="bIOFailure"></param>
 		private void OnFileChange( RemoteStorageLocalFileChange_t param, bool bIOFailure ) {
+		}
+
+		/*
+		===============
+		InitializeCloudFileCache
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		private void InitializeCloudFileCache() {
+			int fileCount = SteamRemoteStorage.GetFileCount();
+
+			for ( int i = 0; i < fileCount; i++ ) {
+				string fileName = SteamRemoteStorage.GetFileNameAndSize( i, out int fileSize );
+
+				DateTime cloudAccessTimestamp = DateTime.FromFileTimeUtc( SteamRemoteStorage.GetFileTimestamp( fileName ) );
+				FileInfo info = new FileInfo( fileName );
+
+				_cloudFiles.Add( fileName, new CloudFile { CloudAccessTime = cloudAccessTimestamp, LocalAccessTime = info.LastAccessTimeUtc, Size = fileSize } );
+			}
 		}
 
 		/*
@@ -125,12 +154,14 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 		/// </summary>
 		/// <param name="fileName"></param>
 		/// <returns></returns>
-		public async ValueTask<byte[]> ReadFile( string fileName ) {
+		public async ValueTask<IBufferHandle?> ReadFile( string fileName ) {
 			int fileSize = SteamRemoteStorage.GetFileSize( fileName );
-			byte[] fileBuffer = ArrayPool<byte>.Shared.Rent( fileSize );
-			SteamRemoteStorage.FileRead( fileName, fileBuffer, fileSize );
 
-			return fileBuffer;
+			byte[] fileBuffer = new byte[fileSize];
+			int readBytes = SteamRemoteStorage.FileRead( fileName, fileBuffer, fileSize );
+			IBufferHandle buffer = new SharedBufferHandle( fileBuffer, fileSize );
+
+			return buffer;
 		}
 
 		/*
@@ -145,7 +176,7 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 		/// <param name="localData"></param>
 		/// <param name="cloudData"></param>
 		/// <returns></returns>
-		public async ValueTask ResolveConflict( string fileName, byte[] localData, byte[] cloudData ) {
+		public async ValueTask ResolveConflict( string fileName, IBufferHandle localData, IBufferHandle cloudData ) {
 		}
 
 		/*
