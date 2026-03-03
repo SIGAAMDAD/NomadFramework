@@ -20,31 +20,16 @@ namespace Nomad.Core.OnlineServices
     /// <summary>
     /// 
     /// </summary>
-    public record MatchMakingInfo
+    public record LobbyMemberState
     {
         /// <summary>
         /// 
         /// </summary>
-        public IReadOnlyList<string>? Maps { get; init; }
+        public ulong PlayerId { get; init; }
 
         /// <summary>
         /// 
         /// </summary>
-        public IReadOnlyList<string>? GameModes { get; init; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public Dictionary<string, string>? Metadata { get; init; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public bool FriendsOnly { get; init; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public ServerRange Range { get; init; }
+        public Dictionary<string, string> Metadata { get; init; }
     }
 }

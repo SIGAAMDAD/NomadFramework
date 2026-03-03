@@ -14,12 +14,49 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using System.Collections.Generic;
+using System.Collections.Concurrent;
+using Nomad.OnlineServices.Steam.Private.ValueObjects;
 using Steamworks;
+using Nomad.Core.CVars;
+using Nomad.Core.Exceptions;
+using System.Threading;
 
-namespace Nomad.OnlineServices.Steam {
+namespace Nomad.OnlineServices.Steam.Private.Repositories {
+	/*
+	===================================================================================
+	
+	SteamLobbyRepository
+	
+	===================================================================================
+	*/
+	/// <summary>
+	/// 
+	/// </summary>
+
 	internal sealed class SteamLobbyRepository : IDisposable {
+		public ICollection<SteamLobbyData> Lobbies => _lobbyList.Values;
+		private readonly ConcurrentDictionary<SteamLobbyKey, SteamLobbyData> _lobbyList = new ConcurrentDictionary<SteamLobbyKey, SteamLobbyData>();
+
+		private readonly int _lobbyPurgeTimeout = 0;
+		private readonly Timer _purgeTimer;
 
 		private bool _isDisposed = false;
+
+		/*
+		===============
+		SteamLobbyRepository
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		public SteamLobbyRepository( ICVarSystemService cvarSystem ) {
+			var lobbyPurgeTimeout = cvarSystem.GetCVar<int>( Constants.CVars.LOBBY_PURGE_INTERVAL ) ?? throw new CVarMissing( Constants.CVars.LOBBY_PURGE_INTERVAL );
+			_lobbyPurgeTimeout = lobbyPurgeTimeout.Value;
+
+			_purgeTimer = new Timer( _ => RemoveStaleLobbies(), null, TimeSpan.FromSeconds( _lobbyPurgeTimeout ), TimeSpan.FromSeconds( _lobbyPurgeTimeout ) );
+		}
 
 		/*
 		===============
@@ -31,10 +68,79 @@ namespace Nomad.OnlineServices.Steam {
 		/// </summary>
 		public void Dispose() {
 			if ( !_isDisposed ) {
-
+				_purgeTimer?.Change( Timeout.Infinite, Timeout.Infinite );
+				_purgeTimer?.Dispose();
 			}
 			GC.SuppressFinalize( this );
 			_isDisposed = true;
+		}
+
+		/*
+		===============
+		AddLobby
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="id"></param>
+		public void AddLobby( SteamLobbyKey id ) {
+			if ( !_lobbyList.TryGetValue( id, out SteamLobbyData? value ) ) {
+				_lobbyList.TryAdd( id, new SteamLobbyData( id.Id, SteamLobbyData.GetInfo( id.Id ), id.Guid ) );
+			} else {
+				lock ( value ) {
+					value.Update();
+				}
+			}
+		}
+
+		/*
+		===============
+		AddLobby
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="lobby"></param>
+		public void AddLobby( SteamLobbyData lobby ) {
+			var key = new SteamLobbyKey( lobby.Id, lobby.Guid );
+			if ( !_lobbyList.TryGetValue( key, out SteamLobbyData? value ) ) {
+				_lobbyList.TryAdd( key, lobby );
+			} else {
+				lock ( value ) {
+					value.Update();
+				}
+			}
+		}
+
+		/*
+		===============
+		RemoveStaleLobbies
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		public void RemoveStaleLobbies() {
+			if ( _isDisposed ) {
+				return;
+			}
+			var now = DateTime.UtcNow;
+			var toRemove = new List<SteamLobbyKey>();
+
+			foreach ( var lobby in _lobbyList ) {
+				DateTime lastSeen;
+				lock ( lobby.Value ) {
+					lastSeen = lobby.Value.LastSeenUtc;
+				}
+				if ( now - lastSeen > TimeSpan.FromSeconds( _lobbyPurgeTimeout ) ) {
+					toRemove.Add( lobby.Key );
+				}
+			}
+			for ( int i = 0; i < toRemove.Count; i++ ) {
+				_lobbyList.TryRemove( toRemove[i], out _ );
+			}
 		}
 	};
 };

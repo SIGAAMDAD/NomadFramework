@@ -14,6 +14,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using Nomad.Core.Compatibility.Guards;
+using Nomad.Core.CVars;
 using Nomad.Core.EngineUtils;
 using Nomad.Core.Events;
 using Nomad.Core.FileSystem;
@@ -58,6 +60,8 @@ namespace Nomad.OnlineServices.Steam.Private {
 		public ICloudStorageService CloudStorage => _cloudStorageService;
 		private readonly SteamCloudStorageService _cloudStorageService;
 
+		private readonly SteamLobbyService _lobbyService;
+
 		private bool _isDisposed = false;
 
 		/*
@@ -72,7 +76,14 @@ namespace Nomad.OnlineServices.Steam.Private {
 		/// <param name="fileSystem"></param>
 		/// <param name="engineService"></param>
 		/// <param name="eventFactory"></param>
-		public SteamService( ILoggerService logger, IFileSystem fileSystem, IEngineService engineService, IGameEventRegistryService eventFactory ) {
+		/// <param name="cvarSystem"></param>
+		public SteamService( ILoggerService logger, IFileSystem fileSystem, IEngineService engineService, IGameEventRegistryService eventFactory, ICVarSystemService cvarSystem ) {
+			ArgumentGuard.ThrowIfNull( logger );
+			ArgumentGuard.ThrowIfNull( fileSystem );
+			ArgumentGuard.ThrowIfNull( engineService );
+			ArgumentGuard.ThrowIfNull( eventFactory );
+			ArgumentGuard.ThrowIfNull( cvarSystem );
+
 			ESteamAPIInitResult result = SteamAPI.InitEx( out string errorMessage );
 			if ( result != ESteamAPIInitResult.k_ESteamAPIInitResult_OK ) {
 				logger.PrintError( $"SteamService: failed to initialize SteamAPI - {result}, {errorMessage}" );
@@ -94,6 +105,7 @@ namespace Nomad.OnlineServices.Steam.Private {
 			_statsService = new SteamStatsService( _statsRepository, logger );
 			_achievementsService = new SteamAchievementService( _statsRepository, logger, eventFactory );
 			_cloudStorageService = new SteamCloudStorageService( logger, fileSystem );
+			_lobbyService = new SteamLobbyService( _userData, _appData, _logger, cvarSystem, eventFactory );
 		}
 
 		/*
@@ -106,6 +118,7 @@ namespace Nomad.OnlineServices.Steam.Private {
 		/// </summary>
 		public void Dispose() {
 			if ( !_isDisposed ) {
+				_lobbyService?.Dispose();
 				_statsService?.Dispose();
 				_achievementsService?.Dispose();
 				_cloudStorageService?.Dispose();

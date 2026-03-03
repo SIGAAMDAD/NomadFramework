@@ -35,11 +35,19 @@ namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
 		public string? GameMode => _info.GameMode;
 		public string? Map => _info.Map;
 		public int MaxPlayers => _info.MaxPlayers;
+		public ulong OwnerId => _info.OwnerId;
 		public LobbyVisibility Visibility => _info.Visibility;
+		public Dictionary<string, string> Metadata => _info.Metadata;
 		private LobbyInfo _info;
+
+		public DateTime LastSeenUtc => _lastSeenTime;
+		private DateTime _lastSeenTime = DateTime.UtcNow;
 
 		public CSteamID Id => _id;
 		private readonly CSteamID _id;
+
+		public Guid Guid => _guid;
+		private readonly Guid _guid = Guid.NewGuid();
 
 		/*
 		===============
@@ -51,9 +59,11 @@ namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
 		/// </summary>
 		/// <param name="id"></param>
 		/// <param name="info"></param>
-		public SteamLobbyData( CSteamID id, LobbyInfo info ) {
+		/// <param name="guid"></param>
+		public SteamLobbyData( CSteamID id, LobbyInfo info, Guid guid ) {
 			_id = id;
 			_info = info;
+			_guid = guid;
 		}
 
 		/*
@@ -68,8 +78,10 @@ namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
 			_info = _info with {
 				Name = SteamMatchmaking.GetLobbyData( _id, nameof( LobbyInfo.Name ) ),
 				Map = SteamMatchmaking.GetLobbyData( _id, nameof( LobbyInfo.Map ) ),
-				GameMode = SteamMatchmaking.GetLobbyData( _id, nameof( LobbyInfo.GameMode ) )
+				GameMode = SteamMatchmaking.GetLobbyData( _id, nameof( LobbyInfo.GameMode ) ),
+				OwnerId = (ulong)SteamMatchmaking.GetLobbyOwner( _id )
 			};
+			_lastSeenTime = DateTime.UtcNow;
 		}
 
 		/*
@@ -83,19 +95,13 @@ namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
 		/// <param name="id">The lobby's unique <see cref="CSteamID"/>.</param>
 		/// <returns></returns>
 		public static LobbyInfo GetInfo( CSteamID id ) {
-			int metadataCount = int.Parse( SteamMatchmaking.GetLobbyData( id, "MetadataCount" ) );
-			Dictionary<string, string> metadata = new Dictionary<string, string>( metadataCount );
-			for ( int i = 0; i < metadataCount; i++ ) {
-				metadata[SteamMatchmaking.GetLobbyData( id, $"MetadataKey{i}" )] = SteamMatchmaking.GetLobbyData( id, $"MetadataValue{i}" );
-			}
-
 			return new LobbyInfo {
 				Name = SteamMatchmaking.GetLobbyData( id, nameof( LobbyInfo.Name ) ),
 				Map = SteamMatchmaking.GetLobbyData( id, nameof( LobbyInfo.Map ) ),
 				GameMode = SteamMatchmaking.GetLobbyData( id, nameof( LobbyInfo.GameMode ) ),
 				MaxPlayers = SteamMatchmaking.GetLobbyMemberLimit( id ),
-				Visibility = Enum.Parse<LobbyVisibility>( SteamMatchmaking.GetLobbyData( id, nameof( LobbyInfo.Visibility ) ) ),
-				Metadata = metadata
+				OwnerId = (ulong)SteamMatchmaking.GetLobbyOwner( id ),
+				//				Visibility = Enum.Parse<LobbyVisibility>( SteamMatchmaking.GetLobbyData( id, nameof( LobbyInfo.Visibility ) ) )
 			};
 		}
 	};

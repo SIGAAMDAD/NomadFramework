@@ -13,53 +13,31 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System.Collections.Generic;
-
 namespace Nomad.Core.OnlineServices
 {
     /// <summary>
-    /// Creation information for lobbies.
+    /// Reasons for why a player was removed from a lobby.
     /// </summary>
-    public record LobbyInfo
+    public enum PlayerRemovalReason : byte
     {
         /// <summary>
-        /// 
+        /// The player left the lobby.
         /// </summary>
-        public string? Name { get; init; }
+        Left,
+
+        /// <summary>
+        /// The player was disconnected from the lobby.
+        /// </summary>
+        Disconnected,
+
+        /// <summary>
+        /// The player was vote-kicked from the lobby.
+        /// </summary>
+        Kicked,
 
         /// <summary>
         /// 
         /// </summary>
-        public string? Map { get; init; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public string? GameMode { get; init; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public ulong OwnerId { get; init; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public int MaxPlayers { get; init; }
-
-        /// <summary>
-        /// The current number of players in the lobby.
-        /// </summary>
-        public int PlayerCount { get; init; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public LobbyVisibility Visibility { get; init; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public Dictionary<string, string>? Metadata { get; init; }
+        Count
     }
 }

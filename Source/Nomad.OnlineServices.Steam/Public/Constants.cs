@@ -20,19 +20,96 @@ namespace Nomad.OnlineServices.Steam
     /// </summary>
     public static partial class Constants
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public static partial class CVars
         {
+            /// <summary>
+            /// 
+            /// </summary>
+            internal const string NAMESPACE = "Nomad.OnlineServices.Steam";
+
+            /// <summary>
+            /// 
+            /// </summary>
+            internal const string LOBBY_UDDATE_INTERVAL = NAMESPACE + ".LobbyUpdateInterval";
+
+            /// <summary>
+            /// 
+            /// </summary>
+			internal const string LOBBY_METADATA_FETCH_INTERVAL = NAMESPACE + ".LobbyMetadataFetchInterval";
+
+            /// <summary>
+            /// 
+            /// </summary>
+			internal const string LOBBY_MAX_CLIENTS = NAMESPACE + ".LobbyMaxClients";
+
+            /// <summary>
+            /// 
+            /// </summary>
+			internal const string LOBBY_PURGE_INTERVAL = NAMESPACE + ".LobbyPurgeInterval";
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public static partial class Events
         {
             /// <summary>
-            /// Steam Integration event namespace.
+            /// 
             /// </summary>
-            public const string NAMESPACE = nameof(Nomad.OnlineServices.Steam);
+            public const string NAMESPACE = "Nomad.OnlineServices";
 
+            /// <summary>
+            /// 
+            /// </summary>
             public const string ACHIEVEMENT_UNLOCKED = NAMESPACE + ":AchievementUnlocked";
+
+            /// <summary>
+            /// 
+            /// </summary>
             public const string ACHIEVEMENT_PROGRESS_CHANGED = NAMESPACE + ":AchievementProgressChanged";
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public const string USER_JOINED_LOBBY = NAMESPACE + ":UserJoinedLobby";
+
+            /// <summary>
+            /// 
+            /// </summary>
+			public const string USER_LEFT_LOBBY = NAMESPACE + ":UserLeftLobby";
+
+            /// <summary>
+            /// 
+            /// </summary>
+			public const string USER_DISCONNECTED = NAMESPACE + ":UserDisconnected";
+
+            /// <summary>
+            /// 
+            /// </summary>
+			public const string USER_KICKED = NAMESPACE + ":UserKicked";
+
+            /// <summary>
+            /// 
+            /// </summary>
+			public const string USER_BANNED = NAMESPACE + ":UserBanned";
+
+            /// <summary>
+            /// 
+            /// </summary>
+			public const string LOBBY_INSTANCE_CREATED = NAMESPACE + ":LobbyInstanceCreated";
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public const string CLIENT_CONNECTED = NAMESPACE + ":ClientConnected";
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public const string CLIENT_DISCONNECTED = NAMESPACE + ":ClientDisconnected";
         }
     }
 }

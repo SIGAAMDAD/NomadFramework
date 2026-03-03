@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Nomad.Core.OnlineServices
@@ -27,27 +28,31 @@ namespace Nomad.Core.OnlineServices
         /// Creates a new lobby with the provided parameters
         /// </summary>
         /// <param name="lobbyInfo">The information to create the lobby with.</param>
+        /// <param name="ct"></param>
         /// <returns></returns>
-        ValueTask<bool> CreateLobby(LobbyInfo lobbyInfo);
+        ValueTask<Guid> CreateLobby(LobbyInfo lobbyInfo, CancellationToken ct = default);
 
         /// <summary>
         ///
         /// </summary>
-        /// <param name="lobbyName">The name of the lobby to join.</param>
+        /// <param name="lobbyId">The lobby's unique 64-bit id.</param>
+        /// <param name="ct"></param>
         /// <returns>True if the lobby was joined successfully, false otherwise.</returns>
-        ValueTask<bool> JoinLobby(string lobbyName);
+        ValueTask<bool> JoinLobby(Guid lobbyId, CancellationToken ct = default);
 
         /// <summary>
         /// Leaves the current lobby.
         /// </summary>
-        /// <returns>True if the lobby was left successfully, false otherwise.</returns>
-        ValueTask<bool> LeaveLobby();
+        /// <param name="ct"></param>
+        /// <returns><c>True</c> if the lobby was left successfully, <c>false</c> otherwise.</returns>
+        ValueTask<bool> LeaveLobby(CancellationToken ct = default);
 
         /// <summary>
         /// Promotes a member to lobby leader.
         /// </summary>
         /// <param name="player">The player to promote.</param>
-        /// <returns>True if the player was promoted successfully, false otherwise.</returns>
-        ValueTask<bool> PromoteMember(PlayerId player);
+        /// <param name="ct"></param>
+        /// <returns><c>True</c> if the player was promoted successfully, <c>false</c> otherwise.</returns>
+        ValueTask<bool> PromoteMember(Guid player, CancellationToken ct = default);
     }
 }

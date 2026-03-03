@@ -33,8 +33,8 @@ namespace Nomad.OnlineServices.Steam.Tests
         private IAchievementService _service;
         private List<string> _achievements;
 
-        [SetUp]
-        public void Setup()
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
         {
             Environment.SetEnvironmentVariable("SteamAppId", "480");
             Environment.SetEnvironmentVariable("SteamGameId", "480");
@@ -55,12 +55,16 @@ namespace Nomad.OnlineServices.Steam.Tests
             };
         }
 
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
+        {
+            SteamAPI.Shutdown();
+        }
+
         [TearDown]
         public void TearDown()
         {
             _service?.Dispose();
-
-            SteamAPI.Shutdown();
         }
 
         private void CreateService()
