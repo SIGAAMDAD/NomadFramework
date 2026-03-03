@@ -30,6 +30,6 @@ namespace Nomad.Core.OnlineServices
         /// <summary>
         /// 
         /// </summary>
-        public Dictionary<string, string> Metadata { get; init; }
+        public Dictionary<string, string>? Metadata { get; init; }
     }
 }
