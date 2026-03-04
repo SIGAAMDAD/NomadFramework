@@ -1,0 +1,459 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
+using NUnit.Framework;
+using Steamworks;
+using Nomad.Core.CVars;
+using Nomad.Core.Exceptions;
+using Nomad.OnlineServices.Steam.Private.Repositories;
+using Nomad.OnlineServices.Steam.Private.ValueObjects;
+using Nomad.Core.Events;
+
+// Assumes InternalsVisibleTo is added to the production assembly
+namespace Nomad.OnlineServices.Steam.Tests
+{
+	[TestFixture]
+	public class SteamLobbyRepositoryTests
+	{
+		private MockCVarSystem _cvarSystem;
+		private SteamLobbyRepository _repository;
+
+		[SetUp]
+		public void SetUp()
+		{
+			Environment.SetEnvironmentVariable("SteamAppId", "480");
+			Environment.SetEnvironmentVariable("SteamGameId", "480");
+
+			var initResult = SteamAPI.InitEx(out string errorMsg);
+			if (initResult != ESteamAPIInitResult.k_ESteamAPIInitResult_OK)
+			{
+				Assert.Inconclusive($"Could not initialize SteamAPI: {initResult} - {errorMsg}");
+			}
+
+			PumpSteamCallbacks(2000);
+
+			_cvarSystem = new MockCVarSystem();
+			_cvarSystem.SetCVar(Constants.CVars.LOBBY_PURGE_INTERVAL, 60); // default 60 seconds
+			_repository = new SteamLobbyRepository(_cvarSystem);
+		}
+
+		[TearDown]
+		public void TearDown()
+		{
+			_cvarSystem?.Dispose();
+			_repository?.Dispose();
+			PumpSteamCallbacks(100); // clean up any pending callbacks
+
+			SteamAPI.Shutdown();
+		}
+
+		// Helper to pump Steam callbacks
+		private static void PumpSteamCallbacks(int milliseconds)
+		{
+			var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+			while (stopwatch.ElapsedMilliseconds < milliseconds)
+			{
+				SteamAPI.RunCallbacks();
+				Thread.Sleep(10);
+			}
+		}
+
+		// Helper to create a test lobby and return its ID
+		private static async Task<CSteamID> CreateTestLobby(string name = "TestLobby", int maxPlayers = 4)
+		{
+			var created = false;
+			CSteamID lobbyId = CSteamID.Nil;
+			var callResult = CallResult<LobbyCreated_t>.Create((result, failure) =>
+			{
+				if (result.m_eResult == EResult.k_EResultOK)
+				{
+					lobbyId = (CSteamID)result.m_ulSteamIDLobby;
+					created = true;
+				}
+			});
+
+			SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypeInvisible, maxPlayers);
+			callResult.Set(SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypeInvisible, maxPlayers));
+
+			var timeout = DateTime.UtcNow.AddSeconds(10);
+			while (!created && DateTime.UtcNow < timeout)
+			{
+				PumpSteamCallbacks(100);
+				await Task.Delay(100);
+			}
+
+			if (!created)
+				throw new TimeoutException("Failed to create test lobby.");
+
+			// Set some metadata to make it identifiable
+			SteamMatchmaking.SetLobbyData(lobbyId, "name", name);
+			return lobbyId;
+		}
+
+		// Helper to delete a lobby (leave it, which destroys if owner)
+		private static void DeleteTestLobby(CSteamID lobbyId)
+		{
+			if (lobbyId.IsValid())
+			{
+				SteamMatchmaking.LeaveLobby(lobbyId);
+				PumpSteamCallbacks(500); // allow time for cleanup
+			}
+		}
+
+		// Reflection helper to set private field LastSeenUtc on SteamLobbyData
+		private static void SetLastSeenUtc(SteamLobbyData data, DateTime lastSeen)
+		{
+			var field = typeof(SteamLobbyData).GetField("_lastSeenTime", BindingFlags.NonPublic | BindingFlags.Instance) ?? throw new InvalidOperationException("_lastSeenTime field not found.");
+			field.SetValue(data, lastSeen);
+		}
+
+		[Test]
+		public void Constructor_WithValidCVar_DoesNotThrow()
+		{
+			Assert.DoesNotThrow(() => new SteamLobbyRepository(_cvarSystem));
+		}
+
+		[Test]
+		public void Constructor_MissingCVar_ThrowsCVarMissing()
+		{
+			var badCvar = new MockCVarSystem(); // no CVar set
+			Assert.Throws<CVarMissing>(() => new SteamLobbyRepository(badCvar));
+		}
+
+		[Test]
+		public async Task AddLobby_NewLobby_AddsToCollection()
+		{
+			// Arrange
+			CSteamID lobbyId = await CreateTestLobby();
+			try
+			{
+				// Act
+				_repository.AddLobby(new SteamLobbyKey(lobbyId, Guid.NewGuid()));
+
+				// Assert
+				Assert.That(_repository.Lobbies, Has.Count.EqualTo(1));
+				var added = _repository.Lobbies.First();
+				using (Assert.EnterMultipleScope())
+				{
+					Assert.That(added.Id, Is.EqualTo(lobbyId));
+					Assert.That(added.Name, Is.EqualTo("TestLobby")); // from metadata
+				}
+			}
+			finally
+			{
+				DeleteTestLobby(lobbyId);
+			}
+		}
+
+		[Test]
+		public async Task AddLobby_ExistingLobby_UpdatesLastSeen()
+		{
+			// Arrange
+			CSteamID lobbyId = await CreateTestLobby();
+			try
+			{
+				var key = new SteamLobbyKey(lobbyId, Guid.NewGuid());
+				_repository.AddLobby(key);
+				var lobbyData = _repository.Lobbies.First();
+				var originalLastSeen = lobbyData.LastSeenUtc;
+
+				// Wait a bit and force an update
+				await Task.Delay(100);
+				_repository.AddLobby(key); // should update
+
+				// Assert
+				var newLastSeen = lobbyData.LastSeenUtc;
+				Assert.That(newLastSeen, Is.GreaterThan(originalLastSeen));
+			}
+			finally
+			{
+				DeleteTestLobby(lobbyId);
+			}
+		}
+
+		[Test]
+		public async Task RemoveStaleLobbies_RemovesLobbiesOlderThanPurgeInterval()
+		{
+			// Arrange
+			_cvarSystem.SetCVar(Constants.CVars.LOBBY_PURGE_INTERVAL, 10); // 10 seconds
+			_repository = new SteamLobbyRepository(_cvarSystem); // recreate with new interval
+
+			CSteamID lobbyId = await CreateTestLobby();
+			try
+			{
+				_repository.AddLobby(new SteamLobbyKey(lobbyId, Guid.NewGuid()));
+				Assert.That(_repository.Lobbies, Has.Count.EqualTo(1));
+
+				// Manually set LastSeenUtc to be older than purge interval
+				var lobbyData = _repository.Lobbies.First();
+				SetLastSeenUtc(lobbyData, DateTime.UtcNow.AddSeconds(-15));
+
+				// Act
+				_repository.RemoveStaleLobbies();
+
+				// Assert
+				Assert.That(_repository.Lobbies, Is.Empty);
+			}
+			finally
+			{
+				DeleteTestLobby(lobbyId);
+			}
+		}
+
+		[Test]
+		public async Task RemoveStaleLobbies_KeepsRecentLobbies()
+		{
+			// Arrange
+			_cvarSystem.SetCVar(Constants.CVars.LOBBY_PURGE_INTERVAL, 10);
+			_repository = new SteamLobbyRepository(_cvarSystem);
+
+			CSteamID lobbyId = await CreateTestLobby();
+			try
+			{
+				_repository.AddLobby(new SteamLobbyKey(lobbyId, Guid.NewGuid()));
+				// LastSeenUtc is recent (now)
+
+				// Act
+				_repository.RemoveStaleLobbies();
+
+				// Assert
+				Assert.That(_repository.Lobbies, Has.Count.EqualTo(1));
+			}
+			finally
+			{
+				DeleteTestLobby(lobbyId);
+			}
+		}
+
+		[Test]
+		public async Task Timer_TriggersRemoveStaleLobbies()
+		{
+			// Arrange
+			_cvarSystem.SetCVar(Constants.CVars.LOBBY_PURGE_INTERVAL, 2); // 2 seconds
+			_repository = new SteamLobbyRepository(_cvarSystem);
+
+			CSteamID lobbyId = await CreateTestLobby();
+			try
+			{
+				_repository.AddLobby(new SteamLobbyKey(lobbyId, Guid.NewGuid()));
+
+				// Force LastSeen to be old
+				var lobbyData = _repository.Lobbies.First();
+				SetLastSeenUtc(lobbyData, DateTime.UtcNow.AddSeconds(-5));
+
+				// Wait for timer to fire (plus a bit)
+				await Task.Delay(2000);
+				PumpSteamCallbacks(1000); // allow any Steam callbacks but timer is .NET, not Steam
+
+				// Assert: lobby should be purged
+				Assert.That(_repository.Lobbies, Is.Empty);
+			}
+			finally
+			{
+				DeleteTestLobby(lobbyId);
+			}
+		}
+
+		[Test]
+		public async Task Dispose_StopsTimer()
+		{
+			// Arrange
+			_cvarSystem.SetCVar(Constants.CVars.LOBBY_PURGE_INTERVAL, 1);
+			_repository = new SteamLobbyRepository(_cvarSystem);
+
+			CSteamID lobbyId = await CreateTestLobby();
+			try
+			{
+				_repository.AddLobby(new SteamLobbyKey(lobbyId, Guid.NewGuid()));
+				var lobbyData = _repository.Lobbies.First();
+				SetLastSeenUtc(lobbyData, DateTime.UtcNow.AddSeconds(-5));
+
+				// Act
+				_repository.Dispose();
+
+				// Wait longer than purge interval
+				await Task.Delay(3000);
+
+				// Assert: lobby still present because timer was disposed
+				Assert.That(_repository.Lobbies, Has.Count.EqualTo(1));
+			}
+			finally
+			{
+				// Ensure we clean up the lobby even if test fails
+				if (!lobbyId.IsValid())
+					DeleteTestLobby(lobbyId);
+			}
+		}
+
+		// Mock CVar system
+		private class MockCVarSystem : ICVarSystemService
+		{
+			private readonly Dictionary<string, object> _cvars = new();
+
+			public void SetCVar<T>(string name, T value) where T : notnull
+			{
+				_cvars[name] = value!;
+			}
+
+			public ICVar<T>? GetCVar<T>(string name) where T : notnull
+			{
+				if (_cvars.TryGetValue(name, out var val) && val is T tVal)
+				{
+					return new MockCVar<T>(name, tVal);
+				}
+				return null;
+			}
+
+			public void Register(ICVar cvar)
+			{
+				throw new NotImplementedException();
+			}
+
+			public ICVar<T> Register<T>(in CVarCreateInfo<T> createInfo)
+			{
+				throw new NotImplementedException();
+			}
+
+			public void Unregister(ICVar cvar)
+			{
+				throw new NotImplementedException();
+			}
+
+			public bool CVarExists(string name)
+			{
+				throw new NotImplementedException();
+			}
+
+			public bool CVarExists<T>(string name)
+			{
+				throw new NotImplementedException();
+			}
+
+			public ICVar? GetCVar(string name)
+			{
+				throw new NotImplementedException();
+			}
+
+			public ICVar[]? GetCVars()
+			{
+				throw new NotImplementedException();
+			}
+
+			public ICVar<T>[]? GetCVarsWithValueType<T>()
+			{
+				throw new NotImplementedException();
+			}
+
+			public ICVar[]? GetCVarsInGroup(string groupName)
+			{
+				throw new NotImplementedException();
+			}
+
+			public bool GroupExists(string groupName)
+			{
+				throw new NotImplementedException();
+			}
+
+			public void Restart()
+			{
+				throw new NotImplementedException();
+			}
+
+			public void Load(string configFile)
+			{
+				throw new NotImplementedException();
+			}
+
+			public void Save(string configFile)
+			{
+				throw new NotImplementedException();
+			}
+
+			public void Dispose()
+			{
+				GC.SuppressFinalize(this);
+			}
+
+			private class MockCVar<T> : ICVar<T> where T : notnull
+			{
+				public string Name { get; }
+				public T Value { get; set; }
+
+				public T DefaultValue => throw new NotImplementedException();
+
+				public IGameEvent<CVarValueChangedEventArgs<T>> ValueChanged => throw new NotImplementedException();
+
+				public string Description => throw new NotImplementedException();
+
+				public CVarType Type => throw new NotImplementedException();
+
+				public CVarFlags Flags => throw new NotImplementedException();
+
+				public bool IsSaved => throw new NotImplementedException();
+
+				public bool IsReadOnly => throw new NotImplementedException();
+
+				public bool IsUserCreated => throw new NotImplementedException();
+
+				public bool IsHidden => throw new NotImplementedException();
+
+				public MockCVar(string name, T value) { Name = name; Value = value; }
+				public void Reset() { }
+				public void SetFromString(string str) { }
+
+				public float GetDecimalValue()
+				{
+					throw new NotImplementedException();
+				}
+
+				public int GetIntegerValue()
+				{
+					throw new NotImplementedException();
+				}
+
+				public uint GetUIntegerValue()
+				{
+					throw new NotImplementedException();
+				}
+
+				public string? GetStringValue()
+				{
+					throw new NotImplementedException();
+				}
+
+				public bool GetBooleanValue()
+				{
+					throw new NotImplementedException();
+				}
+
+				public void SetDecimalValue(float value)
+				{
+					throw new NotImplementedException();
+				}
+
+				public void SetIntegerValue(int value)
+				{
+					throw new NotImplementedException();
+				}
+
+				public void SetUIntegerValue(uint value)
+				{
+					throw new NotImplementedException();
+				}
+
+				public void SetBooleanValue(bool value)
+				{
+					throw new NotImplementedException();
+				}
+
+				public void SetStringValue(string value)
+				{
+					throw new NotImplementedException();
+				}
+			}
+		}
+	}
+}

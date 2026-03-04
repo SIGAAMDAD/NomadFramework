@@ -2,6 +2,8 @@
 **/bin/
 **/obj/
 
+*.html
+
 *.cs.uid
 *.cs.doxy_temp
 NuGet/

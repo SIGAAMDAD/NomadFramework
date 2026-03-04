@@ -35,8 +35,8 @@ namespace Nomad.Events.Tests
         long IGameEvent.PublishCount => PublishCount;
         public DateTime LastPublishTime => throw new NotImplementedException();
 
-        public event EventCallback<T> OnPublished;
-        public event AsyncEventCallback<T> OnPublishedAsync;
+        public event EventCallback<T>? OnPublished;
+        public event AsyncEventCallback<T>? OnPublishedAsync;
 
         public void Publish(in T args)
         {
@@ -415,7 +415,7 @@ namespace Nomad.Events.Tests
         }
 
         // Helper to create an event that invokes an action when published.
-        private static IGameEvent<T> CreateTrackingEvent<T>(string name, Action<T> onPublish) where T : struct
+        private static CallbackGameEvent<T> CreateTrackingEvent<T>(string name, Action<T> onPublish) where T : struct
         {
             var mock = new MockGameEvent<T> { DebugName = name };
             // We need to override Publish to call the action.
@@ -429,8 +429,8 @@ namespace Nomad.Events.Tests
         {
             private readonly Action<T> _callback;
 
-            public event EventCallback<T> OnPublished;
-            public event AsyncEventCallback<T> OnPublishedAsync;
+            public event EventCallback<T>? OnPublished;
+            public event AsyncEventCallback<T>? OnPublishedAsync;
 
             public CallbackGameEvent(Action<T> callback)
             {
