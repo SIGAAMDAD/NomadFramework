@@ -18,6 +18,7 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.Core.Memory.Buffers;
@@ -71,12 +72,17 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 		/// <param name="logger">The logger service to use for logging.</param>
 		/// <param name="fileSystem"></param>
 		public SteamCloudStorageService( ILoggerService logger, IFileSystem fileSystem ) {
+			ArgumentGuard.ThrowIfNull( logger );
+			ArgumentGuard.ThrowIfNull( fileSystem );
+
 			_logger = logger;
 			_category = logger.CreateCategory( nameof( SteamCloudStorageService ), LogLevel.Info, true );
 
 			_fileSystem = fileSystem;
 
 			_fileChangeResult = CallResult<RemoteStorageLocalFileChange_t>.Create( OnFileChange );
+			
+			InitializeCloudFileCache();
 		}
 
 		/*
@@ -127,6 +133,7 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 				FileInfo info = new FileInfo( fileName );
 
 				_cloudFiles.Add( fileName, new CloudFile { CloudAccessTime = cloudAccessTimestamp, LocalAccessTime = info.LastAccessTimeUtc, Size = fileSize } );
+				_logger.PrintLine( $"SteamCloudStorage.InitializeCloudFileCache: found file '{fileName}'" );
 			}
 		}
 
