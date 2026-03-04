@@ -64,18 +64,18 @@ jobs:
       run: dotnet build --configuration Release --no-restore -p:RunAnalyzers=true
 
     - name: 🧪 Run tests with coverage
-      run: dotnet test --configuration Release --no-build --collect:"XPlat Code Coverage" --settings coverlet.runsettings --results-directory ./TestResults
+      run: dotnet test --configuration Release --no-build --collect:"XPlat Code Coverage" --settings coverlet.runsettings --results-directory ./Tests/TestResults
     
     - name: Install ReportGenerator
       run: dotnet tool install -g dotnet-reportgenerator-globaltool
     
     - name: Merge coverage reports
-      run: reportgenerator -reports:./TestResults/**/coverage.cobertura.xml -targetdir:./CoverageResults -reporttypes:Cobertura
+      run: reportgenerator -reports:./Tests/TestResults/**/coverage.cobertura.xml -targetdir:./Tests/CoverageResults -reporttypes:Cobertura
 
     - name: 📤 Upload coverage to Codecov
       uses: codecov/codecov-action@v4
       with:
-        directory: ./TestResults
+        directory: ./Tests/TestResults
         flags: unittests
         name: codecov-umbrella
         fail_ci_if_error: true
@@ -86,7 +86,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: test-results-${{ matrix.os }}-${{ matrix.dotnet-version }}
-        path: ./TestResults
+        path: ./Tests/TestResults
     
     - name: End SonarCloud scan
       if: runner.os == 'Linux' && matrix.dotnet-version == '10.0.x' && github.ref == 'ref/heads/main'
