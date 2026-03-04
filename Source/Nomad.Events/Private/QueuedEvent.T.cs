@@ -15,6 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System.Runtime.CompilerServices;
 using Nomad.Core.Events;
+using Nomad.Core.Memory;
 
 namespace Nomad.Events.Private {
 	/*
@@ -29,9 +30,23 @@ namespace Nomad.Events.Private {
 	/// </summary>
 
 	internal sealed class QueuedEvent<TArgs> : QueuedEvent
-		where TArgs : struct {
-		private readonly IGameEvent<TArgs> _gameEvent;
-		private readonly TArgs _args;
+		where TArgs : struct
+	{
+		private static readonly BasicObjectPool<QueuedEvent<TArgs>> _pool = new BasicObjectPool<QueuedEvent<TArgs>>( () => new QueuedEvent<TArgs>() );
+
+		private IGameEvent<TArgs> _gameEvent;
+		private TArgs _args;
+
+		/*
+		===============
+		QueuedEvent
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		public QueuedEvent() {
+		}
 
 		/*
 		===============
@@ -43,9 +58,11 @@ namespace Nomad.Events.Private {
 		/// </summary>
 		/// <param name="gameEvent"></param>
 		/// <param name="args"></param>
-		public QueuedEvent( IGameEvent<TArgs> gameEvent, in TArgs args ) {
-			_gameEvent = gameEvent;
-			_args = args;
+		public static QueuedEvent<TArgs> Create( IGameEvent<TArgs> gameEvent, in TArgs args ) {
+			var item = _pool.Rent();
+			item._gameEvent = gameEvent;
+			item._args = args;
+			return item;
 		}
 
 		/*
@@ -57,7 +74,10 @@ namespace Nomad.Events.Private {
 		/// 
 		/// </summary>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public override void Process()
-			=> _gameEvent.Publish( in _args );
+		public override void Process() {
+			_gameEvent.Publish( in _args );
+			_gameEvent = null;
+			_pool.Return( this );
+		}
 	};
 };

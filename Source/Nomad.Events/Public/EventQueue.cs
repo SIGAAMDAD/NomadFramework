@@ -13,7 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
+using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using Nomad.Core.Collections;
 using Nomad.Core.Events;
@@ -42,17 +42,17 @@ namespace Nomad.Events.Private
             }
         }
 
-        private readonly LockFreePooledQueue<QueuedEvent>[] _queues;
+        private readonly ConcurrentQueue<QueuedEvent>[] _queues;
 
         /// <summary>
         /// Creates an EventQueue object.
         /// </summary>
         public EventQueue()
         {
-            _queues = new LockFreePooledQueue<QueuedEvent>[(int)EventPriority.Count];
+            _queues = new ConcurrentQueue<QueuedEvent>[(int)EventPriority.Count];
             for (var priority = EventPriority.Critical; priority >= EventPriority.VeryLow; priority--)
             {
-                _queues[(int)priority] = new LockFreePooledQueue<QueuedEvent>();
+                _queues[(int)priority] = new ConcurrentQueue<QueuedEvent>();
             }
         }
 
@@ -67,7 +67,7 @@ namespace Nomad.Events.Private
         public void Enqueue<TArgs>(IGameEvent<TArgs> gameEvent, TArgs args, EventPriority priority = EventPriority.Normal)
             where TArgs : struct
         {
-            _queues[(int)priority].TryEnqueue(new QueuedEvent<TArgs>(gameEvent, args));
+            _queues[(int)priority].Enqueue(QueuedEvent<TArgs>.Create(gameEvent, args));
         }
 
         /// <summary>
