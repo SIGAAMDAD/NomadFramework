@@ -177,6 +177,11 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 		/// <param name="cloudData"></param>
 		/// <returns></returns>
 		public async ValueTask ResolveConflict( string fileName, IBufferHandle localData, IBufferHandle cloudData ) {
+			if ( !_cloudFiles.TryGetValue( fileName, out var cloudFile ) ) {
+				_logger.PrintError( in _category, $"No such cloud file named '{fileName}'!" );
+				return;
+			}
+
 		}
 
 		/*
@@ -206,6 +211,8 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 		/// <param name="fileName"></param>
 		/// <returns></returns>
 		public async ValueTask WriteFile( string fileName ) {
+			using var buffer = await _fileSystem.LoadFileAsync( fileName );
+			SteamRemoteStorage.FileWriteAsync( fileName, buffer.ToArray(), (uint)buffer.Length );
 		}
 	};
 };
