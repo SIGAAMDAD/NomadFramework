@@ -64,12 +64,22 @@ jobs:
       run: dotnet build --configuration Release --no-restore -p:RunAnalyzers=true
 
     - name: 🧪 Run tests with coverage
-      run: dotnet test --configuration Release --no-build --collect:"XPlat Code Coverage" --settings coverlet.runsettings
+      run: dotnet test --configuration Release --no-build --collect:"XPlat Code Coverage" --settings coverlet.runsettings --results-directory ./TestResults
     
-    - name: Upload coverage reports to Codecov
-      uses: codecov/codecov-action@v5
+    - name: Install ReportGenerator
+      run: dotnet tool install -g dotnet-reportgenerator-globaltool
+    
+    - name: Merge coverage reports
+      run: reportgenerator -reports:./TestResults/**/coverage.cobertura.xml -targetdir:./CoverageResults -reporttypes:Cobertura
+
+    - name: 📤 Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
       with:
-        token: ${{ secrets.CODECOV_TOKEN }}
+        directory: ./TestResults
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: true
+        verbose: true
 
     - name: 📎 Upload test results
       if: always()

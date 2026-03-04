@@ -1,6 +1,6 @@
 # NomadFramework
 
-[![CI](https://github.com/SIGAAMDAD/NomadFramework/actions/workflows/ci.yml/badge.svg)](https://github.com/SIGAAMDAD/NomadFramework/actions/workflows/ci.yml) [![codecov](https://codecov.io/gh/SIGAAMDAD/NomadFramework/branch/main/graph/badge.svg)](https://codecov.io/gh/SIGAAMDAD/NomadFramework)
+[![CI](https://github.com/SIGAAMDAD/NomadFramework/actions/workflows/ci.yml/badge.svg)](https://github.com/SIGAAMDAD/NomadFramework/actions/workflows/ci.yml) [![codecov](https://codecov.io/gh/SIGAAMDAD/NomadFramework/tree/develop/graph/badge.svg)](https://codecov.io/gh/SIGAAMDAD/NomadFramework/tree/develop)
 
 NomadFramework is an engine‑agnostic, C#‑based game backend designed to eliminate wheel‑reinvention across projects. It provides a unified runtime layer that can be embedded into Unity, Godot, Unreal (via C# bindings), or custom engines. The framework is modular, subsystem‑complete, and built on universal engine principles found in idTech, Doom, Unreal, and Godot.
 
