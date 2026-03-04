@@ -51,35 +51,36 @@ jobs:
       run: dotnet tool install --global dotnet-sonarscanner
 
     - name: Begin SonarCloud scan
-      if: runner.os == 'Linux' && matrix.dotnet-version == '10.0.x' && github.ref == 'ref/heads/main'
+      if: runner.os == 'Linux' && matrix.dotnet-version == '10.0.x' && github.ref == 'refs/heads/main'
       run: |
         dotnet sonarscanner begin /k:"SIGAAMDAD_NomadFramework" \
           /o:"sigaamdad" \
           /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
           /d:sonar.host.url="https://sonarcloud.io" \
-          /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/coverage.opencover.xml" \
+          /d:sonar.cs.opencover.reportsPaths="**/Tests/TestResults/**/coverage.opencover.xml" \
           /d:sonar.coverage.exclusions="**Tests*.cs"  # optional exclusions
 
     - name: 🔨 Build with analyzers
       run: dotnet build --configuration Release --no-restore -p:RunAnalyzers=true
 
     - name: 🧪 Run tests with coverage
-      run: dotnet test --configuration Release --collect:"XPlat Code Coverage" --settings coverlet.runsettings --results-directory ./Tests/TestResults
-    
-    - name: Install ReportGenerator
-      run: dotnet tool install -g dotnet-reportgenerator-globaltool
-    
+      run: dotnet test --configuration Release --no-build --collect:"XPlat Code Coverage" --settings coverlet.runsettings --results-directory ./Tests/TestResults
+
     - name: Merge coverage reports
-      run: reportgenerator -reports:./Tests/TestResults/**/coverage.cobertura.xml -targetdir:./Tests/CoverageResults -reporttypes:Cobertura
+      run: |
+        dotnet tool install -g dotnet-reportgenerator-globaltool
+        reportgenerator -reports:./Tests/TestResults/**/coverage.cobertura.xml -targetdir:./Tests/CoverageResults -reporttypes:Cobertura
 
     - name: 📤 Upload coverage to Codecov
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v5
       with:
-        directory: ./Tests/TestResults
+        files: ./Tests/CoverageResults/Cobertura.xml
         flags: unittests
-        name: codecov-umbrella
+        name: codecov-${{ matrix.os }}-${{ matrix.dotnet-version }}
         fail_ci_if_error: true
         verbose: true
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
     - name: 📎 Upload test results
       if: always()
@@ -89,5 +90,5 @@ jobs:
         path: ./Tests/TestResults
     
     - name: End SonarCloud scan
-      if: runner.os == 'Linux' && matrix.dotnet-version == '10.0.x' && github.ref == 'ref/heads/main'
+      if: runner.os == 'Linux' && matrix.dotnet-version == '10.0.x' && github.ref == 'refs/heads/main'
       run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
