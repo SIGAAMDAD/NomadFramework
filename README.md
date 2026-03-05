@@ -1,6 +1,7 @@
 # NomadFramework
 
-[![CI](https://github.com/SIGAAMDAD/NomadFramework/actions/workflows/ci.yml/badge.svg)](https://github.com/SIGAAMDAD/NomadFramework/actions/workflows/ci.yml) [![codecov](https://codecov.io/gh/SIGAAMDAD/NomadFramework/tree/develop/graph/badge.svg)](https://codecov.io/gh/SIGAAMDAD/NomadFramework/tree/develop)
+[![Build](https://github.com/SIGAAMDAD/NomadFramework/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/SIGAAMDAD/NomadFramework/actions/workflows/ci.yml) [![Coverage](https://codecov.io/gh/SIGAAMDAD/NomadFramework/branch/develop/graph/badge.svg)](https://codecov.io/gh/SIGAAMDAD/NomadFramework/branch/develop) [![Discord](https://img.shields.io/discord/1478259345727684759?logo=discord&label=Discord)](https://discord.gg/XfDnRP4Udg) ![License](https://img.shields.io/github/license/SIGAAMDAD/NomadFramework) [![Latest Release](https://img.shields.io/github/v/release/SIGAAMDAD/NomadFramework)](https://github.com/SIGAAMDAD/NomadFramework/releases) ![Issues](https://img.shields.io/github/issues/SIGAAMDAD/NomadFramework)
+![PRs](https://img.shields.io/github/issues-pr/SIGAAMDAD/NomadFramework) ![TFMs](https://img.shields.io/badge/.NET-8.0%20%7C%2010.0%20%7C%2011.0-blue) ![Commit Activity](https://img.shields.io/github/commit-activity/m/SIGAAMDAD/NomadFramework)
 
 NomadFramework is an engine‑agnostic, C#‑based game backend designed to eliminate wheel‑reinvention across projects. It provides a unified runtime layer that can be embedded into Unity, Godot, Unreal (via C# bindings), or custom engines. The framework is modular, subsystem‑complete, and built on universal engine principles found in idTech, Doom, Unreal, and Godot.
 
