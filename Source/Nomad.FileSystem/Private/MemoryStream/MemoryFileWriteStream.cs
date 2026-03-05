@@ -64,8 +64,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <param name="config"></param>
 		public MemoryFileWriteStream( MemoryFileWriteConfig config )
-			: base( config )
-		{
+			: base( config ) {
 			_filepath = config.FilePath;
 			_creationTime = DateTime.Now;
 			Open( config );

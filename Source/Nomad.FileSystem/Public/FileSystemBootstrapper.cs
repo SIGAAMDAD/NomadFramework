@@ -39,7 +39,7 @@ namespace Nomad.FileSystem
         {
             ArgumentGuard.ThrowIfNull(registry);
             ArgumentGuard.ThrowIfNull(locator);
-            
+
             var engineService = locator.GetService<IEngineService>();
             var logger = locator.GetService<ILoggerService>();
 

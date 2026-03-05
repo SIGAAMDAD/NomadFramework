@@ -202,7 +202,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 				_binaryWriter.Write( chars );
 			}
 		}
-		
+
 		public void Flush() {
 			if ( _isText ) {
 				_textWriter.Flush();
