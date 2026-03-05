@@ -13,14 +13,12 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-#if !UNITY_EDITOR
 using System;
 using System.IO;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Moq;
 using Nomad.Core.EngineUtils;
-using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.FileSystem.Private.Services;
 using Nomad.FileSystem.Private.FileStream;
@@ -55,7 +53,7 @@ namespace Nomad.FileSystem.Tests
 
             _service = new FileSystemService(engineMock.Object, loggerMock.Object);
 
-            _testData = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+            _testData = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
             _filePath = Path.Combine(_tempDir, "readtest.bin");
             File.WriteAllBytes(_filePath, _testData);
         }
@@ -65,13 +63,62 @@ namespace Nomad.FileSystem.Tests
         {
             _service.Dispose();
             if (Directory.Exists(_tempDir))
+            {
                 Directory.Delete(_tempDir, true);
+            }
         }
 
         private IReadStream OpenReadStream()
         {
             var config = new FileReadConfig { FilePath = "readtest.bin" };
-            return _service.OpenRead(config)!;
+            return _service.OpenRead(config);
+        }
+
+        [Test]
+        public void Create_HasCorrectMetadata()
+        {
+            using var stream = OpenReadStream() as FileReadStream;
+
+            Assert.That(stream, Is.Not.Null);
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(stream.CanRead, Is.True);
+                Assert.That(stream.CanWrite, Is.False);
+                Assert.That(stream.CanSeek, Is.True);
+                Assert.That(stream.IsOpen, Is.True);
+                Assert.That(stream.FilePath, Is.EqualTo(_filePath));
+            }
+        }
+
+        [Test]
+        public void DisposeTwice_DoesNotThrow()
+        {
+            using var stream = OpenReadStream();
+
+            stream.Dispose();
+            Assert.DoesNotThrow(() => stream.Dispose());
+        }
+
+        [Test]
+        public void WriteToStream_WritesCorrectAndAllData()
+        {
+            {
+                using var writeStream = _service.OpenWrite(new FileWriteConfig { FilePath = Path.Combine(_tempDir, "test.bin"), Format = StreamFormat.Binary });
+                using var readStream = OpenReadStream();
+                readStream.WriteToStream(writeStream);
+            }
+            Assert.That(_testData, Is.EqualTo(File.ReadAllBytes(Path.Combine(_tempDir, "test.bin"))));
+        }
+
+        [Test]
+        public async Task WriteToStreamAsync_WritesCorrectAndAllData()
+        {
+            {
+                using var writeStream = await _service.OpenWriteAsync(new FileWriteConfig { FilePath = Path.Combine(_tempDir, "test.bin"), Format = StreamFormat.Binary });
+                using var readStream = OpenReadStream();
+                await readStream.WriteToStreamAsync(writeStream);
+            }
+            Assert.That(_testData, Is.EqualTo(File.ReadAllBytes(Path.Combine(_tempDir, "test.bin"))));
         }
 
         [Test]
@@ -80,6 +127,19 @@ namespace Nomad.FileSystem.Tests
             using var stream = OpenReadStream();
             byte[] buffer = new byte[_testData.Length];
             int bytesRead = stream.Read(buffer, 0, buffer.Length);
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(bytesRead, Is.EqualTo(_testData.Length));
+                Assert.That(buffer, Is.EqualTo(_testData));
+            }
+        }
+
+        [Test]
+        public void Read_BoundsNotSpecified_ReadsAllBytes()
+        {
+            using var stream = OpenReadStream();
+            byte[] buffer = new byte[_testData.Length];
+            int bytesRead = stream.Read(buffer);
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(bytesRead, Is.EqualTo(_testData.Length));
@@ -112,11 +172,24 @@ namespace Nomad.FileSystem.Tests
         }
 
         [Test]
-        public void Read_SpanOverload_Works()
+        public void Read_WithSpan_ReadsAllBytes()
         {
             using var stream = OpenReadStream();
             Span<byte> span = new byte[5];
             int bytesRead = stream.Read(span, 0, 5);
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(bytesRead, Is.EqualTo(5));
+                Assert.That(span.ToArray(), Is.EqualTo(new byte[] { 0, 1, 2, 3, 4 }));
+            }
+        }
+
+        [Test]
+        public void Read_WithSpanBoundsNotSpecified_ReadsAllBytes()
+        {
+            using var stream = OpenReadStream();
+            Span<byte> span = new byte[5];
+            int bytesRead = stream.Read(span);
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(bytesRead, Is.EqualTo(5));
@@ -138,12 +211,46 @@ namespace Nomad.FileSystem.Tests
         }
 
         [Test]
+        public async Task ReadAsync_BoundsNotSpecified_ReadsAllBytes()
+        {
+            using var stream = OpenReadStream();
+            byte[] buffer = new byte[_testData.Length];
+            int bytesRead = await stream.ReadAsync(buffer);
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(bytesRead, Is.EqualTo(_testData.Length));
+                Assert.That(buffer, Is.EqualTo(_testData));
+            }
+        }
+
+        [Test]
         public void ReadToEnd_ReadsRemaining()
         {
             using var stream = OpenReadStream();
             stream.Position = 3;
             byte[] remaining = stream.ReadToEnd();
             Assert.That(remaining, Is.EqualTo(new byte[] { 3, 4, 5, 6, 7, 8, 9 }));
+        }
+
+        [Test]
+        public async ValueTask ReadToEndAsync_ReadsRemaining()
+        {
+            using var stream = OpenReadStream();
+            stream.Position = 3;
+            byte[] remaining = await stream.ReadToEndAsync();
+            Assert.That(remaining, Is.EqualTo(new byte[] { 3, 4, 5, 6, 7, 8, 9 }));
+        }
+
+        [Test]
+        public void ReadToEnd_LengthIsGreaterThanInteger32Max_ThrowsInvalidOperationException()
+        {
+            Assert.Ignore("Cannot reliably test buffers bigger than 32-bit integers");
+        }
+
+        [Test]
+        public async ValueTask ReadToEndAsync_LengthIsGreaterThanInteger32Max_ThrowsInvalidOperationException()
+        {
+            Assert.Ignore("Cannot reliably test buffers bigger than 32-bit integers");
         }
 
         [Test]
@@ -178,24 +285,355 @@ namespace Nomad.FileSystem.Tests
         }
 
         [Test]
-        public void ReadByte_ReturnsByte()
+        public void ReadFloat_ReturnsSameValueAndAdvancesStream()
         {
-            using var stream = OpenReadStream();
-            byte b = stream.ReadByte();
+            float value = float.MaxValue;
+            {
+                File.WriteAllBytes(Path.Combine(_tempDir, "test.bin"), BitConverter.GetBytes(value));
+            }
+            using var stream = _service.OpenRead(new FileReadConfig { FilePath = "test.bin" });
+            float b = stream.ReadFloat();
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(b, Is.Zero);
-                Assert.That(stream.Position, Is.EqualTo(1));
+                Assert.That(b, Is.EqualTo(value));
+                Assert.That(stream.Position, Is.EqualTo(sizeof(float)));
             }
         }
 
         [Test]
-        public void ReadInt32_ReadsLittleEndian()
+        public void ReadDouble_ReturnsSameValueAndAdvancesStream()
         {
-            using var stream = OpenReadStream();
-            int value = stream.ReadInt32();
-            // Assuming little-endian: 0x03020100 = 50462976
-            Assert.That(value, Is.EqualTo(50462976));
+            double value = double.MaxValue;
+            {
+                File.WriteAllBytes(Path.Combine(_tempDir, "test.bin"), BitConverter.GetBytes(value));
+            }
+            using var stream = _service.OpenRead(new FileReadConfig { FilePath = "test.bin" });
+            double b = stream.ReadDouble();
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(b, Is.EqualTo(value));
+                Assert.That(stream.Position, Is.EqualTo(sizeof(double)));
+            }
+        }
+
+        [Test]
+        public void ReadFloat32_ReturnsSameValueAndAdvancesStream()
+        {
+            float value = float.MaxValue;
+            {
+                File.WriteAllBytes(Path.Combine(_tempDir, "test.bin"), BitConverter.GetBytes(value));
+            }
+            using var stream = _service.OpenRead(new FileReadConfig { FilePath = "test.bin" });
+            float b = stream.ReadFloat32();
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(b, Is.EqualTo(value));
+                Assert.That(stream.Position, Is.EqualTo(sizeof(float)));
+            }
+        }
+
+        [Test]
+        public void ReadSingle_ReturnsSameValueAndAdvancesStream()
+        {
+            float value = float.MaxValue;
+            {
+                File.WriteAllBytes(Path.Combine(_tempDir, "test.bin"), BitConverter.GetBytes(value));
+            }
+            using var stream = _service.OpenRead(new FileReadConfig { FilePath = "test.bin" });
+            float b = stream.ReadSingle();
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(b, Is.EqualTo(value));
+                Assert.That(stream.Position, Is.EqualTo(sizeof(float)));
+            }
+        }
+
+        [Test]
+        public void ReadFloat64_ReturnsSameValueAndAdvancesStream()
+        {
+            double value = double.MaxValue;
+            {
+                File.WriteAllBytes(Path.Combine(_tempDir, "test.bin"), BitConverter.GetBytes(value));
+            }
+            using var stream = _service.OpenRead(new FileReadConfig { FilePath = "test.bin" });
+            double b = stream.ReadFloat64();
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(b, Is.EqualTo(value));
+                Assert.That(stream.Position, Is.EqualTo(sizeof(double)));
+            }
+        }
+
+        [Test]
+        public void ReadUInt8_ReturnsSameValueAndAdvancesStream()
+        {
+            byte value = byte.MaxValue;
+            {
+                File.WriteAllBytes(Path.Combine(_tempDir, "test.bin"), [value]);
+            }
+            using var stream = _service.OpenRead(new FileReadConfig { FilePath = "test.bin" });
+            byte b = stream.ReadUInt8();
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(b, Is.EqualTo(value));
+                Assert.That(stream.Position, Is.EqualTo(sizeof(byte)));
+            }
+        }
+
+        [Test]
+        public void ReadUInt16_ReturnsSameValueAndAdvancesStream()
+        {
+            ushort value = ushort.MaxValue;
+            {
+                File.WriteAllBytes(Path.Combine(_tempDir, "test.bin"), BitConverter.GetBytes(value));
+            }
+            using var stream = _service.OpenRead(new FileReadConfig { FilePath = "test.bin" });
+            ushort b = stream.ReadUInt16();
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(b, Is.EqualTo(value));
+                Assert.That(stream.Position, Is.EqualTo(sizeof(ushort)));
+            }
+        }
+
+        [Test]
+        public void ReadUInt32_ReturnsSameValueAndAdvancesStream()
+        {
+            uint value = uint.MaxValue;
+            {
+                File.WriteAllBytes(Path.Combine(_tempDir, "test.bin"), BitConverter.GetBytes(value));
+            }
+            using var stream = _service.OpenRead(new FileReadConfig { FilePath = "test.bin" });
+            uint b = stream.ReadUInt32();
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(b, Is.EqualTo(value));
+                Assert.That(stream.Position, Is.EqualTo(sizeof(uint)));
+            }
+        }
+
+        [Test]
+        public void ReadUInt64_ReturnsSameValueAndAdvancesStream()
+        {
+            ulong value = ulong.MaxValue;
+            {
+                File.WriteAllBytes(Path.Combine(_tempDir, "test.bin"), BitConverter.GetBytes(value));
+            }
+            using var stream = _service.OpenRead(new FileReadConfig { FilePath = "test.bin" });
+            ulong b = stream.ReadUInt64();
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(b, Is.EqualTo(value));
+                Assert.That(stream.Position, Is.EqualTo(sizeof(ulong)));
+            }
+        }
+
+        [Test]
+        public void ReadByte_ReturnsSameValueAndAdvancesStream()
+        {
+            byte value = byte.MaxValue;
+            {
+                File.WriteAllBytes(Path.Combine(_tempDir, "test.bin"), [value]);
+            }
+            using var stream = _service.OpenRead(new FileReadConfig { FilePath = "test.bin" });
+            byte b = stream.ReadByte();
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(b, Is.EqualTo(value));
+                Assert.That(stream.Position, Is.EqualTo(sizeof(byte)));
+            }
+        }
+
+        [Test]
+        public void ReadUShort_ReturnsSameValueAndAdvancesStream()
+        {
+            ushort value = ushort.MaxValue;
+            {
+                File.WriteAllBytes(Path.Combine(_tempDir, "test.bin"), BitConverter.GetBytes(value));
+            }
+            using var stream = _service.OpenRead(new FileReadConfig { FilePath = "test.bin" });
+            ushort b = stream.ReadUShort();
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(b, Is.EqualTo(value));
+                Assert.That(stream.Position, Is.EqualTo(sizeof(ushort)));
+            }
+        }
+
+        [Test]
+        public void ReadUInt_ReturnsSameValueAndAdvancesStream()
+        {
+            uint value = uint.MaxValue;
+            {
+                File.WriteAllBytes(Path.Combine(_tempDir, "test.bin"), BitConverter.GetBytes(value));
+            }
+            using var stream = _service.OpenRead(new FileReadConfig { FilePath = "test.bin" });
+            uint b = stream.ReadUInt();
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(b, Is.EqualTo(value));
+                Assert.That(stream.Position, Is.EqualTo(sizeof(uint)));
+            }
+        }
+
+        [Test]
+        public void ReadULong_ReturnsSameValueAndAdvancesStream()
+        {
+            ulong value = ulong.MaxValue;
+            {
+                File.WriteAllBytes(Path.Combine(_tempDir, "test.bin"), BitConverter.GetBytes(value));
+            }
+            using var stream = _service.OpenRead(new FileReadConfig { FilePath = "test.bin" });
+            ulong b = stream.ReadULong();
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(b, Is.EqualTo(value));
+                Assert.That(stream.Position, Is.EqualTo(sizeof(ulong)));
+            }
+        }
+
+        [Test]
+        public void ReadInt8_ReturnsSameValueAndAdvancesStream()
+        {
+            sbyte value = sbyte.MaxValue;
+            {
+                File.WriteAllBytes(Path.Combine(_tempDir, "test.bin"), [(byte)value]);
+            }
+            using var stream = _service.OpenRead(new FileReadConfig { FilePath = "test.bin" });
+            sbyte b = stream.ReadInt8();
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(b, Is.EqualTo(value));
+                Assert.That(stream.Position, Is.EqualTo(sizeof(sbyte)));
+            }
+        }
+
+        [Test]
+        public void ReadInt16_ReturnsSameValueAndAdvancesStream()
+        {
+            short value = short.MaxValue;
+            {
+                File.WriteAllBytes(Path.Combine(_tempDir, "test.bin"), BitConverter.GetBytes(value));
+            }
+            using var stream = _service.OpenRead(new FileReadConfig { FilePath = "test.bin" });
+            short b = stream.ReadInt16();
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(b, Is.EqualTo(value));
+                Assert.That(stream.Position, Is.EqualTo(sizeof(short)));
+            }
+        }
+
+        [Test]
+        public void ReadInt32_ReturnsSameValueAndAdvancesStream()
+        {
+            int value = int.MaxValue;
+            {
+                File.WriteAllBytes(Path.Combine(_tempDir, "test.bin"), BitConverter.GetBytes(value));
+            }
+            using var stream = _service.OpenRead(new FileReadConfig { FilePath = "test.bin" });
+            int b = stream.ReadInt32();
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(b, Is.EqualTo(value));
+                Assert.That(stream.Position, Is.EqualTo(sizeof(int)));
+            }
+        }
+
+        [Test]
+        public void ReadInt64_ReturnsSameValueAndAdvancesStream()
+        {
+            long value = long.MaxValue;
+            {
+                File.WriteAllBytes(Path.Combine(_tempDir, "test.bin"), BitConverter.GetBytes(value));
+            }
+            using var stream = _service.OpenRead(new FileReadConfig { FilePath = "test.bin" });
+            long b = stream.ReadInt64();
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(b, Is.EqualTo(value));
+                Assert.That(stream.Position, Is.EqualTo(sizeof(long)));
+            }
+        }
+
+        [Test]
+        public void ReadSByte_ReturnsSameValueAndAdvancesStream()
+        {
+            sbyte value = sbyte.MaxValue;
+            {
+                File.WriteAllBytes(Path.Combine(_tempDir, "test.bin"), [(byte)value]);
+            }
+            using var stream = _service.OpenRead(new FileReadConfig { FilePath = "test.bin" });
+            sbyte b = stream.ReadSByte();
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(b, Is.EqualTo(value));
+                Assert.That(stream.Position, Is.EqualTo(sizeof(sbyte)));
+            }
+        }
+
+        [Test]
+        public void ReadShort_ReturnsSameValueAndAdvancesStream()
+        {
+            short value = short.MaxValue;
+            {
+                File.WriteAllBytes(Path.Combine(_tempDir, "test.bin"), BitConverter.GetBytes(value));
+            }
+            using var stream = _service.OpenRead(new FileReadConfig { FilePath = "test.bin" });
+            short b = stream.ReadShort();
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(b, Is.EqualTo(value));
+                Assert.That(stream.Position, Is.EqualTo(sizeof(short)));
+            }
+        }
+
+        [Test]
+        public void ReadInt_ReturnsSameValueAndAdvancesStream()
+        {
+            int value = int.MaxValue;
+            {
+                File.WriteAllBytes(Path.Combine(_tempDir, "test.bin"), BitConverter.GetBytes(value));
+            }
+            using var stream = _service.OpenRead(new FileReadConfig { FilePath = "test.bin" });
+            int b = stream.ReadInt();
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(b, Is.EqualTo(value));
+                Assert.That(stream.Position, Is.EqualTo(sizeof(int)));
+            }
+        }
+
+        [Test]
+        public void ReadLong_ReturnsSameValueAndAdvancesStream()
+        {
+            long value = long.MaxValue;
+            {
+                File.WriteAllBytes(Path.Combine(_tempDir, "test.bin"), BitConverter.GetBytes(value));
+            }
+            using var stream = _service.OpenRead(new FileReadConfig { FilePath = "test.bin" });
+            long b = stream.ReadLong();
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(b, Is.EqualTo(value));
+                Assert.That(stream.Position, Is.EqualTo(sizeof(long)));
+            }
+        }
+
+        [Test]
+        public void Read7BitEncodedInt_ReturnsSameValue()
+        {
+            int value = 128;
+            {
+                using var writer = new BinaryWriter(new FileStream(Path.Combine(_tempDir, "test.bin"), FileMode.Create, FileAccess.Write));
+                writer.Write7BitEncodedInt(value);
+            }
+            using var stream = _service.OpenRead(new FileReadConfig { FilePath = "test.bin" });
+            int b = stream.Read7BitEncodedInt();
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(b, Is.EqualTo(value));
+            }
         }
 
         [Test]
@@ -211,7 +649,7 @@ namespace Nomad.FileSystem.Tests
 
             var config = new FileReadConfig { FilePath = stringFilePath };
             using var stream = _service.OpenRead(config) as FileReadStream;
-            string read = stream!.ReadString();
+            string read = stream.ReadString();
             Assert.That(read, Is.EqualTo(testString));
         }
 
@@ -220,12 +658,11 @@ namespace Nomad.FileSystem.Tests
         {
             // Prepare file with bool (1 byte)
             string boolFilePath = Path.Combine(_tempDir, "booltest.bin");
-            File.WriteAllBytes(boolFilePath, new byte[] { 1 });
+            File.WriteAllBytes(boolFilePath, [1]);
             var config = new FileReadConfig { FilePath = boolFilePath };
             using var stream = _service.OpenRead(config) as FileReadStream;
-            bool val = stream!.ReadBoolean();
+            bool val = stream.ReadBoolean();
             Assert.That(val, Is.True);
         }
     }
 }
-#endif

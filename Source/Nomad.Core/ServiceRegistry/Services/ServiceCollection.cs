@@ -33,7 +33,7 @@ namespace Nomad.Core.ServiceRegistry.Services
         /// </summary>
         public void Dispose()
         {
-            foreach (IDisposable disposable in _disposables)
+            foreach (var disposable in _disposables)
             {
                 disposable.Dispose();
             }
@@ -52,7 +52,7 @@ namespace Nomad.Core.ServiceRegistry.Services
             where TService : class
             where TImplementation : class, TService
         {
-            ServiceDescriptor descriptor = lifetime switch
+            var descriptor = lifetime switch
             {
                 ServiceLifetime.Singleton => ServiceDescriptor.CreateSingleton<TService, TImplementation>(),
                 ServiceLifetime.Transient => ServiceDescriptor.CreateTransient<TService, TImplementation>(),
@@ -60,7 +60,7 @@ namespace Nomad.Core.ServiceRegistry.Services
                 _ => throw new ArgumentOutOfRangeException(nameof(lifetime))
             };
             _descriptors[typeof(TService)] = descriptor;
-            return (TService)descriptor.Instance;
+            return (TService)descriptor.Instance!;
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace Nomad.Core.ServiceRegistry.Services
         public TService Register<TService>(Func<IServiceLocator, TService> factory, ServiceLifetime lifetime)
             where TService : class
         {
-            ServiceDescriptor descriptor = lifetime switch
+            var descriptor = lifetime switch
             {
                 ServiceLifetime.Singleton => ServiceDescriptor.CreateSingleton(factory),
                 ServiceLifetime.Transient => ServiceDescriptor.CreateTransient(factory),
@@ -82,7 +82,7 @@ namespace Nomad.Core.ServiceRegistry.Services
                 _ => throw new ArgumentOutOfRangeException(nameof(lifetime))
             };
             _descriptors[typeof(TService)] = descriptor;
-            return (TService)descriptor.Instance;
+            return (TService)descriptor.Instance!;
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace Nomad.Core.ServiceRegistry.Services
             var descriptor = ServiceDescriptor.CreateSingleton(instance);
             _descriptors[typeof(TService)] = descriptor;
             TrackDisposable(instance);
-            return (TService)descriptor.Instance;
+            return (TService)descriptor.Instance!;
         }
 
         /// <summary>
@@ -111,8 +111,8 @@ namespace Nomad.Core.ServiceRegistry.Services
         {
             var descriptor = ServiceDescriptor.CreateSingleton<TService, TImplementation>();
             _descriptors[typeof(TService)] = descriptor;
-            TrackDisposable(descriptor.Instance);
-            return (TService)descriptor.Instance;
+            TrackDisposable(descriptor.Instance!);
+            return (TService)descriptor.Instance!;
         }
 
         /// <summary>
@@ -155,7 +155,7 @@ namespace Nomad.Core.ServiceRegistry.Services
         internal ServiceDescriptor GetDescriptor(Type serviceType)
         {
             _descriptors.TryGetValue(serviceType, out ServiceDescriptor? descriptor);
-            return descriptor;
+            return descriptor!;
         }
-    };
-};
+    }
+}

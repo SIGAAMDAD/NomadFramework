@@ -60,7 +60,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <param name="config">The path to the file to read from.</param>
 		public FileReadStream( FileReadConfig config )
-			: base( config.FilePath, FileMode.Open, FileAccess.Read ) {
+			: base( config.FilePath, FileMode.Open, FileAccess.Read )
+		{
 			ArgumentGuard.ThrowIfNull( fileStream );
 			_streamReader = new BinaryReader( fileStream );
 		}
@@ -143,7 +144,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <param name="buffer">A span of bytes. When this method returns, the span contains the bytes read from the current source.</param>
 		/// <returns>The total number of bytes read into the span. This can be less than the length of the span if that many bytes are not currently available, or zero if the end of the stream has been reached.</returns>
 		public int Read( Span<byte> buffer )
-			=> Read( buffer );
+			=> Read( buffer, 0, buffer.Length );
 
 		/*
 		===============
@@ -250,7 +251,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 			int length = (int)Length;
 			byte[] buffer = ArrayPool<byte>.Shared.Rent( length );
 			Read( buffer, 0, length );
-			stream.Write( buffer );
+			stream.Write( buffer, 0, length );
 			ArrayPool<byte>.Shared.Return( buffer );
 			_streamReader.BaseStream.Position = position;
 		}
@@ -294,12 +295,12 @@ namespace Nomad.FileSystem.Private.FileStream {
 			long originalPosition = fileStream!.Position;
 			fileStream.Position = 0;
 			try {
-				long length = fileStream.Length;
-				if ( length > long.MaxValue ) {
+				int length = (int)fileStream.Length;
+				if ( length > int.MaxValue ) {
 					throw new InvalidOperationException( "File is too large to read into a single array." );
 				}
 				byte[] buffer = new byte[length];
-				long bytesRead = fileStream.Read( buffer, 0, (int)length );
+				int bytesRead = fileStream.Read( buffer, 0, length );
 				if ( bytesRead < length ) {
 
 				}

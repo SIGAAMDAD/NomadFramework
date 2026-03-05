@@ -13,7 +13,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
 using Nomad.Core.FileSystem.Streams;
 using Nomad.Core.Util;
 
@@ -31,7 +30,6 @@ namespace Nomad.Save.Private.Serialization.FieldSerializers {
 
 	internal interface IFieldSerializer {
 		AnyType FieldType { get; }
-		Type DataType { get; }
 
 		Any Deserialize( IReadStream stream );
 		void Serialize( IWriteStream stream, in Any value );

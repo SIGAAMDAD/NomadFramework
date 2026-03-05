@@ -33,7 +33,7 @@ namespace Nomad.Core.Compatibility.Guards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ThrowIfNull([NotNull] object? value, string? paramName = null)
         {
-#if NETSTANDARD2_1 || !NET6_0_OR_GREATER
+#if !NET6_0_OR_GREATER
             if (value is null)
             {
                 throw new ArgumentNullException(paramName);
@@ -52,7 +52,7 @@ namespace Nomad.Core.Compatibility.Guards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ThrowIfNullOrEmpty(string? value, string? paramName = null)
         {
-#if NETSTANDARD2_1 || !NET6_0_OR_GREATER
+#if !NET6_0_OR_GREATER
             ArgumentGuard.ThrowIfNull(value, paramName);
             if (string.IsNullOrEmpty(value))
             {
@@ -72,7 +72,7 @@ namespace Nomad.Core.Compatibility.Guards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ThrowIfNullOrWhiteSpace(string? value, string? paramName = null)
         {
-#if NETSTANDARD2_1 || !NET6_0_OR_GREATER
+#if !NET6_0_OR_GREATER
             if (string.IsNullOrWhiteSpace(value))
             {
                 throw new ArgumentException("Value cannot be null, empty, or whitespace.", paramName);
@@ -90,7 +90,8 @@ namespace Nomad.Core.Compatibility.Guards
         /// <param name="paramName"></param>
         /// <exception cref="ArgumentException"></exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ThrowIfDefault<T>(T value, string? paramName = null) where T : struct
+        public static void ThrowIfDefault<T>(T value, string? paramName = null)
+            where T : struct
         {
             if (value.Equals(default(T)))
             {

@@ -34,7 +34,7 @@ namespace Nomad.Core.Compatibility.Guards
         public static void ThrowIfLessThanOrEqual<T>(T value, T other, string? paramName = null)
             where T : IComparable<T>
         {
-#if NETSTANDARD2_1 || !NET6_0_OR_GREATER
+#if !NET6_0_OR_GREATER
             if (value.CompareTo(other) <= 0)
             {
                 throw new ArgumentOutOfRangeException(paramName);
@@ -55,7 +55,7 @@ namespace Nomad.Core.Compatibility.Guards
         public static void ThrowIfGreaterThanOrEqual<T>(T value, T other, string? paramName = null)
             where T : IComparable<T>
         {
-#if NETSTANDARD2_1 || !NET6_0_OR_GREATER
+#if !NET6_0_OR_GREATER
             if (value.CompareTo(other) >= 0)
             {
                 throw new ArgumentOutOfRangeException(paramName);
@@ -73,10 +73,10 @@ namespace Nomad.Core.Compatibility.Guards
         /// <param name="other"></param>
         /// <param name="paramName"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ThrowIfLessThan<T>(T value, T other, string? paramName)
+        public static void ThrowIfLessThan<T>(T value, T other, string? paramName = null)
             where T : IComparable<T>
         {
-#if NETSTANDARD2_1 || !NET6_0_OR_GREATER
+#if !NET6_0_OR_GREATER
             if (value.CompareTo(other) < 0)
             {
                 throw new ArgumentOutOfRangeException(paramName);
@@ -94,10 +94,10 @@ namespace Nomad.Core.Compatibility.Guards
         /// <param name="other"></param>
         /// <param name="paramName"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ThrowIfGreaterThan<T>(T value, T other, string? paramName)
+        public static void ThrowIfGreaterThan<T>(T value, T other, string? paramName = null)
             where T : IComparable<T>
         {
-#if NETSTANDARD2_1 || !NET6_0_OR_GREATER
+#if !NET6_0_OR_GREATER
             if (value.CompareTo(other) > 0)
             {
                 throw new ArgumentOutOfRangeException(paramName);
@@ -115,10 +115,10 @@ namespace Nomad.Core.Compatibility.Guards
         /// <param name="other"></param>
         /// <param name="paramName"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ThrowIfEqual<T>(T value, T other, string? paramName)
+        public static void ThrowIfEqual<T>(T value, T other, string? paramName = null)
             where T : IEquatable<T>
         {
-#if NETSTANDARD2_1 || !NET6_0_OR_GREATER
+#if !NET6_0_OR_GREATER
             if (value.Equals(other))
             {
                 throw new ArgumentOutOfRangeException(paramName);
@@ -136,10 +136,10 @@ namespace Nomad.Core.Compatibility.Guards
         /// <param name="other"></param>
         /// <param name="paramName"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ThrowIfNotEqual<T>(T value, T other, string? paramName)
+        public static void ThrowIfNotEqual<T>(T value, T other, string? paramName = null)
             where T : IEquatable<T>
         {
-#if NETSTANDARD2_1 || !NET6_0_OR_GREATER
+#if !NET6_0_OR_GREATER
             if (!value.Equals(other))
             {
                 throw new ArgumentOutOfRangeException(paramName);
@@ -158,7 +158,7 @@ namespace Nomad.Core.Compatibility.Guards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ThrowIfNegative(int value, string? paramName = null)
         {
-#if NETSTANDARD2_1 || !NET6_0_OR_GREATER
+#if !NET6_0_OR_GREATER
             if (value < 0)
             {
                 throw new ArgumentOutOfRangeException(paramName, "Value cannot be negative.");
@@ -177,7 +177,7 @@ namespace Nomad.Core.Compatibility.Guards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ThrowIfNegative(float value, string? paramName = null)
         {
-#if NETSTANDARD2_1 || !NET6_0_OR_GREATER
+#if !NET6_0_OR_GREATER
             if (value < 0.0f)
             {
                 throw new ArgumentOutOfRangeException(paramName, "Value cannot be negative.");
@@ -196,7 +196,7 @@ namespace Nomad.Core.Compatibility.Guards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ThrowIfZero(int value, string? paramName = null)
         {
-#if NETSTANDARD2_1 || !NET6_0_OR_GREATER
+#if !NET6_0_OR_GREATER
             if (value == 0)
             {
                 throw new ArgumentOutOfRangeException(paramName, "Value cannot be zero.");
@@ -215,7 +215,7 @@ namespace Nomad.Core.Compatibility.Guards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ThrowIfZero(float value, string? paramName = null)
         {
-#if NETSTANDARD2_1 || !NET6_0_OR_GREATER
+#if !NET6_0_OR_GREATER
             if (value == 0.0f)
             {
                 throw new ArgumentOutOfRangeException(paramName, "Value cannot be zero.");
@@ -234,7 +234,7 @@ namespace Nomad.Core.Compatibility.Guards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ThrowIfNegativeOrZero(int value, string? paramName = null)
         {
-#if NETSTANDARD2_1 || !NET6_0_OR_GREATER
+#if !NET6_0_OR_GREATER
             if (value < 0 || value == 0)
             {
                 throw new ArgumentOutOfRangeException(paramName, "Value must be greater than zero.");
@@ -253,7 +253,7 @@ namespace Nomad.Core.Compatibility.Guards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ThrowIfNegativeOrZero(float value, string? paramName = null)
         {
-#if NETSTANDARD2_1 || !NET6_0_OR_GREATER
+#if !NET6_0_OR_GREATER
             if (value < 0.0f || value == 0.0f)
             {
                 throw new ArgumentOutOfRangeException(paramName, "Value must be greater than zero.");
@@ -284,10 +284,27 @@ namespace Nomad.Core.Compatibility.Guards
         ///
         /// </summary>
         /// <param name="value"></param>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
         /// <param name="paramName"></param>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void NotPowerOfTwo(int value, string? paramName = null)
+        public static void ThrowIfOutOfRange(float value, float min, float max, string? paramName = null)
+        {
+            if (value < min || value > max)
+            {
+                throw new ArgumentOutOfRangeException(paramName, $"Value must be between {min} and {max}.");
+            }
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="paramName"></param>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void ThrowIfNotPowerOfTwo(int value, string? paramName = null)
         {
             if (value <= 0 || (value & (value - 1)) != 0)
             {

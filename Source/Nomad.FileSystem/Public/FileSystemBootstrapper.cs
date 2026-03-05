@@ -39,9 +39,9 @@ namespace Nomad.FileSystem
         {
             ArgumentGuard.ThrowIfNull(registry);
             ArgumentGuard.ThrowIfNull(locator);
-
-            IEngineService engineService = locator.GetService<IEngineService>();
-            ILoggerService logger = locator.GetService<ILoggerService>();
+            
+            var engineService = locator.GetService<IEngineService>();
+            var logger = locator.GetService<ILoggerService>();
 
             _fileSystem = registry.RegisterSingleton<IFileSystem>(new FileSystemService(engineService, logger));
         }

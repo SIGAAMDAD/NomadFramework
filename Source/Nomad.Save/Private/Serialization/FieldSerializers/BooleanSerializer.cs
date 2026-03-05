@@ -13,7 +13,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
 using Nomad.Core.FileSystem.Streams;
 using Nomad.Core.Util;
 
@@ -31,7 +30,6 @@ namespace Nomad.Save.Private.Serialization.FieldSerializers {
 
 	internal sealed class BooleanSerializer : IFieldSerializer<bool> {
 		public AnyType FieldType => AnyType.Boolean;
-		public Type DataType => typeof( bool );
 
 		/*
 		===============

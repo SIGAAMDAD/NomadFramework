@@ -13,7 +13,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
 using System.Runtime.CompilerServices;
 using Nomad.Core.FileSystem.Streams;
 using Nomad.Core.Util;
@@ -32,7 +31,6 @@ namespace Nomad.Save.Private.Serialization.FieldSerializers {
 
 	internal sealed class StringSerializer : IFieldSerializer<string> {
 		public AnyType FieldType => AnyType.String;
-		public Type DataType => typeof( string );
 
 		/*
 		===============

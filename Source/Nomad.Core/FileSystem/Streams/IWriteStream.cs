@@ -71,6 +71,16 @@ namespace Nomad.Core.FileSystem.Streams
         ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken ct = default);
 
         /// <summary>
+        /// Asynchronously writes a sequence of bytes to the current stream.
+        /// </summary>
+        /// <param name="buffer">The region of memory containing data to write.</param>
+        /// <param name="offset">The zero-based byte offset in buffer at which to begin copying bytes to the stream.</param>
+        /// <param name="count">The number of bytes to write.</param>
+        /// <param name="ct">The token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous write operation.</returns>
+        ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, int offset, int count, CancellationToken ct = default);
+
+        /// <summary>
         /// Writes the entire content of another stream to this stream.
         /// </summary>
         /// <param name="stream">The stream to copy from.</param>

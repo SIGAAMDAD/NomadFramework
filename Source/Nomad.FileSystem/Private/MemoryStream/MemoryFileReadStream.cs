@@ -65,7 +65,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <param name="config"></param>
 		public MemoryFileReadStream( MemoryFileReadConfig config )
-			: base( config ) {
+			: base( config )
+		{
 			_filepath = config.FilePath;
 			Open( _filepath, FileMode.Open, FileAccess.Read );
 		}

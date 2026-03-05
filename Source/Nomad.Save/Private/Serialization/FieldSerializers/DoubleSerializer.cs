@@ -13,7 +13,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
 using Nomad.Core.FileSystem.Streams;
 using Nomad.Core.Util;
 
@@ -31,7 +30,6 @@ namespace Nomad.Save.Private.Serialization.FieldSerializers {
 
 	internal sealed class DoubleSerializer : IFieldSerializer<double> {
 		public AnyType FieldType => AnyType.Float64;
-		public Type DataType => typeof( double );
 
 		public void Serialize( IWriteStream stream, in Any value ) => stream.WriteDouble( value.GetPrimitiveValue<double>() );
 		public Any Deserialize( IReadStream stream ) => new Any( stream.ReadDouble() );

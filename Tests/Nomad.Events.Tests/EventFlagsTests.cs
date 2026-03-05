@@ -13,12 +13,9 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-#if !UNITY_EDITOR
-using System;
 using NUnit.Framework;
 using Nomad.Core.Events;
 using Nomad.Core.Logger;
-using Nomad.Events;
 using Nomad.Events.Private;
 using Nomad.Events.Private.SubscriptionSets;
 
@@ -341,4 +338,3 @@ namespace Nomad.Events.Tests
         }
     }
 }
-#endif

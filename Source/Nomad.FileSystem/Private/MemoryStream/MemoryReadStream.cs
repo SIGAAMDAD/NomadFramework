@@ -57,7 +57,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <param name="config"></param>
 		public MemoryReadStream( MemoryReadConfig config )
-			: base( config.Strategy ) {
+			: base( config.Strategy )
+		{
 			// FIXME: MAGIC NUMBER!!!
 			long maxCapacity = config.MaxCapacity ?? 8 * 1024 * 1024;
 			buffer = new PooledBufferHandle( (int)maxCapacity );

@@ -189,9 +189,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 			if ( offset < 0 || offset + count > buffer.Length ) {
 				throw new ArgumentOutOfRangeException( nameof( offset ) );
 			}
-			if ( count < 0 || count > buffer.Length ) {
-				throw new ArgumentOutOfRangeException( nameof( count ) );
-			}
+			RangeGuard.ThrowIfOutOfRange( count, 0, buffer.Length, nameof( count ) );
 			if ( count == 0 || buffer.Length == 0 ) {
 				return; // no-op
 			}
@@ -259,6 +257,26 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 
 			ct.ThrowIfCancellationRequested();
 			Write( buffer.Span );
+		}
+
+		/*
+		===============
+		WriteAsync
+		===============
+		*/
+		/// <summary>
+		/// Asynchronously writes a sequence of bytes to the current stream and advances the current position within this stream by the number of bytes written.
+		/// </summary>
+		/// <param name="buffer">A read-only memory buffer. This method copies the contents of the buffer to the current stream.</param>
+		/// <param name="offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
+		/// <param name="count">The number of bytes to be written to the current stream.</param>
+		/// <param name="ct">A token to cancel the operation.</param>
+		/// <returns>A task that represents the asynchronous write operation.</returns>
+		public async ValueTask WriteAsync( ReadOnlyMemory<byte> buffer, int offset, int count, CancellationToken ct = default ) {
+			StateGuard.ThrowIfDisposed( isDisposed, this );
+
+			ct.ThrowIfCancellationRequested();
+			Write( buffer.Slice( offset, count ).Span );
 		}
 
 		/*

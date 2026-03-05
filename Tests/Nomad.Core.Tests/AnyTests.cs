@@ -17,6 +17,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using Nomad.Core.Util;
 using NUnit.Framework;
@@ -511,10 +512,34 @@ namespace Nomad.Core.Tests
         }
 
         [Test]
-        public void GetPrimitiveValue_OnValidToString_ReturnsSameInteger()
+        [TestCase((sbyte)23)]
+        [TestCase((short)23)]
+        [TestCase((int)23)]
+        [TestCase((long)23)]
+        public void GetPrimitiveValue_OnValidToString_ReturnsSameInteger<T>(T value)
+            where T : unmanaged
         {
             var any = new Any("23");
-            Assert.That(any.GetPrimitiveValue<int>(), Is.EqualTo(23));
+            Assert.That(any.GetPrimitiveValue<T>(), Is.EqualTo(value));
+        }
+
+        [Test]
+        [TestCase((byte)23)]
+        [TestCase((ushort)23)]
+        [TestCase((uint)23)]
+        [TestCase((ulong)23)]
+        public void GetPrimitiveValue_OnValidToString_ReturnsSameUInteger<T>(T value)
+            where T : unmanaged
+        {
+            var any = new Any("23");
+            Assert.That(any.GetPrimitiveValue<T>(), Is.EqualTo(value));
+        }
+
+        [Test]
+        public void GetPrimitiveValue_OnValidToStringWithInvalidPrimitiveType_ThrowsInvalidOperationException()
+        {
+            var any = new Any("23");
+            Assert.Throws<InvalidOperationException>(() => any.GetPrimitiveValue<nuint>());
         }
 
         [Test]
@@ -522,6 +547,13 @@ namespace Nomad.Core.Tests
         {
             var any = new Any("test");
             Assert.Throws<FormatException>(() => any.GetPrimitiveValue<int>());
+        }
+
+        [Test]
+        public void GetPrimitiveValue_OnInvalidType_ThrowsInvalidOperationException()
+        {
+            var any = new Any(0);
+            Assert.Throws<InvalidOperationException>(() => any.GetPrimitiveValue<nint>());
         }
 
         #endregion
@@ -542,6 +574,13 @@ namespace Nomad.Core.Tests
             var any = new Any(null!);
             string result = any.GetReferenceValue<string>()!;
             Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        public void GetReferenceValue_InvalidReferenceType_ThrowsInvalidOperationException()
+        {
+            var any = new Any("");
+            Assert.Throws<InvalidOperationException>(() => any.GetReferenceValue<object>());
         }
 
         #endregion

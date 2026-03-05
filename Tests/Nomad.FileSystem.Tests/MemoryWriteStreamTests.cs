@@ -13,8 +13,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-#if !UNITY_EDITOR
-#nullable disable
 using System;
 using System.IO;
 using System.Threading;
@@ -1988,5 +1986,3 @@ namespace Nomad.FileSystem.Tests
         #endregion
     }
 }
-#nullable enable
-#endif

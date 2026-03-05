@@ -66,7 +66,7 @@ namespace Nomad.Core.Tests
             const string text = "Hello, World!";
             var intern = new InternString(text);
 
-            Assert.That((string?)intern, Is.EqualTo(text));
+            Assert.That((string)intern, Is.EqualTo(text));
             // Ensure the same string returns the same id (interning).
             var intern2 = new InternString(text);
             Assert.That(intern, Is.EqualTo(intern2));
@@ -79,7 +79,7 @@ namespace Nomad.Core.Tests
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(intern, Is.EqualTo(InternString.Empty));
-                Assert.That((string?)intern, Is.EqualTo(string.Empty));
+                Assert.That((string)intern, Is.EqualTo(string.Empty));
             }
         }
 
@@ -89,7 +89,7 @@ namespace Nomad.Core.Tests
             using (Assert.EnterMultipleScope())
             {
                 Assert.That((ulong)InternString.Empty, Is.Zero);
-                Assert.That((string?)InternString.Empty, Is.EqualTo(string.Empty));
+                Assert.That((string)InternString.Empty, Is.EqualTo(string.Empty));
             }
         }
 
@@ -150,9 +150,11 @@ namespace Nomad.Core.Tests
         {
             var left = new InternString(42);
             var right = new InternString(99);
-            Assert.That(left, Is.Not.EqualTo(right));
-        }
 
+            bool nequal = left != right;
+			Assert.That(nequal, Is.True);
+        }
+        
         [Test]
         public void GetHashCode_ReturnsId()
         {
@@ -178,7 +180,17 @@ namespace Nomad.Core.Tests
             const string text = "Test conversion";
             var intern = new InternString(text);
 
-            string? result = intern;
+            string result = intern;
+            Assert.That(result, Is.EqualTo(text));
+        }
+
+        [Test]
+        public void ExplicitConversion_ToString_ReturnsPooledString()
+        {
+            const string text = "Test conversion";
+            var intern = new InternString(text);
+
+            string result = intern.ToString();
             Assert.That(result, Is.EqualTo(text));
         }
 
@@ -186,7 +198,7 @@ namespace Nomad.Core.Tests
         public void ImplicitConversion_ToString_WithInvalidId_ReturnsEmpty()
         {
             var invalid = new InternString(9999); // No such string in pool
-            string? result = invalid;
+            string result = invalid;
             Assert.That(result, Is.EqualTo(string.Empty));
         }
 
@@ -281,7 +293,7 @@ namespace Nomad.Core.Tests
         {
             // Intern a string.
             var intern = new InternString("persist");
-            Assert.That((string?)intern, Is.EqualTo("persist"));
+            Assert.That((string)intern, Is.EqualTo("persist"));
 
             // Dispose the pool.
             ResetStringPool(); // This disposes the current pool.
@@ -306,12 +318,12 @@ namespace Nomad.Core.Tests
             set.Add(b); // should be duplicate, not added
             set.Add(c);
 
-            Assert.That(set.Count, Is.EqualTo(2));
+            Assert.That(set, Has.Count.EqualTo(2));
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(set.Contains(a), Is.True);
-                Assert.That(set.Contains(b), Is.True); // same instance
-                Assert.That(set.Contains(new InternString("set test")), Is.True);
+				Assert.That(set, Does.Contain(a));
+				Assert.That(set, Does.Contain(b)); // same instance
+				Assert.That(set, Does.Contain(new InternString("set test")));
             }
         }
 
@@ -339,7 +351,7 @@ namespace Nomad.Core.Tests
         {
             var longString = new string('x', 10000);
             var intern = new InternString(longString);
-            Assert.That((string?)intern, Is.EqualTo(longString));
+            Assert.That((string)intern, Is.EqualTo(longString));
         }
 
         [Test]
@@ -347,7 +359,7 @@ namespace Nomad.Core.Tests
         {
             var withNull = "abc\0def";
             var intern = new InternString(withNull);
-            Assert.That((string?)intern, Is.EqualTo(withNull));
+            Assert.That((string)intern, Is.EqualTo(withNull));
         }
 
         [Test]

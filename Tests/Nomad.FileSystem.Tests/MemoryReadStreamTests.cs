@@ -13,26 +13,17 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.Core.FileSystem.Configs
+using NUnit.Framework;
+
+namespace Nomad.FileSystem.Tests
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    public record FileWriteConfig : WriteConfig, IWriteConfig
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        public override StreamType Type => StreamType.File;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public StreamFormat Format { get; init; } = StreamFormat.Binary;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public string? FilePath { get; init; }
-    }
+	[TestFixture]
+	public class MemoryReadStreamTests
+	{
+		[SetUp]
+		public void Setup()
+		{
+			
+		}
+	}
 }
