@@ -16,9 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Moq;
 using Nomad.Core.FileSystem;
-using Nomad.Core.Logger;
 using Nomad.Core.OnlineServices;
 using Nomad.FileSystem.Private.Services;
 using Nomad.OnlineServices.Steam.Private.Services;
@@ -29,6 +27,7 @@ namespace Nomad.OnlineServices.Steam.Tests
 {
 	[TestFixture]
 	[Category("Unit")]
+	[Category("Steam")]
 	public class SteamCloudStorageServiceTests
 	{
 		private MockLogger _logger;

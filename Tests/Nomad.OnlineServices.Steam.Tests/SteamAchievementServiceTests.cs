@@ -28,6 +28,7 @@ using NUnit.Framework.Internal;
 namespace Nomad.OnlineServices.Steam.Tests
 {
     [TestFixture]
+    [Category("Steam")]
     public class SteamAchievementServiceTests
     {
         private IAchievementService _service;
