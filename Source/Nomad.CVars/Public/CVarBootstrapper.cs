@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using Nomad.Core.Abstractions;
+using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.CVars;
 using Nomad.Core.Events;
 using Nomad.Core.FileSystem;
@@ -37,13 +38,15 @@ namespace Nomad.CVars
         /// <param name="locator"></param>
         public void Initialize(IServiceRegistry registry, IServiceLocator locator)
         {
-            _cvarSystem = registry.RegisterSingleton<ICVarSystemService>(
-                new CVarSystem(
-                    locator.GetService<IGameEventRegistryService>(),
-                    locator.GetService<IFileSystem>(),
-                    locator.GetService<ILoggerService>()
-                )
+            ArgumentGuard.ThrowIfNull(registry);
+            ArgumentGuard.ThrowIfNull(locator);
+
+            _cvarSystem = new CVarSystem(
+                locator.GetService<IGameEventRegistryService>(),
+                locator.GetService<IFileSystem>(),
+                locator.GetService<ILoggerService>()
             );
+            registry.AddSingleton(_cvarSystem);
         }
 
         /// <summary>

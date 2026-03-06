@@ -20,7 +20,7 @@ namespace Nomad.Save.Exceptions
     /// <summary>
     ///
     /// </summary>
-    public abstract class SaveFileCorruptException : NomadError
+    public abstract class SaveFileCorruptException : NomadException
     {
         /// <summary>
         /// 

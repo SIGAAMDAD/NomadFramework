@@ -13,8 +13,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
-
 namespace Nomad.Core.FileSystem.Streams
 {
     /// <summary>
@@ -31,16 +29,6 @@ namespace Nomad.Core.FileSystem.Streams
         /// Indicates whether the file stream is currently open.
         /// </summary>
         bool IsOpen { get; }
-
-        /// <summary>
-        /// The timestamp of which this file was last accessed.
-        /// </summary>
-        DateTime LastAccessTime { get; }
-
-        /// <summary>
-        /// The time of the file's initial creation.
-        /// </summary>
-        DateTime CreationTime { get; }
 
         /// <summary>
         /// Closes the file stream. Is automatically called when object disposal happens.

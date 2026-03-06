@@ -18,7 +18,7 @@ namespace Nomad.Core.Exceptions
     /// <summary>
     /// Exception thrown when a subsystem is accessed before its initialized.
     /// </summary>
-    public sealed class SubsystemNotInitializedException : NomadError
+    public sealed class SubsystemNotInitializedException : NomadException
     {
         /// <summary>
         /// Creates a SubsystemNotInitializedException object. 

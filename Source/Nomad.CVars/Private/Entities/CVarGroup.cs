@@ -18,8 +18,9 @@ using Nomad.Core.Util;
 using Nomad.Core.Logger;
 using Nomad.Core.CVars;
 using Nomad.Core.Compatibility.Guards;
+using System.Collections.Immutable;
 
-namespace Nomad.CVars.Private.Repositories {
+namespace Nomad.CVars.Private.Entities {
 	/*
 	===================================================================================
 
@@ -31,12 +32,14 @@ namespace Nomad.CVars.Private.Repositories {
 	///
 	/// </summary>
 
-	internal sealed class CVarGroup {
-		public readonly InternString Name;
-		public readonly HashSet<InternString> Cvars = new HashSet<InternString>();
+	internal sealed class CVarGroup : ICVarGroup {
+		public string Name => _name;
+		private readonly InternString _name;
+
+		public IImmutableList<ICVar> CVars => _cvars.ToImmutableList();
+		private readonly HashSet<ICVar> _cvars = new();
 
 		private readonly ILoggerService _logger;
-		private readonly ICVarSystemService _cvarSystem;
 
 		/*
 		===============
@@ -48,30 +51,47 @@ namespace Nomad.CVars.Private.Repositories {
 		/// </summary>
 		/// <param name="name"></param>
 		/// <param name="logger"></param>
-		/// <param name="cvarSystem"></param>
-		public CVarGroup( string name, ILoggerService logger, ICVarSystemService cvarSystem ) {
-			Name = new InternString( name );
+		public CVarGroup( string name, ILoggerService logger ) {
+			_name = new InternString( name );
 			_logger = logger;
-			_cvarSystem = cvarSystem;
 		}
 
 		/*
 		===============
-		Add
+		AddCVar
 		===============
 		*/
 		/// <summary>
 		///
 		/// </summary>
-		/// <param name="name"></param>
-		public void Add( InternString name ) {
-			ArgumentGuard.ThrowIfNullOrEmpty( name );
+		/// <param name="cvar"></param>
+		public void AddCVar( ICVar cvar ) {
+			ArgumentGuard.ThrowIfNull( cvar );
 
-			if ( !_cvarSystem.CVarExists( name ) ) {
-				_logger.PrintError( $"CVarGroup.Add: cvar '{name}' doesn't exist!" );
-			} else if ( !Cvars.Add( name ) ) {
-				_logger.PrintError( $"CVarGroup.Add: cvar '{name}' already added to group '{Name}'!" );
+			if ( _cvars.Contains( cvar ) ) {
+				_logger.PrintWarning( $"CVarGroup.AddCVar: CVar '{cvar.Name}' already in group '{Name}'!" );
+				return;
 			}
+			_cvars.Add( cvar );
+		}
+		
+		/*
+		===============
+		RemoveCVar
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="cvar"></param>
+		public void RemoveCVar( ICVar cvar ) {
+			ArgumentGuard.ThrowIfNull( cvar );
+
+			if ( !_cvars.Contains( cvar ) ) {
+				_logger.PrintWarning( $"CVarGroup.RemoveCVar: CVar '{cvar.Name}' not in group '{Name}'!" );
+				return;
+			}
+			_cvars.Remove( cvar );
 		}
 	};
 };

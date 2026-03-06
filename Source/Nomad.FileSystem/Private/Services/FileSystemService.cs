@@ -21,7 +21,7 @@ using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.EngineUtils;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
-using Nomad.FileSystem.Private.FileStream;
+using Nomad.FileSystem.Private.FileStreams;
 using System.IO;
 using Nomad.FileSystem.Private.MemoryStream;
 using Nomad.Core.Memory.Buffers;
@@ -571,7 +571,7 @@ namespace Nomad.FileSystem.Private.Services {
 		/// <param name="buffer"></param>
 		/// <param name="offset"></param>
 		/// <param name="length"></param>
-		public void WriteFile( string path, in ReadOnlySpan<byte> buffer, int offset, int length ) {
+		public void WriteFile( string path, byte[] buffer, int offset, int length ) {
 			using var stream = OpenWrite( new FileWriteConfig { FilePath = path } ) ?? throw new IOException( $"Error opening file {path}" );
 			stream.Write( buffer, offset, length );
 		}

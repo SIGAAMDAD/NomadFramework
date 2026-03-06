@@ -10,7 +10,7 @@ using Nomad.Core.EngineUtils;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.FileSystem.Private.Services;
-using Nomad.FileSystem.Private.FileStream;
+using Nomad.FileSystem.Private.FileStreams;
 using Nomad.FileSystem.Private.MemoryStream;
 using System.Linq;
 using Nomad.Core.Memory.Buffers;

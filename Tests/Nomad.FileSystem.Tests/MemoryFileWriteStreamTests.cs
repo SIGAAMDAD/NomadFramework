@@ -26,6 +26,7 @@ using Nomad.FileSystem.Private.Services;
 using Nomad.FileSystem.Private.MemoryStream;
 using Nomad.Core.FileSystem.Streams;
 using Nomad.Core.FileSystem.Configs;
+using Nomad.Core.Memory.Buffers;
 
 namespace Nomad.FileSystem.Tests
 {
@@ -73,6 +74,82 @@ namespace Nomad.FileSystem.Tests
             // The service passes length but not fixedSize. To test fixedSize, we might need to directly instantiate or extend.
             // We'll skip fixedSize tests here or assume default false.
             return _service.OpenWrite(config);
+        }
+
+        [Test]
+        public void Create_WithInvalidAllocationStrategy_ThrowsIndexOutOfRangeException()
+        {
+            Assert.Throws<IndexOutOfRangeException>(() => _service.OpenWrite(new MemoryFileWriteConfig{ FilePath = "memread.bin", MaxCapacity = 1024, Strategy = (AllocationStrategy)99 }));
+        }
+
+        [Test]
+        public void Create_WithAppendMode_ThrowsNotImplementedException()
+        {
+            Assert.Throws<NotImplementedException>(() => _service.OpenWrite(new MemoryFileWriteConfig{ FilePath = "memread.bin", MaxCapacity = 1024, Append = true }));
+        }
+
+        [Test]
+        public void Create_WithPooledBuffer_CreatesPooledBuffer()
+        {
+            using var stream = _service.OpenWrite(new MemoryFileWriteConfig{ FilePath = "memread.bin", MaxCapacity = 1024, Strategy = AllocationStrategy.Pooled }) as IMemoryFileWriteStream;
+            Assert.That(stream.Buffer, Is.InstanceOf<PooledBufferHandle>());
+        }
+
+        [Test]
+        public void Create_WithStandardBuffer_CreatesStandardBuffer()
+        {
+            using var stream = _service.OpenWrite(new MemoryFileWriteConfig{ FilePath = "memread.bin", MaxCapacity = 1024, Strategy = AllocationStrategy.Standard }) as IMemoryFileWriteStream;
+            Assert.That(stream.Buffer, Is.InstanceOf<StandardBufferHandle>());
+        }
+
+        [Test]
+        public void Create_WithFromFileBuffer_ThrowsNotSupportedException()
+        {
+            Assert.Throws<NotSupportedException>(() => _service.OpenWrite(new MemoryFileWriteConfig{ FilePath = "memread.bin", MaxCapacity = 1024, Strategy = AllocationStrategy.FromFile }));
+        }
+
+        [Test]
+        public void Dispose_DisposeAgain_DoesNotThrow()
+        {
+            using var stream = OpenMemoryFileWriteStream();
+            stream.Dispose();
+            Assert.DoesNotThrow(() => stream.Dispose());
+        }
+
+        [Test]
+        public void Close_ClosesFile()
+        {
+            using var stream = OpenMemoryFileWriteStream() as IMemoryFileWriteStream;
+            stream.Close();
+            Assert.That(stream.IsOpen, Is.False);
+        }
+
+        [Test]
+        public void WriteLine_String_ThrowsNotImplementedException()
+        {
+            using var stream = OpenMemoryFileWriteStream() as MemoryFileWriteStream;
+            Assert.Throws<NotImplementedException>(() => stream.WriteLine(string.Empty));
+        }
+
+        [Test]
+        public void WriteLine_Span_ThrowsNotImplementedException()
+        {
+            using var stream = OpenMemoryFileWriteStream() as MemoryFileWriteStream;
+            Assert.Throws<NotImplementedException>(() => stream.WriteLine(string.Empty.AsSpan()));
+        }
+
+        [Test]
+        public void WriteLineAsync_String_ThrowsNotImplementedException()
+        {
+            using var stream = OpenMemoryFileWriteStream() as MemoryFileWriteStream;
+            Assert.ThrowsAsync<NotImplementedException>(async () => await stream.WriteLineAsync(string.Empty));
+        }
+
+        [Test]
+        public void WriteLineAsync_Memory_ThrowsNotImplementedException()
+        {
+            using var stream = OpenMemoryFileWriteStream() as MemoryFileWriteStream;
+            Assert.ThrowsAsync<NotImplementedException>(async () => await stream.WriteLineAsync(string.Empty.AsMemory()));
         }
 
         [Test]

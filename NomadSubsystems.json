@@ -43,19 +43,6 @@
       "DefaultEnabled": true
     },
     {
-      "Name": "Nomad.Steam.VoiceChat",
-      "Define": "NOMAD_ENABLE_STEAM_VOICECHAT",
-      "Description": "Subsystem SteamVoiceChat",
-      "DependsOn": [
-        "Nomad.Core",
-        "Nomad.Events",
-        "Nomad.Logger",
-        "Nomad.CVars"
-      ],
-      "UnityCompatible": false,
-      "DefaultEnabled": false
-    },
-    {
       "Name": "Nomad.ResourceCache",
       "Define": "NOMAD_ENABLE_RESOURCECACHE",
       "Description": "Subsystem ResourceCache",

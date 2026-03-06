@@ -22,7 +22,7 @@ using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.FileSystem.Configs;
 using System.Buffers;
 
-namespace Nomad.FileSystem.Private.FileStream {
+namespace Nomad.FileSystem.Private.FileStreams {
 	/*
 	===================================================================================
 
@@ -60,7 +60,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <param name="config">The path to the file to read from.</param>
 		public FileReadStream( FileReadConfig config )
-			: base( config.FilePath, FileMode.Open, FileAccess.Read ) {
+			: base( config.FilePath!, FileMode.Open, FileAccess.Read ) {
 			ArgumentGuard.ThrowIfNull( fileStream );
 			_streamReader = new BinaryReader( fileStream );
 		}
@@ -78,10 +78,10 @@ namespace Nomad.FileSystem.Private.FileStream {
 				return;
 			}
 			if ( disposing ) {
-				_streamReader?.Dispose();
+				_streamReader.Dispose();
 			}
-			isDisposed = true;
 			base.Dispose( disposing );
+			isDisposed = true;
 		}
 
 		/*
@@ -97,9 +97,9 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <param name="count">The maximum number of bytes to be read from the current stream.</param>
 		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many bytes are not currently available, or zero if the end of the stream has been reached.</returns>
 		public int Read( byte[] buffer, int offset, int count ) {
-			ArgumentGuard.ThrowIfNull( buffer );
 			StateGuard.ThrowIfDisposed( isDisposed, this );
-			return fileStream!.Read( buffer, offset, count );
+			ArgumentGuard.ThrowIfNull( buffer );
+			return fileStream.Read( buffer, offset, count );
 		}
 
 		/*
@@ -129,7 +129,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <returns>The total number of bytes read into the span. This can be less than the length of the span if that many bytes are not currently available, or zero if the end of the stream has been reached.</returns>
 		public int Read( Span<byte> buffer, int offset, int count ) {
 			StateGuard.ThrowIfDisposed( isDisposed, this );
-			return fileStream!.Read( buffer.Slice( offset, count ) );
+			return fileStream.Read( buffer.Slice( offset, count ) );
 		}
 
 		/*
@@ -161,7 +161,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		public ValueTask<int> ReadAsync( byte[] buffer, int offset, int count, CancellationToken ct = default ) {
 			StateGuard.ThrowIfDisposed( isDisposed, this );
 			ct.ThrowIfCancellationRequested();
-			return fileStream!.ReadAsync( buffer.AsMemory( offset, count ), ct );
+			return fileStream.ReadAsync( buffer.AsMemory( offset, count ), ct );
 		}
 
 		/*
@@ -178,7 +178,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		public ValueTask<int> ReadAsync( Memory<byte> buffer, CancellationToken ct = default ) {
 			StateGuard.ThrowIfDisposed( isDisposed, this );
 			ct.ThrowIfCancellationRequested();
-			return fileStream!.ReadAsync( buffer, ct );
+			return fileStream.ReadAsync( buffer, ct );
 		}
 
 		/*
@@ -193,7 +193,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		public byte[] ReadToEnd() {
 			StateGuard.ThrowIfDisposed( isDisposed, this );
 
-			long remaining = fileStream!.Length - fileStream.Position;
+			long remaining = fileStream.Length - fileStream.Position;
 			if ( remaining > int.MaxValue ) {
 				throw new InvalidOperationException( "File is too large to read into a single array." );
 			}
@@ -220,7 +220,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 
 			ct.ThrowIfCancellationRequested();
 
-			long remaining = fileStream!.Length - fileStream.Position;
+			long remaining = fileStream.Length - fileStream.Position;
 			if ( remaining > int.MaxValue ) {
 				throw new InvalidOperationException( "File is too large to read into a single array." );
 			}
@@ -291,7 +291,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		public byte[] ToArray() {
 			StateGuard.ThrowIfDisposed( isDisposed, this );
 
-			long originalPosition = fileStream!.Position;
+			long originalPosition = fileStream.Position;
 			fileStream.Position = 0;
 			try {
 				int length = (int)fileStream.Length;

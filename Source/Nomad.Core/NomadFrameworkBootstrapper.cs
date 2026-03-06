@@ -16,6 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Collections.Generic;
 using Nomad.Core.Abstractions;
+using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.ServiceRegistry.Interfaces;
 
 namespace Nomad.Core
@@ -29,11 +30,18 @@ namespace Nomad.Core
         private readonly IServiceLocator _locator;
         private readonly List<IBootstrapper> _bootstrappers;
 
+        private bool _isDisposed = false;
+
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="registry"></param>
+        /// <param name="locator"></param>
         public NomadFrameworkBootstrapper(IServiceRegistry registry, IServiceLocator locator)
         {
+            ArgumentGuard.ThrowIfNull(registry);
+            ArgumentGuard.ThrowIfNull(locator);
+
             _registry = registry;
             _locator = locator;
             _bootstrappers = new List<IBootstrapper>();
@@ -44,10 +52,15 @@ namespace Nomad.Core
         /// </summary>
         public void Dispose()
         {
-            for (int i = _bootstrappers.Count - 1; i >= 0; i--)
+            if (!_isDisposed)
             {
-                _bootstrappers[i].Shutdown();
+                for (int i = _bootstrappers.Count - 1; i >= 0; i--)
+                {
+                    _bootstrappers[i].Shutdown();
+                }
             }
+            GC.SuppressFinalize(this);
+            _isDisposed = true;
         }
 
         /// <summary>

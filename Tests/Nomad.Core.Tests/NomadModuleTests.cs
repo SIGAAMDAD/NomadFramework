@@ -13,9 +13,28 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.CVars.Private.Services {
-	internal sealed class CVarFactory {
-		public CVarFactory() {
+using System.Reflection;
+using Nomad.Core.Util.Attributes;
+using NUnit.Framework;
+
+namespace Nomad.Core.Tests
+{
+	[TestFixture]
+	public class NomadModuleTests
+	{
+		private NomadModule _module;
+
+		[SetUp]
+		public void Setup()
+		{
+			var asm = typeof(NomadModule).Assembly;
+			_module = asm.GetCustomAttribute<NomadModule>();
 		}
-	};
-};
+
+		[Test]
+		public void Module_HasCorrectMetadata()
+		{
+			Assert.That(_module.Name, Is.EqualTo("Nomad.Core"));
+		}
+	}
+}

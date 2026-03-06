@@ -23,6 +23,7 @@ using Nomad.Core.FileSystem.Configs;
 using Nomad.Core.FileSystem.Streams;
 using Nomad.Core.Logger;
 using Nomad.FileSystem.Private.Services;
+using Nomad.FileSystem.Private.FileStreams;
 
 namespace Nomad.FileSystem.Tests
 {
@@ -66,7 +67,27 @@ namespace Nomad.FileSystem.Tests
         private IWriteStream OpenWriteStream(bool append = false)
         {
             var config = new FileWriteConfig { FilePath = _filePath, Append = append };
-            return _service.OpenWrite(config)!;
+            return _service.OpenWrite(config);
+        }
+
+        [Test]
+        public void Create_HasCorrectMetadata()
+        {
+            using var stream = OpenWriteStream() as IFileWriteStream;
+
+            Assert.That(stream, Is.Not.Null);
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(stream, Is.InstanceOf<FileWriteStream>());
+                Assert.That(stream.CanRead, Is.False);
+                Assert.That(stream.CanWrite, Is.True);
+            }
+        }
+
+        [Test]
+        public void Create_WithInvalidStreamFormat_ThrowsArgumentOutOfRangeException()
+        {
+            Assert.Throws<ArgumentOutOfRangeException>(() => new FileWriteStream(new FileWriteConfig{ FilePath = _filePath, Format = (StreamFormat)128 }));
         }
 
         [Test]
@@ -75,6 +96,52 @@ namespace Nomad.FileSystem.Tests
             using var writer = OpenWriteStream();
             writer.Dispose();
             Assert.DoesNotThrow(() => writer.Dispose());
+        }
+
+        [Test]
+        public void GetCanSeek_IsTrue()
+        {
+            using var writer = OpenWriteStream();
+            Assert.That(writer.CanSeek, Is.True);
+        }
+
+        [Test]
+        public void GetCanSeek_AfterDisposed_ThrowsObjectDisposedException()
+        {
+            using var writer = OpenWriteStream();
+            writer.Dispose();
+            Assert.Throws<ObjectDisposedException>(() => _ = writer.CanSeek);
+        }
+
+        [Test]
+        public void GetIsOpen_IsTrue()
+        {
+            using var writer = OpenWriteStream() as IFileWriteStream;
+            Assert.That(writer.IsOpen, Is.True);
+        }
+
+        [Test]
+        public void GetLength_AfterDispose_ThrowsObjectDisposedException()
+        {
+            using var writer = OpenWriteStream();
+            writer.Dispose();
+            Assert.Throws<ObjectDisposedException>(() => _ = writer.Length);
+        }
+
+        [Test]
+        public void GetPosition_AfterDispose_ThrowsObjectDisposedException()
+        {
+            using var writer = OpenWriteStream();
+            writer.Dispose();
+            Assert.Throws<ObjectDisposedException>(() => _ = writer.Position);
+        }
+
+        [Test]
+        public void GetFilePath_AfterDispose_ThrowsObjectDisposedException()
+        {
+            using var writer = OpenWriteStream() as IFileWriteStream;
+            writer.Dispose();
+            Assert.Throws<ObjectDisposedException>(() => _ = writer.FilePath);
         }
 
         [Test]
@@ -522,6 +589,22 @@ namespace Nomad.FileSystem.Tests
             }
             {
                 var written = BitConverter.ToDouble(File.ReadAllBytes(_filePath));
+                Assert.That(written, Is.EqualTo(value));
+            }
+        }
+
+        [Test]
+        public void WriteSingle_WritesCorrectValueAdvancesStream()
+        {
+            float value = float.MaxValue;
+            {
+                using var stream = OpenWriteStream();
+                stream.WriteSingle(value);
+                Assert.That(stream.Length, Is.EqualTo(sizeof(float)));
+                Assert.That(stream.Position, Is.EqualTo(sizeof(float)));
+            }
+            {
+                var written = BitConverter.ToSingle(File.ReadAllBytes(_filePath));
                 Assert.That(written, Is.EqualTo(value));
             }
         }

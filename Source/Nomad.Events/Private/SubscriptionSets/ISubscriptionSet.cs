@@ -43,9 +43,6 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// </summary>
 		int SubscriberCount { get; }
 #endif
-
-		void BindEventFriend( IGameEvent friend );
-
 		bool AddSubscription( EventCallback<TArgs> callback );
 		bool AddSubscriptionAsync( AsyncEventCallback<TArgs> callback );
 

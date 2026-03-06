@@ -206,7 +206,7 @@ namespace Nomad.Core.FileSystem
         /// <param name="buffer">The data to write to disk.</param>
         /// <param name="offset">The position in <paramref name="buffer"/> to start writing from.</param>
         /// <param name="length">The number of bytes to be written.</param>
-        void WriteFile(string path, in ReadOnlySpan<byte> buffer, int offset, int length);
+        void WriteFile(string path, byte[] buffer, int offset, int length);
 
         /// <summary>
         /// Writes a buffer asynchronously to disk.

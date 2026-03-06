@@ -43,17 +43,6 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		public bool IsOpen => buffer != null;
 
-		/// <summary>
-		/// 
-		/// </summary>
-		public DateTime LastAccessTime => _creationTime;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		public DateTime CreationTime => _creationTime;
-		private readonly DateTime _creationTime;
-
 		/*
 		===============
 		MemoryFileWriteStream
@@ -64,9 +53,9 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <param name="config"></param>
 		public MemoryFileWriteStream( MemoryFileWriteConfig config )
-			: base( config ) {
-			_filepath = config.FilePath;
-			_creationTime = DateTime.Now;
+			: base( config )
+		{
+			_filepath = config.FilePath!;
 			Open( config );
 		}
 
@@ -85,8 +74,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 			if ( disposing ) {
 				Flush();
 			}
-			isDisposed = true;
 			base.Dispose( disposing );
+			isDisposed = true;
 		}
 
 		/*
@@ -178,7 +167,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <param name="line"></param>
 		public void WriteLine( string line )
-			=> WriteString( $"{line}\n" );
+			=> throw new NotImplementedException();
 
 		/*
 		===============
@@ -190,7 +179,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <param name="line"></param>
 		public void WriteLine( ReadOnlySpan<char> line )
-			=> WriteString( new string( line ) );
+			=> throw new NotImplementedException();
 
 		/*
 		===============
@@ -203,10 +192,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <param name="line"></param>
 		/// <param name="ct"></param>
 		/// <returns></returns>
-		public async ValueTask WriteLineAsync( string line, CancellationToken ct = default ) {
-			ct.ThrowIfCancellationRequested();
-			WriteLine( line );
-		}
+		public async ValueTask WriteLineAsync( string line, CancellationToken ct = default )
+			=> throw new NotImplementedException();
 
 		/*
 		===============
@@ -219,9 +206,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// <param name="line"></param>
 		/// <param name="ct"></param>
 		/// <returns></returns>
-		public async ValueTask WriteLineAsync( ReadOnlyMemory<char> line, CancellationToken ct ) {
-			ct.ThrowIfCancellationRequested();
-			WriteLine( line.Span );
-		}
+		public async ValueTask WriteLineAsync( ReadOnlyMemory<char> line, CancellationToken ct = default )
+			=> throw new NotImplementedException();
 	};
 };

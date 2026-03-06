@@ -44,9 +44,15 @@ namespace Nomad.Events.Private {
 		public string DebugName => _name;
 		private readonly InternString _name;
 
+		/// <summary>
+		/// The event's namespace.
+		/// </summary>
 		public string NameSpace => _nameSpace;
 		private readonly InternString _nameSpace;
 
+		/// <summary>
+		/// The <see cref="EventKey"/> but in pre-hashed format without the baggage of a struct.
+		/// </summary>
 		public int Id => _hashCode;
 		private readonly int _hashCode;
 
@@ -93,7 +99,7 @@ namespace Nomad.Events.Private {
 
 			_nameSpace = nameSpace;
 			_name = name;
-			_hashCode = HashCode.Combine( GetHashCode(), _name.GetHashCode() );
+			_hashCode = HashCode.Combine( _name.GetHashCode(), nameSpace.GetHashCode(), typeof( TArgs ).TypeHandle.ToString() );
 
 			bool isSynchronous = flags.HasFlag( EventFlags.Synchronous );
 			bool isAsync = flags.HasFlag( EventFlags.Asynchronous );
@@ -238,59 +244,5 @@ namespace Nomad.Events.Private {
 			ArgumentGuard.ThrowIfNull( callback );
 			_subscriptions.RemoveSubscriptionAsync( callback );
 		}
-
-#if NET10_0_OR_GREATER
-		/*
-		===============
-		operator +=
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="callback"></param>
-		public void operator +=( EventCallback<TArgs> callback ) {
-			_subscriptions.AddSubscription( callback );
-		}
-
-		/*
-		===============
-		operator +=
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="callback"></param>
-		public void operator +=( AsyncEventCallback<TArgs> callback ) {
-			_subscriptions.AddSubscriptionAsync( callback );
-		}
-
-		/*
-		===============
-		operator -=
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="callback"></param>
-		public void operator -=( EventCallback<TArgs> callback ) {
-			_subscriptions.RemoveSubscription( callback );
-		}
-
-		/*
-		===============
-		operator -=
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="callback"></param>
-		public void operator -=( AsyncEventCallback<TArgs> callback ) {
-			_subscriptions.RemoveSubscriptionAsync( callback );
-		}
-#endif
 	};
 };

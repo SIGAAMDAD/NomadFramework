@@ -18,7 +18,7 @@ namespace Nomad.Core.Exceptions
     /// <summary>
     ///
     /// </summary>
-    public sealed class CVarMissing : NomadError
+    public sealed class CVarMissing : NomadException
     {
         /// <summary>
         /// 

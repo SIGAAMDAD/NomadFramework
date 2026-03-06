@@ -29,7 +29,7 @@ namespace Nomad.Save
     /// <summary>
     ///
     /// </summary>
-    public class SaveBootstrapper : IBootstrapper
+    public sealed class SaveBootstrapper : IBootstrapper
     {
         private ISaveDataProvider? _saveProvider;
 
@@ -43,13 +43,14 @@ namespace Nomad.Save
             ArgumentGuard.ThrowIfNull(registry);
             ArgumentGuard.ThrowIfNull(locator);
 
-            ILoggerService logger = locator.GetService<ILoggerService>();
-            IFileSystem fileSystem = locator.GetService<IFileSystem>();
-            ICVarSystemService cvarSystem = locator.GetService<ICVarSystemService>();
-            IEngineService engineService = locator.GetService<IEngineService>();
-            IGameEventRegistryService eventFactory = locator.GetService<IGameEventRegistryService>();
+            var logger = locator.GetService<ILoggerService>();
+            var fileSystem = locator.GetService<IFileSystem>();
+            var cvarSystem = locator.GetService<ICVarSystemService>();
+            var engineService = locator.GetService<IEngineService>();
+            var eventFactory = locator.GetService<IGameEventRegistryService>();
 
-            _saveProvider = registry.RegisterSingleton<ISaveDataProvider>(new SaveDataProvider(engineService, eventFactory, cvarSystem, fileSystem, logger));
+            _saveProvider = new SaveDataProvider(engineService, eventFactory, cvarSystem, fileSystem, logger);
+            registry.AddSingleton(_saveProvider);
         }
 
         /// <summary>

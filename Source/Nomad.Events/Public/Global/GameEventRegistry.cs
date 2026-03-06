@@ -27,7 +27,7 @@ namespace Nomad.Events.Global
     public static class GameEventRegistry
     {
         private static IGameEventRegistryService Instance => _instance ?? throw new SubsystemNotInitializedException();
-        private static IGameEventRegistryService? _instance;
+        private static IGameEventRegistryService? _instance = null;
 
         /// <summary>
         /// 
@@ -69,7 +69,7 @@ namespace Nomad.Events.Global
         public static bool TryGetEvent<TArgs>(string name, string nameSpace, out IGameEvent<TArgs>? gameEvent)
             where TArgs : struct
         {
-            return Instance.TryGetEvent<TArgs>(name, nameSpace, out gameEvent);
+            return Instance.TryGetEvent(name, nameSpace, out gameEvent);
         }
 
         /// <summary>

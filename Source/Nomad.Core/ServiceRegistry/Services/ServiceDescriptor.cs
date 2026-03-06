@@ -13,18 +13,16 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System.Runtime.CompilerServices;
 using System;
-using Nomad.Core.ServiceRegistry.Interfaces;
+using System.Runtime.CompilerServices;
 using Nomad.Core.Compatibility.Guards;
 
 namespace Nomad.Core.ServiceRegistry.Services
 {
     /// <summary>
-    ///
+    /// Describes a service with its type, implementation, lifetime, and optional instance.
     /// </summary>
-
-    public class ServiceDescriptor : IEquatable<ServiceDescriptor>
+    public sealed record ServiceDescriptor
     {
         /// <summary>
         /// 
@@ -44,13 +42,7 @@ namespace Nomad.Core.ServiceRegistry.Services
         /// <summary>
         /// 
         /// </summary>
-        public Func<IServiceLocator, object>? Factory { get; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public object? Instance => _instance;
-        private readonly object? _instance;
+        public object? Instance { get; }
 
         /// <summary>
         /// 
@@ -58,15 +50,13 @@ namespace Nomad.Core.ServiceRegistry.Services
         /// <param name="serviceType"></param>
         /// <param name="implementationType"></param>
         /// <param name="lifetime"></param>
-        /// <param name="factory"></param>
         /// <param name="instance"></param>
-        public ServiceDescriptor(Type serviceType, Type? implementationType, ServiceLifetime lifetime, Func<IServiceLocator, object>? factory, object? instance = null)
+        private ServiceDescriptor(Type serviceType, Type? implementationType, ServiceLifetime lifetime, object? instance = null)
         {
             ServiceType = serviceType;
             ImplementationType = implementationType;
             Lifetime = lifetime;
-            Factory = factory;
-            _instance = instance;
+            Instance = instance;
         }
 
         /// <summary>
@@ -76,11 +66,11 @@ namespace Nomad.Core.ServiceRegistry.Services
         /// <typeparam name="TImplementation"></typeparam>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ServiceDescriptor CreateSingleton<TService, TImplementation>()
+        public static ServiceDescriptor Singleton<TService, TImplementation>()
             where TService : class
             where TImplementation : class, TService
         {
-            return new ServiceDescriptor(typeof(TService), typeof(TImplementation), ServiceLifetime.Singleton, null);
+            return new ServiceDescriptor(typeof(TService), typeof(TImplementation), ServiceLifetime.Singleton);
         }
 
         /// <summary>
@@ -90,24 +80,11 @@ namespace Nomad.Core.ServiceRegistry.Services
         /// <param name="instance"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ServiceDescriptor CreateSingleton<TService>(TService instance)
+        public static ServiceDescriptor Singleton<TService>(TService instance)
             where TService : class
         {
             ArgumentGuard.ThrowIfNull(instance);
-            return new ServiceDescriptor(typeof(TService), instance.GetType(), ServiceLifetime.Singleton, null, instance);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="TService"></typeparam>
-        /// <param name="factory"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ServiceDescriptor CreateSingleton<TService>(Func<IServiceLocator, TService> factory)
-            where TService : class
-        {
-            return new ServiceDescriptor(typeof(TService), null, ServiceLifetime.Singleton, provider => factory(provider));
+            return new ServiceDescriptor(typeof(TService), instance.GetType(), ServiceLifetime.Singleton, instance);
         }
 
         /// <summary>
@@ -117,24 +94,11 @@ namespace Nomad.Core.ServiceRegistry.Services
         /// <typeparam name="TImplementation"></typeparam>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ServiceDescriptor CreateTransient<TService, TImplementation>()
+        public static ServiceDescriptor Transient<TService, TImplementation>()
             where TService : class
             where TImplementation : class, TService
         {
-            return new ServiceDescriptor(typeof(TService), typeof(TImplementation), ServiceLifetime.Transient, null);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="TService"></typeparam>
-        /// <param name="factory"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ServiceDescriptor CreateTransient<TService>(Func<IServiceLocator, TService> factory)
-            where TService : class
-        {
-            return new ServiceDescriptor(typeof(TService), null, ServiceLifetime.Transient, provider => factory(provider));
+            return new ServiceDescriptor(typeof(TService), typeof(TImplementation), ServiceLifetime.Transient);
         }
 
         /// <summary>
@@ -144,21 +108,11 @@ namespace Nomad.Core.ServiceRegistry.Services
         /// <typeparam name="TImplementation"></typeparam>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ServiceDescriptor CreateScoped<TService, TImplementation>()
+        public static ServiceDescriptor Scoped<TService, TImplementation>()
             where TService : class
             where TImplementation : class, TService
         {
-            return new ServiceDescriptor(typeof(TService), typeof(TImplementation), ServiceLifetime.Scoped, null);
+            return new ServiceDescriptor(typeof(TService), typeof(TImplementation), ServiceLifetime.Scoped);
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>/
-        public bool Equals(ServiceDescriptor? other)
-        {
-            return other is not null && other.ServiceType == ServiceType && other.ImplementationType == ImplementationType && other.Lifetime == Lifetime;
-        }
-    };
-};
+    }
+}

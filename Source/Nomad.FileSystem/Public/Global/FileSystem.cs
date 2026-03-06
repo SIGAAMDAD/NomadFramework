@@ -319,7 +319,7 @@ namespace Nomad.FileSystem.Global
         /// <param name="offset"></param>
         /// <param name="length"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void WriteFile(string path, in ReadOnlySpan<byte> buffer, int offset, int length)
+        public static void WriteFile(string path, byte[] buffer, int offset, int length)
         {
             Instance.WriteFile(path, buffer, offset, length);
         }

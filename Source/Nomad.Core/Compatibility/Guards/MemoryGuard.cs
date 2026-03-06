@@ -18,7 +18,8 @@ namespace Nomad.Core.Compatibility.Guards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ThrowIfUnaligned(IntPtr ptr, int alignment, string? paramName = null)
         {
-            if (((long)ptr & (alignment - 1)) != 0)
+            RangeGuard.ThrowIfNotPowerOfTwo(alignment, nameof(alignment));
+            if (((ulong)ptr & (ulong)(alignment - 1)) != 0)
             {
                 throw new ArgumentException($"Pointer is not aligned to {alignment} bytes.", paramName);
             }

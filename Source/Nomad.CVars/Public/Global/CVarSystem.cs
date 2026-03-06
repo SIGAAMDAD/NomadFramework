@@ -12,30 +12,3 @@ express or implied, including but not limited to the warranties
 of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
-
-using Nomad.Core.Exceptions;
-
-namespace Nomad.Save.Exceptions
-{
-    /// <summary>
-    ///
-    /// </summary>
-    public sealed class SaveLoadException : NomadError
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        public string FileId => _fileId;
-        private readonly string _fileId;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="saveFileId"></param>
-        public SaveLoadException(string saveFileId)
-            : base($"")
-        {
-            _fileId = saveFileId;
-        }
-    }
-}

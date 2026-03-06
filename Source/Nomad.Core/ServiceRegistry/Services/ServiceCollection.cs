@@ -1,125 +1,126 @@
-/*
-===========================================================================
-The Nomad Framework
-Copyright (C) 2025-2026 Noah Van Til
-
-This Source Code Form is subject to the terms of the Mozilla Public
-License, v2. If a copy of the MPL was not distributed with this
-file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-This software is provided "as is", without warranty of any kind,
-express or implied, including but not limited to the warranties
-of merchantability, fitness for a particular purpose and noninfringement.
-===========================================================================
-*/
-
-using System.Collections.Concurrent;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Nomad.Core.ServiceRegistry.Interfaces;
 
 namespace Nomad.Core.ServiceRegistry.Services
 {
     /// <summary>
-    ///
+    /// 
     /// </summary>
-    public sealed class ServiceCollection : IServiceRegistry
+    internal sealed class ServiceCollection : IServiceRegistry
     {
-        private readonly ConcurrentDictionary<Type, ServiceDescriptor> _descriptors = new ConcurrentDictionary<Type, ServiceDescriptor>();
-        private readonly ConcurrentBag<IDisposable> _disposables = new ConcurrentBag<IDisposable>();
+        private readonly ConcurrentDictionary<Type, ServiceDescriptor> _descriptors = new();
+        private readonly ConcurrentBag<IDisposable> _singletonDisposables = new();
+        private bool _isDisposed;
 
         /// <summary>
-        ///
+        /// 
         /// </summary>
         public void Dispose()
         {
-            foreach (var disposable in _disposables)
+            if (_isDisposed)
             {
-                disposable.Dispose();
+                return;
             }
-            _disposables.Clear();
+            foreach (var d in _singletonDisposables)
+            {
+                d.Dispose();
+            }
+
+            _singletonDisposables.Clear();
             _descriptors.Clear();
+            _isDisposed = true;
         }
 
         /// <summary>
-        ///
+        /// 
         /// </summary>
         /// <typeparam name="TService"></typeparam>
         /// <typeparam name="TImplementation"></typeparam>
         /// <param name="lifetime"></param>
+        /// <returns></returns>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public TService Register<TService, TImplementation>(ServiceLifetime lifetime)
+        public IServiceRegistry Register<TService, TImplementation>(ServiceLifetime lifetime)
             where TService : class
             where TImplementation : class, TService
         {
             var descriptor = lifetime switch
             {
-                ServiceLifetime.Singleton => ServiceDescriptor.CreateSingleton<TService, TImplementation>(),
-                ServiceLifetime.Transient => ServiceDescriptor.CreateTransient<TService, TImplementation>(),
-                ServiceLifetime.Scoped => ServiceDescriptor.CreateScoped<TService, TImplementation>(),
+                ServiceLifetime.Singleton => ServiceDescriptor.Singleton<TService, TImplementation>(),
+                ServiceLifetime.Transient => ServiceDescriptor.Transient<TService, TImplementation>(),
+                ServiceLifetime.Scoped => ServiceDescriptor.Scoped<TService, TImplementation>(),
                 _ => throw new ArgumentOutOfRangeException(nameof(lifetime))
             };
             _descriptors[typeof(TService)] = descriptor;
-            return (TService)descriptor.Instance!;
+            return this;
         }
 
         /// <summary>
-        ///
-        /// </summary>
-        /// <typeparam name="TService"></typeparam>
-        /// <param name="factory"></param>
-        /// <param name="lifetime"></param>
-        /// <exception cref="NotSupportedException"></exception>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public TService Register<TService>(Func<IServiceLocator, TService> factory, ServiceLifetime lifetime)
-            where TService : class
-        {
-            var descriptor = lifetime switch
-            {
-                ServiceLifetime.Singleton => ServiceDescriptor.CreateSingleton(factory),
-                ServiceLifetime.Transient => ServiceDescriptor.CreateTransient(factory),
-                ServiceLifetime.Scoped => throw new NotSupportedException("Scoped factory not supported yet"),
-                _ => throw new ArgumentOutOfRangeException(nameof(lifetime))
-            };
-            _descriptors[typeof(TService)] = descriptor;
-            return (TService)descriptor.Instance!;
-        }
-
-        /// <summary>
-        ///
+        /// 
         /// </summary>
         /// <typeparam name="TService"></typeparam>
         /// <param name="instance"></param>
-        public TService RegisterSingleton<TService>(TService instance)
+        /// <returns></returns>
+        public IServiceRegistry AddSingleton<TService>(TService instance)
             where TService : class
         {
-            var descriptor = ServiceDescriptor.CreateSingleton(instance);
+            var descriptor = ServiceDescriptor.Singleton(instance);
             _descriptors[typeof(TService)] = descriptor;
-            TrackDisposable(instance);
-            return (TService)descriptor.Instance!;
+            TrackSingletonDisposable(instance);
+            return this;
         }
 
         /// <summary>
-        ///
+        /// 
         /// </summary>
         /// <typeparam name="TService"></typeparam>
         /// <typeparam name="TImplementation"></typeparam>
         /// <returns></returns>
-        public TService RegisterSingleton<TService, TImplementation>()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IServiceRegistry AddSingleton<TService, TImplementation>()
             where TService : class
             where TImplementation : class, TService
         {
-            var descriptor = ServiceDescriptor.CreateSingleton<TService, TImplementation>();
-            _descriptors[typeof(TService)] = descriptor;
-            TrackDisposable(descriptor.Instance!);
-            return (TService)descriptor.Instance!;
+            return Register<TService, TImplementation>(ServiceLifetime.Singleton);
+        }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TService"></typeparam>
+        /// <typeparam name="TImplementation"></typeparam>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IServiceRegistry AddTransient<TService, TImplementation>()
+            where TService : class
+            where TImplementation : class, TService
+        {
+            return Register<TService, TImplementation>(ServiceLifetime.Transient);
         }
 
         /// <summary>
-        ///
+        /// 
+        /// </summary>
+        /// <typeparam name="TService"></typeparam>
+        /// <typeparam name="TImplementation"></typeparam>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IServiceRegistry AddScoped<TService, TImplementation>()
+            where TService : class
+            where TImplementation : class, TService
+        {
+            return Register<TService, TImplementation>(ServiceLifetime.Scoped);
+        }
+        
+        /// <summary>
+        /// 
         /// </summary>
         /// <typeparam name="TService"></typeparam>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsRegistered<TService>()
             where TService : class
         {
@@ -127,35 +128,33 @@ namespace Nomad.Core.ServiceRegistry.Services
         }
 
         /// <summary>
-        ///
+        /// 
         /// </summary>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<ServiceDescriptor> GetDescriptors()
-        {
-            return _descriptors.Values;
-        }
+            => _descriptors.Values;
 
         /// <summary>
-        ///
-        /// </summary>
-        /// <param name="instance"></param>
-        internal void TrackDisposable(object instance)
-        {
-            if (instance is IDisposable disposable)
-            {
-                _disposables.Add(disposable);
-            }
-        }
-
-        /// <summary>
-        ///
+        /// 
         /// </summary>
         /// <param name="serviceType"></param>
+        /// <param name="descriptor"></param>
         /// <returns></returns>
-        internal ServiceDescriptor GetDescriptor(Type serviceType)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal bool TryGetDescriptor(Type serviceType, [NotNullWhen(true)] out ServiceDescriptor? descriptor)
+            => _descriptors.TryGetValue(serviceType, out descriptor);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="instance"></param>
+        internal void TrackSingletonDisposable(object instance)
         {
-            _descriptors.TryGetValue(serviceType, out ServiceDescriptor? descriptor);
-            return descriptor!;
+            if (instance is IDisposable d)
+            {
+                _singletonDisposables.Add(d);
+            }
         }
     }
 }

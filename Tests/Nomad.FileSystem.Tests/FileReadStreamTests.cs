@@ -21,7 +21,7 @@ using Moq;
 using Nomad.Core.EngineUtils;
 using Nomad.Core.Logger;
 using Nomad.FileSystem.Private.Services;
-using Nomad.FileSystem.Private.FileStream;
+using Nomad.FileSystem.Private.FileStreams;
 using Nomad.Core.FileSystem.Streams;
 using Nomad.Core.FileSystem.Configs;
 
@@ -77,7 +77,7 @@ namespace Nomad.FileSystem.Tests
         [Test]
         public void Create_HasCorrectMetadata()
         {
-            using var stream = OpenReadStream() as FileReadStream;
+            using var stream = OpenReadStream() as IFileReadStream;
 
             Assert.That(stream, Is.Not.Null);
             using (Assert.EnterMultipleScope())
@@ -97,6 +97,38 @@ namespace Nomad.FileSystem.Tests
 
             stream.Dispose();
             Assert.DoesNotThrow(() => stream.Dispose());
+        }
+
+        [Test]
+        public void GetLength_AfterDispose_ThrowsObjectDisposedException()
+        {
+            using var writer = OpenReadStream();
+            writer.Dispose();
+            Assert.Throws<ObjectDisposedException>(() => _ = writer.Length);
+        }
+
+        [Test]
+        public void SetLength_AfterDispose_ThrowsObjectDisposedException()
+        {
+            using var writer = OpenReadStream();
+            writer.Dispose();
+            Assert.Throws<ObjectDisposedException>(() => writer.Length = 0);
+        }
+
+        [Test]
+        public void GetPosition_AfterDispose_ThrowsObjectDisposedException()
+        {
+            using var writer = OpenReadStream();
+            writer.Dispose();
+            Assert.Throws<ObjectDisposedException>(() => _ = writer.Position);
+        }
+
+        [Test]
+        public void GetFilePath_AfterDispose_ThrowsObjectDisposedException()
+        {
+            using var writer = OpenReadStream() as IFileReadStream;
+            writer.Dispose();
+            Assert.Throws<ObjectDisposedException>(() => _ = writer.FilePath);
         }
 
         [Test]

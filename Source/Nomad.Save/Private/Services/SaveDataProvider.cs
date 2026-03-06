@@ -46,8 +46,6 @@ namespace Nomad.Save.Private.Services {
 	/// </summary>
 
 	internal sealed class SaveDataProvider : ISaveDataProvider {
-		private readonly List<SaveFileMetadata> _saveFiles;
-
 		private readonly ISaveWriterService _writerService;
 		private readonly ISaveReaderService _readerService;
 
@@ -95,8 +93,6 @@ namespace Nomad.Save.Private.Services {
 			_vfs = fileSystem;
 			_logger = logger;
 			_category = logger.CreateCategory( nameof( Nomad.Save ), LogLevel.Info, true );
-
-			_saveFiles = new List<SaveFileMetadata>();
 
 			_config = InitConfiguration( engineService, cvarSystem );
 

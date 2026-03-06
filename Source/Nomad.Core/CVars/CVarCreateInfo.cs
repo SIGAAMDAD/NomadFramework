@@ -18,34 +18,49 @@ using System;
 namespace Nomad.Core.CVars
 {
     /// <summary>
-    /// 
+    /// Creation information for a <see cref="ICVar"/>.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The internal value type of the CVar.</typeparam>
     public record CVarCreateInfo<T>
     {
         /// <summary>
-        /// 
+        /// The CVar's name.
         /// </summary>
         public string Name { get; init; }
 
         /// <summary>
-        /// 
+        /// The CVar's default/starting value. After reset/restart, the CVar's value will be assigned to this.
         /// </summary>
         public T DefaultValue { get; init; }
 
         /// <summary>
-        /// 
+        /// A short description of the CVar.
         /// </summary>
         public string Description { get; init; }
 
         /// <summary>
-        /// 
+        /// The CVar's assigned group.
         /// </summary>
+        /// <remarks>
+        /// This is optional, if <see langword="null"/>, the group is set to "Default".
+        /// </remarks>
+        public string Group { get; init; }
+
+        /// <summary>
+        /// The CVar's permissions/runtime rules.
+        /// </summary>
+        /// <remarks>
+        /// This is optional, defaults to <see cref="CVarFlags.None"/>, simply meaning "no rules".
+        /// </remarks>
         public CVarFlags Flags { get; init; } = CVarFlags.None;
 
         /// <summary>
-        /// 
+        /// A validator callback for approving value changes.
         /// </summary>
+        /// <remarks>
+        /// This is optional, but highly recommended to set this if you want extra safety/are exposing the CVar to
+        /// modification via external processes.
+        /// </remarks>
         public Func<T, bool>? Validator { get; init; } = null;
     }
 }

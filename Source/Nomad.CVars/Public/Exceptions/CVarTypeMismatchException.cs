@@ -21,7 +21,7 @@ namespace Nomad.CVars.Exceptions
     /// <summary>
     /// 
     /// </summary>
-    public sealed class CVarTypeMismatchException : NomadError
+    public sealed class CVarTypeMismatchException : NomadException
     {
         /// <summary>
         /// 

@@ -20,7 +20,7 @@ namespace Nomad.Core.ServiceRegistry.Interfaces
     /// <summary>
     ///
     /// </summary>
-    public interface IServiceScope : IDisposable
+    public interface IServiceScope : IDisposable, IServiceLocator
     {
         /// <summary>
         /// 

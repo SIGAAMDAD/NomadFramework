@@ -538,5 +538,17 @@ namespace Nomad.Core
             /// </summary>
             public const int MAX_PLAYERS = 16;
         }
+
+        /// <summary>
+        /// Constants for the FileSystem
+        /// </summary>
+        public static class FileSystem
+        {
+            /// <summary>
+            /// The maximum size a memory stream can be before it needs to either be flushed or streamed directly
+            /// to disk. Set to 1 GiB.
+            /// </summary>
+            public const int MAXIMUM_MEMORY_STREAM_CAPACITY = 1 * 1024 * 1024 * 1024;
+        }
     }
 }

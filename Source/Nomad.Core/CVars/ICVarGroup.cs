@@ -13,16 +13,35 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System.IO.Compression;
-using Nomad.Core.FileSystem;
+using System.Collections.Immutable;
 
-namespace Nomad.FileSystem.Private.ArchiveStream {
-	internal sealed class ZipArchiveReadStream {
-		private readonly ZipArchive _archive;
+namespace Nomad.Core.CVars
+{
+	/// <summary>
+	/// 
+	/// </summary>
+	public interface ICVarGroup
+	{
+		/// <summary>
+		/// The group's unique name.
+		/// </summary>
+		string Name { get; }
 
-		public ZipArchiveReadStream( string path ) {
-			using var stream = new System.IO.FileStream( path, System.IO.FileMode.Open, System.IO.FileAccess.Read );
-			_archive = new ZipArchive( stream );
-		}
-	};
-};
+		/// <summary>
+		/// 
+		/// </summary>
+		IImmutableList<ICVar> CVars { get; }
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="cvar"></param>
+		void AddCVar(ICVar cvar);
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="cvar"></param>
+		void RemoveCVar(ICVar cvar);
+	}
+}

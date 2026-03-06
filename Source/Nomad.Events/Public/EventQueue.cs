@@ -15,7 +15,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
-using Nomad.Core.Collections;
 using Nomad.Core.Events;
 
 namespace Nomad.Events.Private

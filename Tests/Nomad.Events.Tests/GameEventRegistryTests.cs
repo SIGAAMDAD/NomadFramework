@@ -18,6 +18,7 @@ using System;
 using NUnit.Framework;
 using Nomad.Core.Events;
 using Nomad.Core.Logger;
+using Nomad.Core.Exceptions;
 
 namespace Nomad.Events.Tests
 {
@@ -54,7 +55,7 @@ namespace Nomad.Events.Tests
             string eventName = "TestEvent";
 
             // Act
-            var gameEvent = _registry.GetEvent<EmptyEventArgs>(nameSpace, eventName);
+            var gameEvent = _registry.GetEvent<EmptyEventArgs>(eventName, nameSpace);
 
             // Assert
             using (Assert.EnterMultipleScope())
@@ -73,8 +74,8 @@ namespace Nomad.Events.Tests
             string eventName = "TestEvent";
 
             // Act
-            var event1 = _registry.GetEvent<EmptyEventArgs>(nameSpace, eventName);
-            var event2 = _registry.GetEvent<EmptyEventArgs>(nameSpace, eventName);
+            var event1 = _registry.GetEvent<EmptyEventArgs>(eventName, nameSpace);
+            var event2 = _registry.GetEvent<EmptyEventArgs>(eventName, nameSpace);
 
             // Assert
             Assert.That(event1, Is.SameAs(event2));
@@ -115,18 +116,15 @@ namespace Nomad.Events.Tests
         #region Type Mismatch Tests
 
         [Test]
-        public void GetEvent_WithDifferentArgTypeForSameName_ThrowsInvalidOperationException()
+        public void GetEvent_WithDifferentArgTypeForSameName_DoesNotThrow()
         {
             // Arrange
             string nameSpace = "Test.Namespace";
             string eventName = "TestEvent";
-            _registry.GetEvent<EmptyEventArgs>(nameSpace, eventName); // Register with EmptyEventArgs
+            _registry.GetEvent<EmptyEventArgs>(eventName, nameSpace); // Register with EmptyEventArgs
 
             // Act & Assert
-            Assert.That(
-                () => { _registry.GetEvent<TestEventArgs>(nameSpace, eventName); },
-                !Throws.InstanceOf<InvalidOperationException>()
-            );
+            Assert.DoesNotThrow(() => _registry.GetEvent<TestEventArgs>(eventName, nameSpace));
         }
 
         [Test]
@@ -137,11 +135,32 @@ namespace Nomad.Events.Tests
             string eventName = "TestEvent";
 
             // Act
-            var event1 = _registry.GetEvent<TestEventArgs>(nameSpace, eventName);
-            var event2 = _registry.GetEvent<TestEventArgs>(nameSpace, eventName);
+            var event1 = _registry.GetEvent<TestEventArgs>(eventName, nameSpace);
+            var event2 = _registry.GetEvent<TestEventArgs>(eventName, nameSpace);
 
             // Assert
             Assert.That(event1, Is.SameAs(event2));
+        }
+
+        [Test]
+        public void GetEvents_ReturnsAllCreatedEvents()
+        {
+            // Arrange
+            string nameSpace = "Test.Namespace";
+            var event1 = _registry.GetEvent<EmptyEventArgs>("Event1", nameSpace);
+            var event2 = _registry.GetEvent<EmptyEventArgs>("Event2", nameSpace);
+            var event3 = _registry.GetEvent<EmptyEventArgs>("Event3", nameSpace);
+
+            // Act
+            var events = _registry.GetAllEvents();
+
+			using (Assert.EnterMultipleScope())
+			{
+				// Assert
+				Assert.That(events, Does.Contain(event1));
+                Assert.That(events, Does.Contain(event2));
+                Assert.That(events, Does.Contain(event3));
+			}
         }
 
         #endregion
@@ -154,10 +173,10 @@ namespace Nomad.Events.Tests
             // Arrange
             string nameSpace = "Test.Namespace";
             string eventName = "TestEvent";
-            _registry.GetEvent<EmptyEventArgs>(nameSpace, eventName);
+            _registry.GetEvent<EmptyEventArgs>(eventName, nameSpace);
 
             // Act
-            bool removed = _registry.TryRemoveEvent<EmptyEventArgs>(nameSpace, eventName);
+            bool removed = _registry.TryRemoveEvent<EmptyEventArgs>(eventName, nameSpace);
 
             // Assert
             Assert.That(removed, Is.True);
@@ -171,7 +190,7 @@ namespace Nomad.Events.Tests
             string eventName = "NonExistentEvent";
 
             // Act
-            bool removed = _registry.TryRemoveEvent<EmptyEventArgs>(nameSpace, eventName);
+            bool removed = _registry.TryRemoveEvent<EmptyEventArgs>(eventName, nameSpace);
 
             // Assert
             Assert.That(removed, Is.False);
@@ -183,15 +202,36 @@ namespace Nomad.Events.Tests
             // Arrange
             string nameSpace = "Test.Namespace";
             string eventName = "TestEvent";
-            var event1 = _registry.GetEvent<EmptyEventArgs>(nameSpace, eventName);
-            _registry.TryRemoveEvent<EmptyEventArgs>(nameSpace, eventName);
+            var event1 = _registry.GetEvent<EmptyEventArgs>(eventName, nameSpace);
+            _registry.TryRemoveEvent<EmptyEventArgs>(eventName, nameSpace);
 
             // Act
-            var event2 = _registry.GetEvent<EmptyEventArgs>(nameSpace, eventName);
+            var event2 = _registry.GetEvent<EmptyEventArgs>(eventName, nameSpace);
 
             // Assert
             Assert.That(event1, Is.Not.SameAs(event2));
         }
+
+        [Test]
+        public void ClearAllEvents_RemovesAllEvents()
+        {
+            // Arrange
+            string nameSpace = "Test.Namespace";
+            _registry.GetEvent<EmptyEventArgs>("Event1", nameSpace);
+            _registry.GetEvent<EmptyEventArgs>("Event2", nameSpace);
+            _registry.GetEvent<EmptyEventArgs>("Event3", nameSpace);
+
+            // Act
+            _registry.ClearAllEvents();
+
+			using (Assert.EnterMultipleScope())
+			{
+				// Assert
+				Assert.That(_registry.TryGetEvent<EmptyEventArgs>("Event1", nameSpace, out _), Is.False);
+				Assert.That(_registry.TryGetEvent<EmptyEventArgs>("Event2", nameSpace, out _), Is.False);
+				Assert.That(_registry.TryGetEvent<EmptyEventArgs>("Event3", nameSpace, out _), Is.False);
+			}
+		}
 
         #endregion
 
@@ -348,20 +388,17 @@ namespace Nomad.Events.Tests
         #region Edge Cases
 
         [Test]
-        public void GetEvent_WithEmptyStringNamespace_CreatesEvent()
+        public void GetEvent_WithEmptyStringNamespace_ThrowsArgumentExceptin()
         {
-            // Act
-            var gameEvent = _registry.GetEvent<EmptyEventArgs>("", "Event");
-
-            // Assert
-            Assert.That(gameEvent, Is.Not.Null);
+            // Act & Assert
+            Assert.Throws<ArgumentException>(() => _registry.GetEvent<EmptyEventArgs>("", "Event"));
         }
 
         [Test]
         public void GetEvent_WithSpecialCharactersInNames_CreatesEvent()
         {
             // Act
-            var gameEvent = _registry.GetEvent<EmptyEventArgs>("Test.Namespace@#$", "Event!@#$%^");
+            var gameEvent = _registry.GetEvent<EmptyEventArgs>("Event!@#$%^", "Test.Namespace@#$");
 
             // Assert
             Assert.That(gameEvent, Is.Not.Null);

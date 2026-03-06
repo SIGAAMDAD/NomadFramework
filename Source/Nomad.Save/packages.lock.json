@@ -2,12 +2,6 @@
   "version": 1,
   "dependencies": {
     ".NETStandard,Version=v2.1": {
-      "System.Runtime.CompilerServices.Unsafe": {
-        "type": "Direct",
-        "requested": "[6.1.2, )",
-        "resolved": "6.1.2",
-        "contentHash": "2hBr6zdbIBTDE3EhK7NSVNdX58uTK6iHW/P/Axmm9sl1xoGSLqDvMtpecn226TNwHByFokYwJmt/aQQNlO5CRw=="
-      },
       "Microsoft.Extensions.Configuration": {
         "type": "Transitive",
         "resolved": "10.0.3",
@@ -97,13 +91,17 @@
         "resolved": "10.0.3",
         "contentHash": "La6ICwsdTKhVX+LKN+pvFjQRR3LhLwq3uKdi2knjLzRyPYBSydF4cjXidYxIiTcDD6XVYdsBWQEI8ZxiZ/OdIg=="
       },
+      "System.Runtime.CompilerServices.Unsafe": {
+        "type": "Transitive",
+        "resolved": "6.1.2",
+        "contentHash": "2hBr6zdbIBTDE3EhK7NSVNdX58uTK6iHW/P/Axmm9sl1xoGSLqDvMtpecn226TNwHByFokYwJmt/aQQNlO5CRw=="
+      },
       "NomadFramework.Nomad.Core": {
         "type": "Project",
         "dependencies": {
           "Microsoft.IO.RecyclableMemoryStream": "[3.0.1, )",
           "System.Collections.Immutable": "[10.0.3, )",
-          "System.IO.Hashing": "[10.0.3, )",
-          "System.Runtime.CompilerServices.Unsafe": "[6.1.2, )"
+          "System.IO.Hashing": "[10.0.3, )"
         }
       },
       "NomadFramework.Nomad.CVars": {
@@ -112,8 +110,7 @@
           "Microsoft.Extensions.Configuration.Ini": "[10.0.3, )",
           "NomadFramework.Nomad.Core": "[1.1.0, )",
           "NomadFramework.Nomad.Events": "[1.0.1, )",
-          "System.Collections.Immutable": "[10.0.3, )",
-          "System.Runtime.CompilerServices.Unsafe": "[6.1.2, )"
+          "System.Collections.Immutable": "[10.0.3, )"
         }
       },
       "NomadFramework.Nomad.Events": {
@@ -121,18 +118,11 @@
         "dependencies": {
           "Microsoft.Extensions.Configuration.Ini": "[10.0.3, )",
           "NomadFramework.Nomad.Core": "[1.1.0, )",
-          "System.Collections.Immutable": "[10.0.3, )",
-          "System.Runtime.CompilerServices.Unsafe": "[6.1.2, )"
+          "System.Collections.Immutable": "[10.0.3, )"
         }
       }
     },
     "net10.0": {
-      "System.Runtime.CompilerServices.Unsafe": {
-        "type": "Direct",
-        "requested": "[6.1.2, )",
-        "resolved": "6.1.2",
-        "contentHash": "2hBr6zdbIBTDE3EhK7NSVNdX58uTK6iHW/P/Axmm9sl1xoGSLqDvMtpecn226TNwHByFokYwJmt/aQQNlO5CRw=="
-      },
       "Microsoft.Extensions.Configuration": {
         "type": "Transitive",
         "resolved": "10.0.3",
@@ -235,12 +225,6 @@
       }
     },
     "net8.0": {
-      "System.Runtime.CompilerServices.Unsafe": {
-        "type": "Direct",
-        "requested": "[6.1.2, )",
-        "resolved": "6.1.2",
-        "contentHash": "2hBr6zdbIBTDE3EhK7NSVNdX58uTK6iHW/P/Axmm9sl1xoGSLqDvMtpecn226TNwHByFokYwJmt/aQQNlO5CRw=="
-      },
       "Microsoft.Extensions.Configuration": {
         "type": "Transitive",
         "resolved": "10.0.3",

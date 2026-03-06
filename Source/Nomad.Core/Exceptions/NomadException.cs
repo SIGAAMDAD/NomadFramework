@@ -24,7 +24,7 @@ namespace Nomad.Core.Exceptions
     /// <summary>
     /// 
     /// </summary>
-    public class NomadError : Exception
+    public class NomadException : Exception
     {
         /// <summary>
         /// 
@@ -37,21 +37,16 @@ namespace Nomad.Core.Exceptions
         public string Module => _module;
         private readonly string _module;
 
-        /// <summary>
-        /// The time at which the exception was thrown.
-        /// </summary>
-        public DateTime TimeStap => _timeStamp;
-        private readonly DateTime _timeStamp;
+        private readonly DateTime _timeStamp = DateTime.UtcNow;
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="message"></param>
-        public NomadError(string message)
+        public NomadException(string message)
             : base(message)
         {
             _module = ResolveNomadModuleInfo() ?? "(UNKNOWN)";
-            _timeStamp = DateTime.Now;
         }
 
         /// <summary>
@@ -76,31 +71,27 @@ namespace Nomad.Core.Exceptions
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static string? ResolveNomadModuleInfo()
         {
-            Assembly thisAssembly = typeof(NomadError).Assembly;
+            var thisAssembly = typeof(NomadException).Assembly;
 
             // skip 1 to move past this method's own fame
             var st = new StackTrace(skipFrames: 1, fNeedFileInfo: true);
-            StackFrame[] frames = st.GetFrames();
-            if (frames == null || frames.Length == 0)
-            {
-                return null;
-            }
+            var frames = st.GetFrames();
 
             for (int i = 0; i < frames.Length; i++)
             {
-                MethodBase? method = frames[i].GetMethod();
+                var method = frames[i].GetMethod();
                 if (method == null)
                 {
                     continue;
                 }
 
-                Assembly asm = method.Module.Assembly;
+                var asm = method.Module.Assembly;
                 if (asm == thisAssembly)
                 {
                     continue;
                 }
 
-                NomadModule? attribute = asm.GetCustomAttribute<NomadModule>();
+                var attribute = asm.GetCustomAttribute<NomadModule>();
                 if (attribute != null)
                 {
                     return attribute.Name;

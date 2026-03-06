@@ -28,6 +28,6 @@ namespace Nomad.Core.FileSystem.Configs
         /// <summary>
         /// 
         /// </summary>
-        public string FilePath { get; init; }
+        public string? FilePath { get; init; }
     }
 }

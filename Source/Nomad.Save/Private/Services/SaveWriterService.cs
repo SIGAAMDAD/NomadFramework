@@ -185,7 +185,7 @@ namespace Nomad.Save.Private.Services {
 			ArgumentGuard.ThrowIfNull( _writer );
 
 			if ( _sections.ContainsKey( sectionId ) ) {
-				throw new DuplicateSectionException( $"Section {sectionId} added twice!" );
+				throw new DuplicateSectionException( sectionId );
 			}
 			var writer = new SaveSectionWriter( in _config, _logger, _category, sectionId, _writer );
 			_sections[sectionId] = writer;

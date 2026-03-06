@@ -21,7 +21,7 @@ using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 
-namespace Nomad.CVars.Private.Repositories {
+namespace Nomad.CVars.Private.Serialization {
 	/*
 	===================================================================================
 
@@ -54,7 +54,7 @@ namespace Nomad.CVars.Private.Repositories {
 			_iniData = null;
 
 			try {
-				using FileStream fileStream = new FileStream( $"{fileSystem.GetConfigPath()}/{configFile}", FileMode.Open, FileAccess.Read );
+				using var fileStream = new FileStream( $"{fileSystem.GetConfigPath()}/{configFile}", FileMode.Open, FileAccess.Read );
 
 				_iniData = IniStreamConfigurationProvider.Read( fileStream );
 				if ( _iniData == null ) {
@@ -82,6 +82,29 @@ namespace Nomad.CVars.Private.Repositories {
 			if ( _iniData.TryGetValue( name, out string? data ) ) {
 				ArgumentGuard.ThrowIfNullOrEmpty( data );
 				value = Convert.ToInt32( data );
+				return true;
+			}
+			value = 0;
+			return false;
+		}
+
+		/*
+		===============
+		LoadConfigValue
+		===============
+		*/
+		/// <summary>
+		/// Loads a configuration value in the form of an integer.
+		/// </summary>
+		/// <param name="name">The name of the key of the configuration value</param>
+		/// <param name="value">The output value</param>
+		public bool LoadConfigValue( string name, out uint value ) {
+			ArgumentGuard.ThrowIfNull( _iniData );
+			ArgumentGuard.ThrowIfNullOrEmpty( name );
+
+			if ( _iniData.TryGetValue( name, out string? data ) ) {
+				ArgumentGuard.ThrowIfNullOrEmpty( data );
+				value = Convert.ToUInt32( data );
 				return true;
 			}
 			value = 0;
@@ -128,7 +151,7 @@ namespace Nomad.CVars.Private.Repositories {
 			if ( _iniData.TryGetValue( name, out string? data ) ) {
 				ArgumentGuard.ThrowIfNullOrEmpty( data );
 
-				string str = data.Trim().ToLower();
+				string str = data!.Trim().ToLower();
 				if ( str == "1" || str == "true" || str == "yes" || str == "on" ) {
 					value = true;
 				} else if ( str == "0" || str == "false" || str == "no" || str == "off" ) {
@@ -158,10 +181,10 @@ namespace Nomad.CVars.Private.Repositories {
 
 			if ( _iniData.TryGetValue( name, out string? data ) ) {
 				ArgumentGuard.ThrowIfNullOrEmpty( data );
-				value = data;
+				value = data!;
 				return true;
 			}
-			value = String.Empty;
+			value = string.Empty;
 			return false;
 		}
 	};

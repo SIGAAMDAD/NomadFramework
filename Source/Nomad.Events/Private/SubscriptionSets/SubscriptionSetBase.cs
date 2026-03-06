@@ -39,7 +39,6 @@ namespace Nomad.Events.Private.SubscriptionSets {
 
 		protected readonly SubscriptionCache<TArgs, EventCallback<TArgs>> genericSubscriptions;
 		protected readonly SubscriptionCache<TArgs, AsyncEventCallback<TArgs>>? asyncSubscriptions;
-		protected readonly HashSet<WeakReference<IGameEvent>> friends = new HashSet<WeakReference<IGameEvent>>();
 
 		protected bool isDisposed = false;
 

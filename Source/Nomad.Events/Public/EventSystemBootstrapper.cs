@@ -26,7 +26,7 @@ namespace Nomad.Events
     /// </summary>
     public sealed class EventBootstrapper : IBootstrapper
     {
-        private IGameEventRegistryService _eventRegistry;
+        private IGameEventRegistryService? _eventRegistry;
 
         /// <summary>
         ///
@@ -38,9 +38,10 @@ namespace Nomad.Events
             ArgumentGuard.ThrowIfNull(locator);
             ArgumentGuard.ThrowIfNull(registry);
 
-            ILoggerService logger = locator.GetService<ILoggerService>();
+            var logger = locator.GetService<ILoggerService>();
+            _eventRegistry = new GameEventRegistry(logger);
 
-            _eventRegistry = registry.RegisterSingleton<IGameEventRegistryService>(new GameEventRegistry(logger));
+            registry.AddSingleton(_eventRegistry);
         }
 
         /// <summary>

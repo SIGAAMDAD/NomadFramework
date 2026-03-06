@@ -20,7 +20,7 @@ namespace Nomad.Save.Exceptions
     /// <summary>
     /// 
     /// </summary>
-    public sealed class DuplicateFieldException : NomadError
+    public sealed class DuplicateFieldException : NomadException
     {
         /// <summary>
         /// The field's name.

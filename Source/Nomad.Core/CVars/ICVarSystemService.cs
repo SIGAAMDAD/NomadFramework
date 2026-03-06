@@ -25,12 +25,6 @@ namespace Nomad.Core.CVars
         /// <summary>
         ///
         /// </summary>
-        /// <param name="cvar"></param>
-        void Register(ICVar cvar);
-
-        /// <summary>
-        ///
-        /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="createInfo"></param>
         /// <returns></returns>
@@ -103,6 +97,23 @@ namespace Nomad.Core.CVars
         ///
         /// </summary>
         void Restart();
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="cvar"></param>
+        /// <returns></returns>
+        bool TryFind(string name, out ICVar? cvar);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name"></param>
+        /// <param name="cvar"></param>
+        /// <returns></returns>
+        bool TryFind<T>(string name, out ICVar<T>? cvar);
 
         /// <summary>
         ///

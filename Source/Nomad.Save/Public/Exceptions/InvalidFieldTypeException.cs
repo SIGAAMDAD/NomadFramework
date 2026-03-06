@@ -22,7 +22,7 @@ namespace Nomad.Save.Exceptions
     /// <summary>
     /// 
     /// </summary>
-    public sealed class InvalidFieldTypeException : NomadError
+    public sealed class InvalidFieldTypeException : NomadException
     {
         /// <summary>
         /// 

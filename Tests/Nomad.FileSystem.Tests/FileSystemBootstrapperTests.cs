@@ -20,6 +20,7 @@ using Nomad.Core.ServiceRegistry.Services;
 using System;
 using Nomad.Core.EngineUtils;
 using Nomad.Core.Logger;
+using Nomad.Core.ServiceRegistry;
 
 namespace Nomad.FileSystem.Tests
 {
@@ -44,13 +45,14 @@ namespace Nomad.FileSystem.Tests
 		public void TearDown()
 		{
 			_serviceLocator?.Dispose();
+			_serviceRegistry?.Dispose();
 		}
 
 		[Test]
 		public void CreateBootstrapper_InitializeWithValidServices_DoesNotThrow()
 		{
-			_serviceRegistry.RegisterSingleton<IEngineService>(new MockEngineService());
-			_serviceRegistry.RegisterSingleton<ILoggerService>(new MockLogger());
+			_serviceRegistry.Register<IEngineService, MockEngineService>(ServiceLifetime.Singleton);
+			_serviceRegistry.Register<ILoggerService, MockLogger>(ServiceLifetime.Singleton);
 
 			Assert.DoesNotThrow(() => _bootstrapper.Initialize(_serviceRegistry, _serviceLocator));
 		}
@@ -58,7 +60,7 @@ namespace Nomad.FileSystem.Tests
 		[Test]
 		public void CreateBootstrapper_InitializeWithoutExistingLoggerService_ThrowsInvalidOperationException()
 		{
-			_serviceRegistry.RegisterSingleton<IEngineService>(new MockEngineService());
+			_serviceRegistry.Register<IEngineService, MockEngineService>(ServiceLifetime.Singleton);
 
 			Assert.Throws<InvalidOperationException>(() => _bootstrapper.Initialize(_serviceRegistry, _serviceLocator));
 		}
@@ -66,7 +68,7 @@ namespace Nomad.FileSystem.Tests
 		[Test]
 		public void CreateBootstrapper_InitializeWithoutExistingEngineService_ThrowsInvalidOperationException()
 		{
-			_serviceRegistry.RegisterSingleton<ILoggerService>(new MockLogger());
+			_serviceRegistry.Register<ILoggerService, MockLogger>(ServiceLifetime.Singleton);
 
 			Assert.Throws<InvalidOperationException>(() => _bootstrapper.Initialize(_serviceRegistry, _serviceLocator));
 		}
@@ -86,8 +88,8 @@ namespace Nomad.FileSystem.Tests
 		[Test]
 		public void CreateBootstrapper_GetService_DoesNotThrow()
 		{
-			_serviceRegistry.RegisterSingleton<IEngineService>(new MockEngineService());
-			_serviceRegistry.RegisterSingleton<ILoggerService>(new MockLogger());
+			_serviceRegistry.Register<IEngineService, MockEngineService>(ServiceLifetime.Singleton);
+			_serviceRegistry.Register<ILoggerService, MockLogger>(ServiceLifetime.Singleton);
 
 			_bootstrapper.Initialize(_serviceRegistry, _serviceLocator);
 
@@ -98,8 +100,8 @@ namespace Nomad.FileSystem.Tests
 		public void CreateBootstrapper_AndShutdownBootstrapper_DoesNotThrow()
 		{
 			// Arrange
-			_serviceRegistry.RegisterSingleton<IEngineService>(new MockEngineService());
-			_serviceRegistry.RegisterSingleton<ILoggerService>(new MockLogger());
+			_serviceRegistry.Register<IEngineService, MockEngineService>(ServiceLifetime.Singleton);
+			_serviceRegistry.Register<ILoggerService, MockLogger>(ServiceLifetime.Singleton);
 			_bootstrapper.Initialize(_serviceRegistry, _serviceLocator);
 
 			// Assert
@@ -117,9 +119,9 @@ namespace Nomad.FileSystem.Tests
 		public void CreateBootstrapper_InitializeThenGetService_DoesNotThrow()
 		{
 			// Arrange
-			_serviceRegistry.RegisterSingleton<IEngineService>(new MockEngineService());
-			_serviceRegistry.RegisterSingleton<ILoggerService>(new MockLogger());
-
+			_serviceRegistry.Register<IEngineService, MockEngineService>(ServiceLifetime.Singleton);
+			_serviceRegistry.Register<ILoggerService, MockLogger>(ServiceLifetime.Singleton);
+			
 			// Act
 			_bootstrapper.Initialize(_serviceRegistry, _serviceLocator);
 

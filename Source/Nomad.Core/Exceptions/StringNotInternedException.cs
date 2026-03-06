@@ -18,7 +18,7 @@ namespace Nomad.Core.Exceptions
     /// <summary>
     /// 
     /// </summary>
-    public sealed class StringNotInternedException : NomadError
+    public sealed class StringNotInternedException : NomadException
     {
         /// <summary>
         /// 

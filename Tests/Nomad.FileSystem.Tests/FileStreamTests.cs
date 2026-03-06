@@ -13,8 +13,14 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.CVars.Private.Repositories {
-	internal sealed class CVarCollection {
+using Nomad.Core.FileSystem.Streams;
+using Nomad.FileSystem.Private.FileStreams;
+using NUnit.Framework;
 
-	};
-};
+namespace Nomad.FileSystem.Tests
+{
+	[TestFixture]
+	public class FileStreamTests
+	{
+	}
+}

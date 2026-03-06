@@ -23,6 +23,8 @@ namespace Nomad.Core.Compatibility.Guards
     /// </summary>
     public static class ThreadGuard
     {
+        private static readonly int _mainThreadId = Environment.CurrentManagedThreadId;
+
         /// <summary>
         ///
         /// </summary>
@@ -31,7 +33,7 @@ namespace Nomad.Core.Compatibility.Guards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ThrowIfNotMainThread(string? message = null)
         {
-            if (Environment.CurrentManagedThreadId != 1)
+            if (Environment.CurrentManagedThreadId != _mainThreadId)
             {
                 throw new InvalidOperationException(message ?? "Operation must be performed on the main thread.");
             }

@@ -13,14 +13,14 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
+using Nomad.Core.Exceptions;
 
 namespace Nomad.Save.Exceptions
 {
     /// <summary>
     /// 
     /// </summary>
-    public sealed class DuplicateSectionException : Exception
+    public sealed class DuplicateSectionException : NomadException
     {
         /// <summary>
         /// 
@@ -33,6 +33,7 @@ namespace Nomad.Save.Exceptions
         /// </summary>
         /// <param name="sectionName"></param>
         public DuplicateSectionException(string sectionName)
+            : base($"Duplicate section '{sectionName}' added twice!")
         {
             _sectionName = sectionName;
         }

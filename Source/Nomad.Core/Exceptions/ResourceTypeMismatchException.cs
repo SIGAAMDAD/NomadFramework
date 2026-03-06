@@ -20,7 +20,7 @@ namespace Nomad.Core.Exceptions
     /// <summary>
     /// 
     /// </summary>
-    public sealed class ResourceTypeMismatchException : NomadError
+    public sealed class ResourceTypeMismatchException : NomadException
     {
         /// <summary>
         /// 

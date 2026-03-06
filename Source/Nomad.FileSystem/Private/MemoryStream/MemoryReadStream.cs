@@ -19,6 +19,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Nomad.Core;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.FileSystem.Configs;
 using Nomad.Core.FileSystem.Streams;
@@ -38,12 +39,12 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 
 	internal class MemoryReadStream : MemoryStreamBase, IMemoryReadStream {
 		/// <summary>
-		/// 
+		/// Whether the stream can be read from.
 		/// </summary>
 		public override bool CanRead => true;
 
 		/// <summary>
-		/// 
+		/// Whether the stream can be written to.
 		/// </summary>
 		public override bool CanWrite => false;
 
@@ -56,12 +57,13 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// Initializes a new instance of the MemoryReadStream class with the specified buffer and length.
 		/// </summary>
 		/// <param name="config"></param>
-		public MemoryReadStream( MemoryReadConfig config )
+		/// <param name="createBuffer"></param>
+		public MemoryReadStream( MemoryReadConfig config, bool createBuffer = true )
 			: base( config.Strategy ) {
-			// FIXME: MAGIC NUMBER!!!
-			long maxCapacity = config.MaxCapacity ?? 8 * 1024 * 1024;
-			buffer = new PooledBufferHandle( (int)maxCapacity );
-			buffer = config.Buffer;
+			long maxCapacity = config.MaxCapacity ?? Constants.FileSystem.MAXIMUM_MEMORY_STREAM_CAPACITY;
+			if ( createBuffer ) {
+				buffer = config.Buffer ?? AllocateBuffer( maxCapacity );
+			}
 			if ( config.Buffer != null ) {
 				length = config.Buffer.Length;
 			}
@@ -648,5 +650,23 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 			position += size;
 			return value;
 		}
+
+		/*
+		===============
+		AllocateBuffer
+		===============
+		*/
+		/// <summary>
+		/// Creates a new <see cref="IBufferHandle"/> based on the allocation strategy provided.
+		/// </summary>
+		/// <param name="length"></param>
+		/// <returns></returns>
+		protected virtual IBufferHandle AllocateBuffer( long length )
+			=> strategy switch {
+				AllocationStrategy.FromFile => throw new NotSupportedException( "AllocationStrategy cannot be 'FromFile' with a pure memory stream." ),
+				AllocationStrategy.Pooled => new PooledBufferHandle( (int)length ),
+				AllocationStrategy.Standard => new StandardBufferHandle( (int)length ),
+				_ => throw new IndexOutOfRangeException( nameof( strategy ) )
+			};
 	};
 };

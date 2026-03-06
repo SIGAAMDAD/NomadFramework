@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.FileSystem.Streams;
 
-namespace Nomad.FileSystem.Private.FileStream {
+namespace Nomad.FileSystem.Private.FileStreams {
 	/*
 	===================================================================================
 
@@ -36,15 +36,16 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <summary>
 		/// Indicates whether the stream supports seeking.
 		/// </summary>
-		public override bool CanSeek => fileStream?.CanSeek ?? false;
+		public override bool CanSeek => !isDisposed ? fileStream.CanSeek : throw new ObjectDisposedException( nameof( FileStreamBase ) );
 
 		/// <summary>
 		/// Gets or sets the current position within the file stream.
 		/// </summary>
 		public override long Position {
-			get => !isDisposed ? fileStream!.Position : throw new ObjectDisposedException( nameof( FileStreamBase ) );
+			get => !isDisposed ? fileStream.Position : throw new ObjectDisposedException( nameof( FileStreamBase ) );
 			set {
-				fileStream!.Seek( value, SeekOrigin.Begin );
+				StateGuard.ThrowIfDisposed( isDisposed, this );
+				fileStream.Seek( value, SeekOrigin.Begin );
 			}
 		}
 
@@ -52,16 +53,17 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// Gets the length of the file stream in bytes.
 		/// </summary>
 		public override long Length {
-			get => !isDisposed ? fileStream!.Length : throw new ObjectDisposedException( nameof( FileStreamBase ) );
+			get => !isDisposed ? fileStream.Length : throw new ObjectDisposedException( nameof( FileStreamBase ) );
 			set {
-				fileStream!.SetLength( value );
+				StateGuard.ThrowIfDisposed( isDisposed, this );
+				fileStream.SetLength( value );
 			}
 		}
 
 		/// <summary>
 		/// Gets the file path associated with the file stream.
 		/// </summary>
-		public string FilePath => fileStream!.Name ?? String.Empty;
+		public string FilePath => !isDisposed ? fileStream.Name : throw new ObjectDisposedException( nameof( FileStreamBase ) );
 
 		/// <summary>
 		/// Indicates whether the file stream is currently open.
@@ -69,24 +71,9 @@ namespace Nomad.FileSystem.Private.FileStream {
 		public bool IsOpen => fileStream != null;
 
 		/// <summary>
-		/// The timestamp of which this file was last accessed.
-		/// </summary>
-		public DateTime LastAccessTime => _info.LastAccessTime;
-
-		/// <summary>
-		/// The time of the file's initial creation.
-		/// </summary>
-		public DateTime CreationTime => _info.CreationTime;
-
-		/// <summary>
 		/// The underlying file stream.
 		/// </summary>
-		protected System.IO.FileStream? fileStream;
-
-		/// <summary>
-		/// The file metadata, fetched at object construction.
-		/// </summary>
-		private readonly FileInfo _info;
+		protected FileStream fileStream;
 
 		/*
 		===============
@@ -101,8 +88,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <param name="fileAccess"></param>
 		public FileStreamBase( string filepath, FileMode fileMode, FileAccess fileAccess ) {
 			ArgumentGuard.ThrowIfNullOrEmpty( filepath );
-			fileStream = new System.IO.FileStream( filepath, fileMode, fileAccess );
-			_info = new FileInfo( filepath );
+			fileStream = new FileStream( filepath, fileMode, fileAccess, FileShare.ReadWrite );
 		}
 
 		/*
@@ -133,6 +119,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 			}
 			if ( disposing ) {
 				fileStream?.Dispose();
+				fileStream = null;
 			}
 			isDisposed = true;
 		}
@@ -179,7 +166,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// Closes the file stream.
 		/// </summary>
 		public void Close() {
-			fileStream?.Close();
+			Dispose();
 		}
 
 		/*
@@ -212,22 +199,6 @@ namespace Nomad.FileSystem.Private.FileStream {
 
 		/*
 		===============
-		Open
-		===============
-		*/
-		/// <summary>
-		/// Opens a file stream with the specified file path, open mode, and access mode.
-		/// </summary>
-		/// <param name="filepath"></param>
-		/// <param name="openMode"></param>
-		/// <param name="accessMode"></param>
-		public bool Open( string filepath, FileMode openMode, FileAccess accessMode ) {
-			fileStream = new System.IO.FileStream( filepath, openMode, accessMode );
-			return fileStream != null;
-		}
-
-		/*
-		===============
 		Seek
 		===============
 		*/
@@ -239,7 +210,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <returns>The new position in the file stream.</returns>
 		public override long Seek( long offset, SeekOrigin origin ) {
 			StateGuard.ThrowIfDisposed( isDisposed, this );
-			return fileStream!.Seek( offset, origin );
+			return fileStream.Seek( offset, origin );
 		}
 
 		/*
@@ -253,7 +224,7 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// <param name="length"></param>
 		public override void SetLength( long length ) {
 			StateGuard.ThrowIfDisposed( isDisposed, this );
-			fileStream!.SetLength( length );
+			fileStream.SetLength( length );
 		}
 	};
 };

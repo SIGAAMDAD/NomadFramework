@@ -24,6 +24,7 @@ using Nomad.Core.CVars;
 using Nomad.Events;
 using Nomad.FileSystem.Private.Services;
 using NUnit.Framework;
+using Nomad.CVars.Exceptions;
 
 namespace Nomad.CVars.Tests
 {
@@ -49,12 +50,68 @@ namespace Nomad.CVars.Tests
         [TearDown]
         public void TearDown()
         {
+            if (_fileSystem.FileExists("Config/config.ini"))
+            {
+                _fileSystem.DeleteFile("Config/config.ini");
+            }
+
             _logger?.Dispose();
             _registry?.Dispose();
             _fileSystem?.Dispose();
             _cvarSystem?.Dispose();
             _engineService?.Dispose();
         }
+
+        [Test]
+        public void Restart_ResetsAllRegisteredCVarValues()
+        {
+            // Arrange
+            var createInfo1 = new CVarCreateInfo<int>
+            {
+                Name = "TestCVar1",
+                DefaultValue = default,
+                Description = "A test cvar."
+            };
+            var createInfo2 = new CVarCreateInfo<float>
+            {
+                Name = "TestCVar2",
+                DefaultValue = default,
+                Description = "A test cvar."
+            };
+
+            // Act
+            var cvar1 = _cvarSystem.Register(createInfo1);
+            var cvar2 = _cvarSystem.Register(createInfo2);
+            cvar1.Value = 12;
+            cvar2.Value = 81.5f;
+
+            _cvarSystem.Restart();
+
+            using (Assert.EnterMultipleScope())
+            {
+                // Assert
+                Assert.That(cvar1.Value, Is.EqualTo(cvar1.DefaultValue));
+                Assert.That(cvar2.Value, Is.EqualTo(cvar2.DefaultValue));
+            }
+        }
+
+        #region CVar Group Tests
+
+        [Test]
+        public void AddGroup_AddDuplicateGroup_ThrowsInvalidOperationException()
+        {
+            _cvarSystem.AddGroup("Group1");
+            Assert.Throws<InvalidOperationException>(() => _cvarSystem.AddGroup("Group1"));
+        }
+
+        [Test]
+        public void AddGroup_GroupExists()
+        {
+            _cvarSystem.AddGroup("Group1");
+            Assert.That(_cvarSystem.GroupExists("Group1"), Is.True);
+        }
+
+        #endregion
 
         #region CVar Registration Tests
 
@@ -232,6 +289,288 @@ namespace Nomad.CVars.Tests
 
             // Assert
             Assert.That(!_cvarSystem.CVarExists<int>(cvar.Name));
+        }
+
+        #endregion
+
+        #region CVar Retrieval
+
+        [Test]
+        public void TryFindCVar_ReturnsCorrectCVar()
+        {
+            // Arrange
+            var createInfo = new CVarCreateInfo<int>
+            {
+                Name = "TestCVar",
+                DefaultValue = default,
+                Description = "A test cvar."
+            };
+
+            // Act
+            var cvar = _cvarSystem.Register(createInfo);
+
+            // Assert
+            using (Assert.EnterMultipleScope())
+            {
+                // Assert
+                Assert.That(_cvarSystem.TryFind<int>(cvar.Name, out var found), Is.True);
+                Assert.That(found, Is.SameAs(cvar));
+            }
+        }
+
+        [Test]
+        public void TryFindCVar_BeforeCVarExists_ReturnsFalse()
+        {
+            // Assert
+            Assert.That(_cvarSystem.TryFind<int>("TestCVar", out var _), Is.False);
+        }
+
+        [Test]
+        public void GetCVar_WithValidCVar_ReturnsSameCVar()
+        {
+            // Arrange
+            var createInfo = new CVarCreateInfo<int>
+            {
+                Name = "TestCVar",
+                DefaultValue = default,
+                Description = "A test cvar."
+            };
+
+            // Act
+            var cvar = _cvarSystem.Register(createInfo);
+
+            // Assert
+            Assert.That(_cvarSystem.GetCVar(cvar.Name), Is.SameAs(cvar));
+        }
+
+        [Test]
+        public void GetCVar_BeforeCVarExists_ReturnsNull()
+        {
+            // Assert
+            Assert.That(_cvarSystem.GetCVar("TestCVar"), Is.Null);
+        }
+
+        [Test]
+        public void GetCVarWithType_BeforeCVarExists_ReturnsNull()
+        {
+            // Assert
+            Assert.That(_cvarSystem.GetCVar<int>("TestCVar"), Is.Null);
+        }
+
+        [Test]
+        public void GetCVarWithType_WithValidCVar_ReturnsSameCVar()
+        {
+            // Arrange
+            var createInfo = new CVarCreateInfo<int>
+            {
+                Name = "TestCVar",
+                DefaultValue = default,
+                Description = "A test cvar."
+            };
+
+            // Act
+            var cvar = _cvarSystem.Register(createInfo);
+
+            // Assert
+            Assert.That(_cvarSystem.GetCVar<int>(cvar.Name), Is.SameAs(cvar));
+        }
+
+        [Test]
+        public void GetCVarWithType_WithWrongType_ThrowsCVarTypeMismatchException()
+        {
+            // Arrange
+            var createInfo = new CVarCreateInfo<int>
+            {
+                Name = "TestCVar",
+                DefaultValue = default,
+                Description = "A test cvar."
+            };
+
+            // Act
+            var cvar = _cvarSystem.Register(createInfo);
+
+            // Assert
+            Assert.Throws<CVarTypeMismatchException>(() => _cvarSystem.GetCVar<float>(cvar.Name));
+        }
+
+        [Test]
+        public void GetCVars_ReturnsAllRegisteredCVars()
+        {
+            // Arrange
+            var createInfo1 = new CVarCreateInfo<int>
+            {
+                Name = "TestCVar",
+                DefaultValue = default,
+                Description = "A test cvar."
+            };
+            var createInfo2 = new CVarCreateInfo<float>
+            {
+                Name = "TestCVar2",
+                DefaultValue = default,
+                Description = "A test cvar."
+            };
+            var createInfo3 = new CVarCreateInfo<uint>
+            {
+                Name = "TestCVar3",
+                DefaultValue = default,
+                Description = "A test cvar."
+            };
+
+            // Act
+            var cvar1 = _cvarSystem.Register(createInfo1);
+            var cvar2 = _cvarSystem.Register(createInfo2);
+            var cvar3 = _cvarSystem.Register(createInfo3);
+            var cvars = _cvarSystem.GetCVars();
+
+            // Assert
+            Assert.That(cvars, Does.Contain(cvar1));
+            Assert.That(cvars, Does.Contain(cvar2));
+            Assert.That(cvars, Does.Contain(cvar3));
+        }
+
+        [Test]
+        public void GetCVarsWithValueType_ReturnsOnlyCVarsWithSameValueType()
+        {
+            // Arrange
+            var createInfo1 = new CVarCreateInfo<int>
+            {
+                Name = "TestCVar",
+                DefaultValue = default,
+                Description = "A test cvar."
+            };
+            var createInfo2 = new CVarCreateInfo<float>
+            {
+                Name = "TestCVar2",
+                DefaultValue = default,
+                Description = "A test cvar."
+            };
+            var createInfo3 = new CVarCreateInfo<int>
+            {
+                Name = "TestCVar3",
+                DefaultValue = default,
+                Description = "A test cvar."
+            };
+
+            // Act
+            var cvar1 = _cvarSystem.Register(createInfo1);
+            var cvar2 = _cvarSystem.Register(createInfo2);
+            var cvar3 = _cvarSystem.Register(createInfo3);
+            var cvars = _cvarSystem.GetCVarsWithValueType<int>();
+
+            // Assert
+            Assert.That(cvars, Does.Contain(cvar1));
+            Assert.That(cvars, Does.Not.Contain(cvar2));
+            Assert.That(cvars, Does.Contain(cvar3));
+        }
+
+        #endregion
+
+        #region CVar Saving & Loading
+
+        [Test]
+        public void Save_WritesAllCVars_DoesNotThrow()
+        {
+            // Arrange
+            var createInfoUInt = new CVarCreateInfo<uint>
+            {
+                Name = "TestCVar.UInt",
+                DefaultValue = default,
+                Description = "A test cvar."
+            };
+            var createInfoFloat = new CVarCreateInfo<float>
+            {
+                Name = "TestCVar.Float",
+                DefaultValue = default,
+                Description = "A test cvar."
+            };
+            var createInfoInt = new CVarCreateInfo<int>
+            {
+                Name = "TestCVar.Int",
+                DefaultValue = default,
+                Description = "A test cvar."
+            };
+            var createInfoBoolean = new CVarCreateInfo<bool>
+            {
+                Name = "TestCVar.Boolean",
+                DefaultValue = default,
+                Description = "A test cvar."
+            };
+
+            var createInfoString = new CVarCreateInfo<string>
+            {
+                Name = "TestCVar.String",
+                DefaultValue = "Testing",
+                Description = "A test cvar."
+            };
+
+            // Act
+            _cvarSystem.Register(createInfoInt);
+            _cvarSystem.Register(createInfoUInt);
+            _cvarSystem.Register(createInfoFloat);
+            _cvarSystem.Register(createInfoBoolean);
+            _cvarSystem.Register(createInfoString);
+
+            Assert.DoesNotThrow(() => _cvarSystem.Save("Config/config.ini"));
+
+            // Assert
+            Assert.That(_fileSystem.FileExists("Config/config.ini"));
+        }
+
+        [Test]
+        public void SaveLoad_DataPersists()
+        {
+            {
+                // Arrange
+                var createInfoUInt = new CVarCreateInfo<uint>
+                {
+                    Name = "TestCVar.UInt",
+                    DefaultValue = default,
+                    Description = "A test cvar."
+                };
+                var createInfoFloat = new CVarCreateInfo<float>
+                {
+                    Name = "TestCVar.Float",
+                    DefaultValue = default,
+                    Description = "A test cvar."
+                };
+                var createInfoInt = new CVarCreateInfo<int>
+                {
+                    Name = "TestCVar.Int",
+                    DefaultValue = default,
+                    Description = "A test cvar."
+                };
+                var createInfoBoolean = new CVarCreateInfo<bool>
+                {
+                    Name = "TestCVar.Boolean",
+                    DefaultValue = default,
+                    Description = "A test cvar."
+                };
+
+                var createInfoString = new CVarCreateInfo<string>
+                {
+                    Name = "TestCVar.String",
+                    DefaultValue = "Testing",
+                    Description = "A test cvar."
+                };
+
+                // Act
+                var intCvar = _cvarSystem.Register(createInfoInt);
+                _cvarSystem.Register(createInfoUInt);
+                _cvarSystem.Register(createInfoFloat);
+                _cvarSystem.Register(createInfoBoolean);
+                _cvarSystem.Register(createInfoString);
+
+                _cvarSystem.Save("Config/config.ini");
+
+                intCvar.Value = 23;
+            }
+
+            {
+                _cvarSystem.Load("config.ini");
+
+                var intCvar = _cvarSystem.GetCVar<int>("TestCVar.Int");
+                Assert.That(intCvar.Value, Is.Zero);
+            }
         }
 
         #endregion

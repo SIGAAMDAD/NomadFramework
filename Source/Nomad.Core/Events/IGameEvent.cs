@@ -157,31 +157,5 @@ namespace Nomad.Core.Events
         /// </summary>
         /// <param name="callback">The callback to remove.</param>
         void Unsubscribe(EventCallback<TArgs> callback);
-
-#if NET7_OR_GREATER
-        /// <summary>
-        /// Adds a synchronous callback via operator syntax.
-        /// </summary>
-        /// <param name="other">The callback to add.</param>
-        void operator +=(EventCallback<TArgs> other);
-
-        /// <summary>
-        /// Adds an asynchronous callback via operator syntax.
-        /// </summary>
-        /// <param name="other">The callback to add.</param>
-        void operator +=(AsyncEventCallback<TArgs> other);
-
-        /// <summary>
-        /// Removes a synchronous callback via operator syntax.
-        /// </summary>
-        /// <param name="other">The callback to remove.</param>
-        void operator -=(EventCallback<TArgs> other);
-
-        /// <summary>
-        /// Removes an asynchronous callback via operator syntax.
-        /// </summary>
-        /// <param name="other">The callback to remove.</param>
-        void operator -=(AsyncEventCallback<TArgs> other);
-#endif
     }
 }

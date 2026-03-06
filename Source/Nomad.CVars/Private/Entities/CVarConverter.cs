@@ -13,9 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
 using System.Runtime.CompilerServices;
-using System.Security.Cryptography.X509Certificates;
 using Nomad.Core.CVars;
 using Nomad.CVars.Exceptions;
 
@@ -201,9 +199,6 @@ namespace Nomad.CVars.Private.Entities {
 			if ( typeof( T ) == typeof( T1 ) ) {
 				Value = Unsafe.As<T1, T>( ref value );
 				return;
-			}
-			if ( value is T thisValue ) {
-				Value = thisValue;
 			} else {
 				throw new CVarTypeMismatchException( typeof( T1 ), _type.GetSystemType() );
 			}

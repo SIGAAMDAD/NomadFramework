@@ -15,8 +15,10 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Nomad.FileSystem.Private.FileStream {
+namespace Nomad.FileSystem.Private.FileStreams {
 	/// <summary>
 	/// A unified writer that can write to either a text (StreamWriter) or binary (BinaryWriter) stream.
 	/// </summary>
@@ -206,6 +208,14 @@ namespace Nomad.FileSystem.Private.FileStream {
 		public void Flush() {
 			if ( _isText ) {
 				_textWriter.Flush();
+			} else {
+				_binaryWriter.Flush();
+			}
+		}
+
+		public async ValueTask FlushAsync( CancellationToken ct = default ) {
+			if ( _isText ) {
+				await _textWriter.FlushAsync( ct );
 			} else {
 				_binaryWriter.Flush();
 			}

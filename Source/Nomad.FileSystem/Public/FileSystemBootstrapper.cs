@@ -43,7 +43,8 @@ namespace Nomad.FileSystem
             var engineService = locator.GetService<IEngineService>();
             var logger = locator.GetService<ILoggerService>();
 
-            _fileSystem = registry.RegisterSingleton<IFileSystem>(new FileSystemService(engineService, logger));
+            _fileSystem = new FileSystemService(engineService, logger);
+            registry.AddSingleton(_fileSystem);
         }
 
         /// <summary>

@@ -549,37 +549,6 @@ namespace Nomad.Events.Tests
 
         #endregion
 
-        #region Filtered Events
-
-        [Test]
-        public void CreateFilteredEvent_IsFilteredEvent()
-        {
-            // Arrange
-            var evt = CreateEvent<int>().Where(args => args > 10);
-
-            // Assert
-            Assert.That(evt, Is.InstanceOf<FilteredGameEvent<int>>());
-        }
-
-        [Test]
-        public void PublishFilteredEvent_MultipleTimesVariousArgs_PredicateFiltersCorrectly()
-        {
-            // Arrange
-            var evt = CreateEvent<int>().Where(args => args > 10);
-            int callCount = 0;
-            evt.Subscribe((in int args) => callCount++);
-
-            // Act
-            evt.Publish(9);
-            evt.Publish(2);
-            evt.Publish(14);
-
-            // Assert
-            Assert.That(callCount, Is.EqualTo(1));
-        }
-
-        #endregion
-
         #region Scheduled Events
 
         [Test]
@@ -615,9 +584,8 @@ namespace Nomad.Events.Tests
 
         #endregion
 
-        #region Debug Members (if DEBUG)
+        #region Debug Members
 
-#if DEBUG
         [Test]
         public void DebugProperties_UpdateOnPublish()
         {
@@ -652,7 +620,6 @@ namespace Nomad.Events.Tests
             handle2.Dispose();
             Assert.That(evt.SubscriberCount, Is.Zero);
         }
-#endif
 
         #endregion
 

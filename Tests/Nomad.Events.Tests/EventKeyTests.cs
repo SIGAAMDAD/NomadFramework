@@ -59,8 +59,8 @@ namespace Nomad.Events.Tests
         [Test]
         public void CreatedWith_EmptyNamespaceSameArgsSameName_IsEqual()
         {
-            var key1 = new EventKey(new InternString("SameKey"), new InternString(String.Empty), typeof(EmptyEventArgs));
-            var key2 = new EventKey(new InternString("SameKey"), new InternString(String.Empty), typeof(EmptyEventArgs));
+            var key1 = new EventKey(new InternString("SameKey"), new InternString(string.Empty), typeof(EmptyEventArgs));
+            var key2 = new EventKey(new InternString("SameKey"), new InternString(string.Empty), typeof(EmptyEventArgs));
 
             Assert.That(key1, Is.EqualTo(key2));
         }
@@ -77,8 +77,8 @@ namespace Nomad.Events.Tests
         [Test]
         public void CreatedWith_SameNamespaceSameArgsEmptyName_IsEqual()
         {
-            var key1 = new EventKey(new InternString(String.Empty), new InternString("SameNamespace"), typeof(EmptyEventArgs));
-            var key2 = new EventKey(new InternString(String.Empty), new InternString("SameNamespace"), typeof(EmptyEventArgs));
+            var key1 = new EventKey(new InternString(string.Empty), new InternString("SameNamespace"), typeof(EmptyEventArgs));
+            var key2 = new EventKey(new InternString(string.Empty), new InternString("SameNamespace"), typeof(EmptyEventArgs));
 
             Assert.That(key1, Is.EqualTo(key2));
         }
@@ -86,8 +86,8 @@ namespace Nomad.Events.Tests
         [Test]
         public void CreatedWith_SameNamespaceSameArgsNullName_IsEqual()
         {
-            var key1 = new EventKey(new InternString(null), new InternString(String.Empty), typeof(EmptyEventArgs));
-            var key2 = new EventKey(new InternString(null), new InternString(String.Empty), typeof(EmptyEventArgs));
+            var key1 = new EventKey(new InternString(null), new InternString(string.Empty), typeof(EmptyEventArgs));
+            var key2 = new EventKey(new InternString(null), new InternString(string.Empty), typeof(EmptyEventArgs));
 
             Assert.That(key1, Is.EqualTo(key2));
         }
@@ -108,6 +108,17 @@ namespace Nomad.Events.Tests
             var key2 = new EventKey(new InternString("SameKey"), new InternString("SameNameSpace"), typeof(EmptyEventArgs));
 
             Assert.That(key1, Is.EqualTo(key2));
+        }
+
+        [Test]
+        public void CreatedWith_IdenticalWhenBoxed_IsEqual()
+        {
+            var key1 = new EventKey(new InternString("SameKey"), new InternString("SameNameSpace"), typeof(EmptyEventArgs));
+            var key2 = new EventKey(new InternString("SameKey"), new InternString("SameNameSpace"), typeof(EmptyEventArgs));
+
+            object boxedValue = key2;
+
+			Assert.That(key1.Equals(boxedValue));
         }
 
         [Test]

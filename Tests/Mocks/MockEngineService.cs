@@ -13,7 +13,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-#if !UNITY_EDITOR
 using System;
 using Nomad.Core.EngineUtils;
 using Nomad.Core.Events;
@@ -104,4 +103,3 @@ public class MockEngineService : IEngineService
         GC.SuppressFinalize(this);
     }
 }
-#endif

@@ -73,7 +73,8 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		/// </summary>
 		/// <param name="config"></param>
 		public MemoryWriteStream( MemoryWriteConfig config )
-			: base( config.Strategy ) {
+			: base( config.Strategy )
+		{
 			if ( config.InitialCapacity < 0 || config.InitialCapacity > config.MaxCapacity || config.InitialCapacity > MAX_CAPACITY || config.MaxCapacity > MAX_CAPACITY ) {
 				throw new ArgumentOutOfRangeException( nameof( config ) );
 			}
@@ -689,7 +690,7 @@ namespace Nomad.FileSystem.Private.MemoryStream {
 		===============
 		*/
 		/// <summary>
-		/// 
+		/// Creates a new <see cref="IBufferHandle"/> based on the allocation strategy provided
 		/// </summary>
 		/// <param name="length"></param>
 		/// <returns></returns>

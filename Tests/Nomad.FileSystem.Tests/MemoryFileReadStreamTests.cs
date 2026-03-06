@@ -25,6 +25,7 @@ using Nomad.FileSystem.Private.Services;
 using Nomad.FileSystem.Private.MemoryStream;
 using System.Threading.Tasks;
 using Nomad.Core.FileSystem.Configs;
+using Nomad.Core.Memory.Buffers;
 
 namespace Nomad.FileSystem.Tests
 {
@@ -74,6 +75,73 @@ namespace Nomad.FileSystem.Tests
         }
 
         [Test]
+        public void Close_ClosesFile()
+        {
+            using var stream = OpenMemoryFileReadStream() as IMemoryFileReadStream;
+            stream.Close();
+            Assert.That(stream.IsOpen, Is.False);
+        }
+
+        [Test]
+        public void Create_WithInvalidAllocationStrategy_ThrowsIndexOutOfRangeException()
+        {
+            Assert.Throws<IndexOutOfRangeException>(() => _service.OpenRead(new MemoryFileReadConfig{ FilePath = "memread.bin", MaxCapacity = 1024, Strategy = (AllocationStrategy)99 }));
+        }
+
+        [Test]
+        public void Create_WithPooledBuffer_CreatesPooledBuffer()
+        {
+            using var stream = _service.OpenRead(new MemoryFileReadConfig { FilePath = "memread.bin", MaxCapacity = 1024, Strategy = AllocationStrategy.Pooled }) as IMemoryFileReadStream;
+            Assert.That(stream.Buffer, Is.InstanceOf<PooledBufferHandle>());
+        }
+
+        [Test]
+        public void Create_WithStandardBuffer_CreatesStandardBuffer()
+        {
+            using var stream = _service.OpenRead(new MemoryFileReadConfig { FilePath = "memread.bin", MaxCapacity = 1024, Strategy = AllocationStrategy.Standard }) as IMemoryFileReadStream;
+            Assert.That(stream.Buffer, Is.InstanceOf<StandardBufferHandle>());
+        }
+
+        [Test]
+        public void Create_WithFromFileBuffer_CreatesSharedBuffer()
+        {
+            using var stream = _service.OpenRead(new MemoryFileReadConfig { FilePath = "memread.bin", MaxCapacity = 1024, Strategy = AllocationStrategy.FromFile }) as IMemoryFileReadStream;
+            Assert.That(stream.Buffer, Is.InstanceOf<SharedBufferHandle>());
+        }
+
+        [Test]
+        public void Create_HasCorrectMetadata()
+        {
+            using var stream = OpenMemoryFileReadStream() as IMemoryFileReadStream;
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(stream, Is.Not.Null);
+                Assert.That(stream, Is.InstanceOf<MemoryFileReadStream>());
+                Assert.That(stream.CanWrite, Is.False);
+                Assert.That(stream.CanRead, Is.True);
+                Assert.That(stream.CanSeek, Is.True);
+                Assert.That(stream.FilePath, Does.Contain(_filePath));
+            }
+        }
+
+        [Test]
+        public void Dispose_DisposeAgain_DoesNotThrow()
+        {
+            using var stream = OpenMemoryFileReadStream();
+            stream.Dispose();
+            Assert.DoesNotThrow(() => stream.Dispose());
+        }
+
+        [Test]
+        public void GetBuffer_AfterDisposed_ThrowsObjectDisposedException()
+        {
+            using var stream = OpenMemoryFileReadStream() as IMemoryFileReadStream;
+            stream.Dispose();
+            Assert.Throws<ObjectDisposedException>(() => _ = stream.Buffer);
+        }
+
+        [Test]
         public void ReadSpan_ReadsAllBytes()
         {
             using var stream = OpenMemoryFileReadStream();
@@ -111,6 +179,21 @@ namespace Nomad.FileSystem.Tests
 
             byte[] buffer = new byte[_testData.Length];
             int read = stream.Read(buffer, 0, buffer.Length);
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(read, Is.EqualTo(_testData.Length));
+                Assert.That(buffer, Is.EqualTo(_testData));
+            }
+        }
+
+        [Test]
+        public void ReadBytes_WithoutSpecifiedBounds_ReadsAllBytes()
+        {
+            using var stream = OpenMemoryFileReadStream();
+            Assert.That(stream, Is.Not.Null);
+
+            byte[] buffer = new byte[_testData.Length];
+            int read = stream.Read(buffer);
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(read, Is.EqualTo(_testData.Length));

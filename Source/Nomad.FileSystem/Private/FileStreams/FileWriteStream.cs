@@ -22,7 +22,7 @@ using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.FileSystem.Streams;
 using Nomad.Core.FileSystem.Configs;
 
-namespace Nomad.FileSystem.Private.FileStream {
+namespace Nomad.FileSystem.Private.FileStreams {
 	/*
 	===================================================================================
 
@@ -65,14 +65,20 @@ namespace Nomad.FileSystem.Private.FileStream {
 		/// </summary>
 		/// <param name="config"></param>
 		public FileWriteStream( FileWriteConfig config )
-			: base( config.FilePath!, config.Append ? FileMode.Append : FileMode.CreateNew, FileAccess.Write ) {
+			: base( config.FilePath!, config.Append ? FileMode.Append : FileMode.Create, FileAccess.Write ) {
 			ArgumentGuard.ThrowIfNull( fileStream );
 			_format = config.Format;
-			_streamWriter = config.Format switch {
-				StreamFormat.Binary => new FileWriter( new BinaryWriter( fileStream ) ),
-				StreamFormat.Utf8 => new FileWriter( new StreamWriter( fileStream ) ),
-				_ => throw new ArgumentOutOfRangeException( nameof( config ) )
-			};
+			switch ( _format ) {
+				case StreamFormat.Binary:
+					_streamWriter = new FileWriter( new BinaryWriter( fileStream ) );
+					break;
+				case StreamFormat.Utf8:
+					_streamWriter = new FileWriter( new StreamWriter( fileStream ) );
+					break;
+				default:
+					Dispose();
+					throw new ArgumentOutOfRangeException( nameof( config ) );
+			}
 		}
 
 		/*
@@ -90,8 +96,8 @@ namespace Nomad.FileSystem.Private.FileStream {
 			if ( disposing ) {
 				_streamWriter.GetStream()?.Dispose();
 			}
-			isDisposed = true;
 			base.Dispose( disposing );
+			isDisposed = true;
 		}
 
 		/*
@@ -105,6 +111,19 @@ namespace Nomad.FileSystem.Private.FileStream {
 		public override void Flush() {
 			base.Flush();
 			_streamWriter.Flush();
+		}
+
+		/*
+		===============
+		Flush
+		===============
+		*/
+		/// <summary>
+		/// Flushes the file stream's buffer to the underlying file.
+		/// </summary>
+		public override async ValueTask FlushAsync( CancellationToken ct = default ) {
+			await base.FlushAsync( ct );
+			await _streamWriter.FlushAsync( ct );
 		}
 
 		/*

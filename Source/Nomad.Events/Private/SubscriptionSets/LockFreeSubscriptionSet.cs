@@ -14,8 +14,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Nomad.Core.Compatibility.Guards;
@@ -45,18 +43,11 @@ namespace Nomad.Events.Private.SubscriptionSets {
 
 		public long PublishCount => _publishCount;
 		private long _publishCount = 0;
-
-		public long MaxSyncDurationTicks => _maxSyncDurationTicks;
-		private long _maxSyncDurationTicks = 0;
-
-		private long _totalSyncDurationTicks = 0;
 #endif
 
 		private readonly ILoggerService _logger;
 		private readonly IGameEvent<TArgs> _eventData;
 		private readonly SubscriptionCache<TArgs, EventCallback<TArgs>> _genericSubscriptions;
-
-		private readonly HashSet<WeakReference<IGameEvent>> _friends = new HashSet<WeakReference<IGameEvent>>();
 
 		private bool _isDisposed = false;
 
@@ -87,32 +78,10 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		public void Dispose() {
 			if ( !_isDisposed ) {
 				_logger?.PrintLine( $"Releasing subscription set for event {_eventData.DebugName}..." );
-				_friends.Clear();
 				_genericSubscriptions?.Dispose();
 			}
 			GC.SuppressFinalize( this );
 			_isDisposed = true;
-		}
-
-		/*
-		===============
-		BindEventFriend
-		===============
-		*/
-		/// <summary>
-		/// Binds the provided event to the owned event in a "friendship".
-		/// </summary>
-		/// <param name="friend"></param>
-		public void BindEventFriend( IGameEvent friend ) {
-			var refEvent = new WeakReference<IGameEvent>( friend );
-			if ( _friends.Contains( refEvent ) ) {
-				_logger?.PrintWarning( $"LockFreeSubscriptionSet.BindEventFriend: event '{_eventData.DebugName}' already has friendship with event '{friend.DebugName}'" );
-				return;
-			}
-#if EVENT_DEBUG
-			_logger?.PrintLine( $"LockFreeSubscriptionSet.BindEventFriend: friendship created between events '{_eventData.DebugName}' and '{friend.DebugName}'" );
-#endif
-			_friends.Add( refEvent );
 		}
 
 		/*
@@ -206,30 +175,14 @@ namespace Nomad.Events.Private.SubscriptionSets {
 #if EVENT_DEBUG
 			_logger?.PrintLine( $"SubscriptionSet.Pump: publishing event {eventData.DebugName}" );
 #endif
-#if DEBUG
-			var sw = Stopwatch.StartNew();
-#endif
 			for ( int i = 0; i < _genericSubscriptions.Count; i++ ) {
 				try {
 					_genericSubscriptions[i].Invoke( in args );
 				} catch {
-#if DEBUG
-#endif
 				}
 			}
 #if DEBUG
-			sw.Stop();
 			Interlocked.Increment( ref _publishCount );
-			Interlocked.Add( ref _totalSyncDurationTicks, sw.ElapsedTicks );
-
-			long ticks = sw.ElapsedTicks;
-			long original;
-			do {
-				original = _maxSyncDurationTicks;
-				if ( ticks <= original ) {
-					break;
-				}
-			} while ( Interlocked.CompareExchange( ref _maxSyncDurationTicks, ticks, original ) != original );
 #endif
 		}
 

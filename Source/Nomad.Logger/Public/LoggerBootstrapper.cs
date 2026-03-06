@@ -17,6 +17,7 @@ using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
 using Nomad.Core.Abstractions;
 using Nomad.Logger.Private.Services;
+using Nomad.Core.Compatibility.Guards;
 
 namespace Nomad.Logger
 {
@@ -25,7 +26,7 @@ namespace Nomad.Logger
     /// </summary>
     public sealed class LoggerBootstrapper : IBootstrapper
     {
-        private ILoggerService _logger;
+        private ILoggerService? _logger;
 
         /// <summary>
         ///
@@ -34,7 +35,11 @@ namespace Nomad.Logger
         /// <param name="locator"></param>
         public void Initialize(IServiceRegistry serviceRegistry, IServiceLocator locator)
         {
-            _logger = serviceRegistry.RegisterSingleton<ILoggerService>(new LoggerService());
+            ArgumentGuard.ThrowIfNull(serviceRegistry);
+            ArgumentGuard.ThrowIfNull(locator);
+
+            _logger = new LoggerService();
+            serviceRegistry.AddSingleton(_logger);
         }
 
         /// <summary>

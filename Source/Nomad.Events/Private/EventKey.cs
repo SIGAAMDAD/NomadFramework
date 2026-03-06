@@ -30,20 +30,6 @@ namespace Nomad.Events.Private {
 	/// </summary>
 
 	internal readonly struct EventKey : IEquatable<EventKey> {
-		/// <summary>
-		/// The event's name. Used for generating the hashkey.
-		/// </summary>
-		public readonly InternString Name { get; }
-
-		/// <summary>
-		/// The event's namespace. Used for generating the hashkey.
-		/// </summary>
-		public readonly InternString NameSpace { get; }
-
-		/// <summary>
-		/// The struct packet argument system type. Used for generating the hashkey.
-		/// </summary>
-		public readonly Type ArgsType { get; }
 		private readonly int _hashCode;
 
 		/*
@@ -58,13 +44,10 @@ namespace Nomad.Events.Private {
 		/// <param name="nameSpace"></param>
 		/// <param name="argsType"></param>
 		public EventKey( InternString name, InternString nameSpace, Type argsType ) {
-			Name = name;
-			NameSpace = nameSpace;
-			ArgsType = argsType;
 			_hashCode = HashCode.Combine(
 				nameSpace.GetHashCode(),
 				name.GetHashCode(),
-				argsType.AssemblyQualifiedName?.GetHashCode( StringComparison.Ordinal ) ?? 0
+				argsType.TypeHandle.GetHashCode()
 			);
 		}
 

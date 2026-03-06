@@ -14,15 +14,12 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.Events;
 using Nomad.Core.Logger;
-#if DEBUG
-using System.Diagnostics;
-#endif
+using System.Collections.Generic;
 
 namespace Nomad.Events.Private.SubscriptionSets {
 	/*
@@ -44,22 +41,16 @@ namespace Nomad.Events.Private.SubscriptionSets {
 
 		public long PublishCount => _publishCount;
 		private long _publishCount = 0;
-
-		public long MaxSyncDurationTicks => _maxSyncDurationTicks;
-		private long _maxSyncDurationTicks = 0;
-
-		public long TotalSyncDurationTicks => _totalSyncDurationTicks;
-		private long _totalSyncDurationTicks = 0;
 #endif
 		private readonly ILoggerService _logger;
 		private readonly IGameEvent<TArgs> _eventData;
 
 		private readonly SubscriptionCache<TArgs, EventCallback<TArgs>> _genericSubscriptions;
 		private readonly SubscriptionCache<TArgs, AsyncEventCallback<TArgs>> _asyncSubscriptions;
+		private readonly List<Task> _taskCache = new List<Task>();
 
 		private bool _isDisposed = false;
 
-		private readonly HashSet<WeakReference<IGameEvent>> _friends = new HashSet<WeakReference<IGameEvent>>();
 		private readonly ReaderWriterLockSlim _pumpLock = new ReaderWriterLockSlim();
 
 		/*
@@ -93,33 +84,10 @@ namespace Nomad.Events.Private.SubscriptionSets {
 
 				_genericSubscriptions?.Dispose();
 				_asyncSubscriptions?.Dispose();
-				_friends.Clear();
 				_pumpLock?.Dispose();
 			}
 			GC.SuppressFinalize( this );
 			_isDisposed = true;
-		}
-
-		/*
-		===============
-		BindEventFriend
-		===============
-		*/
-		/// <summary>
-		/// Binds the provided event to the owned event in a "friendship".
-		/// </summary>
-		/// <param name="friend"></param>
-		public void BindEventFriend( IGameEvent friend ) {
-			StateGuard.ThrowIfDisposed( _isDisposed, this );
-
-			var refEvent = new WeakReference<IGameEvent>( friend );
-			if ( _friends.Contains( refEvent ) ) {
-				_logger?.PrintWarning( $"SubscriptionSet.BindEventFriend: event '{_eventData.DebugName}' already has friendship with event '{friend.DebugName}'" );
-				return;
-			}
-
-			_logger?.PrintLine( $"SubscriptionSet.BindEventFriend: friendship created between events '{_eventData.DebugName}' and '{friend.DebugName}'" );
-			_friends.Add( refEvent );
 		}
 
 		/*
@@ -170,6 +138,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 			_pumpLock.EnterWriteLock();
 			try {
 				_asyncSubscriptions.Add( callback );
+				_taskCache.Add( null! );
 #if DEBUG
 				Interlocked.Increment( ref _subscriberCount );
 #endif
@@ -231,6 +200,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 			_pumpLock.EnterWriteLock();
 			try {
 				_asyncSubscriptions.RemoveAt( index );
+				_taskCache.RemoveAt( index );
 #if DEBUG
 				Interlocked.Increment( ref _subscriberCount );
 #endif
@@ -255,35 +225,19 @@ namespace Nomad.Events.Private.SubscriptionSets {
 #if EVENT_DEBUG
 			_logger?.PrintLine( $"SubscriptionSet.Pump: publishing event {eventData.DebugName}" );
 #endif
-#if DEBUG
-			var sw = Stopwatch.StartNew();
-#endif
 			_pumpLock.EnterUpgradeableReadLock();
 			try {
 				for ( int i = 0; i < _genericSubscriptions.Count; i++ ) {
 					try {
 						_genericSubscriptions[i].Invoke( in args );
 					} catch {
-#if DEBUG
-#endif
 					}
 				}
 			} finally {
 				_pumpLock.ExitUpgradeableReadLock();
 			}
 #if DEBUG
-			sw.Stop();
 			Interlocked.Increment( ref _publishCount );
-			Interlocked.Add( ref _totalSyncDurationTicks, sw.ElapsedTicks );
-
-			long ticks = sw.ElapsedTicks;
-			long original;
-			do {
-				original = _maxSyncDurationTicks;
-				if ( ticks <= original ) {
-					break;
-				}
-			} while ( Interlocked.CompareExchange( ref _maxSyncDurationTicks, ticks, original ) != original );
 #endif
 		}
 
@@ -308,16 +262,14 @@ namespace Nomad.Events.Private.SubscriptionSets {
 
 			ct.ThrowIfCancellationRequested();
 
-			// TODO: optimize
-			Task[] tasks = new Task[subscriptionCount];
 			for ( int i = 0; i < subscriptionCount; i++ ) {
 				ct.ThrowIfCancellationRequested();
-				tasks[i] = _asyncSubscriptions[i].Invoke( args, ct );
+				_taskCache[i] = _asyncSubscriptions[i].Invoke( args, ct );
 			}
 
 			ct.ThrowIfCancellationRequested();
 
-			await Task.WhenAll( tasks ).ConfigureAwait( false );
+			await Task.WhenAll( _taskCache ).ConfigureAwait( false );
 		}
 
 		/*
