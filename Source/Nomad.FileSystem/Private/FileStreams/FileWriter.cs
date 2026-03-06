@@ -215,7 +215,7 @@ namespace Nomad.FileSystem.Private.FileStreams {
 
 		public async ValueTask FlushAsync( CancellationToken ct = default ) {
 			if ( _isText ) {
-				await _textWriter.FlushAsync( ct );
+				await _textWriter.FlushAsync();
 			} else {
 				_binaryWriter.Flush();
 			}
