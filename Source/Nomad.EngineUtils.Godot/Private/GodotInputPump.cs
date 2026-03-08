@@ -24,16 +24,16 @@ using Nomad.Core.Input.ValueObjects;
 namespace Nomad.EngineUtils.Private {
 	/*
 	===================================================================================
-	
+
 	GodotInputPump
-	
+
 	===================================================================================
 	*/
 	/// <summary>
-	/// 
+	///
 	/// </summary>
 
-	internal sealed partial class GodotInputPump : Node, IInputAdapter {
+	public sealed partial class GodotInputPump : Node, IInputAdapter {
 		private readonly IInputSystem _system;
 
 		/*
@@ -42,7 +42,7 @@ namespace Nomad.EngineUtils.Private {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="system"></param>
 		public GodotInputPump( IInputSystem system ) {
@@ -98,7 +98,7 @@ namespace Nomad.EngineUtils.Private {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="button"></param>
 		/// <returns></returns>

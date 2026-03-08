@@ -19,48 +19,38 @@ using System.Threading.Tasks;
 using System.Threading;
 using Nomad.Core.ResourceCache;
 using Nomad.Core.Util;
+using Godot;
 
 namespace Nomad.EngineUtils.Private {
 	/*
     ===================================================================================
-    
+
     GodotLoader
-    
+
     ===================================================================================
     */
 	/// <summary>
 	/// A godot-focused resource loader.
 	/// </summary>
 
-	internal sealed class GodotLoader<Resource> : IResourceLoader<Resource, string>
-		where Resource : Godot.Resource {
-		public LoadCallback<Resource, string> Load => LoadResource;
-		public LoadAsyncCallback<Resource, string> LoadAsync => LoadResourceAsync;
-
-		/*
-        ===============
-        Dispose
-        ===============
-        */
-		/// <summary>
-		/// 
-		/// </summary>
-		public void Dispose() {
-		}
-
+	internal sealed class GodotLoader : IResourceLoader {
 		/// <summary>
 		///
 		/// </summary>
-		/// <param name="path"></param>
+		/// <param name="id"></param>
 		/// <returns></returns>
-		private Result<Resource> LoadResource( string path ) {
-			Godot.Resource resource = Godot.ResourceLoader.Load( path, String.Empty, Godot.ResourceLoader.CacheMode.ReplaceDeep );
-			if ( resource == null ) {
-				return Result<Resource>.Failure( Error.Create( $"Error loading godot resource '{path}'" ) );
-			} else if ( resource is Resource loadedResource ) {
-				return Result<Resource>.Success( loadedResource );
+		public Result<TResource> Load<TResource, TId>( TId id ) {
+			if ( id is not string path ) {
+				throw new InvalidCastException();
 			}
-			throw new InvalidCastException();
+			if ( ResourceLoader.Load( path, string.Empty, ResourceLoader.CacheMode.ReplaceDeep ) is TResource resource ) {
+				if ( resource == null ) {
+					return Result<TResource>.Failure( InternalError.Create( $"Error loading godot resource '{path}'" ) );
+				}
+				return Result<TResource>.Success( resource );
+			} else {
+				throw new InvalidCastException();
+			}
 		}
 
 		/*
@@ -71,34 +61,38 @@ namespace Nomad.EngineUtils.Private {
 		/// <summary>
 		///
 		/// </summary>
-		/// <param name="path"></param>
+		/// <param name="id"></param>
 		/// <param name="ct"></param>
 		/// <returns></returns>
-		private async Task<Result<Resource>> LoadResourceAsync( string path, CancellationToken ct = default ) {
+		public async Task<Result<TResource>> LoadAsync<TResource, TId>( TId id, CancellationToken ct = default ) {
 			ct.ThrowIfCancellationRequested();
 
-			Godot.Error requestError = Godot.ResourceLoader.LoadThreadedRequest( path, String.Empty, true, Godot.ResourceLoader.CacheMode.ReplaceDeep );
-			if ( requestError != Godot.Error.Ok ) {
-				return Result<Resource>.Failure( Error.Create( $"Error loading godot resource '{path}' - {requestError}" ) );
+			if ( id is not string path ) {
+				throw new InvalidCastException();
 			}
 
-			Godot.ResourceLoader.ThreadLoadStatus status = Godot.ResourceLoader.ThreadLoadStatus.Failed;
-			var sceneTree = (Godot.SceneTree)Godot.Engine.GetMainLoop();
+			Error requestError = ResourceLoader.LoadThreadedRequest( path, string.Empty, true, ResourceLoader.CacheMode.ReplaceDeep );
+			if ( requestError != Error.Ok ) {
+				return Result<TResource>.Failure( InternalError.Create( $"Error loading godot resource '{path}' - {requestError}" ) );
+			}
+
+			ResourceLoader.ThreadLoadStatus status = ResourceLoader.ThreadLoadStatus.Failed;
+			var sceneTree = (SceneTree)Engine.GetMainLoop();
 
 			do {
-				if ( status == Godot.ResourceLoader.ThreadLoadStatus.InProgress ) {
-					await sceneTree.ToSignal( sceneTree, Godot.SceneTree.SignalName.ProcessFrame );
+				if ( status == ResourceLoader.ThreadLoadStatus.InProgress ) {
+					await sceneTree.ToSignal( sceneTree, SceneTree.SignalName.ProcessFrame );
 				}
-				status = Godot.ResourceLoader.LoadThreadedGetStatus( path );
-			} while ( status == Godot.ResourceLoader.ThreadLoadStatus.InProgress );
+				status = ResourceLoader.LoadThreadedGetStatus( path );
+			} while ( status == ResourceLoader.ThreadLoadStatus.InProgress );
 
-			if ( status == Godot.ResourceLoader.ThreadLoadStatus.Loaded ) {
-				if ( Godot.ResourceLoader.LoadThreadedGet( path ) is Resource resource ) {
-					return Result<Resource>.Success( resource );
+			if ( status == ResourceLoader.ThreadLoadStatus.Loaded ) {
+				if ( ResourceLoader.LoadThreadedGet( path ) is TResource resource ) {
+					return Result<TResource>.Success( resource );
 				}
 				throw new InvalidCastException();
 			}
-			return Result<Resource>.Failure( Error.Create( $"godot resource '{path}' failed to load with thread status '{status}" ) );
+			return Result<TResource>.Failure( InternalError.Create( $"godot resource '{path}' failed to load with thread status '{status}" ) );
 		}
 	};
 };

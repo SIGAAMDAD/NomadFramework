@@ -22,14 +22,13 @@ using Nomad.Audio.Interfaces;
 using Nomad.Core;
 using Nomad.Core.Exceptions;
 using Nomad.Core.Logger;
-using Nomad.CVars;
+using Nomad.Core.CVars;
 using Nomad.ResourceCache;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Nomad.Core.Memory;
 using Nomad.Core.Util;
-using Nomad.Core.CVars;
 
 namespace Nomad.Audio.Fmod.Private.Repositories {
 	/*
@@ -127,7 +126,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		public void Dispose() {
 			if ( !_isDisposed ) {
@@ -204,7 +203,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="startTime"></param>
 		/// <param name="id"></param>
@@ -244,7 +243,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 					continue;
 				}
 
-				float distanceFactor = CalculateDistanceFactor( (float)channel.Instance.Position.DistanceTo( listenerPos ) );
+				float distanceFactor = CalculateDistanceFactor( channel.Instance.Position.DistanceTo( listenerPos ) );
 				channel.Volume = distanceFactor;
 				channel.CurrentPriority = channel.BasePriority * channel.Category.Config.PriorityScale * distanceFactor;
 			}
@@ -309,6 +308,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// <summary>
 		///
 		/// </summary>
+		/// <param name="startTime"></param>
 		/// <param name="id"></param>
 		/// <param name="position"></param>
 		/// <param name="basePriority"></param>
@@ -320,7 +320,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			float priority =
 				basePriority *
 				category.Config.PriorityScale * // category multiplier
-				CalculateDistanceFactor( (float)position.DistanceTo( listenerPos ) );
+				CalculateDistanceFactor( position.DistanceTo( listenerPos ) );
 
 			priority *= 1.0f - CalculateTimePenalty( startTime, id ) * _timePenaltyMultiplier;
 			priority *= 1.0f - CalculateFrequencyPenalty( id ) * _frequencyPenalty;
@@ -362,6 +362,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// <summary>
 		///
 		/// </summary>
+		/// <param name="startTime"></param>
 		/// <param name="id"></param>
 		/// <returns></returns>
 		private float CalculateTimePenalty( float startTime, IntPtr id ) {
@@ -426,14 +427,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		StealChannel
 		===============
 		*/
-		/// <summary>
 		///
-		/// </summary>
-		/// <param name="id"></param>
-		/// <param name="position"></param>
-		/// <param name="priority"></param>
-		/// <param name="category"></param>
-		/// <param name="isEssential"></param>
 		/// <returns></returns>
 		private int StealChannel( float currentTime, IntPtr id, Vector2 position, float priority, SoundCategory category, bool isEssential ) {
 			float bestStealScore = float.MinValue;
@@ -720,7 +714,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="args"></param>
 		private void OnMaxActiveChannelsValueChanged( in CVarValueChangedEventArgs<int> args ) {

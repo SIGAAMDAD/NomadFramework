@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using Nomad.Core.FileSystem;
 
 namespace Nomad.Core.CVars
 {
@@ -44,7 +45,7 @@ namespace Nomad.Core.CVars
         bool CVarExists(string name);
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="name"></param>
@@ -97,9 +98,9 @@ namespace Nomad.Core.CVars
         ///
         /// </summary>
         void Restart();
-        
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="name"></param>
         /// <param name="cvar"></param>
@@ -107,7 +108,7 @@ namespace Nomad.Core.CVars
         bool TryFind(string name, out ICVar? cvar);
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="name"></param>
@@ -118,13 +119,15 @@ namespace Nomad.Core.CVars
         /// <summary>
         ///
         /// </summary>
+        /// <param name="fileSystem"></param>
         /// <param name="configFile"></param>
-        void Load(string configFile);
+        void Load(IFileSystem fileSystem, string configFile);
 
         /// <summary>
         ///
         /// </summary>
+        /// <param name="fileSystemm"></param>
         /// <param name="configFile"></param>
-        void Save(string configFile);
+        void Save(IFileSystem fileSystemm, string configFile);
     }
 }

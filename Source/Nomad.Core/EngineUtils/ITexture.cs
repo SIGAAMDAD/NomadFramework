@@ -20,20 +20,20 @@ namespace Nomad.Core.EngineUtils
     /// <summary>
     /// A universal representation of a texture object.
     /// </summary>
-    public interface ITexture : IDisposable
+    public interface ITexture : IAsset
     {
         /// <summary>
-        /// 
+        ///
         /// </summary>
         int Width { get; }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         int Height { get; }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         ReadOnlyMemory<byte> ImageBuffer { get; }
     }

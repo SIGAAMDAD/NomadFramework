@@ -27,12 +27,12 @@ using Nomad.Core.ServiceRegistry.Interfaces;
 namespace Nomad.Core.ServiceRegistry.Services
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
-    internal sealed class ServiceLocator : IServiceLocator
+    public sealed class ServiceLocator : IServiceLocator
     {
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public IServiceRegistry Collection => _collection;
         internal readonly ServiceCollection _collection;
@@ -42,7 +42,7 @@ namespace Nomad.Core.ServiceRegistry.Services
         private bool _isDisposed;
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="collection"></param>
         /// <exception cref="ArgumentNullException"></exception>
@@ -53,7 +53,7 @@ namespace Nomad.Core.ServiceRegistry.Services
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public void Dispose()
         {
@@ -69,7 +69,7 @@ namespace Nomad.Core.ServiceRegistry.Services
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <typeparam name="TService"></typeparam>
         /// <returns></returns>
@@ -86,7 +86,7 @@ namespace Nomad.Core.ServiceRegistry.Services
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <typeparam name="TService"></typeparam>
         /// <param name="service"></param>
@@ -111,7 +111,7 @@ namespace Nomad.Core.ServiceRegistry.Services
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <typeparam name="TService"></typeparam>
         /// <returns></returns>
@@ -128,7 +128,7 @@ namespace Nomad.Core.ServiceRegistry.Services
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <typeparam name="TService"></typeparam>
         /// <returns></returns>
@@ -141,7 +141,7 @@ namespace Nomad.Core.ServiceRegistry.Services
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -149,7 +149,7 @@ namespace Nomad.Core.ServiceRegistry.Services
             => new ServiceScope(this);
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="descriptor"></param>
         /// <returns></returns>
@@ -165,7 +165,7 @@ namespace Nomad.Core.ServiceRegistry.Services
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="descriptor"></param>
         /// <returns></returns>
@@ -180,7 +180,7 @@ namespace Nomad.Core.ServiceRegistry.Services
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="descriptor"></param>
         /// <returns></returns>
@@ -189,7 +189,7 @@ namespace Nomad.Core.ServiceRegistry.Services
             => CreateServiceInstance(descriptor);
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="descriptor"></param>
         /// <returns></returns>
@@ -214,7 +214,7 @@ namespace Nomad.Core.ServiceRegistry.Services
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>

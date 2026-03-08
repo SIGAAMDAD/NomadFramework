@@ -23,13 +23,13 @@ using Nomad.Core.Logger;
 namespace Nomad.EngineUtils.Private {
 	/*
 	===================================================================================
-	
+
 	GodotConsole
-	
+
 	===================================================================================
 	*/
 	/// <summary>
-	/// 
+	///
 	/// </summary>
 
 	internal sealed class GodotConsole : IConsoleObject {
@@ -49,7 +49,7 @@ namespace Nomad.EngineUtils.Private {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="node"></param>
 		/// <param name="logger"></param>
@@ -70,7 +70,7 @@ namespace Nomad.EngineUtils.Private {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		public void Dispose() {
 			if ( !_isDisposed ) {
@@ -88,7 +88,7 @@ namespace Nomad.EngineUtils.Private {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		public void Clear() {
 			_godotSink.Clear();
@@ -100,7 +100,7 @@ namespace Nomad.EngineUtils.Private {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="message"></param>
 		public static void PrintString( in string message ) {
@@ -112,7 +112,7 @@ namespace Nomad.EngineUtils.Private {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		public void Show() {
 			_node.Show();
@@ -124,7 +124,7 @@ namespace Nomad.EngineUtils.Private {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		public void Hide() {
 			_node.Hide();

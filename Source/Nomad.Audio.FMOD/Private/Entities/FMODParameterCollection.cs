@@ -15,7 +15,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System.Collections.Generic;
 using Nomad.Audio.Interfaces;
-using Nomad.Audio.ValueObjects;
 
 namespace Nomad.Audio.Fmod.Private.Entities {
 	/*

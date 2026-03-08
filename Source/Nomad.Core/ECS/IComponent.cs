@@ -13,6 +13,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using Nomad.Core.EngineUtils;
+
 namespace Nomad.Core.ECS
 {
     /// <summary>
@@ -20,5 +22,31 @@ namespace Nomad.Core.ECS
     /// </summary>
     public interface IComponent
     {
+        /// <summary>
+        /// The owning GameObject.
+        /// </summary>
+        IGameObject Object { get; set; }
+
+        /// <summary>
+        ///
+        /// </summary>
+        void OnInit();
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="delta"></param>
+        void OnUpdate(float delta);
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="delta"></param>
+        void OnPhysicsUpdate(float delta);
+
+        /// <summary>
+        ///
+        /// </summary>
+        void OnShutdown();
     }
 }

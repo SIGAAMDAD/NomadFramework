@@ -8,16 +8,16 @@ using Nomad.Core.ServiceRegistry.Interfaces;
 namespace Nomad.Core.ServiceRegistry.Services
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
-    internal sealed class ServiceCollection : IServiceRegistry
+    public sealed class ServiceCollection : IServiceRegistry
     {
         private readonly ConcurrentDictionary<Type, ServiceDescriptor> _descriptors = new();
         private readonly ConcurrentBag<IDisposable> _singletonDisposables = new();
         private bool _isDisposed;
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public void Dispose()
         {
@@ -36,7 +36,7 @@ namespace Nomad.Core.ServiceRegistry.Services
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <typeparam name="TService"></typeparam>
         /// <typeparam name="TImplementation"></typeparam>
@@ -59,7 +59,7 @@ namespace Nomad.Core.ServiceRegistry.Services
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <typeparam name="TService"></typeparam>
         /// <param name="instance"></param>
@@ -74,7 +74,7 @@ namespace Nomad.Core.ServiceRegistry.Services
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <typeparam name="TService"></typeparam>
         /// <typeparam name="TImplementation"></typeparam>
@@ -86,9 +86,9 @@ namespace Nomad.Core.ServiceRegistry.Services
         {
             return Register<TService, TImplementation>(ServiceLifetime.Singleton);
         }
-        
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <typeparam name="TService"></typeparam>
         /// <typeparam name="TImplementation"></typeparam>
@@ -102,7 +102,7 @@ namespace Nomad.Core.ServiceRegistry.Services
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <typeparam name="TService"></typeparam>
         /// <typeparam name="TImplementation"></typeparam>
@@ -114,9 +114,9 @@ namespace Nomad.Core.ServiceRegistry.Services
         {
             return Register<TService, TImplementation>(ServiceLifetime.Scoped);
         }
-        
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <typeparam name="TService"></typeparam>
         /// <returns></returns>
@@ -128,7 +128,7 @@ namespace Nomad.Core.ServiceRegistry.Services
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -136,7 +136,7 @@ namespace Nomad.Core.ServiceRegistry.Services
             => _descriptors.Values;
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="serviceType"></param>
         /// <param name="descriptor"></param>
@@ -146,7 +146,7 @@ namespace Nomad.Core.ServiceRegistry.Services
             => _descriptors.TryGetValue(serviceType, out descriptor);
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="instance"></param>
         internal void TrackSingletonDisposable(object instance)

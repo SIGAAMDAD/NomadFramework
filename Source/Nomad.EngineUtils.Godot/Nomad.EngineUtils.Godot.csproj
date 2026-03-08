@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <!-- Build Configuration -->
@@ -29,12 +29,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Godot.NET.Sdk" Version="4.6.0" />
-    <PackageReference Include="Godot.SourceGenerators" Version="4.6.0" />
-    <PackageReference Include="GodotSharp" Version="4.6.0" />
+    <PackageReference Include="Godot.NET.Sdk" Version="4.6.1" />
+    <PackageReference Include="Godot.SourceGenerators" Version="4.6.1" />
+    <PackageReference Include="GodotSharp" Version="4.6.1" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Nomad.ResourceCache\Nomad.ResourceCache.csproj" />
     <ProjectReference Include="..\Nomad.Core\Nomad.Core.csproj" />
 	  <ProjectReference Include="..\Nomad.Events\Nomad.Events.csproj" />
   </ItemGroup>

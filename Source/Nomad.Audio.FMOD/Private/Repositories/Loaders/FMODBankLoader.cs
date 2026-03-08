@@ -13,11 +13,11 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Nomad.Audio.Fmod.Private.Services;
 using Nomad.Audio.Fmod.Private.ValueObjects;
-using Nomad.Audio.Interfaces;
 using Nomad.Core.Logger;
 using Nomad.Core.ResourceCache;
 using Nomad.Core.Util;
@@ -34,10 +34,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories.Loaders {
 	/// Loads FMOD banks from disk.
 	/// </summary>
 
-	internal sealed class FMODBankLoader : IResourceLoader<IAudioResource, string> {
-		public LoadCallback<IAudioResource, string> Load => LoadBank;
-		public LoadAsyncCallback<IAudioResource, string> LoadAsync => LoadBankAsync;
-
+	internal sealed class FMODBankLoader : IResourceLoader {
 		private readonly FMODDevice _fmodSystem;
 		private readonly FMODGuidRepository _guidRepository;
 		private readonly ILoggerService _logger;
@@ -48,7 +45,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories.Loaders {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="fmodSystem"></param>
 		/// <param name="guidRepository"></param>
@@ -61,18 +58,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories.Loaders {
 
 		/*
 		===============
-		Dispose
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		public void Dispose() {
-		}
-
-		/*
-		===============
-		LoadBank
+		Load
 		===============
 		*/
 		/// <summary>
@@ -80,14 +66,22 @@ namespace Nomad.Audio.Fmod.Private.Repositories.Loaders {
 		/// </summary>
 		/// <param name="id"></param>
 		/// <returns></returns>
-		private Result<IAudioResource> LoadBank( string path ) {
+		public Result<TResource> Load<TResource, TId>( TId id ) {
+			if ( id is not string path ) {
+				throw new InvalidCastException();
+			}
 			try {
 				FMODValidator.ValidateCall( _fmodSystem.StudioSystem.loadBankFile( path, FMOD.Studio.LOAD_BANK_FLAGS.NORMAL, out var bank ) );
 				FMODValidator.ValidateCall( bank.getID( out var guid ) );
 				_logger.PrintLine( $"FMODBankLoader.LoadBank: loaded bank '{path}'" );
 				_guidRepository.AddBankId( path, guid );
 
-				return Result<IAudioResource>.Success( new FMODBankResource( bank ) );
+				var resource = new FMODBankResource( bank );
+				if ( resource is TResource result ) {
+					return Result<TResource>.Success( result );
+				} else {
+					throw new InvalidCastException();
+				}
 			} catch ( FMODException e ) {
 				_logger.PrintError( $"FMODBankLoader.LoadBank: failed to load bank '{path}' - {e.Error}" );
 				throw;
@@ -96,7 +90,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories.Loaders {
 
 		/*
 		===============
-		LoadBankAsync
+		LoadAsync
 		===============
 		*/
 		/// <summary>
@@ -105,7 +99,10 @@ namespace Nomad.Audio.Fmod.Private.Repositories.Loaders {
 		/// <param name="id"></param>
 		/// <param name="ct"></param>
 		/// <returns></returns>
-		private async Task<Result<IAudioResource>> LoadBankAsync( string path, CancellationToken ct = default ) {
+		public async Task<Result<TResource>> LoadAsync<TResource, TId>( TId id, CancellationToken ct = default ) {
+			if ( id is not string path ) {
+				throw new InvalidCastException();
+			}
 			try {
 				ct.ThrowIfCancellationRequested();
 
@@ -114,7 +111,12 @@ namespace Nomad.Audio.Fmod.Private.Repositories.Loaders {
 				_logger.PrintLine( $"FMODBankLoader.LoadBankAsync: loaded bank '{path}'" );
 				_guidRepository.AddBankId( path, guid );
 
-				return Result<IAudioResource>.Success( new FMODBankResource( bank ) );
+				var resource = new FMODBankResource( bank );
+				if ( resource is TResource result ) {
+					return Result<TResource>.Success( result );
+				} else {
+					throw new InvalidCastException();
+				}
 			} catch ( FMODException e ) {
 				_logger.PrintError( $"FMODBankLoader.LoadBank: failed to load bank '{path}' - {e.Error}" );
 				throw;

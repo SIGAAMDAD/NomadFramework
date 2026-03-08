@@ -15,7 +15,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.CVars;
@@ -44,7 +43,6 @@ namespace Nomad.CVars.Private.Services {
 		private readonly CVarRepository _repository;
 		private readonly IGameEventRegistryService _eventFactory;
 		private readonly ILoggerService _logger;
-		private readonly IFileSystem _fileSystem;
 
 		private bool _isDisposed = false;
 
@@ -57,12 +55,10 @@ namespace Nomad.CVars.Private.Services {
 		///
 		/// </summary>
 		/// <param name="eventFactory"></param>
-		/// <param name="fileSystem"></param>
 		/// <param name="logger"></param>
-		public CVarSystem( IGameEventRegistryService eventFactory, IFileSystem fileSystem, ILoggerService logger ) {
+		public CVarSystem( IGameEventRegistryService eventFactory, ILoggerService logger ) {
 			_eventFactory = eventFactory;
 			_logger = logger;
-			_fileSystem = fileSystem;
 			_repository = new CVarRepository( logger, eventFactory );
 
 			AddGroup( "Default" );
@@ -74,7 +70,7 @@ namespace Nomad.CVars.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		public void Dispose() {
 			if ( !_isDisposed ) {
@@ -146,13 +142,14 @@ namespace Nomad.CVars.Private.Services {
 		/// <summary>
 		/// Writes all CVars and their corresponding groups to the provided configuration file in .ini format
 		/// </summary>
+		/// <param name="fileSystem"></param>
 		/// <param name="configFile">The file to write .ini values tos</param>
-		public void Save( string configFile ) {
+		public void Save( IFileSystem fileSystem, string configFile ) {
 			ArgumentGuard.ThrowIfNullOrEmpty( configFile );
 
 			// ensure we block all access
 			lock ( _groups ) {
-				ConfigFileWriter writer = new ConfigFileWriter( configFile, _logger, this, _fileSystem, _groups.Values );
+				ConfigFileWriter writer = new ConfigFileWriter( configFile, _logger, this, fileSystem, _groups.Values );
 			}
 		}
 
@@ -164,13 +161,14 @@ namespace Nomad.CVars.Private.Services {
 		/// <summary>
 		/// Loads cvar values from the provided configuration file.
 		/// </summary>
+		/// <param name="fileSystem"></param>
 		/// <param name="configFile">The file to load .ini values from</param>
-		public void Load( string configFile ) {
+		public void Load( IFileSystem fileSystem, string configFile ) {
 			ArgumentGuard.ThrowIfNullOrEmpty( configFile );
 
 			// ensure we block all access
 			lock ( _repository ) {
-				IniLoader reader = new IniLoader( configFile, _logger, _fileSystem );
+				IniLoader reader = new IniLoader( configFile, _logger, fileSystem );
 
 				foreach ( var group in _groups ) {
 					foreach ( var cvar in group.Value.CVars ) {
@@ -346,7 +344,7 @@ namespace Nomad.CVars.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="name"></param>
 		/// <param name="cvar"></param>
@@ -360,7 +358,7 @@ namespace Nomad.CVars.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <param name="name"></param>

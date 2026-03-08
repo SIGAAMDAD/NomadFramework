@@ -14,7 +14,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using Nomad.Core.Events;
 using Nomad.Core.ResourceCache;
 using Nomad.Core.Util;
 
@@ -25,11 +24,6 @@ namespace Nomad.Core.EngineUtils
     /// </summary>
     public interface IEngineService : IDisposable
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        IGameEvent<WindowSizeChangedEventArgs> WindowSizeChanged { get; }
-
         /// <summary>
         /// Check if the application is currently focused.
         /// </summary>
@@ -55,14 +49,14 @@ namespace Nomad.Core.EngineUtils
         void Quit(int exitCode = 0);
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="localpath"></param>
         /// <returns></returns>
         string GetOSPath(string localpath);
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="ospath"></param>
         /// <returns></returns>
@@ -90,34 +84,13 @@ namespace Nomad.Core.EngineUtils
         string GetSystemRegion();
 
         /// <summary>
-        /// Gets the native/desktop resolution.
-        /// </summary>
-        /// <param name="width"></param>
-        /// <param name="height"></param>
-        void GetScreenResolution(out int width, out int height);
-
-        /// <summary>
         ///
-        /// </summary>
-        /// <param name="width"></param>
-        /// <param name="height"></param>
-        void SetScreenResolution(int width, int height);
-
-        /// <summary>
-        /// 
         /// </summary>
         /// <param name="image"></param>
         /// <param name="width"></param>
         /// <param name="height"></param>
         /// <returns></returns>
         IDisposable CreateImageRGBA(byte[] image, int width, int height);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        string Translate(InternString key);
 
         /// <summary>
         /// Creates an engine-specific in-game console handle and returns it.

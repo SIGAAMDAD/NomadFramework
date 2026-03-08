@@ -33,7 +33,7 @@ namespace Nomad.Console
     public class ConsoleBootstrapper : IBootstrapper
     {
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="registry"></param>
         /// <param name="locator"></param>
@@ -48,16 +48,6 @@ namespace Nomad.Console
             var fileSystem = locator.GetService<IFileSystem>();
 
             var cvarSystem = locator.GetService<ICVarSystemService>();
-            var configFile = cvarSystem.Register(
-                new CVarCreateInfo<string>
-                {
-                    Name = Constants.CVars.Console.DEFAULT_CONFIG_FILE,
-                    DefaultValue = "res://Assets/Config/default.ini",
-                    Description = "The default configuration file.",
-                    Flags = CVarFlags.Init | CVarFlags.ReadOnly
-                }
-            );
-            cvarSystem.Load(configFile.Value);
 
             eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.NAMESPACE, Constants.Events.Console.CONSOLE_OPENED_EVENT);
             eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.NAMESPACE, Constants.Events.Console.CONSOLE_CLOSED_EVENT);
@@ -67,14 +57,15 @@ namespace Nomad.Console
             eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.NAMESPACE, Constants.Events.Console.PAGE_UP_EVENT);
             eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.NAMESPACE, Constants.Events.Console.PAGE_DOWN_EVENT);
 
-            var consoleObject = engineService.CreateConsoleObject();
+            IConsoleObject consoleObject = engineService.CreateConsoleObject();
 
-            var commandService = registry.RegisterSingleton<ICommandService>(new CommandCacheService(logger, cvarSystem));
-            registry.RegisterSingleton<ICommandLineService>(new CommandLine(consoleObject.CommandBuilder, fileSystem, commandService, logger, eventFactory));
+            var commandService = new CommandCacheService(logger, cvarSystem);
+            registry.AddSingleton<ICommandService>(commandService);
+            registry.AddSingleton<ICommandLineService>(new CommandLine(consoleObject.CommandBuilder, fileSystem, commandService, logger, eventFactory));
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public void Shutdown()
         {

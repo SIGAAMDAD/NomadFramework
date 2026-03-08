@@ -27,13 +27,13 @@ using System.Text;
 namespace Nomad.EngineUtils.Private {
 	/*
 	===================================================================================
-	
+
 	GodotCommandBuilder
-	
+
 	===================================================================================
 	*/
 	/// <summary>
-	/// 
+	///
 	/// </summary>
 
 	public sealed partial class GodotCommandBuilder : LineEdit, ICommandBuilder {
@@ -41,6 +41,8 @@ namespace Nomad.EngineUtils.Private {
 
 		private readonly List<string> _arguments = new List<string>();
 		private readonly StringBuilder _commandBuilder = new StringBuilder( 1024 );
+
+		private bool _isDisposed = false;
 
 		public IGameEvent<TextEnteredEventArgs> TextEntered => _textEntered;
 		private readonly IGameEvent<TextEnteredEventArgs> _textEntered;
@@ -51,16 +53,32 @@ namespace Nomad.EngineUtils.Private {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="eventFactory"></param>
 		public GodotCommandBuilder( IGameEventRegistryService eventFactory ) {
 			ArgumentNullException.ThrowIfNull( eventFactory );
 
-			_textEntered = eventFactory.GetEvent<TextEnteredEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.TEXT_ENTERED_EVENT );
+			_textEntered = eventFactory.GetEvent<TextEnteredEventArgs>( Core.Constants.Events.Console.NAMESPACE, Core.Constants.Events.Console.TEXT_ENTERED_EVENT );
 
-			eventFactory.GetEvent<EmptyEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.CONSOLE_OPENED_EVENT ).Subscribe( this, OnConsoleOpened );
-			eventFactory.GetEvent<EmptyEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.CONSOLE_CLOSED_EVENT ).Subscribe( this, OnConsoleClosed );
+			eventFactory.GetEvent<EmptyEventArgs>( Core.Constants.Events.Console.NAMESPACE, Core.Constants.Events.Console.CONSOLE_OPENED_EVENT ).Subscribe( OnConsoleOpened );
+			eventFactory.GetEvent<EmptyEventArgs>( Core.Constants.Events.Console.NAMESPACE, Core.Constants.Events.Console.CONSOLE_CLOSED_EVENT ).Subscribe( OnConsoleClosed );
+		}
+
+		/*
+		===============
+		Dispose
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		protected override void Dispose( bool disposing ) {
+			if ( !_isDisposed ) {
+				_textEntered?.Dispose();
+			}
+			base.Dispose( disposing );
+			_isDisposed = true;
 		}
 
 		/*
@@ -89,7 +107,7 @@ namespace Nomad.EngineUtils.Private {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="args"></param>
 		public void OnHistoryPrev( in HistoryPrevEventArgs args ) {
@@ -103,7 +121,7 @@ namespace Nomad.EngineUtils.Private {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="args"></param>
 		public void OnHistoryNext( in HistoryNextEventArgs args ) {
@@ -139,7 +157,7 @@ namespace Nomad.EngineUtils.Private {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="text"></param>
 		/// <returns></returns>s
@@ -191,7 +209,7 @@ namespace Nomad.EngineUtils.Private {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="eventData"></param>
 		/// <param name="args"></param>
@@ -205,7 +223,7 @@ namespace Nomad.EngineUtils.Private {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="eventData"></param>
 		/// <param name="args"></param>
@@ -219,7 +237,7 @@ namespace Nomad.EngineUtils.Private {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		public override void _Ready() {
 			base._Ready();

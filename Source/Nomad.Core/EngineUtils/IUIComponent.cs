@@ -13,7 +13,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
 using System.Numerics;
 
 namespace Nomad.Core.EngineUtils
@@ -21,7 +20,7 @@ namespace Nomad.Core.EngineUtils
     /// <summary>
     ///
     /// </summary>
-    public interface IUIComponent : IDisposable
+    public interface IUIComponent : IGameObject
     {
         /// <summary>
         /// Whether the ui component is visible or not.

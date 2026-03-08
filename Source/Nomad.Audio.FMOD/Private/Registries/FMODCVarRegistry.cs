@@ -16,6 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using Nomad.Audio.Fmod.ValueObjects;
 using Nomad.CVars;
 using Nomad.Core;
+using Nomad.Core.CVars;
 
 namespace Nomad.Audio.Fmod.Private.Registries {
 	/*
@@ -41,52 +42,52 @@ namespace Nomad.Audio.Fmod.Private.Registries {
 		/// <param name="cvarSystem"></param>
 		public static void Register( ICVarSystemService cvarSystem ) {
 			cvarSystem.Register(
-				new CVarCreateInfo<int>(
-					Name: Constants.CVars.Audio.FMOD.STREAM_BUFFER_SIZE,
-					DefaultValue: 12,
-					Description: "The size of FMOD's stream buffer in milliseconds.",
-					Flags: CVarFlags.Archive | CVarFlags.Init,
-					Validator: value => value > 100 && value <= 5000
-				)
+				new CVarCreateInfo<int> {
+					Name = Constants.CVars.Audio.FMOD.STREAM_BUFFER_SIZE,
+					DefaultValue = 12,
+					Description = "The size of FMOD's stream buffer in milliseconds.",
+					Flags = CVarFlags.Archive | CVarFlags.Init,
+					Validator = value => value > 100 && value <= 5000
+				}
 			);
 			cvarSystem.Register(
-				new CVarCreateInfo<uint>(
-					Name: Constants.CVars.Audio.FMOD.DSP_BUFFER_SIZE,
-					DefaultValue: 1024,
-					Description: "The size of FMOD's dsp buffer.",
-					Flags: CVarFlags.Archive | CVarFlags.Init,
-					Validator: value => value > 10 && value < 48
-				)
+				new CVarCreateInfo<uint> {
+					Name = Constants.CVars.Audio.FMOD.DSP_BUFFER_SIZE,
+					DefaultValue = 1024,
+					Description = "The size of FMOD's dsp buffer.",
+					Flags = CVarFlags.Archive | CVarFlags.Init,
+					Validator = value => value > 10 && value < 48
+				}
 			);
 			cvarSystem.Register(
-				new CVarCreateInfo<int>(
-					Name: Constants.CVars.Audio.FMOD.DSP_BUFFER_COUNT,
-					DefaultValue: 4,
-					Description: "The number of FMOD dsp buffers.",
-					Flags: CVarFlags.Archive | CVarFlags.Init,
-					Validator: value => value >= 2 && value <= 8
-				)
+				new CVarCreateInfo<int> {
+					Name = Constants.CVars.Audio.FMOD.DSP_BUFFER_COUNT,
+					DefaultValue = 4,
+					Description = "The number of FMOD dsp buffers.",
+					Flags = CVarFlags.Archive | CVarFlags.Init,
+					Validator = value => value >= 2 && value <= 8
+				}
 			);
 			cvarSystem.Register(
-				new CVarCreateInfo<bool>(
-					Name: Constants.CVars.Audio.FMOD.LOGGING,
+				new CVarCreateInfo<bool> {
+					Name = Constants.CVars.Audio.FMOD.LOGGING,
 #if DEBUG
-					DefaultValue: true,
+					DefaultValue = true,
 #else
-					DefaultValue: false,
+					DefaultValue = false,
 #endif
-					Description: "Enables a dedicated FMOD debug log.",
-					Flags: CVarFlags.Developer | CVarFlags.ReadOnly
-				)
+					Description = "Enables a dedicated FMOD debug log.",
+					Flags = CVarFlags.Developer | CVarFlags.ReadOnly
+				}
 			);
 			cvarSystem.Register(
-				new CVarCreateInfo<FMODBankLoadingStrategy>(
-					Name: Constants.CVars.Audio.FMOD.BANK_LOADING_STRATEGY,
-					DefaultValue: FMODBankLoadingStrategy.Streaming,
-					Description: "Sets the loading policy for how FMOD banks are handled in memory.",
-					Flags: CVarFlags.ReadOnly | CVarFlags.Archive,
-					Validator: value => value >= FMODBankLoadingStrategy.Streaming && value < FMODBankLoadingStrategy.Compressed
-				)
+				new CVarCreateInfo<FMODBankLoadingStrategy> {
+					Name = Constants.CVars.Audio.FMOD.BANK_LOADING_STRATEGY,
+					DefaultValue = FMODBankLoadingStrategy.Streaming,
+					Description = "Sets the loading policy for how FMOD banks are handled in memory.",
+					Flags = CVarFlags.ReadOnly | CVarFlags.Archive,
+					Validator = value => value >= FMODBankLoadingStrategy.Streaming && value < FMODBankLoadingStrategy.Compressed
+				}
 			);
 		}
 	};

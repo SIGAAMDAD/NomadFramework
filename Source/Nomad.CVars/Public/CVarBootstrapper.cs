@@ -25,7 +25,7 @@ using Nomad.CVars.Private.Services;
 namespace Nomad.CVars
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public sealed class CVarBootstrapper : IBootstrapper
     {
@@ -43,14 +43,13 @@ namespace Nomad.CVars
 
             _cvarSystem = new CVarSystem(
                 locator.GetService<IGameEventRegistryService>(),
-                locator.GetService<IFileSystem>(),
                 locator.GetService<ILoggerService>()
             );
             registry.AddSingleton(_cvarSystem);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public void Shutdown()
         {

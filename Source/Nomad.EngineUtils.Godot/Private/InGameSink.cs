@@ -15,7 +15,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 #if !UNITY_EDITOR
 using Godot;
-using Nomad.Core;
 using Nomad.Core.Console;
 using Nomad.Core.Events;
 using Nomad.Core.Logger;
@@ -68,9 +67,9 @@ namespace Nomad.EngineUtils.Private {
 			owner.CallDeferred( CanvasLayer.MethodName.AddChild, _richLabel );
 			node.CallDeferred( Control.MethodName.AddChild, owner );
 
-			eventRegistry.GetEvent<EmptyEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.CONSOLE_CLOSED_EVENT ).Subscribe( OnConsoleOpened );
-			eventRegistry.GetEvent<EmptyEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.PAGE_UP_EVENT ).Subscribe( OnPageUp );
-			eventRegistry.GetEvent<EmptyEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.PAGE_DOWN_EVENT ).Subscribe( OnPageDown );
+			eventRegistry.GetEvent<EmptyEventArgs>( Core.Constants.Events.Console.NAMESPACE, Core.Constants.Events.Console.CONSOLE_CLOSED_EVENT ).Subscribe( OnConsoleOpened );
+			eventRegistry.GetEvent<EmptyEventArgs>( Core.Constants.Events.Console.NAMESPACE, Core.Constants.Events.Console.PAGE_UP_EVENT ).Subscribe( OnPageUp );
+			eventRegistry.GetEvent<EmptyEventArgs>( Core.Constants.Events.Console.NAMESPACE, Core.Constants.Events.Console.PAGE_DOWN_EVENT ).Subscribe( OnPageDown );
 		}
 
 		/*
@@ -79,7 +78,7 @@ namespace Nomad.EngineUtils.Private {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		protected override void Dispose( bool disposing ) {
 			if ( isDisposed ) {
@@ -155,7 +154,7 @@ namespace Nomad.EngineUtils.Private {
 		/// </summary>
 		/// <param name="args"></param>
 		private void OnConsoleOpened( in EmptyEventArgs args ) {
-			OnScrollToBottom( new TextEnteredEventArgs() );
+			OnScrollToBottom( default );
 		}
 
 		/*

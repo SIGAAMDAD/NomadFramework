@@ -38,10 +38,11 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		public int ListenerCount => _listenerCount;
 		private int _listenerCount = 0;
 
-		public Vector2 ActiveListener => _currentListener.Position;
-		private FMODListener _currentListener;
+		// TODO: special exception for this.
+		public Vector2 ActiveListener => _currentListener != null ? _currentListener.Position : throw new Exception();
+		private FMODListener? _currentListener;
 
-		private readonly FMODListener?[] _listeners = new FMODListener[MAX_LISTENERS];
+		private readonly FMODListener[] _listeners = new FMODListener[MAX_LISTENERS];
 		private readonly FMODDevice _system;
 		private readonly ILoggerService _logger;
 
@@ -104,7 +105,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			_logger.PrintLine( $"FMODListenerService.ClearListeners: cleaning up listener data..." );
 
 			for ( int i = 0; i < _listenerCount; i++ ) {
-				_listeners[i] = null;
+				_listeners[i] = null!;
 			}
 			if ( _listenerCount > 0 ) {
 				_system.StudioSystem.setNumListeners( 0 );

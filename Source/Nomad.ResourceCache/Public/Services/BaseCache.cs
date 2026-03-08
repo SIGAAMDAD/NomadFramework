@@ -88,7 +88,7 @@ namespace Nomad.ResourceCache
         private readonly Timer _cleanupTimer;
         private readonly Task _cleanupThread;
         private readonly ILoggerService _logger;
-        private readonly IResourceLoader<TResource, TId> _loader;
+        private readonly IResourceLoader _loader;
 
         public IGameEvent<ResourceLoadedEventArgs<TId>> ResourceLoaded => _resourceLoaded;
         private readonly IGameEvent<ResourceLoadedEventArgs<TId>> _resourceLoaded;
@@ -105,7 +105,7 @@ namespace Nomad.ResourceCache
         /// <param name="logger"></param>
         /// <param name="eventFactory"></param>
         /// <param name="loader"></param>
-        public BaseCache(ILoggerService logger, IGameEventRegistryService eventFactory, IResourceLoader<TResource, TId> loader)
+        public BaseCache(ILoggerService logger, IGameEventRegistryService eventFactory, IResourceLoader loader)
         {
             ArgumentGuard.ThrowIfNull(logger);
             ArgumentGuard.ThrowIfNull(eventFactory);
@@ -600,7 +600,7 @@ namespace Nomad.ResourceCache
             var loadTimer = Stopwatch.StartNew();
             try
             {
-                Result<TResource> result = _loader.Load.Invoke(id);
+                Result<TResource> result = _loader.Load<TResource, TId>(id);
                 if (result.IsFailure)
                 {
                     _logger.PrintError($"BaseCache.LoadAndCacheResource: failed to load resource '{id}'");
@@ -632,7 +632,7 @@ namespace Nomad.ResourceCache
             var loadTimer = Stopwatch.StartNew();
             try
             {
-                Result<TResource> result = await _loader.LoadAsync(id, ct);
+                Result<TResource> result = await _loader.LoadAsync<TResource, TId>(id, ct);
                 ct.ThrowIfCancellationRequested();
 
                 if (result.IsFailure)
@@ -669,7 +669,7 @@ namespace Nomad.ResourceCache
             var loadTimer = Stopwatch.StartNew();
             try
             {
-                Result<TResource> result = await _loader.LoadAsync(id, ct);
+                Result<TResource> result = await _loader.LoadAsync<TResource, TId>(id, ct);
                 ct.ThrowIfCancellationRequested();
 
                 if (result.IsFailure)

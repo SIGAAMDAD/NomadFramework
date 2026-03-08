@@ -19,7 +19,9 @@ using Nomad.Audio.Fmod.Private.Entities;
 using Nomad.Audio.Fmod.Private.ValueObjects;
 using Nomad.Audio.Interfaces;
 using Nomad.Core;
-using Nomad.CVars;
+using Nomad.Core.CVars;
+using Nomad.Core.Events;
+using Nomad.Core.Exceptions;
 using Nomad.ResourceCache;
 
 namespace Nomad.Audio.Fmod.Private.Services {
@@ -45,8 +47,13 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		private readonly IResourceCacheService<IAudioResource, string> _eventRepository;
 		private readonly Queue<FMODChannel> _loopingTracks = new Queue<FMODChannel>();
 
+		private readonly ISubscriptionHandle _musicVolumeChanged;
+		private readonly ISubscriptionHandle _musicOnChanged;
+
 		private float _musicVolume = 0.0f;
 		private bool _musicOn = true;
+
+		private bool _isDisposed = false;
 
 		/*
 		===============
@@ -62,13 +69,30 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		public FMODMusicService( IResourceCacheService<IAudioResource, string> eventRepository, ICVarSystemService cvarSystem ) {
 			_eventRepository = eventRepository;
 
-			var musicVolume = cvarSystem.GetCVar<float>( Constants.CVars.Audio.MUSIC_VOLUME ) ?? throw new Exception( "Missing CVar 'audio.MusicVolume'" );
-			musicVolume.ValueChanged.Subscribe( this, OnMusicVolumeChanged );
+			var musicVolume = cvarSystem.GetCVar<float>( Constants.CVars.Audio.MUSIC_VOLUME ) ?? throw new CVarMissing( Constants.CVars.Audio.MUSIC_VOLUME );
+			_musicVolumeChanged = musicVolume.ValueChanged.Subscribe( OnMusicVolumeChanged );
 			_musicVolume = musicVolume.Value;
 
-			var musicOn = cvarSystem.GetCVar<bool>( Constants.CVars.Audio.MUSIC_ON ) ?? throw new Exception( "Missing CVar 'audio.MusicOn'" );
-			musicOn.ValueChanged.Subscribe( this, OnMusicOnChanged );
+			var musicOn = cvarSystem.GetCVar<bool>( Constants.CVars.Audio.MUSIC_ON ) ?? throw new CVarMissing( Constants.CVars.Audio.MUSIC_ON );
+			_musicOnChanged = musicOn.ValueChanged.Subscribe( OnMusicOnChanged );
 			_musicOn = musicOn.Value;
+		}
+
+		/*
+		===============
+		Dispose
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		public void Dispose() {
+			if ( !_isDisposed ) {
+				_musicOnChanged?.Dispose();
+				_musicVolumeChanged?.Dispose();
+			}
+			GC.SuppressFinalize( this );
+			_isDisposed = true;
 		}
 
 		/*
@@ -153,7 +177,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="args"></param>
 		private void OnMusicVolumeChanged( in CVarValueChangedEventArgs<float> args ) {

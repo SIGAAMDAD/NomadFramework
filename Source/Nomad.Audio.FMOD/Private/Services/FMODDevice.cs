@@ -17,8 +17,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 #define FMOD_LOGGING
 #endif
 
+#pragma warning disable CA2213
 using System;
-using System.Collections.Generic;
 using Nomad.Audio.Fmod.Private.Registries;
 using Nomad.Audio.Fmod.Private.Repositories;
 using Nomad.Audio.Fmod.Private.ValueObjects;
@@ -27,9 +27,9 @@ using Nomad.Core;
 using Nomad.Core.Exceptions;
 using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
-using Nomad.CVars;
 using Nomad.Core.Events;
 using System.Collections.Immutable;
+using Nomad.Core.CVars;
 
 namespace Nomad.Audio.Fmod.Private.Services {
 	/*
@@ -65,11 +65,18 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		private readonly FMODListenerService _listener;
 		private readonly FMODDriverRepository _driverRepository;
 
+		private bool _isDisposed = false;
+
 		/*
 		===============
 		FMODDevice
 		===============
 		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="locator"></param>
+		/// <param name="registry"></param>
 		public FMODDevice( IServiceLocator locator, IServiceRegistry registry ) {
 			_logger = locator.GetService<ILoggerService>();
 
@@ -102,13 +109,17 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		===============
 		*/
 		public void Dispose() {
-			_logger.PrintLine( in _fmodCategory, "FMODDevice.Dispose: shutting down FMOD sound system..." );
+			if ( !_isDisposed ) {
+				_logger.PrintLine( in _fmodCategory, "FMODDevice.Dispose: shutting down FMOD sound system..." );
 
-			_listener?.Dispose();
-			_eventRepository?.Dispose();
-			_bankRepository?.Dispose();
-			_guidRepository?.Dispose();
-			_systemHandle.Dispose();
+				_listener?.Dispose();
+				_eventRepository?.Dispose();
+				_bankRepository?.Dispose();
+				_guidRepository?.Dispose();
+				_driverRepository?.Dispose();
+				_fmodCategory?.Dispose();
+				_systemHandle.Dispose();
+			}
 		}
 
 		/*
@@ -143,7 +154,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		public void UnloadBanks() {
 			_bankRepository.UnloadAll();
@@ -217,3 +228,4 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		}
 	};
 };
+#pragma warning restore CA2213

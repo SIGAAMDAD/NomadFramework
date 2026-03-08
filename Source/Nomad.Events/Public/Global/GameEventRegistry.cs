@@ -22,15 +22,21 @@ using Nomad.Core.Compatibility.Guards;
 namespace Nomad.Events.Global
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public static class GameEventRegistry
     {
-        private static IGameEventRegistryService Instance => _instance ?? throw new SubsystemNotInitializedException();
+        /// <summary>
+        /// The global public instance of the <see cref="GameEventRegistry"/>.
+        /// </summary>
+        /// <remarks>
+        /// Throws <see cref="SubsystemNotInitializedException"/> if accessed before initializing the event subsystem.
+        /// </remarks>
+        public static IGameEventRegistryService Instance => _instance ?? throw new SubsystemNotInitializedException();
         private static IGameEventRegistryService? _instance = null;
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="instance"></param>
         internal static void Initialize(IGameEventRegistryService instance)

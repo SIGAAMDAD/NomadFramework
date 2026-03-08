@@ -15,12 +15,12 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using Nomad.Core.Exceptions;
 using Nomad.Core.Logger;
-using Nomad.CVars;
 using Nomad.Core;
 using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using Nomad.Core.CVars;
 
 namespace Nomad.Audio.Fmod.Private.ValueObjects {
 	/*

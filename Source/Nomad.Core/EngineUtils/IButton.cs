@@ -19,9 +19,9 @@ using Nomad.Core.Events;
 namespace Nomad.Core.EngineUtils
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
-    public interface IButton : IDisposable
+    public interface IButton : IUIComponent
     {
         /// <summary>
         /// Event that triggers whenever this button is pressed.

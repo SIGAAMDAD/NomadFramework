@@ -13,32 +13,34 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Nomad.Core.Util;
 
 namespace Nomad.Core.ResourceCache
 {
     /// <summary>
     /// The base resource loader type.
     /// </summary>
-    public interface IResourceLoader : IDisposable
-    {
-    }
-
-    /// <summary>
-    /// Interface for a custom loading procedure, give this to a BaseCache.
-    /// </summary>
-    /// <typeparam name="TResource"></typeparam>
-    /// <typeparam name="TId"></typeparam>
-    public interface IResourceLoader<TResource, TId> : IResourceLoader
+    public interface IResourceLoader
     {
         /// <summary>
-        /// The default loading callback.
+        ///
         /// </summary>
-        LoadCallback<TResource, TId> Load { get; }
+        /// <typeparam name="TResource"></typeparam>
+        /// <typeparam name="TId"></typeparam>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        Result<TResource> Load<TResource, TId>(TId id);
 
         /// <summary>
-        /// The threaded loading callback.
+        ///
         /// </summary>
-        LoadAsyncCallback<TResource, TId> LoadAsync { get; }
+        /// <typeparam name="TResource"></typeparam>
+        /// <typeparam name="TId"></typeparam>
+        /// <param name="id"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        Task<Result<TResource>> LoadAsync<TResource, TId>(TId id, CancellationToken ct = default);
     }
 }

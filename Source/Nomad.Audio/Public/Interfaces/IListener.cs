@@ -14,14 +14,13 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System.Numerics;
-using Nomad.Core.ECS;
 
 namespace Nomad.Audio.Interfaces
 {
     /// <summary>
     ///
     /// </summary>
-    public interface IListener : IComponent
+    public interface IListener
     {
         Vector2 Position { get; }
     }

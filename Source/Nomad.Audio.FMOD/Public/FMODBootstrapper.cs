@@ -17,9 +17,9 @@ using Nomad.Audio.Fmod.Private.Repositories;
 using Nomad.Audio.Fmod.Private.Services;
 using Nomad.Audio.Interfaces;
 using Nomad.Core.Compatibility.Guards;
+using Nomad.Core.CVars;
 using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
-using Nomad.CVars;
 
 namespace Nomad.Audio.Fmod
 {
@@ -46,11 +46,11 @@ namespace Nomad.Audio.Fmod
                 var listener = new FMODListenerService(logger, system);
                 var channelRepository = new FMODChannelRepository(logger, cvarSystem, listener, system);
 
-                registry.RegisterSingleton<IAudioDevice>(system);
-                registry.RegisterSingleton<IListenerService>(listener);
-                registry.RegisterSingleton<IChannelRepository>(channelRepository);
-                registry.RegisterSingleton<IMusicService>(new FMODMusicService(system.EventRepository, cvarSystem));
-                registry.RegisterSingleton<IEmitterFactory>(new FMODEmitterFactory(channelRepository, channelRepository.BusRepository));
+                registry.AddSingleton<IAudioDevice>(system);
+                registry.AddSingleton<IListenerService>(listener);
+                registry.AddSingleton<IChannelRepository>(channelRepository);
+                registry.AddSingleton<IMusicService>(new FMODMusicService(system.EventRepository, cvarSystem));
+                registry.AddSingleton<IEmitterFactory>(new FMODEmitterFactory(channelRepository, channelRepository.BusRepository));
             }
             catch (FMODException e)
             {
