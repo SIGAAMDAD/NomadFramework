@@ -44,7 +44,7 @@ namespace Nomad.CVars.Tests
             _registry = new GameEventRegistry(_logger);
             _engineService = new MockEngineService();
             _fileSystem = new FileSystemService(_engineService, _logger);
-            _cvarSystem = new CVarSystem(_registry, _fileSystem, _logger);
+            _cvarSystem = new CVarSystem(_registry, _logger);
         }
 
         [TearDown]
@@ -510,7 +510,7 @@ namespace Nomad.CVars.Tests
             _cvarSystem.Register(createInfoBoolean);
             _cvarSystem.Register(createInfoString);
 
-            Assert.DoesNotThrow(() => _cvarSystem.Save("Config/config.ini"));
+            Assert.DoesNotThrow(() => _cvarSystem.Save(_fileSystem, "Config/config.ini"));
 
             // Assert
             Assert.That(_fileSystem.FileExists("Config/config.ini"));
@@ -560,13 +560,13 @@ namespace Nomad.CVars.Tests
                 _cvarSystem.Register(createInfoBoolean);
                 _cvarSystem.Register(createInfoString);
 
-                _cvarSystem.Save("Config/config.ini");
+                _cvarSystem.Save(_fileSystem, "Config/config.ini");
 
                 intCvar.Value = 23;
             }
 
             {
-                _cvarSystem.Load("config.ini");
+                _cvarSystem.Load(_fileSystem, "config.ini");
 
                 var intCvar = _cvarSystem.GetCVar<int>("TestCVar.Int");
                 Assert.That(intCvar.Value, Is.Zero);

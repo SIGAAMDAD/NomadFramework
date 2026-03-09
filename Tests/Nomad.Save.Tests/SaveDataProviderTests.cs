@@ -69,7 +69,7 @@ public class SaveDataProviderTests
 
         _fileSystem = new FileSystemService(engineService.Object, _logger);
         _eventFactory = new GameEventRegistry(_logger);
-        _cvarSystem = new CVarSystem(_eventFactory, _fileSystem, _logger);
+        _cvarSystem = new CVarSystem(_eventFactory, _logger);
         _dataProvider = new SaveDataProvider(engineService.Object, _eventFactory, _cvarSystem, _fileSystem, _logger);
 
         _saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);

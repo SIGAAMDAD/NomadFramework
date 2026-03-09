@@ -67,7 +67,7 @@ public class SaveErrorHandlingTests
         _engineService.Setup(e => e.GetStoragePath(StorageScope.Install)).Returns(_testDirectory);
         _fileSystem = new FileSystemService(_engineService.Object, _logger);
         _eventFactory = new GameEventRegistry(_logger);
-        _cvarSystem = new CVarSystem(_eventFactory, _fileSystem, _logger);
+        _cvarSystem = new CVarSystem(_eventFactory, _logger);
         _dataProvider = new SaveDataProvider(_engineService.Object, _eventFactory, _cvarSystem, _fileSystem, _logger);
 
         _saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);

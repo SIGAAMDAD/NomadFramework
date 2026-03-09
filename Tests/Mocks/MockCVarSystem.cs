@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using Nomad.Core;
 using Nomad.Core.CVars;
 using Nomad.Core.Events;
+using Nomad.Core.FileSystem;
 
 public class MockCVarSystem : ICVarSystemService
 {
@@ -100,12 +101,12 @@ public class MockCVarSystem : ICVarSystemService
 		throw new NotImplementedException();
 	}
 
-	public void Load(string configFile)
+	public void Load(IFileSystem fileSystem, string configFile)
 	{
 		throw new NotImplementedException();
 	}
 
-	public void Save(string configFile)
+	public void Save(IFileSystem fileSystem, string configFile)
 	{
 		throw new NotImplementedException();
 	}

@@ -34,7 +34,7 @@ namespace Nomad.OnlineServices.Steam.Tests
 		private IFileSystem _fileSystem;
 		private ICloudStorageService _service;
 
-		[SetUp]
+		[OneTimeSetUp]
 		public void SetUp()
 		{
 			Environment.SetEnvironmentVariable("SteamAppId", "480");
@@ -53,15 +53,20 @@ namespace Nomad.OnlineServices.Steam.Tests
 			_fileSystem = new FileSystemService(engineService, _logger);
 		}
 
-		[TearDown]
-		public void TearDown()
+		[OneTimeTearDown]
+		public void OneTimeTearDown()
 		{
-			_service?.Dispose();
 			_fileSystem?.Dispose();
 			_logger?.Dispose();
 			PumpSteamCallbacks(100); // clear any remaining callbacks
 
 			SteamAPI.Shutdown();
+		}
+
+		[TearDown]
+		public void TearDown()
+		{
+			_service?.Dispose();
 		}
 
 		// Helper to pump Steam callbacks while a task is pending

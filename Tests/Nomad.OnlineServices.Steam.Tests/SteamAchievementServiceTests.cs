@@ -43,7 +43,7 @@ namespace Nomad.OnlineServices.Steam.Tests
             ESteamAPIInitResult result = SteamAPI.InitEx(out string errMessage);
             if (result != ESteamAPIInitResult.k_ESteamAPIInitResult_OK)
             {
-                Console.WriteLine($"Couldn't initialize SteamAPI - {result}: {errMessage}");
+                Assert.Inconclusive($"Couldn't initialize SteamAPI - {result}: {errMessage}");
             }
 
             _achievements = new List<string>

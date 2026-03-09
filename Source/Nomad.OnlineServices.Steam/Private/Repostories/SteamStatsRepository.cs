@@ -27,13 +27,13 @@ using Steamworks;
 namespace Nomad.OnlineServices.Steam.Private.Repositories {
 	/*
 	===================================================================================
-	
+
 	SteamStatsRepository
-	
+
 	===================================================================================
 	*/
 	/// <summary>
-	/// 
+	///
 	/// </summary>
 
 	internal sealed class SteamStatsRepository : IDisposable {
@@ -68,7 +68,7 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="userData"></param>
 		/// <param name="logger"></param>
@@ -91,9 +91,7 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 
 			_userData = userData;
 
-			if ( !SteamUserStats.RequestCurrentStats() ) {
-				_logger.PrintError( in _category, $"SteamStatsRepository: SteamUserStats.RequestCurrentStats failed!" );
-			}
+			SteamAPICall_t hCallback = SteamUserStats.RequestUserStats( userData.UserID );
 		}
 
 		/*
@@ -102,7 +100,7 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		public void Dispose() {
 			if ( !_isDisposed ) {
@@ -124,7 +122,7 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="achievementId"></param>
 		/// <returns></returns>
@@ -141,7 +139,7 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="achievementId"></param>
 		/// <param name="progress"></param>
@@ -174,7 +172,7 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="achievementId"></param>
 		public void UnlockAchievement( string achievementId ) {
@@ -193,7 +191,7 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="achievementId"></param>
 		public void LockAchievement( string achievementId ) {
@@ -213,7 +211,7 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="statId"></param>
 		/// <returns></returns>
@@ -237,7 +235,7 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="statId"></param>
 		/// <returns></returns>
@@ -261,7 +259,7 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="statId"></param>
 		/// <param name="value"></param>
@@ -283,7 +281,7 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="statId"></param>
 		/// <param name="value"></param>
@@ -305,7 +303,7 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <returns></returns>
 		public bool StoreStats() {
@@ -346,7 +344,7 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="pCallback"></param>
 		private void OnUserStatsUnloaded( UserStatsUnloaded_t pCallback ) {
@@ -358,7 +356,7 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="pCallback"></param>
 		private void OnUserStatsStored( UserStatsStored_t pCallback ) {
@@ -373,7 +371,7 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="pCallback"></param>
 		private void OnUserStatsReceived( UserStatsReceived_t pCallback ) {
@@ -396,7 +394,7 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="pCallback"></param>
 		private void OnUserAchievementStored( UserAchievementStored_t pCallback ) {
@@ -422,7 +420,7 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="pCallback"></param>
 		private void OnUserAchievementIconFetched( UserAchievementIconFetched_t pCallback ) {
