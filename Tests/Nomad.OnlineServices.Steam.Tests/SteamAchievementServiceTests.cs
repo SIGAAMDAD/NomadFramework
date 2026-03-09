@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Nomad.OnlineServices.Steam.Private.Repositories;
 using NUnit.Framework.Internal;
+using System.Runtime.InteropServices;
 
 namespace Nomad.OnlineServices.Steam.Tests
 {
@@ -43,7 +44,7 @@ namespace Nomad.OnlineServices.Steam.Tests
             ESteamAPIInitResult result = SteamAPI.InitEx(out string errMessage);
             if (result != ESteamAPIInitResult.k_ESteamAPIInitResult_OK)
             {
-                Console.WriteLine($"Couldn't initialize SteamAPI - {result}: {errMessage}");
+                Assert.Inconclusive($"Couldn't initialize SteamAPI - {result}: {errMessage}");
             }
 
             _achievements = new List<string>

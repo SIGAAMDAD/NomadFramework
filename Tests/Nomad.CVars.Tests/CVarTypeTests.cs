@@ -43,7 +43,7 @@ public class CVarTypeTests
         _registry = new GameEventRegistry(_logger);
         _engineService = new MockEngineService();
         _fileSystem = new FileSystemService(_engineService, _logger);
-        _cvarSystem = new CVarSystem(_registry, _fileSystem, _logger);
+        _cvarSystem = new CVarSystem(_registry, _logger);
     }
 
     [TearDown]

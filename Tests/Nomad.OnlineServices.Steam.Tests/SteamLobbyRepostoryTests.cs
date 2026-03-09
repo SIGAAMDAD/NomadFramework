@@ -14,18 +14,15 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Steamworks;
-using Nomad.Core.CVars;
 using Nomad.Core.Exceptions;
 using Nomad.OnlineServices.Steam.Private.Repositories;
 using Nomad.OnlineServices.Steam.Private.ValueObjects;
-using Nomad.Core.Events;
 using Nomad.Events;
 
 // Assumes InternalsVisibleTo is added to the production assembly
