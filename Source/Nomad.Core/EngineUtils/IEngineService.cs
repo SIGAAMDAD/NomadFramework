@@ -15,7 +15,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using Nomad.Core.ResourceCache;
-using Nomad.Core.Util;
 
 namespace Nomad.Core.EngineUtils
 {

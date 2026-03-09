@@ -18,7 +18,7 @@ using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.Exceptions;
 using Nomad.Core.Util;
 
-namespace Nomad.EngineUtils.Globals
+namespace Nomad.Core.EngineUtils.Globals
 {
     /// <summary>
     ///
@@ -28,8 +28,8 @@ namespace Nomad.EngineUtils.Globals
         /// <summary>
         ///
         /// </summary>
-        public static GodotLocalizationService Instance => _instance ?? throw new SubsystemNotInitializedException();
-        private static GodotLocalizationService? _instance;
+        public static ILocalizationService Instance => _instance ?? throw new SubsystemNotInitializedException();
+        private static ILocalizationService? _instance;
 
         /// <summary>
         ///
@@ -40,7 +40,7 @@ namespace Nomad.EngineUtils.Globals
         ///
         /// </summary>
         /// <param name="instance"></param>
-        internal static void Initialize(GodotLocalizationService instance)
+        internal static void Initialize(ILocalizationService instance)
         {
             ArgumentGuard.ThrowIfNull(instance);
             _instance = instance;

@@ -91,6 +91,13 @@ namespace Nomad.Core.EngineUtils
         /// </summary>
         /// <param name="monitorIndex"></param>
         /// <param name="nativeSize"></param>
-        public void GetNativeResolutionForMonitor(int monitorIndex, out WindowSize nativeSize);
+        void GetNativeResolutionForMonitor(int monitorIndex, out WindowSize nativeSize);
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        void GetScreenResolution(out int width, out int height);
     }
 }
