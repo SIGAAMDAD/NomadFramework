@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- NuGet Package Information -->
+    <PackageId>NomadFramework.EngineUtils.Settings</PackageId>
+    <Version>0.0.1-alpha1</Version>
+  </PropertyGroup>
+
+  <!-- SPECIAL PROPS -->
+  <PropertyGroup>
+    <DebugType>embedded</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+
+    <!-- Performance -->
+    <TieredCompilation>true</TieredCompilation>
+    <Deterministic>true</Deterministic>
+    <UseSharedCompilation>true</UseSharedCompilation>
+    <Optimize>true</Optimize>
+    <SkipLocalsInit>true</SkipLocalsInit>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Nomad.Core\Nomad.Core.csproj" />
+    <ProjectReference Include="..\Nomad.CVars\Nomad.CVars.csproj" />
+    <ProjectReference Include="..\Nomad.Events\Nomad.Events.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -19,21 +19,21 @@ using Nomad.Core.EngineUtils;
 using Nomad.Core.Exceptions;
 using Nomad.Core.ResourceCache;
 
-namespace Nomad.EngineUtils.Globals
+namespace Nomad.Core.EngineUtils.Globals
 {
     /// <summary>
     ///
     /// </summary>
     public static class EngineService
     {
-        private static GodotEngineService Instance => _instance ?? throw new SubsystemNotInitializedException();
-        private static GodotEngineService? _instance;
+        private static IEngineService Instance => _instance ?? throw new SubsystemNotInitializedException();
+        private static IEngineService? _instance;
 
         /// <summary>
         ///
         /// </summary>
         /// <param name="instance"></param>
-        internal static void Initialize(GodotEngineService instance)
+        internal static void Initialize(IEngineService instance)
         {
             ArgumentGuard.ThrowIfNull(instance);
             _instance = instance;

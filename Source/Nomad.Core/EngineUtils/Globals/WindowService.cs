@@ -15,11 +15,10 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System.Runtime.CompilerServices;
 using Nomad.Core.Compatibility.Guards;
-using Nomad.Core.EngineUtils;
 using Nomad.Core.Events;
 using Nomad.Core.Exceptions;
 
-namespace Nomad.EngineUtils.Globals
+namespace Nomad.Core.EngineUtils.Globals
 {
     /// <summary>
     ///
@@ -29,8 +28,8 @@ namespace Nomad.EngineUtils.Globals
         /// <summary>
         ///
         /// </summary>
-        public static GodotWindowService Instance => _instance ?? throw new SubsystemNotInitializedException();
-        private static GodotWindowService? _instance;
+        public static IWindowService Instance => _instance ?? throw new SubsystemNotInitializedException();
+        private static IWindowService? _instance;
 
         /// <summary>
         ///
@@ -78,7 +77,7 @@ namespace Nomad.EngineUtils.Globals
         ///
         /// </summary>
         /// <param name="instance"></param>
-        internal static void Initialize(GodotWindowService instance)
+        internal static void Initialize(IWindowService instance)
         {
             ArgumentGuard.ThrowIfNull(instance);
             _instance = instance;
@@ -93,6 +92,28 @@ namespace Nomad.EngineUtils.Globals
         public static void GetScreenResolution(out int width, out int height)
         {
             Instance.GetScreenResolution(out width, out height);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="monitorIndex"></param>
+        /// <param name="nativeSize"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void GetNativeResolutionForMonitor(int monitorIndex, out WindowSize nativeSize)
+        {
+            Instance.GetNativeResolutionForMonitor(monitorIndex, out nativeSize);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="monitorIndex"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static WindowResolution[] GetSupportedResolutions(int monitorIndex)
+        {
+            return Instance.GetSupportedResolutions(monitorIndex);
         }
     }
 }
