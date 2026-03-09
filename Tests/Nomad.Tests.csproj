@@ -29,6 +29,12 @@
     <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
 
+  <ItemGroup Condition="'$(IsLinux)' == 'true'">
+    <Content Include="steam_appid.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Source\Nomad.FileSystem\Nomad.FileSystem.csproj" />
     <ProjectReference Include="..\Source\Nomad.Save\Nomad.Save.csproj" />

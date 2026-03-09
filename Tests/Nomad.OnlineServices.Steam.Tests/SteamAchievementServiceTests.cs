@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Nomad.OnlineServices.Steam.Private.Repositories;
 using NUnit.Framework.Internal;
+using System.Runtime.InteropServices;
 
 namespace Nomad.OnlineServices.Steam.Tests
 {

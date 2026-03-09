@@ -27,6 +27,7 @@ using Nomad.Core.OnlineServices;
 using Moq;
 using Nomad.Core.Events;
 using Nomad.Events;
+using System.Runtime.InteropServices;
 
 namespace Nomad.OnlineServices.Steam.Tests
 {
@@ -42,7 +43,7 @@ namespace Nomad.OnlineServices.Steam.Tests
 		private SteamLobbyFactory _factory;
 		private CSteamID _createdLobbyId;
 
-		[SetUp]
+		[OneTimeSetUp]
 		public void SetUp()
 		{
 			Environment.SetEnvironmentVariable("SteamAppId", "480");
@@ -72,7 +73,7 @@ namespace Nomad.OnlineServices.Steam.Tests
 			_factory = new SteamLobbyFactory(_userData, _logger.Object, _cvarSystem);
 		}
 
-		[TearDown]
+		[OneTimeTearDown]
 		public void TearDown()
 		{
 			// Clean up any lobby created during the test
