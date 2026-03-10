@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -13,42 +13,48 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System.Collections.Concurrent;
-using Godot;
-using Nomad.Core.EngineUtils;
-using Nomad.Core.Util;
-using Nomad.Core.EngineUtils.Globals;
+using Nomad.EngineUtils.Settings.Interfaces;
 
-namespace Nomad.EngineUtils
+namespace Nomad.EngineUtils.Settings.ValueObjects
 {
     /// <summary>
     ///
     /// </summary>
-    public sealed class GodotLocalizationService : ILocalizationService
+    public record AudioConfig : IAudioConfig
     {
         /// <summary>
         ///
         /// </summary>
-        public string CurrentLanguage => System.Globalization.CultureInfo.CurrentCulture.Name;
-
-        private readonly ConcurrentDictionary<InternString, string> _translations = new();
+        public string AudioDriver { get; set; }
 
         /// <summary>
         ///
         /// </summary>
-        internal GodotLocalizationService()
-        {
-            LocalizationService.Initialize(this);
-        }
+        public int OutputDeviceIndex { get; set; }
 
         /// <summary>
         ///
         /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        public string Translate(InternString key)
-        {
-            return _translations.GetOrAdd(key, f => TranslationServer.Translate((string)key!));
-        }
+        public int MaxChannels { get; set; }
+
+        /// <summary>
+        ///
+        /// </summary>
+        public int MusicVolume { get; set; }
+
+        /// <summary>
+        ///
+        /// </summary>
+        public int SoundEffectsVolume { get; set; }
+
+        /// <summary>
+        ///
+        /// </summary>
+        public bool MusicOn { get; set; }
+
+        /// <summary>
+        ///
+        /// </summary>
+        public bool SoundEffectsOn { get; set; }
     }
 }

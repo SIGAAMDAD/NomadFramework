@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -14,90 +14,100 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using System.Collections.Generic;
-using Nomad.Core.Events;
+using Nomad.Core.CVars;
 
-namespace Nomad.Core.EngineUtils
+namespace Nomad.EngineUtils.Settings.Services
 {
     /// <summary>
     ///
     /// </summary>
-    public interface IWindowService : IDisposable
+    /// <typeparam name="TConfig"></typeparam>
+    /// <typeparam name="IConfig"></typeparam>
+    public abstract class SettingsService<TConfig, IConfig>
+        where TConfig : IConfig, IEquatable<TConfig>
     {
         /// <summary>
         ///
         /// </summary>
-        string Title { get; set; }
+        public IConfig Config => config;
 
         /// <summary>
         ///
         /// </summary>
-        int Width { get; set; }
+        protected TConfig config;
 
         /// <summary>
         ///
         /// </summary>
-        int Height { get; set; }
+        public bool IsModified => !_initial.Equals(config);
 
         /// <summary>
         ///
         /// </summary>
-        int ScreenIndex { get; set; }
+        protected readonly ICVarSystemService cvarSystem;
+
+        private TConfig _initial;
+        private readonly TConfig _default;
 
         /// <summary>
         ///
         /// </summary>
-        bool IsFocused { get; }
+        /// <param name="cvarSystem"></param>
+        public SettingsService(ICVarSystemService cvarSystem)
+        {
+            this.cvarSystem = cvarSystem;
+            Load();
+            _initial = config;
+            _default = CreateDefault();
+        }
 
         /// <summary>
         ///
         /// </summary>
-        float RefreshRate { get; }
+        public void ResetToDefault()
+        {
+            config = _default;
+        }
 
         /// <summary>
         ///
         /// </summary>
-        IReadOnlyList<Monitor> Monitors { get; }
+        public void Reset()
+        {
+            config = _initial;
+        }
 
         /// <summary>
         ///
         /// </summary>
-        WindowMode Mode { get; set; }
+        public void Save()
+        {
+            SaveInternal();
+            _initial = config;
+        }
 
         /// <summary>
         ///
         /// </summary>
-        IGameEvent<WindowSizeChangedEventArgs> SizeChanged { get; }
+        public void Load()
+        {
+            config = CreateConfig();
+        }
 
         /// <summary>
         ///
         /// </summary>
-        IGameEvent<bool> FocusChanged { get; }
+        protected abstract void SaveInternal();
 
         /// <summary>
         ///
         /// </summary>
-        IGameEvent<EmptyEventArgs> CloseRequested { get; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="monitorIndex"></param>
         /// <returns></returns>
-        IReadOnlyList<WindowResolution> GetSupportedResolutions(int monitorIndex);
+        protected abstract TConfig CreateConfig();
 
         /// <summary>
         ///
         /// </summary>
-        /// <param name="monitorIndex"></param>
-        /// <param name="nativeSize"></param>
-        void GetNativeResolutionForMonitor(int monitorIndex, out WindowSize nativeSize);
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="width"></param>
-        /// <param name="height"></param>
-        void GetScreenResolution(out int width, out int height);
+        protected abstract TConfig CreateDefault();
     }
 }

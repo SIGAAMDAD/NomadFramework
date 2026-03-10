@@ -48,7 +48,7 @@ namespace Nomad.EngineUtils
             /// <summary>
             ///
             /// </summary>
-            public const string PHYSICALLY_BASED_RENDERING = "r.Godot.PhysicallyBasedRendering";
+            public const string LAMBERT_OVER_BURLEY = "r.Godot.LambertOverBurley";
 
             /// <summary>
             ///

@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -13,42 +13,45 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System.Collections.Concurrent;
-using Godot;
+using System.Collections.Generic;
 using Nomad.Core.EngineUtils;
 using Nomad.Core.Util;
-using Nomad.Core.EngineUtils.Globals;
 
-namespace Nomad.EngineUtils
+namespace Nomad.EngineUtils.Settings.Interfaces
 {
     /// <summary>
     ///
     /// </summary>
-    public sealed class GodotLocalizationService : ILocalizationService
+    public interface IGraphicsConfig
     {
         /// <summary>
         ///
         /// </summary>
-        public string CurrentLanguage => System.Globalization.CultureInfo.CurrentCulture.Name;
-
-        private readonly ConcurrentDictionary<InternString, string> _translations = new();
+        QualitySetting LightingQuality { get; set; }
 
         /// <summary>
         ///
         /// </summary>
-        internal GodotLocalizationService()
-        {
-            LocalizationService.Initialize(this);
-        }
+        TextureFilterMode TextureFiltering { get; set; }
 
         /// <summary>
         ///
         /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        public string Translate(InternString key)
-        {
-            return _translations.GetOrAdd(key, f => TranslationServer.Translate((string)key!));
-        }
+        QualitySetting TextureQuality { get; set; }
+
+        /// <summary>
+        ///
+        /// </summary>
+        QualitySetting ShadowQuality { get; set; }
+
+        /// <summary>
+        ///
+        /// </summary>
+        QualitySetting EnvironmentQuality { get; set; }
+
+        /// <summary>
+        ///
+        /// </summary>
+        Dictionary<string, Any> CustomSettings { get; }
     }
 }

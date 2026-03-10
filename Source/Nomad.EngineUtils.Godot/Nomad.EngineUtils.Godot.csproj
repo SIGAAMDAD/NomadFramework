@@ -36,6 +36,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Nomad.ResourceCache\Nomad.ResourceCache.csproj" />
+    <ProjectReference Include="..\Nomad.CVars\Nomad.CVars.csproj" />
     <ProjectReference Include="..\Nomad.Core\Nomad.Core.csproj" />
 	  <ProjectReference Include="..\Nomad.Events\Nomad.Events.csproj" />
   </ItemGroup>

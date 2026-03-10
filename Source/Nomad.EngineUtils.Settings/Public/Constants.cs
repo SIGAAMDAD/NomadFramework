@@ -13,10 +13,19 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System.Runtime.CompilerServices;
-using Nomad.Core.Util.Attributes;
+namespace Nomad.EngineUtils.Settings
+{
+    /// <summary>
+    ///
+    /// </summary>
+    public static class Constants
+    {
+        /// <summary>
+        ///
+        /// </summary>
+        public static class CVars
+        {
 
-[assembly: NomadModule("Nomad.Core")]
-[assembly: InternalsVisibleTo("Nomad.Tests")]
-[assembly: InternalsVisibleTo("Nomad.EngineUtils.Godot")]
-[assembly: InternalsVisibleTo("Nomad.EngineUtils.Unity")]
+        }
+    }
+}

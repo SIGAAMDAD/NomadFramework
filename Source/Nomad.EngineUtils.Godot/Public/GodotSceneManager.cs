@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using Godot;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.EngineUtils;
-using Nomad.EngineUtils.Globals;
+using Nomad.Core.EngineUtils.Globals;
 using Nomad.ResourceCache;
 
 namespace Nomad.EngineUtils
