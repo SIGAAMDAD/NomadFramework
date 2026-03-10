@@ -26,238 +26,264 @@ namespace Nomad.Core
         public static class CVars
         {
             /// <summary>
-            ///
+            /// CVars utilized by the inner EngineUtils modules
             /// </summary>
-            public static class Audio
+            public static class EngineUtils
             {
                 /// <summary>
                 ///
                 /// </summary>
-                public const string EFFECTS_VOLUME = "audio.EffectsVolume";
-
-                /// <summary>
-                ///
-                /// </summary>
-                public const string EFFECTS_ON = "audio.EffectsOn";
-
-                /// <summary>
-                ///
-                /// </summary>
-                public const string MUSIC_VOLUME = "audio.MusicVolume";
-
-                /// <summary>
-                ///
-                /// </summary>
-                public const string MUSIC_ON = "audio.MusicOn";
-
-                /// <summary>
-                ///
-                /// </summary>
-                public const string MASTER_VOLUME = "audio.MasterVolume";
-
-                /// <summary>
-                ///
-                /// </summary>
-                public const string MAX_CHANNELS = "audio.MaxChannels";
-
-                /// <summary>
-                ///
-                /// </summary>
-                public const string MAX_ACTIVE_CHANNELS = "audio.MaxActiveChannels";
-
-                /// <summary>
-                ///
-                /// </summary>
-                public const string DISTANCE_FALLOFF_START = "audio.DistanceFalloffStart";
-
-                /// <summary>
-                ///
-                /// </summary>
-                public const string DISTANCE_FALLOFF_END = "audio.DistanceFalloffEnd";
-
-                /// <summary>
-                ///
-                /// </summary>
-                public const string MIN_TIME_BETWEEN_CHANNEL_STEALS = "audio.MinTimeBetweenChannelSteals";
-
-                /// <summary>
-                ///
-                /// </summary>
-                public const string FREQUENCY_PENALTY = "audio.FrequencyPenalty";
-
-                /// <summary>
-                ///
-                /// </summary>
-                public const string VOLUME_WEIGHT = "audio.VolumeWeight";
-
-                /// <summary>
-                ///
-                /// </summary>
-                public const string DISTANCE_WEIGHT = "audio.DistanceWeight";
-
-                /// <summary>
-                ///
-                /// </summary>
-                public const string SPEAKER_MODE = "audio.SpeakerMode";
-
-                /// <summary>
-                ///
-                /// </summary>
-                public const string OUTPUT_DEVICE_INDEX = "audio.OutputDeviceIndex";
-
-                /// <summary>
-                ///
-                /// </summary>
-                public const string AUDIO_DRIVER = "audio.AudioDriver";
-
-                /// <summary>
-                ///
-                /// </summary>
-                public static class FMOD
+                public static class Display
                 {
                     /// <summary>
                     ///
                     /// </summary>
-                    public const string STREAM_BUFFER_SIZE = "audio.fmod.StreamBufferSize";
+                    public const string ASPECT_RATIO = "display.AspectRatio";
 
                     /// <summary>
                     ///
                     /// </summary>
-                    public const string DSP_BUFFER_SIZE = "audio.fmod.DSPBufferSize";
+                    public const string WINDOW_MODE = "display.WindowMode";
 
                     /// <summary>
                     ///
                     /// </summary>
-                    public const string DSP_BUFFER_COUNT = "audio.fmod.DSPBufferCount";
+                    public const string WINDOW_RESOLUTION = "display.WindowResolution";
 
                     /// <summary>
                     ///
                     /// </summary>
-                    public const string LOGGING = "audio.fmod.LoggingEnabled";
+                    public const string ANTI_ALIASING = "display.AntiAliasing";
 
                     /// <summary>
                     ///
                     /// </summary>
-                    public const string BANK_LOADING_STRATEGY = "audio.fmod.BankLoadingStrategy";
+                    public const string MAX_FPS = "display.MaxFps";
+
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string VSYNC_MODE = "display.VSyncMode";
+
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string MONITOR = "display.Monitor";
+
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string BRIGHTNESS = "display.Brightness";
+
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string RESOLUTION_SCALE = "display.ResolutionScale";
+
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string DRS_TARGET_FRAMES = "display.DRSTargetFrames";
+
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string HDR_ENABLED = "display.HDREnabled";
                 }
-            }
-
-            /// <summary>
-            ///
-            /// </summary>
-            public static class Graphics
-            {
-                /// <summary>
-                ///
-                /// </summary>
-                public const string ANIMATION_QUALITY = "r.AnimationQuality";
 
                 /// <summary>
                 ///
                 /// </summary>
-                public const string PARTICLE_QUALITY = "r.ParticleQuality";
+                public static class Audio
+                {
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string EFFECTS_VOLUME = "audio.EffectsVolume";
+
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string EFFECTS_ON = "audio.EffectsOn";
+
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string MUSIC_VOLUME = "audio.MusicVolume";
+
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string MUSIC_ON = "audio.MusicOn";
+
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string MASTER_VOLUME = "audio.MasterVolume";
+
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string MAX_CHANNELS = "audio.MaxChannels";
+
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string MAX_ACTIVE_CHANNELS = "audio.MaxActiveChannels";
+
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string DISTANCE_FALLOFF_START = "audio.DistanceFalloffStart";
+
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string DISTANCE_FALLOFF_END = "audio.DistanceFalloffEnd";
+
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string MIN_TIME_BETWEEN_CHANNEL_STEALS = "audio.MinTimeBetweenChannelSteals";
+
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string FREQUENCY_PENALTY = "audio.FrequencyPenalty";
+
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string VOLUME_WEIGHT = "audio.VolumeWeight";
+
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string DISTANCE_WEIGHT = "audio.DistanceWeight";
+
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string SPEAKER_MODE = "audio.SpeakerMode";
+
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string OUTPUT_DEVICE_INDEX = "audio.OutputDeviceIndex";
+
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string AUDIO_DRIVER = "audio.AudioDriver";
+
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public static class FMOD
+                    {
+                        /// <summary>
+                        ///
+                        /// </summary>
+                        public const string STREAM_BUFFER_SIZE = "audio.fmod.StreamBufferSize";
+
+                        /// <summary>
+                        ///
+                        /// </summary>
+                        public const string DSP_BUFFER_SIZE = "audio.fmod.DSPBufferSize";
+
+                        /// <summary>
+                        ///
+                        /// </summary>
+                        public const string DSP_BUFFER_COUNT = "audio.fmod.DSPBufferCount";
+
+                        /// <summary>
+                        ///
+                        /// </summary>
+                        public const string LOGGING = "audio.fmod.LoggingEnabled";
+
+                        /// <summary>
+                        ///
+                        /// </summary>
+                        public const string BANK_LOADING_STRATEGY = "audio.fmod.BankLoadingStrategy";
+                    }
+                }
 
                 /// <summary>
                 ///
                 /// </summary>
-                public const string BLOOM_ENABLED = "r.BloomEnabled";
-            }
+                public static class Graphics
+                {
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string TEXTURE_QUALITY = "r.TextureQuality";
 
-            /// <summary>
-            ///
-            /// </summary>
-            public static class Display
-            {
-                /// <summary>
-                ///
-                /// </summary>
-                public const string ASPECT_RATIO = "display.AspectRatio";
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string TEXTURE_FILTERING = "r.TextureFiltering";
 
-                /// <summary>
-                ///
-                /// </summary>
-                public const string WINDOW_MODE = "display.WindowMode";
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string BLOOM_ENABLED = "r.BloomEnabled";
 
-                /// <summary>
-                ///
-                /// </summary>
-                public const string WINDOW_RESOLUTION = "display.WindowResolution";
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string SHADOW_QUALITY = "r.ShadowQuality";
 
-                /// <summary>
-                ///
-                /// </summary>
-                public const string ANTI_ALIASING = "display.AntiAliasing";
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string LIGHTING_QUALITY = "r.LightingQuality";
 
-                /// <summary>
-                ///
-                /// </summary>
-                public const string MAX_FPS = "display.MaxFps";
-
-                /// <summary>
-                ///
-                /// </summary>
-                public const string VSYNC_MODE = "display.VSyncMode";
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string ENVIRONMENT_QUALITY = "r.EnvironmentQuality";
+                }
 
                 /// <summary>
                 ///
                 /// </summary>
-                public const string MONITOR = "display.Monitor";
+                public static class Accessibility
+                {
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string HAPTIC_STRENGTH = "input.HapticStrength";
 
-                /// <summary>
-                ///
-                /// </summary>
-                public const string BRIGHTNESS = "display.Brightness";
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string HAPTIC_ENABLED = "input.HapticEnabled";
 
-                /// <summary>
-                ///
-                /// </summary>
-                public const string RESOLUTION_SCALE = "display.ResolutionScale";
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string COLORBLIND_MODE = "accessibility.ColorblindMode";
 
-                /// <summary>
-                ///
-                /// </summary>
-                public const string DRS_TARGET_FRAMES = "display.DRSTargetFrames";
-            }
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string DYSLEXIA_MODE = "accessibility.DyslexiaMode";
 
-            /// <summary>
-            ///
-            /// </summary>
-            public static class Accessibility
-            {
-                /// <summary>
-                ///
-                /// </summary>
-                public const string HAPTIC_STRENGTH = "input.HapticStrength";
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string UI_SCALE = "accessibility.UIScale";
 
-                /// <summary>
-                ///
-                /// </summary>
-                public const string HAPTIC_ENABLED = "input.HapticEnabled";
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string AUTO_AIM_MODE = "accessibility.AutoAimMode";
 
-                /// <summary>
-                ///
-                /// </summary>
-                public const string COLORBLIND_MODE = "accessibility.ColorblindMode";
-
-                /// <summary>
-                ///
-                /// </summary>
-                public const string DYSLEXIA_MODE = "accessibility.DyslexiaMode";
-
-                /// <summary>
-                ///
-                /// </summary>
-                public const string UI_SCALE = "accessibility.UIScale";
-
-                /// <summary>
-                ///
-                /// </summary>
-                public const string AUTO_AIM_MODE = "accessibility.AutoAimMode";
-
-                /// <summary>
-                ///
-                /// </summary>
-                public const string TEXT_TO_SPEECH = "accessibility.TextToSpeech";
+                    /// <summary>
+                    ///
+                    /// </summary>
+                    public const string TEXT_TO_SPEECH = "accessibility.TextToSpeech";
+                }
             }
 
             /// <summary>

@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -13,17 +13,39 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System.Collections.Generic;
+using System;
+using System.Numerics;
 
-namespace Nomad.EngineUtils.Settings
+namespace Nomad.Core.EngineUtils.GameObjects
 {
-    public interface IDisplaySettingsService
+    /// <summary>
+    ///
+    /// </summary>
+    public interface ILight : IDisposable
     {
         /// <summary>
         ///
         /// </summary>
-        int MonitorCount { get; }
+        bool Enabled { get; set; }
 
-        void SetConfig(DisplayConfig config);
+        /// <summary>
+        ///
+        /// </summary>
+        Vector3 Color { get; set; }
+
+        /// <summary>
+        ///
+        /// </summary>
+        float Intensity { get; set; }
+
+        /// <summary>
+        ///
+        /// </summary>
+        float Range { get; set; }
+
+        /// <summary>
+        ///
+        /// </summary>
+        bool CastShadows { get; set; }
     }
 }

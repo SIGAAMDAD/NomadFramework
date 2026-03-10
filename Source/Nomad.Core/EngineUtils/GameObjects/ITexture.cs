@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -13,11 +13,28 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.Core.EngineUtils
+using System;
+
+namespace Nomad.Core.EngineUtils.GameObjects
 {
-    public interface IRenderingService
+    /// <summary>
+    ///
+    /// </summary>
+    public interface ITexture : IDisposable
     {
-        void SetRenderSettings(RenderSettings settings);
-        RenderSettings GetRenderSettings();
+        /// <summary>
+        ///
+        /// </summary>
+        int Width { get; }
+
+        /// <summary>
+        ///
+        /// </summary>
+        int Height { get; }
+
+        /// <summary>
+        ///
+        /// </summary>
+        ReadOnlyMemory<byte> Image { get; }
     }
 }

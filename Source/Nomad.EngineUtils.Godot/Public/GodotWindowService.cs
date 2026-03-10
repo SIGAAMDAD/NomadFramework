@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.EngineUtils;
+using Nomad.Core.EngineUtils.Globals;
 using Nomad.Core.Events;
 using Godot;
 
@@ -189,12 +190,12 @@ namespace Nomad.EngineUtils
 		/// </summary>
 		/// <param name="monitorIndex"></param>
 		/// <returns></returns>
-		public WindowResolution[] GetSupportedResolutions(int monitorIndex)
+		public IReadOnlyList<WindowResolution> GetSupportedResolutions(int monitorIndex)
         {
             var monitor = _monitors[monitorIndex];
             var resolutions = new List<WindowResolution>();
 
-            for (var resolution = WindowResolution.Res_640x480; resolution < WindowResolution.Count; resolution++)
+            for (var resolution = WindowResolution.Min; resolution <= WindowResolution.Max; resolution++)
             {
                 if (monitor.ScreenSize >= resolution)
                 {

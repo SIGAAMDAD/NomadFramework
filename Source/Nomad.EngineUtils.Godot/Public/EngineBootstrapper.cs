@@ -13,22 +13,22 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using Godot;
 using Nomad.Core.Abstractions;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.CVars;
-using Nomad.Core.Events;
-using Nomad.Core.Logger;
+using Nomad.Core.EngineUtils;
 using Nomad.Core.ServiceRegistry.Interfaces;
-using Nomad.CVars.Private.Services;
 
-namespace Nomad.CVars
+namespace Nomad.EngineUtils
 {
     /// <summary>
     ///
     /// </summary>
-    public sealed class CVarBootstrapper : IBootstrapper
+    public sealed class EngineBootstrapper : IBootstrapper
     {
-        private ICVarSystemService? _cvarSystem;
+        private IEngineService? _engineService;
+        private IDisplayService? _displayService;
 
         /// <summary>
         /// Initializes the CVar system.
@@ -40,11 +40,20 @@ namespace Nomad.CVars
             ArgumentGuard.ThrowIfNull(registry);
             ArgumentGuard.ThrowIfNull(locator);
 
-            _cvarSystem = new CVarSystem(
-                locator.GetService<IGameEventRegistryService>(),
-                locator.GetService<ILoggerService>()
+            var sceneTree = (SceneTree)Engine.GetMainLoop();
+
+            _engineService = new GodotEngineService(
+                sceneTree,
+                registry,
+                locator
             );
-            registry.AddSingleton(_cvarSystem);
+            registry.AddSingleton(_engineService);
+
+            _displayService = new GodotDisplayService(
+                sceneTree,
+                locator.GetService<IWindowService>(),
+                locator.GetService<ICVarSystemService>()
+            );
         }
 
         /// <summary>
@@ -52,7 +61,7 @@ namespace Nomad.CVars
         /// </summary>
         public void Shutdown()
         {
-            _cvarSystem?.Dispose();
+            _engineService?.Dispose();
         }
     }
 }

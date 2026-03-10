@@ -13,28 +13,46 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
-
 namespace Nomad.Core.EngineUtils
 {
     /// <summary>
-    /// A universal representation of a texture object.
+    ///
     /// </summary>
-    public interface ITexture : IAsset
+    public enum TextureFilterMode : byte
     {
         /// <summary>
         ///
         /// </summary>
-        int Width { get; }
+        Bilinear,
 
         /// <summary>
         ///
         /// </summary>
-        int Height { get; }
+        Trilinear,
 
         /// <summary>
         ///
         /// </summary>
-        ReadOnlyMemory<byte> ImageBuffer { get; }
+        Anisotropic_2x,
+
+        /// <summary>
+        ///
+        /// </summary>
+        Anisotropic_4x,
+
+        /// <summary>
+        ///
+        /// </summary>
+        Anisotropic_8x,
+
+        /// <summary>
+        ///
+        /// </summary>
+        Anisotropic_16x,
+
+        /// <summary>
+        ///
+        /// </summary>
+        Count
     }
 }

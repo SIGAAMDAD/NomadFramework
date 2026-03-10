@@ -19,12 +19,12 @@ using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.CVars;
 using Nomad.Core.EngineUtils;
 using Nomad.Core.Events;
-using Nomad.Core.Input;
 using Nomad.Core.Logger;
 using Nomad.Core.ResourceCache;
-using Nomad.EngineUtils.Globals;
+using Nomad.Core.EngineUtils.Globals;
 using Nomad.EngineUtils.Private;
 using Nomad.ResourceCache;
+using Nomad.Core.ServiceRegistry.Interfaces;
 
 namespace Nomad.EngineUtils
 {
@@ -41,7 +41,7 @@ namespace Nomad.EngineUtils
 
         private readonly IWindowService _windowService;
         private readonly ILocalizationService _localizationService;
-        private readonly IRenderingService _renderingService;
+        private readonly IDisplayService _displayService;
         private readonly ISceneManager _sceneManager;
 
         private readonly ILoggerService _logger;
@@ -58,32 +58,32 @@ namespace Nomad.EngineUtils
         ///
         /// </summary>
         /// <param name="sceneTree"></param>
-        /// <param name="inputSystem"></param>
-        /// <param name="logger"></param>
-        /// <param name="cvarSystem"></param>
-        /// <param name="eventFactory"></param>
-        public GodotEngineService(SceneTree sceneTree, IInputSystem inputSystem, ILoggerService logger, ICVarSystemService cvarSystem, IGameEventRegistryService eventFactory)
+        /// <param name="serviceFactory"></param>
+        /// <param name="locator"></param>
+        public GodotEngineService(SceneTree sceneTree, IServiceRegistry serviceFactory, IServiceLocator locator)
         {
             ArgumentGuard.ThrowIfNull(sceneTree);
-            ArgumentGuard.ThrowIfNull(inputSystem);
-            ArgumentGuard.ThrowIfNull(logger);
-            ArgumentGuard.ThrowIfNull(eventFactory);
+            ArgumentGuard.ThrowIfNull(serviceFactory);
+            ArgumentGuard.ThrowIfNull(locator);
 
             _sceneTree = sceneTree;
-            _root = (Node)sceneTree.Get(SceneTree.PropertyName.Root).AsGodotObject();
+            _root = sceneTree.Root;
 
             //_inputPump = new GodotInputPump(inputSystem);
             //_root.CallDeferred(Node.MethodName.AddChild, _inputPump);
 
+            _logger = locator.GetService<ILoggerService>();
+            _eventFactory = locator.GetService<IGameEventRegistryService>();
+            var cvarSystem = locator.GetService<ICVarSystemService>();
+
             _loader = new GodotLoader();
 
-            _logger = logger;
-            _eventFactory = eventFactory;
-
-            _windowService = new GodotWindowService(_sceneTree, eventFactory);
+            _windowService = new GodotWindowService(_sceneTree, _eventFactory);
             _localizationService = new GodotLocalizationService();
-            _renderingService = new GodotRenderService(_root.GetViewport().GetViewportRid(), _windowService, cvarSystem);
-            _sceneManager = new GodotSceneManager(_sceneTree, new BaseCache<PackedScene, string>(logger, eventFactory, _loader));
+            _sceneManager = new GodotSceneManager(_sceneTree, new BaseCache<PackedScene, string>(_logger, _eventFactory, _loader));
+
+            _displayService = new GodotDisplayService(sceneTree, _windowService, cvarSystem);
+            serviceFactory.AddSingleton(_displayService);
 
             EngineService.Initialize(this);
         }
@@ -98,7 +98,6 @@ namespace Nomad.EngineUtils
                 _windowService?.Dispose();
                 _inputPump?.Dispose();
                 _sceneManager?.Dispose();
-                _root?.Dispose();
             }
             GC.SuppressFinalize(this);
             _isDisposed = true;

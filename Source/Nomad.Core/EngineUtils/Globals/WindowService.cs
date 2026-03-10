@@ -13,6 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.Events;
@@ -111,7 +112,7 @@ namespace Nomad.Core.EngineUtils.Globals
         /// <param name="monitorIndex"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static WindowResolution[] GetSupportedResolutions(int monitorIndex)
+        public static IReadOnlyList<WindowResolution> GetSupportedResolutions(int monitorIndex)
         {
             return Instance.GetSupportedResolutions(monitorIndex);
         }
