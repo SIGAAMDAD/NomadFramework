@@ -30,7 +30,8 @@ namespace Nomad.EngineUtils
         /// <summary>
         ///
         /// </summary>
-        string IGameObject.Name {
+        string IGameObject.Name
+        {
             get => Name;
             set => Name = value;
         }
@@ -38,11 +39,12 @@ namespace Nomad.EngineUtils
         /// <summary>
         ///
         /// </summary>
-        public IGameObject Parent {
+        public IGameObject? Parent
+        {
             get => _parent;
             set => _parent = value;
         }
-        private IGameObject _parent;
+        private IGameObject? _parent;
 
         /// <summary>
         ///
@@ -52,7 +54,7 @@ namespace Nomad.EngineUtils
 
         private readonly ConcurrentDictionary<Type, IComponent> _components = new();
 
-        private bool _isDisposed = false;
+        protected bool isDisposed = false;
 
         /// <summary>
         ///
@@ -60,12 +62,16 @@ namespace Nomad.EngineUtils
         /// <param name="disposing"></param>
         protected override void Dispose(bool disposing)
         {
-            if (!_isDisposed)
+            if (isDisposed)
             {
-                _parent?.Dispose();
+                return;
+            }
+            if (disposing)
+            {
+                _components.Clear();
             }
             base.Dispose(disposing);
-            _isDisposed = true;
+            isDisposed = true;
         }
 
         /// <summary>
@@ -115,13 +121,32 @@ namespace Nomad.EngineUtils
         /// <summary>
         ///
         /// </summary>
+        /// <param name="child"></param>
+        public void AddChild(IGameObject child)
+        {
+            _children.Add(child);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="child"></param>
+        public void RemoveChild(IGameObject child)
+        {
+            _children.Remove(child);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
         public sealed override void _Ready()
         {
             base._Ready();
 
-            if (GetParent() is GodotGameObject parentObject)
+            if (GetScript().AsGodotObject() is GodotObject script && script is IComponent scriptComponent)
             {
-                _parent = parentObject;
+                _components.TryAdd(script.GetType(), scriptComponent);
+                SetScript(Variant.CreateFrom<GodotObject>(null!));
             }
             foreach (var component in _components)
             {
@@ -133,7 +158,7 @@ namespace Nomad.EngineUtils
         ///
         /// </summary>
         /// <param name="delta"></param>
-        public sealed override void _Process(double delta)
+        public override void _Process(double delta)
         {
             base._Process(delta);
 
@@ -148,7 +173,7 @@ namespace Nomad.EngineUtils
         ///
         /// </summary>
         /// <param name="delta"></param>
-        public sealed override void _PhysicsProcess(double delta)
+        public override void _PhysicsProcess(double delta)
         {
             base._PhysicsProcess(delta);
 
@@ -162,7 +187,7 @@ namespace Nomad.EngineUtils
         /// <summary>
         ///
         /// </summary>
-        public sealed override void _ExitTree()
+        public override void _ExitTree()
         {
             base._ExitTree();
 

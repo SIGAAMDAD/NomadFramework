@@ -13,28 +13,15 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
+using Godot;
+using Nomad.Core.EngineUtils.GameObjects;
 
-namespace Nomad.Core.EngineUtils.GameObjects
+namespace Nomad.EngineUtils.GameObjects
 {
     /// <summary>
     ///
     /// </summary>
-    public interface ITexture : IDisposable
+    public partial class EngineCharacter2D : GodotGameObject, ICharacter2D
     {
-        /// <summary>
-        ///
-        /// </summary>
-        int Width { get; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        int Height { get; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        ReadOnlyMemory<byte> Image { get; }
     }
 }

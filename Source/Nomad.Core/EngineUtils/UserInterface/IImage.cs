@@ -13,39 +13,21 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
-using System.Numerics;
+using System.Drawing;
+using Nomad.Core.EngineUtils.Assets;
 
-namespace Nomad.Core.EngineUtils.GameObjects
+namespace Nomad.Core.EngineUtils.UserInterface
 {
-    /// <summary>
-    ///
-    /// </summary>
-    public interface ILight : IGameObject
+    public interface IImage : IUIElement
     {
         /// <summary>
         ///
         /// </summary>
-        bool Enabled { get; set; }
+        ITexture Texture { get; set; }
 
         /// <summary>
         ///
         /// </summary>
-        Vector3 Color { get; set; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        float Intensity { get; set; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        float Range { get; set; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        bool CastShadows { get; set; }
+        Color Color { get; set; }
     }
 }

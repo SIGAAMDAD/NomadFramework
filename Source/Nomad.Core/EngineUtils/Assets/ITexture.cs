@@ -13,38 +13,28 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System.Numerics;
+using System;
 
-namespace Nomad.Core.EngineUtils
+namespace Nomad.Core.EngineUtils.Assets
 {
     /// <summary>
     ///
     /// </summary>
-    public interface IUIComponent : IGameObject
+    public interface ITexture : IAsset
     {
         /// <summary>
-        /// Whether the ui component is visible or not.
+        ///
         /// </summary>
-        bool Visible { get; set; }
+        int Width { get; }
 
         /// <summary>
-        /// The ui component's position on the screen.
+        ///
         /// </summary>
-        Vector2 Position { get; set; }
+        int Height { get; }
 
         /// <summary>
-        /// The ui component's scaling factor.
+        ///
         /// </summary>
-        Vector2 Scale { get; set; }
-
-        /// <summary>
-        /// Enables the ui component completely, toggles it visible and allows it to process events.
-        /// </summary>
-        void Enable();
-
-        /// <summary>
-        /// Disables the ui component completely, toggles it invisible and forces it to no longer receive any events.
-        /// </summary>
-        void Disable();
+        ReadOnlyMemory<byte> Image { get; }
     }
 }

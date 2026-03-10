@@ -13,39 +13,15 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
-using System.Numerics;
+using Godot;
+using Nomad.Core.EngineUtils.UserInterface;
 
-namespace Nomad.Core.EngineUtils.GameObjects
+namespace Nomad.EngineUtils.UserInterface
 {
     /// <summary>
     ///
     /// </summary>
-    public interface ILight : IGameObject
+    public partial class EnginePanel : GodotControl<Control>, IPanel
     {
-        /// <summary>
-        ///
-        /// </summary>
-        bool Enabled { get; set; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        Vector3 Color { get; set; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        float Intensity { get; set; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        float Range { get; set; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        bool CastShadows { get; set; }
     }
 }

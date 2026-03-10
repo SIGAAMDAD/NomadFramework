@@ -13,16 +13,25 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.Core.EngineUtils
+using Godot;
+
+namespace Nomad.EngineUtils.Assets
 {
     /// <summary>
     ///
     /// </summary>
-    public interface ILabel : IUIComponent
+    public class EngineShaderMaterial : GodotMaterial
     {
+        private readonly Shader _shader;
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
-        string Text { get; set; }
+        /// <param name="material"></param>
+        public EngineShaderMaterial(ShaderMaterial material)
+            : base(material)
+        {
+            _shader = material.Shader;
+        }
     }
 }

@@ -13,7 +13,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
 using Godot;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.CVars;
@@ -25,8 +24,11 @@ namespace Nomad.EngineUtils.GameObjects
     /// <summary>
     ///
     /// </summary>
-    internal sealed class GodotLigh2D : ILight
+    public partial class EngineLight2D : GodotGameObject, ILight
     {
+        /// <summary>
+        ///
+        /// </summary>
         public bool Enabled
         {
             get => _enabled;
@@ -41,6 +43,9 @@ namespace Nomad.EngineUtils.GameObjects
         }
         private bool _enabled = false;
 
+        /// <summary>
+        ///
+        /// </summary>
         public System.Numerics.Vector3 Color
         {
             get => _color;
@@ -100,14 +105,12 @@ namespace Nomad.EngineUtils.GameObjects
         private readonly Rid _rid;
         private Transform2D _transform;
 
-        private bool _isDisposed = false;
-
         /// <summary>
         ///
         /// </summary>
         /// <param name="light"></param>
         /// <param name="cvarSystem"></param>
-        public GodotLigh2D(PointLight2D light, ICVarSystemService cvarSystem)
+        public EngineLight2D(PointLight2D light, ICVarSystemService cvarSystem)
         {
             ArgumentGuard.ThrowIfNull(light, nameof(light));
 
@@ -135,17 +138,20 @@ namespace Nomad.EngineUtils.GameObjects
         /// <summary>
         ///
         /// </summary>
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            if (!_isDisposed)
+            if (isDisposed)
+            {
+                return;
+            }
+            if (disposing)
             {
                 if (_rid.IsValid)
                 {
                     RenderingServer.FreeRid(_rid);
                 }
             }
-            GC.SuppressFinalize(this);
-            _isDisposed = true;
+            base.Dispose(disposing);
         }
     }
 }

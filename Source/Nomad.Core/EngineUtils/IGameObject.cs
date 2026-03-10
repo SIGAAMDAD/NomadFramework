@@ -32,7 +32,7 @@ namespace Nomad.Core.EngineUtils
         /// <summary>
         ///
         /// </summary>
-        IGameObject Parent { get; set; }
+        IGameObject? Parent { get; set; }
 
         /// <summary>
         ///
@@ -65,5 +65,17 @@ namespace Nomad.Core.EngineUtils
         /// </summary>
         /// <typeparam name="T"></typeparam>
         void RemoveComponent<T>() where T : IComponent;
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="child"></param>
+        void AddChild(IGameObject child);
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="child"></param>
+        void RemoveChild(IGameObject child);
     }
 }
