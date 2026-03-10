@@ -13,39 +13,33 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
-using System.Numerics;
+using Nomad.Core.Events;
 
-namespace Nomad.Core.EngineUtils.GameObjects
+namespace Nomad.Core.EngineUtils.UserInterface
 {
     /// <summary>
     ///
     /// </summary>
-    public interface ILight : IGameObject
+    public interface IButton : IUIElement
     {
         /// <summary>
         ///
         /// </summary>
-        bool Enabled { get; set; }
+        string Text { get; set; }
 
         /// <summary>
-        ///
+        /// Event that triggers whenever this button is pressed.
         /// </summary>
-        Vector3 Color { get; set; }
+        IGameEvent<EmptyEventArgs> Pressed { get; }
 
         /// <summary>
-        ///
+        /// Event that triggers whenever this button is focused.
         /// </summary>
-        float Intensity { get; set; }
+        IGameEvent<EmptyEventArgs> Focused { get; }
 
         /// <summary>
-        ///
+        /// Event that triggers whenever this button is unfocused.
         /// </summary>
-        float Range { get; set; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        bool CastShadows { get; set; }
+        IGameEvent<EmptyEventArgs> Unfocused { get; }
     }
 }

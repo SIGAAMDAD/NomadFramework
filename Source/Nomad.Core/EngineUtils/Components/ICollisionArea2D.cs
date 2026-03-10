@@ -13,12 +13,14 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.Core.EngineUtils
+using Nomad.Core.ECS;
+
+namespace Nomad.Core.EngineUtils.Components
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
-    public interface ITextureRect : IUIComponent
+    public interface ICollisionArea2D : IComponent
     {
     }
 }

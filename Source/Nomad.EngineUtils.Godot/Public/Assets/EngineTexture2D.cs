@@ -14,38 +14,60 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using System.Numerics;
+using Godot;
+using Nomad.Core.EngineUtils.Assets;
 
-namespace Nomad.Core.EngineUtils.GameObjects
+namespace Nomad.EngineUtils.Assets
 {
     /// <summary>
     ///
     /// </summary>
-    public interface ILight : IGameObject
+    public sealed class EngineTexture2D : ITexture
     {
         /// <summary>
         ///
         /// </summary>
-        bool Enabled { get; set; }
+        public string Path => _texture.ResourcePath;
 
         /// <summary>
         ///
         /// </summary>
-        Vector3 Color { get; set; }
+        public int Width => _texture.GetWidth();
 
         /// <summary>
         ///
         /// </summary>
-        float Intensity { get; set; }
+        public int Height => _texture.GetHeight();
 
         /// <summary>
         ///
         /// </summary>
-        float Range { get; set; }
+        public ReadOnlyMemory<byte> Image => _texture.GetImage().GetData();
+
+        private readonly Texture2D _texture;
+
+        private bool _isDisposed = false;
 
         /// <summary>
         ///
         /// </summary>
-        bool CastShadows { get; set; }
+        /// <param name="texture"></param>
+        public EngineTexture2D(Texture2D texture)
+        {
+            _texture = texture;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        public void Dispose()
+        {
+            if (!_isDisposed)
+            {
+                _texture?.Dispose();
+            }
+            GC.SuppressFinalize(this);
+            _isDisposed = true;
+        }
     }
 }

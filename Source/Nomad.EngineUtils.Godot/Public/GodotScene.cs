@@ -14,8 +14,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using System.Collections.Generic;
-using Godot;
 using Nomad.Core.EngineUtils;
 
 namespace Nomad.EngineUtils
@@ -25,41 +23,29 @@ namespace Nomad.EngineUtils
     /// </summary>
     internal sealed class GodotScene : IScene
     {
-        public IReadOnlyList<IGameObject> Children => _children;
-        private readonly List<IGameObject> _children;
-
-        public string Path => _scene.SceneFilePath;
+        public string Path => _root.SceneFilePath;
 
         /// <summary>
         ///
         /// </summary>
         public string Name
         {
-            get => _scene.Name;
-            set => _scene.Name = value;
+            get => _root.Name;
+            set => _root.Name = value;
         }
 
-        public Node Scene => _scene;
-        private readonly Node _scene;
+        public GodotGameObject Root => _root;
+        private readonly GodotGameObject _root;
 
         private bool _isDisposed = false;
 
         /// <summary>
         ///
         /// </summary>
-        public GodotScene(Node scene)
+        /// <param name="root"></param>
+        public GodotScene(GodotGameObject root)
         {
-            _scene = scene;
-
-            var children = scene.GetChildren();
-            _children = new List<IGameObject>(children.Count);
-            for (int i = 0; i < children.Count; i++)
-            {
-                if (children[i] is GodotGameObject gameObject)
-                {
-                    _children.Add(gameObject);
-                }
-            }
+            _root = root;
         }
 
         /// <summary>
@@ -69,48 +55,10 @@ namespace Nomad.EngineUtils
         {
             if (!_isDisposed)
             {
-                for (int i = 0; i < _children.Count; i++)
-                {
-                    _children[i]?.Dispose();
-                }
-                _scene?.QueueFree();
+                _root?.Dispose();
             }
             GC.SuppressFinalize(this);
             _isDisposed = true;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="gameObject"></param>
-        public void AddChild(IGameObject gameObject)
-        {
-            if (gameObject is GodotGameObject godotObject)
-            {
-                _children.Add(godotObject);
-                _scene.AddChild(godotObject);
-            }
-            else
-            {
-                throw new InvalidCastException();
-            }
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="gameObject"></param>
-        public void RemoveChild(IGameObject gameObject)
-        {
-            if (gameObject is GodotGameObject godotObject)
-            {
-                _children.Remove(godotObject);
-                _scene.RemoveChild(godotObject);
-            }
-            else
-            {
-                throw new InvalidCastException();
-            }
         }
     }
 }

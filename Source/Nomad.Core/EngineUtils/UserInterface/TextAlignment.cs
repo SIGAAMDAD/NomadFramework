@@ -13,29 +13,14 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
-using Nomad.Core.Events;
-
-namespace Nomad.Core.EngineUtils
+namespace Nomad.Core.EngineUtils.UserInterface
 {
-    /// <summary>
-    ///
-    /// </summary>
-    public interface IButton : IUIComponent
+    public enum TextAlignment : byte
     {
-        /// <summary>
-        /// Event that triggers whenever this button is pressed.
-        /// </summary>
-        IGameEvent Pressed { get; }
+        Left,
+        Center,
+        Right,
 
-        /// <summary>
-        /// Event that triggers whenever this button is focused.
-        /// </summary>
-        IGameEvent Focused { get; }
-
-        /// <summary>
-        /// Event that triggers whenever this button is unfocused.
-        /// </summary>
-        IGameEvent Unfocused { get; }
+        Count
     }
 }

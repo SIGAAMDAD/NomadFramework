@@ -13,45 +13,28 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
-using Godot;
-using Nomad.Core.EngineUtils.GameObjects;
+using System.Drawing;
 
-namespace Nomad.EngineUtils.GameObjects
+namespace Nomad.Core.EngineUtils.UserInterface
 {
     /// <summary>
     ///
     /// </summary>
-    internal sealed class GodotTexture2D : ITexture
+    public interface IText : IUIElement
     {
-        public int Width => _texture.GetWidth();
-        public int Height => _texture.GetHeight();
-        public ReadOnlyMemory<byte> Image => _texture.GetImage().GetData();
-
-        private readonly Texture2D _texture;
-
-        private bool _isDisposed = false;
+        /// <summary>
+        ///
+        /// </summary>
+        string Text { get; set; }
 
         /// <summary>
         ///
         /// </summary>
-        /// <param name="texture"></param>
-        public GodotTexture2D(Texture2D texture)
-        {
-            _texture = texture;
-        }
+        Color Color { get; set; }
 
         /// <summary>
         ///
         /// </summary>
-        public void Dispose()
-        {
-            if (!_isDisposed)
-            {
-                _texture?.Dispose();
-            }
-            GC.SuppressFinalize(this);
-            _isDisposed = true;
-        }
+        TextAlignment Alignment { get; set; }
     }
 }
