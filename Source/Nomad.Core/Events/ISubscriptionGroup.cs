@@ -19,23 +19,31 @@ using System.Collections.Generic;
 namespace Nomad.Core.Events
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public interface ISubscriptionGroup : IDisposable
     {
         /// <summary>
-        /// 
+        /// The name of the group.
         /// </summary>
         string Name { get; }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         IReadOnlyList<ISubscriptionHandle> Subscriptions { get; }
 
         /// <summary>
-        /// 
+        /// Adds a new subscription handle to the group.
         /// </summary>
-        void ClearAll();
+        /// <param name="gameEvent"></param>
+        /// <param name="callback"></param>
+        void Add<TArgs>(IGameEvent<TArgs> gameEvent, EventCallback<TArgs> callback)
+            where TArgs : struct;
+
+        /// <summary>
+        ///
+        /// </summary>
+        void UnsubscribeAll();
     }
 }

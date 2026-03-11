@@ -14,7 +14,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -28,13 +27,13 @@ using Steamworks;
 namespace Nomad.OnlineServices.Steam.Private.Services {
 	/*
 	===================================================================================
-	
+
 	SteamCloudStorageService
-	
+
 	===================================================================================
 	*/
 	/// <summary>
-	/// 
+	///
 	/// </summary>
 
 	internal sealed class SteamCloudStorageService : ICloudStorageService {
@@ -81,7 +80,7 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 			_fileSystem = fileSystem;
 
 			_fileChangeResult = CallResult<RemoteStorageLocalFileChange_t>.Create( OnFileChange );
-			
+
 			InitializeCloudFileCache();
 		}
 
@@ -91,7 +90,7 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		public void Dispose() {
 			if ( !_isDisposed ) {
@@ -121,7 +120,7 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		private void InitializeCloudFileCache() {
 			int fileCount = SteamRemoteStorage.GetFileCount();
@@ -177,7 +176,7 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="fileName"></param>
 		/// <param name="localData"></param>

@@ -13,6 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+#if NET5_0_OR_GREATER
 using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -26,21 +27,23 @@ namespace Nomad.Core.Util
     /// </summary>
     public static class InteropAssemblyResolver
     {
-        private static readonly Dictionary<Assembly, (string, string)> _hooks = new();
+        private static readonly Dictionary<Assembly, Dictionary<string, (string, string)>> _hooks = new();
 
         /// <summary>
         ///
         /// </summary>
         /// <param name="assembly"></param>
+        /// <param name="libraryName"></param>
         /// <param name="libraryNameLinux"></param>
         /// <param name="libraryNameWindows"></param>
-        public static void Hook(Assembly assembly, string libraryNameLinux, string libraryNameWindows)
+        public static void Hook(Assembly assembly, string libraryName, string libraryNameLinux, string libraryNameWindows)
         {
-            if (_hooks.ContainsKey(assembly))
+            if (!_hooks.TryGetValue(assembly, out var resolvers))
             {
-                return;
+                resolvers = new Dictionary<string, (string, string)>();
+                _hooks[assembly] = resolvers;
             }
-            _hooks[assembly] = (libraryNameLinux, libraryNameWindows);
+            resolvers.Add(libraryName, (libraryNameLinux, libraryNameWindows));
             NativeLibrary.SetDllImportResolver(assembly, Resolve);
         }
 
@@ -53,25 +56,35 @@ namespace Nomad.Core.Util
         /// <returns></returns>
         private static IntPtr Resolve(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
         {
-            if (!_hooks.TryGetValue(assembly, out var value))
+            if (!_hooks.TryGetValue(assembly, out var dict))
+            {
+                return IntPtr.Zero;
+            }
+            if (!dict.TryGetValue(libraryName, out var library))
             {
                 return IntPtr.Zero;
             }
 
             string fileName =
-                OperatingSystem.IsWindows() ? $"{value.Item2}.dll" :
-                OperatingSystem.IsLinux() ? $"{value.Item1}.so" :
-                OperatingSystem.IsMacOS() ? $"{value.Item1}.dylib" :
+                OperatingSystem.IsWindows() ? $"{library.Item2}.dll" :
+                OperatingSystem.IsLinux() ? $"{library.Item1}.so" :
+                OperatingSystem.IsMacOS() ? $"{library.Item1}.dylib" :
                 throw new PlatformNotSupportedException();
 
             string fullPath = Path.Combine(AppContext.BaseDirectory, fileName);
             if (File.Exists(fullPath))
             {
-                return NativeLibrary.Load(fullPath);
+                return GetLibrary(fullPath);
             }
 
             fullPath = Path.Combine(Environment.CurrentDirectory, fileName);
-            return File.Exists(fullPath) ? NativeLibrary.Load(fullPath) : IntPtr.Zero;
+            return File.Exists(fullPath) ? GetLibrary(fullPath) : IntPtr.Zero;
+        }
+
+        private static IntPtr GetLibrary(string path)
+        {
+            return NativeLibrary.Load(path);
         }
     }
 }
+#endif

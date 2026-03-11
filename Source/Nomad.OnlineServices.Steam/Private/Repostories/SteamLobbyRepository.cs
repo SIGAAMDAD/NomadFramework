@@ -17,21 +17,20 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using Nomad.OnlineServices.Steam.Private.ValueObjects;
-using Steamworks;
 using Nomad.Core.CVars;
-using Nomad.Core.Exceptions;
 using System.Threading;
+using Nomad.CVars;
 
 namespace Nomad.OnlineServices.Steam.Private.Repositories {
 	/*
 	===================================================================================
-	
+
 	SteamLobbyRepository
-	
+
 	===================================================================================
 	*/
 	/// <summary>
-	/// 
+	///
 	/// </summary>
 
 	internal sealed class SteamLobbyRepository : IDisposable {
@@ -49,10 +48,10 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		public SteamLobbyRepository( ICVarSystemService cvarSystem ) {
-			var lobbyPurgeTimeout = cvarSystem.GetCVar<int>( Constants.CVars.LOBBY_PURGE_INTERVAL ) ?? throw new CVarMissing( Constants.CVars.LOBBY_PURGE_INTERVAL );
+			var lobbyPurgeTimeout = cvarSystem.GetCVarOrThrow<int>( Constants.CVars.LOBBY_PURGE_INTERVAL );
 			_lobbyPurgeTimeout = lobbyPurgeTimeout.Value;
 
 			_purgeTimer = new Timer( _ => RemoveStaleLobbies(), null, TimeSpan.FromSeconds( _lobbyPurgeTimeout ), TimeSpan.FromSeconds( _lobbyPurgeTimeout ) );
@@ -64,7 +63,7 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		public void Dispose() {
 			if ( !_isDisposed ) {
@@ -81,7 +80,7 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="id"></param>
 		public void AddLobby( SteamLobbyKey id ) {
@@ -100,7 +99,7 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="lobby"></param>
 		public void AddLobby( SteamLobbyData lobby ) {
@@ -120,7 +119,7 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		public void RemoveStaleLobbies() {
 			if ( _isDisposed ) {

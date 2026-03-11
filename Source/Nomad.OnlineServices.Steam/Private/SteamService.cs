@@ -21,6 +21,7 @@ using Nomad.Core.Events;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.Core.OnlineServices;
+using Nomad.OnlineServices.Steam.Private.Registries;
 using Nomad.OnlineServices.Steam.Private.Repositories;
 using Nomad.OnlineServices.Steam.Private.Services;
 using Nomad.OnlineServices.Steam.Private.ValueObjects;
@@ -112,6 +113,7 @@ namespace Nomad.OnlineServices.Steam.Private {
 			ESteamAPIInitResult result = SteamAPI.InitEx( out string errorMessage );
 			if ( result != ESteamAPIInitResult.k_ESteamAPIInitResult_OK ) {
 				logger.PrintError( $"SteamService: failed to initialize SteamAPI - {result}, {errorMessage}" );
+				return;
 			}
 
 			_userData = new SteamUserData {
@@ -122,6 +124,8 @@ namespace Nomad.OnlineServices.Steam.Private {
 			_appData = new SteamAppData {
 				AppId = SteamUtils.GetAppID()
 			};
+
+			SteamCVarRegistry.RegisterCVars( _cvarSystem );
 
 			_logger = logger;
 			_category = logger.CreateCategory( "Nomad.OnlineServices.Steam", LogLevel.Info, true );

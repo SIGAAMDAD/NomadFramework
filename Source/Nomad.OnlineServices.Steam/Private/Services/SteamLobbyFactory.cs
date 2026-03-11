@@ -21,19 +21,20 @@ using Nomad.Core.CVars;
 using Nomad.Core.Exceptions;
 using Nomad.Core.Logger;
 using Nomad.Core.OnlineServices;
+using Nomad.CVars;
 using Nomad.OnlineServices.Steam.Private.ValueObjects;
 using Steamworks;
 
 namespace Nomad.OnlineServices.Steam.Private.Services {
 	/*
 	===================================================================================
-	
+
 	SteamLobbyFactory
-	
+
 	===================================================================================
 	*/
 	/// <summary>
-	/// 
+	///
 	/// </summary>
 
 	internal sealed class SteamLobbyFactory : IDisposable {
@@ -54,7 +55,7 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="userData"></param>
 		/// <param name="logger"></param>
@@ -67,7 +68,7 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 			_logger = logger;
 			_category = logger.CreateCategory( nameof( SteamLobbyFactory ), LogLevel.Info, true );
 
-			var maxPlayers = cvarSystem.GetCVar<int>( Constants.CVars.LOBBY_MAX_CLIENTS ) ?? throw new CVarMissing( Constants.CVars.LOBBY_MAX_CLIENTS );
+			var maxPlayers = cvarSystem.GetCVarOrThrow<int>( Constants.CVars.LOBBY_MAX_CLIENTS );
 			_maxPlayers = maxPlayers.Value;
 
 			_lobbyCreated = new SteamAsyncCallbackDispatcher<LobbyCreated_t, SteamLobbyData>();
@@ -79,7 +80,7 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		public void Dispose() {
 			if ( !_isDisposed ) {
@@ -97,7 +98,7 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="info"></param>
 		/// <param name="ct"></param>

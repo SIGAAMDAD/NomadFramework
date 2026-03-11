@@ -21,95 +21,111 @@ namespace Nomad.OnlineServices.Steam
     public static partial class Constants
     {
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public static partial class CVars
         {
             /// <summary>
-            /// 
+            ///
             /// </summary>
             internal const string NAMESPACE = "Nomad.OnlineServices.Steam";
 
             /// <summary>
-            /// 
+            ///
             /// </summary>
             internal const string LOBBY_UDDATE_INTERVAL = NAMESPACE + ".LobbyUpdateInterval";
 
             /// <summary>
-            /// 
+            ///
             /// </summary>
 			internal const string LOBBY_METADATA_FETCH_INTERVAL = NAMESPACE + ".LobbyMetadataFetchInterval";
 
             /// <summary>
-            /// 
+            ///
             /// </summary>
 			internal const string LOBBY_MAX_CLIENTS = NAMESPACE + ".LobbyMaxClients";
 
             /// <summary>
-            /// 
+            ///
             /// </summary>
 			internal const string LOBBY_PURGE_INTERVAL = NAMESPACE + ".LobbyPurgeInterval";
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public static partial class Events
         {
             /// <summary>
-            /// 
+            ///
             /// </summary>
             public const string NAMESPACE = "Nomad.OnlineServices";
 
             /// <summary>
-            /// 
+            ///
             /// </summary>
             public const string ACHIEVEMENT_UNLOCKED = NAMESPACE + ":AchievementUnlocked";
 
             /// <summary>
-            /// 
+            ///
             /// </summary>
             public const string ACHIEVEMENT_PROGRESS_CHANGED = NAMESPACE + ":AchievementProgressChanged";
 
             /// <summary>
-            /// 
+            ///
             /// </summary>
             public const string USER_JOINED_LOBBY = NAMESPACE + ":UserJoinedLobby";
 
             /// <summary>
-            /// 
+            ///
             /// </summary>
 			public const string USER_LEFT_LOBBY = NAMESPACE + ":UserLeftLobby";
 
             /// <summary>
-            /// 
+            ///
             /// </summary>
 			public const string USER_DISCONNECTED = NAMESPACE + ":UserDisconnected";
 
             /// <summary>
-            /// 
+            ///
             /// </summary>
 			public const string USER_KICKED = NAMESPACE + ":UserKicked";
 
             /// <summary>
-            /// 
+            ///
             /// </summary>
 			public const string USER_BANNED = NAMESPACE + ":UserBanned";
 
             /// <summary>
-            /// 
+            ///
             /// </summary>
 			public const string LOBBY_INSTANCE_CREATED = NAMESPACE + ":LobbyInstanceCreated";
 
             /// <summary>
-            /// 
+            ///
             /// </summary>
             public const string CLIENT_CONNECTED = NAMESPACE + ":ClientConnected";
 
             /// <summary>
-            /// 
+            ///
             /// </summary>
             public const string CLIENT_DISCONNECTED = NAMESPACE + ":ClientDisconnected";
         }
+
+        /// <summary>
+        /// The default maximum number of lobby clients.
+        /// </summary>
+        public const int MAX_LOBBY_PLAYERS = 16;
+
+        /// <summary>
+        /// The default interval in which a lobby will be deleted. If a lobby has not been heard from in over 30 seconds, the
+        /// backend will automatically purge it from the system.
+        /// </summary>
+        public const int LOBBY_PURGE_TIME_SEC = 30;
+
+        /// <summary>
+        /// The default interval in which the current lobby's metadata will be requested from steam services and updated.
+        /// </summary>
+        public const int LOBBY_UPDATE_TIME_SEC = 120;
     }
 }

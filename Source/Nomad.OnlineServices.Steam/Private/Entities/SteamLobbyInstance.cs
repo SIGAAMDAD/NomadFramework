@@ -17,20 +17,20 @@ using System;
 using System.Threading;
 using Nomad.Core.CVars;
 using Nomad.Core.Events;
-using Nomad.Core.Exceptions;
+using Nomad.CVars;
 using Nomad.OnlineServices.Steam.Private.Services.LobbyServices;
 using Nomad.OnlineServices.Steam.Private.ValueObjects;
 
 namespace Nomad.OnlineServices.Steam.Private.Entities {
 	/*
 	===================================================================================
-	
+
 	SteamLobbyInstance
-	
+
 	===================================================================================
 	*/
 	/// <summary>
-	/// 
+	///
 	/// </summary>
 
 	internal sealed class SteamLobbyInstance : IDisposable {
@@ -46,7 +46,7 @@ namespace Nomad.OnlineServices.Steam.Private.Entities {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="info"></param>
 		/// <param name="cvarSystem"></param>
@@ -55,8 +55,8 @@ namespace Nomad.OnlineServices.Steam.Private.Entities {
 			_info = info;
 			_memberService = new SteamLobbyMemberService( eventFactory );
 
-			var updateInterval = cvarSystem.GetCVar<int>( Constants.CVars.LOBBY_METADATA_FETCH_INTERVAL ) ?? throw new CVarMissing( Constants.CVars.LOBBY_METADATA_FETCH_INTERVAL );
-			_updateTimer = new Timer( OnUpdateTimerTimeout, null, TimeSpan.FromMinutes( updateInterval.Value ), TimeSpan.FromMinutes( updateInterval.Value ) );
+			var updateInterval = cvarSystem.GetCVarOrThrow<int>( Constants.CVars.LOBBY_METADATA_FETCH_INTERVAL );
+			_updateTimer = new Timer( OnUpdateTimerTimeout, null, TimeSpan.FromSeconds( updateInterval.Value ), TimeSpan.FromSeconds( updateInterval.Value ) );
 		}
 
 		/*
@@ -65,7 +65,7 @@ namespace Nomad.OnlineServices.Steam.Private.Entities {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		public void Dispose() {
 			if ( !_isDisposed ) {
@@ -82,7 +82,7 @@ namespace Nomad.OnlineServices.Steam.Private.Entities {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="state"></param>
 		private void OnUpdateTimerTimeout( object? state ) {

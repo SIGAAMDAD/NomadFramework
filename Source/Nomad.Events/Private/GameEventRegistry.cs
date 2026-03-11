@@ -17,7 +17,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Nomad.Core.Events;
-using Nomad.Core.Exceptions;
 using Nomad.Core.Logger;
 using Nomad.Core.Util;
 using Nomad.Events.Private;
@@ -25,9 +24,9 @@ using Nomad.Events.Private;
 namespace Nomad.Events {
 	/*
 	===================================================================================
-	
+
 	GameEventRegistry
-	
+
 	===================================================================================
 	*/
 	/// <summary>
@@ -36,7 +35,11 @@ namespace Nomad.Events {
 
 	public sealed class GameEventRegistry : IGameEventRegistryService {
 		private readonly ConcurrentDictionary<EventKey, IGameEvent> _eventCache = new ConcurrentDictionary<EventKey, IGameEvent>();
+		private readonly ConcurrentDictionary<InternString, ISubscriptionGroup> _groupCache = new ConcurrentDictionary<InternString, ISubscriptionGroup>();
+
 		private readonly ILoggerService _logger;
+
+		private bool _isDisposed = false;
 
 		/// <summary>
 		///
@@ -46,16 +49,61 @@ namespace Nomad.Events {
 			_logger = logger;
 		}
 
+		/*
+		===============
+		Dispose
+		===============
+		*/
 		/// <summary>
 		///
 		/// </summary>
 		public void Dispose() {
-			foreach ( var @event in _eventCache ) {
-				@event.Value.Dispose();
+			if ( !_isDisposed ) {
+				ClearAllGroups();
+				foreach ( var @event in _eventCache ) {
+					@event.Value.Dispose();
+				}
+				_eventCache.Clear();
 			}
-			_eventCache.Clear();
+			GC.SuppressFinalize( this );
+			_isDisposed = true;
 		}
 
+		/*
+		===============
+		CreateGroup
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="name"></param>
+		/// <returns></returns>
+		public ISubscriptionGroup CreateGroup( string name ) {
+			var group = _groupCache.GetOrAdd( new InternString( name ), g => new SubscriptionGroup( name ) );
+			return group;
+		}
+
+		/*
+		===============
+		ClearAllGroups
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		public void ClearAllGroups() {
+			foreach ( var group in _groupCache ) {
+				group.Value.Dispose();
+			}
+			_groupCache.Clear();
+		}
+
+		/*
+		===============
+		ClearEventsInNamespace
+		===============
+		*/
 		/// <summary>
 		/// Releases all events in the naming space of <paramref name="nameSpace"/>.
 		/// </summary>
@@ -83,7 +131,8 @@ namespace Nomad.Events {
 		/// <param name="flags"></param>
 		/// <returns></returns>
 		public IGameEvent<TArgs> GetEvent<TArgs>( string name, string nameSpace, EventFlags flags = EventFlags.Default )
-			where TArgs : struct {
+			where TArgs : struct
+		{
 			var internedName = new InternString( name );
 			var internedNameSpace = new InternString( nameSpace );
 			var key = new EventKey(
@@ -115,7 +164,8 @@ namespace Nomad.Events {
 		/// <param name="gameEvent">When this method returns, contains the event if found; otherwise <c>null</c>.</param>
 		/// <returns><c>true</c> if the event exists; otherwise <c>false</c>.</returns>
 		public bool TryGetEvent<TArgs>( string name, string nameSpace, out IGameEvent<TArgs>? gameEvent )
-			where TArgs : struct {
+			where TArgs : struct
+		{
 			var key = new EventKey(
 				name: new InternString( name ),
 				nameSpace: new InternString( nameSpace ),
@@ -144,7 +194,8 @@ namespace Nomad.Events {
 		/// <param name="nameSpace"></param>
 		/// <returns></returns>
 		public bool TryRemoveEvent<TArgs>( string name, string nameSpace )
-			where TArgs : struct {
+			where TArgs : struct
+		{
 			var key = new EventKey(
 				name: new InternString( name ),
 				nameSpace: new InternString( nameSpace ),

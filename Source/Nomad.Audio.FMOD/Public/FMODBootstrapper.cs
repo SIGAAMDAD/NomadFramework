@@ -40,7 +40,10 @@ namespace Nomad.Audio.Fmod
             var logger = locator.GetService<ILoggerService>();
             var cvarSystem = locator.GetService<ICVarSystemService>();
 
-            FMODLibraryResolver.Hook();
+#if NET5_0_OR_GREATER
+            InteropAssemblyResolver.Hook(typeof(FMOD.Channel).Assembly, FMOD.VERSION.dll, FMOD.VERSION.dll, FMOD.VERSION.dll);
+            InteropAssemblyResolver.Hook(typeof(FMOD.Studio.Bank).Assembly, FMOD.Studio.STUDIO_VERSION.dll, FMOD.Studio.STUDIO_VERSION.dll, FMOD.Studio.STUDIO_VERSION.dll);
+#endif
 
             var system = new FMODDevice(locator, registry);
             var listener = new FMODListenerService(logger, system);

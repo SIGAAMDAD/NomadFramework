@@ -21,9 +21,11 @@ using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.Core.OnlineServices;
 using Nomad.Core.ServiceRegistry.Interfaces;
-using Nomad.Core.Util;
 using Nomad.OnlineServices.Steam.Private;
+#if NET5_0_OR_GREATER
+using Nomad.Core.Util;
 using Steamworks;
+#endif
 
 namespace Nomad.OnlineServices.Steam
 {
@@ -41,7 +43,9 @@ namespace Nomad.OnlineServices.Steam
         /// <param name="locator"></param>
         public void Initialize(IServiceRegistry registry, IServiceLocator locator)
         {
-            InteropAssemblyResolver.Hook(typeof(SteamAPI).Assembly, "libsteam_api", "steam_api64");
+#if NET5_0_OR_GREATER
+            InteropAssemblyResolver.Hook(typeof(SteamAPI).Assembly, "steam_api", "libsteam_api", "steam_api64");
+#endif
             _service = new SteamService(
                 locator.GetService<ILoggerService>(),
                 locator.GetService<IFileSystem>(),
