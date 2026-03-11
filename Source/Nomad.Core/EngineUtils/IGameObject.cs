@@ -32,6 +32,11 @@ namespace Nomad.Core.EngineUtils
         /// <summary>
         ///
         /// </summary>
+        bool Enabled { get; set; }
+
+        /// <summary>
+        ///
+        /// </summary>
         IGameObject? Parent { get; set; }
 
         /// <summary>

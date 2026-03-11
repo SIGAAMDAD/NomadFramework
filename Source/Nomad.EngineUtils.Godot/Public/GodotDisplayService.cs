@@ -51,7 +51,9 @@ namespace Nomad.EngineUtils
             {
                 Environment = _environment
             };
-            sceneTree.Root.AddChild(_world);
+            sceneTree.Root.CallDeferred(Node.MethodName.AddChild, _world);
+
+            DisplayCVars.Register(cvarSystem);
 
             _cvarSystem = cvarSystem;
             _windowService = windowService;

@@ -23,19 +23,9 @@ namespace Nomad.Core.EngineUtils
     public interface IUIElement : IGameObject
     {
         /// <summary>
-        ///
-        /// </summary>
-        string Name { get; set; }
-
-        /// <summary>
         /// Whether the ui component is visible or not.
         /// </summary>
         bool Visible { get; set; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        bool Enabled { get; set; }
 
         /// <summary>
         /// The ui component's position on the screen.

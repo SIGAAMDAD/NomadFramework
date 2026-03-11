@@ -20,7 +20,7 @@ namespace Nomad.EngineUtils.Assets
     /// <summary>
     ///
     /// </summary>
-    public class EngineShaderMaterial : GodotMaterial
+    public class EngineShaderMaterial : EngineMaterial
     {
         private readonly Shader _shader;
 

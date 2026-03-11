@@ -28,7 +28,6 @@ namespace Nomad.EngineUtils
     public sealed class EngineBootstrapper : IBootstrapper
     {
         private IEngineService? _engineService;
-        private IDisplayService? _displayService;
 
         /// <summary>
         /// Initializes the CVar system.
@@ -48,12 +47,6 @@ namespace Nomad.EngineUtils
                 locator
             );
             registry.AddSingleton(_engineService);
-
-            _displayService = new GodotDisplayService(
-                sceneTree,
-                locator.GetService<IWindowService>(),
-                locator.GetService<ICVarSystemService>()
-            );
         }
 
         /// <summary>

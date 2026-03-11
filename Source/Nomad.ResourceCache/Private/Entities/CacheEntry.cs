@@ -48,7 +48,7 @@ namespace Nomad.ResourceCache.Private.Entities {
 				}
 			}
 		}
-		private EntryAccessStatistics _accessStats;
+		private EntryAccessStatistics _accessStats = new EntryAccessStatistics( 0, DateTime.UtcNow );
 
 		public int ReferenceCount = 1;
 		public TimeSpan LoadTimer => _loadTimer;
@@ -68,7 +68,7 @@ namespace Nomad.ResourceCache.Private.Entities {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="owner"></param>
 		/// <param name="id"></param>

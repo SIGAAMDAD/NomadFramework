@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025-2026 Noah Van Til
+Copyright (C) 2025 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -13,23 +13,21 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Godot;
 using Nomad.Core.Abstractions;
-using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.CVars;
 using Nomad.Core.EngineUtils;
 using Nomad.Core.Events;
+using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
+using Nomad.Core.OnlineServices;
 using Nomad.Core.ServiceRegistry.Interfaces;
+using Nomad.OnlineServices.Steam.Private;
 
-namespace Nomad.EngineUtils
+namespace Nomad.OnlineServices.Steam
 {
-    /// <summary>
-    ///
-    /// </summary>
-    public sealed class EngineServiceBootstrapper : IBootstrapper
+    public sealed class SteamBootstrapper : IBootstrapper
     {
-        private IEngineService? _engineService;
+        private IOnlinePlatformService? _service;
 
         /// <summary>
         ///
@@ -38,19 +36,14 @@ namespace Nomad.EngineUtils
         /// <param name="locator"></param>
         public void Initialize(IServiceRegistry registry, IServiceLocator locator)
         {
-            ArgumentGuard.ThrowIfNull(locator);
-            ArgumentGuard.ThrowIfNull(registry);
-
-            var logger = locator.GetService<ILoggerService>();
-            var cvarSystem = locator.GetService<ICVarSystemService>();
-            var eventFactory = locator.GetService<IGameEventRegistryService>();
-            _engineService = new GodotEngineService(
-                (SceneTree)Engine.GetMainLoop(),
-                registry,
-                locator
+            _service = new SteamService(
+                locator.GetService<ILoggerService>(),
+                locator.GetService<IFileSystem>(),
+                locator.GetService<IEngineService>(),
+                locator.GetService<IGameEventRegistryService>(),
+                locator.GetService<ICVarSystemService>()
             );
-
-            registry.AddSingleton(_engineService);
+            registry.AddSingleton(_service);
         }
 
         /// <summary>
@@ -58,7 +51,7 @@ namespace Nomad.EngineUtils
         /// </summary>
         public void Shutdown()
         {
-            _engineService?.Dispose();
+            _service?.Dispose();
         }
     }
 }

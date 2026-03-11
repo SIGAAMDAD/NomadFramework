@@ -97,10 +97,10 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 #endif
 			}.ToImmutableDictionary();
 
-			var audioDriver = cvarSystem.GetCVar<string>( Constants.CVars.Audio.AUDIO_DRIVER ) ?? throw new CVarMissing( Constants.CVars.Audio.AUDIO_DRIVER );
+			var audioDriver = cvarSystem.GetCVarOrThrow<string>( Constants.CVars.EngineUtils.Audio.AUDIO_DRIVER );
 			audioDriver.ValueChanged.Subscribe( OnAudioDriverValueChanged );
 
-			var outputDeviceIndex = cvarSystem.GetCVar<int>( Constants.CVars.Audio.OUTPUT_DEVICE_INDEX ) ?? throw new CVarMissing( Constants.CVars.Audio.OUTPUT_DEVICE_INDEX );
+			var outputDeviceIndex = cvarSystem.GetCVarOrThrow<int>( Constants.CVars.EngineUtils.Audio.OUTPUT_DEVICE_INDEX );
 			outputDeviceIndex.ValueChanged.Subscribe( OnAudioDeviceValueChanged );
 
 			FMODValidator.ValidateCall( _system.setCallback( OnAudioOutputDeviceListChanged, FMOD.SYSTEM_CALLBACK_TYPE.DEVICELISTCHANGED ) );

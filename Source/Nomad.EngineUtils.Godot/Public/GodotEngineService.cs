@@ -79,8 +79,13 @@ namespace Nomad.EngineUtils
             _loader = new GodotLoader();
 
             _windowService = new GodotWindowService(_sceneTree, _eventFactory);
+            serviceFactory.AddSingleton(_windowService);
+
             _localizationService = new GodotLocalizationService();
+            serviceFactory.AddSingleton(_localizationService);
+
             _sceneManager = new GodotSceneManager(_sceneTree, new BaseCache<PackedScene, string>(_logger, _eventFactory, _loader));
+            serviceFactory.AddSingleton(_sceneManager);
 
             _displayService = new GodotDisplayService(sceneTree, _windowService, cvarSystem);
             serviceFactory.AddSingleton(_displayService);
@@ -200,7 +205,8 @@ namespace Nomad.EngineUtils
         /// <returns></returns>
         public string GetStoragePath(string relativePath, StorageScope scope)
         {
-            return $"{GetStoragePath(scope)}/{relativePath}";
+            GD.Print($"Getting path for {GetStoragePath(scope)}/{relativePath}");
+            return $"{GetStoragePath(scope)}{relativePath}";
         }
 
         /// <summary>

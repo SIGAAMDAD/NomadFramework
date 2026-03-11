@@ -20,6 +20,7 @@ using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.EngineUtils;
 using Nomad.Core.EngineUtils.Globals;
 using Nomad.Core.Util;
+using Nomad.EngineUtils.UserInterface;
 using Nomad.ResourceCache;
 
 namespace Nomad.EngineUtils
@@ -44,7 +45,7 @@ namespace Nomad.EngineUtils
         private readonly IResourceCacheService<PackedScene, string> _sceneCache;
         private readonly SceneTree _sceneTree;
 
-        private readonly Dictionary<InternString, GodotGameObject> _gameObjects = new();
+        private readonly Dictionary<InternString, Node> _nodes = new();
 
         private bool _isDisposed = false;
 
@@ -95,7 +96,7 @@ namespace Nomad.EngineUtils
             switch (mode)
             {
                 case LoadSceneMode.Additive:
-                    _sceneTree.Root.AddChild(scene.Root);
+                    _sceneTree.Root.AddChild(scene.Root.Node);
                     _additiveScenes.Add(scene);
                     break;
                 case LoadSceneMode.Single:
@@ -120,7 +121,7 @@ namespace Nomad.EngineUtils
 
             // clear any existing scenes
             UnloadAllScenes();
-            _sceneTree.ChangeSceneToNode(godotScene.Root);
+            _sceneTree.ChangeSceneToNode(godotScene.Root.Node);
             _activeScene = godotScene;
         }
 
@@ -136,7 +137,7 @@ namespace Nomad.EngineUtils
             }
             if (_additiveScenes.Contains(godotScene))
             {
-                _sceneTree.Root.RemoveChild(godotScene.Root);
+                _sceneTree.Root.RemoveChild(godotScene.Root.Node);
             }
             _additiveScenes.Remove(godotScene);
             _sceneCache.Unload(godotScene.Path);
@@ -150,7 +151,7 @@ namespace Nomad.EngineUtils
             UnloadCurrentScene();
             for (int i = 0; i < _additiveScenes.Count; i++)
             {
-                _sceneTree.Root.RemoveChild(_additiveScenes[i].Root);
+                _sceneTree.Root.RemoveChild(_additiveScenes[i].Root.Node);
                 _sceneCache.Unload(_additiveScenes[i].Path);
             }
             _additiveScenes.Clear();
@@ -167,7 +168,7 @@ namespace Nomad.EngineUtils
             }
             _sceneTree.CurrentScene = null;
 
-            _sceneTree.Root.RemoveChild(_activeScene.Root);
+            _sceneTree.Root.RemoveChild(_activeScene.Root.Node);
             _sceneCache.Unload(_activeScene.Path);
             _activeScene = null;
         }
@@ -179,31 +180,24 @@ namespace Nomad.EngineUtils
         /// <returns></returns>
         private GodotScene WalkSceneTree(PackedScene resource)
         {
-            if (resource.Instantiate() is GodotGameObject root)
-            {
-                _gameObjects[new InternString(root.GetPath())] = root;
-                WalkNode(root);
-                return new GodotScene(root, root.SceneFilePath);
-            }
-            else
-            {
-                throw new InvalidCastException();
-            }
+            var root = new GodotGameObject(resource.Instantiate());
+            _nodes[new InternString(root.Node.GetPath())] = root.Node;
+            WalkNode(root.Node);
+            return new GodotScene(root);
         }
 
         /// <summary>
         ///
         /// </summary>
         /// <param name="parentObject"></param>
-        private void WalkNode(GodotGameObject parentObject)
+        private void WalkNode(Node parentObject)
         {
             var children = parentObject.GetChildren();
             for (int i = 0; i < children.Count; i++)
             {
                 var childNode = children[i];
-                var child = new GodotGameObject(childNode, parentObject);
-                _gameObjects[new InternString(childNode.GetPath())] = child;
-                WalkNode(child);
+                _nodes[new InternString(childNode.GetPath())] = childNode;
+                WalkNode(childNode);
             }
         }
     }

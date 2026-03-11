@@ -22,6 +22,7 @@ using Nomad.Core;
 using Nomad.Core.CVars;
 using Nomad.Core.Events;
 using Nomad.Core.Exceptions;
+using Nomad.CVars;
 using Nomad.ResourceCache;
 
 namespace Nomad.Audio.Fmod.Private.Services {
@@ -69,11 +70,11 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		public FMODMusicService( IResourceCacheService<IAudioResource, string> eventRepository, ICVarSystemService cvarSystem ) {
 			_eventRepository = eventRepository;
 
-			var musicVolume = cvarSystem.GetCVar<float>( Constants.CVars.Audio.MUSIC_VOLUME ) ?? throw new CVarMissing( Constants.CVars.Audio.MUSIC_VOLUME );
+			var musicVolume = cvarSystem.GetCVarOrThrow<float>( Constants.CVars.EngineUtils.Audio.MUSIC_VOLUME );
 			_musicVolumeChanged = musicVolume.ValueChanged.Subscribe( OnMusicVolumeChanged );
 			_musicVolume = musicVolume.Value;
 
-			var musicOn = cvarSystem.GetCVar<bool>( Constants.CVars.Audio.MUSIC_ON ) ?? throw new CVarMissing( Constants.CVars.Audio.MUSIC_ON );
+			var musicOn = cvarSystem.GetCVarOrThrow<bool>( Constants.CVars.EngineUtils.Audio.MUSIC_ON );
 			_musicOnChanged = musicOn.ValueChanged.Subscribe( OnMusicOnChanged );
 			_musicOn = musicOn.Value;
 		}

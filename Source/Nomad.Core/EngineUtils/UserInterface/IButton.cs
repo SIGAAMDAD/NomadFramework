@@ -30,7 +30,7 @@ namespace Nomad.Core.EngineUtils.UserInterface
         /// <summary>
         /// Event that triggers whenever this button is pressed.
         /// </summary>
-        IGameEvent<EmptyEventArgs> Pressed { get; }
+        IGameEvent<EmptyEventArgs> Clicked { get; }
 
         /// <summary>
         /// Event that triggers whenever this button is focused.

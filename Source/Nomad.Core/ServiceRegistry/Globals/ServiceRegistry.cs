@@ -13,39 +13,38 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
-using System.Numerics;
+using Nomad.Core.Compatibility.Guards;
+using Nomad.Core.ServiceRegistry.Interfaces;
+using Nomad.Core.ServiceRegistry.Services;
 
-namespace Nomad.Core.EngineUtils.GameObjects
+namespace Nomad.Core.ServiceRegistry.Globals
 {
     /// <summary>
     ///
     /// </summary>
-    public interface ILight : IGameObject
+    public static class ServiceRegistry
     {
         /// <summary>
         ///
         /// </summary>
-        bool Enabled { get; set; }
+        public static IServiceRegistry Instance
+        {
+            get
+            {
+                _instance ??= new ServiceCollection();
+                return _instance;
+            }
+        }
+        private static IServiceRegistry? _instance;
 
         /// <summary>
         ///
         /// </summary>
-        Vector3 Color { get; set; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        float Intensity { get; set; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        float Range { get; set; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        bool CastShadows { get; set; }
+        /// <param name="instance"></param>
+        internal static void Initialize(IServiceRegistry instance)
+        {
+            ArgumentGuard.ThrowIfNull(instance);
+            _instance = instance;
+        }
     }
 }

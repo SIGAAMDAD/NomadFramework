@@ -29,6 +29,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Nomad.Core.Memory;
 using Nomad.Core.Util;
+using Nomad.CVars;
 
 namespace Nomad.Audio.Fmod.Private.Repositories {
 	/*
@@ -99,9 +100,9 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			_logger = logger;
 			_listenerService = listenerService;
 
-			_maxChannels = cvarSystem.GetCVar<int>( Constants.CVars.Audio.MAX_CHANNELS ) ?? throw new CVarMissing( Constants.CVars.Audio.MAX_CHANNELS );
+			_maxChannels = cvarSystem.GetCVarOrThrow<int>( Constants.CVars.EngineUtils.Audio.MAX_CHANNELS ) ?? throw new CVarMissing( Constants.CVars.EngineUtils.Audio.MAX_CHANNELS );
 
-			_maxActiveChannels = cvarSystem.GetCVar<int>( Constants.CVars.Audio.MAX_ACTIVE_CHANNELS ) ?? throw new CVarMissing( Constants.CVars.Audio.MAX_ACTIVE_CHANNELS );
+			_maxActiveChannels = cvarSystem.GetCVarOrThrow<int>( Constants.CVars.EngineUtils.Audio.MAX_ACTIVE_CHANNELS ) ?? throw new CVarMissing( Constants.CVars.EngineUtils.Audio.MAX_ACTIVE_CHANNELS );
 			_maxChannels.Value = _maxActiveChannels.Value;
 			_maxActiveChannels.ValueChanged.Subscribe( OnMaxActiveChannelsValueChanged );
 			ValidateMaxChannels();
@@ -655,31 +656,31 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// <param name="cvarSystem"></param>
 		/// <exception cref="CVarMissing"></exception>
 		private void InitConfig( ICVarSystemService cvarSystem ) {
-			var effectsVolume = cvarSystem.GetCVar<float>( Constants.CVars.Audio.EFFECTS_VOLUME ) ?? throw new CVarMissing( Constants.CVars.Audio.EFFECTS_VOLUME );
+			var effectsVolume = cvarSystem.GetCVarOrThrow<float>( Constants.CVars.EngineUtils.Audio.EFFECTS_VOLUME );
 			_effectsVolume = effectsVolume.Value;
 			effectsVolume.ValueChanged.Subscribe( OnEffectsVolumeChanged );
 
-			var distanceFalloffStart = cvarSystem.GetCVar<float>( Constants.CVars.Audio.DISTANCE_FALLOFF_START ) ?? throw new CVarMissing( Constants.CVars.Audio.DISTANCE_FALLOFF_START );
+			var distanceFalloffStart = cvarSystem.GetCVarOrThrow<float>( Constants.CVars.EngineUtils.Audio.DISTANCE_FALLOFF_START );
 			_distanceFalloffStart = distanceFalloffStart.Value;
 			distanceFalloffStart.ValueChanged.Subscribe( OnDistanceFalloffStartValueChanged );
 
-			var distanceFalloffEnd = cvarSystem.GetCVar<float>( Constants.CVars.Audio.DISTANCE_FALLOFF_END ) ?? throw new CVarMissing( Constants.CVars.Audio.DISTANCE_FALLOFF_END );
+			var distanceFalloffEnd = cvarSystem.GetCVarOrThrow<float>( Constants.CVars.EngineUtils.Audio.DISTANCE_FALLOFF_END );
 			_distanceFalloffEnd = distanceFalloffEnd.Value;
 			distanceFalloffEnd.ValueChanged.Subscribe( OnDistanceFalloffEndValueChanged );
 
-			var minTimeBetweenChannelSteals = cvarSystem.GetCVar<float>( Constants.CVars.Audio.MIN_TIME_BETWEEN_CHANNEL_STEALS ) ?? throw new CVarMissing( Constants.CVars.Audio.MIN_TIME_BETWEEN_CHANNEL_STEALS );
+			var minTimeBetweenChannelSteals = cvarSystem.GetCVarOrThrow<float>( Constants.CVars.EngineUtils.Audio.MIN_TIME_BETWEEN_CHANNEL_STEALS );
 			_minTimeBetweenChannelSteals = minTimeBetweenChannelSteals.Value;
 			minTimeBetweenChannelSteals.ValueChanged.Subscribe( OnMinTimeBetweenChannelStealsValueChanged );
 
-			var frequencyPenalty = cvarSystem.GetCVar<float>( Constants.CVars.Audio.FREQUENCY_PENALTY ) ?? throw new CVarMissing( Constants.CVars.Audio.FREQUENCY_PENALTY );
+			var frequencyPenalty = cvarSystem.GetCVarOrThrow<float>( Constants.CVars.EngineUtils.Audio.FREQUENCY_PENALTY );
 			_frequencyPenalty = frequencyPenalty.Value;
 			frequencyPenalty.ValueChanged.Subscribe( OnFrequencyPenaltyValueChanged );
 
-			var volumeWeight = cvarSystem.GetCVar<float>( Constants.CVars.Audio.VOLUME_WEIGHT ) ?? throw new CVarMissing( Constants.CVars.Audio.VOLUME_WEIGHT );
+			var volumeWeight = cvarSystem.GetCVarOrThrow<float>( Constants.CVars.EngineUtils.Audio.VOLUME_WEIGHT );
 			_volumeWeight = volumeWeight.Value;
 			volumeWeight.ValueChanged.Subscribe( OnVolumeWeightValueChanged );
 
-			var distanceWeight = cvarSystem.GetCVar<float>( Constants.CVars.Audio.DISTANCE_WEIGHT ) ?? throw new CVarMissing( Constants.CVars.Audio.DISTANCE_WEIGHT );
+			var distanceWeight = cvarSystem.GetCVarOrThrow<float>( Constants.CVars.EngineUtils.Audio.DISTANCE_WEIGHT );
 			_distanceWeight = distanceWeight.Value;
 			distanceWeight.ValueChanged.Subscribe( OnDistanceWeightValueChanged );
 		}

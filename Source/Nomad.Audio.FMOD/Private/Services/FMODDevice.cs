@@ -30,6 +30,7 @@ using Nomad.Core.ServiceRegistry.Interfaces;
 using Nomad.Core.Events;
 using System.Collections.Immutable;
 using Nomad.Core.CVars;
+using Nomad.CVars;
 
 namespace Nomad.Audio.Fmod.Private.Services {
 	/*
@@ -211,14 +212,10 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		/// <param name="cvarSystem"></param>
 		/// <exception cref="Exception"></exception>
 		private void ConfigureFMODDevice( ICVarSystemService cvarSystem ) {
-			var streamBufferSize = cvarSystem.GetCVar<int>( Constants.CVars.Audio.FMOD.STREAM_BUFFER_SIZE )
-				?? throw new CVarMissing( Constants.CVars.Audio.FMOD.STREAM_BUFFER_SIZE );
-			var maxChannels = cvarSystem.GetCVar<int>( Constants.CVars.Audio.MAX_CHANNELS )
-				?? throw new CVarMissing( Constants.CVars.Audio.MAX_CHANNELS );
-			var dspBufferSize = cvarSystem.GetCVar<uint>( Constants.CVars.Audio.FMOD.DSP_BUFFER_SIZE )
-				?? throw new CVarMissing( Constants.CVars.Audio.FMOD.DSP_BUFFER_SIZE );
-			var dspBufferCount = cvarSystem.GetCVar<int>( Constants.CVars.Audio.FMOD.DSP_BUFFER_COUNT )
-				?? throw new CVarMissing( Constants.CVars.Audio.FMOD.DSP_BUFFER_COUNT );
+			var streamBufferSize = cvarSystem.GetCVarOrThrow<int>( Constants.CVars.EngineUtils.Audio.FMOD.STREAM_BUFFER_SIZE );
+			var maxChannels = cvarSystem.GetCVarOrThrow<int>( Constants.CVars.EngineUtils.Audio.MAX_CHANNELS );
+			var dspBufferSize = cvarSystem.GetCVarOrThrow<uint>( Constants.CVars.EngineUtils.Audio.FMOD.DSP_BUFFER_SIZE );
+			var dspBufferCount = cvarSystem.GetCVarOrThrow<int>( Constants.CVars.EngineUtils.Audio.FMOD.DSP_BUFFER_COUNT );
 
 			var flags = FMOD.INITFLAGS.CHANNEL_DISTANCEFILTER | FMOD.INITFLAGS.CHANNEL_LOWPASS | FMOD.INITFLAGS.VOL0_BECOMES_VIRTUAL;
 

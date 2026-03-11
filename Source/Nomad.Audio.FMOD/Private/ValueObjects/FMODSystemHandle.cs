@@ -21,6 +21,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using Nomad.Core.CVars;
+using Nomad.CVars;
 
 namespace Nomad.Audio.Fmod.Private.ValueObjects {
 	/*
@@ -71,7 +72,7 @@ namespace Nomad.Audio.Fmod.Private.ValueObjects {
 		public FMODSystemHandle( ICVarSystemService cvarSystem, ILoggerService logger ) {
 			_logger = logger;
 
-			var fmodLogging = cvarSystem.GetCVar<bool>( Constants.CVars.Audio.FMOD.LOGGING ) ?? throw new CVarMissing( Constants.CVars.Audio.FMOD.LOGGING );
+			var fmodLogging = cvarSystem.GetCVarOrThrow<bool>( Constants.CVars.EngineUtils.Audio.FMOD.LOGGING );
 			if ( fmodLogging.Value ) {
 				var debugFlags = FMOD.DEBUG_FLAGS.LOG | FMOD.DEBUG_FLAGS.ERROR | FMOD.DEBUG_FLAGS.WARNING | FMOD.DEBUG_FLAGS.TYPE_TRACE | FMOD.DEBUG_FLAGS.DISPLAY_THREAD;
 				FMODValidator.ValidateCall( FMOD.Debug.Initialize( debugFlags, FMOD.DEBUG_MODE.CALLBACK, DebugCallback ) );

@@ -13,7 +13,10 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System.Collections.Generic;
 using Godot;
+using Nomad.Core.ECS;
+using Nomad.Core.EngineUtils;
 using Nomad.Core.EngineUtils.UserInterface;
 using Nomad.Core.Events;
 using Nomad.Events.Global;
@@ -23,43 +26,116 @@ namespace Nomad.EngineUtils.UserInterface
     /// <summary>
     ///
     /// </summary>
-    public partial class EngineButton : GodotControl<Button>, IButton
+    public partial class EngineButton : Button, IButton
     {
         /// <summary>
         ///
         /// </summary>
-        public string Text
+        string IButton.Text
         {
-            get => control.Text;
-            set => control.Text = value;
+            get => Text;
+            set => Text = value;
         }
 
         /// <summary>
         ///
         /// </summary>
-        public IGameEvent<EmptyEventArgs> Pressed => _pressed;
-        private readonly IGameEvent<EmptyEventArgs> _pressed;
+        public new string Name
+        {
+            get => _impl.Name;
+            set => _impl.Name = value;
+        }
+
+        IGameObject? IGameObject.Parent
+        {
+            get => _impl.Parent;
+            set => _impl.Parent = value;
+        }
+
+        IReadOnlyList<IGameObject> IGameObject.Children => _impl.Children;
+
+        bool IGameObject.Enabled
+        {
+            get => _impl.Enabled;
+            set => _impl.Enabled = value;
+        }
+
+        System.Numerics.Vector2 IUIElement.Position
+        {
+            get => _position;
+            set => _position = new System.Numerics.Vector2(value.X, value.Y);
+        }
+        private System.Numerics.Vector2 _position;
+
+        System.Numerics.Vector2 IUIElement.Scale
+        {
+            get => _scale;
+            set => _scale = new System.Numerics.Vector2(value.X, value.Y);
+        }
+        private System.Numerics.Vector2 _scale;
+
+        private readonly GodotGameObject _impl;
+
+        /// <summary>
+        ///
+        /// </summary>
+        public IGameEvent<EmptyEventArgs> Clicked => _clicked;
+        private IGameEvent<EmptyEventArgs> _clicked;
 
         /// <summary>
         ///
         /// </summary>
         public IGameEvent<EmptyEventArgs> Focused => _focused;
-        private readonly IGameEvent<EmptyEventArgs> _focused;
+        private IGameEvent<EmptyEventArgs> _focused;
 
         /// <summary>
         ///
         /// </summary>
         public IGameEvent<EmptyEventArgs> Unfocused => _unfocused;
-        private readonly IGameEvent<EmptyEventArgs> _unfocused;
+        private IGameEvent<EmptyEventArgs> _unfocused;
 
         /// <summary>
         ///
         /// </summary>
         public EngineButton()
         {
-            _pressed = GameEventRegistry.GetEvent<EmptyEventArgs>($"{Name}:{Constants.Events.BUTTON_CLICKED}", Constants.Events.NAMESPACE);
+            _impl = new GodotGameObject(this);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        public sealed override void _Ready()
+        {
+            base._Ready();
+
+            _clicked = GameEventRegistry.GetEvent<EmptyEventArgs>($"{Name}:{Constants.Events.BUTTON_CLICKED}", Constants.Events.NAMESPACE);
             _focused = GameEventRegistry.GetEvent<EmptyEventArgs>($"{Name}:{Constants.Events.BUTTON_FOCUSED}", Constants.Events.NAMESPACE);
             _unfocused = GameEventRegistry.GetEvent<EmptyEventArgs>($"{Name}:{Constants.Events.BUTTON_UNFOCUSED}", Constants.Events.NAMESPACE);
+
+            _impl.OnInit();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="delta"></param>
+        public sealed override void _Process(double delta)
+        {
+            base._Process(delta);
+
+            _impl.OnUpdate((float)delta);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="delta"></param>
+        public sealed override void _PhysicsProcess(double delta)
+        {
+            base._PhysicsProcess(delta);
+
+            _impl.OnPhysicsUpdate((float)delta);
         }
 
         /// <summary>
@@ -69,8 +145,88 @@ namespace Nomad.EngineUtils.UserInterface
         {
             base._ExitTree();
 
-            _pressed?.Dispose();
+            _impl.OnShutdown();
+
+            _clicked?.Dispose();
             _focused?.Dispose();
+            _unfocused?.Dispose();
+        }
+
+        protected virtual void OnInit()
+        {
+        }
+
+        protected virtual void OnShutdown()
+        {
+        }
+
+        protected virtual void OnUpdate(float delta)
+        {
+        }
+
+        protected virtual void OnPhysicsUpdate(float delta)
+        {
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T AddComponent<T>()
+            where T : IComponent, new()
+        {
+            return _impl.AddComponent<T>();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T? GetComponent<T>()
+            where T : IComponent
+        {
+            return _impl.GetComponent<T>();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public bool HasComponent<T>()
+            where T : IComponent
+        {
+            return _impl.HasComponent<T>();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        public void RemoveComponent<T>()
+            where T : IComponent
+        {
+            _impl.RemoveComponent<T>();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="child"></param>
+        public void AddChild(IGameObject child)
+        {
+            _impl.AddChild(child);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="child"></param>
+        public void RemoveChild(IGameObject child)
+        {
+            _impl.RemoveChild(child);
         }
     }
 }

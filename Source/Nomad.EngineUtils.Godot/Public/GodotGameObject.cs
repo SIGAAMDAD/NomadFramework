@@ -25,15 +25,24 @@ namespace Nomad.EngineUtils
     /// <summary>
     ///
     /// </summary>
-    public partial class GodotGameObject : Node, IGameObject
+    public sealed class GodotGameObject : IGameObject
     {
         /// <summary>
         ///
         /// </summary>
-        string IGameObject.Name
+        public string Name
         {
-            get => Name;
-            set => Name = value;
+            get => _node.Name;
+            set => _node.Name = value;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        public bool Enabled
+        {
+            get => _node.ProcessMode != Node.ProcessModeEnum.Disabled;
+            set => _node.ProcessMode = value ? Node.ProcessModeEnum.Inherit : Node.ProcessModeEnum.Disabled;
         }
 
         /// <summary>
@@ -49,29 +58,35 @@ namespace Nomad.EngineUtils
         /// <summary>
         ///
         /// </summary>
+        public Node Node => _node;
+        private readonly Node _node;
+
+        /// <summary>
+        ///
+        /// </summary>
         public IReadOnlyList<IGameObject> Children => _children;
         private readonly List<IGameObject> _children = new();
 
         private readonly ConcurrentDictionary<Type, IComponent> _components = new();
 
-        protected bool isDisposed = false;
+        private bool _isDisposed = false;
+
+        public GodotGameObject(Node node)
+        {
+            _node = node;
+        }
 
         /// <summary>
         ///
         /// </summary>
-        /// <param name="disposing"></param>
-        protected override void Dispose(bool disposing)
+        public void Dispose()
         {
-            if (isDisposed)
-            {
-                return;
-            }
-            if (disposing)
+            if (!_isDisposed)
             {
                 _components.Clear();
             }
-            base.Dispose(disposing);
-            isDisposed = true;
+            GC.SuppressFinalize(this);
+            _isDisposed = true;
         }
 
         /// <summary>
@@ -139,14 +154,12 @@ namespace Nomad.EngineUtils
         /// <summary>
         ///
         /// </summary>
-        public sealed override void _Ready()
+        public void OnInit()
         {
-            base._Ready();
-
-            if (GetScript().AsGodotObject() is GodotObject script && script is IComponent scriptComponent)
+            if (_node.GetScript().AsGodotObject() is GodotObject script && script is IComponent scriptComponent)
             {
                 _components.TryAdd(script.GetType(), scriptComponent);
-                SetScript(Variant.CreateFrom<GodotObject>(null!));
+                _node.SetScript(Variant.CreateFrom<GodotObject>(null!));
             }
             foreach (var component in _components)
             {
@@ -157,11 +170,20 @@ namespace Nomad.EngineUtils
         /// <summary>
         ///
         /// </summary>
-        /// <param name="delta"></param>
-        public override void _Process(double delta)
+        public void OnShutdown()
         {
-            base._Process(delta);
+            foreach (var component in _components)
+            {
+                component.Value.OnShutdown();
+            }
+        }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="delta"></param>
+        public void OnUpdate(float delta)
+        {
             float deltaTime = (float)delta;
             foreach (var component in _components)
             {
@@ -173,27 +195,12 @@ namespace Nomad.EngineUtils
         ///
         /// </summary>
         /// <param name="delta"></param>
-        public override void _PhysicsProcess(double delta)
+        public void OnPhysicsUpdate(float delta)
         {
-            base._PhysicsProcess(delta);
-
             float deltaTime = (float)delta;
             foreach (var component in _components)
             {
                 component.Value.OnPhysicsUpdate(deltaTime);
-            }
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        public override void _ExitTree()
-        {
-            base._ExitTree();
-
-            foreach (var component in _components)
-            {
-                component.Value.OnShutdown();
             }
         }
     }

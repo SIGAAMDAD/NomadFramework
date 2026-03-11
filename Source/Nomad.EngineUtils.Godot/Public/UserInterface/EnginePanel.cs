@@ -13,7 +13,10 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System.Collections.Generic;
 using Godot;
+using Nomad.Core.ECS;
+using Nomad.Core.EngineUtils;
 using Nomad.Core.EngineUtils.UserInterface;
 
 namespace Nomad.EngineUtils.UserInterface
@@ -21,7 +24,173 @@ namespace Nomad.EngineUtils.UserInterface
     /// <summary>
     ///
     /// </summary>
-    public partial class EnginePanel : GodotControl<Control>, IPanel
+    public partial class EnginePanel : Control, IPanel
     {
+        /// <summary>
+        ///
+        /// </summary>
+        public new string Name
+        {
+            get => _impl.Name;
+            set => _impl.Name = value;
+        }
+
+        IGameObject? IGameObject.Parent
+        {
+            get => _impl.Parent;
+            set => _impl.Parent = value;
+        }
+
+        IReadOnlyList<IGameObject> IGameObject.Children => _impl.Children;
+
+        bool IGameObject.Enabled
+        {
+            get => _impl.Enabled;
+            set => _impl.Enabled = value;
+        }
+
+        System.Numerics.Vector2 IUIElement.Position
+        {
+            get => _position;
+            set => _position = new System.Numerics.Vector2(value.X, value.Y);
+        }
+        private System.Numerics.Vector2 _position;
+
+        System.Numerics.Vector2 IUIElement.Scale
+        {
+            get => _scale;
+            set => _scale = new System.Numerics.Vector2(value.X, value.Y);
+        }
+        private System.Numerics.Vector2 _scale;
+
+        private readonly GodotGameObject _impl;
+
+        /// <summary>
+        ///
+        /// </summary>
+        public EnginePanel()
+        {
+            _impl = new GodotGameObject(this);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        public sealed override void _Ready()
+        {
+            base._Ready();
+
+            _impl.OnInit();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="delta"></param>
+        public sealed override void _Process(double delta)
+        {
+            base._Process(delta);
+
+            _impl.OnUpdate((float)delta);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="delta"></param>
+        public sealed override void _PhysicsProcess(double delta)
+        {
+            base._PhysicsProcess(delta);
+
+            _impl.OnPhysicsUpdate((float)delta);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        public sealed override void _ExitTree()
+        {
+            base._ExitTree();
+
+            OnShutdown();
+            _impl.OnShutdown();
+        }
+
+        protected virtual void OnInit()
+        {
+        }
+
+        protected virtual void OnShutdown()
+        {
+        }
+
+        protected virtual void OnUpdate(float delta)
+        {
+        }
+
+        protected virtual void OnPhysicsUpdate(float delta)
+        {
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T AddComponent<T>()
+            where T : IComponent, new()
+        {
+            return _impl.AddComponent<T>();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T? GetComponent<T>()
+            where T : IComponent
+        {
+            return _impl.GetComponent<T>();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public bool HasComponent<T>()
+            where T : IComponent
+        {
+            return _impl.HasComponent<T>();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        public void RemoveComponent<T>()
+            where T : IComponent
+        {
+            _impl.RemoveComponent<T>();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="child"></param>
+        public void AddChild(IGameObject child)
+        {
+            _impl.AddChild(child);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="child"></param>
+        public void RemoveChild(IGameObject child)
+        {
+            _impl.RemoveChild(child);
+        }
     }
 }
