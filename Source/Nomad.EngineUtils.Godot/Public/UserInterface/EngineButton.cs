@@ -19,7 +19,7 @@ using Nomad.Core.ECS;
 using Nomad.Core.EngineUtils;
 using Nomad.Core.EngineUtils.UserInterface;
 using Nomad.Core.Events;
-using Nomad.Events.Global;
+using Nomad.Events.Globals;
 
 namespace Nomad.EngineUtils.UserInterface
 {
@@ -113,7 +113,14 @@ namespace Nomad.EngineUtils.UserInterface
             _focused = GameEventRegistry.GetEvent<EmptyEventArgs>($"{Name}:{Constants.Events.BUTTON_FOCUSED}", Constants.Events.NAMESPACE);
             _unfocused = GameEventRegistry.GetEvent<EmptyEventArgs>($"{Name}:{Constants.Events.BUTTON_UNFOCUSED}", Constants.Events.NAMESPACE);
 
+            Pressed += () => _clicked.Publish(default);
+            FocusEntered += () => _focused.Publish(default);
+            MouseEntered += () => _focused.Publish(default);
+            FocusExited += () => _unfocused.Publish(default);
+            MouseExited += () => _unfocused.Publish(default);
+
             _impl.OnInit();
+            OnInit();
         }
 
         /// <summary>
@@ -124,7 +131,9 @@ namespace Nomad.EngineUtils.UserInterface
         {
             base._Process(delta);
 
-            _impl.OnUpdate((float)delta);
+            float deltaTime = (float)delta;
+            _impl.OnUpdate(deltaTime);
+            OnUpdate(deltaTime);
         }
 
         /// <summary>
@@ -135,7 +144,9 @@ namespace Nomad.EngineUtils.UserInterface
         {
             base._PhysicsProcess(delta);
 
-            _impl.OnPhysicsUpdate((float)delta);
+            float deltaTime = (float)delta;
+            _impl.OnPhysicsUpdate(deltaTime);
+            OnPhysicsUpdate(deltaTime);
         }
 
         /// <summary>
@@ -146,6 +157,7 @@ namespace Nomad.EngineUtils.UserInterface
             base._ExitTree();
 
             _impl.OnShutdown();
+            OnShutdown();
 
             _clicked?.Dispose();
             _focused?.Dispose();

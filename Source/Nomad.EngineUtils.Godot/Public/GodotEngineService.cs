@@ -181,7 +181,7 @@ namespace Nomad.EngineUtils
         /// <param name="exitCode"></param>
         public void Quit(int exitCode = 0)
         {
-            OS.Kill(OS.GetProcessId());
+            System.Environment.Exit(exitCode);
         }
 
         /// <summary>
@@ -205,7 +205,7 @@ namespace Nomad.EngineUtils
         /// <returns></returns>
         public string GetStoragePath(string relativePath, StorageScope scope)
         {
-            GD.Print($"Getting path for {GetStoragePath(scope)}/{relativePath}");
+            GD.Print($"Getting path for {GetStoragePath(scope)}{relativePath}");
             return $"{GetStoragePath(scope)}{relativePath}";
         }
 

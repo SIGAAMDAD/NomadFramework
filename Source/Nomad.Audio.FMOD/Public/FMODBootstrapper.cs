@@ -40,22 +40,17 @@ namespace Nomad.Audio.Fmod
             var logger = locator.GetService<ILoggerService>();
             var cvarSystem = locator.GetService<ICVarSystemService>();
 
-            try
-            {
-                var system = new FMODDevice(locator, registry);
-                var listener = new FMODListenerService(logger, system);
-                var channelRepository = new FMODChannelRepository(logger, cvarSystem, listener, system);
+            FMODLibraryResolver.Hook();
 
-                registry.AddSingleton<IAudioDevice>(system);
-                registry.AddSingleton<IListenerService>(listener);
-                registry.AddSingleton<IChannelRepository>(channelRepository);
-                registry.AddSingleton<IMusicService>(new FMODMusicService(system.EventRepository, cvarSystem));
-                registry.AddSingleton<IEmitterFactory>(new FMODEmitterFactory(channelRepository, channelRepository.BusRepository));
-            }
-            catch (FMODException e)
-            {
-                logger.PrintError($"FMODBootstrapper: error initializing FMOD audio system - {e.Error}\n{e}");
-            }
+            var system = new FMODDevice(locator, registry);
+            var listener = new FMODListenerService(logger, system);
+            var channelRepository = new FMODChannelRepository(logger, cvarSystem, listener, system);
+
+            registry.AddSingleton<IAudioDevice>(system);
+            registry.AddSingleton<IListenerService>(listener);
+            registry.AddSingleton<IChannelRepository>(channelRepository);
+            registry.AddSingleton<IMusicService>(new FMODMusicService(system.EventRepository, cvarSystem));
+            registry.AddSingleton<IEmitterFactory>(new FMODEmitterFactory(channelRepository, channelRepository.BusRepository));
         }
     }
 }

@@ -39,28 +39,53 @@ namespace Nomad.OnlineServices.Steam.Private {
 	/// </summary>
 
 	internal sealed class SteamService : IOnlinePlatformService {
+		public OnlinePlatform Platform => OnlinePlatform.Steam;
+		public string PlatformName => nameof( OnlinePlatform.Steam );
+		public bool IsAvailable => true;
+
+		public IStatsService Stats {
+			get {
+				_statsService ??= new SteamStatsService( _statsRepository, _logger );
+				return _statsService;
+			}
+		}
+		private SteamStatsService _statsService;
+
+		public IAchievementService Achievements {
+			get {
+				_achievementsService ??= new SteamAchievementService( _statsRepository, _logger, _eventFactory );
+				return _achievementsService;
+			}
+		}
+		private SteamAchievementService _achievementsService;
+
+		public ICloudStorageService CloudStorage {
+			get {
+				_cloudStorageService ??= new SteamCloudStorageService( _logger, _fileSystem );
+				return _cloudStorageService;
+			}
+		}
+		private SteamCloudStorageService _cloudStorageService;
+
+		public ILobbyService LobbyService {
+			get {
+				_lobbyService ??= new SteamLobbyService(_userData, _appData, _logger, _cvarSystem, _eventFactory );
+				return _lobbyService;
+			}
+		}
+		private SteamLobbyService _lobbyService;
+
 		private readonly ILoggerService _logger;
 		private readonly ILoggerCategory _category;
+
+		private readonly IFileSystem _fileSystem;
+		private readonly ICVarSystemService _cvarSystem;
+		private readonly IGameEventRegistryService _eventFactory;
 
 		private readonly SteamUserData _userData;
 		private readonly SteamAppData _appData;
 
 		private readonly SteamStatsRepository _statsRepository;
-
-		public OnlinePlatform Platform => OnlinePlatform.Steam;
-		public string PlatformName => nameof( OnlinePlatform.Steam );
-		public bool IsAvailable => true;
-
-		public IStatsService Stats => _statsService;
-		private readonly SteamStatsService _statsService;
-
-		public IAchievementService Achievements => _achievementsService;
-		private readonly SteamAchievementService _achievementsService;
-
-		public ICloudStorageService CloudStorage => _cloudStorageService;
-		private readonly SteamCloudStorageService _cloudStorageService;
-
-		private readonly SteamLobbyService _lobbyService;
 
 		private bool _isDisposed = false;
 
@@ -70,7 +95,7 @@ namespace Nomad.OnlineServices.Steam.Private {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="logger"></param>
 		/// <param name="fileSystem"></param>
@@ -99,13 +124,13 @@ namespace Nomad.OnlineServices.Steam.Private {
 			};
 
 			_logger = logger;
-			_category = logger.CreateCategory( nameof( Nomad.OnlineServices.Steam ), LogLevel.Info, true );
+			_category = logger.CreateCategory( "Nomad.OnlineServices.Steam", LogLevel.Info, true );
+
+			_eventFactory = eventFactory;
+			_cvarSystem = cvarSystem;
+			_fileSystem = fileSystem;
 
 			_statsRepository = new SteamStatsRepository( _userData, logger, engineService );
-			_statsService = new SteamStatsService( _statsRepository, logger );
-			_achievementsService = new SteamAchievementService( _statsRepository, logger, eventFactory );
-			_cloudStorageService = new SteamCloudStorageService( logger, fileSystem );
-			_lobbyService = new SteamLobbyService( _userData, _appData, _logger, cvarSystem, eventFactory );
 		}
 
 		/*
@@ -114,7 +139,7 @@ namespace Nomad.OnlineServices.Steam.Private {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		public void Dispose() {
 			if ( !_isDisposed ) {

@@ -4,7 +4,7 @@ using Moq;
 using NUnit.Framework;
 using Nomad.Core.Events;
 using Nomad.Core.Exceptions;
-using Nomad.Events.Global;
+using Nomad.Events.Globals;
 using Nomad.Core.Util;
 using Nomad.Events.Private;
 using NUnit.Framework.Internal;
@@ -20,7 +20,7 @@ namespace Nomad.Events.Tests
         public void SetUp()
         {
             _mockService = new Mock<IGameEventRegistryService>();
-            Global.GameEventRegistry.Initialize(_mockService.Object);
+            Globals.GameEventRegistry.Initialize(_mockService.Object);
         }
 
         [TearDown]
@@ -37,19 +37,19 @@ namespace Nomad.Events.Tests
         [Test]
         public void Initialize_WithNullInstance_ThrowsArgumentNullException()
         {
-            Assert.That(() => Global.GameEventRegistry.Initialize(null), Throws.ArgumentNullException);
+            Assert.That(() => Globals.GameEventRegistry.Initialize(null), Throws.ArgumentNullException);
         }
 
         [Test]
         public void WhenNotInitialized_AnyStaticMethod_ThrowsSubsystemNotInitializedException()
         {
             // Reset instance to null
-            var field = typeof(Global.GameEventRegistry).GetField("_instance",
+            var field = typeof(Globals.GameEventRegistry).GetField("_instance",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
             field?.SetValue(null, null);
 
             // Use a representative method
-            Assert.Throws<SubsystemNotInitializedException>(() => Global.GameEventRegistry.GetAllEvents());
+            Assert.Throws<SubsystemNotInitializedException>(() => Globals.GameEventRegistry.GetAllEvents());
         }
 
         #endregion
@@ -70,7 +70,7 @@ namespace Nomad.Events.Tests
                 .Returns(expectedEvent);
 
             // Act
-            var result = Global.GameEventRegistry.GetEvent<TestEventArgs>(name, ns, flags);
+            var result = Globals.GameEventRegistry.GetEvent<TestEventArgs>(name, ns, flags);
 
             // Assert
             Assert.That(result, Is.SameAs(expectedEvent));
@@ -98,7 +98,7 @@ namespace Nomad.Events.Tests
                 .Returns(true);
 
             // Act
-            var success = Global.GameEventRegistry.TryGetEvent<TestEventArgs>(name, ns, out var result);
+            var success = Globals.GameEventRegistry.TryGetEvent<TestEventArgs>(name, ns, out var result);
 
 			using (Assert.EnterMultipleScope())
 			{
@@ -122,7 +122,7 @@ namespace Nomad.Events.Tests
                 .Returns(false);
 
             // Act
-            var success = Global.GameEventRegistry.TryGetEvent<TestEventArgs>(name, ns, out var result);
+            var success = Globals.GameEventRegistry.TryGetEvent<TestEventArgs>(name, ns, out var result);
 
             // Assert
             Assert.That(success, Is.False);
@@ -146,7 +146,7 @@ namespace Nomad.Events.Tests
                 .Returns(true);
 
             // Act
-            var result = Global.GameEventRegistry.TryRemoveEvent<TestEventArgs>(ns, name);
+            var result = Globals.GameEventRegistry.TryRemoveEvent<TestEventArgs>(ns, name);
 
             // Assert
             Assert.That(result, Is.True);
@@ -165,7 +165,7 @@ namespace Nomad.Events.Tests
                 .Returns(false);
 
             // Act
-            var result = Global.GameEventRegistry.TryRemoveEvent<TestEventArgs>(ns, name);
+            var result = Globals.GameEventRegistry.TryRemoveEvent<TestEventArgs>(ns, name);
 
             // Assert
             Assert.That(result, Is.False);
@@ -183,7 +183,7 @@ namespace Nomad.Events.Tests
             var ns = "TestNamespace";
 
             // Act
-            Global.GameEventRegistry.ClearEventsInNamespace(ns);
+            Globals.GameEventRegistry.ClearEventsInNamespace(ns);
 
             // Assert
             _mockService.Verify(s => s.ClearEventsInNamespace(ns), Times.Once);
@@ -197,7 +197,7 @@ namespace Nomad.Events.Tests
         public void ClearAllEvents_CallsInstanceMethod()
         {
             // Act
-            Global.GameEventRegistry.ClearAllEvents();
+            Globals.GameEventRegistry.ClearAllEvents();
 
             // Assert
             _mockService.Verify(s => s.ClearAllEvents(), Times.Once);
@@ -215,7 +215,7 @@ namespace Nomad.Events.Tests
             _mockService.Setup(s => s.GetAllEvents()).Returns(expectedEvents);
 
             // Act
-            var result = Global.GameEventRegistry.GetAllEvents();
+            var result = Globals.GameEventRegistry.GetAllEvents();
 
             // Assert
             Assert.That(result, Is.SameAs(expectedEvents));

@@ -21,10 +21,15 @@ using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.Core.OnlineServices;
 using Nomad.Core.ServiceRegistry.Interfaces;
+using Nomad.Core.Util;
 using Nomad.OnlineServices.Steam.Private;
+using Steamworks;
 
 namespace Nomad.OnlineServices.Steam
 {
+    /// <summary>
+    ///
+    /// </summary>
     public sealed class SteamBootstrapper : IBootstrapper
     {
         private IOnlinePlatformService? _service;
@@ -36,6 +41,7 @@ namespace Nomad.OnlineServices.Steam
         /// <param name="locator"></param>
         public void Initialize(IServiceRegistry registry, IServiceLocator locator)
         {
+            InteropAssemblyResolver.Hook(typeof(SteamAPI).Assembly, "libsteam_api", "steam_api64");
             _service = new SteamService(
                 locator.GetService<ILoggerService>(),
                 locator.GetService<IFileSystem>(),

@@ -19,7 +19,7 @@ using Nomad.Core.Events;
 using Nomad.Core.Exceptions;
 using Nomad.Core.Compatibility.Guards;
 
-namespace Nomad.Events.Global
+namespace Nomad.Events.Globals
 {
     /// <summary>
     ///

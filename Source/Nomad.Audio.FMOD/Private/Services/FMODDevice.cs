@@ -31,6 +31,8 @@ using Nomad.Core.Events;
 using System.Collections.Immutable;
 using Nomad.Core.CVars;
 using Nomad.CVars;
+using Nomad.Core.EngineUtils.Globals;
+using Nomad.Core.EngineUtils;
 
 namespace Nomad.Audio.Fmod.Private.Services {
 	/*
@@ -48,6 +50,12 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		public int OutputDevice => _driverRepository.OutputDeviceIndex;
 		public string AudioDriver => _driverRepository.Driver;
 
+		public FMODEventRepository EventRepository => _eventRepository;
+		private readonly FMODEventRepository _eventRepository;
+
+		public FMODGuidRepository GuidRepository => _guidRepository;
+		private readonly FMODGuidRepository _guidRepository;
+
 		public FMOD.Studio.System StudioSystem => _systemHandle.StudioSystem;
 		public FMOD.System System => _systemHandle.System;
 
@@ -55,13 +63,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		private readonly ILoggerService _logger;
 		private readonly ILoggerCategory _fmodCategory;
 
-		public FMODEventRepository EventRepository => _eventRepository;
-		private readonly FMODEventRepository _eventRepository;
-
 		private readonly FMODBankRepository _bankRepository;
-
-		public FMODGuidRepository GuidRepository => _guidRepository;
-		private readonly FMODGuidRepository _guidRepository;
 
 		private readonly FMODListenerService _listener;
 		private readonly FMODDriverRepository _driverRepository;
@@ -98,8 +100,8 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			_eventRepository = new FMODEventRepository( _logger, eventFactory, this );
 
 			// preload the strings bank so we get all the human-readable event names cached
-			_bankRepository.GetCached( "res://Assets/Audio/Banks/Desktop/Master.strings.bank" );
-			_bankRepository.GetCached( "res://Assets/Audio/Banks/Desktop/Master.bank" );
+			_bankRepository.GetCached( EngineService.GetStoragePath( "Audio/Banks/Desktop/Master.strings.bank", StorageScope.StreamingAssets ) );
+			_bankRepository.GetCached( EngineService.GetStoragePath( "Audio/Banks/Desktop/Master.bank", StorageScope.StreamingAssets ) );
 
 			_logger.PrintLine( in _fmodCategory, $"FMODDevice: initializing FMOD sound system..." );
 		}
@@ -109,6 +111,9 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		Dispose
 		===============
 		*/
+		/// <summary>
+		///
+		/// </summary>
 		public void Dispose() {
 			if ( !_isDisposed ) {
 				_logger.PrintLine( in _fmodCategory, "FMODDevice.Dispose: shutting down FMOD sound system..." );
@@ -121,6 +126,8 @@ namespace Nomad.Audio.Fmod.Private.Services {
 				_fmodCategory?.Dispose();
 				_systemHandle.Dispose();
 			}
+			GC.SuppressFinalize(this);
+			_isDisposed = true;
 		}
 
 		/*

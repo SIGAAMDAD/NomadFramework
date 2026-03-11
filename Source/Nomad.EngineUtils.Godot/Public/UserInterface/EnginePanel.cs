@@ -81,6 +81,7 @@ namespace Nomad.EngineUtils.UserInterface
             base._Ready();
 
             _impl.OnInit();
+            OnInit();
         }
 
         /// <summary>
@@ -91,7 +92,9 @@ namespace Nomad.EngineUtils.UserInterface
         {
             base._Process(delta);
 
+            float deltaTime = (float)delta;
             _impl.OnUpdate((float)delta);
+            OnUpdate(deltaTime);
         }
 
         /// <summary>
@@ -102,7 +105,9 @@ namespace Nomad.EngineUtils.UserInterface
         {
             base._PhysicsProcess(delta);
 
-            _impl.OnPhysicsUpdate((float)delta);
+            float deltaTime = (float)delta;
+            _impl.OnPhysicsUpdate(deltaTime);
+            OnPhysicsUpdate(deltaTime);
         }
 
         /// <summary>
@@ -112,8 +117,8 @@ namespace Nomad.EngineUtils.UserInterface
         {
             base._ExitTree();
 
-            OnShutdown();
             _impl.OnShutdown();
+            OnShutdown();
         }
 
         protected virtual void OnInit()

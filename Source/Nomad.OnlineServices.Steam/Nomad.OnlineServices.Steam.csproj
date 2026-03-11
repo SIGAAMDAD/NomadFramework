@@ -27,6 +27,10 @@
     <Reference Include="Steamworks.NET">
       <HintPath>Steamworks.NET.dll</HintPath>
     </Reference>
+    <Content Condition="'$(IsWindows)' == 'true'" Include="steam_api64.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
+    </Content>
     <Content Condition="'$(IsLinux)' == 'true'" Include="libsteam_api.so">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <PackageCopyToOutput>true</PackageCopyToOutput>

@@ -42,10 +42,12 @@ namespace Nomad.Events
             _eventRegistry = new GameEventRegistry(logger);
 
             registry.AddSingleton(_eventRegistry);
+
+            Globals.GameEventRegistry.Initialize(_eventRegistry);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public void Shutdown()
         {
