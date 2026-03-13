@@ -71,6 +71,10 @@ namespace Nomad.EngineUtils
 
         private bool _isDisposed = false;
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="node"></param>
         public GodotGameObject(Node node)
         {
             _node = node;
@@ -93,12 +97,18 @@ namespace Nomad.EngineUtils
         ///
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public T AddComponent<T>()
+        /// <param name="initializer"></param>
+        public T AddComponent<T>(Action<T>? initializer = null)
             where T : IComponent, new()
         {
-            var component = _components.GetOrAdd(typeof(T), f => new T());
-            return (T)component;
+            var comp = new T()
+            {
+                Object = this
+            };
+            initializer?.Invoke(comp);
+            comp.OnInit();
+            _components[typeof(T)] = comp;
+            return comp;
         }
 
         /// <summary>
@@ -136,9 +146,66 @@ namespace Nomad.EngineUtils
         /// <summary>
         ///
         /// </summary>
+        /// <param name="childName"></param>
+        /// <returns></returns>
+        public T? FindChild<T>(string childName)
+            where T : class, IGameObject
+        {
+            if (string.IsNullOrEmpty(childName))
+            {
+                return null;
+            }
+
+            // TODO: write a zero-allocation version of this
+            ReadOnlySpan<string> segments = childName.Split('/');
+            var current = _node;
+
+            for (int i = 0; i < segments.Length; i++)
+            {
+                var segment = segments[i];
+                if (string.IsNullOrEmpty(segment))
+                {
+                    continue;
+                }
+                bool found = false;
+                foreach (var child in current.GetChildren())
+                {
+                    if (child.Name == segment)
+                    {
+                        current = child;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found)
+                {
+                    return null;
+                }
+            }
+            return (T)WrapNode(current);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        private static IGameObject WrapNode(Node node)
+        {
+            if (node is IGameObject gameObject)
+            {
+                return gameObject;
+            }
+            return new GodotGameObject(node);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
         /// <param name="child"></param>
         public void AddChild(IGameObject child)
         {
+            _node.AddChild(child as Node);
             _children.Add(child);
         }
 
@@ -148,6 +215,7 @@ namespace Nomad.EngineUtils
         /// <param name="child"></param>
         public void RemoveChild(IGameObject child)
         {
+            _node.RemoveChild(child as Node);
             _children.Remove(child);
         }
 

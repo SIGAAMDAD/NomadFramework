@@ -80,6 +80,7 @@ namespace Nomad.EngineUtils
 
             _windowService = new GodotWindowService(_sceneTree, _eventFactory);
             serviceFactory.AddSingleton(_windowService);
+            _windowService.CloseRequested.Subscribe(OnWindowCloseRequested);
 
             _localizationService = new GodotLocalizationService();
             serviceFactory.AddSingleton(_localizationService);
@@ -205,7 +206,6 @@ namespace Nomad.EngineUtils
         /// <returns></returns>
         public string GetStoragePath(string relativePath, StorageScope scope)
         {
-            GD.Print($"Getting path for {GetStoragePath(scope)}{relativePath}");
             return $"{GetStoragePath(scope)}{relativePath}";
         }
 
@@ -228,6 +228,15 @@ namespace Nomad.EngineUtils
         public IDisposable CreateImageRGBA(byte[] image, int width, int height)
         {
             return Image.CreateFromData(width, height, false, Image.Format.Rgba8, image);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="args"></param>
+        private void OnWindowCloseRequested(in EmptyEventArgs args)
+        {
+            Quit();
         }
     }
 }

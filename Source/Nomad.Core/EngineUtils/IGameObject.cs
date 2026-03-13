@@ -48,8 +48,8 @@ namespace Nomad.Core.EngineUtils
         ///
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        T AddComponent<T>() where T : IComponent, new();
+        /// <param name="initializer"></param>
+        T AddComponent<T>(Action<T>? initializer = null) where T : IComponent, new();
 
         /// <summary>
         ///
@@ -70,6 +70,14 @@ namespace Nomad.Core.EngineUtils
         /// </summary>
         /// <typeparam name="T"></typeparam>
         void RemoveComponent<T>() where T : IComponent;
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="childName"></param>
+        /// <returns></returns>
+        T? FindChild<T>(string childName)
+            where T : class, IGameObject;
 
         /// <summary>
         ///

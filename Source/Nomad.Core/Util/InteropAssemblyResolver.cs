@@ -42,9 +42,9 @@ namespace Nomad.Core.Util
             {
                 resolvers = new Dictionary<string, (string, string)>();
                 _hooks[assembly] = resolvers;
+                NativeLibrary.SetDllImportResolver(assembly, Resolve);
             }
             resolvers.Add(libraryName, (libraryNameLinux, libraryNameWindows));
-            NativeLibrary.SetDllImportResolver(assembly, Resolve);
         }
 
         /// <summary>

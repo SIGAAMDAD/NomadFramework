@@ -20,6 +20,9 @@ using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.CVars;
 using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
+#if NET5_0_OR_GREATER
+using Nomad.Core.Util;
+#endif
 
 namespace Nomad.Audio.Fmod
 {

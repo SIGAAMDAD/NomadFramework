@@ -125,7 +125,7 @@ namespace Nomad.OnlineServices.Steam.Private {
 				AppId = SteamUtils.GetAppID()
 			};
 
-			SteamCVarRegistry.RegisterCVars( _cvarSystem );
+			SteamCVarRegistry.RegisterCVars( cvarSystem );
 
 			_logger = logger;
 			_category = logger.CreateCategory( "Nomad.OnlineServices.Steam", LogLevel.Info, true );

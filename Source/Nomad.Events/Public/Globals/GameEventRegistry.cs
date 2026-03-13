@@ -46,6 +46,26 @@ namespace Nomad.Events.Globals
         }
 
         /// <summary>
+        ///
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ISubscriptionGroup CreateGroup(string name)
+        {
+            return Instance.CreateGroup(name);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void ClearAllGroups()
+        {
+            Instance.ClearAllGroups();
+        }
+
+        /// <summary>
         /// Creates a new event with the specified name, namespace, and flags.
         /// </summary>
         /// <typeparam name="TArgs">The struct type containing event data.</typeparam>
@@ -53,7 +73,6 @@ namespace Nomad.Events.Globals
         /// <param name="nameSpace">The namespace the event belongs to.</param>
         /// <param name="flags">Optional flags that control event behavior.</param>
         /// <returns>A new <see cref="IGameEvent{TArgs}"/> instance.</returns>
-        /// <exception cref="InvalidEventRegistrationException">Thrown if an event with the same name and namespace already exists.</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IGameEvent<TArgs> GetEvent<TArgs>(string name, string nameSpace, EventFlags flags = EventFlags.Default)
             where TArgs : struct

@@ -13,6 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System;
 using System.Collections.Generic;
 using Godot;
 using Nomad.Core.ECS;
@@ -141,11 +142,12 @@ namespace Nomad.EngineUtils.UserInterface
         ///
         /// </summary>
         /// <typeparam name="T"></typeparam>
+        /// <param name="initializer"></param>
         /// <returns></returns>
-        public T AddComponent<T>()
+        public T AddComponent<T>(Action<T>? initializer = null)
             where T : IComponent, new()
         {
-            return _impl.AddComponent<T>();
+            return _impl.AddComponent(initializer);
         }
 
         /// <summary>
@@ -178,6 +180,17 @@ namespace Nomad.EngineUtils.UserInterface
             where T : IComponent
         {
             _impl.RemoveComponent<T>();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="childName"></param>
+        /// <returns></returns>
+        public T? FindChild<T>(string childName)
+            where T : class, IGameObject
+        {
+            return _impl.FindChild<T>(childName);
         }
 
         /// <summary>

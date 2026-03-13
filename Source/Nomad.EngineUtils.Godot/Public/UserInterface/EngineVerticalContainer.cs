@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025-2026 Noah Van Til
+Copyright (C) 2025 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -19,24 +19,15 @@ using Godot;
 using Nomad.Core.ECS;
 using Nomad.Core.EngineUtils;
 using Nomad.Core.EngineUtils.UserInterface;
-using Nomad.Core.Events;
-using Nomad.Events.Globals;
 
 namespace Nomad.EngineUtils.UserInterface
 {
     /// <summary>
     ///
     /// </summary>
-    public partial class EngineButton : Button, IButton
+    public partial class EngineVerticalContainer : VBoxContainer, IVerticalContainer
     {
-        /// <summary>
-        ///
-        /// </summary>
-        string IButton.Text
-        {
-            get => Text;
-            set => Text = value;
-        }
+        private static readonly StringName @SeparationThemeConstantName = "separation";
 
         /// <summary>
         ///
@@ -75,30 +66,18 @@ namespace Nomad.EngineUtils.UserInterface
         }
         private System.Numerics.Vector2 _scale;
 
+        float IVerticalContainer.Spacing
+        {
+            get => GetThemeConstant(SeparationThemeConstantName);
+            set => AddThemeConstantOverride(SeparationThemeConstantName, (int)value);
+        }
+
         private readonly GodotGameObject _impl;
 
         /// <summary>
         ///
         /// </summary>
-        public IGameEvent<EmptyEventArgs> Clicked => _clicked;
-        private IGameEvent<EmptyEventArgs> _clicked;
-
-        /// <summary>
-        ///
-        /// </summary>
-        public IGameEvent<EmptyEventArgs> Focused => _focused;
-        private IGameEvent<EmptyEventArgs> _focused;
-
-        /// <summary>
-        ///
-        /// </summary>
-        public IGameEvent<EmptyEventArgs> Unfocused => _unfocused;
-        private IGameEvent<EmptyEventArgs> _unfocused;
-
-        /// <summary>
-        ///
-        /// </summary>
-        public EngineButton()
+        public EngineVerticalContainer()
         {
             _impl = new GodotGameObject(this);
         }
@@ -109,16 +88,6 @@ namespace Nomad.EngineUtils.UserInterface
         public sealed override void _Ready()
         {
             base._Ready();
-
-            _clicked = GameEventRegistry.GetEvent<EmptyEventArgs>($"{Name}:{Constants.Events.BUTTON_CLICKED}", Constants.Events.NAMESPACE);
-            _focused = GameEventRegistry.GetEvent<EmptyEventArgs>($"{Name}:{Constants.Events.BUTTON_FOCUSED}", Constants.Events.NAMESPACE);
-            _unfocused = GameEventRegistry.GetEvent<EmptyEventArgs>($"{Name}:{Constants.Events.BUTTON_UNFOCUSED}", Constants.Events.NAMESPACE);
-
-            Pressed += () => _clicked.Publish(default);
-            FocusEntered += () => _focused.Publish(default);
-            MouseEntered += () => _focused.Publish(default);
-            FocusExited += () => _unfocused.Publish(default);
-            MouseExited += () => _unfocused.Publish(default);
 
             _impl.OnInit();
             OnInit();
@@ -133,7 +102,7 @@ namespace Nomad.EngineUtils.UserInterface
             base._Process(delta);
 
             float deltaTime = (float)delta;
-            _impl.OnUpdate(deltaTime);
+            _impl.OnUpdate((float)delta);
             OnUpdate(deltaTime);
         }
 
@@ -159,10 +128,6 @@ namespace Nomad.EngineUtils.UserInterface
 
             _impl.OnShutdown();
             OnShutdown();
-
-            _clicked?.Dispose();
-            _focused?.Dispose();
-            _unfocused?.Dispose();
         }
 
         protected virtual void OnInit()
