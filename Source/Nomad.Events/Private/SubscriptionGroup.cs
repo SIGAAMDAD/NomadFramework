@@ -37,6 +37,8 @@ namespace Nomad.Events.Private {
 		public IReadOnlyList<ISubscriptionHandle> Subscriptions => _subscriptions;
 		private readonly List<ISubscriptionHandle> _subscriptions = new();
 
+		private readonly IGameEventRegistryService _eventFactory;
+
 		private bool _isDisposed = false;
 
 		/*
@@ -48,9 +50,11 @@ namespace Nomad.Events.Private {
 		///
 		/// </summary>
 		/// <param name="name"></param>
-		public SubscriptionGroup( string name ) {
-			ArgumentGuard.ThrowIfNullOrEmpty(name, nameof(name));
+		/// <param name="eventRegistry"></param>
+		public SubscriptionGroup( string name, IGameEventRegistryService eventRegistry ) {
+			ArgumentGuard.ThrowIfNullOrEmpty( name, nameof( name ) );
 			_name = name;
+			_eventFactory = eventRegistry;
 		}
 
 		/*
@@ -64,6 +68,7 @@ namespace Nomad.Events.Private {
 		public void Dispose() {
 			if ( !_isDisposed ) {
 				UnsubscribeAll();
+				_eventFactory.RemoveGroup( this );
 			}
 			GC.SuppressFinalize( this );
 			_isDisposed = true;
@@ -81,9 +86,8 @@ namespace Nomad.Events.Private {
 		/// <param name="gameEvent"></param>
 		/// <param name="callback"></param>
 		public void Add<TArgs>( IGameEvent<TArgs> gameEvent, EventCallback<TArgs> callback )
-			where TArgs : struct
-		{
-			_subscriptions.Add(gameEvent.Subscribe(callback));
+			where TArgs : struct {
+			_subscriptions.Add( gameEvent.Subscribe( callback ) );
 		}
 
 		/*

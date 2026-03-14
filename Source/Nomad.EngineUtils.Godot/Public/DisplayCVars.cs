@@ -22,7 +22,8 @@ terms, you may contact me via email at nyvantil@gmail.com.
 */
 
 using Nomad.Core.CVars;
-using Nomad.Core.EngineUtils;
+using Nomad.Core.Engine.Rendering;
+using Nomad.Core.Engine.Windowing;
 
 namespace Nomad.EngineUtils
 {

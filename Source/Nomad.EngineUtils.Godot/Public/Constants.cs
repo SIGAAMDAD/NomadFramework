@@ -60,13 +60,20 @@ namespace Nomad.EngineUtils
             /// </summary>
             public const string SEPARATE_RENDERING_THREAD = "r.Godot.SeparateRenderingThread";
         }
+
+        /// <summary>
+        ///
+        /// </summary>
         public static class Events
         {
             public const string NAMESPACE = "Nomad.EngineUtils";
 
             public const string BUTTON_CLICKED = NAMESPACE + ".ButtonClicked";
-            public const string BUTTON_FOCUSED = NAMESPACE + ".ButtonFocused";
-            public const string BUTTON_UNFOCUSED = NAMESPACE + ".ButtonUnfocused";
+
+            public const string SLIDER_CHANGED = NAMESPACE + ".SliderValueChanged";
+
+            public const string UI_ELEMENT_FOCUSED = NAMESPACE + ".UIElementFocused";
+            public const string UI_ELEMENT_UNFOCUSED = NAMESPACE + ".UIElementUnfocused";
         }
     }
 }

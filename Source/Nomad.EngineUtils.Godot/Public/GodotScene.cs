@@ -14,7 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using Nomad.Core.EngineUtils;
+using Nomad.Core.Engine.SceneManagement;
 
 namespace Nomad.EngineUtils
 {

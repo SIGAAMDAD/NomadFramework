@@ -14,7 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using Nomad.Core.EngineUtils;
+using Nomad.Core.Engine.Services;
 using Nomad.Core.OnlineServices;
 using Nomad.Core.Util;
 using Steamworks;
@@ -107,7 +107,7 @@ namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="achieved"></param>
 		/// <returns></returns>
@@ -120,7 +120,7 @@ namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="progress"></param>
 		public void UpdateProgress( float progress )

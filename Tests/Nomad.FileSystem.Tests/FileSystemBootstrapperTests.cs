@@ -18,7 +18,7 @@ using NUnit.Framework;
 using Nomad.Core.ServiceRegistry.Interfaces;
 using Nomad.Core.ServiceRegistry.Services;
 using System;
-using Nomad.Core.EngineUtils;
+using Nomad.Core.Engine.Services;
 using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry;
 

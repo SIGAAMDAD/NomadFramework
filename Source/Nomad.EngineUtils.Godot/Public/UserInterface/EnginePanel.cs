@@ -13,12 +13,16 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+/*
+
 using System;
 using System.Collections.Generic;
 using Godot;
 using Nomad.Core.ECS;
 using Nomad.Core.EngineUtils;
 using Nomad.Core.EngineUtils.UserInterface;
+using Nomad.Core.Events;
+using Nomad.Events.Globals;
 
 namespace Nomad.EngineUtils.UserInterface
 {
@@ -50,21 +54,37 @@ namespace Nomad.EngineUtils.UserInterface
             set => _impl.Enabled = value;
         }
 
+        /// <summary>
+        ///
+        /// </summary>
         System.Numerics.Vector2 IUIElement.Position
         {
-            get => _position;
-            set => _position = new System.Numerics.Vector2(value.X, value.Y);
+            get => Position.ToSystem();
+            set => Position = value.ToGodot();
         }
-        private System.Numerics.Vector2 _position;
 
+        /// <summary>
+        ///
+        /// </summary>
         System.Numerics.Vector2 IUIElement.Scale
         {
-            get => _scale;
-            set => _scale = new System.Numerics.Vector2(value.X, value.Y);
+            get => Scale.ToSystem();
+            set => Scale = value.ToGodot();
         }
-        private System.Numerics.Vector2 _scale;
 
         private readonly GodotGameObject _impl;
+
+        /// <summary>
+        ///
+        /// </summary>
+        public IGameEvent<EmptyEventArgs> Focused => _focused;
+        private IGameEvent<EmptyEventArgs> _focused;
+
+        /// <summary>
+        ///
+        /// </summary>
+        public IGameEvent<EmptyEventArgs> Unfocused => _unfocused;
+        private IGameEvent<EmptyEventArgs> _unfocused;
 
         /// <summary>
         ///
@@ -83,6 +103,14 @@ namespace Nomad.EngineUtils.UserInterface
 
             _impl.OnInit();
             OnInit();
+
+            _focused = GameEventRegistry.GetEvent<EmptyEventArgs>($"{GetHashCode()}:{Constants.Events.UI_ELEMENT_FOCUSED}", Constants.Events.NAMESPACE);
+            _unfocused = GameEventRegistry.GetEvent<EmptyEventArgs>($"{GetHashCode()}:{Constants.Events.UI_ELEMENT_UNFOCUSED}", Constants.Events.NAMESPACE);
+
+            FocusEntered += () => _focused.Publish(default);
+            MouseEntered += () => _focused.Publish(default);
+            FocusExited += () => _unfocused.Publish(default);
+            MouseExited += () => _unfocused.Publish(default);
         }
 
         /// <summary>
@@ -212,3 +240,5 @@ namespace Nomad.EngineUtils.UserInterface
         }
     }
 }
+
+*/

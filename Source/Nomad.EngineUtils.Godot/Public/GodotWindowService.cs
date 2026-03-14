@@ -16,10 +16,11 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Collections.Generic;
 using Nomad.Core.Compatibility.Guards;
-using Nomad.Core.EngineUtils;
-using Nomad.Core.EngineUtils.Globals;
 using Nomad.Core.Events;
 using Godot;
+using Nomad.Core.Engine.Windowing;
+using Nomad.Core.Engine.Globals;
+using Nomad.Core.Engine.Services;
 
 namespace Nomad.EngineUtils
 {

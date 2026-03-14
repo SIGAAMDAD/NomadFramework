@@ -31,7 +31,7 @@ using Nomad.Save.Services;
 using Nomad.Save.ValueObjects;
 using Nomad.CVars.Private.Services;
 using Moq;
-using Nomad.Core.EngineUtils;
+using Nomad.Core.Engine.Services;
 using Nomad.Save.Private.ValueObjects;
 
 namespace Nomad.Save.Tests;

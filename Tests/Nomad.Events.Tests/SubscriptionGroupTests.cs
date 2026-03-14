@@ -40,8 +40,8 @@ namespace Nomad.Events.Tests
 		[Test]
 		public void CreateSubscription_WithSameName_ReturnsSameInstance()
 		{
-			var group1 = _registry.CreateGroup("GroupName");
-			var group2 = _registry.CreateGroup("GroupName");
+			var group1 = _registry.GetGroup("GroupName");
+			var group2 = _registry.GetGroup("GroupName");
 
 			Assert.That(group1, Is.SameAs(group2));
 		}
@@ -49,8 +49,8 @@ namespace Nomad.Events.Tests
 		[Test]
 		public void CreateSubscription_WithDifferentNames_AreNotSameInstance()
 		{
-			var group1 = _registry.CreateGroup("Group1");
-			var group2 = _registry.CreateGroup("Group2");
+			var group1 = _registry.GetGroup("Group1");
+			var group2 = _registry.GetGroup("Group2");
 
 			Assert.That(group1, Is.Not.SameAs(group2));
 		}
@@ -58,7 +58,7 @@ namespace Nomad.Events.Tests
 		[Test]
 		public void AddSubscription_AddsSubscriptionToGroup()
 		{
-			var group = _registry.CreateGroup("TestGroup");
+			var group = _registry.GetGroup("TestGroup");
 			var evt = _registry.GetEvent<EmptyEventArgs>("TestEvent", "TestNamespace");
 
 			group.Add(evt, (in EmptyEventArgs args) => {});
@@ -69,7 +69,7 @@ namespace Nomad.Events.Tests
 		[Test]
 		public void UnsubscribeAll_AfterAddingManySubscriptions_RemovesAllSubscriptions()
 		{
-			var group = _registry.CreateGroup("TestGroup");
+			var group = _registry.GetGroup("TestGroup");
 			var evt = _registry.GetEvent<EmptyEventArgs>("TestEvent", "TestNamespace");
 
 			void Callback1(in EmptyEventArgs args) { }

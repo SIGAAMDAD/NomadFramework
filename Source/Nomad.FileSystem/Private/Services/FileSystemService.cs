@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Nomad.Core.Compatibility.Guards;
-using Nomad.Core.EngineUtils;
+using Nomad.Core.Engine.Services;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.FileSystem.Private.FileStreams;
@@ -31,13 +31,13 @@ using Nomad.Core.FileSystem.Streams;
 namespace Nomad.FileSystem.Private.Services {
 	/*
 	===================================================================================
-	
+
 	FileSystem
-	
+
 	===================================================================================
 	*/
 	/// <summary>
-	/// 
+	///
 	/// </summary>
 
 	internal sealed class FileSystemService : IFileSystem {
@@ -55,7 +55,7 @@ namespace Nomad.FileSystem.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="engineService"></param>
 		/// <param name="logger"></param>
@@ -81,7 +81,7 @@ namespace Nomad.FileSystem.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		public void Dispose() {
 			if ( !_isDisposed ) {
@@ -98,7 +98,7 @@ namespace Nomad.FileSystem.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="directory"></param>
 		public void AddSearchDirectory( string directory ) {
@@ -111,7 +111,7 @@ namespace Nomad.FileSystem.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="sourcePath"></param>
 		/// <param name="destinationPath"></param>
@@ -126,7 +126,7 @@ namespace Nomad.FileSystem.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="sourcePath"></param>
 		/// <param name="destPath"></param>
@@ -138,7 +138,7 @@ namespace Nomad.FileSystem.Private.Services {
 			// was given a valid file path (File.Exists succeeded on it), yet File.Replace threw FileNotFoundException each time it was attempted,
 			// even when the source file exists and is accessible, likely due to VFS path translation issues. No fix has been found yet, and this
 			// works for now.
-			// 
+			//
 			// It mimics the exact same behavior as File.Replace, but within the VFS. If there is a way to make File.Replace behave, then
 			// do tell and open a PR, but until then, this is what we've got.
 			//
@@ -193,7 +193,7 @@ namespace Nomad.FileSystem.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="path"></param>
 		public void CreateDirectory( string path ) {
@@ -206,7 +206,7 @@ namespace Nomad.FileSystem.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="path"></param>
 		/// <returns></returns>
@@ -497,7 +497,7 @@ namespace Nomad.FileSystem.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="accessMode"></param>
 		/// <param name="type"></param>
@@ -515,7 +515,7 @@ namespace Nomad.FileSystem.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="path"></param>
 		/// <returns></returns>
@@ -539,7 +539,7 @@ namespace Nomad.FileSystem.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="path"></param>
 		/// <param name="ct"></param>
@@ -565,7 +565,7 @@ namespace Nomad.FileSystem.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="path"></param>
 		/// <param name="buffer"></param>
@@ -582,7 +582,7 @@ namespace Nomad.FileSystem.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="path"></param>
 		/// <param name="buffer"></param>

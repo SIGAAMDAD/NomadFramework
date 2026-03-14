@@ -18,7 +18,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Godot;
 using Nomad.Core.ECS;
-using Nomad.Core.EngineUtils;
+using Nomad.Core.Scene.GameObjects;
 
 namespace Nomad.EngineUtils
 {

@@ -6,7 +6,7 @@
     <LangVersion>14.0</LangVersion>
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Nullable>enable</Nullable>
+    <Nullable>annotations</Nullable>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <EnforceCodeStyleInBuilds>true</EnforceCodeStyleInBuilds>
     <EnableUnsafeBinaryFormatterSerialization>false</EnableUnsafeBinaryFormatterSerialization>
@@ -17,7 +17,6 @@
     <DefineConstants>$(DefineConstants);NET10_0;USE_LATEST_FEATURES</DefineConstants>
 
     <!-- Performance -->
-    <PubishAOT>true</PubishAOT>
     <TieredCompilation>true</TieredCompilation>
     <Deterministic>true</Deterministic>
     <UseSharedCompilation>true</UseSharedCompilation>
@@ -25,7 +24,12 @@
     <SkipLocalsInit>true</SkipLocalsInit>
 
     <!-- NuGet Package Information -->
-    <PackageId>NomadFramework.Nomad.EngineUtils.Godot</PackageId>
+    <PackageId>NomadFramework.EngineUtils.Godot</PackageId>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)Generated</CompilerGeneratedFilesOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -39,6 +43,9 @@
     <ProjectReference Include="..\Nomad.CVars\Nomad.CVars.csproj" />
     <ProjectReference Include="..\Nomad.Core\Nomad.Core.csproj" />
 	  <ProjectReference Include="..\Nomad.Events\Nomad.Events.csproj" />
+    <ProjectReference Include="..\Nomad.SourceGenerators\Nomad.SourceGenerators.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
   </ItemGroup>
 
 </Project>

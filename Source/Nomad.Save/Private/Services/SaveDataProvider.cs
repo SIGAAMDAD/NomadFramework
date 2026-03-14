@@ -29,7 +29,7 @@ using Nomad.Save.ValueObjects;
 using Nomad.Save.Private.Entities;
 using Nomad.Core.Exceptions;
 using Nomad.Save.Private.Registries;
-using Nomad.Core.EngineUtils;
+using Nomad.Core.Engine.Services;
 using Nomad.Save.Private.Repositories;
 using Nomad.Core.CVars;
 
@@ -115,7 +115,7 @@ namespace Nomad.Save.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		public void Dispose() {
 			if ( !_isDisposed ) {
@@ -195,7 +195,7 @@ namespace Nomad.Save.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="engineService"></param>
 		/// <param name="cvarSystem"></param>
@@ -240,7 +240,7 @@ namespace Nomad.Save.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="args"></param>
 		private void OnAutoSaveIntervalChanged( in CVarValueChangedEventArgs<int> args ) {
@@ -253,7 +253,7 @@ namespace Nomad.Save.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="args"></param>
 		private void OnAutoSaveEnabledChanged( in CVarValueChangedEventArgs<bool> args ) {

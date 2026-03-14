@@ -17,7 +17,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Nomad.Core.EngineUtils;
+using Nomad.Core.Engine.Services;
 using Nomad.Core.Logger;
 using Nomad.Core.OnlineServices;
 using Nomad.Core.Util;

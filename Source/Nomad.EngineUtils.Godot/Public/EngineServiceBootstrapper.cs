@@ -17,7 +17,7 @@ using Godot;
 using Nomad.Core.Abstractions;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.CVars;
-using Nomad.Core.EngineUtils;
+using Nomad.Core.Engine.Services;
 using Nomad.Core.Events;
 using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
@@ -41,9 +41,6 @@ namespace Nomad.EngineUtils
             ArgumentGuard.ThrowIfNull(locator);
             ArgumentGuard.ThrowIfNull(registry);
 
-            var logger = locator.GetService<ILoggerService>();
-            var cvarSystem = locator.GetService<ICVarSystemService>();
-            var eventFactory = locator.GetService<IGameEventRegistryService>();
             _engineService = new GodotEngineService(
                 (SceneTree)Engine.GetMainLoop(),
                 registry,

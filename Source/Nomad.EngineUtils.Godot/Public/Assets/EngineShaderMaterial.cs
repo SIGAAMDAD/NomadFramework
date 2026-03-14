@@ -15,7 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using Godot;
 
-namespace Nomad.EngineUtils.Assets
+namespace Nomad.Core.Engine.Assets
 {
     /// <summary>
     ///

@@ -16,7 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.CVars;
-using Nomad.Core.EngineUtils;
+using Nomad.Core.Engine.Services;
 using Nomad.Core.Events;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;

@@ -30,7 +30,7 @@ using Nomad.Save.Services;
 using Nomad.Core.CVars;
 using Nomad.CVars.Private.Services;
 using Moq;
-using Nomad.Core.EngineUtils;
+using Nomad.Core.Engine.Services;
 
 namespace Nomad.Save.Tests;
 

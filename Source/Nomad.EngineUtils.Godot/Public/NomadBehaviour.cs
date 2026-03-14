@@ -14,7 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using Nomad.Core.ECS;
-using Nomad.Core.EngineUtils;
+using Nomad.Core.Scene.GameObjects;
 
 namespace Nomad.EngineUtils
 {
@@ -27,15 +27,6 @@ namespace Nomad.EngineUtils
         ///
         /// </summary>
         public IGameObject Object { get; set; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="gameObject"></param>
-        public NomadBehaviour(IGameObject gameObject)
-        {
-            Object = gameObject;
-        }
 
         /// <summary>
         /// Initializes the component.

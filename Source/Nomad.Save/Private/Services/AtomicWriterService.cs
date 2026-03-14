@@ -18,19 +18,18 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using Nomad.Core.FileSystem.Streams;
 using Nomad.Core.FileSystem;
-using Nomad.Core.FileSystem.Configs;
-using Nomad.Core.EngineUtils;
+using Nomad.Core.Engine.Services;
 
 namespace Nomad.Save.Private.Services {
 	/*
 	===================================================================================
-	
+
 	AtomicWriterService
-	
+
 	===================================================================================
 	*/
 	/// <summary>
-	/// 
+	///
 	/// </summary>
 
 	internal sealed class AtomicWriterService {
@@ -44,7 +43,7 @@ namespace Nomad.Save.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="engineService"></param>
 		/// <param name="fileSystem"></param>
@@ -59,7 +58,7 @@ namespace Nomad.Save.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
@@ -72,7 +71,7 @@ namespace Nomad.Save.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="fileName"></param>
 		/// <param name="memoryWriter"></param>

@@ -15,9 +15,9 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System.Collections.Concurrent;
 using Godot;
-using Nomad.Core.EngineUtils;
+using Nomad.Core.Engine.Globals;
+using Nomad.Core.Engine.Services;
 using Nomad.Core.Util;
-using Nomad.Core.EngineUtils.Globals;
 
 namespace Nomad.EngineUtils
 {

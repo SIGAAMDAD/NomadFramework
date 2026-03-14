@@ -15,7 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using Nomad.Core.Abstractions;
 using Nomad.Core.Compatibility.Guards;
-using Nomad.Core.EngineUtils;
+using Nomad.Core.Engine.Services;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
@@ -24,14 +24,14 @@ using Nomad.FileSystem.Private.Services;
 namespace Nomad.FileSystem
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public sealed class FileSystemBootstrapper : IBootstrapper
     {
         private IFileSystem? _fileSystem;
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="registry"></param>
         /// <param name="locator"></param>
@@ -48,7 +48,7 @@ namespace Nomad.FileSystem
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public void Shutdown()
         {

@@ -51,9 +51,9 @@ namespace Nomad.Events.Globals
         /// <param name="name"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ISubscriptionGroup CreateGroup(string name)
+        public static ISubscriptionGroup GetGroup(string name)
         {
-            return Instance.CreateGroup(name);
+            return Instance.GetGroup(name);
         }
 
         /// <summary>

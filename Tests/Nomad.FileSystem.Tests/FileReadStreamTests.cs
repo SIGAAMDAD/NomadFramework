@@ -18,7 +18,7 @@ using System.IO;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Moq;
-using Nomad.Core.EngineUtils;
+using Nomad.Core.Engine.Services;
 using Nomad.Core.Logger;
 using Nomad.FileSystem.Private.Services;
 using Nomad.FileSystem.Private.FileStreams;

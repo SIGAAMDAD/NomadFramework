@@ -33,12 +33,18 @@ namespace Nomad.Core.Events
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        ISubscriptionGroup CreateGroup(string name);
+        ISubscriptionGroup GetGroup(string name);
 
         /// <summary>
         ///
         /// </summary>
         void ClearAllGroups();
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="group"></param>
+        void RemoveGroup(ISubscriptionGroup group);
 
         /// <summary>
         /// Creates a new event with the specified name, namespace, and flags.

@@ -17,14 +17,15 @@ using System;
 using Godot;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.CVars;
-using Nomad.Core.EngineUtils;
 using Nomad.Core.Events;
 using Nomad.Core.Logger;
 using Nomad.Core.ResourceCache;
-using Nomad.Core.EngineUtils.Globals;
 using Nomad.EngineUtils.Private;
 using Nomad.ResourceCache;
 using Nomad.Core.ServiceRegistry.Interfaces;
+using Nomad.Core.Engine.Services;
+using Nomad.Core.Engine.SceneManagement;
+using Nomad.Core.Engine.Globals;
 
 namespace Nomad.EngineUtils
 {

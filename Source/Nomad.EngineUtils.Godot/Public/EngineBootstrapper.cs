@@ -16,8 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using Godot;
 using Nomad.Core.Abstractions;
 using Nomad.Core.Compatibility.Guards;
-using Nomad.Core.CVars;
-using Nomad.Core.EngineUtils;
+using Nomad.Core.Engine.Services;
 using Nomad.Core.ServiceRegistry.Interfaces;
 
 namespace Nomad.EngineUtils

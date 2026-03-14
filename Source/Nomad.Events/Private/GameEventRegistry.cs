@@ -79,8 +79,8 @@ namespace Nomad.Events {
 		/// </summary>
 		/// <param name="name"></param>
 		/// <returns></returns>
-		public ISubscriptionGroup CreateGroup( string name ) {
-			var group = _groupCache.GetOrAdd( new InternString( name ), g => new SubscriptionGroup( name ) );
+		public ISubscriptionGroup GetGroup( string name ) {
+			var group = _groupCache.GetOrAdd( new InternString( name ), g => new SubscriptionGroup( name, this ) );
 			return group;
 		}
 
@@ -97,6 +97,19 @@ namespace Nomad.Events {
 				group.Value.Dispose();
 			}
 			_groupCache.Clear();
+		}
+
+		/*
+		===============
+		RemoveGroup
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="group"></param>
+		public void RemoveGroup( ISubscriptionGroup group ) {
+			_groupCache.TryRemove( new InternString( group.Name ), out _ );
 		}
 
 		/*

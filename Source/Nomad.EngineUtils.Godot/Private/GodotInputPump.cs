@@ -17,7 +17,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Runtime.CompilerServices;
 using Godot;
-using Nomad.Core.EngineUtils;
+using Nomad.Core.Engine.Services;
 using Nomad.Core.Input;
 using Nomad.Core.Input.ValueObjects;
 
