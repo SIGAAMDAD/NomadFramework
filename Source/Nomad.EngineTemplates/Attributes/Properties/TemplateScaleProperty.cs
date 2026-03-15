@@ -13,15 +13,19 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Nomad.Core.UI;
-using Nomad.EngineUtils.BaseClasses;
+using System;
+using System.Numerics;
 
-namespace Nomad.EngineUtils.UserInterface
+namespace Nomad.EngineTemplates.Attributes.Properties
 {
-    [TemplateClass(Contract = typeof(IVerticalContainer))]
-    [TemplateNamespace(Name = "UserInterface")]
-    [TemplateUIElement]
-    public partial class EngineVerticalContainer : Godot.VBoxContainer, IVerticalContainer
+    [AttributeUsage(AttributeTargets.Class, Inherited = true)]
+    [TemplateTypeConversion(
+        AgnosticType = typeof(Vector2),
+        GodotType = typeof(global::Godot.Vector2),
+        AgnosticToGodotExpression = "new global::Godot.Vector2({{value}}.X, {{value}}.Y)",
+        GodotToAgnosticExpression = "new global::System.Numerics.Vector2({{value}}.X, {{value}}.Y)")]
+    [TemplateProperty(Name = "Scale", Type = typeof(Vector2))]
+    public class TemplateScaleProperty : Attribute
     {
     }
 }

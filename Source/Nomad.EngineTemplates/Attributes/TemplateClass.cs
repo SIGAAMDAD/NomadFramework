@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025-2026 Noah Van Til
+Copyright (C) 2025 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -14,44 +14,33 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using Godot;
 
-namespace Nomad.Core.Engine.Assets
+namespace Nomad.EngineTemplates.Attributes
 {
     /// <summary>
     ///
     /// </summary>
-    public class EngineMaterial : IMaterial
+    [AttributeUsage(AttributeTargets.Class, Inherited = true)]
+    public class TemplateClass : Attribute
     {
         /// <summary>
-        ///
+        /// The inheriting contract.
         /// </summary>
-        public string Path => material.ResourcePath;
+        public Type Contract { get; set; }
 
-        protected readonly Material material;
-
-        private bool _isDisposed;
+		/// <summary>
+		/// Indicates this is a managed asset class.
+		/// </summary>
+		public bool IsAsset { get; set; } = false;
 
         /// <summary>
-        ///
+        /// The base godot class to inherit from.
         /// </summary>
-        /// <param name="material"></param>
-        public EngineMaterial(Material material)
-        {
-            this.material = material;
-        }
+        public string GodotBase { get; set; }
 
         /// <summary>
-        ///
+        /// The unity class to structure the behavior around.
         /// </summary>
-        public void Dispose()
-        {
-            if (!_isDisposed)
-            {
-                material?.Dispose();
-            }
-            GC.SuppressFinalize(this);
-            _isDisposed = true;
-        }
+        public string UnityBase { get; set; }
     }
 }

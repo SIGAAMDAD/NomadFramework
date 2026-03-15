@@ -14,21 +14,26 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using Nomad.Core.Scene.GameObjects;
+using Nomad.Core.UI;
+using Nomad.Core.Events;
+using Nomad.EngineTemplates.Attributes;
+using Nomad.EngineTemplates.Attributes.Events;
+using Nomad.EngineTemplates.Attributes.Properties;
 
-namespace Nomad.EngineUtils.BaseClasses
+namespace Nomad.EngineTemplates.BaseClasses
 {
     /// <summary>
-    ///
+    /// Declares a UI element type.
     /// </summary>
-    [TemplateClass(Contract = typeof(IObject2D))]
+    [TemplateClass(Contract = typeof(IUIElement))]
     [TemplateBaseClass]
-    [TemplateEvent(Name = "VisibilityChanged", PayloadType = typeof(bool))]
-    [TemplateProperty(Name = "Position", Type = typeof(System.Numerics.Vector2), ToEngineMethod = "ToGodot", FromEngineMethod = "ToSystem")]
-    [TemplateProperty(Name = "Scale", Type = typeof(System.Numerics.Vector2), ToEngineMethod = "ToGodot", FromEngineMethod = "ToSystem")]
-    [TemplateProperty(Name = "Rotation", Type = typeof(float))]
+	[TemplateDisplayStateChangedEvent]
+    [TemplateEvent(Name = "Focused", PayloadType = typeof(EmptyEventArgs))]
+    [TemplateEvent(Name = "Unfocused", PayloadType = typeof(EmptyEventArgs))]
+    [TemplatePositionProperty]
+    [TemplateScaleProperty]
     [AttributeUsage(AttributeTargets.Class, Inherited = true)]
-    public class TemplateObject2D : Attribute
+    public class TemplateUIElement : Attribute
     {
     }
 }

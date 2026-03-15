@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -13,15 +13,12 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Nomad.Core.UI;
-using Nomad.EngineUtils.BaseClasses;
-
-namespace Nomad.EngineUtils.UserInterface
+namespace Nomad.Engine.Assets
 {
-    [TemplateClass(Contract = typeof(IPanel))]
-    [TemplateNamespace(Name = "UserInterface")]
-    [TemplateUIElement]
-    public partial class EnginePanel : Godot.Control, IPanel
-    {
-    }
+    /// <summary>
+    ///
+    /// </summary>
+    public class EngineShaderMaterial
+	{
+	}
 }

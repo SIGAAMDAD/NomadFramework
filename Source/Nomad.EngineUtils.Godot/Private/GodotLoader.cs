@@ -77,7 +77,7 @@ namespace Nomad.EngineUtils.Private {
 			}
 
 			ResourceLoader.ThreadLoadStatus status = ResourceLoader.ThreadLoadStatus.Failed;
-			var sceneTree = (SceneTree)Engine.GetMainLoop();
+			var sceneTree = (SceneTree)Godot.Engine.GetMainLoop();
 
 			do {
 				if ( status == ResourceLoader.ThreadLoadStatus.InProgress ) {

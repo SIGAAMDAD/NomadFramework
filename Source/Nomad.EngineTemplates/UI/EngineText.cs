@@ -13,33 +13,17 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Nomad.Core.Events;
+using Nomad.Core.UI;
+using Nomad.EngineTemplates.Attributes;
+using Nomad.EngineTemplates.BaseClasses;
 
-namespace Nomad.Core.UI
+namespace Nomad.EngineTemplates.UI
 {
-    /// <summary>
-    ///
-    /// </summary>
-    public interface ISlider : IUIElement
+    [TemplateClass(Contract = typeof(IText), GodotBase = "Godot.Label")]
+    [TemplateNamespace(Name = "UI")]
+    [TemplateUIElement]
+    [TemplateProperty(Name = "Text", Type = typeof(string))]
+    public class EngineText
     {
-        /// <summary>
-        ///
-        /// </summary>
-        float Value { get; set; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        float Minimum { get; set; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        float Maximum { get; set; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        IGameEvent<float> ValueSet { get; }
     }
 }

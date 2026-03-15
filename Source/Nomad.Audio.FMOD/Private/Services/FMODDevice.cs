@@ -17,22 +17,20 @@ of merchantability, fitness for a particular purpose and noninfringement.
 #define FMOD_LOGGING
 #endif
 
-#pragma warning disable CA2213
 using System;
 using Nomad.Audio.Fmod.Private.Registries;
 using Nomad.Audio.Fmod.Private.Repositories;
 using Nomad.Audio.Fmod.Private.ValueObjects;
 using Nomad.Audio.Interfaces;
 using Nomad.Core;
-using Nomad.Core.Exceptions;
 using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
 using Nomad.Core.Events;
 using System.Collections.Immutable;
 using Nomad.Core.CVars;
 using Nomad.CVars;
-using Nomad.Core.EngineUtils.Globals;
-using Nomad.Core.EngineUtils;
+using Nomad.Core.Engine.Globals;
+using Nomad.Core.Engine.Services;
 
 namespace Nomad.Audio.Fmod.Private.Services {
 	/*
@@ -232,4 +230,3 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		}
 	};
 };
-#pragma warning restore CA2213

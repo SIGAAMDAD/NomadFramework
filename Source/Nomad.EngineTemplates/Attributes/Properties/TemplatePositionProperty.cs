@@ -14,18 +14,18 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using System.Numerics;
 
-namespace Nomad.EngineUtils
+namespace Nomad.EngineTemplates.Attributes.Properties
 {
-    /// <summary>
-    ///
-    /// </summary>
     [AttributeUsage(AttributeTargets.Class, Inherited = true)]
-    public class TemplateClass : Attribute
+    [TemplateTypeConversion(
+        AgnosticType = typeof(Vector2),
+        GodotType = typeof(global::Godot.Vector2),
+        AgnosticToGodotExpression = "new global::Godot.Vector2({{value}}.X, {{value}}.Y)",
+        GodotToAgnosticExpression = "new global::System.Numerics.Vector2({{value}}.X, {{value}}.Y)")]
+    [TemplateProperty(Name = "Position", Type = typeof(Vector2))]
+    public class TemplatePositionProperty : Attribute
     {
-        /// <summary>
-        /// The inheriting contract.
-        /// </summary>
-        public Type Contract { get; set; }
     }
 }

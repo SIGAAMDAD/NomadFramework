@@ -16,10 +16,11 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System.Collections.Generic;
 using Nomad.CVars;
 using Nomad.Core.CVars;
-using Nomad.Core.EngineUtils;
+using Nomad.Core.Engine.Rendering;
 using Nomad.EngineUtils.Settings.ValueObjects;
 using Nomad.EngineUtils.Settings.Interfaces;
-using Nomad.Core.Util;
+using Nomad.Core.Engine.Services;
+using Nomad.Core.Engine.Windowing;
 
 namespace Nomad.EngineUtils.Settings.Services
 {

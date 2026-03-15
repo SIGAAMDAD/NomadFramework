@@ -13,33 +13,24 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Nomad.Core.Events;
+using System;
 
-namespace Nomad.Core.UI
+namespace Nomad.EngineTemplates.Attributes
 {
     /// <summary>
     ///
     /// </summary>
-    public interface ISlider : IUIElement
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
+    public class TemplateEvent : Attribute
     {
         /// <summary>
-        ///
+        /// The event's name.
         /// </summary>
-        float Value { get; set; }
+        public string Name { get; set; }
 
         /// <summary>
-        ///
+        /// The data type of what we're sending the event's payload.
         /// </summary>
-        float Minimum { get; set; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        float Maximum { get; set; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        IGameEvent<float> ValueSet { get; }
+        public Type PayloadType { get; set; }
     }
 }

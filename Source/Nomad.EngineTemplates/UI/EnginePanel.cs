@@ -13,24 +13,16 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
+using Nomad.Core.UI;
+using Nomad.EngineTemplates.Attributes;
+using Nomad.EngineTemplates.BaseClasses;
 
-namespace Nomad.EngineUtils
+namespace Nomad.EngineTemplates.UI
 {
-    /// <summary>
-    ///
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
-    public class TemplateEvent : Attribute
+    [TemplateClass(Contract = typeof(IPanel), GodotBase = "Godot.Control")]
+    [TemplateNamespace(Name = "UI")]
+    [TemplateUIElement]
+    public class EnginePanel
     {
-        /// <summary>
-        /// The event's name.
-        /// </summary>
-        public string Name { get; set; }
-
-        /// <summary>
-        /// The data type of what we're sending the event's payload.
-        /// </summary>
-        public Type PayloadType { get; set; }
     }
 }

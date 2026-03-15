@@ -15,32 +15,17 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 
-namespace Nomad.EngineUtils
+namespace Nomad.EngineTemplates.Attributes
 {
     /// <summary>
     ///
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
-    public class TemplateProperty : Attribute
+    [AttributeUsage(AttributeTargets.Class, Inherited = true)]
+    public class TemplateNamespace : Attribute
     {
         /// <summary>
-        /// The property's name.
+        /// The namespace's identifier.
         /// </summary>
         public string Name { get; set; }
-
-        /// <summary>
-        /// The property's data type.
-        /// </summary>
-        public Type Type { get; set; }
-
-        /// <summary>
-        /// The method for translating from an engine-specific type to an engine agnostic type.
-        /// </summary>
-        public string FromEngineMethod { get; set; } = null;
-
-        /// <summary>
-        /// The method for translating from an engine-agnostic type to an engine-specific type.
-        /// </summary>
-        public string ToEngineMethod { get; set; } = null;
     }
 }

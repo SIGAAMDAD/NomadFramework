@@ -13,7 +13,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Nomad.Core.EngineUtils;
+using Nomad.Core.Engine.Rendering;
+using Nomad.Core.Engine.Windowing;
 using Nomad.EngineUtils.Settings.Interfaces;
 
 namespace Nomad.EngineUtils.Settings.ValueObjects

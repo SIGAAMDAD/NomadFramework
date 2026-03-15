@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025-2026 Noah Van Til
+Copyright (C) 2025 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -13,25 +13,18 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Godot;
+using Nomad.Core.Scene.GameObjects;
+using Nomad.EngineTemplates.Attributes;
 
-namespace Nomad.Core.Engine.Assets
+namespace Nomad.EngineTemplates.GameObjects
 {
-    /// <summary>
-    ///
-    /// </summary>
-    public class EngineShaderMaterial : EngineMaterial
+	/// <summary>
+	///
+	/// </summary>
+    [TemplateClass(Contract = typeof(ISceneObject), GodotBase = "Godot.Node")]
+    [TemplateNamespace(Name = "GameObjects")]
+    [TemplateProperty(Name = "Id", Type = typeof(SceneObjectId))]
+    public class EngineSceneObject
     {
-        private readonly Shader _shader;
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="material"></param>
-        public EngineShaderMaterial(ShaderMaterial material)
-            : base(material)
-        {
-            _shader = material.Shader;
-        }
     }
 }

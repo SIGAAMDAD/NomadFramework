@@ -173,7 +173,7 @@ namespace Nomad.EngineUtils
         /// <returns></returns>
         public string GetEngineVersion()
         {
-            var version = Engine.GetVersionInfo();
+            var version = Godot.Engine.GetVersionInfo();
             return version["string"].AsString();
         }
 

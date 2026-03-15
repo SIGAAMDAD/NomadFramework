@@ -38,7 +38,7 @@ namespace Nomad.EngineUtils
             ArgumentGuard.ThrowIfNull(registry);
             ArgumentGuard.ThrowIfNull(locator);
 
-            var sceneTree = (SceneTree)Engine.GetMainLoop();
+            var sceneTree = (SceneTree)Godot.Engine.GetMainLoop();
 
             _engineService = new GodotEngineService(
                 sceneTree,

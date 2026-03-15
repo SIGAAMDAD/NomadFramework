@@ -14,18 +14,20 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using Nomad.Core.UI;
-using Nomad.EngineUtils.BaseClasses;
+using Nomad.EngineTemplates.Attributes;
+using Nomad.EngineTemplates.BaseClasses;
 
-namespace Nomad.EngineUtils.UserInterface
+namespace Nomad.EngineTemplates.UI
 {
-    /// <summary>
-    ///
-    /// </summary>
-    [TemplateClass(Contract = typeof(IHorizontalSlider))]
-    [TemplateNamespace(Name = "UserInterface")]
-    [TemplateEvent(Name = "Changed", PayloadType = typeof(float))]
+    [TemplateClass(Contract = typeof(IVerticalContainer), GodotBase = "Godot.VBoxContainer")]
+    [TemplateNamespace(Name = "UI")]
+    [TemplateProperty(
+        Name = "Spacing",
+        Type = typeof(float),
+        GodotGetterExpression = "base.GetThemeConstant(SeparationThemeConstantName)",
+        GodotSetterExpression = "base.AddThemeConstantOverride(SeparationThemeConstantName, (int){{value}})")]
     [TemplateUIElement]
-    public partial class EngineHorizontalSlider : Godot.HSlider, IHorizontalSlider
+    public class EngineVerticalContainer
     {
     }
 }

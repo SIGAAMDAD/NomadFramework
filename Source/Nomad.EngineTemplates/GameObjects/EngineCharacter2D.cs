@@ -13,15 +13,19 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Nomad.Core.UI;
-using Nomad.EngineUtils.BaseClasses;
+using Nomad.Core.Scene.GameObjects;
+using Nomad.EngineTemplates.Attributes;
+using Nomad.EngineTemplates.BaseClasses;
 
-namespace Nomad.EngineUtils.UserInterface
+namespace Nomad.EngineTemplates.GameObjects
 {
-    [TemplateClass(Contract = typeof(IHorizontalContainer))]
-    [TemplateNamespace(Name = "UserInterface")]
-    [TemplateUIElement]
-    public partial class EngineHorizontalContainer : Godot.HBoxContainer, IHorizontalContainer
+    /// <summary>
+    ///
+    /// </summary>
+    [TemplateClass(Contract = typeof(ICharacter2D), GodotBase = "Godot.CharacterBody2D")]
+    [TemplateNamespace(Name = "GameObjects")]
+    [TemplateObject2D]
+    public class EngineCharacter2D
     {
     }
 }

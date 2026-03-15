@@ -13,19 +13,20 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
+using Nomad.Core.UI;
+using Nomad.EngineTemplates.Attributes;
+using Nomad.EngineTemplates.BaseClasses;
 
-namespace Nomad.EngineUtils
+namespace Nomad.EngineTemplates.UI
 {
     /// <summary>
     ///
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class, Inherited = true)]
-    public class TemplateNamespace : Attribute
+    [TemplateClass(Contract = typeof(IHorizontalSlider), GodotBase = "Godot.HSlider")]
+    [TemplateNamespace(Name = "UI")]
+    [TemplateEvent(Name = "ValueSet", PayloadType = typeof(float))]
+    [TemplateUIElement]
+    public partial class EngineHorizontalSlider
     {
-        /// <summary>
-        /// The namespace's identifier.
-        /// </summary>
-        public string Name { get; set; }
     }
 }

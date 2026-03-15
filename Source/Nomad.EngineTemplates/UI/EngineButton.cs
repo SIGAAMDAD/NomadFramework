@@ -13,15 +13,21 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
+using Nomad.Core.UI;
+using Nomad.Core.Events;
+using Nomad.EngineTemplates.BaseClasses;
+using Nomad.EngineTemplates.Attributes;
 
-namespace Nomad.EngineUtils
+namespace Nomad.EngineTemplates.UI
 {
     /// <summary>
-    ///
+    /// Represents an
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class, Inherited = true)]
-    public class TemplateBaseClass : Attribute
+    [TemplateClass(Contract = typeof(IButton), GodotBase = "Godot.Button")]
+    [TemplateNamespace(Name = "UI")]
+    [TemplateUIElement]
+    [TemplateEvent(Name = "Clicked", PayloadType = typeof(EmptyEventArgs))]
+    public class EngineButton
     {
     }
 }

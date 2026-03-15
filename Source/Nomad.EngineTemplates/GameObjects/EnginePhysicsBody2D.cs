@@ -13,20 +13,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System.Numerics;
-using Nomad.Core.Scene.GameObjects;
-using Nomad.EngineUtils.BaseClasses;
-
-namespace Nomad.EngineUtils.GameObjects
+namespace Nomad.Engine.GameObjects
 {
-    /// <summary>
-    ///
-    /// </summary>
-    [TemplateClass(Contract = typeof(ICharacter2D))]
-    [TemplateNamespace(Name = "GameObjects")]
-    [TemplateProperty(Name = "Position", Type = typeof(Vector2), ToEngineMethod = "ToGodot", FromEngineMethod = "ToSystem")]
-    [TemplateObject2D]
-    public partial class EngineCharacter2D : Godot.CharacterBody2D, ICharacter2D
-    {
-    }
 }

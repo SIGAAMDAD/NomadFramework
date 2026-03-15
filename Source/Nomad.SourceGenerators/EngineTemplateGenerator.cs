@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
-using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -32,13 +31,16 @@ namespace Nomad.SourceGenerators
     [Generator(LanguageNames.CSharp)]
     public sealed class EngineTemplateGenerator : IIncrementalGenerator
     {
-        private const string TemplateClassMetadataName = "Nomad.EngineUtils.TemplateClass";
-        private const string TemplatePropertyMetadataName = "Nomad.EngineUtils.TemplateProperty";
-        private const string TemplateEventMetadataName = "Nomad.EngineUtils.TemplateEvent";
-        private const string TemplateBaseClassMetadataName = "Nomad.EngineUtils.TemplateBaseClass";
-        private const string TemplateNamespaceMetadataName = "Nomad.EngineUtils.TemplateNamespace";
-        private const string GameObjectMetadataName = "Nomad.Core.EngineUtils.IGameObject";
+        private const string TemplateClassMetadataName = "Nomad.EngineTemplates.Attributes.TemplateClass";
+        private const string TemplatePropertyMetadataName = "Nomad.EngineTemplates.Attributes.TemplateProperty";
+        private const string TemplateEventMetadataName = "Nomad.EngineTemplates.Attributes.TemplateEvent";
+        private const string TemplateMethodMetadataName = "Nomad.EngineTemplates.Attributes.TemplateMethod";
+        private const string TemplateTypeConversionMetadataName = "Nomad.EngineTemplates.Attributes.TemplateTypeConversion";
+        private const string TemplateBaseClassMetadataName = "Nomad.EngineTemplates.Attributes.TemplateBaseClass";
+        private const string TemplateNamespaceMetadataName = "Nomad.EngineTemplates.Attributes.TemplateNamespace";
+        private const string GameObjectMetadataName = "Nomad.Core.Scene.GameObjects.IGameObject";
         private const string GameEventMetadataName = "Nomad.Core.Events.IGameEvent`1";
+        private const string ValuePlaceholder = "{{value}}";
         private static readonly SymbolDisplayFormat TypeDisplayFormat = new(
             globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Included,
             typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
@@ -66,7 +68,7 @@ namespace Nomad.SourceGenerators
         private static readonly DiagnosticDescriptor MissingBaseTypeDiagnostic = new(
             id: "NOMADSG003",
             title: "Template base type is missing",
-            messageFormat: "Template class '{0}' must inherit from a concrete engine type",
+            messageFormat: "Template class '{0}' must specify TemplateClass.{1} for {2} generation",
             category: "Nomad.SourceGenerators",
             defaultSeverity: DiagnosticSeverity.Error,
             isEnabledByDefault: true);
@@ -83,6 +85,22 @@ namespace Nomad.SourceGenerators
             id: "NOMADSG005",
             title: "Template member does not exist on the contract hierarchy",
             messageFormat: "Template member '{0}' was declared on template '{1}', but no matching member exists on the contract hierarchy",
+            category: "Nomad.SourceGenerators",
+            defaultSeverity: DiagnosticSeverity.Warning,
+            isEnabledByDefault: true);
+
+        private static readonly DiagnosticDescriptor InvalidBaseTypeDiagnostic = new(
+            id: "NOMADSG006",
+            title: "Configured engine base type could not be resolved",
+            messageFormat: "Template class '{0}' configured base type '{1}', but that type could not be resolved in the current {2} compilation",
+            category: "Nomad.SourceGenerators",
+            defaultSeverity: DiagnosticSeverity.Error,
+            isEnabledByDefault: true);
+
+        private static readonly DiagnosticDescriptor UnboundMethodDiagnostic = new(
+            id: "NOMADSG007",
+            title: "Method binding could not be inferred",
+            messageFormat: "Could not infer an engine-side implementation for method '{0}' on template '{1}'. A throwing stub was generated.",
             category: "Nomad.SourceGenerators",
             defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true);
@@ -115,7 +133,7 @@ namespace Nomad.SourceGenerators
 
                 productionContext.AddSource(
                     generated.HintName,
-                    SourceText.From(generated.Source, Encoding.UTF8));
+                    SourceText.From(generated.Source, System.Text.Encoding.UTF8));
             });
         }
 
@@ -125,9 +143,6 @@ namespace Nomad.SourceGenerators
             {
                 return null;
             }
-
-            var diagnostics = new List<Diagnostic>();
-            var location = templateSymbol.Locations.FirstOrDefault();
 
             var templateClassAttribute = FindAttribute(templateSymbol, TemplateClassMetadataName);
             if (templateClassAttribute is null)
@@ -139,6 +154,16 @@ namespace Nomad.SourceGenerators
             {
                 return null;
             }
+
+            var compilation = context.SemanticModel.Compilation;
+            var engineProjectKind = DetectEngineProjectKind(compilation);
+            if (engineProjectKind == EngineProjectKind.Unknown)
+            {
+                return null;
+            }
+
+            var diagnostics = new List<Diagnostic>();
+            var location = templateSymbol.Locations.FirstOrDefault();
 
             var contractSymbol = GetNamedTypeArgument(templateClassAttribute, "Contract");
             if (contractSymbol is null)
@@ -157,15 +182,35 @@ namespace Nomad.SourceGenerators
                 return GeneratedSource.Invalid(diagnostics);
             }
 
-            if (templateSymbol.BaseType is null || templateSymbol.BaseType.SpecialType == SpecialType.System_Object)
+            var configuredBaseTypeName = ResolveConfiguredBaseTypeName(templateClassAttribute, engineProjectKind);
+            if (string.IsNullOrWhiteSpace(configuredBaseTypeName))
             {
-                diagnostics.Add(Diagnostic.Create(MissingBaseTypeDiagnostic, location, templateSymbol.Name));
+                diagnostics.Add(Diagnostic.Create(
+                    MissingBaseTypeDiagnostic,
+                    location,
+                    templateSymbol.Name,
+                    engineProjectKind == EngineProjectKind.Godot ? "GodotBase" : "UnityBase",
+                    engineProjectKind.ToString()));
+                return GeneratedSource.Invalid(diagnostics);
+            }
+
+            var baseTypeSymbol = ResolveBaseTypeSymbol(compilation, configuredBaseTypeName!);
+            if (baseTypeSymbol is null)
+            {
+                diagnostics.Add(Diagnostic.Create(
+                    InvalidBaseTypeDiagnostic,
+                    location,
+                    templateSymbol.Name,
+                    configuredBaseTypeName,
+                    engineProjectKind.ToString()));
                 return GeneratedSource.Invalid(diagnostics);
             }
 
             var templateProperties = new Dictionary<string, TemplatePropertyDefinition>(StringComparer.Ordinal);
             var templateEvents = new Dictionary<string, TemplateEventDefinition>(StringComparer.Ordinal);
-            CollectTemplateMetadata(templateSymbol, templateProperties, templateEvents);
+            var templateMethods = new Dictionary<string, TemplateMethodDefinition>(StringComparer.Ordinal);
+            var templateTypeConversions = new Dictionary<string, TemplateTypeConversionDefinition>(StringComparer.Ordinal);
+            CollectTemplateMetadata(templateSymbol, templateProperties, templateEvents, templateMethods, templateTypeConversions);
 
             var interfaceHierarchy = new List<INamedTypeSymbol>();
             var visitedInterfaces = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
@@ -187,7 +232,15 @@ namespace Nomad.SourceGenerators
                 .Where(baseTemplateContract =>
                     !SymbolEqualityComparer.Default.Equals(baseTemplateContract, contractSymbol) &&
                     !contractSymbol.AllInterfaces.Contains(baseTemplateContract, SymbolEqualityComparer.Default))
-                .ToList();
+                .Select(baseTemplateContract => baseTemplateContract.ToDisplayString(TypeDisplayFormat))
+                .ToImmutableArray();
+
+            var usesGameObjectAdapter = interfaceHierarchy.Any(static interfaceSymbol =>
+                interfaceSymbol.ToDisplayString() == GameObjectMetadataName);
+
+            var isAsset = GetNamedBooleanArgument(templateClassAttribute, "IsAsset");
+            var baseInheritsUnityObject = engineProjectKind == EngineProjectKind.Unity &&
+                                         InheritsFrom(baseTypeSymbol, "UnityEngine.Object");
 
             var propertyImplementations = new List<PropertyImplementation>();
             var eventImplementations = new List<EventImplementation>();
@@ -197,7 +250,6 @@ namespace Nomad.SourceGenerators
             var seenMethods = new HashSet<string>(StringComparer.Ordinal);
             var seenEvents = new HashSet<string>(StringComparer.Ordinal);
             var eventPropertiesByName = new Dictionary<string, IPropertySymbol>(StringComparer.Ordinal);
-
             bool requiresSpacingThemeConstant = false;
 
             foreach (var interfaceSymbol in interfaceHierarchy)
@@ -238,10 +290,13 @@ namespace Nomad.SourceGenerators
                         }
 
                         var propertyImplementation = CreatePropertyImplementation(
-                            templateSymbol,
                             propertySymbol,
                             templateProperties,
-                            context.SemanticModel.Compilation,
+                            templateTypeConversions,
+                            compilation,
+                            engineProjectKind,
+                            baseTypeSymbol,
+                            usesGameObjectAdapter,
                             out var propertyRequiresSpacingThemeConstant);
 
                         requiresSpacingThemeConstant |= propertyRequiresSpacingThemeConstant;
@@ -279,7 +334,29 @@ namespace Nomad.SourceGenerators
                         continue;
                     }
 
-                    methodImplementations.Add(CreateMethodImplementation(methodSymbol));
+                    var methodImplementation = CreateMethodImplementation(
+                        methodSymbol,
+                        templateMethods,
+                        templateTypeConversions,
+                        compilation,
+                        engineProjectKind,
+                        baseTypeSymbol,
+                        usesGameObjectAdapter);
+
+                    if (methodImplementation.IsBound)
+                    {
+                        matchedTemplateMembers.Add(methodSymbol.Name);
+                    }
+                    else
+                    {
+                        diagnostics.Add(Diagnostic.Create(
+                            UnboundMethodDiagnostic,
+                            location,
+                            methodSymbol.Name,
+                            templateSymbol.Name));
+                    }
+
+                    methodImplementations.Add(methodImplementation);
                 }
             }
 
@@ -295,7 +372,7 @@ namespace Nomad.SourceGenerators
                     continue;
                 }
 
-                eventImplementations.Add(CreateEventImplementation(eventPropertySymbol, templateEvent));
+                eventImplementations.Add(CreateEventImplementation(eventPropertySymbol, templateEvent, engineProjectKind, baseTypeSymbol));
                 matchedTemplateMembers.Add(templateEvent.Name);
             }
 
@@ -306,7 +383,9 @@ namespace Nomad.SourceGenerators
                     continue;
                 }
 
-                var propertyImplementation = CreateThrowingPropertyImplementation(eventProperty);
+                var propertyImplementation = CreateThrowingPropertyImplementation(
+                    eventProperty,
+                    BaseTypeHasInstanceMember(baseTypeSymbol, eventProperty.Name));
                 propertyImplementations.Add(propertyImplementation);
 
                 diagnostics.Add(Diagnostic.Create(
@@ -340,19 +419,37 @@ namespace Nomad.SourceGenerators
                 }
             }
 
+            foreach (var templateMethod in templateMethods.Values)
+            {
+                if (!matchedTemplateMembers.Contains(templateMethod.Name))
+                {
+                    diagnostics.Add(Diagnostic.Create(
+                        UnknownTemplateMemberDiagnostic,
+                        location,
+                        templateMethod.Name,
+                        templateSymbol.Name));
+                }
+            }
+
             var generatedNamespace = ResolveGeneratedNamespace(contractSymbol, templateSymbol);
             var generatedClassName = ResolveGeneratedClassName(templateSymbol, contractSymbol);
-            var generatedSource = RenderClass(
+            var model = new TemplateGenerationModel(
                 generatedNamespace,
                 generatedClassName,
                 templateSymbol.DeclaredAccessibility,
-                templateSymbol.BaseType,
-                contractSymbol,
+                NormalizeTypeName(configuredBaseTypeName!),
+                contractSymbol.ToDisplayString(TypeDisplayFormat),
                 additionalImplementedContracts,
-                propertyImplementations,
-                eventImplementations,
-                methodImplementations,
-                requiresSpacingThemeConstant);
+                propertyImplementations.ToImmutableArray(),
+                eventImplementations.ToImmutableArray(),
+                methodImplementations.ToImmutableArray(),
+                requiresSpacingThemeConstant,
+                usesGameObjectAdapter,
+                isAsset,
+                baseInheritsUnityObject);
+
+            var renderer = CreateRenderer(engineProjectKind);
+            var generatedSource = renderer.Render(model);
 
             return new GeneratedSource(
                 hintName: generatedNamespace.Replace('.', '_') + "_" + generatedClassName + ".g.cs",
@@ -361,15 +458,56 @@ namespace Nomad.SourceGenerators
                 canGenerate: true);
         }
 
+        private static IEngineTemplateRenderer CreateRenderer(EngineProjectKind engineProjectKind)
+            => engineProjectKind switch
+            {
+                EngineProjectKind.Godot => new GodotTemplateRenderer(),
+                EngineProjectKind.Unity => new UnityTemplateRenderer(),
+                _ => throw new InvalidOperationException("Unsupported engine project kind.")
+            };
+
+        private static EngineProjectKind DetectEngineProjectKind(Compilation compilation)
+        {
+            var hasGodot = compilation.GetTypeByMetadataName("Godot.Node") is not null;
+            var hasUnity = compilation.GetTypeByMetadataName("UnityEngine.Object") is not null;
+
+            if (hasGodot && !hasUnity)
+            {
+                return EngineProjectKind.Godot;
+            }
+
+            if (hasUnity && !hasGodot)
+            {
+                return EngineProjectKind.Unity;
+            }
+
+            return EngineProjectKind.Unknown;
+        }
+
+        private static string? ResolveConfiguredBaseTypeName(AttributeData templateClassAttribute, EngineProjectKind engineProjectKind)
+            => engineProjectKind switch
+            {
+                EngineProjectKind.Godot => GetNamedStringArgument(templateClassAttribute, "GodotBase"),
+                EngineProjectKind.Unity => GetNamedStringArgument(templateClassAttribute, "UnityBase"),
+                _ => null
+            };
+
+        private static INamedTypeSymbol? ResolveBaseTypeSymbol(Compilation compilation, string configuredBaseTypeName)
+            => compilation.GetTypeByMetadataName(configuredBaseTypeName.Trim().Replace("global::", string.Empty));
+
         private static void CollectTemplateMetadata(
             INamedTypeSymbol templateSymbol,
             Dictionary<string, TemplatePropertyDefinition> templateProperties,
-            Dictionary<string, TemplateEventDefinition> templateEvents)
+            Dictionary<string, TemplateEventDefinition> templateEvents,
+            Dictionary<string, TemplateMethodDefinition> templateMethods,
+            Dictionary<string, TemplateTypeConversionDefinition> templateTypeConversions)
         {
             CollectTemplateMetadataFromAttributes(
                 templateSymbol.GetAttributes(),
                 templateProperties,
                 templateEvents,
+                templateMethods,
+                templateTypeConversions,
                 new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default));
         }
 
@@ -377,6 +515,8 @@ namespace Nomad.SourceGenerators
             ImmutableArray<AttributeData> attributes,
             Dictionary<string, TemplatePropertyDefinition> templateProperties,
             Dictionary<string, TemplateEventDefinition> templateEvents,
+            Dictionary<string, TemplateMethodDefinition> templateMethods,
+            Dictionary<string, TemplateTypeConversionDefinition> templateTypeConversions,
             HashSet<INamedTypeSymbol> visitedAttributeTypes)
         {
             foreach (var attribute in attributes)
@@ -395,8 +535,16 @@ namespace Nomad.SourceGenerators
                     {
                         templateProperties[name!] = new TemplatePropertyDefinition(
                             name!,
-                            GetNamedStringArgument(attribute, "FromEngineMethod"),
-                            GetNamedStringArgument(attribute, "ToEngineMethod"));
+                            GetNamedTypeArgument(attribute, "Type")?.ToDisplayString(TypeDisplayFormat),
+                            GetNamedStringArgument(attribute, "GodotGetterExpression") ??
+                            GetNamedStringArgument(attribute, "FromGodotMethod"),
+                            GetNamedStringArgument(attribute, "UnityGetterExpression") ??
+                            GetNamedStringArgument(attribute, "FromUnityMethod"),
+                            GetNamedStringArgument(attribute, "GodotSetterExpression") ??
+                            GetNamedStringArgument(attribute, "ToGodotMethod"),
+                            GetNamedStringArgument(attribute, "UnitySetterExpression") ??
+                            GetNamedStringArgument(attribute, "ToUnityMethod"),
+                            GetNamedBooleanArgument(attribute, "IsReadOnly"));
                     }
 
                     continue;
@@ -416,6 +564,38 @@ namespace Nomad.SourceGenerators
                     continue;
                 }
 
+                if (metadataName == TemplateMethodMetadataName)
+                {
+                    var name = GetNamedStringArgument(attribute, "Name");
+                    if (!string.IsNullOrEmpty(name))
+                    {
+                        templateMethods[name!] = new TemplateMethodDefinition(
+                            name!,
+                            GetNamedStringArgument(attribute, "GodotMethodName"),
+                            GetNamedStringArgument(attribute, "UnityMethodName"));
+                    }
+
+                    continue;
+                }
+
+                if (metadataName == TemplateTypeConversionMetadataName)
+                {
+                    var agnosticTypeName = GetNamedTypeArgument(attribute, "AgnosticType")?.ToDisplayString(TypeDisplayFormat);
+                    if (!string.IsNullOrWhiteSpace(agnosticTypeName))
+                    {
+                        templateTypeConversions[agnosticTypeName!] = new TemplateTypeConversionDefinition(
+                            agnosticTypeName!,
+                            GetNamedTypeArgument(attribute, "GodotType")?.ToDisplayString(TypeDisplayFormat),
+                            GetNamedStringArgument(attribute, "GodotToAgnosticExpression"),
+                            GetNamedStringArgument(attribute, "AgnosticToGodotExpression"),
+                            GetNamedTypeArgument(attribute, "UnityType")?.ToDisplayString(TypeDisplayFormat),
+                            GetNamedStringArgument(attribute, "UnityToAgnosticExpression"),
+                            GetNamedStringArgument(attribute, "AgnosticToUnityExpression"));
+                    }
+
+                    continue;
+                }
+
                 if (metadataName == TemplateClassMetadataName || metadataName == "System.AttributeUsageAttribute")
                 {
                     continue;
@@ -430,6 +610,8 @@ namespace Nomad.SourceGenerators
                     attributeClass.GetAttributes(),
                     templateProperties,
                     templateEvents,
+                    templateMethods,
+                    templateTypeConversions,
                     visitedAttributeTypes);
             }
         }
@@ -490,128 +672,227 @@ namespace Nomad.SourceGenerators
         }
 
         private static PropertyImplementation CreatePropertyImplementation(
-            INamedTypeSymbol templateSymbol,
             IPropertySymbol propertySymbol,
             IReadOnlyDictionary<string, TemplatePropertyDefinition> templateProperties,
+            IReadOnlyDictionary<string, TemplateTypeConversionDefinition> templateTypeConversions,
             Compilation compilation,
+            EngineProjectKind engineProjectKind,
+            INamedTypeSymbol baseTypeSymbol,
+            bool usesGameObjectAdapter,
             out bool requiresSpacingThemeConstant)
         {
             requiresSpacingThemeConstant = false;
+            var requiresNewKeyword = BaseTypeHasInstanceMember(baseTypeSymbol, propertySymbol.Name);
 
-            var interfaceTypeName = propertySymbol.ContainingType.ToDisplayString(TypeDisplayFormat);
-            var propertyTypeName = propertySymbol.Type.ToDisplayString(TypeDisplayFormat);
-
-            if (propertySymbol.ContainingType.ToDisplayString() == GameObjectMetadataName)
+            if (usesGameObjectAdapter &&
+                propertySymbol.ContainingType.ToDisplayString() == GameObjectMetadataName)
             {
-                return new PropertyImplementation(
-                    PropertyImplementationKind.Generated,
-                    interfaceTypeName,
-                    propertyTypeName,
-                    propertySymbol.Name,
-                    getterExpression: "_impl." + propertySymbol.Name,
-                    setterExpression: propertySymbol.SetMethod is null ? null : "_impl." + propertySymbol.Name + " = value");
-            }
-
-            if (TryCreateSpecialPropertyImplementation(propertySymbol, out var specialImplementation, out requiresSpacingThemeConstant))
-            {
-                return specialImplementation;
+                return CreateGameObjectPropertyImplementation(propertySymbol, engineProjectKind, requiresNewKeyword);
             }
 
             templateProperties.TryGetValue(propertySymbol.Name, out var templateProperty);
+            var getterTemplate = ResolveConfiguredGetterExpression(templateProperty, engineProjectKind);
+            var setterTemplate = ResolveConfiguredSetterExpression(templateProperty, engineProjectKind);
+            var configuredGetterExpression = getterTemplate;
+            var configuredSetterExpression = string.IsNullOrWhiteSpace(setterTemplate)
+                ? null
+                : ApplyValueTemplate(setterTemplate!, "value");
+            requiresSpacingThemeConstant = ReferencesSpacingThemeConstant(configuredGetterExpression) ||
+                                           ReferencesSpacingThemeConstant(configuredSetterExpression);
 
-            var engineMember = FindEngineProperty(templateSymbol.BaseType, propertySymbol.Name);
+            var engineMember = FindEngineProperty(baseTypeSymbol, propertySymbol.Name);
             if (engineMember is not null)
+            {
+                var engineAccessExpression = "base." + engineMember.Name;
+                configuredGetterExpression = string.IsNullOrWhiteSpace(getterTemplate)
+                    ? null
+                    : ApplyValueTemplate(getterTemplate!, engineAccessExpression);
+                configuredSetterExpression = string.IsNullOrWhiteSpace(setterTemplate)
+                    ? null
+                    : ApplyValueTemplate(setterTemplate!, "value");
+
+                return new PropertyImplementation(
+                    PropertyImplementationKind.Generated,
+                    propertySymbol.Type.ToDisplayString(TypeDisplayFormat),
+                    propertySymbol.Name,
+                    propertySymbol.GetMethod is null
+                        ? null
+                        : configuredGetterExpression ?? BuildGetterExpression(
+                            propertySymbol,
+                            engineAccessExpression,
+                            engineMember.Type,
+                            compilation,
+                            engineProjectKind,
+                            templateTypeConversions),
+                    propertySymbol.SetMethod is null
+                        ? null
+                        : configuredSetterExpression ?? BuildSetterExpression(
+                            propertySymbol,
+                            engineAccessExpression,
+                            engineMember.Type,
+                            compilation,
+                            engineProjectKind,
+                            templateTypeConversions),
+                    requiresNewKeyword,
+                    backingFieldDeclaration: null);
+            }
+
+            if (HasCompleteConfiguredExpressions(propertySymbol, configuredGetterExpression, configuredSetterExpression))
             {
                 return new PropertyImplementation(
                     PropertyImplementationKind.Generated,
-                    interfaceTypeName,
-                    propertyTypeName,
+                    propertySymbol.Type.ToDisplayString(TypeDisplayFormat),
                     propertySymbol.Name,
-                    getterExpression: BuildGetterExpression(
-                        propertySymbol,
-                        engineMember.Name,
-                        engineMember.Type,
-                        templateProperty?.FromEngineMethod,
-                        compilation),
-                    setterExpression: propertySymbol.SetMethod is null ? null : BuildSetterExpression(
-                        propertySymbol,
-                        engineMember.Name,
-                        engineMember.Type,
-                        templateProperty?.ToEngineMethod,
-                        compilation));
+                    propertySymbol.GetMethod is null ? null : configuredGetterExpression,
+                    propertySymbol.SetMethod is null ? null : configuredSetterExpression,
+                    requiresNewKeyword,
+                    backingFieldDeclaration: null);
             }
 
-            return CreateThrowingPropertyImplementation(propertySymbol);
+            return CreateFieldBackedPropertyImplementation(propertySymbol, templateProperty, requiresNewKeyword);
         }
 
-        private static bool TryCreateSpecialPropertyImplementation(
+        private static PropertyImplementation CreateGameObjectPropertyImplementation(
             IPropertySymbol propertySymbol,
-            out PropertyImplementation implementation,
-            out bool requiresSpacingThemeConstant)
+            EngineProjectKind engineProjectKind,
+            bool requiresNewKeyword)
         {
-            implementation = default!;
-            requiresSpacingThemeConstant = false;
-
-            var interfaceTypeName = propertySymbol.ContainingType.ToDisplayString(TypeDisplayFormat);
-            var propertyTypeName = propertySymbol.Type.ToDisplayString(TypeDisplayFormat);
-
-            if (propertySymbol.Name == "Color")
+            var getterExpression = propertySymbol.Name switch
             {
-                implementation = new PropertyImplementation(
-                    PropertyImplementationKind.Generated,
-                    interfaceTypeName,
-                    propertyTypeName,
-                    propertySymbol.Name,
-                    getterExpression: "Modulate.ToSystem()",
-                    setterExpression: propertySymbol.SetMethod is null ? null : "Modulate = value.ToGodot()");
-                return true;
-            }
+                "Children" => "_impl.Children",
+                "Parent" => "_impl.Parent",
+                "Enabled" when engineProjectKind == EngineProjectKind.Godot => "ProcessMode != global::Godot.Node.ProcessModeEnum.Disabled",
+                _ => "_impl." + propertySymbol.Name
+            };
 
-            if (propertySymbol.Name == "Alignment")
-            {
-                implementation = new PropertyImplementation(
-                    PropertyImplementationKind.Generated,
-                    interfaceTypeName,
-                    propertyTypeName,
-                    propertySymbol.Name,
-                    getterExpression: "HorizontalAlignment.ToNomad()",
-                    setterExpression: propertySymbol.SetMethod is null ? null : "HorizontalAlignment = value.ToGodot()");
-                return true;
-            }
-
-            if (propertySymbol.Name == "Spacing")
-            {
-                implementation = new PropertyImplementation(
-                    PropertyImplementationKind.Generated,
-                    interfaceTypeName,
-                    propertyTypeName,
-                    propertySymbol.Name,
-                    getterExpression: "GetThemeConstant(SeparationThemeConstantName)",
-                    setterExpression: propertySymbol.SetMethod is null ? null : "AddThemeConstantOverride(SeparationThemeConstantName, (int)value)");
-                requiresSpacingThemeConstant = true;
-                return true;
-            }
-
-            return false;
-        }
-
-        private static PropertyImplementation CreateThrowingPropertyImplementation(IPropertySymbol propertySymbol)
-        {
-            var interfaceTypeName = propertySymbol.ContainingType.ToDisplayString(TypeDisplayFormat);
-            var propertyTypeName = propertySymbol.Type.ToDisplayString(TypeDisplayFormat);
+            var setterExpression = propertySymbol.SetMethod is null
+                ? null
+                : propertySymbol.Name switch
+                {
+                    "Parent" => "_impl.Parent = value",
+                    "Enabled" when engineProjectKind == EngineProjectKind.Godot
+                        => "ProcessMode = value ? global::Godot.Node.ProcessModeEnum.Inherit : global::Godot.Node.ProcessModeEnum.Disabled",
+                    _ => "_impl." + propertySymbol.Name + " = value"
+                };
 
             return new PropertyImplementation(
-                PropertyImplementationKind.ThrowingStub,
-                interfaceTypeName,
-                propertyTypeName,
+                PropertyImplementationKind.Generated,
+                propertySymbol.Type.ToDisplayString(TypeDisplayFormat),
                 propertySymbol.Name,
-                getterExpression: "throw new global::System.NotSupportedException(\"The engine binding for this property was not generated.\")",
-                setterExpression: propertySymbol.SetMethod is null ? null : "throw new global::System.NotSupportedException(\"The engine binding for this property was not generated.\")");
+                propertySymbol.GetMethod is null ? null : getterExpression,
+                setterExpression,
+                requiresNewKeyword,
+                backingFieldDeclaration: null);
         }
+
+        private static string? ResolveConfiguredGetterExpression(
+            TemplatePropertyDefinition? templateProperty,
+            EngineProjectKind engineProjectKind)
+        {
+            if (templateProperty is null)
+            {
+                return null;
+            }
+
+            return engineProjectKind switch
+            {
+                EngineProjectKind.Godot => templateProperty.GodotGetterExpression,
+                EngineProjectKind.Unity => templateProperty.UnityGetterExpression,
+                _ => null
+            };
+        }
+
+        private static string? ResolveConfiguredSetterExpression(
+            TemplatePropertyDefinition? templateProperty,
+            EngineProjectKind engineProjectKind)
+        {
+            if (templateProperty is null)
+            {
+                return null;
+            }
+
+            return engineProjectKind switch
+            {
+                EngineProjectKind.Godot => templateProperty.GodotSetterExpression,
+                EngineProjectKind.Unity => templateProperty.UnitySetterExpression,
+                _ => null
+            };
+        }
+
+        private static bool HasCompleteConfiguredExpressions(
+            IPropertySymbol propertySymbol,
+            string? getterExpression,
+            string? setterExpression)
+        {
+            if (propertySymbol.GetMethod is not null && string.IsNullOrWhiteSpace(getterExpression))
+            {
+                return false;
+            }
+
+            if (propertySymbol.SetMethod is not null && string.IsNullOrWhiteSpace(setterExpression))
+            {
+                return false;
+            }
+
+            return !string.IsNullOrWhiteSpace(getterExpression) || !string.IsNullOrWhiteSpace(setterExpression);
+        }
+
+        private static bool ReferencesSpacingThemeConstant(string? expression)
+            => !string.IsNullOrWhiteSpace(expression) &&
+               expression!.IndexOf("SeparationThemeConstantName", StringComparison.Ordinal) >= 0;
+
+        private static PropertyImplementation CreateFieldBackedPropertyImplementation(
+            IPropertySymbol propertySymbol,
+            TemplatePropertyDefinition? templateProperty,
+            bool requiresNewKeyword)
+        {
+            var fieldName = "_" + ToCamelCase(propertySymbol.Name);
+            var fieldTypeName = propertySymbol.Type.ToDisplayString(TypeDisplayFormat);
+            var isReadOnly = templateProperty?.IsReadOnly == true;
+            var backingFieldDeclaration = "private " +
+                                          (isReadOnly ? "readonly " : string.Empty) +
+                                          fieldTypeName +
+                                          " " +
+                                          fieldName +
+                                          ";";
+
+            string? setterExpression = null;
+            if (propertySymbol.SetMethod is not null)
+            {
+                setterExpression = isReadOnly
+                    ? "throw new global::System.NotSupportedException(\"This generated property is read-only.\")"
+                    : fieldName + " = value";
+            }
+
+            return new PropertyImplementation(
+                PropertyImplementationKind.Generated,
+                propertySymbol.Type.ToDisplayString(TypeDisplayFormat),
+                propertySymbol.Name,
+                propertySymbol.GetMethod is null ? null : fieldName,
+                setterExpression,
+                requiresNewKeyword,
+                backingFieldDeclaration);
+        }
+
+        private static PropertyImplementation CreateThrowingPropertyImplementation(IPropertySymbol propertySymbol, bool requiresNewKeyword)
+            => new(
+                PropertyImplementationKind.ThrowingStub,
+                propertySymbol.Type.ToDisplayString(TypeDisplayFormat),
+                propertySymbol.Name,
+                propertySymbol.GetMethod is null
+                    ? null
+                    : "throw new global::System.NotSupportedException(\"The engine binding for this property was not generated.\")",
+                propertySymbol.SetMethod is null
+                    ? null
+                    : "throw new global::System.NotSupportedException(\"The engine binding for this property was not generated.\")",
+                requiresNewKeyword,
+                backingFieldDeclaration: null);
 
         private static EventImplementation CreateEventImplementation(
             IPropertySymbol propertySymbol,
-            TemplateEventDefinition templateEvent)
+            TemplateEventDefinition templateEvent,
+            EngineProjectKind engineProjectKind,
+            INamedTypeSymbol baseTypeSymbol)
         {
             string payloadTypeName;
             if (TryGetGameEventPayloadType(propertySymbol.Type, out var payloadType))
@@ -627,25 +908,23 @@ namespace Nomad.SourceGenerators
                 payloadTypeName = "global::System.Object";
             }
 
-            var fieldName = "_" + ToCamelCase(propertySymbol.Name);
-            var interfaceTypeName = propertySymbol.ContainingType.ToDisplayString(TypeDisplayFormat);
-
-            var registryKeyConstantName = string.Concat(
-                "Nomad.EngineUtils.Constants.Events.",
-                ToScreamingSnakeCase(TrimInterfacePrefix(propertySymbol.ContainingType.Name)),
-                "_",
-                ToScreamingSnakeCase(propertySymbol.Name));
-
             return new EventImplementation(
-                interfaceTypeName,
                 propertySymbol.Name,
                 payloadTypeName,
-                fieldName,
-                registryKeyConstantName,
-                BuildEventHookStatements(templateEvent.Name, fieldName, payloadTypeName));
+                "_" + ToCamelCase(propertySymbol.Name),
+                BuildRegistryEventName(propertySymbol),
+                BuildEventHookStatements(engineProjectKind, templateEvent.Name, "_" + ToCamelCase(propertySymbol.Name), payloadTypeName),
+                BaseTypeHasInstanceMember(baseTypeSymbol, propertySymbol.Name));
         }
 
-        private static MethodImplementation CreateMethodImplementation(IMethodSymbol methodSymbol)
+        private static MethodImplementation CreateMethodImplementation(
+            IMethodSymbol methodSymbol,
+            IReadOnlyDictionary<string, TemplateMethodDefinition> templateMethods,
+            IReadOnlyDictionary<string, TemplateTypeConversionDefinition> templateTypeConversions,
+            Compilation compilation,
+            EngineProjectKind engineProjectKind,
+            INamedTypeSymbol baseTypeSymbol,
+            bool usesGameObjectAdapter)
         {
             var returnTypeName = methodSymbol.ReturnType.ToDisplayString(TypeDisplayFormat);
             var typeParameters = methodSymbol.TypeParameters.Length == 0
@@ -654,13 +933,206 @@ namespace Nomad.SourceGenerators
 
             var parameters = string.Join(", ", methodSymbol.Parameters.Select(FormatParameter));
             var constraints = BuildConstraintClauses(methodSymbol);
-            var callArguments = string.Join(", ", methodSymbol.Parameters.Select(parameter => parameter.Name));
-            var invocation = "_impl." + methodSymbol.Name + typeParameters + "(" + callArguments + ")";
+
+            if (usesGameObjectAdapter &&
+                methodSymbol.ContainingType.ToDisplayString() == GameObjectMetadataName)
+            {
+                var callArguments = string.Join(", ", methodSymbol.Parameters.Select(parameter => parameter.Name));
+                var invocation = "_impl." + methodSymbol.Name + typeParameters + "(" + callArguments + ")";
+                return new MethodImplementation(
+                    signature: "public " + returnTypeName + " " + methodSymbol.Name + typeParameters + "(" + parameters + ")",
+                    constraints: constraints,
+                    body: methodSymbol.ReturnsVoid ? invocation + ";" : "return " + invocation + ";",
+                    isBound: true);
+            }
+
+            templateMethods.TryGetValue(methodSymbol.Name, out var templateMethod);
+            var engineMethodName = ResolveConfiguredMethodName(templateMethod, engineProjectKind) ?? methodSymbol.Name;
+            var engineMethod = FindEngineMethod(
+                baseTypeSymbol,
+                engineMethodName,
+                methodSymbol,
+                compilation,
+                engineProjectKind,
+                templateTypeConversions);
+
+            if (engineMethod is not null)
+            {
+                var invocationArguments = string.Join(", ", methodSymbol.Parameters
+                    .Select((parameter, index) => BuildMethodArgument(
+                        parameter,
+                        engineMethod.Parameters[index],
+                        compilation,
+                        engineProjectKind,
+                        templateTypeConversions)));
+                var invocation = "base." + engineMethod.Name + typeParameters + "(" + invocationArguments + ")";
+                var body = methodSymbol.ReturnsVoid
+                    ? invocation + ";"
+                    : "return " + ConvertExpression(
+                        invocation,
+                        engineMethod.ReturnType,
+                        methodSymbol.ReturnType,
+                        compilation,
+                        engineProjectKind,
+                        templateTypeConversions) + ";";
+
+                return new MethodImplementation(
+                    signature: "public " + returnTypeName + " " + methodSymbol.Name + typeParameters + "(" + parameters + ")",
+                    constraints: constraints,
+                    body: body,
+                    isBound: true);
+            }
 
             return new MethodImplementation(
                 signature: "public " + returnTypeName + " " + methodSymbol.Name + typeParameters + "(" + parameters + ")",
                 constraints: constraints,
-                body: methodSymbol.ReturnsVoid ? invocation + ";" : "return " + invocation + ";");
+                body: "throw new global::System.NotSupportedException(\"The engine binding for this method was not generated.\");",
+                isBound: false);
+        }
+
+        private static string? ResolveConfiguredMethodName(
+            TemplateMethodDefinition? templateMethod,
+            EngineProjectKind engineProjectKind)
+        {
+            if (templateMethod is null)
+            {
+                return null;
+            }
+
+            return engineProjectKind switch
+            {
+                EngineProjectKind.Godot => templateMethod.GodotMethodName,
+                EngineProjectKind.Unity => templateMethod.UnityMethodName,
+                _ => null
+            };
+        }
+
+        private static IMethodSymbol? FindEngineMethod(
+            INamedTypeSymbol? typeSymbol,
+            string methodName,
+            IMethodSymbol contractMethod,
+            Compilation compilation,
+            EngineProjectKind engineProjectKind,
+            IReadOnlyDictionary<string, TemplateTypeConversionDefinition> templateTypeConversions)
+        {
+            var current = typeSymbol;
+            while (current is not null)
+            {
+                foreach (var member in current.GetMembers(methodName))
+                {
+                    if (member is not IMethodSymbol methodSymbol ||
+                        methodSymbol.MethodKind != MethodKind.Ordinary ||
+                        methodSymbol.IsStatic)
+                    {
+                        continue;
+                    }
+
+                    if (CanBindMethod(
+                            contractMethod,
+                            methodSymbol,
+                            compilation,
+                            engineProjectKind,
+                            templateTypeConversions))
+                    {
+                        return methodSymbol;
+                    }
+                }
+
+                current = current.BaseType;
+            }
+
+            return null;
+        }
+
+        private static bool CanBindMethod(
+            IMethodSymbol contractMethod,
+            IMethodSymbol engineMethod,
+            Compilation compilation,
+            EngineProjectKind engineProjectKind,
+            IReadOnlyDictionary<string, TemplateTypeConversionDefinition> templateTypeConversions)
+        {
+            if (contractMethod.TypeParameters.Length != engineMethod.TypeParameters.Length ||
+                contractMethod.Parameters.Length != engineMethod.Parameters.Length)
+            {
+                return false;
+            }
+
+            for (var index = 0; index < contractMethod.Parameters.Length; index++)
+            {
+                var contractParameter = contractMethod.Parameters[index];
+                var engineParameter = engineMethod.Parameters[index];
+
+                if (contractParameter.RefKind != engineParameter.RefKind)
+                {
+                    return false;
+                }
+
+                if (contractParameter.RefKind != RefKind.None)
+                {
+                    if (!SymbolEqualityComparer.Default.Equals(contractParameter.Type, engineParameter.Type))
+                    {
+                        return false;
+                    }
+
+                    continue;
+                }
+
+                if (!CanConvertType(
+                        contractParameter.Type,
+                        engineParameter.Type,
+                        compilation,
+                        engineProjectKind,
+                        templateTypeConversions))
+                {
+                    return false;
+                }
+            }
+
+            if (contractMethod.ReturnsVoid)
+            {
+                return engineMethod.ReturnsVoid;
+            }
+
+            if (engineMethod.ReturnsVoid)
+            {
+                return false;
+            }
+
+            return CanConvertType(
+                engineMethod.ReturnType,
+                contractMethod.ReturnType,
+                compilation,
+                engineProjectKind,
+                templateTypeConversions);
+        }
+
+        private static string BuildMethodArgument(
+            IParameterSymbol contractParameter,
+            IParameterSymbol engineParameter,
+            Compilation compilation,
+            EngineProjectKind engineProjectKind,
+            IReadOnlyDictionary<string, TemplateTypeConversionDefinition> templateTypeConversions)
+        {
+            var prefix = contractParameter.RefKind switch
+            {
+                RefKind.Ref => "ref ",
+                RefKind.Out => "out ",
+                RefKind.In => "in ",
+                _ => string.Empty
+            };
+
+            if (contractParameter.RefKind != RefKind.None)
+            {
+                return prefix + contractParameter.Name;
+            }
+
+            return prefix + ConvertExpression(
+                contractParameter.Name,
+                contractParameter.Type,
+                engineParameter.Type,
+                compilation,
+                engineProjectKind,
+                templateTypeConversions);
         }
 
         private static bool TryGetGameEventPayloadType(ITypeSymbol typeSymbol, out ITypeSymbol payloadType)
@@ -697,45 +1169,97 @@ namespace Nomad.SourceGenerators
             return null;
         }
 
-        private static string BuildGetterExpression(
-            IPropertySymbol interfaceProperty,
-            string engineMemberName,
-            ITypeSymbol engineMemberType,
-            string? fromEngineMethod,
-            Compilation compilation)
+        private static bool BaseTypeHasInstanceMember(INamedTypeSymbol? typeSymbol, string memberName)
         {
-            if (!string.IsNullOrEmpty(fromEngineMethod))
+            var current = typeSymbol;
+            while (current is not null)
             {
-                return engineMemberName + "." + fromEngineMethod + "()";
+                foreach (var member in current.GetMembers(memberName))
+                {
+                    if (!member.IsStatic)
+                    {
+                        return true;
+                    }
+                }
+
+                current = current.BaseType;
             }
 
-            return ConvertExpression(engineMemberName, engineMemberType, interfaceProperty.Type, compilation);
+            return false;
+        }
+
+        private static bool InheritsFrom(ITypeSymbol? typeSymbol, string metadataName)
+        {
+            var current = typeSymbol;
+            while (current is not null)
+            {
+                if (current.ToDisplayString() == metadataName)
+                {
+                    return true;
+                }
+
+                current = current.BaseType;
+            }
+
+            return false;
+        }
+
+        private static string BuildGetterExpression(
+            IPropertySymbol interfaceProperty,
+            string engineAccessExpression,
+            ITypeSymbol engineMemberType,
+            Compilation compilation,
+            EngineProjectKind engineProjectKind,
+            IReadOnlyDictionary<string, TemplateTypeConversionDefinition> templateTypeConversions)
+        {
+            return ConvertExpression(
+                engineAccessExpression,
+                engineMemberType,
+                interfaceProperty.Type,
+                compilation,
+                engineProjectKind,
+                templateTypeConversions);
         }
 
         private static string BuildSetterExpression(
             IPropertySymbol interfaceProperty,
-            string engineMemberName,
+            string engineAccessExpression,
             ITypeSymbol engineMemberType,
-            string? toEngineMethod,
-            Compilation compilation)
+            Compilation compilation,
+            EngineProjectKind engineProjectKind,
+            IReadOnlyDictionary<string, TemplateTypeConversionDefinition> templateTypeConversions)
         {
-            if (!string.IsNullOrEmpty(toEngineMethod))
-            {
-                return engineMemberName + " = value." + toEngineMethod + "()";
-            }
-
-            return engineMemberName + " = " + ConvertExpression("value", interfaceProperty.Type, engineMemberType, compilation);
+            return engineAccessExpression + " = " + ConvertExpression(
+                "value",
+                interfaceProperty.Type,
+                engineMemberType,
+                compilation,
+                engineProjectKind,
+                templateTypeConversions);
         }
 
         private static string ConvertExpression(
             string expression,
             ITypeSymbol sourceType,
             ITypeSymbol destinationType,
-            Compilation compilation)
+            Compilation compilation,
+            EngineProjectKind engineProjectKind,
+            IReadOnlyDictionary<string, TemplateTypeConversionDefinition> templateTypeConversions)
         {
             if (SymbolEqualityComparer.Default.Equals(sourceType, destinationType))
             {
                 return expression;
+            }
+
+            if (TryGetTemplateConversionExpression(
+                    sourceType,
+                    destinationType,
+                    engineProjectKind,
+                    templateTypeConversions,
+                    expression,
+                    out var convertedExpression))
+            {
+                return convertedExpression;
             }
 
             if (compilation is not CSharpCompilation csharpCompilation)
@@ -757,8 +1281,109 @@ namespace Nomad.SourceGenerators
             return expression;
         }
 
-        private static ImmutableArray<string> BuildEventHookStatements(string eventName, string fieldName, string payloadTypeName)
+        private static bool CanConvertType(
+            ITypeSymbol sourceType,
+            ITypeSymbol destinationType,
+            Compilation compilation,
+            EngineProjectKind engineProjectKind,
+            IReadOnlyDictionary<string, TemplateTypeConversionDefinition> templateTypeConversions)
         {
+            if (SymbolEqualityComparer.Default.Equals(sourceType, destinationType))
+            {
+                return true;
+            }
+
+            if (TryGetTemplateConversionExpression(
+                    sourceType,
+                    destinationType,
+                    engineProjectKind,
+                    templateTypeConversions,
+                    "value",
+                    out _))
+            {
+                return true;
+            }
+
+            if (compilation is not CSharpCompilation csharpCompilation)
+            {
+                return false;
+            }
+
+            return csharpCompilation.ClassifyConversion(sourceType, destinationType).Exists;
+        }
+
+        private static bool TryGetTemplateConversionExpression(
+            ITypeSymbol sourceType,
+            ITypeSymbol destinationType,
+            EngineProjectKind engineProjectKind,
+            IReadOnlyDictionary<string, TemplateTypeConversionDefinition> templateTypeConversions,
+            string expression,
+            out string convertedExpression)
+        {
+            convertedExpression = string.Empty;
+
+            var sourceTypeName = sourceType.ToDisplayString(TypeDisplayFormat);
+            var destinationTypeName = destinationType.ToDisplayString(TypeDisplayFormat);
+
+            foreach (var conversion in templateTypeConversions.Values)
+            {
+                var engineTypeName = engineProjectKind switch
+                {
+                    EngineProjectKind.Godot => conversion.GodotTypeName,
+                    EngineProjectKind.Unity => conversion.UnityTypeName,
+                    _ => null
+                };
+
+                var fromEngineExpression = engineProjectKind switch
+                {
+                    EngineProjectKind.Godot => conversion.GodotToAgnosticExpression,
+                    EngineProjectKind.Unity => conversion.UnityToAgnosticExpression,
+                    _ => null
+                };
+
+                var toEngineExpression = engineProjectKind switch
+                {
+                    EngineProjectKind.Godot => conversion.AgnosticToGodotExpression,
+                    EngineProjectKind.Unity => conversion.AgnosticToUnityExpression,
+                    _ => null
+                };
+
+                if (conversion.AgnosticTypeName == destinationTypeName &&
+                    engineTypeName == sourceTypeName &&
+                    !string.IsNullOrWhiteSpace(fromEngineExpression))
+                {
+                    convertedExpression = ApplyValueTemplate(fromEngineExpression!, expression);
+                    return true;
+                }
+
+                if (conversion.AgnosticTypeName == sourceTypeName &&
+                    engineTypeName == destinationTypeName &&
+                    !string.IsNullOrWhiteSpace(toEngineExpression))
+                {
+                    convertedExpression = ApplyValueTemplate(toEngineExpression!, expression);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static string ApplyValueTemplate(string template, string valueExpression)
+        {
+            return template.Replace(ValuePlaceholder, valueExpression);
+        }
+
+        private static ImmutableArray<string> BuildEventHookStatements(
+            EngineProjectKind engineProjectKind,
+            string eventName,
+            string fieldName,
+            string payloadTypeName)
+        {
+            if (engineProjectKind != EngineProjectKind.Godot)
+            {
+                return ImmutableArray<string>.Empty;
+            }
+
             if (eventName == "Focused")
             {
                 return ImmutableArray.Create(
@@ -778,7 +1403,7 @@ namespace Nomad.SourceGenerators
                 return ImmutableArray.Create("Pressed += () => " + fieldName + ".Publish(default);");
             }
 
-            if (eventName == "ValueChanged")
+            if (eventName == "ValueSet" || eventName == "ValueChanged")
             {
                 if (payloadTypeName == "float" || payloadTypeName == "global::System.Single")
                 {
@@ -788,250 +1413,16 @@ namespace Nomad.SourceGenerators
                 return ImmutableArray.Create("ValueChanged += (value) => " + fieldName + ".Publish(value);");
             }
 
+            if (eventName == "DisplayStateChanged" || eventName == "VisibilityChanged")
+            {
+                return ImmutableArray.Create("VisibilityChanged += () => " + fieldName + ".Publish(base.Visible);");
+            }
+
             return ImmutableArray<string>.Empty;
         }
 
-        private static string RenderClass(
-            string generatedNamespace,
-            string generatedClassName,
-            Accessibility accessibility,
-            INamedTypeSymbol baseType,
-            INamedTypeSymbol contractType,
-            IReadOnlyList<INamedTypeSymbol> additionalImplementedContracts,
-            IReadOnlyList<PropertyImplementation> propertyImplementations,
-            IReadOnlyList<EventImplementation> eventImplementations,
-            IReadOnlyList<MethodImplementation> methodImplementations,
-            bool requiresSpacingThemeConstant)
-        {
-            var builder = new StringBuilder();
-            builder.AppendLine("/*");
-            builder.AppendLine("===========================================================================");
-            builder.AppendLine("The Nomad Framework");
-            builder.AppendLine("Copyright (C) 2025-2026 Noah Van Til");
-            builder.AppendLine();
-            builder.AppendLine("This Source Code Form is subject to the terms of the Mozilla Public");
-            builder.AppendLine("License, v2. If a copy of the MPL was not distributed with this");
-            builder.AppendLine("file, You can obtain one at https://mozilla.org/MPL/2.0/.");
-            builder.AppendLine();
-            builder.AppendLine("This software is provided \"as is\", without warranty of any kind,");
-            builder.AppendLine("express or implied, including but not limited to the warranties");
-            builder.AppendLine("of merchantability, fitness for a particular purpose and noninfringement.");
-            builder.AppendLine("===========================================================================");
-            builder.AppendLine("*/");
-            builder.AppendLine();
-            builder.AppendLine("namespace " + generatedNamespace);
-            builder.AppendLine("{");
-            builder.AppendLine("    /// <summary>");
-            builder.AppendLine("    ///");
-            builder.AppendLine("    /// </summary>");
-            builder.Append("    ");
-            builder.Append(FormatAccessibility(accessibility));
-            builder.Append(" partial class ");
-            builder.Append(generatedClassName);
-            builder.Append(" : ");
-            builder.Append(baseType.ToDisplayString(TypeDisplayFormat));
-            builder.Append(", ");
-            builder.Append(contractType.ToDisplayString(TypeDisplayFormat));
-
-            foreach (var additionalImplementedContract in additionalImplementedContracts)
-            {
-                builder.Append(", ");
-                builder.Append(additionalImplementedContract.ToDisplayString(TypeDisplayFormat));
-            }
-
-            builder.AppendLine();
-            builder.AppendLine("    {");
-
-            if (requiresSpacingThemeConstant)
-            {
-                builder.AppendLine("        private static readonly global::Godot.StringName SeparationThemeConstantName = \"separation\";");
-                builder.AppendLine();
-            }
-
-            foreach (var propertyImplementation in propertyImplementations)
-            {
-                builder.AppendLine("        /// <summary>");
-                builder.AppendLine("        ///");
-                builder.AppendLine("        /// </summary>");
-                builder.AppendLine("        " + propertyImplementation.PropertyTypeName + " " + propertyImplementation.InterfaceTypeName + "." + propertyImplementation.PropertyName);
-                builder.AppendLine("        {");
-                builder.AppendLine("            get => " + propertyImplementation.GetterExpression + ";");
-
-                if (propertyImplementation.SetterExpression is not null)
-                {
-                    builder.AppendLine("            set => " + propertyImplementation.SetterExpression + ";");
-                }
-
-                builder.AppendLine("        }");
-                builder.AppendLine();
-            }
-
-            builder.AppendLine("        private readonly global::Nomad.EngineUtils.GodotGameObject _impl;");
-            builder.AppendLine();
-
-            foreach (var eventImplementation in eventImplementations)
-            {
-                builder.AppendLine("        /// <summary>");
-                builder.AppendLine("        ///");
-                builder.AppendLine("        /// </summary>");
-                builder.AppendLine("        global::Nomad.Core.Events.IGameEvent<" + eventImplementation.PayloadTypeName + "> " + eventImplementation.InterfaceTypeName + "." + eventImplementation.EventName + " => " + eventImplementation.FieldName + ";");
-                builder.AppendLine("        private global::Nomad.Core.Events.IGameEvent<" + eventImplementation.PayloadTypeName + "> " + eventImplementation.FieldName + ";");
-                builder.AppendLine();
-            }
-
-            builder.AppendLine("        /// <summary>");
-            builder.AppendLine("        ///");
-            builder.AppendLine("        /// </summary>");
-            builder.AppendLine("        public " + generatedClassName + "()");
-            builder.AppendLine("        {");
-            builder.AppendLine("            _impl = new global::Nomad.EngineUtils.GodotGameObject(this);");
-            builder.AppendLine("        }");
-            builder.AppendLine();
-
-            builder.AppendLine("        /// <summary>");
-            builder.AppendLine("        ///");
-            builder.AppendLine("        /// </summary>");
-            builder.AppendLine("        public sealed override void _Ready()");
-            builder.AppendLine("        {");
-            builder.AppendLine("            base._Ready();");
-            builder.AppendLine();
-
-            foreach (var eventImplementation in eventImplementations)
-            {
-                builder.AppendLine("            " + eventImplementation.FieldName + " = global::Nomad.Events.Globals.GameEventRegistry.GetEvent<" + eventImplementation.PayloadTypeName + ">($\"{GetHashCode()}:{" + eventImplementation.RegistryKeyConstantName + "}\", global::Nomad.EngineUtils.Constants.Events.NAMESPACE);");
-            }
-
-            if (eventImplementations.Count > 0)
-            {
-                builder.AppendLine();
-            }
-
-            foreach (var eventImplementation in eventImplementations)
-            {
-                foreach (var hookStatement in eventImplementation.HookStatements)
-                {
-                    builder.AppendLine("            " + hookStatement);
-                }
-            }
-
-            if (eventImplementations.Count > 0)
-            {
-                builder.AppendLine();
-            }
-
-            builder.AppendLine("            _impl.OnInit();");
-            builder.AppendLine("            OnInit();");
-            builder.AppendLine("        }");
-            builder.AppendLine();
-
-            builder.AppendLine("        /// <summary>");
-            builder.AppendLine("        ///");
-            builder.AppendLine("        /// </summary>");
-            builder.AppendLine("        /// <param name=\"delta\"></param>");
-            builder.AppendLine("        public sealed override void _Process(double delta)");
-            builder.AppendLine("        {");
-            builder.AppendLine("            base._Process(delta);");
-            builder.AppendLine();
-            builder.AppendLine("            float deltaTime = (float)delta;");
-            builder.AppendLine("            _impl.OnUpdate(deltaTime);");
-            builder.AppendLine("            OnUpdate(deltaTime);");
-            builder.AppendLine("        }");
-            builder.AppendLine();
-
-            builder.AppendLine("        /// <summary>");
-            builder.AppendLine("        ///");
-            builder.AppendLine("        /// </summary>");
-            builder.AppendLine("        /// <param name=\"delta\"></param>");
-            builder.AppendLine("        public sealed override void _PhysicsProcess(double delta)");
-            builder.AppendLine("        {");
-            builder.AppendLine("            base._PhysicsProcess(delta);");
-            builder.AppendLine();
-            builder.AppendLine("            float deltaTime = (float)delta;");
-            builder.AppendLine("            _impl.OnPhysicsUpdate(deltaTime);");
-            builder.AppendLine("            OnPhysicsUpdate(deltaTime);");
-            builder.AppendLine("        }");
-            builder.AppendLine();
-
-            builder.AppendLine("        /// <summary>");
-            builder.AppendLine("        ///");
-            builder.AppendLine("        /// </summary>");
-            builder.AppendLine("        public sealed override void _ExitTree()");
-            builder.AppendLine("        {");
-            builder.AppendLine("            base._ExitTree();");
-            builder.AppendLine();
-            builder.AppendLine("            _impl.OnShutdown();");
-            builder.AppendLine("            OnShutdown();");
-
-            if (eventImplementations.Count > 0)
-            {
-                builder.AppendLine();
-
-                foreach (var eventImplementation in eventImplementations)
-                {
-                    builder.AppendLine("            " + eventImplementation.FieldName + "?.Dispose();");
-                }
-            }
-
-            builder.AppendLine("        }");
-            builder.AppendLine();
-
-            builder.AppendLine("        /// <summary>");
-            builder.AppendLine("        ///");
-            builder.AppendLine("        /// </summary>");
-            builder.AppendLine("        protected virtual void OnInit()");
-            builder.AppendLine("        {");
-            builder.AppendLine("        }");
-            builder.AppendLine();
-
-            builder.AppendLine("        /// <summary>");
-            builder.AppendLine("        ///");
-            builder.AppendLine("        /// </summary>");
-            builder.AppendLine("        protected virtual void OnShutdown()");
-            builder.AppendLine("        {");
-            builder.AppendLine("        }");
-            builder.AppendLine();
-
-            builder.AppendLine("        /// <summary>");
-            builder.AppendLine("        ///");
-            builder.AppendLine("        /// </summary>");
-            builder.AppendLine("        /// <param name=\"delta\"></param>");
-            builder.AppendLine("        protected virtual void OnUpdate(float delta)");
-            builder.AppendLine("        {");
-            builder.AppendLine("        }");
-            builder.AppendLine();
-
-            builder.AppendLine("        /// <summary>");
-            builder.AppendLine("        ///");
-            builder.AppendLine("        /// </summary>");
-            builder.AppendLine("        /// <param name=\"delta\"></param>");
-            builder.AppendLine("        protected virtual void OnPhysicsUpdate(float delta)");
-            builder.AppendLine("        {");
-            builder.AppendLine("        }");
-            builder.AppendLine();
-
-            foreach (var methodImplementation in methodImplementations)
-            {
-                builder.AppendLine("        /// <summary>");
-                builder.AppendLine("        ///");
-                builder.AppendLine("        /// </summary>");
-                builder.AppendLine("        " + methodImplementation.Signature);
-
-                foreach (var constraintClause in methodImplementation.Constraints)
-                {
-                    builder.AppendLine("            " + constraintClause);
-                }
-
-                builder.AppendLine("        {");
-                builder.AppendLine("            " + methodImplementation.Body);
-                builder.AppendLine("        }");
-                builder.AppendLine();
-            }
-
-            builder.AppendLine("    }");
-            builder.AppendLine("}");
-
-            return builder.ToString();
-        }
+        private static string BuildRegistryEventName(IPropertySymbol propertySymbol)
+            => "Nomad." + TrimInterfacePrefix(propertySymbol.ContainingType.Name) + propertySymbol.Name;
 
         private static string ResolveGeneratedNamespace(INamedTypeSymbol contractSymbol, INamedTypeSymbol templateSymbol)
         {
@@ -1043,13 +1434,13 @@ namespace Nomad.SourceGenerators
             if (!string.IsNullOrWhiteSpace(configuredNamespace))
             {
                 var trimmedNamespace = configuredNamespace!.Trim().Trim('.');
-                if (trimmedNamespace.Equals("Nomad.EngineUtils", StringComparison.Ordinal) ||
-                    trimmedNamespace.StartsWith("Nomad.EngineUtils.", StringComparison.Ordinal))
+                if (trimmedNamespace.Equals("Nomad", StringComparison.Ordinal) ||
+                    trimmedNamespace.StartsWith("Nomad.", StringComparison.Ordinal))
                 {
                     return trimmedNamespace;
                 }
 
-                return "Nomad.EngineUtils." + trimmedNamespace;
+                return "Nomad." + trimmedNamespace;
             }
 
             var contractNamespace = contractSymbol.ContainingNamespace.ToDisplayString();
@@ -1116,21 +1507,24 @@ namespace Nomad.SourceGenerators
             return null;
         }
 
-        private static string FormatAccessibility(Accessibility accessibility)
-            => accessibility switch
+        private static bool GetNamedBooleanArgument(AttributeData attribute, string argumentName)
+        {
+            foreach (var namedArgument in attribute.NamedArguments)
             {
-                Accessibility.Public => "public",
-                Accessibility.Internal => "internal",
-                Accessibility.Private => "private",
-                Accessibility.Protected => "protected",
-                Accessibility.ProtectedAndInternal => "private protected",
-                Accessibility.ProtectedOrInternal => "protected internal",
-                _ => "internal"
-            };
+                if (namedArgument.Key == argumentName &&
+                    namedArgument.Value.Kind == TypedConstantKind.Primitive &&
+                    namedArgument.Value.Value is bool boolValue)
+                {
+                    return boolValue;
+                }
+            }
+
+            return false;
+        }
 
         private static string FormatParameter(IParameterSymbol parameter)
         {
-            var builder = new StringBuilder();
+            var builder = new System.Text.StringBuilder();
 
             if (parameter.IsParams)
             {
@@ -1256,168 +1650,12 @@ namespace Nomad.SourceGenerators
             return char.ToLowerInvariant(value[0]) + value.Substring(1);
         }
 
-        private static string ToScreamingSnakeCase(string value)
+        private static string NormalizeTypeName(string typeName)
         {
-            if (string.IsNullOrEmpty(value))
-            {
-                return value;
-            }
-
-            var builder = new StringBuilder(value.Length * 2);
-
-            for (int i = 0; i < value.Length; i++)
-            {
-                var current = value[i];
-
-                if (i > 0 && char.IsUpper(current))
-                {
-                    var previous = value[i - 1];
-                    var nextIsLower = i + 1 < value.Length && char.IsLower(value[i + 1]);
-                    if (char.IsLower(previous) || nextIsLower)
-                    {
-                        builder.Append('_');
-                    }
-                }
-
-                builder.Append(char.ToUpperInvariant(current));
-            }
-
-            return builder.ToString();
-        }
-
-        private sealed class GeneratedSource
-        {
-            public GeneratedSource(string hintName, string source, ImmutableArray<Diagnostic> diagnostics, bool canGenerate)
-            {
-                HintName = hintName;
-                Source = source;
-                Diagnostics = diagnostics;
-                CanGenerate = canGenerate;
-            }
-
-            public string HintName { get; }
-
-            public string Source { get; }
-
-            public ImmutableArray<Diagnostic> Diagnostics { get; }
-
-            public bool CanGenerate { get; }
-
-            public static GeneratedSource Invalid(IEnumerable<Diagnostic> diagnostics)
-                => new(string.Empty, string.Empty, diagnostics.ToImmutableArray(), false);
-        }
-
-        private sealed class TemplatePropertyDefinition
-        {
-            public TemplatePropertyDefinition(string name, string? fromEngineMethod, string? toEngineMethod)
-            {
-                Name = name;
-                FromEngineMethod = fromEngineMethod;
-                ToEngineMethod = toEngineMethod;
-            }
-
-            public string Name { get; }
-
-            public string? FromEngineMethod { get; }
-
-            public string? ToEngineMethod { get; }
-        }
-
-        private sealed class TemplateEventDefinition
-        {
-            public TemplateEventDefinition(string name, string? payloadTypeName)
-            {
-                Name = name;
-                PayloadTypeName = payloadTypeName;
-            }
-
-            public string Name { get; }
-
-            public string? PayloadTypeName { get; }
-        }
-
-        private sealed class PropertyImplementation
-        {
-            public PropertyImplementation(
-                PropertyImplementationKind kind,
-                string interfaceTypeName,
-                string propertyTypeName,
-                string propertyName,
-                string getterExpression,
-                string? setterExpression)
-            {
-                Kind = kind;
-                InterfaceTypeName = interfaceTypeName;
-                PropertyTypeName = propertyTypeName;
-                PropertyName = propertyName;
-                GetterExpression = getterExpression;
-                SetterExpression = setterExpression;
-            }
-
-            public PropertyImplementationKind Kind { get; }
-
-            public string InterfaceTypeName { get; }
-
-            public string PropertyTypeName { get; }
-
-            public string PropertyName { get; }
-
-            public string GetterExpression { get; }
-
-            public string? SetterExpression { get; }
-        }
-
-        private sealed class EventImplementation
-        {
-            public EventImplementation(
-                string interfaceTypeName,
-                string eventName,
-                string payloadTypeName,
-                string fieldName,
-                string registryKeyConstantName,
-                ImmutableArray<string> hookStatements)
-            {
-                InterfaceTypeName = interfaceTypeName;
-                EventName = eventName;
-                PayloadTypeName = payloadTypeName;
-                FieldName = fieldName;
-                RegistryKeyConstantName = registryKeyConstantName;
-                HookStatements = hookStatements;
-            }
-
-            public string InterfaceTypeName { get; }
-
-            public string EventName { get; }
-
-            public string PayloadTypeName { get; }
-
-            public string FieldName { get; }
-
-            public string RegistryKeyConstantName { get; }
-
-            public ImmutableArray<string> HookStatements { get; }
-        }
-
-        private sealed class MethodImplementation
-        {
-            public MethodImplementation(string signature, ImmutableArray<string> constraints, string body)
-            {
-                Signature = signature;
-                Constraints = constraints;
-                Body = body;
-            }
-
-            public string Signature { get; }
-
-            public ImmutableArray<string> Constraints { get; }
-
-            public string Body { get; }
-        }
-
-        private enum PropertyImplementationKind
-        {
-            Generated,
-            ThrowingStub
+            var trimmed = typeName.Trim();
+            return trimmed.StartsWith("global::", StringComparison.Ordinal)
+                ? trimmed
+                : "global::" + trimmed;
         }
     }
 }

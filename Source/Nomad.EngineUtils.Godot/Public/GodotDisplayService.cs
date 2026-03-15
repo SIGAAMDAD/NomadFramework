@@ -139,7 +139,7 @@ namespace Nomad.EngineUtils
         /// <param name="args"></param>
         private void OnMaxFpsChanged(in CVarValueChangedEventArgs<int> args)
         {
-            Engine.MaxFps = args.NewValue;
+            Godot.Engine.MaxFps = args.NewValue;
         }
 
         /// <summary>

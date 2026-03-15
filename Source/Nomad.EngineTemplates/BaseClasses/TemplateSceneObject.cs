@@ -13,16 +13,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Nomad.Core.UI;
-using Nomad.EngineUtils.BaseClasses;
-
-namespace Nomad.EngineUtils.UserInterface
+namespace Nomad.EngineTemplates.BaseClasses
 {
-    [TemplateClass(Contract = typeof(IText))]
-    [TemplateNamespace(Name = "UserInterface")]
-    [TemplateUIElement]
-    [TemplateProperty(Name = "Text", Type = typeof(string))]
-    public partial class EngineText : Godot.Label, IText
-    {
-    }
 }

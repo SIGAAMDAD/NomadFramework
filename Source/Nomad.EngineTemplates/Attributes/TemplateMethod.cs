@@ -13,33 +13,29 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Nomad.Core.Events;
+using System;
 
-namespace Nomad.Core.UI
+namespace Nomad.EngineTemplates.Attributes
 {
     /// <summary>
-    ///
+    /// Maps an agnostic contract method to a concrete engine-side method.
     /// </summary>
-    public interface ISlider : IUIElement
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
+    public class TemplateMethod : Attribute
     {
         /// <summary>
-        ///
+        /// The contract method name.
         /// </summary>
-        float Value { get; set; }
+        public string Name { get; set; }
 
         /// <summary>
-        ///
+        /// Optional Godot engine method name override.
         /// </summary>
-        float Minimum { get; set; }
+        public string GodotMethodName { get; set; } = null;
 
         /// <summary>
-        ///
+        /// Optional Unity engine method name override.
         /// </summary>
-        float Maximum { get; set; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        IGameEvent<float> ValueSet { get; }
+        public string UnityMethodName { get; set; } = null;
     }
 }

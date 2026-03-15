@@ -70,7 +70,7 @@ namespace Nomad.EngineUtils
 
             public const string BUTTON_CLICKED = NAMESPACE + ".ButtonClicked";
 
-            public const string SLIDER_CHANGED = NAMESPACE + ".SliderValueChanged";
+            public const string SLIDER_VALUE_SET = NAMESPACE + ".SliderValueSet";
 
             public const string UI_ELEMENT_FOCUSED = NAMESPACE + ".UIElementFocused";
             public const string UI_ELEMENT_UNFOCUSED = NAMESPACE + ".UIElementUnfocused";

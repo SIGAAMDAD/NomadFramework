@@ -13,13 +13,16 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Nomad.Core.Scene.GameObjects;
+using System;
 
-namespace Nomad.EngineUtils.GameObjects
+namespace Nomad.EngineTemplates.Attributes.Events
 {
-    [TemplateClass(Contract = typeof(ISceneObject))]
-    [TemplateNamespace(Name = "GameObjects")]
-    public partial class EngineSceneObject : Godot.Node, ISceneObject
+	/// <summary>
+	/// Represents an event that fires whenever a GameObject's visibility status is changed.
+	/// </summary>
+	[AttributeUsage(AttributeTargets.Class, Inherited = true)]
+	[TemplateEvent(Name = "DisplayStateChanged", PayloadType = typeof(bool))]
+    public class TemplateDisplayStateChangedEvent : Attribute
     {
     }
 }

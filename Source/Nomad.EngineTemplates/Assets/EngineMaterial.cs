@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -13,33 +13,18 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Nomad.Core.Events;
+using Nomad.Core.Engine.Assets;
+using Nomad.EngineTemplates.Attributes;
+using System;
 
-namespace Nomad.Core.UI
+namespace Nomad.EngineTemplates.Assets
 {
     /// <summary>
     ///
     /// </summary>
-    public interface ISlider : IUIElement
+	[TemplateClass(Contract = typeof(IMaterial), IsAsset = true, GodotBase = "Godot.Material")]
+	[TemplateNamespace(Name = "Assets")]
+    public class EngineMaterial
     {
-        /// <summary>
-        ///
-        /// </summary>
-        float Value { get; set; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        float Minimum { get; set; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        float Maximum { get; set; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        IGameEvent<float> ValueSet { get; }
     }
 }
