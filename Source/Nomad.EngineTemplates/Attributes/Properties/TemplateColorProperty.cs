@@ -25,7 +25,9 @@ namespace Nomad.EngineTemplates.Attributes.Properties
     [TemplateTypeConversion(
         AgnosticType = typeof(Color),
         AgnosticToGodotExpression = "new global::Godot.Color({{value}}.R, {{value}}.G, {{value}}.B, {{value}}.A)",
-        GodotToAgnosticExpression = "global::System.Drawing.Color.FromArgb({{value}}.A8, {{value}}.R8, {{value}}.G8, {{value}}.B8)")]
+        GodotToAgnosticExpression = "global::System.Drawing.Color.FromArgb({{value}}.A8, {{value}}.R8, {{value}}.G8, {{value}}.B8)",
+        AgnosticToUnityExpression = "new global::UnityEngine.Color({{value}}.R / 255f, {{value}}.G / 255f, {{value}}.B / 255f, {{value}}.A / 255f)",
+        UnityToAgnosticExpression = "global::System.Drawing.Color.FromArgb((int)({{value}}.a * 255f), (int)({{value}}.r * 255f), (int)({{value}}.g * 255f), (int)({{value}}.b * 255f))")]
     [TemplateProperty(Name = "Color", Type = typeof(Color), Documentation = "Represents a GameObject's color.")]
     internal class TemplateColorProperty : Attribute
     {

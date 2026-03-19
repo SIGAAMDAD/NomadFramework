@@ -22,7 +22,7 @@ namespace Nomad.EngineTemplates.Scene.GameObjects
     /// <summary>
     /// Declares the engine template for 2D character objects.
     /// </summary>
-    [TemplateClass(Contract = typeof(ICharacter2D), GodotBase = "Godot.CharacterBody2D")]
+    [TemplateClass(Contract = typeof(ICharacter2D), GodotBase = "Godot.CharacterBody2D", UnityBase = "UnityEngine.MonoBehaviour")]
     [TemplateNamespace(Name = "Scene.GameObjects")]
     [TemplateObject2D]
     public class EngineCharacter2D

@@ -36,13 +36,12 @@ namespace Nomad.Events.Private.SubscriptionSets {
 	internal sealed class SubscriptionSet<TArgs> : ISubscriptionSet<TArgs>
 		where TArgs : struct
 	{
-#if DEBUG
 		public int SubscriberCount => _subscriberCount;
 		private int _subscriberCount = 0;
 
 		public long PublishCount => _publishCount;
 		private long _publishCount = 0;
-#endif
+
 		private readonly ILoggerService _logger;
 		private readonly IGameEvent<TArgs> _eventData;
 
@@ -108,9 +107,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 			_pumpLock.EnterWriteLock();
 			try {
 				_genericSubscriptions.Add( callback );
-#if DEBUG
 				Interlocked.Increment( ref _subscriberCount );
-#endif
 				return true;
 			} finally {
 				_pumpLock.ExitWriteLock();
@@ -140,9 +137,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 			try {
 				_asyncSubscriptions.Add( callback );
 				_taskCache.Add( null! );
-#if DEBUG
 				Interlocked.Increment( ref _subscriberCount );
-#endif
 				return true;
 			} finally {
 				_pumpLock.ExitWriteLock();
@@ -170,9 +165,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 			_pumpLock.EnterWriteLock();
 			try {
 				_genericSubscriptions.RemoveAt( index );
-#if DEBUG
 				Interlocked.Decrement( ref _subscriberCount );
-#endif
 				return true;
 			} finally {
 				_pumpLock.ExitWriteLock();
@@ -202,9 +195,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 			try {
 				_asyncSubscriptions.RemoveAt( index );
 				_taskCache.RemoveAt( index );
-#if DEBUG
 				Interlocked.Increment( ref _subscriberCount );
-#endif
 				return true;
 			} finally {
 				_pumpLock.ExitWriteLock();
@@ -237,9 +228,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 			} finally {
 				_pumpLock.ExitUpgradeableReadLock();
 			}
-#if DEBUG
 			Interlocked.Increment( ref _publishCount );
-#endif
 		}
 
 		/*

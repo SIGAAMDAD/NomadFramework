@@ -23,7 +23,7 @@ namespace Nomad.EngineTemplates.UI
 	/// <summary>
 	/// 
 	/// </summary>
-	[TemplateClass(Contract = typeof(IImageView), GodotBase = "Godot.TextureRect")]
+	[TemplateClass(Contract = typeof(IImageView), GodotBase = "Godot.TextureRect", UnityBase = "UnityEngine.MonoBehaviour")]
 	[TemplateNamespace(Name = "UI")]
 	[TemplateUIElement]
 	[TemplateProperty(Name = "Texture", Type = typeof(ITexture), Documentation = "The image to be displayed within this UI element.")]

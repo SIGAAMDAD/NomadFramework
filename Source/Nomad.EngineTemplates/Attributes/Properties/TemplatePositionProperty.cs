@@ -25,8 +25,15 @@ namespace Nomad.EngineTemplates.Attributes.Properties
     [TemplateTypeConversion(
         AgnosticType = typeof(Vector2),
         AgnosticToGodotExpression = "new global::Godot.Vector2({{value}}.X, {{value}}.Y)",
-        GodotToAgnosticExpression = "new global::System.Numerics.Vector2({{value}}.X, {{value}}.Y)")]
-    [TemplateProperty(Name = "Position", Type = typeof(Vector2), Documentation = "Represents a SceneObject's position on a 2D plane in the current scene.")]
+        GodotToAgnosticExpression = "new global::System.Numerics.Vector2({{value}}.X, {{value}}.Y)",
+        AgnosticToUnityExpression = "new global::UnityEngine.Vector2({{value}}.X, {{value}}.Y)",
+        UnityToAgnosticExpression = "new global::System.Numerics.Vector2({{value}}.x, {{value}}.y)")]
+    [TemplateProperty(
+        Name = "Position",
+        Type = typeof(Vector2),
+        Documentation = "Represents a SceneObject's position on a 2D plane in the current scene.",
+        UnityGetterExpression = "new global::System.Numerics.Vector2(transform.localPosition.x, transform.localPosition.y)",
+        UnitySetterExpression = "transform.localPosition = new global::UnityEngine.Vector3(value.X, value.Y, transform.localPosition.z)")]
     internal class TemplatePositionProperty : Attribute
     {
     }

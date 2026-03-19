@@ -30,6 +30,11 @@ namespace Nomad.EngineTemplates.BaseClasses
 	[TemplateDisplayStateChangedEvent]
     [TemplateEvent(Name = "Focused", PayloadType = typeof(EmptyEventArgs))]
     [TemplateEvent(Name = "Unfocused", PayloadType = typeof(EmptyEventArgs))]
+    [TemplateProperty(
+        Name = "Visible",
+        Type = typeof(bool),
+        UnityGetterExpression = "gameObject.activeSelf",
+        UnitySetterExpression = "gameObject.SetActive(value)")]
     [TemplatePositionProperty]
     [TemplateScaleProperty]
     [TemplateRotationProperty]

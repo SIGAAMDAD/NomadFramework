@@ -57,7 +57,6 @@ namespace Nomad.Events.Private {
 		public int Id => _hashCode;
 		private readonly int _hashCode;
 
-#if DEBUG
 		public TArgs LastPayload => _lastPayload;
 		private TArgs _lastPayload;
 
@@ -66,7 +65,6 @@ namespace Nomad.Events.Private {
 
 		public int SubscriberCount => _subscriptions.SubscriberCount;
 		public long PublishCount => _subscriptions.PublishCount;
-#endif
 
 		private bool _isDisposed = false;
 

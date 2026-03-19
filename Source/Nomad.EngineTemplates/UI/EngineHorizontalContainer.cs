@@ -22,7 +22,7 @@ namespace Nomad.EngineTemplates.UI
     /// <summary>
     /// Declares the engine template for horizontal container UI elements.
     /// </summary>
-    [TemplateClass(Contract = typeof(IHorizontalContainer), GodotBase = "Godot.HBoxContainer")]
+    [TemplateClass(Contract = typeof(IHorizontalContainer), GodotBase = "Godot.HBoxContainer", UnityBase = "UnityEngine.MonoBehaviour")]
     [TemplateNamespace(Name = "UI")]
     [TemplateProperty(
         Name = "Spacing",

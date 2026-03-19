@@ -13,6 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System;
 using Nomad.Core.Engine.Assets;
 using Nomad.EngineTemplates.Attributes;
 
@@ -21,10 +22,15 @@ namespace Nomad.Engine.Assets
     /// <summary>
     /// Represents a 2D texture asset template.
     /// </summary>
-    [TemplateClass(Contract = typeof(ITexture), GodotBase = "Godot.Texture2D", UnityBase = "UnityEngine.CoreModule", IsAsset = true)]
+    [TemplateClass(Contract = typeof(ITexture), GodotBase = "Godot.Texture2D", UnityBase = "UnityEngine.Texture", IsAsset = true)]
     [TemplateNamespace(Name = "Assets")]
-    [TemplateProperty(Name = "Width", Type = typeof(uint),  GodotGetterExpression = "base.GetWidth()", UnityGetterExpression = "base.width", IsReadOnly = true)]
-    [TemplateProperty(Name = "Height", Type = typeof(uint),  GodotGetterExpression = "base.GetHeight()", UnityGetterExpression = "base.height", IsReadOnly = true)]
+    [TemplateProperty(Name = "Width", Type = typeof(int), GodotGetterExpression = "base.GetWidth()", UnityGetterExpression = "(this as global::UnityEngine.Texture2D).width", IsReadOnly = true)]
+    [TemplateProperty(Name = "Height", Type = typeof(int), GodotGetterExpression = "base.GetHeight()", UnityGetterExpression = "(this as global::UnityEngine.Texture2D).height", IsReadOnly = true)]
+    [TemplateProperty(
+        Name = "Image",
+        Type = typeof(ReadOnlyMemory<byte>),
+        UnityGetterExpression = "new global::System.ReadOnlyMemory<byte>(base.GetRawTextureData<byte>().ToArray())",
+        IsReadOnly = true)]
     internal class EngineTexture2D
     {
     }

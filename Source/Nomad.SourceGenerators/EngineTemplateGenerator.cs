@@ -853,6 +853,14 @@ namespace Nomad.SourceGenerators
             var configuredSetterExpression = string.IsNullOrWhiteSpace(setterTemplate)
                 ? null
                 : ApplyValueTemplate(setterTemplate!, "value");
+            configuredGetterExpression = NormalizeEngineSpecificExpression(
+                configuredGetterExpression,
+                engineProjectKind,
+                usesGameObjectAdapter);
+            configuredSetterExpression = NormalizeEngineSpecificExpression(
+                configuredSetterExpression,
+                engineProjectKind,
+                usesGameObjectAdapter);
             requiresSpacingThemeConstant = ReferencesSpacingThemeConstant(configuredGetterExpression) ||
                                            ReferencesSpacingThemeConstant(configuredSetterExpression);
 
@@ -862,10 +870,16 @@ namespace Nomad.SourceGenerators
                 var engineAccessExpression = "base." + engineMember.Name;
                 configuredGetterExpression = string.IsNullOrWhiteSpace(getterTemplate)
                     ? null
-                    : ApplyValueTemplate(getterTemplate!, engineAccessExpression);
+                    : NormalizeEngineSpecificExpression(
+                        ApplyValueTemplate(getterTemplate!, engineAccessExpression),
+                        engineProjectKind,
+                        usesGameObjectAdapter);
                 configuredSetterExpression = string.IsNullOrWhiteSpace(setterTemplate)
                     ? null
-                    : ApplyValueTemplate(setterTemplate!, "value");
+                    : NormalizeEngineSpecificExpression(
+                        ApplyValueTemplate(setterTemplate!, "value"),
+                        engineProjectKind,
+                        usesGameObjectAdapter);
 
                 return new PropertyImplementation(
                     PropertyImplementationKind.Generated,
@@ -1002,6 +1016,24 @@ namespace Nomad.SourceGenerators
         private static bool ReferencesSpacingThemeConstant(string? expression)
             => !string.IsNullOrWhiteSpace(expression) &&
                expression!.IndexOf("SeparationThemeConstantName", StringComparison.Ordinal) >= 0;
+
+        private static string? NormalizeEngineSpecificExpression(
+            string? expression,
+            EngineProjectKind engineProjectKind,
+            bool usesGameObjectAdapter)
+        {
+            if (string.IsNullOrWhiteSpace(expression))
+            {
+                return expression;
+            }
+
+            if (engineProjectKind == EngineProjectKind.Unity && usesGameObjectAdapter)
+            {
+                return expression!.Replace("GetComponent<", "GetUnityComponent<");
+            }
+
+            return expression;
+        }
 
         private static PropertyImplementation CreateFieldBackedPropertyImplementation(
             IPropertySymbol propertySymbol,

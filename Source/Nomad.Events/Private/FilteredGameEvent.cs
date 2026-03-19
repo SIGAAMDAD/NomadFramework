@@ -33,13 +33,12 @@ namespace Nomad.Events.Private {
 	/// </summary>
 
 	internal sealed class FilteredGameEvent<TArgs> : IGameEvent<TArgs>
-		where TArgs : struct {
-#if DEBUG
+		where TArgs : struct
+	{
 		public TArgs LastPayload => _source.LastPayload;
 		public int SubscriberCount => _source.SubscriberCount;
 		public long PublishCount => _source.PublishCount;
 		public DateTime LastPublishTime => _source.LastPublishTime;
-#endif
 
 		public string DebugName => _source.DebugName;
 		public string NameSpace => _source.NameSpace;

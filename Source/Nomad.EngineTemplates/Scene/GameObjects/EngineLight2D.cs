@@ -23,11 +23,33 @@ namespace Nomad.EngineTemplates.Scene.GameObjects
 	/// <summary>
 	/// Declares the engine template for 2D light objects.
 	/// </summary>
-	[TemplateClass(Contract = typeof(ILight2D), GodotBase = "Godot.PointLight2D")]
+	[TemplateClass(Contract = typeof(ILight2D), GodotBase = "Godot.PointLight2D", UnityBase = "UnityEngine.MonoBehaviour")]
 	[TemplateNamespace(Name = "Scene.GameObjects")]
 	[TemplateColorProperty]
-	[TemplateProperty(Name = "Brightness", Type = typeof(float), GodotSetterExpression = "base.Energy = value", GodotGetterExpression = "base.Energy")]
-	[TemplateProperty(Name = "Range", Type = typeof(float), GodotSetterExpression = "base.TextureScale = value", GodotGetterExpression = "base.TextureScale")]
+    [TemplateProperty(
+        Name = "Color",
+        Type = typeof(global::System.Drawing.Color),
+        UnityGetterExpression = "GetComponent<global::UnityEngine.Light>() != null ? global::System.Drawing.Color.FromArgb((int)(GetComponent<global::UnityEngine.Light>().color.a * 255f), (int)(GetComponent<global::UnityEngine.Light>().color.r * 255f), (int)(GetComponent<global::UnityEngine.Light>().color.g * 255f), (int)(GetComponent<global::UnityEngine.Light>().color.b * 255f)) : global::System.Drawing.Color.Empty",
+        UnitySetterExpression = "(GetComponent<global::UnityEngine.Light>() ?? throw new global::System.InvalidOperationException(\"A UnityEngine.Light component is required.\")).color = new global::UnityEngine.Color(value.R / 255f, value.G / 255f, value.B / 255f, value.A / 255f)")]
+	[TemplateProperty(
+        Name = "Intensity",
+        Type = typeof(float),
+        GodotSetterExpression = "base.Energy = value",
+        GodotGetterExpression = "base.Energy",
+        UnityGetterExpression = "GetComponent<global::UnityEngine.Light>() != null ? GetComponent<global::UnityEngine.Light>().intensity : 0f",
+        UnitySetterExpression = "(GetComponent<global::UnityEngine.Light>() ?? throw new global::System.InvalidOperationException(\"A UnityEngine.Light component is required.\")).intensity = value")]
+	[TemplateProperty(
+        Name = "Range",
+        Type = typeof(float),
+        GodotSetterExpression = "base.TextureScale = value",
+        GodotGetterExpression = "base.TextureScale",
+        UnityGetterExpression = "GetComponent<global::UnityEngine.Light>() != null ? GetComponent<global::UnityEngine.Light>().range : 0f",
+        UnitySetterExpression = "(GetComponent<global::UnityEngine.Light>() ?? throw new global::System.InvalidOperationException(\"A UnityEngine.Light component is required.\")).range = value")]
+    [TemplateProperty(
+        Name = "CastShadows",
+        Type = typeof(bool),
+        UnityGetterExpression = "GetComponent<global::UnityEngine.Light>() != null && GetComponent<global::UnityEngine.Light>().shadows != global::UnityEngine.LightShadows.None",
+        UnitySetterExpression = "(GetComponent<global::UnityEngine.Light>() ?? throw new global::System.InvalidOperationException(\"A UnityEngine.Light component is required.\")).shadows = value ? global::UnityEngine.LightShadows.Soft : global::UnityEngine.LightShadows.None")]
 	[TemplateObject2D]
 	internal class EngineLight2D
 	{

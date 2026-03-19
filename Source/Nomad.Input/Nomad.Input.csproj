@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <!-- NuGet Package Information -->
-    <PackageId>NomadFramework.Nomad.Input</PackageId>
-    <Version>0.0.1-alpha1</Version>
+    <PackageId>NomadFramework.Input</PackageId>
+    <Version>0.1.0-alpha1</Version>
   </PropertyGroup>
   
   <!-- SPECIAL PROPS -->

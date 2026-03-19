@@ -19,7 +19,7 @@ using Nomad.EngineTemplates.BaseClasses;
 
 namespace Nomad.EngineTemplates.UI
 {
-	[TemplateClass(Contract = typeof(IPaddingContainer), GodotBase = "Godot.MarginContainer")]
+	[TemplateClass(Contract = typeof(IPaddingContainer), GodotBase = "Godot.MarginContainer", UnityBase = "UnityEngine.MonoBehaviour")]
 	[TemplateNamespace(Name = "UI")]
 	[TemplateUIElement]
 	[TemplateProperty(

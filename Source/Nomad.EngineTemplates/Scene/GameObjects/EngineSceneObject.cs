@@ -21,7 +21,7 @@ namespace Nomad.EngineTemplates.Scene.GameObjects
 	/// <summary>
 	/// Declares the engine template for scene objects.
 	/// </summary>
-    [TemplateClass(Contract = typeof(ISceneObject), GodotBase = "Godot.Node")]
+    [TemplateClass(Contract = typeof(ISceneObject), GodotBase = "Godot.Node", UnityBase = "UnityEngine.MonoBehaviour")]
     [TemplateNamespace(Name = "Scene.GameObjects")]
     [TemplateProperty(Name = "Id", Type = typeof(SceneObjectId))]
     internal class EngineSceneObject

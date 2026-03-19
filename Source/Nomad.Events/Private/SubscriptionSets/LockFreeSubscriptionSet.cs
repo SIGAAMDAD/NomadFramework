@@ -38,13 +38,11 @@ namespace Nomad.Events.Private.SubscriptionSets {
 	internal sealed class LockFreeSubscriptionSet<TArgs> : ISubscriptionSet<TArgs>
 		where TArgs : struct
 	{
-#if DEBUG
 		public int SubscriberCount => _subscriberCount;
 		private int _subscriberCount = 0;
 
 		public long PublishCount => _publishCount;
 		private long _publishCount = 0;
-#endif
 
 		private readonly ILoggerService _logger;
 		private readonly IGameEvent<TArgs> _eventData;
@@ -104,9 +102,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 			}
 
 			_genericSubscriptions.Add( callback );
-#if DEBUG
 			Interlocked.Increment( ref _subscriberCount );
-#endif
 			return true;
 		}
 
@@ -143,9 +139,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 			}
 
 			_genericSubscriptions.RemoveAt( index );
-#if DEBUG
 			Interlocked.Decrement( ref _subscriberCount );
-#endif
 			return true;
 		}
 
@@ -182,9 +176,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 				} catch {
 				}
 			}
-#if DEBUG
 			Interlocked.Increment( ref _publishCount );
-#endif
 		}
 
 		/*

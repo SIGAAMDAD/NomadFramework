@@ -23,7 +23,7 @@ namespace Nomad.EngineTemplates.UI
     /// <summary>
     /// Declares the engine template for button UI elements.
     /// </summary>
-    [TemplateClass(Contract = typeof(IButton), GodotBase = "Godot.Button")]
+    [TemplateClass(Contract = typeof(IButton), GodotBase = "Godot.Button", UnityBase = "UnityEngine.MonoBehaviour")]
     [TemplateNamespace(Name = "UI")]
     [TemplateUIElement]
     [TemplateEvent(Name = "Clicked", PayloadType = typeof(EmptyEventArgs))]

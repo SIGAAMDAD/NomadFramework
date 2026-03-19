@@ -1,4 +1,4 @@
-﻿/*
+/*
 ===========================================================================
 The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
@@ -13,9 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-#if UNITY_EDITOR
 using System;
-using System.Collections;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,76 +24,87 @@ using UnityEngine;
 namespace Nomad.EngineUtils.Private {
 	/*
 	===================================================================================
-	
+
 	UnityLoader
-	
+
 	===================================================================================
 	*/
 	/// <summary>
-	/// 
+	/// A Unity-focused resource loader.
 	/// </summary>
-
-	internal sealed class UnityLoader<Resource> : IResourceLoader<Resource, string>
-		where Resource : UnityEngine.Object
-	{
-		public LoadCallback<Resource, string> Load => LoadResource;
-		public LoadAsyncCallback<Resource, string> LoadAsync => LoadResourceAsync;
-
-		/*
-		===============
-		Dispose
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		public void Dispose() {
-		}
-
+	internal sealed class UnityLoader : IResourceLoader {
 		/// <summary>
 		///
 		/// </summary>
-		/// <param name="path"></param>
+		/// <typeparam name="TResource"></typeparam>
+		/// <typeparam name="TId"></typeparam>
+		/// <param name="id"></param>
 		/// <returns></returns>
-		private Result<Resource> LoadResource( string path ) {
-			Resource resource = Resources.Load<Resource>( path );
-			if ( resource == null ) {
-				return Result<Resource>.Failure( Error.Create( $"Error loading unity resource '{path}'" ) );
-			} else if ( resource is Resource loadedResource ) {
-				return Result<Resource>.Success( loadedResource );
+		public Result<TResource> Load<TResource, TId>( TId id ) {
+			if ( id is not string path ) {
+				throw new InvalidCastException();
 			}
+
+			UnityEngine.Object resource = Resources.Load( path, typeof( TResource ) );
+			if ( resource == null ) {
+				return Result<TResource>.Failure( InternalError.Create( "Error loading unity resource '" + path + "'" ) );
+			}
+
+			if ( resource is TResource loadedResource ) {
+				return Result<TResource>.Success( loadedResource );
+			}
+
 			throw new InvalidCastException();
 		}
 
 		/*
         ===============
-        LoadResourceAsync
+        LoadAsync
         ===============
         */
 		/// <summary>
 		///
 		/// </summary>
-		/// <param name="path"></param>
+		/// <typeparam name="TResource"></typeparam>
+		/// <typeparam name="TId"></typeparam>
+		/// <param name="id"></param>
 		/// <param name="ct"></param>
 		/// <returns></returns>
-		private async Task<Result<Resource>> LoadResourceAsync( string path, CancellationToken ct = default ) {
+		public async Task<Result<TResource>> LoadAsync<TResource, TId>( TId id, CancellationToken ct = default ) {
 			ct.ThrowIfCancellationRequested();
 
-			ResourceRequest request = Resources.LoadAsync( path );
-			if ( request == null ) {
-				return Result<Resource>.Failure( Error.Create( $"Error loading unity resource '{path}'" ) );
+			if ( id is not string path ) {
+				throw new InvalidCastException();
 			}
-			return Result<Resource>.Success( await request );
+
+			ResourceRequest request = Resources.LoadAsync( path, typeof( TResource ) );
+			if ( request == null ) {
+				return Result<TResource>.Failure( InternalError.Create( "Error loading unity resource '" + path + "'" ) );
+			}
+
+			UnityEngine.Object resource = await request;
+			if ( resource is TResource loadedResource ) {
+				return Result<TResource>.Success( loadedResource );
+			}
+
+			throw new InvalidCastException();
 		}
 	};
 
-	public static class ResourceRequestExtensions {
+	/// <summary>
+	///
+	/// </summary>
+	internal static class ResourceRequestExtensions {
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="request"></param>
+		/// <returns></returns>
 		public static TaskAwaiter<UnityEngine.Object> GetAwaiter( this ResourceRequest request ) {
 			var tcs = new TaskCompletionSource<UnityEngine.Object>();
-			var asyncOp = request;
-			asyncOp.completed += _ => tcs.SetResult( asyncOp.asset ); // requires Unity 2020.3+?
+			var asyncOperation = request;
+			asyncOperation.completed += delegate { tcs.SetResult( asyncOperation.asset ); };
 			return tcs.Task.GetAwaiter();
 		}
 	};
 };
-#endif

@@ -5,10 +5,11 @@
 
   <PropertyGroup Condition="'$(IsTestProject)' != 'true' And '$(IsTool)' != 'true'" >
     <!-- Build Configuration -->
-    <TargetFrameworks>net10.0;net8.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>net10.0;netstandard2.1</TargetFrameworks>
     <LangVersion Condition="'$(TargetFramework)' == 'net10.0'">14.0</LangVersion>
     <LangVersion Condition="'$(TargetFramework)' == 'net8.0'">12.0</LangVersion>
     <LangVersion Condition="'$(TargetFramework)' == 'netstandard2.1'">9.0</LangVersion>
+    <IsTrimmable Condition="'$(TargetFramework)' == 'net10.0' Or '$(TargetFramework)' == 'net8.0'">true</IsTrimmable>
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
@@ -19,26 +20,33 @@
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AnalysisLevel>latest</AnalysisLevel>
 
+    <NoWarn>$(NoWarn);CA1501;CA2213</NoWarn>
+    <WarningsAsErrors>
+      CA1816;CA2200;CA2215;CA2218:CA2219;CA2224;CA2227;CA2241;CA1506;CA1307;CA1308;CA1310;CA2119;CA2013;CA2012;CA2011;CA1836;CA1834;CA1830;CA1835;CA1829;CA1827;CA1825;CA1822
+    </WarningsAsErrors>
+
     <!-- NuGet Package Information -->
     <Authors>Noah Van Til</Authors>
     <Company>GDR Software</Company>
-    <PackageLicenseExpression>MPL-2.0</PackageLicenseExpression>
+    <Description></Description>
 
+    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageLicenseExpression>MPL-2.0</PackageLicenseExpression>
     <PackageTags>dotnet;library;framework;game-development;godot;unity</PackageTags>
     <PackageProjectUrl>https://github.com/SIGAAMDAD/NomadFramework.git</PackageProjectUrl>
+
     <RepositoryUrl>https://github.com/SIGAAMDAD/NomadFramework.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <RepositoryBranch>main</RepositoryBranch>
     
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageIcon>NomadFramework.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <NoWarn>$(NoWarn);CA1501;CA2213</NoWarn>
-    <WarningsAsErrors>
-      CA1816;CA2200;CA2215;CA2218:CA2219;CA2224;CA2227;CA2241;CA1506;CA1307;CA1308;CA1310;CA2119;CA2013;CA2012;CA2011;CA1836;CA1834;CA1830;CA1835;CA1829;CA1827;CA1825;CA1822
-    </WarningsAsErrors>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
   </PropertyGroup>
 
   <ItemGroup>

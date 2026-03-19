@@ -25,8 +25,15 @@ namespace Nomad.EngineTemplates.Attributes.Properties
     [TemplateTypeConversion(
         AgnosticType = typeof(Vector2),
         AgnosticToGodotExpression = "new global::Godot.Vector2({{value}}.X, {{value}}.Y)",
-        GodotToAgnosticExpression = "new global::System.Numerics.Vector2({{value}}.X, {{value}}.Y)")]
-    [TemplateProperty(Name = "Scale", Type = typeof(Vector2), Documentation = "Represents a GameObject's size relative to the viewport.")]
+        GodotToAgnosticExpression = "new global::System.Numerics.Vector2({{value}}.X, {{value}}.Y)",
+        AgnosticToUnityExpression = "new global::UnityEngine.Vector2({{value}}.X, {{value}}.Y)",
+        UnityToAgnosticExpression = "new global::System.Numerics.Vector2({{value}}.x, {{value}}.y)")]
+    [TemplateProperty(
+        Name = "Scale",
+        Type = typeof(Vector2),
+        Documentation = "Represents a GameObject's size relative to the viewport.",
+        UnityGetterExpression = "new global::System.Numerics.Vector2(transform.localScale.x, transform.localScale.y)",
+        UnitySetterExpression = "transform.localScale = new global::UnityEngine.Vector3(value.X, value.Y, transform.localScale.z)")]
     internal class TemplateScaleProperty : Attribute
     {
     }

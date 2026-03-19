@@ -22,7 +22,7 @@ namespace Nomad.EngineTemplates.UI
     /// <summary>
     /// Declares the engine template for horizontal slider UI elements.
     /// </summary>
-    [TemplateClass(Contract = typeof(IHorizontalSlider), GodotBase = "Godot.HSlider")]
+    [TemplateClass(Contract = typeof(IHorizontalSlider), GodotBase = "Godot.HSlider", UnityBase = "UnityEngine.MonoBehaviour")]
     [TemplateNamespace(Name = "UI")]
     [TemplateEvent(Name = "ValueSet", PayloadType = typeof(float))]
     [TemplateUIElement]

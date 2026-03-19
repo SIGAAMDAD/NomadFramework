@@ -119,12 +119,12 @@ namespace Nomad.SourceGenerators
 
                 if (propertyImplementation.GetterExpression is not null)
                 {
-                    builder.AppendLine("            get => " + propertyImplementation.GetterExpression + ";");
+                    AppendAccessor(builder, "get", propertyImplementation.GetterExpression);
                 }
 
                 if (propertyImplementation.SetterExpression is not null)
                 {
-                    builder.AppendLine("            set => " + propertyImplementation.SetterExpression + ";");
+                    AppendAccessor(builder, "set", propertyImplementation.SetterExpression);
                 }
 
                 builder.AppendLine("        }");
@@ -136,6 +136,46 @@ namespace Nomad.SourceGenerators
 
                 builder.AppendLine();
             }
+        }
+
+        private static void AppendAccessor(StringBuilder builder, string accessorKeyword, string accessorExpression)
+        {
+            if (!RequiresBlockAccessor(accessorExpression))
+            {
+                builder.AppendLine("            " + accessorKeyword + " => " + accessorExpression + ";");
+                return;
+            }
+
+            builder.AppendLine("            " + accessorKeyword);
+            builder.AppendLine("            {");
+
+            foreach (var line in accessorExpression.Split(new[] { "\r\n", "\n" }, System.StringSplitOptions.None))
+            {
+                if (line.Length == 0)
+                {
+                    builder.AppendLine();
+                    continue;
+                }
+
+                builder.AppendLine("                " + line);
+            }
+
+            builder.AppendLine("            }");
+        }
+
+        private static bool RequiresBlockAccessor(string accessorExpression)
+        {
+            var trimmedExpression = accessorExpression.TrimStart();
+            return trimmedExpression.StartsWith("if ", System.StringComparison.Ordinal) ||
+                   trimmedExpression.StartsWith("if(", System.StringComparison.Ordinal) ||
+                   trimmedExpression.StartsWith("switch ", System.StringComparison.Ordinal) ||
+                   trimmedExpression.StartsWith("switch(", System.StringComparison.Ordinal) ||
+                   trimmedExpression.StartsWith("for ", System.StringComparison.Ordinal) ||
+                   trimmedExpression.StartsWith("for(", System.StringComparison.Ordinal) ||
+                   trimmedExpression.StartsWith("foreach ", System.StringComparison.Ordinal) ||
+                   trimmedExpression.StartsWith("while ", System.StringComparison.Ordinal) ||
+                   trimmedExpression.StartsWith("while(", System.StringComparison.Ordinal) ||
+                   trimmedExpression.StartsWith("{", System.StringComparison.Ordinal);
         }
 
         /// <summary>
@@ -400,6 +440,7 @@ namespace Nomad.SourceGenerators
             if (model.UsesGameObjectAdapter)
             {
                 builder.AppendLine("        private readonly global::Nomad.EngineUtils.GodotGameObject _impl;");
+                builder.AppendLine("        private bool _isDisposed;");
                 builder.AppendLine();
             }
 
@@ -469,6 +510,28 @@ namespace Nomad.SourceGenerators
                 builder.AppendLine("        {");
                 builder.AppendLine("            base._ExitTree();");
                 builder.AppendLine();
+                builder.AppendLine("            DisposeCore();");
+                builder.AppendLine("        }");
+                builder.AppendLine();
+
+                AppendSummaryDocumentation(builder, "        ", "Releases generated engine resources for the wrapper.");
+                builder.AppendLine("        public new void Dispose()");
+                builder.AppendLine("        {");
+                builder.AppendLine("            DisposeCore();");
+                builder.AppendLine("            base.Dispose();");
+                builder.AppendLine("        }");
+                builder.AppendLine();
+
+                AppendSummaryDocumentation(builder, "        ", "Performs one-time disposal for the generated engine wrapper.");
+                builder.AppendLine("        private void DisposeCore()");
+                builder.AppendLine("        {");
+                builder.AppendLine("            if (_isDisposed)");
+                builder.AppendLine("            {");
+                builder.AppendLine("                return;");
+                builder.AppendLine("            }");
+                builder.AppendLine();
+                builder.AppendLine("            _isDisposed = true;");
+                builder.AppendLine();
                 builder.AppendLine("            _impl.OnShutdown();");
                 builder.AppendLine("            OnShutdown();");
                 if (model.EventImplementations.Length > 0)
@@ -527,6 +590,13 @@ namespace Nomad.SourceGenerators
             if (model.UsesGameObjectAdapter)
             {
                 builder.AppendLine("        private global::Nomad.EngineUtils.UnityGameObject _impl = default!;");
+                builder.AppendLine("        private bool _isDisposed;");
+                builder.AppendLine();
+                builder.AppendLine("        private TUnityComponent? GetUnityComponent<TUnityComponent>()");
+                builder.AppendLine("            where TUnityComponent : global::UnityEngine.Component");
+                builder.AppendLine("        {");
+                builder.AppendLine("            return gameObject.GetComponent<TUnityComponent>();");
+                builder.AppendLine("        }");
                 builder.AppendLine();
             }
 
@@ -576,6 +646,28 @@ namespace Nomad.SourceGenerators
                 AppendSummaryDocumentation(builder, "        ", "Invokes shutdown hooks and releases generated event bindings.");
                 builder.AppendLine("        private void OnDestroy()");
                 builder.AppendLine("        {");
+                builder.AppendLine("            DisposeCore();");
+                builder.AppendLine("        }");
+                builder.AppendLine();
+
+                AppendSummaryDocumentation(builder, "        ", "Releases generated engine resources for the wrapper.");
+                builder.AppendLine("        public void Dispose()");
+                builder.AppendLine("        {");
+                builder.AppendLine("            DisposeCore();");
+                builder.AppendLine("            global::UnityEngine.Object.Destroy(this);");
+                builder.AppendLine("        }");
+                builder.AppendLine();
+
+                AppendSummaryDocumentation(builder, "        ", "Performs one-time disposal for the generated engine wrapper.");
+                builder.AppendLine("        private void DisposeCore()");
+                builder.AppendLine("        {");
+                builder.AppendLine("            if (_isDisposed)");
+                builder.AppendLine("            {");
+                builder.AppendLine("                return;");
+                builder.AppendLine("            }");
+                builder.AppendLine();
+                builder.AppendLine("            _isDisposed = true;");
+                builder.AppendLine();
                 builder.AppendLine("            if (_impl != null)");
                 builder.AppendLine("            {");
                 builder.AppendLine("                _impl.OnShutdown();");

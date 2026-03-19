@@ -27,6 +27,13 @@ namespace Nomad.EngineTemplates.BaseClasses
     [TemplateClass(Contract = typeof(IObject2D))]
     [TemplateBaseClass]
     [TemplateDisplayStateChangedEvent]
+    [TemplateProperty(
+        Name = "Show",
+        Type = typeof(bool),
+        GodotGetterExpression = "base.Visible",
+        GodotSetterExpression = "base.Visible = value",
+        UnityGetterExpression = "gameObject.activeSelf",
+        UnitySetterExpression = "gameObject.SetActive(value)")]
     [TemplatePositionProperty]
     [TemplateScaleProperty]
     [TemplateRotationProperty]

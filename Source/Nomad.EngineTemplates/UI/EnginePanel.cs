@@ -22,7 +22,7 @@ namespace Nomad.EngineTemplates.UI
     /// <summary>
     /// Declares the engine template for panel UI elements.
     /// </summary>
-    [TemplateClass(Contract = typeof(IPanel), GodotBase = "Godot.Control")]
+    [TemplateClass(Contract = typeof(IPanel), GodotBase = "Godot.Control", UnityBase = "UnityEngine.MonoBehaviour")]
     [TemplateNamespace(Name = "UI")]
     [TemplateUIElement]
     internal class EnginePanel

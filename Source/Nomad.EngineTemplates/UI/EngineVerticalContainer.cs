@@ -22,7 +22,7 @@ namespace Nomad.EngineTemplates.UI
     /// <summary>
     /// Declares the engine template for vertical container UI elements.
     /// </summary>
-    [TemplateClass(Contract = typeof(IVerticalContainer), GodotBase = "Godot.VBoxContainer")]
+    [TemplateClass(Contract = typeof(IVerticalContainer), GodotBase = "Godot.VBoxContainer", UnityBase = "UnityEngine.MonoBehaviour")]
     [TemplateNamespace(Name = "UI")]
     [TemplateProperty(
         Name = "Spacing",

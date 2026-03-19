@@ -31,8 +31,8 @@ namespace Nomad.Events.Private.SubscriptionSets {
 	/// </summary>
 
 	internal interface ISubscriptionSet<TArgs> : IDisposable
-		where TArgs : struct {
-#if DEBUG
+		where TArgs : struct
+	{
 		/// <summary>
 		/// 
 		/// </summary>
@@ -42,7 +42,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// 
 		/// </summary>
 		int SubscriberCount { get; }
-#endif
+
 		bool AddSubscription( EventCallback<TArgs> callback );
 		bool AddSubscriptionAsync( AsyncEventCallback<TArgs> callback );
 

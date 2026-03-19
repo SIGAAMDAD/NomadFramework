@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -16,20 +16,19 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using UnityEngine;
 using Nomad.Core.ECS;
-using Nomad.Core.EngineUtils;
+using Nomad.Core.Scene.GameObjects;
+using UnityEngine;
 
 namespace Nomad.EngineUtils
 {
     /// <summary>
-    /// Unity implementation of IGameObject for Unity 6000+.
-    /// Wraps a Unity GameObject and provides Nomad ECS component management.
+    /// Unity implementation of <see cref="IGameObject"/>.
     /// </summary>
     public sealed class UnityGameObject : IGameObject
     {
         /// <summary>
-        /// Gets or sets the wrapped GameObject's name.
+        ///
         /// </summary>
         public string Name
         {
@@ -38,7 +37,7 @@ namespace Nomad.EngineUtils
         }
 
         /// <summary>
-        /// Gets or sets the wrapped GameObject's local active state.
+        ///
         /// </summary>
         public bool Enabled
         {
@@ -47,45 +46,45 @@ namespace Nomad.EngineUtils
         }
 
         /// <summary>
-        /// Gets or sets the parent game object.
-        /// If the parent is another UnityGameObject, the Unity transform hierarchy is updated too.
+        ///
         /// </summary>
         public IGameObject? Parent
         {
-            get
-            {
-                return _transform.parent == null ? _parent : WrapGameObject(_transform.parent.gameObject);
-            }
+            get => _transform.parent == null ? _parent : WrapGameObject(_transform.parent.gameObject);
             set
             {
-                _parent = value;
-
-                if (value is UnityGameObject unityParent)
+                if (value == null)
                 {
-                    _transform.SetParent(unityParent.Transform, false);
-                }
-                else if (value == null)
-                {
+                    _parent = null;
                     _transform.SetParent(null, false);
+                    return;
                 }
+
+                if (!TryGetBackingGameObject(value, out GameObject? parentGameObject))
+                {
+                    throw new InvalidCastException();
+                }
+
+                _parent = WrapGameObject(parentGameObject);
+                _transform.SetParent(parentGameObject.transform, false);
             }
         }
         private IGameObject? _parent;
 
         /// <summary>
-        /// Gets the wrapped Unity GameObject.
+        ///
         /// </summary>
         public GameObject GameObject => _gameObject;
         private readonly GameObject _gameObject;
 
         /// <summary>
-        /// Gets the wrapped Unity Transform.
+        ///
         /// </summary>
         public Transform Transform => _transform;
         private readonly Transform _transform;
 
         /// <summary>
-        /// Gets the wrapped children as IGameObject instances.
+        ///
         /// </summary>
         public IReadOnlyList<IGameObject> Children
         {
@@ -95,26 +94,30 @@ namespace Nomad.EngineUtils
                 return _children;
             }
         }
-        private readonly List<IGameObject> _children = new();
+        private readonly List<IGameObject> _children = new List<IGameObject>();
 
-        private readonly ConcurrentDictionary<Type, IComponent> _components = new();
+        private readonly ConcurrentDictionary<Type, IComponent> _components = new ConcurrentDictionary<Type, IComponent>();
+
         private bool _isDisposed;
 
         /// <summary>
-        /// Creates a new UnityGameObject wrapper.
+        ///
         /// </summary>
-        /// <param name="gameObject">The Unity GameObject to wrap.</param>
-        /// <exception cref="ArgumentNullException"></exception>
+        /// <param name="gameObject"></param>
         public UnityGameObject(GameObject gameObject)
         {
-            _gameObject = gameObject ?? throw new ArgumentNullException(nameof(gameObject));
+            if (gameObject == null)
+            {
+                throw new ArgumentNullException(nameof(gameObject));
+            }
+
+            _gameObject = gameObject;
             _transform = gameObject.transform;
             RefreshChildren();
         }
 
         /// <summary>
-        /// Clears managed ECS components.
-        /// Does not destroy the Unity GameObject.
+        ///
         /// </summary>
         public void Dispose()
         {
@@ -131,43 +134,47 @@ namespace Nomad.EngineUtils
         }
 
         /// <summary>
-        /// Adds an ECS component instance to the wrapper.
+        ///
         /// </summary>
-        public void AddComponent<T>(T component)
-            where T : IComponent
-        {
-            if (component == null)
-            {
-                throw new ArgumentNullException(nameof(component));
-            }
-
-            _components.TryAdd(typeof(T), component);
-        }
-
-        /// <summary>
-        /// Adds a new ECS component instance using its default constructor.
-        /// </summary>
-        public T AddComponent<T>()
+        /// <typeparam name="T"></typeparam>
+        /// <param name="initializer"></param>
+        /// <returns></returns>
+        public T AddComponent<T>(Action<T>? initializer = null)
             where T : IComponent, new()
         {
-            var component = _components.GetOrAdd(typeof(T), _ => new T());
-            return (T)component;
+            T component;
+            if (typeof(Component).IsAssignableFrom(typeof(T)))
+            {
+                component = (T)(IComponent)_gameObject.AddComponent(typeof(T));
+            }
+            else
+            {
+                component = new T();
+            }
+
+            component.Object = this;
+            initializer?.Invoke(component);
+            component.OnInit();
+            _components[typeof(T)] = component;
+            return component;
         }
 
         /// <summary>
-        /// Gets an ECS component from the wrapper.
+        ///
         /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public T? GetComponent<T>()
             where T : IComponent
         {
-            return _components.TryGetValue(typeof(T), out var component)
-                ? (T)component
-                : default;
+            return _components.TryGetValue(typeof(T), out IComponent? component) ? (T)component : default;
         }
 
         /// <summary>
-        /// Checks whether an ECS component of the given type exists.
+        ///
         /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public bool HasComponent<T>()
             where T : IComponent
         {
@@ -175,8 +182,9 @@ namespace Nomad.EngineUtils
         }
 
         /// <summary>
-        /// Removes an ECS component of the given type from the wrapper.
+        ///
         /// </summary>
+        /// <typeparam name="T"></typeparam>
         public void RemoveComponent<T>()
             where T : IComponent
         {
@@ -184,9 +192,11 @@ namespace Nomad.EngineUtils
         }
 
         /// <summary>
-        /// Finds a child by relative path, e.g. "Weapon/Muzzle".
-        /// Uses Unity's Transform.Find semantics.
+        ///
         /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="childName"></param>
+        /// <returns></returns>
         public T? FindChild<T>(string childName)
             where T : class, IGameObject
         {
@@ -195,7 +205,7 @@ namespace Nomad.EngineUtils
                 return null;
             }
 
-            Transform? childTransform = _transform.Find(childName);
+            Transform childTransform = _transform.Find(childName);
             if (childTransform == null)
             {
                 return null;
@@ -205,9 +215,9 @@ namespace Nomad.EngineUtils
         }
 
         /// <summary>
-        /// Adds a child to this object.
-        /// If the child is a UnityGameObject, the Unity transform hierarchy is updated too.
+        ///
         /// </summary>
+        /// <param name="child"></param>
         public void AddChild(IGameObject child)
         {
             if (child == null)
@@ -215,19 +225,19 @@ namespace Nomad.EngineUtils
                 throw new ArgumentNullException(nameof(child));
             }
 
-            if (child is UnityGameObject unityChild)
+            if (!TryGetBackingGameObject(child, out GameObject? childGameObject))
             {
-                unityChild.Transform.SetParent(_transform, false);
-                unityChild._parent = this;
+                throw new InvalidCastException();
             }
 
+            childGameObject.transform.SetParent(_transform, false);
             RefreshChildren();
         }
 
         /// <summary>
-        /// Removes a child from this object.
-        /// If the child is a UnityGameObject and is parented here, it is unparented.
+        ///
         /// </summary>
+        /// <param name="child"></param>
         public void RemoveChild(IGameObject child)
         {
             if (child == null)
@@ -235,23 +245,25 @@ namespace Nomad.EngineUtils
                 throw new ArgumentNullException(nameof(child));
             }
 
-            if (child is UnityGameObject unityChild && unityChild.Transform.parent == _transform)
+            if (!TryGetBackingGameObject(child, out GameObject? childGameObject))
             {
-                unityChild.Transform.SetParent(null, false);
-                unityChild._parent = null;
+                throw new InvalidCastException();
+            }
+
+            if (childGameObject.transform.parent == _transform)
+            {
+                childGameObject.transform.SetParent(null, false);
             }
 
             RefreshChildren();
         }
 
         /// <summary>
-        /// Initializes wrapper-managed components.
-        /// Also auto-registers attached MonoBehaviours that implement ECS IComponent.
+        ///
         /// </summary>
         public void OnInit()
         {
             RegisterAttachedUnityComponents();
-
             foreach (var component in _components.Values)
             {
                 component.OnInit();
@@ -259,7 +271,7 @@ namespace Nomad.EngineUtils
         }
 
         /// <summary>
-        /// Shuts down wrapper-managed components.
+        ///
         /// </summary>
         public void OnShutdown()
         {
@@ -270,8 +282,9 @@ namespace Nomad.EngineUtils
         }
 
         /// <summary>
-        /// Updates wrapper-managed components.
+        ///
         /// </summary>
+        /// <param name="delta"></param>
         public void OnUpdate(float delta)
         {
             foreach (var component in _components.Values)
@@ -281,8 +294,9 @@ namespace Nomad.EngineUtils
         }
 
         /// <summary>
-        /// Fixed-updates wrapper-managed components.
+        ///
         /// </summary>
+        /// <param name="delta"></param>
         public void OnPhysicsUpdate(float delta)
         {
             foreach (var component in _components.Values)
@@ -292,23 +306,23 @@ namespace Nomad.EngineUtils
         }
 
         /// <summary>
-        /// Registers all attached MonoBehaviours that also implement ECS IComponent.
+        /// 
         /// </summary>
         private void RegisterAttachedUnityComponents()
         {
-            var monoBehaviours = _gameObject.GetComponents<MonoBehaviour>();
-
-            foreach (var behaviour in monoBehaviours)
+            MonoBehaviour[] behaviours = _gameObject.GetComponents<MonoBehaviour>();
+            for (int i = 0; i < behaviours.Length; i++)
             {
-                if (behaviour is IComponent IComponent)
+                if (behaviours[i] is IComponent component)
                 {
-                    _components.TryAdd(behaviour.GetType(), IComponent);
+                    component.Object = this;
+                    _components.TryAdd(behaviours[i].GetType(), component);
                 }
             }
         }
 
         /// <summary>
-        /// Refreshes the cached child wrapper list from the Unity hierarchy.
+        /// 
         /// </summary>
         private void RefreshChildren()
         {
@@ -321,16 +335,46 @@ namespace Nomad.EngineUtils
         }
 
         /// <summary>
-        /// Wraps a Unity GameObject as an IGameObject.
+        /// 
         /// </summary>
-        private static IGameObject WrapGameObject(GameObject gameObject)
+        /// <param name="gameObject"></param>
+        /// <returns></returns>
+        internal static IGameObject WrapGameObject(GameObject gameObject)
         {
-            if (gameObject is IGameObject wrapped)
+            MonoBehaviour[] behaviours = gameObject.GetComponents<MonoBehaviour>();
+            for (int i = 0; i < behaviours.Length; i++)
             {
-                return wrapped;
+                if (behaviours[i] is IGameObject wrapped)
+                {
+                    return wrapped;
+                }
             }
 
             return new UnityGameObject(gameObject);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="gameObject"></param>
+        /// <param name="unityGameObject"></param>
+        /// <returns></returns>
+        internal static bool TryGetBackingGameObject(IGameObject? gameObject, out GameObject unityGameObject)
+        {
+            if (gameObject is UnityGameObject wrapper)
+            {
+                unityGameObject = wrapper.GameObject;
+                return true;
+            }
+
+            if (gameObject is Component component)
+            {
+                unityGameObject = component.gameObject;
+                return true;
+            }
+
+            unityGameObject = null!;
+            return false;
         }
     }
 }
