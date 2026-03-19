@@ -102,22 +102,22 @@ namespace Nomad.Save.Private.Services {
 		void ISaveReaderService.Load( string name ) {
 			var filepath = _slotRepository.AddSaveFile( name, false );
 
-			_logger.PrintLine( in _category, $"Loading save data from {filepath}..." );
+			_category.PrintLine( $"Loading save data from {filepath}..." );
 
 			using var reader = _fileSystem.OpenRead( new MemoryFileReadConfig { FilePath = filepath, MaxCapacity = 8 * 1024 * 1024 } ) as IMemoryReadStream;
 			if ( reader == null ) {
-				_logger.PrintError( in _category, $"SaveReaderService.Load: couldn't open save file '{filepath}'!" );
+				_category.PrintError( $"SaveReaderService.Load: couldn't open save file '{filepath}'!" );
 				return;
 			}
 			var header = SaveHeader.Deserialize( reader, out bool magicMatches );
 
 			if ( _config.DebugLogging ) {
-				_logger.PrintLine( in _category, "Got save file metadata:" );
-				_logger.PrintLine( in _category, $"\tMagic: {Constants.HEADER_MAGIC}" );
-				_logger.PrintLine( in _category, $"\tSectionCount: {header.SectionCount}" );
-				_logger.PrintLine( in _category, $"\tSaveName: {header.Name}" );
-				_logger.PrintLine( in _category, $"\tChecksum64: {header.Checksum.Value}" );
-				_logger.PrintLine( in _category, $"\tGameVersion: {header.Version.ToInt()}" );
+				_category.PrintLine( "Got save file metadata:" );
+				_category.PrintLine( $"\tMagic: {Constants.HEADER_MAGIC}" );
+				_category.PrintLine( $"\tSectionCount: {header.SectionCount}" );
+				_category.PrintLine( $"\tSaveName: {header.Name}" );
+				_category.PrintLine( $"\tChecksum64: {header.Checksum.Value}" );
+				_category.PrintLine( $"\tGameVersion: {header.Version.ToInt()}" );
 			}
 
 			for ( int i = 0; i < header.SectionCount; i++ ) {
@@ -125,7 +125,7 @@ namespace Nomad.Save.Private.Services {
 				_sections[section.Name] = section;
 			}
 
-			_logger.PrintLine( in _category, "...Finished loading save data" );
+			_category.PrintLine( "...Finished loading save data" );
 		}
 
 		/*
@@ -140,7 +140,7 @@ namespace Nomad.Save.Private.Services {
 		/// <returns></returns>
 		public ISaveSectionReader? FindSection( string sectionName ) {
 			if ( !_sections.TryGetValue( sectionName, out var section ) ) {
-				_logger.PrintError( in _category, $"SaveReaderService.FindSection: section '{sectionName}' not found!" );
+				_category.PrintError( $"SaveReaderService.FindSection: section '{sectionName}' not found!" );
 				return null;
 			}
 			return section;

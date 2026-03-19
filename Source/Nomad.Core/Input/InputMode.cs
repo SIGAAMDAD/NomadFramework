@@ -16,7 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 namespace Nomad.Core.Input
 {
     /// <summary>
-    /// 
+    /// Which type of input we are receiving.
     /// </summary>
     public enum InputMode : byte
     {

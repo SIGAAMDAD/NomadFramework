@@ -79,15 +79,13 @@ namespace Nomad.Save.Private.Services {
 			try {
 				memoryWriter.Dispose();
 
-				Console.WriteLine( $"Replacing '{memoryWriter.FilePath}' {_fileSystem.FileExists( memoryWriter.FilePath )} with '{fileName}' {_fileSystem.FileExists( fileName )}" );
-				_fileSystem.ReplaceFile( memoryWriter.FilePath, fileName, null! );
+				_fileSystem.ReplaceFile( memoryWriter.FilePath, fileName, null );
 			} catch {
 				throw;
 			} finally {
 				if ( _fileSystem.FileExists( memoryWriter.FilePath ) ) {
 					_fileSystem.DeleteFile( memoryWriter.FilePath );
 				}
-				Console.WriteLine( $"Replaced '{memoryWriter.FilePath}' {_fileSystem.FileExists( memoryWriter.FilePath )} with '{fileName}' {_fileSystem.FileExists( fileName )}" );
 			}
 		}
 	};

@@ -274,8 +274,7 @@ namespace Nomad.Save.Tests
         public void AddField_WhenLogSerializationTreeTrue_LogsField()
         {
             _sectionWriter.AddField("logfield", 999);
-            _logger.Received().PrintLine(
-                in _category,
+            _category.Received().PrintLine(
                 Arg.Is<string>(s => s.Contains("[Field]") && s.Contains("logfield") && s.Contains("Int32") && s.Contains("999"))
             );
         }
@@ -287,7 +286,7 @@ namespace Nomad.Save.Tests
             _sectionWriter = new SaveSectionWriter(in _config, _logger, _category, SectionName, _writer);
 
             _sectionWriter.AddField("logfield", 999);
-            _logger.DidNotReceive().PrintLine(Arg.Any<ILoggerCategory>(), Arg.Any<string>());
+            _category.DidNotReceive().PrintLine(Arg.Any<string>());
         }
 
         [Test]
@@ -296,12 +295,10 @@ namespace Nomad.Save.Tests
             _sectionWriter.AddField("f1", 1);
             _sectionWriter.Dispose();
 
-            _logger.Received().PrintLine(
-                in _category,
+            _category.Received().PrintLine(
                 Arg.Is<string>(s => s.Contains("Finalized section data"))
             );
-            _logger.Received().PrintLine(
-                in _category,
+            _category.Received().PrintLine(
                 Arg.Is<string>(s => s.Contains(SectionName))
             );
         }

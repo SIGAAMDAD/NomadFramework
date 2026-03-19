@@ -16,9 +16,9 @@ of merchantability, fitness for a particular purpose and noninfringement.
 namespace Nomad.Engine.Assets
 {
     /// <summary>
-    ///
+    /// Represents a shader-backed material asset template.
     /// </summary>
-    public class EngineShaderMaterial
+    internal class EngineShaderMaterial
 	{
 	}
 }

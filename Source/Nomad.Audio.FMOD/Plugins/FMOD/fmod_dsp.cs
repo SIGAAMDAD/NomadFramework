@@ -14,6 +14,7 @@ using System;
 using System.Text;
 using System.Runtime.InteropServices;
 
+#pragma warning disable CS1591
 namespace FMOD
 {
     [StructLayout(LayoutKind.Sequential)]
@@ -1093,3 +1094,4 @@ namespace FMOD
         OVERRIDE_RANGE
     }
 }
+#pragma warning restore CS1591

@@ -19,6 +19,9 @@ using Nomad.EngineTemplates.BaseClasses;
 
 namespace Nomad.EngineTemplates.UI
 {
+    /// <summary>
+    /// Declares the engine template for vertical container UI elements.
+    /// </summary>
     [TemplateClass(Contract = typeof(IVerticalContainer), GodotBase = "Godot.VBoxContainer")]
     [TemplateNamespace(Name = "UI")]
     [TemplateProperty(
@@ -27,7 +30,7 @@ namespace Nomad.EngineTemplates.UI
         GodotGetterExpression = "base.GetThemeConstant(SeparationThemeConstantName)",
         GodotSetterExpression = "base.AddThemeConstantOverride(SeparationThemeConstantName, (int){{value}})")]
     [TemplateUIElement]
-    public class EngineVerticalContainer
+    internal class EngineVerticalContainer
     {
     }
 }

@@ -33,6 +33,15 @@ namespace Nomad.Input.Private.ValueObjects {
 		public string? ButtonId { get; set; }
 
 		/// <summary>
+		/// The value a <see cref="InputEventData"/> value must match in order to trigger the bind.
+		/// </summary>
+		/// <remarks>
+		/// The value 1.0f represents both a complete trigger pull/joystick movement as well as the button's
+		/// pressed status.
+		/// </remarks>
+		public float Value { get; set; } = 0.0f;
+
+		/// <summary>
 		/// 
 		/// </summary>
 		public List<string>? Modifiers { get; set; }

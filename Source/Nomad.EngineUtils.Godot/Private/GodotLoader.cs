@@ -13,7 +13,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-#if !UNITY_EDITOR
 using System;
 using System.Threading.Tasks;
 using System.Threading;
@@ -21,7 +20,7 @@ using Nomad.Core.ResourceCache;
 using Nomad.Core.Util;
 using Godot;
 
-namespace Nomad.EngineUtils.Private {
+namespace Nomad.EngineUtils.Godot.Private {
 	/*
     ===================================================================================
 
@@ -77,7 +76,7 @@ namespace Nomad.EngineUtils.Private {
 			}
 
 			ResourceLoader.ThreadLoadStatus status = ResourceLoader.ThreadLoadStatus.Failed;
-			var sceneTree = (SceneTree)Godot.Engine.GetMainLoop();
+			var sceneTree = (SceneTree)global::Godot.Engine.GetMainLoop();
 
 			do {
 				if ( status == ResourceLoader.ThreadLoadStatus.InProgress ) {
@@ -96,4 +95,3 @@ namespace Nomad.EngineUtils.Private {
 		}
 	};
 };
-#endif

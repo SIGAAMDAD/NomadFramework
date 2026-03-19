@@ -15,8 +15,14 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Core.Scene.GameObjects
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public interface IColliderShape2D
     {
-
+        /// <summary>
+        /// 
+        /// </summary>
+        ColliderShapeKind Shape { get; }
     }
 }

@@ -13,31 +13,21 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.Input.ValueObjects
+using Nomad.Core.Engine.Assets;
+using Nomad.Core.UI;
+using Nomad.EngineTemplates.Attributes;
+using Nomad.EngineTemplates.BaseClasses;
+
+namespace Nomad.EngineTemplates.UI
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    public enum InputDeviceType : byte
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        Keyboard,
-
-        /// <summary>
-        /// 
-        /// </summary>
-        Mouse,
-
-        /// <summary>
-        /// 
-        /// </summary>
-        Gamepad,
-
-        /// <summary>
-        /// 
-        /// </summary>
-        Count
-    }
+	/// <summary>
+	/// 
+	/// </summary>
+	[TemplateClass(Contract = typeof(IImageView), GodotBase = "Godot.TextureRect")]
+	[TemplateNamespace(Name = "UI")]
+	[TemplateUIElement]
+	[TemplateProperty(Name = "Texture", Type = typeof(ITexture), Documentation = "The image to be displayed within this UI element.")]
+	internal class ImageView
+	{
+	}
 }

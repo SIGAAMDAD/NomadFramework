@@ -36,7 +36,6 @@ namespace Nomad.OnlineServices.Steam {
 
 		private readonly SteamStatsRepository _statsRepository;
 
-		private readonly ILoggerService _logger;
 		private readonly ILoggerCategory _category;
 
 		private bool _isDisposed = false;
@@ -47,11 +46,12 @@ namespace Nomad.OnlineServices.Steam {
 		===============
 		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
+		/// <param name="statsRepository"></param>
+		/// <param name="logger"></param>
 		public SteamStatsService( SteamStatsRepository statsRepository, ILoggerService logger ) {
-			_logger = logger;
-			_category = _logger.CreateCategory( nameof( SteamStatsService ), LogLevel.Info, true );
+			_category = logger.CreateCategory( nameof( SteamStatsService ), LogLevel.Info, true );
 
 			_statsRepository = statsRepository;
 		}

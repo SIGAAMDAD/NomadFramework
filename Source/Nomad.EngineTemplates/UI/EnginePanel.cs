@@ -19,10 +19,13 @@ using Nomad.EngineTemplates.BaseClasses;
 
 namespace Nomad.EngineTemplates.UI
 {
+    /// <summary>
+    /// Declares the engine template for panel UI elements.
+    /// </summary>
     [TemplateClass(Contract = typeof(IPanel), GodotBase = "Godot.Control")]
     [TemplateNamespace(Name = "UI")]
     [TemplateUIElement]
-    public class EnginePanel
+    internal class EnginePanel
     {
     }
 }

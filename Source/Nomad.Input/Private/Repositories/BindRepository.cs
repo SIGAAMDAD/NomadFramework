@@ -17,8 +17,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Nomad.Core.CVars;
-using Nomad.Core.Exceptions;
 using Nomad.Core.FileSystem;
+using Nomad.CVars;
 using Nomad.Input.Interfaces;
 using Nomad.Input.Private.Services;
 using Nomad.Input.Private.ValueObjects;
@@ -39,7 +39,7 @@ namespace Nomad.Input.Private.Repositories {
 		private readonly Dictionary<BindKey, IInputAction> _bindings;
 		private readonly Dictionary<InputEventData, BindKey> _bindTriggers;
 
-		private readonly ImmutableArray<InputEventData, IInputBinding> _defaultMap;
+		private readonly ImmutableArray<IInputAction> _defaultMap;
 		private readonly BindLoader _loader;
 
 		private bool _isDisposed = false;
@@ -57,11 +57,17 @@ namespace Nomad.Input.Private.Repositories {
 		public BindRepository( IFileSystem fileSystem, ICVarSystemService cvarSystem ) {
 			_loader = new BindLoader( fileSystem );
 
-			var defaultsPath = cvarSystem.GetCVar<string>( Constants.CVars.DEFAULTS_PATH ) ?? throw new CVarMissing( Constants.CVars.DEFAULTS_PATH );
+			var defaultsPath = cvarSystem.GetCVarOrThrow<string>( Constants.CVars.DEFAULTS_PATH );
 			_loader.LoadBindDatabase( defaultsPath.Value, out var defaults );
 			if ( defaults == null ) {
 				// TODO: throw error
 			}
+
+			LoadAllBindMappings();
+		}
+
+		private void LoadAllBindMappings( IFileSystem fileSystem ) {
+			var files = file;
 		}
 
 		/*
@@ -79,21 +85,12 @@ namespace Nomad.Input.Private.Repositories {
 			_isDisposed = true;
 		}
 
-		public static IInputAction? MapInput( InputEventData eventData ) {
-			switch ( eventData.Type ) {
-				case InputType.Keyboard:
+		public void SetMapping( IReadOnlyList<IInputAction> mapping ) {
+			
+		}
 
-					break;
-				case InputType.GamepadButton:
-					break;
-				case InputType.GamepadMotion:
-					break;
-				case InputType.MouseButton:
-					break;
-				case InputType.MouseMotion:
-					break;
-			}
-			return null;
+		public IInputAction? MapInput( InputEventData eventData ) {
+			return _bindings[_bindTriggers[eventData]];
 		}
 	};
 };

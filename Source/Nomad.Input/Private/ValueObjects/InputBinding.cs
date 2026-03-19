@@ -13,6 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using Nomad.Core.Input;
 using Nomad.Input.Interfaces;
 using Nomad.Input.ValueObjects;
 
@@ -20,24 +21,6 @@ namespace Nomad.Input.Private.ValueObjects {
 	internal sealed class InputBinding : IInputBinding {
 		public InputDeviceType DeviceType => _deviceType;
 		private readonly InputDeviceType _deviceType;
-
-		public InputType Type {
-			get {
-				throw new System.NotImplementedException();
-			}
-		}
-
-		public InputModifier? Modifier {
-			get {
-				throw new System.NotImplementedException();
-			}
-		}
-
-		public AxisProperties? Axis {
-			get {
-				throw new System.NotImplementedException();
-			}
-		}
 
 		public string DisplayName {
 			get {

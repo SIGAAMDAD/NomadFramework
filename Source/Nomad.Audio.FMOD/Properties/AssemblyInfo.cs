@@ -16,5 +16,10 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System.Runtime.CompilerServices;
 using Nomad.Core.Util.Attributes;
 
-[assembly: NomadModule("Nomad.Audio.FMOD")]
+[assembly: NomadModule(
+	Name = "Nomad.Audio.FMOD",
+	VersionMajor = 0,
+	VersionMinor = 1,
+	VersionPatch = 0
+)]
 [assembly: InternalsVisibleTo("Nomad.Tests")]

@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -28,9 +28,9 @@ namespace Nomad.EngineUtils
         /// <param name="color"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Godot.Color ToGodot(this System.Drawing.Color color)
+        public static global::Godot.Color ToGodot(this System.Drawing.Color color)
         {
-            return new Godot.Color(color.R, color.G, color.B, color.A);
+            return new global::Godot.Color(color.R, color.G, color.B, color.A);
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace Nomad.EngineUtils
         /// <param name="color"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static System.Drawing.Color ToSystem(this Godot.Color color)
+        public static System.Drawing.Color ToSystem(this global::Godot.Color color)
         {
             return System.Drawing.Color.FromArgb(color.A8, color.R8, color.G8, color.B8);
         }

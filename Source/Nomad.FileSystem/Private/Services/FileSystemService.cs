@@ -44,7 +44,6 @@ namespace Nomad.FileSystem.Private.Services {
 		private readonly IEngineService _engineService;
 		private readonly RecursiveFileSearcher _searchHelper;
 
-		private readonly ILoggerService _logger;
 		private readonly ILoggerCategory _category;
 
 		private bool _isDisposed = false;
@@ -64,11 +63,9 @@ namespace Nomad.FileSystem.Private.Services {
 			ArgumentGuard.ThrowIfNull( logger );
 
 			_engineService = engineService;
-
-			_logger = logger;
 			_category = logger.CreateCategory( nameof( FileSystem ), LogLevel.Info, true );
 
-			_searchHelper = new RecursiveFileSearcher( _logger );
+			_searchHelper = new RecursiveFileSearcher( _category );
 			_searchHelper.AddSearchDirectory( engineService.GetStoragePath( StorageScope.StreamingAssets ) );
 			_searchHelper.AddSearchDirectory( engineService.GetStoragePath( StorageScope.UserData ) );
 			_searchHelper.AddSearchDirectory( engineService.GetStoragePath( StorageScope.Install ) );
@@ -407,7 +404,7 @@ namespace Nomad.FileSystem.Private.Services {
 						var fileConfig = config as FileReadConfig ?? throw new InvalidCastException();
 						var fullPath = _searchHelper.FindFile( fileConfig.FilePath );
 						if ( fullPath == null ) {
-							_logger.PrintLine( in _category, $"FileSystemService.OpenRead: couldn't find file '{fileConfig.FilePath}'" );
+							_category.PrintLine( $"FileSystemService.OpenRead: couldn't find file '{fileConfig.FilePath}'" );
 							return null;
 						}
 						fileConfig = fileConfig with { FilePath = fullPath };
@@ -417,7 +414,7 @@ namespace Nomad.FileSystem.Private.Services {
 						var memoryFileConfig = config as MemoryFileReadConfig ?? throw new InvalidCastException();
 						var fullPath = _searchHelper.FindFile( memoryFileConfig.FilePath );
 						if ( fullPath == null ) {
-							_logger.PrintLine( in _category, $"FileSystemService.OpenRead: couldn't find file '{memoryFileConfig.FilePath}'" );
+							_category.PrintLine( $"FileSystemService.OpenRead: couldn't find file '{memoryFileConfig.FilePath}'" );
 							return null;
 						}
 						memoryFileConfig = memoryFileConfig with { FilePath = fullPath };

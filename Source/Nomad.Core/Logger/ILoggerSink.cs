@@ -26,7 +26,7 @@ namespace Nomad.Core.Logger
         /// Adds a log message. Queues it into the sink for output upon flush.
         /// </summary>
         /// <param name="message">The message to add to the sink's buffer.</param>
-        void Print(in string message);
+        void Print(string message);
 
         /// <summary>
         /// Clears the sink.

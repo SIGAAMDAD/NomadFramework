@@ -86,7 +86,8 @@ namespace Nomad.Events.Private {
 		/// <param name="gameEvent"></param>
 		/// <param name="callback"></param>
 		public void Add<TArgs>( IGameEvent<TArgs> gameEvent, EventCallback<TArgs> callback )
-			where TArgs : struct {
+			where TArgs : struct
+		{
 			_subscriptions.Add( gameEvent.Subscribe( callback ) );
 		}
 
@@ -99,9 +100,6 @@ namespace Nomad.Events.Private {
 		///
 		/// </summary>
 		public void UnsubscribeAll() {
-			for ( int i = 0; i < _subscriptions.Count; i++ ) {
-				_subscriptions[i].Dispose();
-			}
 			_subscriptions.Clear();
 		}
 	};

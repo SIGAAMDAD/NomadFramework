@@ -42,10 +42,11 @@
     <ProjectReference Include="..\Source\Nomad.OnlineServices.Steam\Nomad.OnlineServices.Steam.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="steam_appid.txt">
+    <Content Condition="'$(IsWindows)' == 'true'" Include="steam_api.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
-    <Content Condition="'$(IsWindows)' == 'true'" Include="steam_api64.dll">
+    <Content Include="steam_appid.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Condition="'$(IsLinux)' == 'true'" Include="libsteam_api.so">

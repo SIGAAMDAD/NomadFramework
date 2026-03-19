@@ -13,12 +13,14 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System.Reflection;
 using Nomad.Core.Abstractions;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.CVars;
 using Nomad.Core.Events;
 using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
+using Nomad.Core.Util.Attributes;
 using Nomad.CVars.Private.Services;
 
 namespace Nomad.CVars
@@ -40,11 +42,16 @@ namespace Nomad.CVars
             ArgumentGuard.ThrowIfNull(registry);
             ArgumentGuard.ThrowIfNull(locator);
 
+            var logger = locator.GetService<ILoggerService>();
+
             _cvarSystem = new CVarSystem(
                 locator.GetService<IGameEventRegistryService>(),
-                locator.GetService<ILoggerService>()
+                logger
             );
             registry.AddSingleton(_cvarSystem);
+
+            var attribute = Assembly.GetAssembly(typeof(CVarBootstrapper)).GetCustomAttribute<NomadModule>();
+            logger.PrintLine($"Initialized {attribute.Name}\n\tBuildId = {attribute.BuildId}\n\tCompileTime = {attribute.CompileTime}\n\tVersion = {attribute.VersionMajor}.{attribute.VersionMinor}.{attribute.VersionPatch}");
         }
 
         /// <summary>

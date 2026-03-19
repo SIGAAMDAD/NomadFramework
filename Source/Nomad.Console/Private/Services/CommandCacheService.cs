@@ -19,7 +19,6 @@ using Nomad.Core.Console;
 using Nomad.Core.CVars;
 using Nomad.Core.Logger;
 using Nomad.Core.Util;
-using System;
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -95,7 +94,7 @@ namespace Nomad.Console.Private.Services {
 		/// <param name="command">The command that's being added to the global cache.</param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void RegisterCommand( ConsoleCommand command ) {
-			_commands[new( command.Name )] = command;
+			_commands[new InternString( command.Name )] = command;
 		}
 
 		/*
@@ -111,7 +110,7 @@ namespace Nomad.Console.Private.Services {
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public ConsoleCommand GetCommand( string command ) {
 			ArgumentGuard.ThrowIfNullOrEmpty( command );
-			return _commands[new( command )];
+			return _commands[new InternString( command )];
 		}
 
 		/*
@@ -128,7 +127,7 @@ namespace Nomad.Console.Private.Services {
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public bool TryGetCommand( string name, out ConsoleCommand command ) {
 			ArgumentGuard.ThrowIfNullOrEmpty( name );
-			return _commands.TryGetValue( new( name ), out command! );
+			return _commands.TryGetValue( new InternString( name ), out command! );
 		}
 
 		/*
@@ -144,7 +143,7 @@ namespace Nomad.Console.Private.Services {
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public bool CommandExists( string command ) {
 			ArgumentGuard.ThrowIfNullOrEmpty( command );
-			return _commands.ContainsKey( new( command ) );
+			return _commands.ContainsKey( new InternString( command ) );
 		}
 
 		/*
@@ -191,7 +190,7 @@ namespace Nomad.Console.Private.Services {
 					flagsSb.Append( " UserCreated" );
 				}
 
-				_logger.PrintLine( $"{cvar.Name,20}{flagsSb,32}" );
+				_logger.PrintLine( $"{cvar.Name, 20}{flagsSb, 32}" );
 			}
 		}
 	};

@@ -14,7 +14,9 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Nomad.Core.Collections;
 using Nomad.Core.CVars;
@@ -41,8 +43,11 @@ namespace Nomad.Input.Private.Services {
 		public InputMode Mode => _mode;
 		private InputMode _mode;
 
-		private readonly LockFreeQueue<InputEventData> _eventPump;
+		private readonly ConcurrentQueue<InputEventData> _eventPump;
 		private readonly BindRepository _bindRepository;
+
+		private readonly Task _inputPump;
+		private readonly CancellationToken _inputCancellation;
 
 		private int _inputDelayMs = 100;
 
@@ -61,12 +66,13 @@ namespace Nomad.Input.Private.Services {
 		/// <param name="eventFactory"></param>
 		public InputSystem( IFileSystem fileSystem, ICVarSystemService cvarSystem, IGameEventRegistryService eventFactory ) {
 			_bindRepository = new BindRepository( fileSystem, cvarSystem );
-			_eventPump = new LockFreeQueue<InputEventData>();
+			_eventPump = new ConcurrentQueue<InputEventData>();
 
 			var inputDelayMs = cvarSystem.GetCVar<int>( Constants.CVars.INPUT_DELAY_MS ) ?? throw new CVarMissing( Constants.CVars.INPUT_DELAY_MS );
 			_inputDelayMs = inputDelayMs.Value;
 
-			Task.Run( InputPumpWorker );
+			_inputCancellation = new CancellationToken();
+			_inputPump = Task.Run( InputPumpWorker );
 		}
 
 		/*
@@ -93,9 +99,24 @@ namespace Nomad.Input.Private.Services {
 		/// <summary>
 		/// 
 		/// </summary>
-		public void PushGamepadAxisEvent() {
+		/// <param name="gamepadAxisEvent"></param>
+		public void PushGamepadAxisEvent( in GamepadAxisEvent gamepadAxisEvent ) {
+			_eventPump.Enqueue( new InputEventData( in gamepadAxisEvent ) );
 		}
 
+		/*
+		===============
+		PushGamepadButtonEvent
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="gamepadButtonEvent"></param>
+		public void PushGamepadButtonEvent( in GamepadButtonEvent gamepadButtonEvent ) {
+			_eventPump.Enqueue( new InputEventData( in gamepadButtonEvent ) );
+		}
+		
 		/*
 		===============
 		PushKeyboardEvent
@@ -106,7 +127,7 @@ namespace Nomad.Input.Private.Services {
 		/// </summary>
 		/// <param name="keyEvent"></param>
 		public void PushKeyboardEvent( in KeyboardEvent keyEvent ) {
-			_eventPump.TryAdd( new InputEventData( keyEvent ) );
+			_eventPump.Enqueue( new InputEventData( in keyEvent ) );
 		}
 
 		/*
@@ -119,7 +140,7 @@ namespace Nomad.Input.Private.Services {
 		/// </summary>
 		/// <param name="mouseButtonEvent"></param>
 		public void PushMouseButtonEvent( in MouseButtonEvent mouseButtonEvent ) {
-			_eventPump.TryAdd( new InputEventData( mouseButtonEvent ) );
+			_eventPump.Enqueue( new InputEventData( in mouseButtonEvent ) );
 		}
 
 		/*
@@ -132,7 +153,7 @@ namespace Nomad.Input.Private.Services {
 		/// </summary>
 		/// <param name="mouseMotionEvent"></param>
 		public void PushMouseMotionEvent( in MouseMotionEvent mouseMotionEvent ) {
-			_eventPump.TryAdd( new InputEventData( mouseMotionEvent ) );
+			_eventPump.Enqueue( new InputEventData( in mouseMotionEvent ) );
 		}
 
 		/*
@@ -145,8 +166,9 @@ namespace Nomad.Input.Private.Services {
 		/// </summary>
 		private async Task InputPumpWorker() {
 			while ( true ) {
-				while ( _eventPump.TryTake( out var inputEvent ) ) {
-
+				_inputCancellation.ThrowIfCancellationRequested();
+				while ( _eventPump.TryDequeue( out var inputEvent ) ) {
+					_inputCancellation.ThrowIfCancellationRequested();
 				}
 				await Task.Delay( _inputDelayMs );
 			}

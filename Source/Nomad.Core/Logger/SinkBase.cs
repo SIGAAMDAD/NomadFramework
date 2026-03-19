@@ -22,13 +22,16 @@ namespace Nomad.Core.Logger
     /// </summary>
     public abstract class SinkBase : ILoggerSink
     {
+        /// <summary>
+        /// 
+        /// </summary>
         protected bool isDisposed = false;
 
         /// <summary>
         /// Prints a log message.
         /// </summary>
         /// <param name="message">The message to print.</param>
-        public abstract void Print(in string message);
+        public abstract void Print(string message);
 
         /// <summary>
         /// Clears the sink.

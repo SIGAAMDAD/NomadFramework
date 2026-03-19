@@ -15,6 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using Nomad.Input.Private.ValueObjects;
 using Nomad.Input.ValueObjects;
+using Nomad.Core.Input;
 
 namespace Nomad.Input.Interfaces
 {
@@ -27,21 +28,6 @@ namespace Nomad.Input.Interfaces
         /// The type of input (Keyboard, Mouse, Gamepad).
         /// </summary>
         InputDeviceType DeviceType { get; }
-
-        /// <summary>
-        /// Device‑specific identifier (e.g., KeyCode, MouseButton, GamepadButton).
-        /// </summary>
-        InputType Type { get; }
-
-        /// <summary>
-        /// Optional modifier (e.g., Shift, Ctrl). Null if none.
-        /// </summary>
-        InputModifier? Modifier { get; }
-
-        /// <summary>
-        /// For axes: which axis (X, Y) and whether inverted.
-        /// </summary>
-        AxisProperties? Axis { get; }
 
         /// <summary>
         /// Human‑readable description (e.g., "Space", "Left Mouse Button").

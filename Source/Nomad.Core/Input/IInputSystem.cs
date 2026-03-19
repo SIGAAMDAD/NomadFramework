@@ -48,6 +48,12 @@ namespace Nomad.Core.Input
         /// <summary>
         /// 
         /// </summary>
-        void PushGamepadAxisEvent();
+        void PushGamepadAxisEvent(in GamepadAxisEvent gamepadAxisEvent);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="gamepadButtonEvent"></param>
+        void PushGamepadButtonEvent(in GamepadButtonEvent gamepadButtonEvent);
     }
 }

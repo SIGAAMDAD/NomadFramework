@@ -45,7 +45,7 @@ namespace Nomad.FileSystem.Private.Services {
 		private readonly FileSystemWatcher _indexWatcher; // optional, to keep index fresh
 		private bool _isDisposed = false;
 
-		private readonly ILoggerService _logger;
+		private readonly ILoggerCategory _category;
 
 		/*
 		===============
@@ -55,13 +55,13 @@ namespace Nomad.FileSystem.Private.Services {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="RecursiveFileSearcher"/> class.
 		/// </summary>
-		/// <param name="logger"></param>
+		/// <param name="category"></param>
 		/// <param name="ignoreCase">If true, file lookups are case‑insensitive (recommended for cross‑platform).</param>
 		/// <param name="useIndex">If true, builds an in‑memory index of all files for faster lookups (may impact startup time).</param>
-		public RecursiveFileSearcher( ILoggerService logger, bool ignoreCase = false, bool useIndex = false ) {
+		public RecursiveFileSearcher( ILoggerCategory category, bool ignoreCase = false, bool useIndex = false ) {
 			_ignoreCase = ignoreCase;
 			_useIndex = useIndex;
-			_logger = logger;
+			_category = category;
 			if ( _useIndex ) {
 				_fileIndex = new Dictionary<string, List<string>>( ignoreCase ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal );
 				_indexWatcher = new FileSystemWatcher();
@@ -207,9 +207,9 @@ namespace Nomad.FileSystem.Private.Services {
 			try {
 				return GetFilesAsList( searchDir, searchPattern, false );
 			} catch ( UnauthorizedAccessException ) {
-				_logger.PrintWarning( $"Attempted access to directory {searchDir} (UnauthorizedAccess) denied." );
+				_category.PrintWarning( $"Attempted access to directory {searchDir} (UnauthorizedAccess) denied." );
 			} catch ( PathTooLongException ) {
-				_logger.PrintWarning( $"Attempted access to directory {searchDir} denied, path was too long." );
+				_category.PrintWarning( $"Attempted access to directory {searchDir} denied, path was too long." );
 			}
 			// Other IO exceptions could be caught as needed
 			return null;
@@ -318,23 +318,6 @@ namespace Nomad.FileSystem.Private.Services {
 
 		/*
 		===============
-		IsSubPath
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="basePath"></param>
-		/// <param name="candidatePath"></param>
-		/// <returns></returns>
-		private bool IsSubPath( string basePath, string candidatePath ) {
-			string baseFull = Path.GetFullPath( basePath );
-			string candidateFull = Path.GetFullPath( candidatePath );
-			return candidateFull.StartsWith( baseFull, _ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal );
-		}
-
-		/*
-		===============
 		IndexDirectory
 		===============
 		*/
@@ -387,12 +370,12 @@ namespace Nomad.FileSystem.Private.Services {
 		/// <param name="searchPattern"></param>
 		/// <param name="skipReparsePoints"></param>
 		/// <returns></returns>
-		private static List<string> GetFilesAsList( string rootDir, string searchPattern, bool skipReparsePoints = true ) {
+		private List<string> GetFilesAsList( string rootDir, string searchPattern, bool skipReparsePoints = true ) {
 			var result = new List<string>();
 			var stack = new Stack<string>();
 
 			if ( !Directory.Exists( rootDir ) ) {
-				Console.WriteLine( $"Directory {rootDir} doesn't exist." );
+				_category.PrintLine( $"Directory {rootDir} doesn't exist." );
 				return result;
 			}
 
@@ -434,8 +417,7 @@ namespace Nomad.FileSystem.Private.Services {
 					continue;
 				}
 			}
-
 			return result;
 		}
-	}
-}
+	};
+};

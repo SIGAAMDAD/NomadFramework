@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -18,10 +18,10 @@ using System;
 namespace Nomad.EngineTemplates.Attributes
 {
     /// <summary>
-    ///
+    /// Overrides the namespace used for generated engine wrapper types.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, Inherited = true)]
-    public class TemplateNamespace : Attribute
+    internal class TemplateNamespace : Attribute
     {
         /// <summary>
         /// The namespace's identifier.

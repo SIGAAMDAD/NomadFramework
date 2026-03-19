@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -46,7 +47,8 @@ namespace Nomad.Logger.Private {
 		private bool _enabled;
 
 		private readonly List<ILoggerSink> _sinks = new List<ILoggerSink>();
-		private readonly LockFreePooledQueue<string> _messageQueue = new LockFreePooledQueue<string>( 256 );
+		private readonly ConcurrentQueue<string> _messageQueue = new ConcurrentQueue<string>();
+		private readonly MessageBuilder _builder;
 
 		/*
 		===============
@@ -59,10 +61,12 @@ namespace Nomad.Logger.Private {
 		/// <param name="name"></param>
 		/// <param name="level"></param>
 		/// <param name="enabled"></param>
-		public LoggerCategory( string name, LogLevel level, bool enabled ) {
+		/// <param name="builder"></param>
+		public LoggerCategory( string name, LogLevel level, bool enabled, MessageBuilder builder ) {
 			_name = name;
 			_level = level;
 			_enabled = enabled;
+			_builder = builder;
 
 			var printThread = new Thread( LoggerThreadAsync ) {
 				IsBackground = true
@@ -91,7 +95,7 @@ namespace Nomad.Logger.Private {
 		///
 		/// </summary>
 		/// <param name="sink"></param>
-		public void AddSink( in ILoggerSink sink ) {
+		public void AddSink( ILoggerSink sink ) {
 			_sinks.Add( sink );
 		}
 
@@ -104,21 +108,60 @@ namespace Nomad.Logger.Private {
 		///
 		/// </summary>
 		/// <param name="sink"></param>
-		public void RemoveSink( in ILoggerSink sink ) {
+		public void RemoveSink( ILoggerSink sink ) {
 			_sinks.Remove( sink );
 		}
 
 		/*
 		===============
-		QueueMessage
+		PrintLine
 		===============
 		*/
 		/// <summary>
 		///
 		/// </summary>
 		/// <param name="message"></param>
-		public void QueueMessage( in string message ) {
-			_messageQueue.TryEnqueue( message );
+		public void PrintLine( string message ) {
+			_messageQueue.Enqueue( _builder.FormatMessage( this, LogLevel.Info, message, true ) );
+		}
+
+		/*
+		===============
+		PrintWarning
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="message"></param>
+		public void PrintWarning( string message ) {
+			_messageQueue.Enqueue( message );
+		}
+
+		/*
+		===============
+		PrintError
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="message"></param>
+		public void PrintError( string message ) {
+			_messageQueue.Enqueue( message );
+		}
+
+		/*
+		===============
+		PrintDebug
+		===============
+		*/
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="message"></param>
+		public void PrintDebug( string message ) {
+			_messageQueue.Enqueue( message );
 		}
 
 		/*
@@ -135,7 +178,7 @@ namespace Nomad.Logger.Private {
 				while ( true ) {
 					while ( _messageQueue.TryDequeue( out var message ) ) {
 						for ( int i = 0; i < _sinks.Count; i++ ) {
-							_sinks[ i ].Print( in message );
+							_sinks[ i ].Print( message );
 						}
 					}
 					await Task.Delay( 500 );

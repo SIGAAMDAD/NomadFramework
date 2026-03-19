@@ -20,7 +20,7 @@ using Nomad.Core.Engine.Services;
 using Nomad.Core.Events;
 using Nomad.Core.Logger;
 
-namespace Nomad.EngineUtils.Private {
+namespace Nomad.EngineUtils.Godot.Private {
 	/*
 	===================================================================================
 
@@ -41,6 +41,9 @@ namespace Nomad.EngineUtils.Private {
 		private readonly CanvasLayer _node;
 		private readonly InGameSink _godotSink;
 
+		private readonly ISubscriptionHandle _consoleOpened;
+		private readonly ISubscriptionHandle _consoleClosed;
+
 		private bool _isDisposed = false;
 
 		/*
@@ -59,8 +62,11 @@ namespace Nomad.EngineUtils.Private {
 
 			_commandBuilder = new GodotCommandBuilder( eventFactory );
 
-			_node = new CanvasLayer();
-			_godotSink = new InGameSink( _node, node, eventFactory );
+			_consoleOpened = eventFactory.GetEvent<EmptyEventArgs>( Core.Constants.Events.Console.CONSOLE_OPENED_EVENT, Core.Constants.Events.Console.NAMESPACE ).Subscribe( OnConsoleOpened );
+			_consoleClosed = eventFactory.GetEvent<EmptyEventArgs>( Core.Constants.Events.Console.CONSOLE_CLOSED_EVENT, Core.Constants.Events.Console.NAMESPACE ).Subscribe( OnConsoleClosed );
+
+			_node = new CanvasLayer() { Visible = false, ProcessMode = Node.ProcessModeEnum.Always };
+			_godotSink = new InGameSink( _node, _commandBuilder, node, eventFactory );
 			_logger.AddSink( _godotSink );
 		}
 
@@ -128,6 +134,32 @@ namespace Nomad.EngineUtils.Private {
 		/// </summary>
 		public void Hide() {
 			_node.Hide();
+		}
+
+		/*
+		===============
+		OnConsoleClosed
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="args"></param>
+		private void OnConsoleClosed( in EmptyEventArgs args ) {
+			Hide();
+		}
+
+		/*
+		===============
+		OnConsoleOpened
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="args"></param>
+		private void OnConsoleOpened( in EmptyEventArgs args ) {
+			Show();
 		}
 	};
 };

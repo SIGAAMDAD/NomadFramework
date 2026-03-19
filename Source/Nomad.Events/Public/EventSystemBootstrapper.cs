@@ -13,11 +13,13 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System.Reflection;
 using Nomad.Core.Abstractions;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.Events;
 using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
+using Nomad.Core.Util.Attributes;
 
 namespace Nomad.Events
 {
@@ -44,6 +46,9 @@ namespace Nomad.Events
             registry.AddSingleton(_eventRegistry);
 
             Globals.GameEventRegistry.Initialize(_eventRegistry);
+
+            var attribute = Assembly.GetAssembly(typeof(EventBootstrapper)).GetCustomAttribute<NomadModule>();
+            logger.PrintLine($"Initialized {attribute.Name}\n\tBuildId = {attribute.BuildId}\n\tCompileTime = {attribute.CompileTime}\n\tVersion = {attribute.VersionMajor}.{attribute.VersionMinor}.{attribute.VersionPatch}");
         }
 
         /// <summary>

@@ -15,11 +15,11 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Text.Json;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Input;
 using Nomad.Core.Input.ValueObjects;
+using Nomad.Core.Util;
 using Nomad.Input.Private.ValueObjects;
 
 namespace Nomad.Input.Private.Services {
@@ -60,7 +60,7 @@ namespace Nomad.Input.Private.Services {
 		/// <param name="filePath"></param>
 		/// <param name="binds"></param>
 		/// <returns></returns>
-		public bool LoadBindDatabase( string filePath, out ImmutableDictionary<BindKey, InputEventData>? binds ) {
+		public bool LoadBindDatabase( string filePath, out Dictionary<BindKey, InputEventData>? binds ) {
 			if ( !_fileSystem.FileExists( filePath ) ) {
 				binds = null;
 				return false;
@@ -75,9 +75,10 @@ namespace Nomad.Input.Private.Services {
 				}
 			);
 
-			var mapping = new Dictionary<BindKey, InputEventData>();
-			foreach ( var bind in database.Bindings ) {
-				mapping[bind. ];
+			binds = new Dictionary<BindKey, InputEventData>();
+			foreach ( var mapping in database.Bindings ) {
+				var key = new BindKey( new InternString( mapping.Key ), mapping.Value.);
+				binds[mapping.Key] = new Dictionary<BindKey, InputEventData>();
 			}
 
 			return true;
@@ -94,27 +95,31 @@ namespace Nomad.Input.Private.Services {
 		/// <param name="mapping"></param>
 		/// <returns></returns>
 		/// <exception cref="Exception"></exception>
-		private KeyboardEvent ParseKeyboardMapping( InputMapping mapping ) {
+		private static KeyboardEvent ParseKeyboardMapping( InputMapping mapping ) {
 			if ( !Enum.TryParse( typeof( KeyNum ), mapping.ButtonId, true, out var keyNum ) ) {
 				throw new Exception( $"Invalid InputMapping ButtonId '{mapping.ButtonId}' when loading Keyboard binding, it must be a valid KeyNum!" );
 			}
-
-			return new KeyboardEvent( (KeyNum)keyNum, )
+			return new KeyboardEvent( (KeyNum)keyNum, 0, mapping.Value == 1.0f );
 		}
 
-		private InputEventData ParseInputEvent( InputMapping mapping ) {
+		private static MouseButtonEvent ParseMouseButtonMapping( InputMapping mapping ) {
+			if ( !Enum.TryParse( typeof( MouseButton ), mapping.ButtonId, true, out var mouseButton ) ) {
+				throw new Exception( $"Invalid InputMapping ButtonId '{mapping.ButtonId}' when loading MouseButton binding, it must be a valid MouseButton!" );
+			}
+			return new MouseButtonEvent( (MouseButton)mouseButton, 0, mapping.Value == 1.0f );
+		}
+
+		private static InputEventData ParseInputEvent( InputMapping mapping ) {
 			InputEventData data;
 
-			switch ( mapping.DeviceId ) {
-				case Constants.KEYBOARD_DEVICE_ID:
-					data = new InputEventData(
-						new KeyboardEvent()
-					);
-					break;
-				case Constants.GAMEPAD_DEVICE_ID:
-					break;
-				default:
-					throw new Exception( $"Invalid DeviceId '{mapping.DeviceId}' in bindings file!" );
+			if ( mapping.DeviceId.Equals( Constants.KEYBOARD_DEVICE_ID, StringComparison.InvariantCulture ) ) {
+				data = new InputEventData( ParseKeyboardMapping( mapping ) );
+			} else if ( mapping.DeviceId.Equals( Constants.MOUSE_DEVICE_ID, StringComparison.InvariantCulture ) ) {
+				data = new InputEventData();
+			} else if ( mapping.DeviceId.Equals( Constants.GAMEPAD_DEVICE_ID, StringComparison.InvariantCulture ) ) {
+				
+			} else {
+				throw new Exception( $"Invalid DeviceId '{mapping.DeviceId}' in bindings file!" );
 			}
 
 			return data;

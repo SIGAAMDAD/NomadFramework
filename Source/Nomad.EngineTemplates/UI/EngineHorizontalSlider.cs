@@ -20,13 +20,13 @@ using Nomad.EngineTemplates.BaseClasses;
 namespace Nomad.EngineTemplates.UI
 {
     /// <summary>
-    ///
+    /// Declares the engine template for horizontal slider UI elements.
     /// </summary>
     [TemplateClass(Contract = typeof(IHorizontalSlider), GodotBase = "Godot.HSlider")]
     [TemplateNamespace(Name = "UI")]
     [TemplateEvent(Name = "ValueSet", PayloadType = typeof(float))]
     [TemplateUIElement]
-    public partial class EngineHorizontalSlider
+    internal class EngineHorizontalSlider
     {
     }
 }

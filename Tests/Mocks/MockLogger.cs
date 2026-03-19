@@ -31,9 +31,9 @@ public class MockLogger : ILoggerService
         Console.Clear();
     }
 
-    public ILoggerCategory CreateCategory(in string name, LogLevel level, bool enabled)
+    public ILoggerCategory CreateCategory(string name, LogLevel level, bool enabled)
     {
-        return null;
+        return new MockLoggerCategory(name, level, enabled);
     }
 
     public void Dispose()
@@ -48,52 +48,22 @@ public class MockLogger : ILoggerService
         throw new System.NotImplementedException();
     }
 
-    public void Print(in string message)
-    {
-        Console.WriteLine(message);
-    }
-
-    public void Print(in ILoggerCategory category, in string message)
-    {
-        Console.WriteLine(message);
-    }
-
-    public void PrintDebug(in string message)
+    public void PrintDebug(string message)
     {
         Console.WriteLine($"DEBUG: {message}");
     }
 
-    public void PrintDebug(in ILoggerCategory category, in string message)
-    {
-        Console.WriteLine($"DEBUG: {message}");
-    }
-
-    public void PrintError(in string message)
+    public void PrintError(string message)
     {
         Console.WriteLine($"ERROR: {message}");
     }
 
-    public void PrintError(in ILoggerCategory category, in string message)
-    {
-        Console.WriteLine($"ERROR: {message}");
-    }
-
-    public void PrintLine(in string message)
+    public void PrintLine(string message)
     {
         Console.WriteLine(message);
     }
 
-    public void PrintLine(in ILoggerCategory category, in string message)
-    {
-        Console.WriteLine(message);
-    }
-
-    public void PrintWarning(in string message)
-    {
-        Console.WriteLine($"WARNING: {message}");
-    }
-
-    public void PrintWarning(in ILoggerCategory category, in string message)
+    public void PrintWarning(string message)
     {
         Console.WriteLine($"WARNING: {message}");
     }

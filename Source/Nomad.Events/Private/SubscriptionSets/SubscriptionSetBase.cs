@@ -33,7 +33,8 @@ namespace Nomad.Events.Private.SubscriptionSets {
 	/// TODO: finish this as the base class for all subscription sets, we have duplicated behaviors
 
 	internal abstract class SubscriptionSetBase<TArgs> : IDisposable
-		where TArgs : struct {
+		where TArgs : struct
+	{
 		protected readonly ILoggerService logger;
 		protected readonly IGameEvent<TArgs> eventData;
 

@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-The Nomad Framework
+The Nomad MPLv2 Source Code
 Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
@@ -13,28 +13,34 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Nomad.Core.Input.ValueObjects;
-
-namespace Nomad.Input.ValueObjects
+namespace Nomad.Input.Events
 {
     /// <summary>
     /// 
     /// </summary>
-    public readonly struct InputModifier
+    public readonly struct BindCollisionEventArgs
     {
         /// <summary>
         /// 
         /// </summary>
-        public KeyNum ModifierKey => _modifierKey;
-        private readonly KeyNum _modifierKey;
+        public int OriginalBindId => _originalBindId;
+        private readonly int _originalBindId;
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        public int IntrudingBindId => _intrudingBindId;
+        private readonly int _intrudingBindId;
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="modifierKey"></param>
-        public InputModifier(KeyNum modifierKey)
+        /// <param name="originalBindId"></param>
+        /// <param name="intrudingBindId"></param>
+        public BindCollisionEventArgs(int originalBindId, int intrudingBindId)
         {
-            _modifierKey = modifierKey;
+            _originalBindId = originalBindId;
+            _intrudingBindId = intrudingBindId;
         }
     }
 }

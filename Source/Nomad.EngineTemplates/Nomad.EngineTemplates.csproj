@@ -6,18 +6,21 @@
     <Deterministic>true</Deterministic>
     <UseSharedCompilation>true</UseSharedCompilation>
     <Optimize>true</Optimize>
-    <SkipLocalsInit>true</SkipLocalsInit>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
     <!-- NuGet Package Information -->
     <PackageId>NomadFramework.EngineTemplates</PackageId>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <!-- We're making wrapper classes, so its gonna be rather chunky, minimize the damage as much as possible. -->
+    <PublishAOT>true</PublishAOT>
+  </PropertyGroup>
+  
   <ItemGroup>
     <ProjectReference Include="..\Nomad.Core\Nomad.Core.csproj" />
 	  <ProjectReference Include="..\Nomad.Events\Nomad.Events.csproj" />
-    <ProjectReference Include="..\Nomad.SourceGenerators\Nomad.SourceGenerators.csproj"
-                      OutputItemType="Analyzer"
-                      ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\Nomad.SourceGenerators\Nomad.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
 </Project>

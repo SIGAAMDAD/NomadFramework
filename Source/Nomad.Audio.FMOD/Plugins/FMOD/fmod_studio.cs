@@ -11,6 +11,7 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.Collections;
 
+#pragma warning disable CS1591
 namespace FMOD.Studio
 {
     public partial class STUDIO_VERSION
@@ -2254,3 +2255,4 @@ namespace FMOD.Studio
         #endregion
     }
 } // FMOD
+#pragma warning restore CS1591

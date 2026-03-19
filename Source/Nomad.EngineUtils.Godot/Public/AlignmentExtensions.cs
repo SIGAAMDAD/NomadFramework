@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -31,12 +31,12 @@ namespace Nomad.EngineUtils
         /// <returns></returns>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Godot.HorizontalAlignment ToGodot(this HorizontalAlignment from) => from switch
+        public static global::Godot.HorizontalAlignment ToGodot(this HorizontalAlignment from) => from switch
         {
-            HorizontalAlignment.Center => Godot.HorizontalAlignment.Center,
-            HorizontalAlignment.Start => Godot.HorizontalAlignment.Left,
-            HorizontalAlignment.End => Godot.HorizontalAlignment.Right,
-            HorizontalAlignment.Stretch => Godot.HorizontalAlignment.Fill,
+            HorizontalAlignment.Center => global::Godot.HorizontalAlignment.Center,
+            HorizontalAlignment.Start => global::Godot.HorizontalAlignment.Left,
+            HorizontalAlignment.End => global::Godot.HorizontalAlignment.Right,
+            HorizontalAlignment.Stretch => global::Godot.HorizontalAlignment.Fill,
             _ => throw new ArgumentOutOfRangeException(nameof(from))
         };
 
@@ -47,12 +47,12 @@ namespace Nomad.EngineUtils
         /// <returns></returns>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static HorizontalAlignment ToNomad(this Godot.HorizontalAlignment from) => from switch
+        public static HorizontalAlignment ToNomad(this global::Godot.HorizontalAlignment from) => from switch
         {
-            Godot.HorizontalAlignment.Center => HorizontalAlignment.Center,
-            Godot.HorizontalAlignment.Left => HorizontalAlignment.Start,
-            Godot.HorizontalAlignment.Right => HorizontalAlignment.End,
-            Godot.HorizontalAlignment.Fill => HorizontalAlignment.Stretch,
+            global::Godot.HorizontalAlignment.Center => HorizontalAlignment.Center,
+            global::Godot.HorizontalAlignment.Left => HorizontalAlignment.Start,
+            global::Godot.HorizontalAlignment.Right => HorizontalAlignment.End,
+            global::Godot.HorizontalAlignment.Fill => HorizontalAlignment.Stretch,
             _ => throw new ArgumentOutOfRangeException(nameof(from))
         };
 
@@ -63,12 +63,12 @@ namespace Nomad.EngineUtils
         /// <returns></returns>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Godot.VerticalAlignment ToGodot(this VerticalAlignment from) => from switch
+        public static global::Godot.VerticalAlignment ToGodot(this VerticalAlignment from) => from switch
         {
-            VerticalAlignment.Center => Godot.VerticalAlignment.Center,
-            VerticalAlignment.Start => Godot.VerticalAlignment.Top,
-            VerticalAlignment.End => Godot.VerticalAlignment.Bottom,
-            VerticalAlignment.Stretch => Godot.VerticalAlignment.Fill,
+            VerticalAlignment.Center => global::Godot.VerticalAlignment.Center,
+            VerticalAlignment.Start => global::Godot.VerticalAlignment.Top,
+            VerticalAlignment.End => global::Godot.VerticalAlignment.Bottom,
+            VerticalAlignment.Stretch => global::Godot.VerticalAlignment.Fill,
             _ => throw new ArgumentOutOfRangeException(nameof(from))
         };
 
@@ -79,12 +79,12 @@ namespace Nomad.EngineUtils
         /// <returns></returns>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static VerticalAlignment ToNomad(this Godot.VerticalAlignment from) => from switch
+        public static VerticalAlignment ToNomad(this global::Godot.VerticalAlignment from) => from switch
         {
-            Godot.VerticalAlignment.Center => VerticalAlignment.Center,
-            Godot.VerticalAlignment.Top => VerticalAlignment.Start,
-            Godot.VerticalAlignment.Bottom => VerticalAlignment.End,
-            Godot.VerticalAlignment.Fill => VerticalAlignment.Stretch,
+            global::Godot.VerticalAlignment.Center => VerticalAlignment.Center,
+            global::Godot.VerticalAlignment.Top => VerticalAlignment.Start,
+            global::Godot.VerticalAlignment.Bottom => VerticalAlignment.End,
+            global::Godot.VerticalAlignment.Fill => VerticalAlignment.Stretch,
             _ => throw new ArgumentOutOfRangeException(nameof(from))
         };
     }

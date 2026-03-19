@@ -19,7 +19,6 @@ using Nomad.Core.FileSystem.Configs;
 using Nomad.Core.FileSystem.Streams;
 using Nomad.Core.Logger;
 using System;
-using System.Runtime.CompilerServices;
 
 namespace Nomad.Logger.Private.Sinks {
 	/*
@@ -96,8 +95,7 @@ namespace Nomad.Logger.Private.Sinks {
 		/// Writes a string of characters to the file stream asynchronously.
 		/// </summary>
 		/// <param name="message"></param>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public override void Print( in string message ) {
+		public override void Print( string message ) {
 			_writer?.WriteLine( message );
 		}
 

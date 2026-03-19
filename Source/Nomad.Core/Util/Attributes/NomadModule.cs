@@ -20,22 +20,37 @@ namespace Nomad.Core.Util.Attributes
     /// <summary>
     ///
     /// </summary>
-    [AttributeUsage(AttributeTargets.Assembly)]
-    public class NomadModule : Attribute
+    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false, Inherited = false)]
+    public sealed class NomadModule : Attribute
     {
         /// <summary>
         ///
         /// </summary>
-        public string Name => _name;
-        private readonly string _name;
+        public string Name { get; set; }
 
         /// <summary>
-        ///
+        /// 
         /// </summary>
-        /// <param name="name"></param>
-        public NomadModule(string name)
-        {
-            _name = name;
-        }
+        public int VersionMajor { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int VersionMinor { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int VersionPatch { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public Guid BuildId { get; } = Guid.NewGuid();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public DateTime CompileTime { get; } = DateTime.Now;
     }
 }

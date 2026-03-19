@@ -16,7 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 namespace Nomad.Input.Private {
 	internal static class Constants {
 		internal static class CVars {
-			public const string NAMESPACE = nameof( Nomad.Input );
+			public const string NAMESPACE = "Nomad.Input";
 
 			public const string DEFAULTS_PATH = NAMESPACE + ".DefaultsPath";
 			public const string INPUT_DELAY_MS = NAMESPACE + ".InputDelayMS";
@@ -25,5 +25,7 @@ namespace Nomad.Input.Private {
 		public const string KEYBOARD_DEVICE_ID = "Keyboard";
 		public const string MOUSE_DEVICE_ID = "Mouse";
 		public const string GAMEPAD_DEVICE_ID = "Gamepad";
+
+		public const int MAX_ACTION_BINDINGS = 3;
 	};
 };

@@ -20,6 +20,9 @@ namespace Nomad.FileSystem.Private.Services {
 		StreamFactory
 		===============
 		*/
+		/// <summary>
+		/// 
+		/// </summary>
 		public StreamFactory() {
 		}
 	};

@@ -42,19 +42,6 @@ namespace Nomad.Logger.Globals
         }
 
         /// <summary>
-        /// Prints a log message.
-        /// </summary>
-        /// <remarks>
-        /// Prints a standard log message to all the available sinks.
-        /// </remarks>
-        /// <param name="message">The message to print.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Print(string message)
-        {
-            Instance.Print(message);
-        }
-
-        /// <summary>
         /// Prints a log message with a newline.
         /// </summary>
         /// <remarks>
@@ -104,76 +91,6 @@ namespace Nomad.Logger.Globals
         public static void PrintError(string message)
         {
             Instance.PrintError(message);
-        }
-
-        /// <summary>
-        /// Prints a log message to a specific category.
-        /// </summary>
-        /// <remarks>
-        /// Prints a standard log message to all the available sinks with a marker of the category in the actual message.
-        /// </remarks>
-        /// <param name="category">The category to print the message to.</param>
-        /// <param name="message">The message to print.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Print(ILoggerCategory category, string message)
-        {
-            Instance.Print(category, message);
-        }
-
-        /// <summary>
-        /// Prints a log message with a newline to a specific category.
-        /// </summary>
-        /// <remarks>
-        /// Prints a standard log message to all the available sinks with a marker of the category in the actual message.
-        /// </remarks>
-        /// <param name="category">The category to print the message to.</param>
-        /// <param name="message">The message to print with a newline.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void PrintLine(ILoggerCategory category, string message)
-        {
-            Instance.PrintLine(category, message);
-        }
-
-        /// <summary>
-        /// Prints a debug log message to a specific category.
-        /// </summary>
-        /// <remarks>
-        /// Prints a debug log message to all the available sinks with a marker of the category in the actual message.
-        /// </remarks>
-        /// <param name="category">The category to print the message to.</param>
-        /// <param name="message">The message to print.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void PrintDebug(ILoggerCategory category, string message)
-        {
-            Instance.PrintDebug(category, message);
-        }
-
-        /// <summary>
-        /// Prints a warning log message to a specific category.
-        /// </summary>
-        /// <remarks>
-        /// Prints a warning log message to all the available sinks with a marker of the category in the actual message.
-        /// </remarks>
-        /// <param name="category">The category to print the message to.</param>
-        /// <param name="message">The message to print.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void PrintWarning(ILoggerCategory category, string message)
-        {
-            Instance.PrintWarning(category, message);
-        }
-
-        /// <summary>
-        /// Prints an error log message to a specific category.
-        /// </summary>
-        /// <remarks>
-        /// Prints an error log message to all the available sinks with a marker of the category in the actual message.
-        /// </remarks>
-        /// <param name="category">The category to print the message to.</param>
-        /// <param name="message">The message to print.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void PrintError(ILoggerCategory category, string message)
-        {
-            Instance.PrintError(category, message);
         }
 
         /// <summary>

@@ -13,15 +13,13 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-#if !UNITY_EDITOR
 using Godot;
+using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.Console;
 using Nomad.Core.Events;
 using Nomad.Core.Logger;
-using System;
-using System.Runtime.CompilerServices;
 
-namespace Nomad.EngineUtils.Private {
+namespace Nomad.EngineUtils.Godot.Private {
 	/*
 	===================================================================================
 
@@ -35,7 +33,12 @@ namespace Nomad.EngineUtils.Private {
 
 	internal sealed class InGameSink : SinkBase {
 		private static readonly NodePath _valueNodePath = "value";
+
 		private readonly RichTextLabel _richLabel;
+
+		private readonly ISubscriptionHandle _consoleClosed;
+		private readonly ISubscriptionHandle _pageUp;
+		private readonly ISubscriptionHandle _pageDown;
 
 		/*
 		===============
@@ -46,11 +49,13 @@ namespace Nomad.EngineUtils.Private {
 		///
 		/// </summary>
 		/// <param name="owner"></param>
+		/// <param name="builder"></param>
 		/// <param name="node"></param>
 		/// <param name="eventRegistry"></param>
-		public InGameSink( CanvasLayer owner, Node node, IGameEventRegistryService eventRegistry ) {
-			ArgumentNullException.ThrowIfNull( node );
-			ArgumentNullException.ThrowIfNull( eventRegistry );
+		public InGameSink( CanvasLayer owner, GodotCommandBuilder builder, Node node, IGameEventRegistryService eventRegistry ) {
+			ArgumentGuard.ThrowIfNull( node );
+			ArgumentGuard.ThrowIfNull( builder );
+			ArgumentGuard.ThrowIfNull( eventRegistry );
 
 			_richLabel = new RichTextLabel() {
 				Name = nameof( _richLabel ),
@@ -64,12 +69,13 @@ namespace Nomad.EngineUtils.Private {
 			_richLabel.CallDeferred( RichTextLabel.MethodName.AddThemeStyleboxOverride, "normal", new StyleBoxFlat() { BgColor = new Color( 0.0f, 0.0f, 0.0f, 0.84f ) } );
 			_richLabel.CallDeferred( RichTextLabel.MethodName.AddThemeFontOverride, "font", ResourceLoader.Load<Font>( "res://Assets/Fonts/SourceCodePro-ExtraLight.ttf" ) );
 
+			owner.CallDeferred( CanvasLayer.MethodName.AddChild, builder );
 			owner.CallDeferred( CanvasLayer.MethodName.AddChild, _richLabel );
 			node.CallDeferred( Control.MethodName.AddChild, owner );
 
-			eventRegistry.GetEvent<EmptyEventArgs>( Core.Constants.Events.Console.NAMESPACE, Core.Constants.Events.Console.CONSOLE_CLOSED_EVENT ).Subscribe( OnConsoleOpened );
-			eventRegistry.GetEvent<EmptyEventArgs>( Core.Constants.Events.Console.NAMESPACE, Core.Constants.Events.Console.PAGE_UP_EVENT ).Subscribe( OnPageUp );
-			eventRegistry.GetEvent<EmptyEventArgs>( Core.Constants.Events.Console.NAMESPACE, Core.Constants.Events.Console.PAGE_DOWN_EVENT ).Subscribe( OnPageDown );
+			_consoleClosed = eventRegistry.GetEvent<EmptyEventArgs>( Core.Constants.Events.Console.CONSOLE_CLOSED_EVENT, Core.Constants.Events.Console.NAMESPACE ).Subscribe( OnConsoleOpened );
+			_pageUp = eventRegistry.GetEvent<EmptyEventArgs>( Core.Constants.Events.Console.PAGE_UP_EVENT, Core.Constants.Events.Console.NAMESPACE ).Subscribe( OnPageUp );
+			_pageDown = eventRegistry.GetEvent<EmptyEventArgs>( Core.Constants.Events.Console.PAGE_DOWN_EVENT, Core.Constants.Events.Console.NAMESPACE ).Subscribe( OnPageDown );
 		}
 
 		/*
@@ -85,6 +91,9 @@ namespace Nomad.EngineUtils.Private {
 				return;
 			}
 			if ( disposing ) {
+				_pageDown?.Dispose();
+				_pageUp?.Dispose();
+				_consoleClosed?.Dispose();
 				_richLabel?.Dispose();
 			}
 			isDisposed = true;
@@ -97,11 +106,10 @@ namespace Nomad.EngineUtils.Private {
 		===============
 		*/
 		/// <summary>
-		///
+		/// Appends a string message on a new line into the in-game quake console.
 		/// </summary>
 		/// <param name="message"></param>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public override void Print( in string message ) {
+		public override void Print( string message ) {
 			_richLabel.CallDeferred( RichTextLabel.MethodName.AppendText, $"{message}\n" );
 		}
 
@@ -111,9 +119,8 @@ namespace Nomad.EngineUtils.Private {
 		===============
 		*/
 		/// <summary>
-		///
+		/// Clears the in-game quake console.
 		/// </summary>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public override void Clear() {
 			_richLabel.CallDeferred( RichTextLabel.MethodName.Clear );
 		}
@@ -126,7 +133,6 @@ namespace Nomad.EngineUtils.Private {
 		/// <summary>
 		///
 		/// </summary>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public override void Flush() {
 		}
 
@@ -190,4 +196,3 @@ namespace Nomad.EngineUtils.Private {
 		}
 	};
 };
-#endif

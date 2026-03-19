@@ -13,7 +13,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System.Drawing;
 using Nomad.Core.Engine.Assets;
 
 namespace Nomad.Core.UI
@@ -27,10 +26,5 @@ namespace Nomad.Core.UI
         ///
         /// </summary>
         ITexture Texture { get; set; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        Color Color { get; set; }
     }
 }

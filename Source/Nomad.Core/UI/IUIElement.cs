@@ -13,6 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System.Drawing;
 using System.Numerics;
 using Nomad.Core.Events;
 using Nomad.Core.Scene.GameObjects;
@@ -38,6 +39,11 @@ namespace Nomad.Core.UI
         /// The ui component's scaling factor.
         /// </summary>
         Vector2 Scale { get; set; }
+
+        /// <summary>
+        /// The ui component's color modulation.
+        /// </summary>
+        Color Color { get; set; }
 
         /// <summary>
         ///

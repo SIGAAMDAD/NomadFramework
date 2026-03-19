@@ -56,7 +56,8 @@ namespace Nomad.Input.Private.ValueObjects {
 			Name = name;
 			InputData = inputData;
 			_hashCode = HashCode.Combine(
-				name.GetHashCode()
+				name.GetHashCode(),
+				inputData.GetHashCode()
 			);
 		}
 

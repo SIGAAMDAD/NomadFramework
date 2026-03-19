@@ -9,6 +9,7 @@
 /* https://fmod.com/docs/2.03/api/core-api-common.html#fmod_result                                 */
 /* =============================================================================================== */
 
+#pragma warning disable CS1591
 namespace FMOD
 {
     public class Error
@@ -104,3 +105,4 @@ namespace FMOD
         }
     }
 }
+#pragma warning restore CS1591

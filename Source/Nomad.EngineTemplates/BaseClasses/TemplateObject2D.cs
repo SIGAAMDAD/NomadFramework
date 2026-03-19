@@ -16,21 +16,22 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using Nomad.Core.Scene.GameObjects;
 using Nomad.EngineTemplates.Attributes;
+using Nomad.EngineTemplates.Attributes.Events;
 using Nomad.EngineTemplates.Attributes.Properties;
 
 namespace Nomad.EngineTemplates.BaseClasses
 {
     /// <summary>
-    ///
+    /// Declares the shared template metadata for 2D object engine wrappers.
     /// </summary>
     [TemplateClass(Contract = typeof(IObject2D))]
     [TemplateBaseClass]
-    [TemplateEvent(Name = "VisibilityChanged", PayloadType = typeof(bool))]
+    [TemplateDisplayStateChangedEvent]
     [TemplatePositionProperty]
     [TemplateScaleProperty]
-    [TemplateProperty(Name = "Rotation", Type = typeof(float))]
+    [TemplateRotationProperty]
     [AttributeUsage(AttributeTargets.Class, Inherited = true)]
-    public class TemplateObject2D : Attribute
+    internal class TemplateObject2D : Attribute
     {
     }
 }

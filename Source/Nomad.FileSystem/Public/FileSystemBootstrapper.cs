@@ -13,12 +13,14 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System.Reflection;
 using Nomad.Core.Abstractions;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.Engine.Services;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
+using Nomad.Core.Util.Attributes;
 using Nomad.FileSystem.Private.Services;
 
 namespace Nomad.FileSystem
@@ -45,6 +47,9 @@ namespace Nomad.FileSystem
 
             _fileSystem = new FileSystemService(engineService, logger);
             registry.AddSingleton(_fileSystem);
+
+            var attribute = Assembly.GetAssembly(typeof(FileSystemBootstrapper)).GetCustomAttribute<NomadModule>();
+            logger.PrintLine($"Initialized {attribute.Name}\n\tBuildId = {attribute.BuildId}\n\tCompileTime = {attribute.CompileTime}\n\tVersion = {attribute.VersionMajor}.{attribute.VersionMinor}.{attribute.VersionPatch}");
         }
 
         /// <summary>

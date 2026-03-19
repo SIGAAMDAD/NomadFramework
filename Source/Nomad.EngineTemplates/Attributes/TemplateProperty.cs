@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -18,10 +18,10 @@ using System;
 namespace Nomad.EngineTemplates.Attributes
 {
     /// <summary>
-    ///
+    /// Represents a template generated property for the EAT
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
-    public class TemplateProperty : Attribute
+    internal class TemplateProperty : Attribute
     {
         /// <summary>
         /// The property's name.
@@ -58,44 +58,13 @@ namespace Nomad.EngineTemplates.Attributes
         public string UnitySetterExpression { get; set; } = null;
 
         /// <summary>
-        /// Backwards-compatible alias for <see cref="GodotGetterExpression"/>.
-        /// </summary>
-        public string FromGodotMethod
-        {
-            get => GodotGetterExpression;
-            set => GodotGetterExpression = value;
-        }
-
-        /// <summary>
-        /// Backwards-compatible alias for <see cref="UnityGetterExpression"/>.
-        /// </summary>
-        public string FromUnityMethod
-        {
-            get => UnityGetterExpression;
-            set => UnityGetterExpression = value;
-        }
-
-        /// <summary>
-        /// Backwards-compatible alias for <see cref="GodotSetterExpression"/>.
-        /// </summary>
-        public string ToGodotMethod
-        {
-            get => GodotSetterExpression;
-            set => GodotSetterExpression = value;
-        }
-
-        /// <summary>
-        /// Backwards-compatible alias for <see cref="UnitySetterExpression"/>.
-        /// </summary>
-        public string ToUnityMethod
-        {
-            get => UnitySetterExpression;
-            set => UnitySetterExpression = value;
-        }
-
-        /// <summary>
         /// Indicates the generated fallback backing field should be readonly.
         /// </summary>
         public bool IsReadOnly { get; set; } = false;
+
+        /// <summary>
+        /// The documentation for the generated property.
+        /// </summary>
+        public string Documentation { get; set; } = null;
     }
 }

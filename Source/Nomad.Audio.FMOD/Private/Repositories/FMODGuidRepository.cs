@@ -32,7 +32,8 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 
 	internal sealed class FMODGuidRepository : IGuidRepository<FMOD.GUID, FMOD.GUID> {
 		private sealed class GUIDCache<TGuid, TId>
-			where TId : notnull {
+			where TId : notnull
+		{
 			private readonly Dictionary<TGuid, TId> _guids = new Dictionary<TGuid, TId>();
 			private readonly Dictionary<TId, TGuid> _reverseLookup = new Dictionary<TId, TGuid>();
 
@@ -126,6 +127,11 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		GetEventId
 		===============
 		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="guid"></param>
+		/// <returns></returns>
 		public string GetEventId( FMOD.GUID guid ) {
 			_lock.EnterUpgradeableReadLock();
 			try {
@@ -140,6 +146,11 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		GetEventGuid
 		===============
 		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="id"></param>
+		/// <returns></returns>
 		public FMOD.GUID GetEventGuid( string id ) {
 			_lock.EnterUpgradeableReadLock();
 			try {

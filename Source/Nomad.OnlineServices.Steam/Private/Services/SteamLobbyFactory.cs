@@ -40,7 +40,6 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 	internal sealed class SteamLobbyFactory : IDisposable {
 		private readonly SteamAsyncCallbackDispatcher<LobbyCreated_t, SteamLobbyData> _lobbyCreated;
 
-		private readonly ILoggerService _logger;
 		private readonly ILoggerCategory _category;
 
 		private readonly SteamUserData _userData;
@@ -64,8 +63,6 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 			ArgumentGuard.ThrowIfNull( logger );
 
 			_userData = userData;
-
-			_logger = logger;
 			_category = logger.CreateCategory( nameof( SteamLobbyFactory ), LogLevel.Info, true );
 
 			var maxPlayers = cvarSystem.GetCVarOrThrow<int>( Constants.CVars.LOBBY_MAX_CLIENTS );
@@ -118,10 +115,10 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 			return await _lobbyCreated.Invoke(
 				result => {
 					if ( result.m_eResult != EResult.k_EResultOK ) {
-						_logger.PrintError( in _category, $"SteamLobbyFactory.OnLobbyCreated: error creating lobby - {result.m_eResult}" );
+						_category.PrintError( $"SteamLobbyFactory.OnLobbyCreated: error creating lobby - {result.m_eResult}" );
 						return null;
 					}
-					_logger.PrintLine( in _category, $"SteamLobbyFactory.OnLobbyFactory: created new lobby with CSteamID '{result.m_ulSteamIDLobby}'" );
+					_category.PrintLine( $"SteamLobbyFactory.OnLobbyFactory: created new lobby with CSteamID '{result.m_ulSteamIDLobby}'" );
 
 					CSteamID id = (CSteamID)result.m_ulSteamIDLobby;
 

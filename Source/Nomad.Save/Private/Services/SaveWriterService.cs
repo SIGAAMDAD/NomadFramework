@@ -78,7 +78,7 @@ namespace Nomad.Save.Private.Services {
 			_config = config;
 
 			_logger = logger;
-			_category = _logger.CreateCategory( Constants.Logger.WRITER_SERVICE_CATEGORY_NAME, LogLevel.Info, true );
+			_category = logger.CreateCategory( Constants.Logger.WRITER_SERVICE_CATEGORY_NAME, LogLevel.Info, true );
 
 			_atomicWriter = atomicWriter;
 		}
@@ -116,11 +116,11 @@ namespace Nomad.Save.Private.Services {
 
 			_writer = _fileSystem.OpenWrite( new MemoryFileWriteConfig { FilePath = AtomicWriterService.GetAtomicPathName() } ) as IMemoryFileWriteStream;
 			if ( _writer == null ) {
-				_logger.PrintError( in _category, $"Couldn't create save file {filepath}!" );
+				_category.PrintError( $"Couldn't create save file {filepath}!" );
 				return;
 			}
 
-			_logger.PrintLine( in _category, $"Writing save data to {filepath}..." );
+			_category.PrintLine( $"Writing save data to {filepath}..." );
 
 			{
 				var header = new SaveHeader( name, gameVersion, _sections.Count, Checksum.Empty );
@@ -155,12 +155,12 @@ namespace Nomad.Save.Private.Services {
 			_writer.Seek( 0, System.IO.SeekOrigin.End );
 
 			if ( _config.DebugLogging ) {
-				_logger.PrintLine( in _category, $"Finalized save data file:" );
-				_logger.PrintLine( in _category, $"\tMagic: {Constants.HEADER_MAGIC}" );
-				_logger.PrintLine( in _category, $"\tSectionCount: {header.SectionCount}" );
-				_logger.PrintLine( in _category, $"\tSaveName: {header.Name}" );
-				_logger.PrintLine( in _category, $"\tChecksum64: {header.Checksum.Value}" );
-				_logger.PrintLine( in _category, $"\tGameVersion: {header.Version.ToInt()}" );
+				_category.PrintLine( $"\tMagic: {Constants.HEADER_MAGIC}" );
+				_category.PrintLine( $"Finalized save data file:" );
+				_category.PrintLine( $"\tSectionCount: {header.SectionCount}" );
+				_category.PrintLine( $"\tSaveName: {header.Name}" );
+				_category.PrintLine( $"\tChecksum64: {header.Checksum.Value}" );
+				_category.PrintLine( $"\tGameVersion: {header.Version.ToInt()}" );
 			}
 
 			// clear the memory buffer
@@ -191,7 +191,7 @@ namespace Nomad.Save.Private.Services {
 			_sections[sectionId] = writer;
 
 			if ( _config.LogSerializationTree ) {
-				_logger.PrintLine( in _category, $"\t[Section] (NAME) {sectionId}" );
+				_category.PrintLine( "$\t[Section] (NAME) {sectionId}" );
 			}
 
 			return writer;

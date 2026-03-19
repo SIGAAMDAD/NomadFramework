@@ -13,13 +13,22 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System;
+using System.Runtime.CompilerServices;
+
 namespace Nomad.Core.Input
 {
     /// <summary>
     /// 
     /// </summary>
-    public readonly struct MouseMotionEvent
+    public readonly struct MouseMotionEvent : IEquatable<MouseMotionEvent>
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        public long TimeStamp => _timeStamp;
+        private readonly long _timeStamp;
+
         /// <summary>
         /// 
         /// </summary>
@@ -35,12 +44,25 @@ namespace Nomad.Core.Input
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="timestamp"></param>
         /// <param name="relativeX"></param>
         /// <param name="relativeY"></param>
-        public MouseMotionEvent(int relativeX, int relativeY)
+        public MouseMotionEvent(long timestamp, int relativeX, int relativeY)
         {
+            _timeStamp = timestamp;
             _relativeX = relativeX;
             _relativeY = relativeY;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Equals(MouseMotionEvent other)
+        {
+            return _relativeX == other._relativeX && _relativeY == other._relativeY;
         }
     }
 }

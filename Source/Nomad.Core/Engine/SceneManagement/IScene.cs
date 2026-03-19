@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using Nomad.Core.Scene.GameObjects;
 
 namespace Nomad.Core.Engine.SceneManagement
 {
@@ -26,5 +27,10 @@ namespace Nomad.Core.Engine.SceneManagement
         ///
         /// </summary>
         string Name { get; set; }
+
+        /// <summary>
+        /// The root <see cref="IGameObject"/>.
+        /// </summary>
+        IGameObject Root { get; }
     }
 }

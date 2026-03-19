@@ -11,6 +11,7 @@
     <EnforceCodeStyleInBuilds>true</EnforceCodeStyleInBuilds>
     <EnableUnsafeBinaryFormatterSerialization>false</EnableUnsafeBinaryFormatterSerialization>
     <BuildInParallel>true</BuildInParallel>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
     <!-- Framework-specific constants -->
     <PublishTrimmed>true</PublishTrimmed>
@@ -25,9 +26,12 @@
 
     <!-- NuGet Package Information -->
     <PackageId>NomadFramework.EngineUtils.Godot</PackageId>
+
+    <NoWarn>$(NoWarn);CA1812</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup>
+    <!-- Strictly for debugging purposes, disable on release builds. -->
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)Generated</CompilerGeneratedFilesOutputPath>
   </PropertyGroup>
@@ -43,6 +47,7 @@
     <ProjectReference Include="..\Nomad.CVars\Nomad.CVars.csproj" />
     <ProjectReference Include="..\Nomad.Core\Nomad.Core.csproj" />
 	  <ProjectReference Include="..\Nomad.Events\Nomad.Events.csproj" />
+    <ProjectReference Include="..\Nomad.EngineTemplates\Nomad.EngineTemplates.csproj" />
     <ProjectReference Include="..\Nomad.SourceGenerators\Nomad.SourceGenerators.csproj"
                       OutputItemType="Analyzer"
                       ReferenceOutputAssembly="false" />

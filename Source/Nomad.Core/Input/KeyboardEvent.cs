@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using System.Runtime.CompilerServices;
 using Nomad.Core.Input.ValueObjects;
 
 namespace Nomad.Core.Input
@@ -21,13 +22,13 @@ namespace Nomad.Core.Input
     /// <summary>
     /// 
     /// </summary>
-    public readonly struct KeyboardEvent
+    public readonly struct KeyboardEvent : IEquatable<KeyboardEvent>
     {
         /// <summary>
         /// 
         /// </summary>
-        public DateTime TimeStamp => _timeStamp;
-        private readonly DateTime _timeStamp;
+        public long TimeStamp => _timeStamp;
+        private readonly long _timeStamp;
 
         /// <summary>
         /// 
@@ -47,11 +48,22 @@ namespace Nomad.Core.Input
         /// <param name="keyNum"></param>
         /// <param name="timeStamp"></param>
         /// <param name="pressed"></param>
-        public KeyboardEvent(KeyNum keyNum, DateTime timeStamp, bool pressed)
+        public KeyboardEvent(KeyNum keyNum, long timeStamp, bool pressed)
         {
             _keyNum = keyNum;
             _timeStamp = timeStamp;
             _pressed = pressed;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Equals(KeyboardEvent other)
+        {
+            return _keyNum == other._keyNum && _pressed == other._pressed;
         }
     }
 }

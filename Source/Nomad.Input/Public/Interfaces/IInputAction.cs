@@ -53,7 +53,7 @@ namespace Nomad.Input.Interfaces
         /// <summary>
         /// Fires every frame while the action is held (button held, axis non‑zero).
         /// </summary>
-        IGameEvent<EmptyEventArgs> Held { get; }
+        IGameEvent<BindHeldEventArgs> Held { get; }
 
         /// <summary>
         /// Enables or disables the action (events stop firing when disabled).

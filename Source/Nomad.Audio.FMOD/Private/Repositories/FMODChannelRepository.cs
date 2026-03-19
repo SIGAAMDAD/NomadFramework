@@ -144,17 +144,15 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		===============
 		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
 		/// <param name="id"></param>
 		/// <param name="position"></param>
-		/// <param name="category"></param>
+		/// <param name="config"></param>
 		/// <param name="basePriority"></param>
 		/// <param name="isEssential"></param>
 		/// <returns></returns>
-		public FMODChannel? AllocateChannel( string id, Vector2 position,
-			SoundCategory config, float basePriority = 0.5f,
-			bool isEssential = false ) {
+		public FMODChannel? AllocateChannel( string id, Vector2 position, SoundCategory config, float basePriority = 0.5f, bool isEssential = false ) {
 			int soundsInCategory = CountSoundsInCategory( config.Config.Name );
 			if ( soundsInCategory >= config.Config.MaxSimultaneous ) {
 				if ( !config.Config.AllowStealingFromSameCategory ) {
@@ -170,7 +168,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			int channelId = AllocateChannelId( startTime, instance, position, actualPriority, config, isEssential );
 
 			if ( channelId == INVALID_CHANNEL ) {
-				_logger.PrintError( in _fmodChannelCategory, $"Couldn't allocate a channel for sound event '{id}'!" );
+				_fmodChannelCategory.PrintError( $"Couldn't allocate a channel for sound event '{id}'!" );
 				return null;
 			}
 
@@ -179,7 +177,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			FMODValidator.ValidateCall( eventInstance.SetFinishedCallback( SoundFinishedCallback ) );
 			FMODValidator.ValidateCall( eventInstance.Start() );
 
-			_logger.PrintDebug( in _fmodChannelCategory, $"AllocateChannel: allocating new channel with id {channelId}..." );
+			_fmodChannelCategory.PrintLine( $"AllocateChannel: allocating new channel with id {channelId}..." );
 
 			var channel = _channelPool.Rent();
 			channel.Instance = eventInstance;
@@ -193,7 +191,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			_allocatedChannels.Add( channel );
 			UpdateLastPlayTime( startTime, eventInstance );
 
-			_logger.PrintDebug( in _fmodChannelCategory, $"AllocateChannel: freeChannelIds.Count - {_freeChannelIds.Count}" );
+			_fmodChannelCategory.PrintLine( $"AllocateChannel: freeChannelIds.Count - {_freeChannelIds.Count}" );
 
 			return channel;
 		}
@@ -416,10 +414,10 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// <returns></returns>
 		private int AllocateChannelId( float startTime, IntPtr id, Vector2 position, float priority, SoundCategory category, bool isEssential ) {
 			if ( _freeChannelIds.TryDequeue( out int channelId ) ) {
-				_logger.PrintDebug( in _fmodChannelCategory, $"AllocateChannelId: reusing released channel id {channelId}..." );
+				_fmodChannelCategory.PrintLine( $"AllocateChannelId: reusing released channel id {channelId}..." );
 				return channelId;
 			}
-			_logger.PrintDebug( in _fmodChannelCategory, $"AllocateChannelId: stealing a channel..." );
+			_fmodChannelCategory.PrintLine( $"AllocateChannelId: stealing a channel..." );
 			return StealChannel( startTime, id, position, priority, category, isEssential );
 		}
 
@@ -461,7 +459,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 				int stolenChannelId = bestCandidate.ChannelId;
 				StopSound( currentTime, bestCandidate, true );
 
-				_logger.PrintDebug( in _fmodChannelCategory, $"Channel {stolenChannelId} stolen" );
+				_fmodChannelCategory.PrintLine( $"Channel {stolenChannelId} stolen" );
 
 				UpdateStealStatistics( bestCandidate.Id );
 
@@ -558,7 +556,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// <param name="channel"></param>
 		/// <param name="wasStolen"></param>
 		private void StopSound( float startTime, FMODChannel channel, bool wasStolen = false ) {
-			_logger.PrintDebug( in _fmodChannelCategory, $"StopSound: unloading channel {channel.ChannelId}..." );
+			_fmodChannelCategory.PrintLine( $"StopSound: unloading channel {channel.ChannelId}..." );
 			channel.Instance.Unload();
 
 			if ( wasStolen ) {
@@ -703,7 +701,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		/// </summary>
 		private void ValidateMaxChannels() {
 			if ( _maxActiveChannels.Value > _maxChannels.Value ) {
-				_logger.PrintError( in _fmodChannelCategory, $"ValidateMaxChannels: maxActiveChannels cannot be larger than maxChannels, resetting both." );
+				_fmodChannelCategory.PrintError( $"ValidateMaxChannels: maxActiveChannels cannot be larger than maxChannels, resetting both." );
 				_maxActiveChannels.Reset();
 				_maxChannels.Reset();
 			}

@@ -32,8 +32,10 @@ namespace Nomad.EngineTemplates.BaseClasses
     [TemplateEvent(Name = "Unfocused", PayloadType = typeof(EmptyEventArgs))]
     [TemplatePositionProperty]
     [TemplateScaleProperty]
+    [TemplateRotationProperty]
+    [TemplateColorProperty]
     [AttributeUsage(AttributeTargets.Class, Inherited = true)]
-    public class TemplateUIElement : Attribute
+    internal class TemplateUIElement : Attribute
     {
     }
 }

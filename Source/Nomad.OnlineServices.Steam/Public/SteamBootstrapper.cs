@@ -22,6 +22,10 @@ using Nomad.Core.Logger;
 using Nomad.Core.OnlineServices;
 using Nomad.Core.ServiceRegistry.Interfaces;
 using Nomad.OnlineServices.Steam.Private;
+using System.Reflection;
+using Nomad.Core.Util.Attributes;
+
+
 #if NET5_0_OR_GREATER
 using Nomad.Core.Util;
 using Steamworks;
@@ -46,14 +50,18 @@ namespace Nomad.OnlineServices.Steam
 #if NET5_0_OR_GREATER
             InteropAssemblyResolver.Hook(typeof(SteamAPI).Assembly, "steam_api", "libsteam_api", "steam_api64");
 #endif
+            var logger = locator.GetService<ILoggerService>();
             _service = new SteamService(
-                locator.GetService<ILoggerService>(),
+                logger,
                 locator.GetService<IFileSystem>(),
                 locator.GetService<IEngineService>(),
                 locator.GetService<IGameEventRegistryService>(),
                 locator.GetService<ICVarSystemService>()
             );
             registry.AddSingleton(_service);
+
+            var attribute = Assembly.GetAssembly(typeof(SteamBootstrapper)).GetCustomAttribute<NomadModule>();
+            logger.PrintLine($"Initialized {attribute.Name}\n\tBuildId = {attribute.BuildId}\n\tCompileTime = {attribute.CompileTime}\n\tVersion = {attribute.VersionMajor}.{attribute.VersionMinor}.{attribute.VersionPatch}");
         }
 
         /// <summary>

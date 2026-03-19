@@ -48,7 +48,7 @@ namespace Nomad.FileSystem.Tests
             Directory.CreateDirectory(_dir1);
             Directory.CreateDirectory(_dir2);
 
-            _searcher = new RecursiveFileSearcher(_loggerMock.Object);
+            _searcher = new RecursiveFileSearcher(_categoryMock.Object);
         }
 
         [TearDown]

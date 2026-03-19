@@ -51,7 +51,6 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 
 		private readonly IFileSystem _fileSystem;
 
-		private readonly ILoggerService _logger;
 		private readonly ILoggerCategory _category;
 
 		private readonly CallResult<RemoteStorageLocalFileChange_t> _fileChangeResult;
@@ -74,9 +73,7 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 			ArgumentGuard.ThrowIfNull( logger );
 			ArgumentGuard.ThrowIfNull( fileSystem );
 
-			_logger = logger;
 			_category = logger.CreateCategory( nameof( SteamCloudStorageService ), LogLevel.Info, true );
-
 			_fileSystem = fileSystem;
 
 			_fileChangeResult = CallResult<RemoteStorageLocalFileChange_t>.Create( OnFileChange );
@@ -132,7 +129,7 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 				FileInfo info = new FileInfo( fileName );
 
 				_cloudFiles.Add( fileName, new CloudFile { CloudAccessTime = cloudAccessTimestamp, LocalAccessTime = info.LastAccessTimeUtc, Size = fileSize } );
-				_logger.PrintLine( $"SteamCloudStorage.InitializeCloudFileCache: found file '{fileName}'" );
+				_category.PrintLine( $"SteamCloudStorage.InitializeCloudFileCache: found file '{fileName}'" );
 			}
 		}
 
@@ -184,7 +181,7 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 		/// <returns></returns>
 		public async ValueTask ResolveConflict( string fileName, IBufferHandle localData, IBufferHandle cloudData ) {
 			if ( !_cloudFiles.TryGetValue( fileName, out var cloudFile ) ) {
-				_logger.PrintError( in _category, $"No such cloud file named '{fileName}'!" );
+				_category.PrintError( $"No such cloud file named '{fileName}'!" );
 				return;
 			}
 
@@ -201,7 +198,7 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 		/// <returns></returns>
 		public async ValueTask Synchronize() {
 			if ( !IsEnabled ) {
-				_logger.PrintWarning( in _category, "Cloud storage is not enabled for this application." );
+				_category.PrintWarning( "Cloud storage is not enabled for this application." );
 				return;
 			}
 		}

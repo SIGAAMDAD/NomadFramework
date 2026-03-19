@@ -29,7 +29,7 @@ namespace Nomad.Audio.Fmod.Private.Registries {
 	///
 	/// </summary>
 
-	public static class FMODCVarRegistry {
+	internal static class FMODCVarRegistry {
 		/*
 		===============
 		Register

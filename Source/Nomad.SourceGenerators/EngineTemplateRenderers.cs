@@ -14,21 +14,31 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System.Text;
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 
 namespace Nomad.SourceGenerators
 {
+    /// <summary>
+    /// Defines the contract for rendering a fully-populated template generation model into source code.
+    /// </summary>
     internal interface IEngineTemplateRenderer
     {
         string Render(TemplateGenerationModel model);
     }
 
+    /// <summary>
+    /// Provides shared rendering helpers for engine-specific template renderers.
+    /// </summary>
     internal abstract class EngineTemplateRendererBase : IEngineTemplateRenderer
     {
         protected const string EventNamespace = "Nomad.EngineUtils";
 
         public abstract string Render(TemplateGenerationModel model);
 
+        /// <summary>
+        /// Appends the standard MPL license header and nullable enable directive.
+        /// </summary>
         protected static void AppendFileHeader(StringBuilder builder)
         {
             builder.AppendLine("/*");
@@ -50,10 +60,14 @@ namespace Nomad.SourceGenerators
             builder.AppendLine();
         }
 
+        /// <summary>
+        /// Appends the namespace opening and class declaration with documentation, base types, and contracts.
+        /// </summary>
         protected static void AppendNamespaceStart(StringBuilder builder, TemplateGenerationModel model)
         {
             builder.AppendLine("namespace " + model.GeneratedNamespace);
             builder.AppendLine("{");
+            AppendDocumentationComment(builder, "    ", model.ClassDocumentationLines);
             builder.Append("    ");
             builder.Append(FormatAccessibility(model.Accessibility));
             builder.Append(" partial class ");
@@ -73,6 +87,9 @@ namespace Nomad.SourceGenerators
             builder.AppendLine("    {");
         }
 
+        /// <summary>
+        /// Appends the closing braces for namespace and class, and disables nullable.
+        /// </summary>
         protected static void AppendNamespaceEnd(StringBuilder builder)
         {
             builder.AppendLine("    }");
@@ -80,10 +97,14 @@ namespace Nomad.SourceGenerators
             builder.AppendLine("#nullable disable");
         }
 
+        /// <summary>
+        /// Appends property members with their getter/setter expressions and optional backing fields.
+        /// </summary>
         protected static void AppendPropertyMembers(StringBuilder builder, TemplateGenerationModel model)
         {
             foreach (var propertyImplementation in model.PropertyImplementations)
             {
+                AppendDocumentationComment(builder, "        ", propertyImplementation.DocumentationLines);
                 builder.Append("        public ");
                 if (propertyImplementation.RequiresNewKeyword)
                 {
@@ -117,10 +138,39 @@ namespace Nomad.SourceGenerators
             }
         }
 
+        /// <summary>
+        /// Appends constant and static readonly field members.
+        /// </summary>
+        protected static void AppendConstantMembers(StringBuilder builder, TemplateGenerationModel model)
+        {
+            foreach (var constantImplementation in model.ConstantImplementations)
+            {
+                AppendDocumentationComment(builder, "        ", constantImplementation.DocumentationLines);
+                builder.Append("        public ");
+                if (constantImplementation.RequiresNewKeyword)
+                {
+                    builder.Append("new ");
+                }
+
+                builder.Append(constantImplementation.IsConstant ? "const " : "static readonly ");
+                builder.Append(constantImplementation.TypeName);
+                builder.Append(' ');
+                builder.Append(constantImplementation.Name);
+                builder.Append(" = ");
+                builder.Append(constantImplementation.ValueExpression);
+                builder.AppendLine(";");
+                builder.AppendLine();
+            }
+        }
+
+        /// <summary>
+        /// Appends event members and their backing fields.
+        /// </summary>
         protected static void AppendEventMembers(StringBuilder builder, TemplateGenerationModel model)
         {
             foreach (var eventImplementation in model.EventImplementations)
             {
+                AppendDocumentationComment(builder, "        ", eventImplementation.DocumentationLines);
                 builder.Append("        public ");
                 if (eventImplementation.RequiresNewKeyword)
                 {
@@ -144,10 +194,14 @@ namespace Nomad.SourceGenerators
             }
         }
 
+        /// <summary>
+        /// Appends method members with their signatures, constraints, and bodies.
+        /// </summary>
         protected static void AppendMethodMembers(StringBuilder builder, TemplateGenerationModel model)
         {
             foreach (var methodImplementation in model.MethodImplementations)
             {
+                AppendDocumentationComment(builder, "        ", methodImplementation.DocumentationLines);
                 builder.AppendLine("        " + methodImplementation.Signature);
 
                 foreach (var constraintClause in methodImplementation.Constraints)
@@ -162,6 +216,9 @@ namespace Nomad.SourceGenerators
             }
         }
 
+        /// <summary>
+        /// Appends event initialization statements using the game event registry (constant string form).
+        /// </summary>
         protected static void AppendEventInitialization(StringBuilder builder, TemplateGenerationModel model, string indent)
         {
             foreach (var eventImplementation in model.EventImplementations)
@@ -179,6 +236,9 @@ namespace Nomad.SourceGenerators
             }
         }
 
+        /// <summary>
+        /// Appends event initialization statements using interpolated strings for dynamic parts.
+        /// </summary>
         protected static void AppendEventInitializationWithInterpolation(StringBuilder builder, TemplateGenerationModel model, string indent)
         {
             foreach (var eventImplementation in model.EventImplementations)
@@ -196,6 +256,9 @@ namespace Nomad.SourceGenerators
             }
         }
 
+        /// <summary>
+        /// Appends event hook statements (e.g., subscribing to engine events).
+        /// </summary>
         protected static void AppendEventHooks(StringBuilder builder, TemplateGenerationModel model, string indent)
         {
             foreach (var eventImplementation in model.EventImplementations)
@@ -208,6 +271,9 @@ namespace Nomad.SourceGenerators
             }
         }
 
+        /// <summary>
+        /// Appends event disposal statements to release event resources.
+        /// </summary>
         protected static void AppendEventDisposal(StringBuilder builder, TemplateGenerationModel model, string indent)
         {
             foreach (var eventImplementation in model.EventImplementations)
@@ -218,39 +284,88 @@ namespace Nomad.SourceGenerators
             }
         }
 
+        /// <summary>
+        /// Appends the standard GameObject lifecycle hook methods (OnInit, OnShutdown, OnUpdate, OnPhysicsUpdate).
+        /// </summary>
         protected static void AppendGameObjectLifecycleHooks(StringBuilder builder)
         {
+            AppendSummaryDocumentation(builder, "        ", "Invoked after the generated engine object has completed initialization.");
             builder.AppendLine("        protected virtual void OnInit()");
             builder.AppendLine("        {");
             builder.AppendLine("        }");
             builder.AppendLine();
+            AppendSummaryDocumentation(builder, "        ", "Invoked when the generated engine object is shutting down.");
             builder.AppendLine("        protected virtual void OnShutdown()");
             builder.AppendLine("        {");
             builder.AppendLine("        }");
             builder.AppendLine();
+            AppendSummaryDocumentation(builder, "        ", "Invoked once per frame by the generated engine wrapper.");
             builder.AppendLine("        protected virtual void OnUpdate(float delta)");
             builder.AppendLine("        {");
             builder.AppendLine("        }");
             builder.AppendLine();
+            AppendSummaryDocumentation(builder, "        ", "Invoked once per physics tick by the generated engine wrapper.");
             builder.AppendLine("        protected virtual void OnPhysicsUpdate(float delta)");
             builder.AppendLine("        {");
             builder.AppendLine("        }");
             builder.AppendLine();
         }
 
+        /// <summary>
+        /// Appends the OnDispose hook for asset wrappers.
+        /// </summary>
         protected static void AppendAssetDisposeHook(StringBuilder builder)
         {
+            AppendSummaryDocumentation(builder, "        ", "Invoked before the generated asset wrapper releases engine resources.");
             builder.AppendLine("        protected virtual void OnDispose()");
             builder.AppendLine("        {");
             builder.AppendLine("        }");
             builder.AppendLine();
         }
 
+        /// <summary>
+        /// Appends an XML documentation comment composed of multiple lines.
+        /// </summary>
+        protected static void AppendDocumentationComment(
+            StringBuilder builder,
+            string indent,
+            ImmutableArray<string> documentationLines)
+        {
+            if (documentationLines.IsDefaultOrEmpty)
+            {
+                return;
+            }
+
+            foreach (var documentationLine in documentationLines)
+            {
+                builder.Append(indent);
+                builder.Append("/// ");
+                builder.AppendLine(documentationLine);
+            }
+        }
+
+        /// <summary>
+        /// Appends a simple <summary> XML documentation comment.
+        /// </summary>
+        protected static void AppendSummaryDocumentation(StringBuilder builder, string indent, string summary)
+        {
+            builder.Append(indent);
+            builder.AppendLine("/// <summary>");
+            builder.Append(indent);
+            builder.Append("/// ");
+            builder.AppendLine(summary);
+            builder.Append(indent);
+            builder.AppendLine("/// </summary>");
+        }
+
+        /// <summary>
+        /// Converts Roslyn Accessibility to a valid C# accessibility keyword.
+        /// </summary>
         private static string FormatAccessibility(Accessibility accessibility)
             => accessibility switch
             {
                 Accessibility.Public => "public",
-                Accessibility.Internal => "internal",
+                Accessibility.Internal => "public",
                 Accessibility.Private => "private",
                 Accessibility.Protected => "protected",
                 Accessibility.ProtectedAndInternal => "private protected",
@@ -259,8 +374,14 @@ namespace Nomad.SourceGenerators
             };
     }
 
+    /// <summary>
+    /// Renders engine wrapper source for Godot projects.
+    /// </summary>
     internal sealed class GodotTemplateRenderer : EngineTemplateRendererBase
     {
+        /// <summary>
+        /// Renders a complete Godot engine wrapper class using the provided generation model.
+        /// </summary>
         public override string Render(TemplateGenerationModel model)
         {
             var builder = new StringBuilder();
@@ -273,6 +394,7 @@ namespace Nomad.SourceGenerators
                 builder.AppendLine();
             }
 
+            AppendConstantMembers(builder, model);
             AppendPropertyMembers(builder, model);
 
             if (model.UsesGameObjectAdapter)
@@ -285,15 +407,22 @@ namespace Nomad.SourceGenerators
 
             if (model.UsesGameObjectAdapter)
             {
+                AppendSummaryDocumentation(builder, "        ", "Initializes the generated engine wrapper.");
                 builder.AppendLine("        public " + model.GeneratedClassName + "()");
                 builder.AppendLine("        {");
                 builder.AppendLine("            _impl = new global::Nomad.EngineUtils.GodotGameObject(this);");
+                builder.AppendLine("            Ready += () => _Ready();");
+                builder.AppendLine("            TreeExited += () => _ExitTree();");
                 builder.AppendLine("        }");
                 builder.AppendLine();
 
+                AppendSummaryDocumentation(builder, "        ", "Initializes generated events and invokes startup hooks.");
                 builder.AppendLine("        public sealed override void _Ready()");
                 builder.AppendLine("        {");
                 builder.AppendLine("            base._Ready();");
+                builder.AppendLine();
+                builder.AppendLine("            GetTree().ProcessFrame += () => _Process(GetProcessDeltaTime());");
+                builder.AppendLine("            GetTree().PhysicsFrame += () => _PhysicsProcess(GetPhysicsProcessDeltaTime());");
                 builder.AppendLine();
 
                 AppendEventInitializationWithInterpolation(builder, model, "            ");
@@ -313,6 +442,7 @@ namespace Nomad.SourceGenerators
                 builder.AppendLine("        }");
                 builder.AppendLine();
 
+                AppendSummaryDocumentation(builder, "        ", "Invokes the generated frame update pipeline.");
                 builder.AppendLine("        public sealed override void _Process(double delta)");
                 builder.AppendLine("        {");
                 builder.AppendLine("            base._Process(delta);");
@@ -323,6 +453,7 @@ namespace Nomad.SourceGenerators
                 builder.AppendLine("        }");
                 builder.AppendLine();
 
+                AppendSummaryDocumentation(builder, "        ", "Invokes the generated physics update pipeline.");
                 builder.AppendLine("        public sealed override void _PhysicsProcess(double delta)");
                 builder.AppendLine("        {");
                 builder.AppendLine("            base._PhysicsProcess(delta);");
@@ -333,6 +464,7 @@ namespace Nomad.SourceGenerators
                 builder.AppendLine("        }");
                 builder.AppendLine();
 
+                AppendSummaryDocumentation(builder, "        ", "Invokes shutdown hooks and disposes generated events.");
                 builder.AppendLine("        public sealed override void _ExitTree()");
                 builder.AppendLine("        {");
                 builder.AppendLine("            base._ExitTree();");
@@ -352,6 +484,7 @@ namespace Nomad.SourceGenerators
             }
             else if (model.IsAsset)
             {
+                AppendSummaryDocumentation(builder, "        ", "Disposes the generated asset wrapper and releases generated event bindings.");
                 builder.AppendLine("        public new void Dispose()");
                 builder.AppendLine("        {");
                 builder.AppendLine("            OnDispose();");
@@ -374,14 +507,21 @@ namespace Nomad.SourceGenerators
         }
     }
 
+    /// <summary>
+    /// Renders engine wrapper source for Unity projects.
+    /// </summary>
     internal sealed class UnityTemplateRenderer : EngineTemplateRendererBase
     {
+        /// <summary>
+        /// Renders a complete Unity engine wrapper class using the provided generation model.
+        /// </summary>
         public override string Render(TemplateGenerationModel model)
         {
             var builder = new StringBuilder();
             AppendFileHeader(builder);
             AppendNamespaceStart(builder, model);
 
+            AppendConstantMembers(builder, model);
             AppendPropertyMembers(builder, model);
 
             if (model.UsesGameObjectAdapter)
@@ -394,6 +534,7 @@ namespace Nomad.SourceGenerators
 
             if (model.UsesGameObjectAdapter)
             {
+                AppendSummaryDocumentation(builder, "        ", "Creates the generated engine adapter and initializes generated events.");
                 builder.AppendLine("        private void Awake()");
                 builder.AppendLine("        {");
                 builder.AppendLine("            _impl = new global::Nomad.EngineUtils.UnityGameObject(gameObject);");
@@ -406,6 +547,7 @@ namespace Nomad.SourceGenerators
                 builder.AppendLine("        }");
                 builder.AppendLine();
 
+                AppendSummaryDocumentation(builder, "        ", "Invokes startup hooks for the generated engine wrapper.");
                 builder.AppendLine("        private void Start()");
                 builder.AppendLine("        {");
                 builder.AppendLine("            _impl.OnInit();");
@@ -413,6 +555,7 @@ namespace Nomad.SourceGenerators
                 builder.AppendLine("        }");
                 builder.AppendLine();
 
+                AppendSummaryDocumentation(builder, "        ", "Invokes the generated frame update pipeline.");
                 builder.AppendLine("        private void Update()");
                 builder.AppendLine("        {");
                 builder.AppendLine("            float deltaTime = global::UnityEngine.Time.deltaTime;");
@@ -421,6 +564,7 @@ namespace Nomad.SourceGenerators
                 builder.AppendLine("        }");
                 builder.AppendLine();
 
+                AppendSummaryDocumentation(builder, "        ", "Invokes the generated physics update pipeline.");
                 builder.AppendLine("        private void FixedUpdate()");
                 builder.AppendLine("        {");
                 builder.AppendLine("            float deltaTime = global::UnityEngine.Time.fixedDeltaTime;");
@@ -429,6 +573,7 @@ namespace Nomad.SourceGenerators
                 builder.AppendLine("        }");
                 builder.AppendLine();
 
+                AppendSummaryDocumentation(builder, "        ", "Invokes shutdown hooks and releases generated event bindings.");
                 builder.AppendLine("        private void OnDestroy()");
                 builder.AppendLine("        {");
                 builder.AppendLine("            if (_impl != null)");
@@ -451,6 +596,7 @@ namespace Nomad.SourceGenerators
             }
             else if (model.IsAsset)
             {
+                AppendSummaryDocumentation(builder, "        ", "Disposes the generated asset wrapper and releases generated event bindings.");
                 builder.AppendLine("        public void Dispose()");
                 builder.AppendLine("        {");
                 builder.AppendLine("            OnDispose();");

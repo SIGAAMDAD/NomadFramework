@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -20,11 +20,34 @@ namespace Nomad.Core.UI
     /// </summary>
     public readonly struct Alignment
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public static readonly Alignment Center = new Alignment(HorizontalAlignment.Center, VerticalAlignment.Center);
+
+        /// <summary>
+        /// 
+        /// </summary>
         public static readonly Alignment TopLeft = new Alignment(HorizontalAlignment.Start, VerticalAlignment.Start);
+
+        /// <summary>
+        /// 
+        /// </summary>
         public static readonly Alignment TopRight = new Alignment(HorizontalAlignment.End, VerticalAlignment.Start);
+
+        /// <summary>
+        /// 
+        /// </summary>
         public static readonly Alignment BottomLeft = new Alignment(HorizontalAlignment.Start, VerticalAlignment.End);
+
+        /// <summary>
+        /// 
+        /// </summary>
         public static readonly Alignment BottomRight = new Alignment(HorizontalAlignment.End, VerticalAlignment.End);
+
+        /// <summary>
+        /// 
+        /// </summary>
         public static readonly Alignment Fill = new Alignment(HorizontalAlignment.Stretch, VerticalAlignment.Stretch);
 
         /// <summary>

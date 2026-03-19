@@ -24,22 +24,13 @@ namespace Nomad.Core.Logger
     public interface ILoggerService : IDisposable
     {
         /// <summary>
-        /// Prints a log message.
-        /// </summary>
-        /// <remarks>
-        /// Prints a standard log message to all the available sinks.
-        /// </remarks>
-        /// <param name="message">The message to print.</param>
-        void Print(in string message);
-
-        /// <summary>
         /// Prints a log message with a newline.
         /// </summary>
         /// <remarks>
         /// Prints a standard log message to all the available sinks.
         /// </remarks>
         /// <param name="message">The message to print with a newline.</param>
-        void PrintLine(in string message);
+        void PrintLine(string message);
 
         /// <summary>
         /// Prints a debug log message.
@@ -48,7 +39,7 @@ namespace Nomad.Core.Logger
         /// Prints a debug log message to all the available sinks.
         /// </remarks>
         /// <param name="message">The message to print.</param>
-        void PrintDebug(in string message);
+        void PrintDebug(string message);
 
         /// <summary>
         /// Prints a warning log message.
@@ -57,7 +48,7 @@ namespace Nomad.Core.Logger
         /// Prints a warning log message to all the available sinks.
         /// </remarks>
         /// <param name="message">The message to print.</param>
-        void PrintWarning(in string message);
+        void PrintWarning(string message);
 
         /// <summary>
         /// Prints an error log message.
@@ -66,57 +57,7 @@ namespace Nomad.Core.Logger
         /// Prints an error log message to all the available sinks.
         /// </remarks>
         /// <param name="message">The message to print.</param>
-        void PrintError(in string message);
-
-        /// <summary>
-        /// Prints a log message to a specific category.
-        /// </summary>
-        /// <remarks>
-        /// Prints a standard log message to all the available sinks with a marker of the category in the actual message.
-        /// </remarks>
-        /// <param name="category">The category to print the message to.</param>
-        /// <param name="message">The message to print.</param>
-        void Print(in ILoggerCategory category, in string message);
-
-        /// <summary>
-        /// Prints a log message with a newline to a specific category.
-        /// </summary>
-        /// <remarks>
-        /// Prints a standard log message to all the available sinks with a marker of the category in the actual message.
-        /// </remarks>
-        /// <param name="category">The category to print the message to.</param>
-        /// <param name="message">The message to print with a newline.</param>
-        void PrintLine(in ILoggerCategory category, in string message);
-
-        /// <summary>
-        /// Prints a debug log message to a specific category.
-        /// </summary>
-        /// <remarks>
-        /// Prints a debug log message to all the available sinks with a marker of the category in the actual message.
-        /// </remarks>
-        /// <param name="category">The category to print the message to.</param>
-        /// <param name="message">The message to print.</param>
-        void PrintDebug(in ILoggerCategory category, in string message);
-
-        /// <summary>
-        /// Prints a warning log message to a specific category.
-        /// </summary>
-        /// <remarks>
-        /// Prints a warning log message to all the available sinks with a marker of the category in the actual message.
-        /// </remarks>
-        /// <param name="category">The category to print the message to.</param>
-        /// <param name="message">The message to print.</param>
-        void PrintWarning(in ILoggerCategory category, in string message);
-
-        /// <summary>
-        /// Prints an error log message to a specific category.
-        /// </summary>
-        /// <remarks>
-        /// Prints an error log message to all the available sinks with a marker of the category in the actual message.
-        /// </remarks>
-        /// <param name="category">The category to print the message to.</param>
-        /// <param name="message">The message to print.</param>
-        void PrintError(in ILoggerCategory category, in string message);
+        void PrintError(string message);
 
         /// <summary>
         /// Clears all logged messages (in all categories, clears all sinks). This will reset all messages. This action in irreversible.
@@ -148,6 +89,6 @@ namespace Nomad.Core.Logger
         /// <param name="level">The log level of the category.</param>
         /// <param name="enabled">Whether the category is enabled. If <b>false</b>, any log messages sent with this category as a parameter will not send any messages to the sinks.</param>
         /// <returns>The created logging category.</returns>
-        ILoggerCategory CreateCategory(in string name, LogLevel level, bool enabled);
+        ILoggerCategory CreateCategory(string name, LogLevel level, bool enabled);
     }
 }

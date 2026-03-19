@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -21,7 +21,7 @@ namespace Nomad.EngineTemplates.Attributes
     /// Maps an agnostic contract method to a concrete engine-side method.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
-    public class TemplateMethod : Attribute
+    internal class TemplateMethod : Attribute
     {
         /// <summary>
         /// The contract method name.
@@ -37,5 +37,10 @@ namespace Nomad.EngineTemplates.Attributes
         /// Optional Unity engine method name override.
         /// </summary>
         public string UnityMethodName { get; set; } = null;
+
+        /// <summary>
+        /// Optional documentation for the generated method.
+        /// </summary>
+        public string Documentation { get; set; } = null;
     }
 }

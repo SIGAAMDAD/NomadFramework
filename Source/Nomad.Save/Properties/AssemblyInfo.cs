@@ -13,7 +13,13 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using Nomad.Core.Util.Attributes;
 using System.Runtime.CompilerServices;
 
-[assembly: Nomad.Core.Util.Attributes.NomadModule("Nomad.Save")]
+[assembly: NomadModule(
+	Name = "Nomad.Save",
+	VersionMajor = 0,
+	VersionMinor = 1,
+	VersionPatch = 0
+)]
 [assembly: InternalsVisibleTo("Nomad.Tests")]

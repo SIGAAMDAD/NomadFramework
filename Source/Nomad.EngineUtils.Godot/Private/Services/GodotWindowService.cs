@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -22,18 +22,23 @@ using Nomad.Core.Engine.Windowing;
 using Nomad.Core.Engine.Globals;
 using Nomad.Core.Engine.Services;
 
-namespace Nomad.EngineUtils
-{
+namespace Nomad.EngineUtils.Godot.Private.Services {
+    /*
+    ===================================================================================
+    
+    GodotWindowService
+    
+    ===================================================================================
+    */
     /// <summary>
-    ///
+    /// 
     /// </summary>
-    public sealed class GodotWindowService : IWindowService
-    {
+    
+    internal sealed class GodotWindowService : IWindowService {
         /// <summary>
         ///
         /// </summary>
-        public string Title
-        {
+        public string Title {
             get => _window.Title;
             set => _window.Title = value;
         }
@@ -41,31 +46,27 @@ namespace Nomad.EngineUtils
         /// <summary>
         ///
         /// </summary>
-        public int Width
-        {
+        public int Width {
             get => _window.Size.X;
-            set => _window.Size = new Vector2I(value, _window.Size.Y);
+            set => _window.Size = new Vector2I( value, _window.Size.Y );
         }
 
         /// <summary>
         ///
         /// </summary>
-        public int Height
-        {
+        public int Height {
             get => _window.Size.Y;
-            set => _window.Size = new Vector2I(_window.Size.X, value);
+            set => _window.Size = new Vector2I( _window.Size.X, value );
         }
 
         /// <summary>
         ///
         /// </summary>
-        public int ScreenIndex
-        {
+        public int ScreenIndex {
             get => _window.CurrentScreen;
-            set
-            {
+            set {
                 _window.CurrentScreen = value;
-                var size = DisplayServer.ScreenGetSize(ScreenIndex);
+                var size = DisplayServer.ScreenGetSize( ScreenIndex );
                 _screenWidth = size.X;
                 _screenHeight = size.Y;
             }
@@ -85,10 +86,9 @@ namespace Nomad.EngineUtils
         /// <summary>
         ///
         /// </summary>
-        public WindowMode Mode
-        {
+        public WindowMode Mode {
             get => _mode;
-            set => SetWindowMode(value);
+            set => SetWindowMode( value );
         }
         private WindowMode _mode;
 
@@ -101,12 +101,10 @@ namespace Nomad.EngineUtils
         /// <summary>
         ///
         /// </summary>
-        public int MonitorIndex
-        {
+        public int MonitorIndex {
             get => _window.CurrentScreen;
-            set
-            {
-                RangeGuard.ThrowIfOutOfRange(value, 0, _monitors.Length - 1);
+            set {
+                RangeGuard.ThrowIfOutOfRange( value, 0, _monitors.Length - 1 );
                 _window.CurrentScreen = value;
             }
         }
@@ -141,8 +139,7 @@ namespace Nomad.EngineUtils
         /// </summary>
         /// <param name="sceneTree"></param>
         /// <param name="eventFactory"></param>
-        internal GodotWindowService(SceneTree sceneTree, IGameEventRegistryService eventFactory)
-        {
+        internal GodotWindowService( SceneTree sceneTree, IGameEventRegistryService eventFactory ) {
             _window = sceneTree.Root.GetWindow();
             _window.FocusEntered += OnFocusEntered;
             _window.FocusExited += OnFocusExited;
@@ -150,28 +147,26 @@ namespace Nomad.EngineUtils
             _window.CloseRequested += OnCloseRequested;
             _window.TitleChanged += OnTitleChanged;
 
-            _sizeChanged = eventFactory.GetEvent<WindowSizeChangedEventArgs>(Core.Constants.Events.EngineUtils.WINDOW_SIZE_CHANGED, Core.Constants.Events.EngineUtils.NAMESPACE);
-            _closeRequested = eventFactory.GetEvent<EmptyEventArgs>(Core.Constants.Events.EngineUtils.CLOSE_REQUESTED, Core.Constants.Events.EngineUtils.NAMESPACE);
-            _focusChanged = eventFactory.GetEvent<bool>(Core.Constants.Events.EngineUtils.FOCUS_CHANGED, Core.Constants.Events.EngineUtils.NAMESPACE);
+            _sizeChanged = eventFactory.GetEvent<WindowSizeChangedEventArgs>( Core.Constants.Events.EngineUtils.WINDOW_SIZE_CHANGED, Core.Constants.Events.EngineUtils.NAMESPACE );
+            _closeRequested = eventFactory.GetEvent<EmptyEventArgs>( Core.Constants.Events.EngineUtils.CLOSE_REQUESTED, Core.Constants.Events.EngineUtils.NAMESPACE );
+            _focusChanged = eventFactory.GetEvent<bool>( Core.Constants.Events.EngineUtils.FOCUS_CHANGED, Core.Constants.Events.EngineUtils.NAMESPACE );
 
             _monitors = GetScreenList();
 
-            WindowService.Initialize(this);
+            WindowService.Initialize( this );
         }
 
         /// <summary>
         ///
         /// </summary>
-        public void Dispose()
-        {
-            if (!_isDisposed)
-            {
+        public void Dispose() {
+            if ( !_isDisposed ) {
                 _sizeChanged?.Dispose();
                 _closeRequested?.Dispose();
                 _focusChanged?.Dispose();
                 _window?.Dispose();
             }
-            GC.SuppressFinalize(this);
+            GC.SuppressFinalize( this );
             _isDisposed = true;
         }
 
@@ -180,8 +175,7 @@ namespace Nomad.EngineUtils
         /// </summary>
         /// <param name="width"></param>
         /// <param name="height"></param>
-        public void GetScreenResolution(out int width, out int height)
-        {
+        public void GetScreenResolution( out int width, out int height ) {
             width = _screenWidth;
             height = _screenHeight;
         }
@@ -191,16 +185,13 @@ namespace Nomad.EngineUtils
 		/// </summary>
 		/// <param name="monitorIndex"></param>
 		/// <returns></returns>
-		public IReadOnlyList<WindowResolution> GetSupportedResolutions(int monitorIndex)
-        {
+		public IReadOnlyList<WindowResolution> GetSupportedResolutions( int monitorIndex ) {
             var monitor = _monitors[monitorIndex];
             var resolutions = new List<WindowResolution>();
 
-            for (var resolution = WindowResolution.Min; resolution <= WindowResolution.Max; resolution++)
-            {
-                if (monitor.ScreenSize >= resolution)
-                {
-                    resolutions.Add(resolution);
+            for ( var resolution = WindowResolution.Min; resolution <= WindowResolution.Max; resolution++ ) {
+                if ( monitor.ScreenSize >= resolution ) {
+                    resolutions.Add( resolution );
                 }
             }
 
@@ -213,9 +204,8 @@ namespace Nomad.EngineUtils
 		/// <param name="monitorIndex"></param>
         /// <param name="nativeSize"></param>
 		/// <exception cref="ArgumentOutOfRangeException"></exception>
-		public void GetNativeResolutionForMonitor(int monitorIndex, out WindowSize nativeSize)
-        {
-            RangeGuard.ThrowIfOutOfRange(monitorIndex, 0, _monitors.Length - 1, nameof(monitorIndex));
+		public void GetNativeResolutionForMonitor( int monitorIndex, out WindowSize nativeSize ) {
+            RangeGuard.ThrowIfOutOfRange( monitorIndex, 0, _monitors.Length - 1, nameof( monitorIndex ) );
             nativeSize = _monitors[monitorIndex].ScreenSize;
         }
 
@@ -223,16 +213,14 @@ namespace Nomad.EngineUtils
 		/// Gets a list of all the currently available monitors and fetches their sizes and other various data.
 		/// </summary>u
 		/// <returns></returns>
-		private static Monitor[] GetScreenList()
-        {
+		private static Monitor[] GetScreenList() {
             int screenCount = DisplayServer.GetScreenCount();
             var screens = new Monitor[screenCount];
 
-            for (int i = 0; i < screenCount; i++)
-            {
-                var screenSize = DisplayServer.ScreenGetSize(i);
-                var size = new WindowSize(screenSize.X, screenSize.Y);
-                screens[i] = new Monitor(i, (int)DisplayServer.ScreenGetRefreshRate(i), (WindowResolution)size);
+            for ( int i = 0; i < screenCount; i++ ) {
+                var screenSize = DisplayServer.ScreenGetSize( i );
+                var size = new WindowSize( screenSize.X, screenSize.Y );
+                screens[i] = new Monitor( i, (int)DisplayServer.ScreenGetRefreshRate( i ), (WindowResolution)size );
             }
 
             return screens;
@@ -242,12 +230,10 @@ namespace Nomad.EngineUtils
         ///
         /// </summary>
         /// <param name="mode"></param>
-        private void SetWindowMode(WindowMode mode)
-        {
+        private void SetWindowMode( WindowMode mode ) {
             bool borderless = false;
             var modeEnum = Window.ModeEnum.Windowed;
-            switch (mode)
-            {
+            switch ( mode ) {
                 case WindowMode.Windowed:
                     borderless = false;
                     modeEnum = Window.ModeEnum.Windowed;
@@ -277,43 +263,38 @@ namespace Nomad.EngineUtils
         /// <summary>
         ///
         /// </summary>
-        private void OnFocusEntered()
-        {
+        private void OnFocusEntered() {
             _isFocused = true;
-            _focusChanged.Publish(_isFocused);
+            _focusChanged.Publish( _isFocused );
         }
 
         /// <summary>
         ///
         /// </summary>
-        private void OnFocusExited()
-        {
+        private void OnFocusExited() {
             _isFocused = false;
-            _focusChanged.Publish(_isFocused);
+            _focusChanged.Publish( _isFocused );
         }
 
         /// <summary>
         ///
         /// </summary>
-        private void OnSizeChanged()
-        {
+        private void OnSizeChanged() {
             var size = _window.Size;
-            _sizeChanged.Publish(new WindowSizeChangedEventArgs(size.X, size.Y));
+            _sizeChanged.Publish( new WindowSizeChangedEventArgs( size.X, size.Y ) );
         }
 
         /// <summary>
         ///
         /// </summary>
-        private void OnCloseRequested()
-        {
-            _closeRequested.Publish(default);
+        private void OnCloseRequested() {
+            _closeRequested.Publish( default );
         }
 
         /// <summary>
         ///
         /// </summary>
-        private void OnTitleChanged()
-        {
+        private void OnTitleChanged() {
         }
     }
 }

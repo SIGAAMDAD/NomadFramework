@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -18,10 +18,10 @@ using System;
 namespace Nomad.EngineTemplates.Attributes
 {
     /// <summary>
-    ///
+    /// Declares the contract and engine-specific base types used to generate an engine wrapper.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, Inherited = true)]
-    public class TemplateClass : Attribute
+    internal class TemplateClass : Attribute
     {
         /// <summary>
         /// The inheriting contract.
@@ -42,5 +42,10 @@ namespace Nomad.EngineTemplates.Attributes
         /// The unity class to structure the behavior around.
         /// </summary>
         public string UnityBase { get; set; }
+
+        /// <summary>
+        /// Optional documentation for the generated engine class.
+        /// </summary>
+        public string Documentation { get; set; } = null;
     }
 }

@@ -20,20 +20,18 @@ using Nomad.Core.CVars;
 using Nomad.Core.Events;
 using Nomad.Core.Logger;
 using Nomad.Core.ResourceCache;
-using Nomad.EngineUtils.Private;
 using Nomad.ResourceCache;
 using Nomad.Core.ServiceRegistry.Interfaces;
 using Nomad.Core.Engine.Services;
 using Nomad.Core.Engine.SceneManagement;
 using Nomad.Core.Engine.Globals;
+using Nomad.EngineUtils.Godot.Private.SceneManagement;
 
-namespace Nomad.EngineUtils
-{
+namespace Nomad.EngineUtils.Godot.Private.Services {
     /// <summary>
     ///
     /// </summary>
-    public sealed class GodotEngineService : IEngineService
-    {
+    public sealed class GodotEngineService : IEngineService {
         private readonly SceneTree _sceneTree;
         private readonly Node _root;
 
@@ -61,11 +59,10 @@ namespace Nomad.EngineUtils
         /// <param name="sceneTree"></param>
         /// <param name="serviceFactory"></param>
         /// <param name="locator"></param>
-        public GodotEngineService(SceneTree sceneTree, IServiceRegistry serviceFactory, IServiceLocator locator)
-        {
-            ArgumentGuard.ThrowIfNull(sceneTree);
-            ArgumentGuard.ThrowIfNull(serviceFactory);
-            ArgumentGuard.ThrowIfNull(locator);
+        public GodotEngineService( SceneTree sceneTree, IServiceRegistry serviceFactory, IServiceLocator locator ) {
+            ArgumentGuard.ThrowIfNull( sceneTree );
+            ArgumentGuard.ThrowIfNull( serviceFactory );
+            ArgumentGuard.ThrowIfNull( locator );
 
             _sceneTree = sceneTree;
             _root = sceneTree.Root;
@@ -79,34 +76,34 @@ namespace Nomad.EngineUtils
 
             _loader = new GodotLoader();
 
-            _windowService = new GodotWindowService(_sceneTree, _eventFactory);
-            serviceFactory.AddSingleton(_windowService);
-            _windowService.CloseRequested.Subscribe(OnWindowCloseRequested);
+            _windowService = new GodotWindowService( _sceneTree, _eventFactory );
+            serviceFactory.AddSingleton( _windowService );
+            _windowService.CloseRequested.Subscribe( OnWindowCloseRequested );
 
             _localizationService = new GodotLocalizationService();
-            serviceFactory.AddSingleton(_localizationService);
+            serviceFactory.AddSingleton( _localizationService );
 
-            _sceneManager = new GodotSceneManager(_sceneTree, new BaseCache<PackedScene, string>(_logger, _eventFactory, _loader));
-            serviceFactory.AddSingleton(_sceneManager);
+            _sceneManager = new GodotSceneManager( _sceneTree, new BaseCache<PackedScene, string>( _logger, _eventFactory, _loader ) );
+            serviceFactory.AddSingleton( _sceneManager );
 
-            _displayService = new GodotDisplayService(sceneTree, _windowService, cvarSystem);
-            serviceFactory.AddSingleton(_displayService);
+            _displayService = new GodotDisplayService( sceneTree, _windowService, cvarSystem );
+            serviceFactory.AddSingleton( _displayService );
 
-            EngineService.Initialize(this);
+            _logger.AddSink( new ConsoleSink() );
+
+            EngineService.Initialize( this );
         }
 
         /// <summary>
         ///
         /// </summary>
-        public void Dispose()
-        {
-            if (!_isDisposed)
-            {
+        public void Dispose() {
+            if ( !_isDisposed ) {
                 _windowService?.Dispose();
                 _inputPump?.Dispose();
                 _sceneManager?.Dispose();
             }
-            GC.SuppressFinalize(this);
+            GC.SuppressFinalize( this );
             _isDisposed = true;
         }
 
@@ -115,9 +112,8 @@ namespace Nomad.EngineUtils
         /// </summary>
         /// <param name="ospath"></param>
         /// <returns></returns>
-        public string GetLocalPath(string ospath)
-        {
-            return ProjectSettings.LocalizePath(ospath);
+        public string GetLocalPath( string ospath ) {
+            return ProjectSettings.LocalizePath( ospath );
         }
 
         /// <summary>
@@ -125,18 +121,16 @@ namespace Nomad.EngineUtils
         /// </summary>
         /// <param name="localpath"></param>
         /// <returns></returns>
-        public string GetOSPath(string localpath)
-        {
-            return ProjectSettings.GlobalizePath(localpath);
+        public string GetOSPath( string localpath ) {
+            return ProjectSettings.GlobalizePath( localpath );
         }
 
         /// <summary>
         ///
         /// </summary>
         /// <returns></returns>
-        public IConsoleObject CreateConsoleObject()
-        {
-            var console = new GodotConsole(_root, _logger, _eventFactory);
+        public IConsoleObject CreateConsoleObject() {
+            var console = new GodotConsole( _root, _logger, _eventFactory );
             return console;
         }
 
@@ -144,8 +138,7 @@ namespace Nomad.EngineUtils
         ///
         /// </summary>
         /// <returns></returns>
-        public IResourceLoader GetResourceLoader()
-        {
+        public IResourceLoader GetResourceLoader() {
             return _loader;
         }
 
@@ -153,8 +146,7 @@ namespace Nomad.EngineUtils
         ///
         /// </summary>
         /// <returns></returns>
-        public bool IsApplicationFocused()
-        {
+        public bool IsApplicationFocused() {
             return _windowService.IsFocused;
         }
 
@@ -162,18 +154,16 @@ namespace Nomad.EngineUtils
         ///
         /// </summary>
         /// <returns></returns>
-        public string GetApplicationVersion()
-        {
-            return ProjectSettings.GetSetting("application/config/version").AsString();
+        public string GetApplicationVersion() {
+            return ProjectSettings.GetSetting( "application/config/version" ).AsString();
         }
 
         /// <summary>
         ///
         /// </summary>
         /// <returns></returns>
-        public string GetEngineVersion()
-        {
-            var version = Godot.Engine.GetVersionInfo();
+        public string GetEngineVersion() {
+            var version = global::Godot.Engine.GetVersionInfo();
             return version["string"].AsString();
         }
 
@@ -181,9 +171,8 @@ namespace Nomad.EngineUtils
         ///
         /// </summary>
         /// <param name="exitCode"></param>
-        public void Quit(int exitCode = 0)
-        {
-            System.Environment.Exit(exitCode);
+        public void Quit( int exitCode = 0 ) {
+            System.Environment.Exit( exitCode );
         }
 
         /// <summary>
@@ -191,12 +180,11 @@ namespace Nomad.EngineUtils
         /// </summary>
         /// <param name="scope"></param>
         /// <returns></returns>
-        public string GetStoragePath(StorageScope scope) => scope switch
-        {
-            StorageScope.Install => ProjectSettings.GlobalizePath("res://"),
-            StorageScope.StreamingAssets => ProjectSettings.GlobalizePath("res://Assets/"),
-            StorageScope.UserData => ProjectSettings.GlobalizePath("user://"),
-            _ => ProjectSettings.GlobalizePath("user://")
+        public string GetStoragePath( StorageScope scope ) => scope switch {
+            StorageScope.Install => ProjectSettings.GlobalizePath( "res://" ),
+            StorageScope.StreamingAssets => ProjectSettings.GlobalizePath( "res://Assets/" ),
+            StorageScope.UserData => ProjectSettings.GlobalizePath( "user://" ),
+            _ => ProjectSettings.GlobalizePath( "user://" )
         };
 
         /// <summary>
@@ -205,17 +193,15 @@ namespace Nomad.EngineUtils
         /// <param name="relativePath"></param>
         /// <param name="scope"></param>
         /// <returns></returns>
-        public string GetStoragePath(string relativePath, StorageScope scope)
-        {
-            return $"{GetStoragePath(scope)}{relativePath}";
+        public string GetStoragePath( string relativePath, StorageScope scope ) {
+            return $"{GetStoragePath( scope )}{relativePath}";
         }
 
         /// <summary>
         ///
         /// </summary>
         /// <returns></returns>
-        public string GetSystemRegion()
-        {
+        public string GetSystemRegion() {
             return System.Globalization.CultureInfo.CurrentCulture.Name;
         }
 
@@ -226,17 +212,15 @@ namespace Nomad.EngineUtils
         /// <param name="width"></param>
         /// <param name="height"></param>
         /// <returns></returns>
-        public IDisposable CreateImageRGBA(byte[] image, int width, int height)
-        {
-            return Image.CreateFromData(width, height, false, Image.Format.Rgba8, image);
+        public IDisposable CreateImageRGBA( byte[] image, int width, int height ) {
+            return Image.CreateFromData( width, height, false, Image.Format.Rgba8, image );
         }
 
         /// <summary>
         ///
         /// </summary>
         /// <param name="args"></param>
-        private void OnWindowCloseRequested(in EmptyEventArgs args)
-        {
+        private void OnWindowCloseRequested( in EmptyEventArgs args ) {
             Quit();
         }
     }

@@ -13,11 +13,15 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System.Reflection;
 using Godot;
 using Nomad.Core.Abstractions;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.Engine.Services;
+using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
+using Nomad.Core.Util.Attributes;
+using Nomad.EngineUtils.Godot.Private.Services;
 
 namespace Nomad.EngineUtils
 {
@@ -38,7 +42,8 @@ namespace Nomad.EngineUtils
             ArgumentGuard.ThrowIfNull(registry);
             ArgumentGuard.ThrowIfNull(locator);
 
-            var sceneTree = (SceneTree)Godot.Engine.GetMainLoop();
+            var sceneTree = (SceneTree)global::Godot.Engine.GetMainLoop();
+            var logger = locator.GetService<ILoggerService>();
 
             _engineService = new GodotEngineService(
                 sceneTree,
@@ -46,6 +51,9 @@ namespace Nomad.EngineUtils
                 locator
             );
             registry.AddSingleton(_engineService);
+
+            var attribute = Assembly.GetAssembly(typeof(EngineBootstrapper)).GetCustomAttribute<NomadModule>();
+            logger.PrintLine($"Initialized {attribute.Name}\n\tBuildId = {attribute.BuildId}\n\tCompileTime = {attribute.CompileTime}\n\tVersion = {attribute.VersionMajor}.{attribute.VersionMinor}.{attribute.VersionPatch}");
         }
 
         /// <summary>

@@ -13,9 +13,11 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using Nomad.Audio.Fmod.Private.Registries;
 using Nomad.Audio.Fmod.Private.Repositories;
 using Nomad.Audio.Fmod.Private.Services;
 using Nomad.Audio.Interfaces;
+using Nomad.Core.Abstractions;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.CVars;
 using Nomad.Core.Logger;
@@ -29,15 +31,20 @@ namespace Nomad.Audio.Fmod
     /// <summary>
     /// Initializes FMOD.
     /// </summary>
-    public static class FMODBootstrapper
+    public class FMODBootstrapper : IBootstrapper
     {
+        private FMODDevice _device;
+        private FMODListenerService _listenerService;
+        private FMODChannelRepository _channelRepository;
+
         /// <summary>
         /// Initializes the FMOD audio backend.
         /// </summary>
-        /// <param name="locator"></param>
         /// <param name="registry"></param>
-        public static void Initialize(IServiceLocator locator, IServiceRegistry registry)
+        /// <param name="locator"></param>
+        public void Initialize(IServiceRegistry registry, IServiceLocator locator)
         {
+            ArgumentGuard.ThrowIfNull(registry);
             ArgumentGuard.ThrowIfNull(locator);
 
             var logger = locator.GetService<ILoggerService>();
@@ -47,16 +54,27 @@ namespace Nomad.Audio.Fmod
             InteropAssemblyResolver.Hook(typeof(FMOD.Channel).Assembly, FMOD.VERSION.dll, FMOD.VERSION.dll, FMOD.VERSION.dll);
             InteropAssemblyResolver.Hook(typeof(FMOD.Studio.Bank).Assembly, FMOD.Studio.STUDIO_VERSION.dll, FMOD.Studio.STUDIO_VERSION.dll, FMOD.Studio.STUDIO_VERSION.dll);
 #endif
+            AudioCVars.Register(cvarSystem);
 
-            var system = new FMODDevice(locator, registry);
-            var listener = new FMODListenerService(logger, system);
-            var channelRepository = new FMODChannelRepository(logger, cvarSystem, listener, system);
+            _device = new FMODDevice(locator, registry);
+            _listenerService = new FMODListenerService(logger, _device);
+            _channelRepository = new FMODChannelRepository(logger, cvarSystem, _listenerService, _device);
 
-            registry.AddSingleton<IAudioDevice>(system);
-            registry.AddSingleton<IListenerService>(listener);
-            registry.AddSingleton<IChannelRepository>(channelRepository);
-            registry.AddSingleton<IMusicService>(new FMODMusicService(system.EventRepository, cvarSystem));
-            registry.AddSingleton<IEmitterFactory>(new FMODEmitterFactory(channelRepository, channelRepository.BusRepository));
+            registry.AddSingleton<IAudioDevice>(_device);
+            registry.AddSingleton<IListenerService>(_listenerService);
+            registry.AddSingleton<IChannelRepository>(_channelRepository);
+            registry.AddSingleton<IMusicService>(new FMODMusicService(_device.EventRepository, cvarSystem));
+            registry.AddSingleton<IEmitterFactory>(new FMODEmitterFactory(_channelRepository, _channelRepository.BusRepository));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void Shutdown()
+        {
+            _device?.Dispose();
+            _listenerService?.Dispose();
+            _channelRepository?.Dispose();
         }
     }
 }

@@ -13,9 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-#if !UNITY_EDITOR
 using Godot;
-using Nomad.Core;
 using Nomad.Core.Console;
 using Nomad.Core.Events;
 using System;
@@ -24,7 +22,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace Nomad.EngineUtils.Private {
+namespace Nomad.EngineUtils.Godot.Private {
 	/*
 	===================================================================================
 
@@ -37,15 +35,26 @@ namespace Nomad.EngineUtils.Private {
 	/// </summary>
 
 	public sealed partial class GodotCommandBuilder : LineEdit, ICommandBuilder {
+		/// <summary>
+		/// The number of arguments currently available from the command line.
+		/// </summary>
 		public int ArgumentCount => _arguments.Count;
 
 		private readonly List<string> _arguments = new List<string>();
 		private readonly StringBuilder _commandBuilder = new StringBuilder( 1024 );
+		
+		// it ain't pretty but it works.
+		private bool _isOpen = false;
 
-		private bool _isDisposed = false;
+		private readonly IGameEventRegistryService _eventFactory;
 
+		/// <summary>
+		/// 
+		/// </summary>
 		public IGameEvent<TextEnteredEventArgs> TextEntered => _textEntered;
 		private readonly IGameEvent<TextEnteredEventArgs> _textEntered;
+
+		private bool _isDisposed = false;
 
 		/*
 		===============
@@ -59,10 +68,11 @@ namespace Nomad.EngineUtils.Private {
 		public GodotCommandBuilder( IGameEventRegistryService eventFactory ) {
 			ArgumentNullException.ThrowIfNull( eventFactory );
 
-			_textEntered = eventFactory.GetEvent<TextEnteredEventArgs>( Core.Constants.Events.Console.NAMESPACE, Core.Constants.Events.Console.TEXT_ENTERED_EVENT );
+			_textEntered = eventFactory.GetEvent<TextEnteredEventArgs>( Core.Constants.Events.Console.TEXT_ENTERED_EVENT, Core.Constants.Events.Console.NAMESPACE );
 
-			eventFactory.GetEvent<EmptyEventArgs>( Core.Constants.Events.Console.NAMESPACE, Core.Constants.Events.Console.CONSOLE_OPENED_EVENT ).Subscribe( OnConsoleOpened );
-			eventFactory.GetEvent<EmptyEventArgs>( Core.Constants.Events.Console.NAMESPACE, Core.Constants.Events.Console.CONSOLE_CLOSED_EVENT ).Subscribe( OnConsoleClosed );
+			_eventFactory = eventFactory;
+			eventFactory.GetEvent<EmptyEventArgs>( Core.Constants.Events.Console.CONSOLE_OPENED_EVENT, Core.Constants.Events.Console.NAMESPACE );
+			eventFactory.GetEvent<EmptyEventArgs>( Core.Constants.Events.Console.CONSOLE_CLOSED_EVENT, Core.Constants.Events.Console.NAMESPACE );
 		}
 
 		/*
@@ -86,7 +96,11 @@ namespace Nomad.EngineUtils.Private {
 		GetArgumentAt
 		===============
 		*/
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="index"></param>
+		/// <returns></returns>
 		public string GetArgumentAt( int index ) {
 			return _arguments[index];
 		}
@@ -96,7 +110,10 @@ namespace Nomad.EngineUtils.Private {
 		GetArgs
 		===============
 		*/
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
 		public string[] GetArgs() {
 			return [.. _arguments.Skip( 1 )];
 		}
@@ -140,6 +157,10 @@ namespace Nomad.EngineUtils.Private {
 		OnTextEntered
 		===============
 		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="newText"></param>
 		public void OnTextEntered( string newText ) {
 			//			ResetAutocomplete();
 			Clear();
@@ -211,9 +232,7 @@ namespace Nomad.EngineUtils.Private {
 		/// <summary>
 		///
 		/// </summary>
-		/// <param name="eventData"></param>
-		/// <param name="args"></param>
-		private void OnConsoleOpened( in EmptyEventArgs args ) {
+		private void OnConsoleOpened() {
 			GrabFocus();
 		}
 
@@ -225,9 +244,7 @@ namespace Nomad.EngineUtils.Private {
 		/// <summary>
 		///
 		/// </summary>
-		/// <param name="eventData"></param>
-		/// <param name="args"></param>
-		private void OnConsoleClosed( in EmptyEventArgs args ) {
+		private void OnConsoleClosed() {
 			Clear();
 		}
 
@@ -246,10 +263,33 @@ namespace Nomad.EngineUtils.Private {
 			AnchorTop = 0.5f;
 			AnchorRight = 1.0f;
 			AnchorBottom = 0.5f;
-			PlaceholderText = String.Empty;
+			PlaceholderText = string.Empty;
 
 			Connect( LineEdit.SignalName.TextSubmitted, Callable.From<string>( OnTextEntered ) );
 		}
+
+		/*
+		===============
+		_UnhandledInput
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="event"></param>
+		public override void _UnhandledInput( InputEvent @event ) {
+			base._UnhandledInput( @event );
+
+			if ( @event is InputEventKey key && key.GetPhysicalKeycodeWithModifiers() == Key.Quoteleft && key.Pressed ) {
+				if ( !_isOpen ) {
+					_eventFactory.GetEvent<EmptyEventArgs>( Core.Constants.Events.Console.CONSOLE_OPENED_EVENT, Core.Constants.Events.Console.NAMESPACE ).Publish( default );
+					OnConsoleOpened();
+				} else {
+					_eventFactory.GetEvent<EmptyEventArgs>( Core.Constants.Events.Console.CONSOLE_CLOSED_EVENT, Core.Constants.Events.Console.NAMESPACE ).Publish( default );
+					OnConsoleClosed();
+				}
+				_isOpen = !_isOpen;
+			}
+		}
 	};
 };
-#endif

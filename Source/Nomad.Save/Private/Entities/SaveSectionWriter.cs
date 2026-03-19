@@ -110,11 +110,11 @@ namespace Nomad.Save.Private.Entities {
 					header.Save( _writer );
 
 					if ( _config.LogSerializationTree ) {
-						_logger.PrintLine( in _category, "Finalized section data:" );
-						_logger.PrintLine( in _category, $"\tName: {header.Name}" );
-						_logger.PrintLine( in _category, $"\tByteLength: {header.ByteLength}" );
-						_logger.PrintLine( in _category, $"\tFieldCount: {header.FieldCount}" );
-						_logger.PrintLine( in _category, $"\tChecksum64: {header.Checksum}" );
+						_category.PrintLine( "Finalized section data:" );
+						_category.PrintLine( $"\tName: {header.Name}" );
+						_category.PrintLine( $"\tByteLength: {header.ByteLength}" );
+						_category.PrintLine( $"\tFieldCount: {header.FieldCount}" );
+						_category.PrintLine( $"\tChecksum64: {header.Checksum}" );
 					}
 				}
 				_writer.Seek( position, System.IO.SeekOrigin.Begin );
@@ -151,7 +151,7 @@ namespace Nomad.Save.Private.Entities {
 				fieldValue
 			);
 			if ( _config.LogSerializationTree ) {
-				_logger.PrintLine( in _category, $"\t\t[Field] (NAME) {fieldId}, (TYPE) {type}, (VALUE) {fieldValue}" );
+				_category.PrintLine( $"\t\t[Field] (NAME) {fieldId}, (TYPE) {type}, (VALUE) {fieldValue}" );
 			}
 		}
 

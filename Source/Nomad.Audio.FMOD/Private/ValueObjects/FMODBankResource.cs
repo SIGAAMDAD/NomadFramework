@@ -13,6 +13,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Nomad.Audio.Interfaces;
 
 namespace Nomad.Audio.Fmod.Private.ValueObjects {
@@ -47,6 +49,18 @@ namespace Nomad.Audio.Fmod.Private.ValueObjects {
 
 		/*
 		===============
+		Dispose
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		public void Dispose() {
+			Unload();
+		}
+
+		/*
+		===============
 		Unload
 		===============
 		*/
@@ -63,18 +77,31 @@ namespace Nomad.Audio.Fmod.Private.ValueObjects {
 
 		/*
 		===============
-		Dispose
+		GetHashCode
 		===============
 		*/
 		/// <summary>
 		/// 
 		/// </summary>
-		public void Dispose() {
-			Unload();
-		}
+		/// <returns></returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public override int GetHashCode()
+			=> base.GetHashCode();
 
-		public static implicit operator FMOD.Studio.Bank( FMODBankResource bank ) => bank._instance;
-		public static bool operator ==( FMODBankResource a, FMODBankResource b ) => a._instance.handle == b._instance.handle;
-		public static bool operator !=( FMODBankResource a, FMODBankResource b ) => a._instance.handle != b._instance.handle;
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public override bool Equals( [NotNullWhen( true )] object? obj )
+			=> obj is FMODBankResource resource && resource._instance.handle == _instance.handle;
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static implicit operator FMOD.Studio.Bank( FMODBankResource bank )
+			=> bank._instance;
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool operator ==( FMODBankResource a, FMODBankResource b )
+			=> a._instance.handle == b._instance.handle;
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool operator !=( FMODBankResource a, FMODBankResource b )
+			=> a._instance.handle != b._instance.handle;
 	};
 };

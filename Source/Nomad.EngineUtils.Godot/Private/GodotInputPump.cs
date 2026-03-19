@@ -13,7 +13,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-#if !UNITY_EDITOR
 using System;
 using System.Runtime.CompilerServices;
 using Godot;
@@ -21,7 +20,7 @@ using Nomad.Core.Engine.Services;
 using Nomad.Core.Input;
 using Nomad.Core.Input.ValueObjects;
 
-namespace Nomad.EngineUtils.Private {
+namespace Nomad.EngineUtils.Godot.Private {
 	/*
 	===================================================================================
 
@@ -59,12 +58,13 @@ namespace Nomad.EngineUtils.Private {
 		/// </summary>
 		/// <param name="event"></param>
 		public override void _Input( InputEvent @event ) {
+			var now = DateTime.UtcNow.ToFileTimeUtc();
 			switch ( @event ) {
 				case InputEventKey keyEvent:
 					_system.PushKeyboardEvent(
 						new KeyboardEvent(
 							GodotKeyToNomadKey( keyEvent.GetKeycodeWithModifiers() ),
-							DateTime.Now,
+							now,
 							keyEvent.Pressed
 						)
 					);
@@ -73,6 +73,7 @@ namespace Nomad.EngineUtils.Private {
 					_system.PushMouseButtonEvent(
 						new MouseButtonEvent(
 							GodotMouseButtonToNomadMouseButton( mouseButton.ButtonIndex ),
+							now,
 							mouseButton.Pressed
 						)
 					);
@@ -80,17 +81,109 @@ namespace Nomad.EngineUtils.Private {
 				case InputEventMouseMotion mouseMotion:
 					_system.PushMouseMotionEvent(
 						new MouseMotionEvent(
+							now,
 							(int)mouseMotion.Position.X,
 							(int)mouseMotion.Position.Y
 						)
 					);
 					break;
 				case InputEventJoypadButton joypadButton:
+					_system.PushGamepadButtonEvent(
+						new GamepadButtonEvent(
+							GodotJoypadButtonToNomadGamepadButton( joypadButton.ButtonIndex ),
+							joypadButton.Device,
+							now,
+							joypadButton.Pressed
+						)
+					);
 					break;
 				case InputEventJoypadMotion joypadMotion:
+					_system.PushGamepadAxisEvent(
+						new GamepadAxisEvent(
+							GodotStickToNomadGamepadStick( joypadMotion.Axis ),
+							now,
+							joypadMotion.Device,
+							GodotAxisValueToVector2( joypadMotion )
+						)
+					);
+					break;
+				case InputEventScreenDrag screenDrag:
+					break;
+				case InputEventScreenTouch screenTouch:
 					break;
 			}
 		}
+
+		/*
+		===============
+		GodotAxisValueToVector2
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="motion"></param>
+		/// <returns></returns>
+		/// <exception cref="ArgumentOutOfRangeException"></exception>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		private static System.Numerics.Vector2 GodotAxisValueToVector2( InputEventJoypadMotion motion ) {
+			return motion.Axis switch {
+				JoyAxis.LeftX or JoyAxis.RightX => new System.Numerics.Vector2( motion.AxisValue, 0.0f ),
+				JoyAxis.LeftY or JoyAxis.RightY => new System.Numerics.Vector2( 0.0f, motion.AxisValue ),
+				_ => throw new ArgumentOutOfRangeException( nameof( motion ) ),
+			};
+		}
+
+		/*
+		===============
+		GodotStickToNomadGamepadStick
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="axis"></param>
+		/// <returns></returns>
+		/// <exception cref="ArgumentOutOfRangeException"></exception>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		private static GamepadStick GodotStickToNomadGamepadStick( JoyAxis axis ) {
+			return axis switch {
+				JoyAxis.LeftX or JoyAxis.LeftY => GamepadStick.Left,
+				JoyAxis.RightX or JoyAxis.RightY => GamepadStick.Right,
+				_ => throw new ArgumentOutOfRangeException( nameof( axis ) ),
+			};
+		}
+
+		/*
+		===============
+		GodotJoypadButtonToNomadGamepadButton
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="button"></param>
+		/// <returns></returns>
+		/// <exception cref="ArgumentOutOfRangeException"></exception>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		private static GamepadButton GodotJoypadButtonToNomadGamepadButton( JoyButton button ) => button switch {
+			JoyButton.A => GamepadButton.A,
+			JoyButton.B => GamepadButton.B,
+			JoyButton.X => GamepadButton.X,
+			JoyButton.Y => GamepadButton.Y,
+			JoyButton.DpadDown => GamepadButton.DPadDown,
+			JoyButton.DpadUp => GamepadButton.DPadUp,
+			JoyButton.DpadLeft => GamepadButton.DPadLeft,
+			JoyButton.DpadRight => GamepadButton.DPadRight,
+			JoyButton.LeftShoulder => GamepadButton.LeftShoulder,
+			JoyButton.RightShoulder => GamepadButton.RightShoulder,
+			JoyButton.LeftStick => GamepadButton.LeftShoulder,
+			JoyButton.RightStick => GamepadButton.RightShoulder,
+			JoyButton.Back => GamepadButton.Back,
+			JoyButton.Guide => GamepadButton.Guide,
+			JoyButton.Start => GamepadButton.Start,
+			_ => throw new ArgumentOutOfRangeException( nameof( button ) )
+		};
 
 		/*
 		===============
@@ -103,12 +196,13 @@ namespace Nomad.EngineUtils.Private {
 		/// <param name="button"></param>
 		/// <returns></returns>
 		/// <exception cref="ArgumentOutOfRangeException"></exception>
-		private static Core.Input.MouseButton GodotMouseButtonToNomadMouseButton( Godot.MouseButton button ) => button switch {
-			Godot.MouseButton.Left => Core.Input.MouseButton.Left,
-			Godot.MouseButton.Right => Core.Input.MouseButton.Right,
-			Godot.MouseButton.Middle => Core.Input.MouseButton.Middle,
-			Godot.MouseButton.WheelDown => Core.Input.MouseButton.WheelDown,
-			Godot.MouseButton.WheelUp => Core.Input.MouseButton.WheelUp,
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		private static Core.Input.MouseButton GodotMouseButtonToNomadMouseButton( global::Godot.MouseButton button ) => button switch {
+			global::Godot.MouseButton.Left => Core.Input.MouseButton.Left,
+			global::Godot.MouseButton.Right => Core.Input.MouseButton.Right,
+			global::Godot.MouseButton.Middle => Core.Input.MouseButton.Middle,
+			global::Godot.MouseButton.WheelDown => Core.Input.MouseButton.WheelDown,
+			global::Godot.MouseButton.WheelUp => Core.Input.MouseButton.WheelUp,
 			_ => throw new ArgumentOutOfRangeException( nameof( button ) )
 		};
 
@@ -164,4 +258,3 @@ namespace Nomad.EngineUtils.Private {
 		};
 	};
 };
-#endif

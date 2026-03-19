@@ -83,6 +83,8 @@ namespace Nomad.Audio.Fmod.Private.Services {
 
 			var cvarSystem = locator.GetService<ICVarSystemService>();
 			var eventFactory = locator.GetService<IGameEventRegistryService>();
+			
+			FMODValidator.Initialize( _logger );
 
 			_fmodCategory = _logger.CreateCategory( "FMOD", LogLevel.Info, true );
 
@@ -101,7 +103,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			_bankRepository.GetCached( EngineService.GetStoragePath( "Audio/Banks/Desktop/Master.strings.bank", StorageScope.StreamingAssets ) );
 			_bankRepository.GetCached( EngineService.GetStoragePath( "Audio/Banks/Desktop/Master.bank", StorageScope.StreamingAssets ) );
 
-			_logger.PrintLine( in _fmodCategory, $"FMODDevice: initializing FMOD sound system..." );
+			_fmodCategory.PrintLine( "Initializing FMOD sound system..." );
 		}
 
 		/*
@@ -114,7 +116,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		/// </summary>
 		public void Dispose() {
 			if ( !_isDisposed ) {
-				_logger.PrintLine( in _fmodCategory, "FMODDevice.Dispose: shutting down FMOD sound system..." );
+				_fmodCategory.PrintLine( "Shutting down FMOD sound system..." );
 
 				_listener?.Dispose();
 				_eventRepository?.Dispose();
@@ -224,9 +226,9 @@ namespace Nomad.Audio.Fmod.Private.Services {
 
 			var flags = FMOD.INITFLAGS.CHANNEL_DISTANCEFILTER | FMOD.INITFLAGS.CHANNEL_LOWPASS | FMOD.INITFLAGS.VOL0_BECOMES_VIRTUAL;
 
-			FMODValidator.ValidateCall( System.setStreamBufferSize( (uint)streamBufferSize.Value, FMOD.TIMEUNIT.MS ) );
-			FMODValidator.ValidateCall( System.setDSPBufferSize( dspBufferSize.Value, dspBufferCount.Value ) );
-			FMODValidator.ValidateCall( StudioSystem.initialize( maxChannels.Value, FMOD.Studio.INITFLAGS.LIVEUPDATE | FMOD.Studio.INITFLAGS.SYNCHRONOUS_UPDATE, flags, (IntPtr)null ) );
+			FMODValidator.ValidateCall( _fmodCategory, System.setStreamBufferSize( (uint)streamBufferSize.Value, FMOD.TIMEUNIT.MS ) );
+			FMODValidator.ValidateCall( _fmodCategory, System.setDSPBufferSize( dspBufferSize.Value, dspBufferCount.Value ) );
+			FMODValidator.ValidateCall( _fmodCategory, StudioSystem.initialize( maxChannels.Value, FMOD.Studio.INITFLAGS.LIVEUPDATE | FMOD.Studio.INITFLAGS.SYNCHRONOUS_UPDATE, flags, (IntPtr)null ) );
 		}
 	};
 };

@@ -15,6 +15,7 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
 
+#pragma warning disable CS1591
 namespace FMOD
 {
     /*
@@ -4093,3 +4094,4 @@ namespace FMOD
 
     #endregion
 }
+#pragma warning disable CS1591

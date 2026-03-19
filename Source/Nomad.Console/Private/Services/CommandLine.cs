@@ -17,6 +17,7 @@ using Nomad.Console.Interfaces;
 using Nomad.Core;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.Console;
+using Nomad.Core.Engine.Services;
 using Nomad.Core.Events;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
@@ -70,24 +71,24 @@ namespace Nomad.Console.Private.Services {
 		/// 
 		/// </summary>
 		/// <param name="builder"></param>
-		/// <param name="fileSystem"></param>
+		/// <param name="engineService"></param>
 		/// <param name="commandService"></param>
 		/// <param name="logger"></param>
 		/// <param name="eventFactory"></param>
-		public CommandLine( ICommandBuilder builder, IFileSystem fileSystem, ICommandService commandService, ILoggerService logger, IGameEventRegistryService eventFactory ) {
+		public CommandLine( ICommandBuilder builder, IEngineService engineService, ICommandService commandService, ILoggerService logger, IGameEventRegistryService eventFactory ) {
 			ArgumentGuard.ThrowIfNull( builder );
 			ArgumentGuard.ThrowIfNull( eventFactory );
 
 			_commandBuilder = builder;
 			_commandService = commandService;
 			_logger = logger;
-			_history = new History( builder, fileSystem, logger, eventFactory );
+			_history = new History( builder, engineService, logger, eventFactory );
 
-			_textEntered = eventFactory.GetEvent<TextEnteredEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.TEXT_ENTERED_EVENT );
-			_unknownCommand = eventFactory.GetEvent<CommandExecutedEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.UNKNOWN_COMMAND_EVENT );
-			_commandExecuted = eventFactory.GetEvent<CommandExecutedEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.COMMAND_EXECUTED_EVENT );
+			_textEntered = eventFactory.GetEvent<TextEnteredEventArgs>( Constants.Events.Console.TEXT_ENTERED_EVENT, Constants.Events.Console.NAMESPACE );
+			_unknownCommand = eventFactory.GetEvent<CommandExecutedEventArgs>( Constants.Events.Console.UNKNOWN_COMMAND_EVENT, Constants.Events.Console.NAMESPACE );
+			_commandExecuted = eventFactory.GetEvent<CommandExecutedEventArgs>( Constants.Events.Console.COMMAND_EXECUTED_EVENT, Constants.Events.Console.NAMESPACE );
 
-			eventFactory.GetEvent<EmptyEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.CONSOLE_CLOSED_EVENT ).Subscribe( OnConsoleClosed );
+			eventFactory.GetEvent<EmptyEventArgs>( Constants.Events.Console.CONSOLE_CLOSED_EVENT, Constants.Events.Console.NAMESPACE ).Subscribe( OnConsoleClosed );
 
 			builder.TextEntered.Subscribe( OnCommandExecuted );
 		}

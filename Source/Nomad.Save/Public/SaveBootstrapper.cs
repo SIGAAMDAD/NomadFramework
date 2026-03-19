@@ -23,6 +23,8 @@ using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
 using Nomad.Save.Private.Services;
 using Nomad.Save.Services;
+using System.Reflection;
+using Nomad.Core.Util.Attributes;
 
 namespace Nomad.Save
 {
@@ -51,6 +53,9 @@ namespace Nomad.Save
 
             _saveProvider = new SaveDataProvider(engineService, eventFactory, cvarSystem, fileSystem, logger);
             registry.AddSingleton(_saveProvider);
+
+            var attribute = Assembly.GetAssembly(typeof(SaveBootstrapper)).GetCustomAttribute<NomadModule>();
+            logger.PrintLine($"Initialized {attribute.Name}\n\tBuildId = {attribute.BuildId}\n\tCompileTime = {attribute.CompileTime}\n\tVersion = {attribute.VersionMajor}.{attribute.VersionMinor}.{attribute.VersionPatch}");
         }
 
         /// <summary>

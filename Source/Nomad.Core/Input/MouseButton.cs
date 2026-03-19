@@ -23,27 +23,42 @@ namespace Nomad.Core.Input
         /// <summary>
         /// 
         /// </summary>
-        Left,
+        None = 0,
 
         /// <summary>
         /// 
         /// </summary>
-        Right,
+        Left = 1 << 0,
 
         /// <summary>
         /// 
         /// </summary>
-        Middle,
+        Right = 1 << 1,
 
         /// <summary>
         /// 
         /// </summary>
-        WheelDown,
+        Middle = 1 << 2,
 
         /// <summary>
         /// 
         /// </summary>
-        WheelUp,
+        WheelDown = 1 << 3,
+
+        /// <summary>
+        /// 
+        /// </summary>
+        WheelUp = 1 << 4,
+
+        /// <summary>
+        /// 
+        /// </summary>
+        X1 = 1 << 5,
+
+        /// <summary>
+        /// 
+        /// </summary>
+        X2 = 1 << 6,
 
         /// <summary>
         /// 

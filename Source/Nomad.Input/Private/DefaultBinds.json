@@ -1,0 +1,10 @@
+{
+	"KeyboardAndMouse": [
+		{
+			"Name": "Move Forward",
+			"DeviceId": "Keyboard",
+			"ButtonId": "W",
+			"Modifiers": []
+		}
+	]
+}

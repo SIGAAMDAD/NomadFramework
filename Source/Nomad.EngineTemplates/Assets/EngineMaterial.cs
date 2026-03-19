@@ -15,16 +15,15 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using Nomad.Core.Engine.Assets;
 using Nomad.EngineTemplates.Attributes;
-using System;
 
 namespace Nomad.EngineTemplates.Assets
 {
     /// <summary>
-    ///
+    /// Declares the engine template for material assets.
     /// </summary>
 	[TemplateClass(Contract = typeof(IMaterial), IsAsset = true, GodotBase = "Godot.Material")]
 	[TemplateNamespace(Name = "Assets")]
-    public class EngineMaterial
+    internal class EngineMaterial
     {
     }
 }

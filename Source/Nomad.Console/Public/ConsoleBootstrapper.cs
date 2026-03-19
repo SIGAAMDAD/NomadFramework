@@ -32,6 +32,8 @@ namespace Nomad.Console
     /// </summary>
     public class ConsoleBootstrapper : IBootstrapper
     {
+        private IConsoleObject? _consoleObject;
+
         /// <summary>
         ///
         /// </summary>
@@ -45,23 +47,22 @@ namespace Nomad.Console
             var eventFactory = locator.GetService<IGameEventRegistryService>();
             var logger = locator.GetService<ILoggerService>();
             var engineService = locator.GetService<IEngineService>();
-            var fileSystem = locator.GetService<IFileSystem>();
 
             var cvarSystem = locator.GetService<ICVarSystemService>();
 
-            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.NAMESPACE, Constants.Events.Console.CONSOLE_OPENED_EVENT);
-            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.NAMESPACE, Constants.Events.Console.CONSOLE_CLOSED_EVENT);
-            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.NAMESPACE, Constants.Events.Console.HISTORY_PREV_EVENT);
-            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.NAMESPACE, Constants.Events.Console.HISTORY_NEXT_EVENT);
-            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.NAMESPACE, Constants.Events.Console.AUTOCOMPLETE_EVENT);
-            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.NAMESPACE, Constants.Events.Console.PAGE_UP_EVENT);
-            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.NAMESPACE, Constants.Events.Console.PAGE_DOWN_EVENT);
+            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.CONSOLE_OPENED_EVENT, Constants.Events.Console.NAMESPACE);
+            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.CONSOLE_CLOSED_EVENT, Constants.Events.Console.NAMESPACE);
+            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.HISTORY_PREV_EVENT, Constants.Events.Console.NAMESPACE);
+            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.HISTORY_NEXT_EVENT, Constants.Events.Console.NAMESPACE);
+            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.AUTOCOMPLETE_EVENT, Constants.Events.Console.NAMESPACE);
+            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.PAGE_UP_EVENT, Constants.Events.Console.NAMESPACE);
+            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.PAGE_DOWN_EVENT, Constants.Events.Console.NAMESPACE);
 
-            IConsoleObject consoleObject = engineService.CreateConsoleObject();
+            _consoleObject = engineService.CreateConsoleObject();
 
             var commandService = new CommandCacheService(logger, cvarSystem);
             registry.AddSingleton<ICommandService>(commandService);
-            registry.AddSingleton<ICommandLineService>(new CommandLine(consoleObject.CommandBuilder, fileSystem, commandService, logger, eventFactory));
+            registry.AddSingleton<ICommandLineService>(new CommandLine(_consoleObject.CommandBuilder, engineService, commandService, logger, eventFactory));
         }
 
         /// <summary>
@@ -69,6 +70,7 @@ namespace Nomad.Console
         /// </summary>
         public void Shutdown()
         {
+            _consoleObject?.Dispose();
         }
     }
 }

@@ -46,7 +46,6 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 		private readonly HashSet<string> _dirtyStats;
 
 		private readonly IEngineService _engineService;
-		private readonly ILoggerService _logger;
 		private readonly ILoggerCategory _category;
 		private readonly SteamUserData _userData;
 
@@ -86,9 +85,7 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 			_stats = new ConcurrentDictionary<string, SteamStatData>();
 			_dirtyStats = new HashSet<string>();
 
-			_logger = logger;
-			_category = _logger.CreateCategory( nameof( SteamStatsRepository ), LogLevel.Info, true );
-
+			_category = logger.CreateCategory( nameof( SteamStatsRepository ), LogLevel.Info, true );
 			_userData = userData;
 
 			SteamAPICall_t hCallback = SteamUserStats.RequestUserStats( userData.UserID );
@@ -149,7 +146,7 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 			}
 
 			if ( !info.HasProgress ) {
-				_logger.PrintError( $"" );
+				_category.PrintError( $"Achievement '{achievementId}' does not utilize a progress metric!" );
 				return;
 			}
 
@@ -177,7 +174,7 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 		/// <param name="achievementId"></param>
 		public void UnlockAchievement( string achievementId ) {
 			if ( !_achievements.ContainsKey( achievementId ) ) {
-				_logger.PrintError( in _category, $"" );
+				_category.PrintError( $"Achievement '{achievementId}' does not exist!" );
 				return;
 			}
 			if ( SteamUserStats.SetAchievement( achievementId ) ) {
@@ -196,7 +193,7 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 		/// <param name="achievementId"></param>
 		public void LockAchievement( string achievementId ) {
 			if ( !_achievements.TryGetValue( achievementId, out var info ) ) {
-				_logger.PrintError( in _category, $"" );
+				_category.PrintError( $"Achievement '{achievementId}' does not exist!" );
 				return;
 			}
 			if ( SteamUserStats.ClearAchievement( achievementId ) ) {
@@ -329,7 +326,7 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 						_dirtyStats.Remove( name );
 					} else {
 						anyFailed = true;
-						_logger.PrintError( in _category, $"Failed to set stat '{name}'" );
+						_category.PrintError( $"Failed to set stat '{name}'" );
 					}
 				}
 			}

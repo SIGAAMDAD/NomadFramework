@@ -19,11 +19,14 @@ using Nomad.EngineTemplates.BaseClasses;
 
 namespace Nomad.EngineTemplates.UI
 {
+    /// <summary>
+    /// Declares the engine template for text display UI elements.
+    /// </summary>
     [TemplateClass(Contract = typeof(IText), GodotBase = "Godot.Label")]
     [TemplateNamespace(Name = "UI")]
     [TemplateUIElement]
     [TemplateProperty(Name = "Text", Type = typeof(string))]
-    public class EngineText
+    internal class EngineText
     {
     }
 }

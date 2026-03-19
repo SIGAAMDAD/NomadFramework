@@ -21,6 +21,7 @@ using Nomad.Console.Interfaces;
 using Nomad.Core;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.Console;
+using Nomad.Core.Engine.Services;
 using Nomad.Core.Events;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
@@ -63,25 +64,25 @@ namespace Nomad.Console.Private.Services {
 		/// 
 		/// </summary>
 		/// <param name="builder"></param>
-		/// <param name="fileSystem"></param>
+		/// <param name="engineService"></param>
 		/// <param name="logger"></param>
 		/// <param name="eventFactory"></param>
-		public History( ICommandBuilder builder, IFileSystem fileSystem, ILoggerService logger, IGameEventRegistryService eventFactory ) {
+		public History( ICommandBuilder builder, IEngineService engineService, ILoggerService logger, IGameEventRegistryService eventFactory ) {
 			ArgumentGuard.ThrowIfNull( builder );
 			ArgumentGuard.ThrowIfNull( eventFactory );
 			ArgumentGuard.ThrowIfNull( logger );
-			ArgumentGuard.ThrowIfNull( fileSystem );
+			ArgumentGuard.ThrowIfNull( engineService );
 
 			_logger = logger;
-			_historyPath = $"{_fileSystem!.GetUserDataPath()}/history.txt";
+			_historyPath = engineService.GetStoragePath( "history.txt", StorageScope.UserData );
 
 			builder.TextEntered.Subscribe( OnTextEntered );
 
-			eventFactory.GetEvent<EmptyEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.HISTORY_PREV_EVENT ).Subscribe( OnHistoryPrev );
-			eventFactory.GetEvent<EmptyEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.HISTORY_NEXT_EVENT ).Subscribe( OnHistoryNext );
+			eventFactory.GetEvent<EmptyEventArgs>( Constants.Events.Console.HISTORY_PREV_EVENT, Constants.Events.Console.NAMESPACE ).Subscribe( OnHistoryPrev );
+			eventFactory.GetEvent<EmptyEventArgs>( Constants.Events.Console.HISTORY_NEXT_EVENT, Constants.Events.Console.NAMESPACE ).Subscribe( OnHistoryNext );
 
-			_historyPrev = eventFactory.GetEvent<HistoryPrevEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.HISTORY_PREV_EVENT );
-			_historyNext = eventFactory.GetEvent<HistoryNextEventArgs>( Constants.Events.Console.NAMESPACE, Constants.Events.Console.HISTORY_NEXT_EVENT );
+			_historyPrev = eventFactory.GetEvent<HistoryPrevEventArgs>( Constants.Events.Console.HISTORY_PREV_EVENT, Constants.Events.Console.NAMESPACE );
+			_historyNext = eventFactory.GetEvent<HistoryNextEventArgs>( Constants.Events.Console.HISTORY_NEXT_EVENT, Constants.Events.Console.NAMESPACE );
 
 			LoadHistory();
 		}

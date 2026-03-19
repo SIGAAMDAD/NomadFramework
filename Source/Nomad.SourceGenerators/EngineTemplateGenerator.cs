@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
+using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -35,6 +36,7 @@ namespace Nomad.SourceGenerators
         private const string TemplatePropertyMetadataName = "Nomad.EngineTemplates.Attributes.TemplateProperty";
         private const string TemplateEventMetadataName = "Nomad.EngineTemplates.Attributes.TemplateEvent";
         private const string TemplateMethodMetadataName = "Nomad.EngineTemplates.Attributes.TemplateMethod";
+        private const string TemplateConstantMetadataName = "Nomad.EngineTemplates.Attributes.TemplateConstant";
         private const string TemplateTypeConversionMetadataName = "Nomad.EngineTemplates.Attributes.TemplateTypeConversion";
         private const string TemplateBaseClassMetadataName = "Nomad.EngineTemplates.Attributes.TemplateBaseClass";
         private const string TemplateNamespaceMetadataName = "Nomad.EngineTemplates.Attributes.TemplateNamespace";
@@ -101,6 +103,14 @@ namespace Nomad.SourceGenerators
             id: "NOMADSG007",
             title: "Method binding could not be inferred",
             messageFormat: "Could not infer an engine-side implementation for method '{0}' on template '{1}'. A throwing stub was generated.",
+            category: "Nomad.SourceGenerators",
+            defaultSeverity: DiagnosticSeverity.Warning,
+            isEnabledByDefault: true);
+
+        private static readonly DiagnosticDescriptor UnboundConstantDiagnostic = new(
+            id: "NOMADSG008",
+            title: "Constant binding could not be inferred",
+            messageFormat: "Could not infer a generated value for constant '{0}' on template '{1}'. The member was skipped.",
             category: "Nomad.SourceGenerators",
             defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true);
@@ -209,8 +219,15 @@ namespace Nomad.SourceGenerators
             var templateProperties = new Dictionary<string, TemplatePropertyDefinition>(StringComparer.Ordinal);
             var templateEvents = new Dictionary<string, TemplateEventDefinition>(StringComparer.Ordinal);
             var templateMethods = new Dictionary<string, TemplateMethodDefinition>(StringComparer.Ordinal);
+            var templateConstants = new Dictionary<string, TemplateConstantMetadata>(StringComparer.Ordinal);
             var templateTypeConversions = new Dictionary<string, TemplateTypeConversionDefinition>(StringComparer.Ordinal);
-            CollectTemplateMetadata(templateSymbol, templateProperties, templateEvents, templateMethods, templateTypeConversions);
+            CollectTemplateMetadata(
+                templateSymbol,
+                templateProperties,
+                templateEvents,
+                templateMethods,
+                templateConstants,
+                templateTypeConversions);
 
             var interfaceHierarchy = new List<INamedTypeSymbol>();
             var visitedInterfaces = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
@@ -242,11 +259,14 @@ namespace Nomad.SourceGenerators
             var baseInheritsUnityObject = engineProjectKind == EngineProjectKind.Unity &&
                                          InheritsFrom(baseTypeSymbol, "UnityEngine.Object");
 
+            var constantImplementations = new List<TemplateConstantDefinition>();
             var propertyImplementations = new List<PropertyImplementation>();
             var eventImplementations = new List<EventImplementation>();
             var methodImplementations = new List<MethodImplementation>();
             var matchedTemplateMembers = new HashSet<string>(StringComparer.Ordinal);
+            var matchedTemplateConstants = new HashSet<string>(StringComparer.Ordinal);
             var seenProperties = new HashSet<string>(StringComparer.Ordinal);
+            var seenConstants = new HashSet<string>(StringComparer.Ordinal);
             var seenMethods = new HashSet<string>(StringComparer.Ordinal);
             var seenEvents = new HashSet<string>(StringComparer.Ordinal);
             var eventPropertiesByName = new Dictionary<string, IPropertySymbol>(StringComparer.Ordinal);
@@ -261,6 +281,38 @@ namespace Nomad.SourceGenerators
 
                 foreach (var member in interfaceSymbol.GetMembers())
                 {
+                    if (member is IFieldSymbol fieldSymbol &&
+                        fieldSymbol.IsStatic &&
+                        (fieldSymbol.IsReadOnly || fieldSymbol.IsConst))
+                    {
+                        if (!seenConstants.Add(fieldSymbol.Name))
+                        {
+                            continue;
+                        }
+
+                        templateConstants.TryGetValue(fieldSymbol.Name, out var templateConstant);
+                        if (TryCreateConstantImplementation(
+                                fieldSymbol,
+                                templateConstant,
+                                engineProjectKind,
+                                baseTypeSymbol,
+                                out var constantImplementation))
+                        {
+                            constantImplementations.Add(constantImplementation);
+                            matchedTemplateConstants.Add(fieldSymbol.Name);
+                        }
+                        else
+                        {
+                            diagnostics.Add(Diagnostic.Create(
+                                UnboundConstantDiagnostic,
+                                location,
+                                fieldSymbol.Name,
+                                templateSymbol.Name));
+                        }
+
+                        continue;
+                    }
+
                     if (member is IPropertySymbol propertySymbol)
                     {
                         var propertyKey = interfaceSymbol.ToDisplayString() + "." + propertySymbol.Name;
@@ -360,6 +412,32 @@ namespace Nomad.SourceGenerators
                 }
             }
 
+            foreach (var templateConstant in templateConstants.Values)
+            {
+                if (matchedTemplateConstants.Contains(templateConstant.Name))
+                {
+                    continue;
+                }
+
+                if (TryCreateConstantImplementation(
+                        fieldSymbol: null,
+                        templateConstant,
+                        engineProjectKind,
+                        baseTypeSymbol,
+                        out var constantImplementation))
+                {
+                    constantImplementations.Add(constantImplementation);
+                }
+                else
+                {
+                    diagnostics.Add(Diagnostic.Create(
+                        UnboundConstantDiagnostic,
+                        location,
+                        templateConstant.Name,
+                        templateSymbol.Name));
+                }
+            }
+
             foreach (var templateEvent in templateEvents.Values)
             {
                 if (!eventPropertiesByName.TryGetValue(templateEvent.Name, out var eventPropertySymbol))
@@ -433,13 +511,23 @@ namespace Nomad.SourceGenerators
 
             var generatedNamespace = ResolveGeneratedNamespace(contractSymbol, templateSymbol);
             var generatedClassName = ResolveGeneratedClassName(templateSymbol, contractSymbol);
+            var classDocumentationLines = GetDocumentationLines(
+                templateSymbol,
+                GetNamedStringArgument(templateClassAttribute, "Documentation"));
+            if (classDocumentationLines.IsDefaultOrEmpty)
+            {
+                classDocumentationLines = GetDocumentationLines(contractSymbol);
+            }
+
             var model = new TemplateGenerationModel(
                 generatedNamespace,
                 generatedClassName,
                 templateSymbol.DeclaredAccessibility,
+                classDocumentationLines,
                 NormalizeTypeName(configuredBaseTypeName!),
                 contractSymbol.ToDisplayString(TypeDisplayFormat),
                 additionalImplementedContracts,
+                constantImplementations.ToImmutableArray(),
                 propertyImplementations.ToImmutableArray(),
                 eventImplementations.ToImmutableArray(),
                 methodImplementations.ToImmutableArray(),
@@ -500,6 +588,7 @@ namespace Nomad.SourceGenerators
             Dictionary<string, TemplatePropertyDefinition> templateProperties,
             Dictionary<string, TemplateEventDefinition> templateEvents,
             Dictionary<string, TemplateMethodDefinition> templateMethods,
+            Dictionary<string, TemplateConstantMetadata> templateConstants,
             Dictionary<string, TemplateTypeConversionDefinition> templateTypeConversions)
         {
             CollectTemplateMetadataFromAttributes(
@@ -507,6 +596,7 @@ namespace Nomad.SourceGenerators
                 templateProperties,
                 templateEvents,
                 templateMethods,
+                templateConstants,
                 templateTypeConversions,
                 new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default));
         }
@@ -516,6 +606,7 @@ namespace Nomad.SourceGenerators
             Dictionary<string, TemplatePropertyDefinition> templateProperties,
             Dictionary<string, TemplateEventDefinition> templateEvents,
             Dictionary<string, TemplateMethodDefinition> templateMethods,
+            Dictionary<string, TemplateConstantMetadata> templateConstants,
             Dictionary<string, TemplateTypeConversionDefinition> templateTypeConversions,
             HashSet<INamedTypeSymbol> visitedAttributeTypes)
         {
@@ -544,6 +635,7 @@ namespace Nomad.SourceGenerators
                             GetNamedStringArgument(attribute, "ToGodotMethod"),
                             GetNamedStringArgument(attribute, "UnitySetterExpression") ??
                             GetNamedStringArgument(attribute, "ToUnityMethod"),
+                            GetNamedStringArgument(attribute, "Documentation"),
                             GetNamedBooleanArgument(attribute, "IsReadOnly"));
                     }
 
@@ -558,7 +650,8 @@ namespace Nomad.SourceGenerators
                     {
                         templateEvents[name!] = new TemplateEventDefinition(
                             name!,
-                            payloadType?.ToDisplayString(TypeDisplayFormat));
+                            payloadType?.ToDisplayString(TypeDisplayFormat),
+                            GetNamedStringArgument(attribute, "Documentation"));
                     }
 
                     continue;
@@ -572,7 +665,26 @@ namespace Nomad.SourceGenerators
                         templateMethods[name!] = new TemplateMethodDefinition(
                             name!,
                             GetNamedStringArgument(attribute, "GodotMethodName"),
-                            GetNamedStringArgument(attribute, "UnityMethodName"));
+                            GetNamedStringArgument(attribute, "UnityMethodName"),
+                            GetNamedStringArgument(attribute, "Documentation"));
+                    }
+
+                    continue;
+                }
+
+                if (metadataName == TemplateConstantMetadataName)
+                {
+                    var name = GetNamedStringArgument(attribute, "Name");
+                    if (!string.IsNullOrEmpty(name))
+                    {
+                        templateConstants[name!] = new TemplateConstantMetadata(
+                            name!,
+                            GetNamedTypeArgument(attribute, "Type")?.ToDisplayString(TypeDisplayFormat),
+                            GetNamedStringArgument(attribute, "Value"),
+                            GetNamedStringArgument(attribute, "GodotValue"),
+                            GetNamedStringArgument(attribute, "UnityValue"),
+                            GetNamedBooleanArgumentOrNull(attribute, "IsConstant"),
+                            GetNamedStringArgument(attribute, "Documentation"));
                     }
 
                     continue;
@@ -585,10 +697,8 @@ namespace Nomad.SourceGenerators
                     {
                         templateTypeConversions[agnosticTypeName!] = new TemplateTypeConversionDefinition(
                             agnosticTypeName!,
-                            GetNamedTypeArgument(attribute, "GodotType")?.ToDisplayString(TypeDisplayFormat),
                             GetNamedStringArgument(attribute, "GodotToAgnosticExpression"),
                             GetNamedStringArgument(attribute, "AgnosticToGodotExpression"),
-                            GetNamedTypeArgument(attribute, "UnityType")?.ToDisplayString(TypeDisplayFormat),
                             GetNamedStringArgument(attribute, "UnityToAgnosticExpression"),
                             GetNamedStringArgument(attribute, "AgnosticToUnityExpression"));
                     }
@@ -611,9 +721,55 @@ namespace Nomad.SourceGenerators
                     templateProperties,
                     templateEvents,
                     templateMethods,
+                    templateConstants,
                     templateTypeConversions,
                     visitedAttributeTypes);
             }
+        }
+
+        private static bool TryCreateConstantImplementation(
+            IFieldSymbol? fieldSymbol,
+            TemplateConstantMetadata? templateConstant,
+            EngineProjectKind engineProjectKind,
+            INamedTypeSymbol? baseTypeSymbol,
+            out TemplateConstantDefinition constantImplementation)
+        {
+            var constantName = templateConstant?.Name ?? fieldSymbol?.Name;
+            if (string.IsNullOrWhiteSpace(constantName))
+            {
+                constantImplementation = null!;
+                return false;
+            }
+
+            var typeName = templateConstant?.TypeName ?? fieldSymbol?.Type.ToDisplayString(TypeDisplayFormat);
+            if (string.IsNullOrWhiteSpace(typeName))
+            {
+                constantImplementation = null!;
+                return false;
+            }
+
+            var valueExpression = ResolveConfiguredConstantValue(templateConstant, engineProjectKind) ??
+                                  ResolveFieldInitializerExpression(fieldSymbol);
+            if (string.IsNullOrWhiteSpace(valueExpression))
+            {
+                constantImplementation = null!;
+                return false;
+            }
+
+            var documentationLines = !string.IsNullOrWhiteSpace(templateConstant?.Documentation)
+                ? CreateSummaryDocumentationLines(templateConstant!.Documentation!)
+                : fieldSymbol is not null
+                    ? GetDocumentationLines(fieldSymbol)
+                    : ImmutableArray<string>.Empty;
+
+            constantImplementation = new TemplateConstantDefinition(
+                constantName!,
+                NormalizeTypeName(typeName!),
+                valueExpression,
+                templateConstant?.IsConstant ?? fieldSymbol?.IsConst ?? false,
+                BaseTypeHasMember(baseTypeSymbol, constantName!),
+                documentationLines);
+            return true;
         }
 
         private static void CollectInterfaceHierarchy(
@@ -734,7 +890,9 @@ namespace Nomad.SourceGenerators
                             engineProjectKind,
                             templateTypeConversions),
                     requiresNewKeyword,
-                    backingFieldDeclaration: null);
+                    documentationLines: GetDocumentationLines(propertySymbol, templateProperty?.Documentation),
+                    backingFieldDeclaration: null
+                );
             }
 
             if (HasCompleteConfiguredExpressions(propertySymbol, configuredGetterExpression, configuredSetterExpression))
@@ -746,7 +904,9 @@ namespace Nomad.SourceGenerators
                     propertySymbol.GetMethod is null ? null : configuredGetterExpression,
                     propertySymbol.SetMethod is null ? null : configuredSetterExpression,
                     requiresNewKeyword,
-                    backingFieldDeclaration: null);
+                    documentationLines: GetDocumentationLines(propertySymbol, templateProperty?.Documentation),
+                    backingFieldDeclaration: null
+                );
             }
 
             return CreateFieldBackedPropertyImplementation(propertySymbol, templateProperty, requiresNewKeyword);
@@ -782,7 +942,9 @@ namespace Nomad.SourceGenerators
                 propertySymbol.GetMethod is null ? null : getterExpression,
                 setterExpression,
                 requiresNewKeyword,
-                backingFieldDeclaration: null);
+                documentationLines: GetDocumentationLines(propertySymbol),
+                backingFieldDeclaration: null
+            );
         }
 
         private static string? ResolveConfiguredGetterExpression(
@@ -871,7 +1033,9 @@ namespace Nomad.SourceGenerators
                 propertySymbol.GetMethod is null ? null : fieldName,
                 setterExpression,
                 requiresNewKeyword,
-                backingFieldDeclaration);
+                documentationLines: GetDocumentationLines(propertySymbol, templateProperty?.Documentation),
+                backingFieldDeclaration
+            );
         }
 
         private static PropertyImplementation CreateThrowingPropertyImplementation(IPropertySymbol propertySymbol, bool requiresNewKeyword)
@@ -886,7 +1050,9 @@ namespace Nomad.SourceGenerators
                     ? null
                     : "throw new global::System.NotSupportedException(\"The engine binding for this property was not generated.\")",
                 requiresNewKeyword,
-                backingFieldDeclaration: null);
+                documentationLines: GetDocumentationLines(propertySymbol),
+                backingFieldDeclaration: null
+            );
 
         private static EventImplementation CreateEventImplementation(
             IPropertySymbol propertySymbol,
@@ -914,7 +1080,9 @@ namespace Nomad.SourceGenerators
                 "_" + ToCamelCase(propertySymbol.Name),
                 BuildRegistryEventName(propertySymbol),
                 BuildEventHookStatements(engineProjectKind, templateEvent.Name, "_" + ToCamelCase(propertySymbol.Name), payloadTypeName),
-                BaseTypeHasInstanceMember(baseTypeSymbol, propertySymbol.Name));
+                BaseTypeHasInstanceMember(baseTypeSymbol, propertySymbol.Name),
+                GetDocumentationLines(propertySymbol, templateEvent.Documentation)
+            );
         }
 
         private static MethodImplementation CreateMethodImplementation(
@@ -933,6 +1101,7 @@ namespace Nomad.SourceGenerators
 
             var parameters = string.Join(", ", methodSymbol.Parameters.Select(FormatParameter));
             var constraints = BuildConstraintClauses(methodSymbol);
+            templateMethods.TryGetValue(methodSymbol.Name, out var templateMethod);
 
             if (usesGameObjectAdapter &&
                 methodSymbol.ContainingType.ToDisplayString() == GameObjectMetadataName)
@@ -943,10 +1112,10 @@ namespace Nomad.SourceGenerators
                     signature: "public " + returnTypeName + " " + methodSymbol.Name + typeParameters + "(" + parameters + ")",
                     constraints: constraints,
                     body: methodSymbol.ReturnsVoid ? invocation + ";" : "return " + invocation + ";",
-                    isBound: true);
+                    isBound: true,
+                    documentationLines: GetDocumentationLines(methodSymbol, templateMethod?.Documentation));
             }
 
-            templateMethods.TryGetValue(methodSymbol.Name, out var templateMethod);
             var engineMethodName = ResolveConfiguredMethodName(templateMethod, engineProjectKind) ?? methodSymbol.Name;
             var engineMethod = FindEngineMethod(
                 baseTypeSymbol,
@@ -954,17 +1123,22 @@ namespace Nomad.SourceGenerators
                 methodSymbol,
                 compilation,
                 engineProjectKind,
-                templateTypeConversions);
+                templateTypeConversions
+            );
 
             if (engineMethod is not null)
             {
                 var invocationArguments = string.Join(", ", methodSymbol.Parameters
-                    .Select((parameter, index) => BuildMethodArgument(
-                        parameter,
-                        engineMethod.Parameters[index],
-                        compilation,
-                        engineProjectKind,
-                        templateTypeConversions)));
+                    .Select(
+                        (parameter, index) => BuildMethodArgument(
+                            parameter,
+                            engineMethod.Parameters[index],
+                            compilation,
+                            engineProjectKind,
+                            templateTypeConversions
+                        )
+                    )
+                );
                 var invocation = "base." + engineMethod.Name + typeParameters + "(" + invocationArguments + ")";
                 var body = methodSymbol.ReturnsVoid
                     ? invocation + ";"
@@ -974,20 +1148,25 @@ namespace Nomad.SourceGenerators
                         methodSymbol.ReturnType,
                         compilation,
                         engineProjectKind,
-                        templateTypeConversions) + ";";
+                        templateTypeConversions
+                    ) + ";";
 
                 return new MethodImplementation(
                     signature: "public " + returnTypeName + " " + methodSymbol.Name + typeParameters + "(" + parameters + ")",
                     constraints: constraints,
                     body: body,
-                    isBound: true);
+                    isBound: true,
+                    documentationLines: GetDocumentationLines(methodSymbol, templateMethod?.Documentation)
+                );
             }
 
             return new MethodImplementation(
                 signature: "public " + returnTypeName + " " + methodSymbol.Name + typeParameters + "(" + parameters + ")",
                 constraints: constraints,
                 body: "throw new global::System.NotSupportedException(\"The engine binding for this method was not generated.\");",
-                isBound: false);
+                isBound: false,
+                documentationLines: GetDocumentationLines(methodSymbol, templateMethod?.Documentation)
+            );
         }
 
         private static string? ResolveConfiguredMethodName(
@@ -1103,7 +1282,8 @@ namespace Nomad.SourceGenerators
                 contractMethod.ReturnType,
                 compilation,
                 engineProjectKind,
-                templateTypeConversions);
+                templateTypeConversions
+            );
         }
 
         private static string BuildMethodArgument(
@@ -1132,7 +1312,8 @@ namespace Nomad.SourceGenerators
                 engineParameter.Type,
                 compilation,
                 engineProjectKind,
-                templateTypeConversions);
+                templateTypeConversions
+            );
         }
 
         private static bool TryGetGameEventPayloadType(ITypeSymbol typeSymbol, out ITypeSymbol payloadType)
@@ -1167,6 +1348,22 @@ namespace Nomad.SourceGenerators
             }
 
             return null;
+        }
+
+        private static bool BaseTypeHasMember(INamedTypeSymbol? typeSymbol, string memberName)
+        {
+            var current = typeSymbol;
+            while (current is not null)
+            {
+                if (current.GetMembers(memberName).Length > 0)
+                {
+                    return true;
+                }
+
+                current = current.BaseType;
+            }
+
+            return false;
         }
 
         private static bool BaseTypeHasInstanceMember(INamedTypeSymbol? typeSymbol, string memberName)
@@ -1218,7 +1415,8 @@ namespace Nomad.SourceGenerators
                 interfaceProperty.Type,
                 compilation,
                 engineProjectKind,
-                templateTypeConversions);
+                templateTypeConversions
+            );
         }
 
         private static string BuildSetterExpression(
@@ -1235,7 +1433,8 @@ namespace Nomad.SourceGenerators
                 engineMemberType,
                 compilation,
                 engineProjectKind,
-                templateTypeConversions);
+                templateTypeConversions
+            );
         }
 
         private static string ConvertExpression(
@@ -1327,13 +1526,6 @@ namespace Nomad.SourceGenerators
 
             foreach (var conversion in templateTypeConversions.Values)
             {
-                var engineTypeName = engineProjectKind switch
-                {
-                    EngineProjectKind.Godot => conversion.GodotTypeName,
-                    EngineProjectKind.Unity => conversion.UnityTypeName,
-                    _ => null
-                };
-
                 var fromEngineExpression = engineProjectKind switch
                 {
                     EngineProjectKind.Godot => conversion.GodotToAgnosticExpression,
@@ -1349,7 +1541,6 @@ namespace Nomad.SourceGenerators
                 };
 
                 if (conversion.AgnosticTypeName == destinationTypeName &&
-                    engineTypeName == sourceTypeName &&
                     !string.IsNullOrWhiteSpace(fromEngineExpression))
                 {
                     convertedExpression = ApplyValueTemplate(fromEngineExpression!, expression);
@@ -1357,7 +1548,6 @@ namespace Nomad.SourceGenerators
                 }
 
                 if (conversion.AgnosticTypeName == sourceTypeName &&
-                    engineTypeName == destinationTypeName &&
                     !string.IsNullOrWhiteSpace(toEngineExpression))
                 {
                     convertedExpression = ApplyValueTemplate(toEngineExpression!, expression);
@@ -1371,6 +1561,99 @@ namespace Nomad.SourceGenerators
         private static string ApplyValueTemplate(string template, string valueExpression)
         {
             return template.Replace(ValuePlaceholder, valueExpression);
+        }
+
+        private static ImmutableArray<string> GetDocumentationLines(ISymbol symbol, string? summaryOverride = null)
+        {
+            if (!string.IsNullOrWhiteSpace(summaryOverride))
+            {
+                return CreateSummaryDocumentationLines(summaryOverride!);
+            }
+
+            var xml = symbol.GetDocumentationCommentXml(expandIncludes: true, cancellationToken: default);
+            if (string.IsNullOrWhiteSpace(xml))
+            {
+                return ImmutableArray<string>.Empty;
+            }
+
+            try
+            {
+                var member = XElement.Parse(xml);
+                if (!HasMeaningfulDocumentation(member))
+                {
+                    return ImmutableArray<string>.Empty;
+                }
+
+                var documentationLines = ImmutableArray.CreateBuilder<string>();
+                foreach (var node in member.Nodes())
+                {
+                    AppendDocumentationNodeLines(node, documentationLines);
+                }
+
+                return documentationLines.ToImmutable();
+            }
+            catch
+            {
+                return ImmutableArray<string>.Empty;
+            }
+        }
+
+        private static ImmutableArray<string> CreateSummaryDocumentationLines(string summary)
+        {
+            var summaryLines = summary
+                .Split(new[] { "\r\n", "\n" }, StringSplitOptions.None)
+                .Select(line => line.Trim())
+                .Where(line => !string.IsNullOrWhiteSpace(line))
+                .Select(line => global::System.Security.SecurityElement.Escape(line) ?? string.Empty)
+                .ToImmutableArray();
+
+            if (summaryLines.IsDefaultOrEmpty)
+            {
+                return ImmutableArray<string>.Empty;
+            }
+
+            var documentationLines = ImmutableArray.CreateBuilder<string>();
+            documentationLines.Add("<summary>");
+            documentationLines.AddRange(summaryLines);
+            documentationLines.Add("</summary>");
+            return documentationLines.ToImmutable();
+        }
+
+        private static bool HasMeaningfulDocumentation(XElement member)
+        {
+            foreach (var child in member.Elements())
+            {
+                if (!string.IsNullOrWhiteSpace(child.Value))
+                {
+                    return true;
+                }
+
+                foreach (var descendant in child.DescendantsAndSelf())
+                {
+                    if (descendant.HasAttributes)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private static void AppendDocumentationNodeLines(XNode node, ImmutableArray<string>.Builder documentationLines)
+        {
+            if (node is XText textNode && string.IsNullOrWhiteSpace(textNode.Value))
+            {
+                return;
+            }
+
+            var renderedNode = node.ToString(SaveOptions.None);
+            var nodeLines = renderedNode
+                .Split(new[] { "\r\n", "\n" }, StringSplitOptions.None)
+                .Select(line => line.Trim())
+                .Where(line => !string.IsNullOrWhiteSpace(line));
+
+            documentationLines.AddRange(nodeLines);
         }
 
         private static ImmutableArray<string> BuildEventHookStatements(
@@ -1507,6 +1790,21 @@ namespace Nomad.SourceGenerators
             return null;
         }
 
+        private static bool? GetNamedBooleanArgumentOrNull(AttributeData attribute, string argumentName)
+        {
+            foreach (var namedArgument in attribute.NamedArguments)
+            {
+                if (namedArgument.Key == argumentName &&
+                    namedArgument.Value.Kind == TypedConstantKind.Primitive &&
+                    namedArgument.Value.Value is bool boolValue)
+                {
+                    return boolValue;
+                }
+            }
+
+            return null;
+        }
+
         private static bool GetNamedBooleanArgument(AttributeData attribute, string argumentName)
         {
             foreach (var namedArgument in attribute.NamedArguments)
@@ -1520,6 +1818,46 @@ namespace Nomad.SourceGenerators
             }
 
             return false;
+        }
+
+        private static string? ResolveConfiguredConstantValue(
+            TemplateConstantMetadata? templateConstant,
+            EngineProjectKind engineProjectKind)
+        {
+            if (templateConstant is null)
+            {
+                return null;
+            }
+
+            var engineSpecificValue = engineProjectKind switch
+            {
+                EngineProjectKind.Godot => templateConstant.GodotValueExpression,
+                EngineProjectKind.Unity => templateConstant.UnityValueExpression,
+                _ => null
+            };
+
+            return !string.IsNullOrWhiteSpace(engineSpecificValue)
+                ? engineSpecificValue
+                : templateConstant.ValueExpression;
+        }
+
+        private static string? ResolveFieldInitializerExpression(IFieldSymbol? fieldSymbol)
+        {
+            if (fieldSymbol is null)
+            {
+                return null;
+            }
+
+            foreach (var syntaxReference in fieldSymbol.DeclaringSyntaxReferences)
+            {
+                if (syntaxReference.GetSyntax() is VariableDeclaratorSyntax variableDeclarator &&
+                    variableDeclarator.Initializer is not null)
+                {
+                    return variableDeclarator.Initializer.Value.ToString();
+                }
+            }
+
+            return fieldSymbol.ContainingType.ToDisplayString(TypeDisplayFormat) + "." + fieldSymbol.Name;
         }
 
         private static string FormatParameter(IParameterSymbol parameter)

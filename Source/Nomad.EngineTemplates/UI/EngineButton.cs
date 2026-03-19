@@ -21,13 +21,13 @@ using Nomad.EngineTemplates.Attributes;
 namespace Nomad.EngineTemplates.UI
 {
     /// <summary>
-    /// Represents an
+    /// Declares the engine template for button UI elements.
     /// </summary>
     [TemplateClass(Contract = typeof(IButton), GodotBase = "Godot.Button")]
     [TemplateNamespace(Name = "UI")]
     [TemplateUIElement]
     [TemplateEvent(Name = "Clicked", PayloadType = typeof(EmptyEventArgs))]
-    public class EngineButton
+    internal class EngineButton
     {
     }
 }

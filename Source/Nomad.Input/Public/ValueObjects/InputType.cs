@@ -43,7 +43,7 @@ namespace Nomad.Input.Private.ValueObjects
         /// <summary>
         /// 
         /// </summary>
-        GamepadMotion,
+        GamepadAxis,
 
         /// <summary>
         /// 

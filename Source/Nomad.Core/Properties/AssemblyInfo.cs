@@ -16,7 +16,12 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System.Runtime.CompilerServices;
 using Nomad.Core.Util.Attributes;
 
-[assembly: NomadModule("Nomad.Core")]
+[assembly: NomadModule(
+	Name = "Nomad.Core",
+	VersionMajor = 0,
+	VersionMinor = 1,
+	VersionPatch = 0
+)]
 [assembly: InternalsVisibleTo("Nomad.Tests")]
 [assembly: InternalsVisibleTo("Nomad.EngineUtils.Godot")]
 [assembly: InternalsVisibleTo("Nomad.EngineUtils.Unity")]

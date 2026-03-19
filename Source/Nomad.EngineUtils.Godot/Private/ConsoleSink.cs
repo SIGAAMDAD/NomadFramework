@@ -13,12 +13,10 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-#if !UNITY_EDITOR
 using Godot;
-using System.Runtime.CompilerServices;
 using Nomad.Core.Logger;
 
-namespace Nomad.EngineUtils.Private {
+namespace Nomad.EngineUtils.Godot.Private {
 	/*
 	===================================================================================
 
@@ -40,8 +38,7 @@ namespace Nomad.EngineUtils.Private {
 		///
 		/// </summary>
 		/// <param name="message"></param>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public override void Print( in string message ) {
+		public override void Print( string message ) {
 			GD.PrintRich( message );
 		}
 
@@ -53,7 +50,6 @@ namespace Nomad.EngineUtils.Private {
 		/// <summary>
 		///
 		/// </summary>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public override void Clear() {
 			System.Console.Clear();
 		}
@@ -66,9 +62,7 @@ namespace Nomad.EngineUtils.Private {
 		/// <summary>
 		///
 		/// </summary>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public override void Flush() {
 		}
 	};
 };
-#endif

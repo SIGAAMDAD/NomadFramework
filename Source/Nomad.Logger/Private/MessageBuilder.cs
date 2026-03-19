@@ -48,12 +48,12 @@ namespace Nomad.Logger.Private {
 		/// <param name="message"></param>
 		/// <param name="addLine"></param>
 		/// <returns></returns>
-		public string FormatMessage( in ILoggerCategory category, LogLevel level, in string message, bool addLine ) {
+		public string FormatMessage( ILoggerCategory category, LogLevel level, string message, bool addLine ) {
 			var sb = _sb.Rent();
 			try {
 				sb.Clear();
 				sb.Append( FormatLogColorBegin( level ) );
-				sb.Append( $"[{Stopwatch.GetTimestamp()}] [{category.Name}] " );
+				sb.Append( $"[{DateTime.Now}] [{category.Name}] " );
 				sb.Append( message );
 				sb.Append( FormatLogColorEnd( level ) );
 				return sb.ToString();
@@ -85,7 +85,7 @@ namespace Nomad.Logger.Private {
 		/// <exception cref="ArgumentOutOfRangeException"></exception>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		private static string FormatLogColorBegin( LogLevel level ) => level switch {
-			LogLevel.Info => String.Empty,
+			LogLevel.Info => string.Empty,
 			LogLevel.Warning => "[color=gold]",
 			LogLevel.Error => "[color=red]",
 			LogLevel.Debug => "[color=light_blue]",

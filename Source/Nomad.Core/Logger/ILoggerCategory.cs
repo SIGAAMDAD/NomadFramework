@@ -36,15 +36,33 @@ namespace Nomad.Core.Logger
         LogLevel Level { get; }
 
         /// <summary>
-        /// Whether the category is enabled. <b>False</b> means all messages sent with this category as a parameter will simply be ignored.
+        /// Whether the category is enabled. <c>false</c> means all messages sent with this category as a parameter will simply be ignored.
         /// </summary>
         bool Enabled { get; set; }
 
         /// <summary>
-        /// Queues a log message into the category.
+        /// Prints a message to this category.
         /// </summary>
-        /// <param name="message">The message to queue.</param>
-        void QueueMessage(in string message);
+        /// <param name="message"></param>
+        void PrintLine(string message);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
+        void PrintWarning(string message);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
+        void PrintError(string message);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
+        void PrintDebug(string message);
 
         /// <summary>
         /// Adds a sink to the category.
@@ -53,7 +71,7 @@ namespace Nomad.Core.Logger
         /// By default, all sinks are added to a category, however, if you wish to control where a category can actually output to, utilize this method here to do so.
         /// </remarks>
         /// <param name="sink">The sink to add.</param>
-        void AddSink(in ILoggerSink sink);
+        void AddSink(ILoggerSink sink);
 
         /// <summary>
         /// Removes a sink from the category.
@@ -62,6 +80,6 @@ namespace Nomad.Core.Logger
         /// By default, all sinks are added to a category, however, if you wish to control where a category can actually output to, utilize this method here to do so.
         /// </remarks>
         /// <param name="sink">The sink to remove.</param>
-        void RemoveSink(in ILoggerSink sink);
+        void RemoveSink(ILoggerSink sink);
     }
 }

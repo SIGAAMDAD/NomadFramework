@@ -162,9 +162,9 @@ namespace Nomad.Save.Private.Services {
 
 				_loadBegin.Publish( new LoadBeginEventArgs( _readerService ) );
 			} catch ( FieldCorruptException fieldCorrupt ) {
-				_logger.PrintError( $"Field corruption: [FieldIndex] {fieldCorrupt.FieldIndex}, [FileOffset] {fieldCorrupt.FileOffset}, [Section] {fieldCorrupt.SectionName} - {fieldCorrupt.Message}" );
+				_category.PrintError( $"Field corruption: [FieldIndex] {fieldCorrupt.FieldIndex}, [FileOffset] {fieldCorrupt.FileOffset}, [Section] {fieldCorrupt.SectionName} - {fieldCorrupt.Message}" );
 			} catch ( Exception e ) {
-				_logger.PrintError( $"Exception caught - {e}" );
+				_category.PrintError( $"Exception caught - {e}" );
 			}
 		}
 
@@ -185,7 +185,7 @@ namespace Nomad.Save.Private.Services {
 				_saveBegin.Publish( new SaveBeginEventArgs( _writerService ) );
 				_writerService.EndSave( name, gameVersion );
 			} catch ( Exception e ) {
-				_logger.PrintError( $"Exception caught - {e}" );
+				_category.PrintError( $"Exception caught - {e}" );
 			}
 		}
 

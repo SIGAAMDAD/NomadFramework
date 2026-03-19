@@ -18,10 +18,10 @@ using System;
 namespace Nomad.EngineTemplates.Attributes
 {
     /// <summary>
-    ///
+    /// Declares an event member that should be generated for an engine template.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
-    public class TemplateEvent : Attribute
+    internal class TemplateEvent : Attribute
     {
         /// <summary>
         /// The event's name.
@@ -32,5 +32,10 @@ namespace Nomad.EngineTemplates.Attributes
         /// The data type of what we're sending the event's payload.
         /// </summary>
         public Type PayloadType { get; set; }
+
+        /// <summary>
+        /// Optional documentation for the generated event member.
+        /// </summary>
+        public string Documentation { get; set; } = null;
     }
 }
