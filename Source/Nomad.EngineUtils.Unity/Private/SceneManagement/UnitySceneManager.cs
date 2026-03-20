@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.IO;
 using Nomad.Core.Engine.Globals;
 using Nomad.Core.Engine.SceneManagement;
+using UnityEngine;
 using UScene = UnityEngine.SceneManagement.Scene;
 using USceneLoadMode = UnityEngine.SceneManagement.LoadSceneMode;
 using USceneManager = UnityEngine.SceneManagement.SceneManager;

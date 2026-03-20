@@ -48,6 +48,11 @@ namespace Nomad.Core.UI
         /// <summary>
         ///
         /// </summary>
+        IGameEvent<bool> DisplayStateChanged { get; }
+
+        /// <summary>
+        ///
+        /// </summary>
         IGameEvent<EmptyEventArgs> Focused { get; }
 
         /// <summary>

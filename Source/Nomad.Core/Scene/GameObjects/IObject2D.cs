@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System.Numerics;
+using Nomad.Core.Events;
 
 namespace Nomad.Core.Scene.GameObjects
 {
@@ -22,6 +23,11 @@ namespace Nomad.Core.Scene.GameObjects
     /// </summary>
     public interface IObject2D : IGameObject
     {
+        /// <summary>
+        ///
+        /// </summary>
+        IGameEvent<bool> DisplayStateChanged { get; }
+
         /// <summary>
         ///
         /// </summary>

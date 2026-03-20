@@ -17,7 +17,6 @@ using System;
 using Nomad.Core.UI;
 using Nomad.Core.Events;
 using Nomad.EngineTemplates.Attributes;
-using Nomad.EngineTemplates.Attributes.Events;
 using Nomad.EngineTemplates.Attributes.Properties;
 
 namespace Nomad.EngineTemplates.BaseClasses
@@ -27,12 +26,14 @@ namespace Nomad.EngineTemplates.BaseClasses
     /// </summary>
     [TemplateClass(Contract = typeof(IUIElement))]
     [TemplateBaseClass]
-	[TemplateDisplayStateChangedEvent]
+	[TemplateEvent(Name = "DisplayStateChanged", PayloadType = typeof(bool))]
     [TemplateEvent(Name = "Focused", PayloadType = typeof(EmptyEventArgs))]
     [TemplateEvent(Name = "Unfocused", PayloadType = typeof(EmptyEventArgs))]
     [TemplateProperty(
         Name = "Visible",
         Type = typeof(bool),
+        GodotGetterExpression = "base.Visible",
+        GodotSetterExpression = "base.Visible = value",
         UnityGetterExpression = "gameObject.activeSelf",
         UnitySetterExpression = "gameObject.SetActive(value)")]
     [TemplatePositionProperty]

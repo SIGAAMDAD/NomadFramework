@@ -9,6 +9,8 @@
   <!-- SPECIAL PROPS -->
   
   <PropertyGroup>
+    <IsTrimmable Condition="'$(TargetFramework)' == 'net10.0' Or '$(TargetFramework)' == 'net8.0'">true</IsTrimmable>
+    
     <!-- Performance -->
     <TieredCompilation>true</TieredCompilation>
     <Deterministic>true</Deterministic>
