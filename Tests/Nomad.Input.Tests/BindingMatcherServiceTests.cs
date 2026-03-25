@@ -20,7 +20,7 @@ namespace Nomad.Input.Tests {
 			var state = new InputStateService();
 			var matcher = new BindingMatcherService( repository, state );
 
-			var matches = matcher.MatchKeyboard( new KeyboardEvent( KeyNum.Space, 10, true ), uint.MaxValue, InputScheme.KeyboardAndMouse );
+			var matches = matcher.MatchKeyboard( new KeyboardEventArgs( KeyNum.Space, 10, true ), uint.MaxValue, InputScheme.KeyboardAndMouse );
 
 			Assert.That( matches.Span.Length, Is.EqualTo( 1 ) );
 		}
@@ -37,9 +37,9 @@ namespace Nomad.Input.Tests {
 			var state = new InputStateService();
 			var matcher = new BindingMatcherService( repository, state );
 
-			var withoutModifier = matcher.MatchKeyboard( new KeyboardEvent( KeyNum.Space, 10, true ), uint.MaxValue, InputScheme.KeyboardAndMouse );
+			var withoutModifier = matcher.MatchKeyboard( new KeyboardEventArgs( KeyNum.Space, 10, true ), uint.MaxValue, InputScheme.KeyboardAndMouse );
 			state.SetPressed( InputDeviceSlot.Keyboard, InputControlId.Shift, true );
-			var withModifier = matcher.MatchKeyboard( new KeyboardEvent( KeyNum.Space, 10, true ), uint.MaxValue, InputScheme.KeyboardAndMouse );
+			var withModifier = matcher.MatchKeyboard( new KeyboardEventArgs( KeyNum.Space, 10, true ), uint.MaxValue, InputScheme.KeyboardAndMouse );
 
 			using ( Assert.EnterMultipleScope() ) {
 				Assert.That( withoutModifier.Span.Length, Is.EqualTo( 0 ) );
@@ -59,7 +59,7 @@ namespace Nomad.Input.Tests {
 			);
 			var matcher = new BindingMatcherService( repository, new InputStateService() );
 
-			var matches = matcher.MatchMouseButton( new MouseButtonEvent( MouseButton.Right, 10, true ), uint.MaxValue, InputScheme.KeyboardAndMouse );
+			var matches = matcher.MatchMouseButton( new MouseButtonEventArgs( MouseButton.Right, 10, true ), uint.MaxValue, InputScheme.KeyboardAndMouse );
 
 			Assert.That( matches.Span.Length, Is.EqualTo( 1 ) );
 		}
@@ -75,7 +75,7 @@ namespace Nomad.Input.Tests {
 			);
 			var matcher = new BindingMatcherService( repository, new InputStateService() );
 
-			var matches = matcher.MatchGamepadButton( new GamepadButtonEvent( GamepadButton.A, 1, 10, true ), uint.MaxValue, InputScheme.Gamepad );
+			var matches = matcher.MatchGamepadButton( new GamepadButtonEventArgs( GamepadButton.A, 1, 10, true ), uint.MaxValue, InputScheme.Gamepad );
 
 			Assert.That( matches.Span.Length, Is.EqualTo( 1 ) );
 		}

@@ -23,11 +23,11 @@ namespace Nomad.Input.Private.ValueObjects {
 	internal readonly struct InputEventData : IEquatable<InputEventData> {
 		[FieldOffset( 0 )] public readonly InputType Type;
 
-		[FieldOffset( 1 )] public readonly KeyboardEvent Keyboard;
-		[FieldOffset( 1 )] public readonly MouseButtonEvent MouseButton;
-		[FieldOffset( 1 )] public readonly MouseMotionEvent MouseMotion;
-		[FieldOffset( 1 )] public readonly GamepadAxisEvent GamepadAxis;
-		[FieldOffset( 1 )] public readonly GamepadButtonEvent GamepadButton;
+		[FieldOffset( 1 )] public readonly KeyboardEventArgs Keyboard;
+		[FieldOffset( 1 )] public readonly MouseButtonEventArgs MouseButton;
+		[FieldOffset( 1 )] public readonly MouseMotionEventArgs MouseMotion;
+		[FieldOffset( 1 )] public readonly GamepadAxisEventArgs GamepadAxis;
+		[FieldOffset( 1 )] public readonly GamepadButtonEventArgs GamepadButton;
 
 		/*
 		===============
@@ -38,7 +38,7 @@ namespace Nomad.Input.Private.ValueObjects {
 		/// 
 		/// </summary>
 		/// <param name="keyboard"></param>
-		public InputEventData( in KeyboardEvent keyboard ) {
+		public InputEventData( in KeyboardEventArgs keyboard ) {
 			Type = InputType.Keyboard;
 			Keyboard = keyboard;
 			MouseButton = default;
@@ -56,7 +56,7 @@ namespace Nomad.Input.Private.ValueObjects {
 		/// 
 		/// </summary>
 		/// <param name="mouseButton"></param>
-		public InputEventData( in MouseButtonEvent mouseButton ) {
+		public InputEventData( in MouseButtonEventArgs mouseButton ) {
 			Type = InputType.MouseButton;
 			Keyboard = default;
 			MouseButton = mouseButton;
@@ -74,7 +74,7 @@ namespace Nomad.Input.Private.ValueObjects {
 		/// 
 		/// </summary>
 		/// <param name="mouseMotion"></param>
-		public InputEventData( in MouseMotionEvent mouseMotion ) {
+		public InputEventData( in MouseMotionEventArgs mouseMotion ) {
 			Type = InputType.MouseMotion;
 			Keyboard = default;
 			MouseButton = default;
@@ -92,7 +92,7 @@ namespace Nomad.Input.Private.ValueObjects {
 		/// 
 		/// </summary>
 		/// <param name="gamepadAxis"></param>
-		public InputEventData( in GamepadAxisEvent gamepadAxis ) {
+		public InputEventData( in GamepadAxisEventArgs gamepadAxis ) {
 			Type = InputType.GamepadAxis;
 			Keyboard = default;
 			MouseButton = default;
@@ -110,7 +110,7 @@ namespace Nomad.Input.Private.ValueObjects {
 		/// 
 		/// </summary>
 		/// <param name="gamepadButton"></param>
-		public InputEventData( in GamepadButtonEvent gamepadButton ) {
+		public InputEventData( in GamepadButtonEventArgs gamepadButton ) {
 			Type = InputType.GamepadButton;
 			Keyboard = default;
 			MouseButton = default;

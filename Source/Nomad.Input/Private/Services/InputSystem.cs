@@ -88,19 +88,19 @@ namespace Nomad.Input.Private.Services {
 			_matcherService = new BindingMatcherService( _compiledBindings, _stateService );
 			_actionResolverService = new ActionResolverService( _compiledBindings, _stateService );
 
-			var keyboardEvent = eventFactory.GetEvent<KeyboardEvent>( Core.Constants.Events.Input.KEYBOARD_EVENT, Core.Constants.Events.Input.NAMESPACE );
+			var keyboardEvent = eventFactory.GetEvent<KeyboardEventArgs>( Core.Constants.Events.Input.KEYBOARD_EVENT, Core.Constants.Events.Input.NAMESPACE );
 			_keyboardEvent = keyboardEvent.Subscribe( OnKeyboardEventTriggered );
 
-			var mouseButtonEvent = eventFactory.GetEvent<MouseButtonEvent>( Core.Constants.Events.Input.MOUSE_BUTTON_EVENT, Core.Constants.Events.Input.NAMESPACE );
+			var mouseButtonEvent = eventFactory.GetEvent<MouseButtonEventArgs>( Core.Constants.Events.Input.MOUSE_BUTTON_EVENT, Core.Constants.Events.Input.NAMESPACE );
 			_mouseButtonEvent = mouseButtonEvent.Subscribe( OnMouseButtonEventTriggered );
 
-			var mouseMotionEvent = eventFactory.GetEvent<MouseMotionEvent>( Core.Constants.Events.Input.MOUSE_MOTION_EVENT, Core.Constants.Events.Input.NAMESPACE );
+			var mouseMotionEvent = eventFactory.GetEvent<MouseMotionEventArgs>( Core.Constants.Events.Input.MOUSE_MOTION_EVENT, Core.Constants.Events.Input.NAMESPACE );
 			_mouseMotionEvent = mouseMotionEvent.Subscribe( OnMouseMotionEventTriggered );
 
-			var gamepadAxisEvent = eventFactory.GetEvent<GamepadAxisEvent>( Core.Constants.Events.Input.GAMEPAD_AXIS_EVENT, Core.Constants.Events.Input.NAMESPACE );
+			var gamepadAxisEvent = eventFactory.GetEvent<GamepadAxisEventArgs>( Core.Constants.Events.Input.GAMEPAD_AXIS_EVENT, Core.Constants.Events.Input.NAMESPACE );
 			_gamepadAxisEvent = gamepadAxisEvent.Subscribe( OnGamepadAxisEventTriggered );
 
-			var gamepadButtonEvent = eventFactory.GetEvent<GamepadButtonEvent>( Core.Constants.Events.Input.GAMEPAD_BUTTON_EVENT, Core.Constants.Events.Input.NAMESPACE );
+			var gamepadButtonEvent = eventFactory.GetEvent<GamepadButtonEventArgs>( Core.Constants.Events.Input.GAMEPAD_BUTTON_EVENT, Core.Constants.Events.Input.NAMESPACE );
 			_gamepadButtonEvent = gamepadButtonEvent.Subscribe( OnGamepadButtonEventTriggered );
 		}
 
@@ -135,7 +135,7 @@ namespace Nomad.Input.Private.Services {
 		/// 
 		/// </summary>
 		/// <param name="gamepadAxisEvent"></param>
-		public void PushGamepadAxisEvent( in GamepadAxisEvent gamepadAxisEvent ) {
+		public void PushGamepadAxisEvent( in GamepadAxisEventArgs gamepadAxisEvent ) {
 			InputDeviceSlot deviceSlot = GetGamepadDeviceSlot( gamepadAxisEvent.DeviceId );
 			InputControlId controlId = gamepadAxisEvent.Stick.ToControlId();
 
@@ -153,7 +153,7 @@ namespace Nomad.Input.Private.Services {
 		/// 
 		/// </summary>
 		/// <param name="gamepadButtonEvent"></param>
-		public void PushGamepadButtonEvent( in GamepadButtonEvent gamepadButtonEvent ) {
+		public void PushGamepadButtonEvent( in GamepadButtonEventArgs gamepadButtonEvent ) {
 			InputDeviceSlot deviceSlot = GetGamepadDeviceSlot( gamepadButtonEvent.DeviceId );
 
 			_stateService.SetPressed( deviceSlot, gamepadButtonEvent.Button.ToControlId(), gamepadButtonEvent.Pressed );
@@ -170,7 +170,7 @@ namespace Nomad.Input.Private.Services {
 		/// 
 		/// </summary>
 		/// <param name="keyEvent"></param>
-		public void PushKeyboardEvent( in KeyboardEvent keyEvent ) {
+		public void PushKeyboardEvent( in KeyboardEventArgs keyEvent ) {
 			_stateService.SetPressed( InputDeviceSlot.Keyboard, keyEvent.KeyNum.ToControlId(), keyEvent.Pressed );
 			var matches = _matcherService.MatchKeyboard( in keyEvent, _contextMask, _mode ).Span;
 			ResolveBindMatches( ref matches, keyEvent.TimeStamp );
@@ -185,7 +185,7 @@ namespace Nomad.Input.Private.Services {
 		/// 
 		/// </summary>
 		/// <param name="mouseButtonEvent"></param>
-		public void PushMouseButtonEvent( in MouseButtonEvent mouseButtonEvent ) {
+		public void PushMouseButtonEvent( in MouseButtonEventArgs mouseButtonEvent ) {
 			_stateService.SetPressed( InputDeviceSlot.Mouse, mouseButtonEvent.Button.ToControlId(), mouseButtonEvent.Pressed );
 			var matches = _matcherService.MatchMouseButton( in mouseButtonEvent, _contextMask, _mode ).Span;
 			ResolveBindMatches( ref matches, mouseButtonEvent.TimeStamp );
@@ -200,7 +200,7 @@ namespace Nomad.Input.Private.Services {
 		/// 
 		/// </summary>
 		/// <param name="mouseMotionEvent"></param>
-		public void PushMouseMotionEvent( in MouseMotionEvent mouseMotionEvent ) {
+		public void PushMouseMotionEvent( in MouseMotionEventArgs mouseMotionEvent ) {
 			_stateService.AddMouseDelta( new Vector2( mouseMotionEvent.RelativeX, mouseMotionEvent.RelativeY ) );
 			var matches = _matcherService.MatchMouseDelta( _contextMask, _mode ).Span;
 			ResolveBindMatches( ref matches, mouseMotionEvent.TimeStamp );
@@ -267,7 +267,7 @@ namespace Nomad.Input.Private.Services {
 		/// </summary>
 		/// <param name="args"></param>
 		private void OnGamepadButtonEventTriggered( in GamepadButtonEventArgs args ) {
-			PushGamepadAxisEvent( in args );
+			PushGamepadButtonEvent( in args );
 		}
 
 		/*

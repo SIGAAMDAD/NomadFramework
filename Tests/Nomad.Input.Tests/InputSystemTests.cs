@@ -50,7 +50,7 @@ namespace Nomad.Input.Tests {
 				.Subscribe( ( in ButtonActionEventArgs args ) => published = args );
 
 			using var inputSystem = new InputSystem( fileSystem.Object, cvarSystem, _eventRegistry );
-			inputSystem.PushKeyboardEvent( new KeyboardEvent( KeyNum.Space, 100, true ) );
+			inputSystem.PushKeyboardEvent( new KeyboardEventArgs( KeyNum.Space, 100, true ) );
 
 			using ( Assert.EnterMultipleScope() ) {
 				Assert.That( published.HasValue, Is.True );
@@ -88,7 +88,7 @@ namespace Nomad.Input.Tests {
 				.Subscribe( ( in AxisActionEventArgs args ) => published = args );
 
 			using var inputSystem = new InputSystem( fileSystem.Object, cvarSystem, _eventRegistry );
-			inputSystem.PushMouseMotionEvent( new MouseMotionEvent( 200, 4, 3 ) );
+			inputSystem.PushMouseMotionEvent( new MouseMotionEventArgs( 200, 4, 3 ) );
 
 			using ( Assert.EnterMultipleScope() ) {
 				Assert.That( published.HasValue, Is.True );
@@ -124,7 +124,7 @@ namespace Nomad.Input.Tests {
 
 			using var inputSystem = new InputSystem( fileSystem.Object, cvarSystem, _eventRegistry );
 			SetMode( inputSystem, InputScheme.Gamepad );
-			inputSystem.PushGamepadAxisEvent( new GamepadAxisEvent( GamepadStick.Left, 300, 0, new Vector2( 0.25f, -0.5f ) ) );
+			inputSystem.PushGamepadAxisEvent( new GamepadAxisEventArgs( GamepadStick.Left, 300, 0, new Vector2( 0.25f, -0.5f ) ) );
 
 			using ( Assert.EnterMultipleScope() ) {
 				Assert.That( published.HasValue, Is.True );
@@ -156,7 +156,7 @@ namespace Nomad.Input.Tests {
 
 			using var inputSystem = new InputSystem( fileSystem.Object, cvarSystem, _eventRegistry );
 			SetMode( inputSystem, InputScheme.Gamepad );
-			inputSystem.PushGamepadButtonEvent( new GamepadButtonEvent( GamepadButton.A, 1, 400, true ) );
+			inputSystem.PushGamepadButtonEvent( new GamepadButtonEventArgs( GamepadButton.A, 1, 400, true ) );
 
 			using ( Assert.EnterMultipleScope() ) {
 				Assert.That( published.HasValue, Is.True );
@@ -193,7 +193,7 @@ namespace Nomad.Input.Tests {
 				.Subscribe( ( in AxisActionEventArgs args ) => published = args );
 
 			using var inputSystem = new InputSystem( fileSystem.Object, cvarSystem, _eventRegistry );
-			inputSystem.PushKeyboardEvent( new KeyboardEvent( KeyNum.W, 500, true ) );
+			inputSystem.PushKeyboardEvent( new KeyboardEventArgs( KeyNum.W, 500, true ) );
 
 			using ( Assert.EnterMultipleScope() ) {
 				Assert.That( published.HasValue, Is.True );

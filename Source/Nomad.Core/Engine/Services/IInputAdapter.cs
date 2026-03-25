@@ -26,26 +26,26 @@ namespace Nomad.Core.Engine.Services
         /// <summary>
         /// 
         /// </summary>
-        IGameEvent<KeyboardEvent> KeyboardEvent { get; }
+        IGameEvent<KeyboardEventArgs> KeyboardEvent { get; }
 
         /// <summary>
         /// 
         /// </summary>
-        IGameEvent<MouseButtonEvent> MouseButtonEvent { get; }
+        IGameEvent<MouseButtonEventArgs> MouseButtonEvent { get; }
 
         /// <summary>
         /// 
         /// </summary>
-        IGameEvent<MouseMotionEvent> MouseMotionEvent { get; }
+        IGameEvent<MouseMotionEventArgs> MouseMotionEvent { get; }
 
         /// <summary>
         /// 
         /// </summary>
-        IGameEvent<GamepadAxisEvent> GamepadAxisEvent { get; }
+        IGameEvent<GamepadAxisEventArgs> GamepadAxisEvent { get; }
 
         /// <summary>
         /// 
         /// </summary>
-        IGameEvent<GamepadButtonEvent> GamepadButtonEvent { get; }
+        IGameEvent<GamepadButtonEventArgs> GamepadButtonEvent { get; }
     }
 }

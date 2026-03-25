@@ -37,43 +37,43 @@ namespace Nomad.EngineUtils.Godot.Private {
 		/// <summary>
 		/// 
 		/// </summary>
-		public IGameEvent<KeyboardEvent> KeyboardEvent => _keyboardEvent;
-		private readonly IGameEvent<KeyboardEvent> _keyboardEvent;
+		public IGameEvent<KeyboardEventArgs> KeyboardEvent => _keyboardEvent;
+		private readonly IGameEvent<KeyboardEventArgs> _keyboardEvent;
 
 		/// <summary>
 		/// 
 		/// </summary>
-		public IGameEvent<MouseButtonEvent> MouseButtonEvent => _mouseButtonEvent;
-		private readonly IGameEvent<MouseButtonEvent> _mouseButtonEvent;
+		public IGameEvent<MouseButtonEventArgs> MouseButtonEvent => _mouseButtonEvent;
+		private readonly IGameEvent<MouseButtonEventArgs> _mouseButtonEvent;
 
 		/// <summary>
 		/// 
 		/// </summary>
-		public IGameEvent<MouseMotionEvent> MouseMotionEvent => _mouseMotionEvent;
-		private readonly IGameEvent<MouseMotionEvent> _mouseMotionEvent;
+		public IGameEvent<MouseMotionEventArgs> MouseMotionEvent => _mouseMotionEvent;
+		private readonly IGameEvent<MouseMotionEventArgs> _mouseMotionEvent;
 
 		/// <summary>
 		/// 
 		/// </summary>
-		public IGameEvent<GamepadAxisEvent> GamepadAxisEvent => _gamepadAxisEvent;
-		private readonly IGameEvent<GamepadAxisEvent> _gamepadAxisEvent;
+		public IGameEvent<GamepadAxisEventArgs> GamepadAxisEvent => _gamepadAxisEvent;
+		private readonly IGameEvent<GamepadAxisEventArgs> _gamepadAxisEvent;
 
 		/// <summary>
 		/// 
 		/// </summary>
-		public IGameEvent<GamepadButtonEvent> GamepadButtonEvent => _gamepadButtonEvent;
-		private readonly IGameEvent<GamepadButtonEvent> _gamepadButtonEvent;
+		public IGameEvent<GamepadButtonEventArgs> GamepadButtonEvent => _gamepadButtonEvent;
+		private readonly IGameEvent<GamepadButtonEventArgs> _gamepadButtonEvent;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <param name="eventFactory"></param>
 		public GodotInputPump( IGameEventRegistryService eventFactory ) {
-			_keyboardEvent = eventFactory.GetEvent<KeyboardEvent>( Core.Constants.Events.Input.KEYBOARD_EVENT, Constants.Events.NAMESPACE );
-			_mouseButtonEvent = eventFactory.GetEvent<MouseButtonEvent>( Core.Constants.Events.Input.MOUSE_BUTTON_EVENT, Constants.Events.NAMESPACE );
-			_mouseMotionEvent = eventFactory.GetEvent<MouseMotionEvent>( Core.Constants.Events.Input.MOUSE_MOTION_EVENT, Constants.Events.NAMESPACE );
-			_gamepadAxisEvent = eventFactory.GetEvent<GamepadAxisEvent>( Core.Constants.Events.Input.GAMEPAD_AXIS_EVENT, Constants.Events.NAMESPACE );
-			_gamepadButtonEvent = eventFactory.GetEvent<GamepadButtonEvent>( Core.Constants.Events.Input.GAMEPAD_BUTTON_EVENT, Core.Constants.Events.Input.NAMESPACE );
+			_keyboardEvent = eventFactory.GetEvent<KeyboardEventArgs>( Core.Constants.Events.Input.KEYBOARD_EVENT, Constants.Events.NAMESPACE );
+			_mouseButtonEvent = eventFactory.GetEvent<MouseButtonEventArgs>( Core.Constants.Events.Input.MOUSE_BUTTON_EVENT, Constants.Events.NAMESPACE );
+			_mouseMotionEvent = eventFactory.GetEvent<MouseMotionEventArgs>( Core.Constants.Events.Input.MOUSE_MOTION_EVENT, Constants.Events.NAMESPACE );
+			_gamepadAxisEvent = eventFactory.GetEvent<GamepadAxisEventArgs>( Core.Constants.Events.Input.GAMEPAD_AXIS_EVENT, Constants.Events.NAMESPACE );
+			_gamepadButtonEvent = eventFactory.GetEvent<GamepadButtonEventArgs>( Core.Constants.Events.Input.GAMEPAD_BUTTON_EVENT, Core.Constants.Events.Input.NAMESPACE );
 		}
 
 		/*

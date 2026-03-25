@@ -5,5 +5,6 @@
   <Project Path="Source/Nomad.FileSystem/Nomad.FileSystem.csproj" />
   <Project Path="Source/Nomad.Logger/Nomad.Logger.csproj" />
   <Project Path="Source/Nomad.Save/Nomad.Save.csproj" />
+  <Project Path="Source/Nomad.Input/Nomad.Input.csproj" />
   <Project Path="Source/Nomad.OnlineServices.Steam/Nomad.OnlineServices.Steam.csproj" />
 </Solution>

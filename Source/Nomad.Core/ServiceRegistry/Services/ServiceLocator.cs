@@ -132,10 +132,11 @@ namespace Nomad.Core.ServiceRegistry.Services
         /// </summary>
         /// <typeparam name="TService"></typeparam>
         /// <returns></returns>
-        public TService CreateInstance<TService>()
+        public TService CreateInstance<TService, TImplementation>()
             where TService : class
+            where TImplementation : class, TService
         {
-            var type = typeof(TService);
+            var type = typeof(TImplementation);
             var factory = _factoryCache.GetOrAdd(type, CreateFactory);
             return (TService)factory(this);
         }

@@ -27,7 +27,7 @@ namespace Nomad.Core.Tests
         public void GamepadAxisEvent_Constructor_ExposesAssignedValues()
         {
             var value = new Vector2(0.25f, -0.75f);
-            var axisEvent = new GamepadAxisEvent(GamepadStick.Right, 123L, 7, value);
+            var axisEvent = new GamepadAxisEventArgs(GamepadStick.Right, 123L, 7, value);
 
             using (Assert.EnterMultipleScope())
             {
@@ -41,9 +41,9 @@ namespace Nomad.Core.Tests
         [Test]
         public void GamepadAxisEvent_Equals_UsesStickAndValueOnly()
         {
-            var left = new GamepadAxisEvent(GamepadStick.Left, 100L, 1, new Vector2(1f, 0f));
-            var sameMeaning = new GamepadAxisEvent(GamepadStick.Left, 200L, 99, new Vector2(1f, 0f));
-            var differentValue = new GamepadAxisEvent(GamepadStick.Left, 100L, 1, new Vector2(0f, 1f));
+            var left = new GamepadAxisEventArgs(GamepadStick.Left, 100L, 1, new Vector2(1f, 0f));
+            var sameMeaning = new GamepadAxisEventArgs(GamepadStick.Left, 200L, 99, new Vector2(1f, 0f));
+            var differentValue = new GamepadAxisEventArgs(GamepadStick.Left, 100L, 1, new Vector2(0f, 1f));
 
             using (Assert.EnterMultipleScope())
             {

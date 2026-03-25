@@ -65,7 +65,7 @@ namespace Nomad.Input.Private.Services {
 		/// <param name="activeContextMask"></param>
 		/// <param name="activeScheme"></param>
 		/// <returns></returns>
-		public ReadOnlyMemory<BindingMatch> MatchKeyboard( in KeyboardEvent evt, uint activeContextMask, InputScheme? activeScheme ) {
+		public ReadOnlyMemory<BindingMatch> MatchKeyboard( in KeyboardEventArgs evt, uint activeContextMask, InputScheme? activeScheme ) {
 			var key = new ButtonLookupKey( InputDeviceSlot.Keyboard, evt.KeyNum.ToControlId(), evt.Pressed );
 			return MatchButtons( _compiledBindings.GetButtonCandidates( key ), activeContextMask, activeScheme );
 		}
@@ -82,7 +82,7 @@ namespace Nomad.Input.Private.Services {
 		/// <param name="activeContextMask"></param>
 		/// <param name="activeScheme"></param>
 		/// <returns></returns>
-		public ReadOnlyMemory<BindingMatch> MatchMouseButton( in MouseButtonEvent evt, uint activeContextMask, InputScheme? activeScheme ) {
+		public ReadOnlyMemory<BindingMatch> MatchMouseButton( in MouseButtonEventArgs evt, uint activeContextMask, InputScheme? activeScheme ) {
 			var key = new ButtonLookupKey( InputDeviceSlot.Mouse, evt.Button.ToControlId(), evt.Pressed );
 			return MatchButtons( _compiledBindings.GetButtonCandidates( key ), activeContextMask, activeScheme );
 		}
@@ -99,7 +99,7 @@ namespace Nomad.Input.Private.Services {
 		/// <param name="activeContextMask"></param>
 		/// <param name="activeScheme"></param>
 		/// <returns></returns>
-		public ReadOnlyMemory<BindingMatch> MatchGamepadButton( in GamepadButtonEvent evt, uint activeContextMask, InputScheme? activeScheme ) {
+		public ReadOnlyMemory<BindingMatch> MatchGamepadButton( in GamepadButtonEventArgs evt, uint activeContextMask, InputScheme? activeScheme ) {
 			var key = new ButtonLookupKey( GetGamepadDeviceSlot( evt.DeviceId ), evt.Button.ToControlId(), evt.Pressed );
 			return MatchButtons( _compiledBindings.GetButtonCandidates( key ), activeContextMask, activeScheme );
 		}

@@ -38,12 +38,15 @@ public class MockLoggerCategory : ILoggerCategory {
 	}
 
 	public void PrintError( string message ) {
+		Console.WriteLine($"ERROR: {message}");
 	}
 
 	public void PrintLine( string message ) {
+		Console.WriteLine(message);
 	}
 
 	public void PrintWarning( string message ) {
+		Console.WriteLine($"WARNING: {message}");
 	}
 
 	public void RemoveSink( ILoggerSink sink ) {

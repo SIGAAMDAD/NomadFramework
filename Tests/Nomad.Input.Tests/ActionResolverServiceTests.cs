@@ -26,7 +26,7 @@ namespace Nomad.Input.Tests {
 			state.SetPressed( InputDeviceSlot.Keyboard, InputControlId.Space, true );
 			var matcher = new BindingMatcherService( repository, state );
 			var resolver = new ActionResolverService( repository, state );
-			ReadOnlySpan<BindingMatch> matches = matcher.MatchKeyboard( new KeyboardEvent( KeyNum.Space, 25, true ), uint.MaxValue, InputScheme.KeyboardAndMouse ).Span;
+			ReadOnlySpan<BindingMatch> matches = matcher.MatchKeyboard( new KeyboardEventArgs( KeyNum.Space, 25, true ), uint.MaxValue, InputScheme.KeyboardAndMouse ).Span;
 
 			var actions = resolver.ResolveMatches( ref matches, 25 );
 

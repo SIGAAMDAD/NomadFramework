@@ -152,7 +152,7 @@ namespace Nomad.Core.ServiceRegistry.Services
             where TService : class
             where TImplementation : class, TService
         {
-            return _root.CreateInstance();
+            return _root.CreateInstance<TService, TImplementation>();
         }
 
         /// <summary>

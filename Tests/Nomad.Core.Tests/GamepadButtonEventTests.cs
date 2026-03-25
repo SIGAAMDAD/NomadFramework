@@ -25,7 +25,7 @@ namespace Nomad.Core.Tests
         [Test]
         public void GamepadButtonEvent_Constructor_ExposesAssignedValues()
         {
-            var buttonEvent = new GamepadButtonEvent(GamepadButton.A, 4, 321L, true);
+            var buttonEvent = new GamepadButtonEventArgs(GamepadButton.A, 4, 321L, true);
 
             using (Assert.EnterMultipleScope())
             {
@@ -39,9 +39,9 @@ namespace Nomad.Core.Tests
         [Test]
         public void GamepadButtonEvent_Equals_UsesButtonAndPressedOnly()
         {
-            var pressed = new GamepadButtonEvent(GamepadButton.B, 1, 100L, true);
-            var sameMeaning = new GamepadButtonEvent(GamepadButton.B, 2, 200L, true);
-            var differentState = new GamepadButtonEvent(GamepadButton.B, 1, 100L, false);
+            var pressed = new GamepadButtonEventArgs(GamepadButton.B, 1, 100L, true);
+            var sameMeaning = new GamepadButtonEventArgs(GamepadButton.B, 2, 200L, true);
+            var differentState = new GamepadButtonEventArgs(GamepadButton.B, 1, 100L, false);
 
             using (Assert.EnterMultipleScope())
             {

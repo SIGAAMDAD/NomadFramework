@@ -87,11 +87,13 @@ namespace Nomad.Core.ServiceRegistry.Globals
         ///
         /// </summary>
         /// <typeparam name="TService"></typeparam>
+        /// <typeparam name="TImplementation"></typeparam>
         /// <returns></returns>
-        public static TService CreateInstance<TService>()
+        public static TService CreateInstance<TService, TImplementation>()
             where TService : class
+            where TImplementation : class, TService
         {
-            return Instance.CreateInstance<TService>();
+            return Instance.CreateInstance<TService, TImplementation>();
         }
 
         /// <summary>
