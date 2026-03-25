@@ -46,6 +46,11 @@ namespace Nomad.Core.UI
         Color Color { get; set; }
 
         /// <summary>
+        /// 
+        /// </summary>
+        int RenderOrder { get; set; }
+
+        /// <summary>
         ///
         /// </summary>
         IGameEvent<bool> DisplayStateChanged { get; }

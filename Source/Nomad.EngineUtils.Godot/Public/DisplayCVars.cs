@@ -44,7 +44,7 @@ namespace Nomad.EngineUtils
                 new CVarCreateInfo<WindowMode>
                 {
                     Name = Core.Constants.CVars.EngineUtils.Display.WINDOW_MODE,
-                    DefaultValue = WindowMode.ExclusiveFullscreen,
+                    DefaultValue = WindowMode.Windowed,
                     Description = "The game's window mode.",
                     Flags = CVarFlags.Archive,
                     Validator = value => value >= WindowMode.Windowed && value < WindowMode.Count

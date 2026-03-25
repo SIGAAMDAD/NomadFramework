@@ -59,8 +59,9 @@ namespace Nomad.Core.ServiceRegistry.Interfaces
         /// </summary>
         /// <typeparam name="TService"></typeparam>
         /// <returns></returns>
-        TService CreateInstance<TService>()
-            where TService : class;
+        TService CreateInstance<TService, TImplementation>()
+            where TService : class
+            where TImplementation : class, TService;
         
         /// <summary>
         /// 

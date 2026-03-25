@@ -1,3 +1,18 @@
+/*
+===========================================================================
+The Nomad Framework
+Copyright (C) 2025-2026 Noah Van Til
+
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v2. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+This software is provided "as is", without warranty of any kind,
+express or implied, including but not limited to the warranties
+of merchantability, fitness for a particular purpose and noninfringement.
+===========================================================================
+*/
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -108,11 +123,11 @@ namespace Nomad.Core.ServiceRegistry.Services
         /// <typeparam name="TImplementation"></typeparam>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IServiceRegistry AddScoped<TService, TImplementation>()
+        public IServiceScope AddScoped<TService, TImplementation>()
             where TService : class
             where TImplementation : class, TService
         {
-            return Register<TService, TImplementation>(ServiceLifetime.Scoped);
+            return Register<TService, TImplementation>(ServiceLifetime.Scoped) as IServiceScope;
         }
 
         /// <summary>

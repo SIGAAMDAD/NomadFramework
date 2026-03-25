@@ -24,22 +24,89 @@ namespace Nomad.Core.Engine.Windowing
     /// </summary>
     public enum WindowResolution : byte
     {
+        /// <summary>
+        /// 
+        /// </summary>
         Res_640x480,
+
+        /// <summary>
+        /// 
+        /// </summary>
         Res_800x600,
+
+        /// <summary>
+        /// 
+        /// </summary>
         Res_1024x768,
+        
+        /// <summary>
+        /// 
+        /// </summary>
         Res_1280x720,
+
+        /// <summary>
+        /// 
+        /// </summary>
         Res_1280x768,
+
+        /// <summary>
+        /// 
+        /// </summary>
         Res_1280x800,
+
+        /// <summary>
+        /// 
+        /// </summary>
         Res_1280x1024,
+
+        /// <summary>
+        /// 
+        /// </summary>
         Res_1360x768,
+
+        /// <summary>
+        /// 
+        /// </summary>
         Res_1366x768,
+
+        /// <summary>
+        /// 
+        /// </summary>
         Res_1440x900,
+
+        /// <summary>
+        /// 
+        /// </summary>
         Res_1536x864,
+
+        /// <summary>
+        /// 
+        /// </summary>
         Res_1600x900,
+
+        /// <summary>
+        /// 
+        /// </summary>
         Res_1600x1200,
+
+        /// <summary>
+        /// 
+        /// </summary>
         Res_1680x1050,
+
+        /// <summary>
+        /// 
+        /// </summary>
         Res_1920x1080,
+
+        /// <summary>
+        /// 
+        /// </summary>
         Res_1920x1200,
+
+        /// <summary>
+        /// 
+        /// </summary>
         Res_2048x1152,
         Res_2048x1536,
         Res_2560x1080,

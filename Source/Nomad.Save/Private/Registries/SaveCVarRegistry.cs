@@ -43,7 +43,7 @@ namespace Nomad.Save.Private.Registries {
 			cvarSystem.Register(
 				new CVarCreateInfo<string> {
 					Name = Constants.CVars.DATA_PATH,
-					DefaultValue = $"{engineService.GetStoragePath( StorageScope.UserData )}/SaveData",
+					DefaultValue = "SaveData",
 					Description = "The directory where all save data is written to.",
 					Flags = CVarFlags.Init | CVarFlags.Archive
 				}
@@ -51,7 +51,7 @@ namespace Nomad.Save.Private.Registries {
 			cvarSystem.Register(
 				new CVarCreateInfo<string> {
 					Name = Constants.CVars.BACKUP_DIRECTORY,
-					DefaultValue = $"{engineService.GetStoragePath( StorageScope.UserData )}/SaveData/Backups",
+					DefaultValue = "SaveData/Backups",
 					Description = "The directory where all save data is written to.",
 					Flags = CVarFlags.Init | CVarFlags.Archive
 				}

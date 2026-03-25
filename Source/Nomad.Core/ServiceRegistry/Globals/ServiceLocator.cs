@@ -13,6 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Nomad.Core.Compatibility.Guards;
@@ -45,8 +46,7 @@ namespace Nomad.Core.ServiceRegistry.Globals
         /// <param name="instance"></param>
         internal static void Initialize(IServiceLocator instance)
         {
-            ArgumentGuard.ThrowIfNull(instance);
-            _instance = instance;
+            _instance = instance ?? throw new ArgumentNullException(nameof(instance));
         }
 
         /// <summary>

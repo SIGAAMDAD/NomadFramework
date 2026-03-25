@@ -15,14 +15,39 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Core.Engine.Windowing
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public enum WindowMode : byte
     {
+        /// <summary>
+        /// 
+        /// </summary>
         Windowed,
+
+        /// <summary>
+        /// 
+        /// </summary>
         BorderlessWindowed,
+
+        /// <summary>
+        /// 
+        /// </summary>
         Fullscreen,
+
+        /// <summary>
+        /// 
+        /// </summary>
         BorderlessFullscreen,
+
+        /// <summary>
+        /// 
+        /// </summary>
         ExclusiveFullscreen,
 
+        /// <summary>
+        /// 
+        /// </summary>
         Count
     }
 }

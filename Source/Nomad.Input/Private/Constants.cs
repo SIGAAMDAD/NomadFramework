@@ -19,11 +19,27 @@ namespace Nomad.Input.Private {
 			public const string NAMESPACE = "Nomad.Input";
 
 			public const string DEFAULTS_PATH = NAMESPACE + ".DefaultsPath";
+		
 			public const string INPUT_DELAY_MS = NAMESPACE + ".InputDelayMS";
+			
+			public const string MOUSE_SENSITIVITY = NAMESPACE + ".MouseSensitivity";
+			public const string MOUSE_INVERT_X = NAMESPACE + ".MouseInvertX";
+			public const string MOUSE_INVERT_Y = NAMESPACE + ".MouseInvertY";
+
+			public const string GAMEPAD_DEADZONE_LEFT = NAMESPACE + ".GamepadDeadzoneLeft";
+			public const string GAMEPAD_DEADZONE_RIGHT = NAMESPACE + ".GamepadDeadzoneRight";
+			public const string GAMEPAD_LOOK_SENSITIVITY = NAMESPACE + ".GamepadLookSensitivity";
+			public const string GAMEPAD_MOVE_SENSITIVITY = NAMESPACE + ".GamepadMoveSensitivity";
+			public const string GAMEPAD_TRIGGER_DEADZONE = NAMESPACE + ".GamepadTriggerDeadzone";
+			public const string GAMEPAD_RESPONSE_CURVE = NAMESPACE + ".GamepadResponseCurve";
+
+			public const string HAPTICS_ENABLED = NAMESPACE + ".HapticsEnabled";
+			public const string HAPTIC_STRENGTH = NAMESPACE + ".HapticStrength";
 		};
 
 		public const string KEYBOARD_DEVICE_ID = "Keyboard";
-		public const string MOUSE_DEVICE_ID = "Mouse";
+		public const string MOUSE_BUTTON_DEVICE_ID = "MouseButton";
+		public const string MOUSE_MOTION_DEVICE_ID = "MouseMotion";
 		public const string GAMEPAD_DEVICE_ID = "Gamepad";
 
 		public const int MAX_ACTION_BINDINGS = 3;

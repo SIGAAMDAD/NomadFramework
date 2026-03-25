@@ -49,11 +49,11 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 		public Vector2 Position {
 			get {
 				FMODValidator.ValidateCall( _instance.get3DAttributes( out FMOD.ATTRIBUTES_3D attributes ) );
-				return new Vector2() { X = attributes.position.x, Y = attributes.position.y };
+				return new Vector2() { X = attributes.position.x, Y = attributes.position.z };
 			}
 			set {
 				var attributes = new FMOD.ATTRIBUTES_3D {
-					position = new FMOD.VECTOR { x = value.X, y = value.Y, z = 1.0f },
+					position = new FMOD.VECTOR { x = value.X, y = 0.0f, z = value.Y },
 					velocity = new FMOD.VECTOR { x = 0.0f, y = 0.0f, z = 0.0f },
 					forward = new FMOD.VECTOR { x = 0.0f, y = 0.0f, z = 0.0f },
 					up = new FMOD.VECTOR { x = 0.0f, y = 0.0f, z = 0.0f }

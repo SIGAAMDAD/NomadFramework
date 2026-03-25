@@ -31,6 +31,6 @@ namespace Nomad.Input.Private.ValueObjects {
 		/// <summary>
 		/// 
 		/// </summary>
-		public Dictionary<string, InputMapping>? Bindings { get; set; }
+		public Dictionary<string, Bind>? Bindings { get; set; }
 	};
 };

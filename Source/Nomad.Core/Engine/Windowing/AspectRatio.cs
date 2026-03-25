@@ -17,15 +17,39 @@ using System;
 
 namespace Nomad.Core.Engine.Windowing
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public enum AspectRatio : byte
     {
+        /// <summary>
+        /// 
+        /// </summary>
         Aspect_4_3,
+        
+        /// <summary>
+        /// 
+        /// </summary>
         Aspect_16_9,
+
+        /// <summary>
+        /// 
+        /// </summary>
         Aspect_16_10,
+
+        /// <summary>
+        /// 
+        /// </summary>
         Aspect_21_9,
 
+        /// <summary>
+        /// 
+        /// </summary>
         Aspect_Automatic,
 
+        /// <summary>
+        /// 
+        /// </summary>
         Count
     }
 

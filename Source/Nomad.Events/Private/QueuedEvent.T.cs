@@ -30,7 +30,8 @@ namespace Nomad.Events.Private {
 	/// </summary>
 
 	internal sealed class QueuedEvent<TArgs> : QueuedEvent
-		where TArgs : struct {
+		where TArgs : struct
+	{
 		private static readonly BasicObjectPool<QueuedEvent<TArgs>> _pool = new BasicObjectPool<QueuedEvent<TArgs>>( () => new QueuedEvent<TArgs>() );
 
 		private IGameEvent<TArgs> _gameEvent;

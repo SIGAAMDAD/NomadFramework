@@ -20,7 +20,6 @@ using System.Linq;
 using Nomad.Audio.Fmod.Private.ValueObjects;
 using Nomad.Core;
 using Nomad.Core.CVars;
-using Nomad.Core.Exceptions;
 using Nomad.Core.Logger;
 using Nomad.CVars;
 

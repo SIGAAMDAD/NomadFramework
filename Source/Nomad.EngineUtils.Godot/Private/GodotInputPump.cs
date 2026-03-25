@@ -17,6 +17,7 @@ using System;
 using System.Runtime.CompilerServices;
 using Godot;
 using Nomad.Core.Engine.Services;
+using Nomad.Core.Events;
 using Nomad.Core.Input;
 using Nomad.Core.Input.ValueObjects;
 
@@ -33,19 +34,46 @@ namespace Nomad.EngineUtils.Godot.Private {
 	/// </summary>
 
 	public sealed partial class GodotInputPump : Node, IInputAdapter {
-		private readonly IInputSystem _system;
-
-		/*
-		===============
-		GodotInputPump
-		===============
-		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
-		/// <param name="system"></param>
-		public GodotInputPump( IInputSystem system ) {
-			_system = system;
+		public IGameEvent<KeyboardEvent> KeyboardEvent => _keyboardEvent;
+		private readonly IGameEvent<KeyboardEvent> _keyboardEvent;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public IGameEvent<MouseButtonEvent> MouseButtonEvent => _mouseButtonEvent;
+		private readonly IGameEvent<MouseButtonEvent> _mouseButtonEvent;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public IGameEvent<MouseMotionEvent> MouseMotionEvent => _mouseMotionEvent;
+		private readonly IGameEvent<MouseMotionEvent> _mouseMotionEvent;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public IGameEvent<GamepadAxisEvent> GamepadAxisEvent => _gamepadAxisEvent;
+		private readonly IGameEvent<GamepadAxisEvent> _gamepadAxisEvent;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public IGameEvent<GamepadButtonEvent> GamepadButtonEvent => _gamepadButtonEvent;
+		private readonly IGameEvent<GamepadButtonEvent> _gamepadButtonEvent;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="eventFactory"></param>
+		public GodotInputPump( IGameEventRegistryService eventFactory ) {
+			_keyboardEvent = eventFactory.GetEvent<KeyboardEvent>( Core.Constants.Events.Input.KEYBOARD_EVENT, Constants.Events.NAMESPACE );
+			_mouseButtonEvent = eventFactory.GetEvent<MouseButtonEvent>( Core.Constants.Events.Input.MOUSE_BUTTON_EVENT, Constants.Events.NAMESPACE );
+			_mouseMotionEvent = eventFactory.GetEvent<MouseMotionEvent>( Core.Constants.Events.Input.MOUSE_MOTION_EVENT, Constants.Events.NAMESPACE );
+			_gamepadAxisEvent = eventFactory.GetEvent<GamepadAxisEvent>( Core.Constants.Events.Input.GAMEPAD_AXIS_EVENT, Constants.Events.NAMESPACE );
+			_gamepadButtonEvent = eventFactory.GetEvent<GamepadButtonEvent>( Core.Constants.Events.Input.GAMEPAD_BUTTON_EVENT, Core.Constants.Events.Input.NAMESPACE );
 		}
 
 		/*
@@ -61,16 +89,16 @@ namespace Nomad.EngineUtils.Godot.Private {
 			var now = DateTime.UtcNow.ToFileTimeUtc();
 			switch ( @event ) {
 				case InputEventKey keyEvent:
-					_system.PushKeyboardEvent(
+					_keyboardEvent.Publish(
 						new KeyboardEvent(
-							GodotKeyToNomadKey( keyEvent.GetKeycodeWithModifiers() ),
+							GodotKeyToNomadKey( keyEvent.GetPhysicalKeycodeWithModifiers() ),
 							now,
 							keyEvent.Pressed
 						)
 					);
 					break;
 				case InputEventMouseButton mouseButton:
-					_system.PushMouseButtonEvent(
+					_mouseButtonEvent.Publish(
 						new MouseButtonEvent(
 							GodotMouseButtonToNomadMouseButton( mouseButton.ButtonIndex ),
 							now,
@@ -79,7 +107,7 @@ namespace Nomad.EngineUtils.Godot.Private {
 					);
 					break;
 				case InputEventMouseMotion mouseMotion:
-					_system.PushMouseMotionEvent(
+					_mouseMotionEvent.Publish(
 						new MouseMotionEvent(
 							now,
 							(int)mouseMotion.Position.X,
@@ -88,7 +116,7 @@ namespace Nomad.EngineUtils.Godot.Private {
 					);
 					break;
 				case InputEventJoypadButton joypadButton:
-					_system.PushGamepadButtonEvent(
+					_gamepadButtonEvent.Publish(
 						new GamepadButtonEvent(
 							GodotJoypadButtonToNomadGamepadButton( joypadButton.ButtonIndex ),
 							joypadButton.Device,
@@ -98,7 +126,7 @@ namespace Nomad.EngineUtils.Godot.Private {
 					);
 					break;
 				case InputEventJoypadMotion joypadMotion:
-					_system.PushGamepadAxisEvent(
+					_gamepadAxisEvent.Publish(
 						new GamepadAxisEvent(
 							GodotStickToNomadGamepadStick( joypadMotion.Axis ),
 							now,
@@ -177,8 +205,8 @@ namespace Nomad.EngineUtils.Godot.Private {
 			JoyButton.DpadRight => GamepadButton.DPadRight,
 			JoyButton.LeftShoulder => GamepadButton.LeftShoulder,
 			JoyButton.RightShoulder => GamepadButton.RightShoulder,
-			JoyButton.LeftStick => GamepadButton.LeftShoulder,
-			JoyButton.RightStick => GamepadButton.RightShoulder,
+			JoyButton.LeftStick => GamepadButton.LeftStick,
+			JoyButton.RightStick => GamepadButton.RightStick,
 			JoyButton.Back => GamepadButton.Back,
 			JoyButton.Guide => GamepadButton.Guide,
 			JoyButton.Start => GamepadButton.Start,

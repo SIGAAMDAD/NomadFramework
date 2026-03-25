@@ -212,7 +212,7 @@ namespace Nomad.CVars.Private.Repositories {
 				_logger.PrintError( $"CVarSystem.GetCVar: no cvar found for name '{name}'!" );
 				return null;
 			}
-			return cvar is ICVar<T> typedVar ? typedVar : throw new CVarTypeMismatchException( typeof( T ), cvar.Type.GetSystemType() );
+			return cvar.Type == typeof(T).GetCVarType() ? cvar as ICVar<T> : throw new CVarTypeMismatchException( typeof( T ), cvar.Type.GetSystemType() );
 		}
 
 		/*

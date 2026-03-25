@@ -13,6 +13,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System;
+
 namespace Nomad.Core.Engine.Rendering
 {
     /// <summary>
@@ -20,11 +22,50 @@ namespace Nomad.Core.Engine.Rendering
     /// </summary>
     public enum VSyncMode : byte
     {
+        /// <summary>
+        /// 
+        /// </summary>
         Enabled,
+
+        /// <summary>
+        /// 
+        /// </summary>
         Disabled,
+
+        /// <summary>
+        /// 
+        /// </summary>
         Adaptive,
+
+        /// <summary>
+        /// 
+        /// </summary>
         TripleBuffered,
 
+        /// <summary>
+        /// 
+        /// </summary>
         Count
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public static class VSyncModeExtensions
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="vsyncMode"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public static string ToDisplayString(this VSyncMode vsyncMode) => vsyncMode switch
+        {
+            VSyncMode.Disabled => "Off",
+            VSyncMode.Enabled => "On",
+            VSyncMode.Adaptive => "Adaptive",
+            VSyncMode.TripleBuffered => "Triple Buffered",
+            _ => throw new ArgumentOutOfRangeException(nameof(vsyncMode))
+        };
     }
 }

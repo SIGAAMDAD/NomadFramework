@@ -22,6 +22,7 @@ using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
 using Nomad.Core.Util.Attributes;
 using Nomad.CVars.Private.Services;
+using Nomad.CVars.Global;
 
 namespace Nomad.CVars
 {
@@ -44,7 +45,7 @@ namespace Nomad.CVars
 
             var logger = locator.GetService<ILoggerService>();
 
-            _cvarSystem = new CVarSystem(
+            _cvarSystem = new Private.Services.CVarSystem(
                 locator.GetService<IGameEventRegistryService>(),
                 logger
             );
@@ -52,6 +53,8 @@ namespace Nomad.CVars
 
             var attribute = Assembly.GetAssembly(typeof(CVarBootstrapper)).GetCustomAttribute<NomadModule>();
             logger.PrintLine($"Initialized {attribute.Name}\n\tBuildId = {attribute.BuildId}\n\tCompileTime = {attribute.CompileTime}\n\tVersion = {attribute.VersionMajor}.{attribute.VersionMinor}.{attribute.VersionPatch}");
+
+            Global.CVarSystem.Initialize(_cvarSystem);
         }
 
         /// <summary>

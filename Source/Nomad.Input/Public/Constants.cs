@@ -13,6 +13,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using Nomad.Core.Input;
+
 namespace Nomad.Input
 {
 	/// <summary>
@@ -30,10 +32,50 @@ namespace Nomad.Input
 			/// </summary>
 			public const string NAMESPACE = "Nomad.Input";
 
-			public const string ACTION_PRESSED = NAMESPACE + ".ActionPressed";
-			public const string ACTION_RELEASED = NAMESPACE + ".ActionReleased";
-			public const string ACTION_HELD = NAMESPACE + ".ActionHeld";
+			/// <summary>
+			/// 
+			/// </summary>
+			public const string AXIS_ACTION = NAMESPACE + ".AxisAction";
+
+			/// <summary>
+			/// 
+			/// </summary>
+			public const string FLOAT_ACTION = NAMESPACE + ".FloatAction";
+
+			/// <summary>
+			/// 
+			/// </summary>
+			public const string BUTTON_ACTION = NAMESPACE + ".ButtonAction";
+
+			/// <summary>
+			/// Event name for whenever a rebinding process results in a bind collision.
+			/// </summary>
 			public const string BIND_COLLISION = NAMESPACE + ".BindCollision";
+
+			/// <summary>
+			/// Event name for whenever a <see cref="KeyboardEvent"/> is triggered.
+			/// </summary>
+			public const string KEYBOARD_EVENT = NAMESPACE + ".KeyboardEvent";
+
+			/// <summary>
+			/// Event name for whenever a <see cref="MouseButtonEvent"/> is triggered.
+			/// </summary>
+            public const string MOUSE_BUTTON_EVENT = NAMESPACE + ".MouseButtonEvent";
+
+			/// <summary>
+			/// Event name for whenever a <see cref="MouseMotionEvent"/> is triggered.
+			/// </summary>
+            public const string MOUSE_MOTION_EVENT = NAMESPACE + ".MouseMotionEvent";
+
+			/// <summary>
+			/// Event name for whenever a <see cref="GamepadButtonEvent"/> is triggered.
+			/// </summary>
+            public const string GAMEPAD_BUTTON_EVENT = NAMESPACE + ".GamepadButtonEvent";
+
+			/// <summary>
+			/// Event name for whenever a <see cref="GamepadAxisEvent"/> is triggered.
+			/// </summary>
+            public const string GAMEPAD_AXIS_EVENT = NAMESPACE + ".GamepadAxisEvent";
 		}
 	}
 }

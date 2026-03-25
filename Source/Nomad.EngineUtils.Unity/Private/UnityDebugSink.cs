@@ -41,6 +41,7 @@ namespace Nomad.EngineUtils.Private {
         ///
         /// </summary>
         public override void Clear() {
+            Debug.ClearDeveloperConsole();
         }
 
         /// <summary>

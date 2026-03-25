@@ -36,7 +36,6 @@ namespace Nomad.EngineUtils.Godot.Private.Services {
         private readonly Node _root;
 
         private readonly GodotLoader _loader;
-        private readonly GodotInputPump _inputPump;
 
         private readonly IWindowService _windowService;
         private readonly ILocalizationService _localizationService;
@@ -45,6 +44,8 @@ namespace Nomad.EngineUtils.Godot.Private.Services {
 
         private readonly ILoggerService _logger;
         private readonly IGameEventRegistryService _eventFactory;
+
+        private readonly IServiceLocator _locator;
 
         private bool _isDisposed = false;
 
@@ -64,11 +65,9 @@ namespace Nomad.EngineUtils.Godot.Private.Services {
             ArgumentGuard.ThrowIfNull( serviceFactory );
             ArgumentGuard.ThrowIfNull( locator );
 
+            _locator = locator;
             _sceneTree = sceneTree;
             _root = sceneTree.Root;
-
-            //_inputPump = new GodotInputPump(inputSystem);
-            //_root.CallDeferred(Node.MethodName.AddChild, _inputPump);
 
             _logger = locator.GetService<ILoggerService>();
             _eventFactory = locator.GetService<IGameEventRegistryService>();
@@ -100,7 +99,6 @@ namespace Nomad.EngineUtils.Godot.Private.Services {
         public void Dispose() {
             if ( !_isDisposed ) {
                 _windowService?.Dispose();
-                _inputPump?.Dispose();
                 _sceneManager?.Dispose();
             }
             GC.SuppressFinalize( this );

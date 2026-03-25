@@ -62,6 +62,7 @@ namespace Nomad.CVars.Private.Serialization {
 				}
 			} catch ( Exception e ) {
 				logger.PrintError( $"IniLoader: Error opening configuration file '{configFile}: {e.Message}" );
+				throw;
 			}
 		}
 

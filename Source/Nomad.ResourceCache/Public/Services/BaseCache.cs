@@ -114,12 +114,10 @@ namespace Nomad.ResourceCache
             _logger = logger;
             _loader = loader;
 
-            _resourceLoaded = eventFactory.GetEvent<ResourceLoadedEventArgs<TId>>(Constants.Events.ResourceCache.NAMESPACE, Constants.Events.ResourceCache.RESOURCE_LOADED_EVENT);
-            _resourceUnloaded = eventFactory.GetEvent<ResourceUnloadedEventArgs<TId>>(Constants.Events.ResourceCache.NAMESPACE, Constants.Events.ResourceCache.RESOURCE_UNLOADED_EVENT);
-            _resourceLoadFailed = eventFactory.GetEvent<ResourceLoadFailedEventArgs<TId>>(Constants.Events.ResourceCache.NAMESPACE, Constants.Events.ResourceCache.RESOURCE_LOAD_FAILED_EVENT);
-
-            //_cleanupTimer = new Timer( _ => ClearUnused(), null, TimeSpan.FromMinutes( 1 ), TimeSpan.FromMinutes( 10 ) );
-
+            _resourceLoaded = eventFactory.GetEvent<ResourceLoadedEventArgs<TId>>(Constants.Events.ResourceCache.RESOURCE_LOADED_EVENT, Constants.Events.ResourceCache.NAMESPACE);
+            _resourceUnloaded = eventFactory.GetEvent<ResourceUnloadedEventArgs<TId>>(Constants.Events.ResourceCache.RESOURCE_UNLOADED_EVENT, Constants.Events.ResourceCache.NAMESPACE);
+            _resourceLoadFailed = eventFactory.GetEvent<ResourceLoadFailedEventArgs<TId>>(Constants.Events.ResourceCache.RESOURCE_LOAD_FAILED_EVENT, Constants.Events.ResourceCache.NAMESPACE);
+            
             _cleanupThread = Task.Run(LaunchCleanupThread);
         }
 

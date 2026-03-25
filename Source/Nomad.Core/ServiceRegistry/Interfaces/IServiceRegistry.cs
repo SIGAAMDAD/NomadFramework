@@ -71,7 +71,7 @@ namespace Nomad.Core.ServiceRegistry.Interfaces
         /// <typeparam name="TService"></typeparam>
         /// <typeparam name="TImplementation"></typeparam>
         /// <returns></returns>
-        IServiceRegistry AddScoped<TService, TImplementation>()
+        IServiceScope AddScoped<TService, TImplementation>()
             where TService : class
             where TImplementation : class, TService;
         

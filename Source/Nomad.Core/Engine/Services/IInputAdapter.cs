@@ -13,6 +13,9 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using Nomad.Core.Events;
+using Nomad.Core.Input;
+
 namespace Nomad.Core.Engine.Services
 {
     /// <summary>
@@ -20,5 +23,29 @@ namespace Nomad.Core.Engine.Services
     /// </summary>
     public interface IInputAdapter
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        IGameEvent<KeyboardEvent> KeyboardEvent { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        IGameEvent<MouseButtonEvent> MouseButtonEvent { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        IGameEvent<MouseMotionEvent> MouseMotionEvent { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        IGameEvent<GamepadAxisEvent> GamepadAxisEvent { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        IGameEvent<GamepadButtonEvent> GamepadButtonEvent { get; }
     }
 }

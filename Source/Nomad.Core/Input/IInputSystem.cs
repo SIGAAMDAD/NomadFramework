@@ -25,35 +25,46 @@ namespace Nomad.Core.Input
         /// <summary>
         /// 
         /// </summary>
-        InputMode Mode { get; }
+        InputScheme Mode { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        uint ContextMask { get; }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="keyEvent"></param>
-        void PushKeyboardEvent(in KeyboardEvent keyEvent);
+        void PushKeyboardEvent(in KeyboardEventArgs keyEvent);
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="mouseMotionEvent"></param>
-        void PushMouseMotionEvent(in MouseMotionEvent mouseMotionEvent);
+        void PushMouseMotionEvent(in MouseMotionEventArgs mouseMotionEvent);
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="mouseButtonEvent"></param>
-        void PushMouseButtonEvent(in MouseButtonEvent mouseButtonEvent);
+        void PushMouseButtonEvent(in MouseButtonEventArgs mouseButtonEvent);
 
         /// <summary>
         /// 
         /// </summary>
-        void PushGamepadAxisEvent(in GamepadAxisEvent gamepadAxisEvent);
+        void PushGamepadAxisEvent(in GamepadAxisEventArgs gamepadAxisEvent);
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="gamepadButtonEvent"></param>
-        void PushGamepadButtonEvent(in GamepadButtonEvent gamepadButtonEvent);
+        void PushGamepadButtonEvent(in GamepadButtonEventArgs gamepadButtonEvent);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="delta"></param>
+        void Update(float delta);
     }
 }

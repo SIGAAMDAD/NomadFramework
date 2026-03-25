@@ -49,5 +49,5 @@ namespace Nomad.Input.Private.ValueObjects
         /// 
         /// </summary>
         Count
-    };
-};
+    }
+}

@@ -413,6 +413,36 @@ namespace Nomad.Core
                 public const string CVAR_VALUE_CHANGED_EVENT = NAMESPACE + ":CVarValueChanged";
             }
 
+            public static class Input
+            {
+                public const string NAMESPACE = "NomadFramework.Input";
+
+                /// <summary>
+                /// 
+                /// </summary>
+                public const string KEYBOARD_EVENT = NAMESPACE + ".KeyboardEvent";
+
+                /// <summary>
+                /// 
+                /// </summary>
+                public const string MOUSE_BUTTON_EVENT = NAMESPACE + ".MouseButtonEvent";
+
+                /// <summary>
+                /// 
+                /// </summary>
+                public const string MOUSE_MOTION_EVENT = NAMESPACE + ".MouseMotionEvent";
+
+                /// <summary>
+                /// 
+                /// </summary>
+                public const string GAMEPAD_BUTTON_EVENT = NAMESPACE + ".GamepadButtonEvent";
+
+                /// <summary>
+                /// 
+                /// </summary>
+                public const string GAMEPAD_AXIS_EVENT = NAMESPACE + ".GamepadAxisEvent";
+            }
+
             /// <summary>
             ///
             /// </summary>
@@ -551,5 +581,10 @@ namespace Nomad.Core
             /// </summary>
             public const int MAXIMUM_MEMORY_STREAM_CAPACITY = 1 * 1024 * 1024 * 1024;
         }
+
+        /// <summary>
+        /// The sizeof a "word" (pointer size).
+        /// </summary>
+        public const int WORDSIZE = 64;
     }
 }
