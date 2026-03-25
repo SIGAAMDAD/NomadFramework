@@ -32,7 +32,6 @@ using Nomad.Save.Private.Registries;
 using Nomad.Core.Engine.Services;
 using Nomad.Save.Private.Repositories;
 using Nomad.Core.CVars;
-using Nomad.CVars;
 
 namespace Nomad.Save.Private.Services {
 	/*
@@ -88,8 +87,8 @@ namespace Nomad.Save.Private.Services {
 			ArgumentGuard.ThrowIfNull( logger );
 			ArgumentGuard.ThrowIfNull( cvarSystem );
 
-			_saveBegin = eventFactory.GetEvent<SaveBeginEventArgs>( EventNames.SAVE_BEGIN_EVENT, EventNames.NAMESPACE );
-			_loadBegin = eventFactory.GetEvent<LoadBeginEventArgs>( EventNames.LOAD_BEGIN_EVENT, EventNames.NAMESPACE );
+			_saveBegin = eventFactory.GetEvent<SaveBeginEventArgs>( EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT );
+			_loadBegin = eventFactory.GetEvent<LoadBeginEventArgs>( EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT );
 
 			_vfs = fileSystem;
 			_logger = logger;
@@ -97,10 +96,10 @@ namespace Nomad.Save.Private.Services {
 
 			_config = InitConfiguration( engineService, cvarSystem );
 
-			var autoSaveEnabled = cvarSystem.GetCVarOrThrow<bool>( Constants.CVars.AUTO_SAVE_ENABLED );
+			var autoSaveEnabled = cvarSystem.GetCVar<bool>( Constants.CVars.AUTO_SAVE_ENABLED ) ?? throw new CVarMissing( Constants.CVars.AUTO_SAVE_ENABLED );
 			_autoSaveChanged = autoSaveEnabled.ValueChanged.Subscribe( OnAutoSaveEnabledChanged );
 
-			var autoSaveInterval = cvarSystem.GetCVarOrThrow<int>( Constants.CVars.AUTO_SAVE_INTERVAL );
+			var autoSaveInterval = cvarSystem.GetCVar<int>( Constants.CVars.AUTO_SAVE_INTERVAL ) ?? throw new CVarMissing( Constants.CVars.AUTO_SAVE_INTERVAL );
 			_autoSaveIntervalChanged = autoSaveInterval.ValueChanged.Subscribe( OnAutoSaveIntervalChanged );
 
 			_atomicWriter = new AtomicWriterService( engineService, fileSystem );

@@ -54,6 +54,7 @@ namespace Nomad.Save.Private.Entities {
 
 		private readonly SaveConfig _config;
 
+		private readonly ILoggerService _logger;
 		private readonly ILoggerCategory _category;
 
 		/*
@@ -69,12 +70,13 @@ namespace Nomad.Save.Private.Entities {
 		/// <param name="category"></param>
 		/// <param name="name"></param>
 		/// <param name="writer"></param>
-		public SaveSectionWriter( in SaveConfig config, ILoggerCategory category, string name, IMemoryFileWriteStream writer ) {
+		public SaveSectionWriter( in SaveConfig config, ILoggerService logger, ILoggerCategory category, string name, IMemoryFileWriteStream writer ) {
 			_name = name;
 			_fields = new Dictionary<string, SaveField>();
 			_writer = writer;
 			_config = config;
 
+			_logger = logger;
 			_category = category;
 		}
 

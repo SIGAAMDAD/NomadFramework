@@ -53,7 +53,7 @@ namespace Nomad.Save.Private.Entities {
 
 		private bool _isDisposed = false;
 
-		private readonly ILoggerCategory _category;
+		private readonly ILoggerService _logger;
 
 		/*
 		===============
@@ -69,13 +69,12 @@ namespace Nomad.Save.Private.Entities {
 		/// <param name="logger"></param>
 		public SaveSectionReader( SaveConfig config, int index, IMemoryReadStream reader, ILoggerService logger ) {
 			_fields = new Dictionary<string, SaveField>();
+			_logger = logger;
 
 			var header = SectionHeader.Load( index, in reader );
 
-			_category = logger.CreateCategory( nameof( SaveSectionReader ), LogLevel.Info, true );
-
 			if ( config.LogSerializationTree ) {
-				_category.PrintLine( $"\t[Section] (NAME) {header.Name}" );
+				_logger.PrintLine( $"\t[Section] (NAME) {header.Name}" );
 			}
 
 			int fieldCount = header.FieldCount;
@@ -86,7 +85,7 @@ namespace Nomad.Save.Private.Entities {
 				var field = SaveField.Read( Name, i, reader );
 
 				if ( config.LogSerializationTree ) {
-					_category.PrintLine( $"\t\t[Field] (NAME) {field.Name}, (TYPE) {field.Type}, (VALUE) {field.Value}" );
+					_logger.PrintLine( $"\t\t[Field] (NAME) {field.Name}, (TYPE) {field.Type}, (VALUE) {field.Value}" );
 				}
 				if ( _fields.ContainsKey( field.Name ) ) {
 					throw new DuplicateFieldException( _name, field.Name );
@@ -125,8 +124,7 @@ namespace Nomad.Save.Private.Entities {
 		/// <returns></returns>
 		/// <exception cref="InvalidCastException"></exception>
 		public T GetField<T>( string fieldName )
-			where T : unmanaged
-		{
+			where T : unmanaged {
 			StateGuard.ThrowIfDisposed( _isDisposed, this );
 			ArgumentGuard.ThrowIfNullOrEmpty( fieldName );
 
@@ -155,7 +153,7 @@ namespace Nomad.Save.Private.Entities {
 			StateGuard.ThrowIfDisposed( _isDisposed, this );
 			ArgumentGuard.ThrowIfNullOrEmpty( fieldName );
 
-			string value = string.Empty;
+			string value = String.Empty;
 			if ( _fields.TryGetValue( fieldName, out var field ) ) {
 				if ( field.Type != AnyType.String ) {
 					throw new InvalidCastException( "Field type found in file does not match the requested type" );

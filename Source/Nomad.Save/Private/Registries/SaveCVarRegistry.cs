@@ -113,7 +113,7 @@ namespace Nomad.Save.Private.Registries {
 #if DEBUG
 					DefaultValue = true,
 #else
-					DefaultValue = true,
+					DefaultValue = false,
 #endif
 					Description = "Dumps the entire section/field tree to the logger.",
 					Flags = CVarFlags.Archive
