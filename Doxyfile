@@ -4,14 +4,14 @@
 
 PROJECT_NAME           = "NomadFramework"
 PROJECT_LOGO           = "NomadFramework.png"
-OUTPUT_DIRECTORY       = Documentation
+OUTPUT_DIRECTORY       = docs
 GENERATE_HTML          = YES
 GENERATE_LATEX         = NO
 STRIP_FROM_PATH        = Source/
 EXCLUDE_PATTERNS      += */obj/* */bin/* */intermediate/*
-EXAMPLE_PATH           = Documentation/Examples
+EXAMPLE_PATH           = docs/Examples
 
-INPUT                  = Source Documentation/Modules.dox
+INPUT                  = Source docs/Modules.dox
 FILE_PATTERNS          = *.cs *.dox
 RECURSIVE              = YES
 EXTRACT_ALL            = YES
