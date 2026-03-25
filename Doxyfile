@@ -46,6 +46,7 @@ HTML_EXTRA_FILES       = doxygen-awesome-darkmode-toggle.js
 
 HTML_COLORSTYLE        = DARK
 HTML_DYNAMIC_MENUS     = YES
+HTML_OUTPUT            = .
 
 SEARCHENGINE           = YES
 
