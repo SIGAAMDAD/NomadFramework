@@ -2,16 +2,12 @@
 **/bin/
 **/obj/
 
-*.html
-
 *.cs.uid
 *.cs.doxy_temp
 NuGet/
 Build/
 
 Tools/
-
-Documentation/html/
 
 # Unity specific ignores
 UnityIntegration/
