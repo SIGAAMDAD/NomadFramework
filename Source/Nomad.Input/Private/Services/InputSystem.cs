@@ -19,6 +19,7 @@ using Nomad.Core.CVars;
 using Nomad.Core.Events;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Input;
+using Nomad.Core.Logger;
 using Nomad.Input.Private.Extensions;
 using Nomad.Input.Private.Registries;
 using Nomad.Input.Private.Repositories;
@@ -72,11 +73,12 @@ namespace Nomad.Input.Private.Services {
 		/// </summary>
 		/// <param name="fileSystem"></param>
 		/// <param name="cvarSystem"></param>
+		/// <param name="logger"></param>
 		/// <param name="eventFactory"></param>
-		public InputSystem( IFileSystem fileSystem, ICVarSystemService cvarSystem, IGameEventRegistryService eventFactory ) {
+		public InputSystem( IFileSystem fileSystem, ICVarSystemService cvarSystem, ILoggerService logger, IGameEventRegistryService eventFactory ) {
 			InputCVarRegistry.RegisterCVars( cvarSystem );
 
-			_bindRepository = new BindRepository( fileSystem, cvarSystem );
+			_bindRepository = new BindRepository( fileSystem, cvarSystem, logger );
 			_dispatchService = new InputDispatchService( eventFactory );
 
 			_compiledBindings = new CompiledBindingRepository();

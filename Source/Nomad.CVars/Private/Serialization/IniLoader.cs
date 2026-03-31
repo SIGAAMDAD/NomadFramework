@@ -33,7 +33,7 @@ namespace Nomad.CVars.Private.Serialization {
 	/// Loads key-value pairs from .ini files, specifically configuration files
 	/// </summary>
 
-	internal readonly ref struct IniLoader {
+	internal readonly struct IniLoader {
 		private readonly IDictionary<string, string?>? _iniData;
 
 		/*
@@ -53,12 +53,18 @@ namespace Nomad.CVars.Private.Serialization {
 
 			_iniData = null;
 
+			logger.PrintLine( $"Loading configuration file '{configFile}'..." );
+
 			try {
-				using var fileStream = new FileStream( $"{fileSystem.GetConfigPath()}/{configFile}", FileMode.Open, FileAccess.Read );
+				using var fileStream = new FileStream( configFile, FileMode.Open, FileAccess.Read );
 
 				_iniData = IniStreamConfigurationProvider.Read( fileStream );
 				if ( _iniData == null ) {
 					logger.PrintError( $"IniLoader: error parsing ini data from configuration file '{configFile}'" );
+				}
+				logger.PrintLine( $"{_iniData.Count}" );
+				foreach (var cvar in _iniData) {
+					logger.PrintLine($"{cvar.Key}:{cvar.Value}");
 				}
 			} catch ( Exception e ) {
 				logger.PrintError( $"IniLoader: Error opening configuration file '{configFile}: {e.Message}" );
@@ -181,8 +187,8 @@ namespace Nomad.CVars.Private.Serialization {
 			ArgumentGuard.ThrowIfNullOrEmpty( name );
 
 			if ( _iniData.TryGetValue( name, out string? data ) ) {
-				ArgumentGuard.ThrowIfNullOrEmpty( data );
-				value = data!;
+				ArgumentGuard.ThrowIfNull( data );
+				value = data;
 				return true;
 			}
 			value = string.Empty;

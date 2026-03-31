@@ -37,6 +37,7 @@ namespace Nomad.EngineUtils
                     DefaultValue = 0,
                     Description = "The game's current display.",
                     Flags = CVarFlags.Archive,
+                    Group = "Display",
                     Validator = value => value >= 0
                 }
             );
@@ -47,6 +48,7 @@ namespace Nomad.EngineUtils
                     DefaultValue = WindowMode.Windowed,
                     Description = "The game's window mode.",
                     Flags = CVarFlags.Archive,
+                    Group = "Display",
                     Validator = value => value >= WindowMode.Windowed && value < WindowMode.Count
                 }
             );
@@ -57,6 +59,7 @@ namespace Nomad.EngineUtils
                     DefaultValue = WindowResolution.Res_640x480,
                     Description = "Size of the game's display window.",
                     Flags = CVarFlags.Archive,
+                    Group = "Display",
                     Validator = value => value >= WindowResolution.Res_640x480 && value < WindowResolution.Count
                 }
             );
@@ -67,6 +70,7 @@ namespace Nomad.EngineUtils
                     DefaultValue = AspectRatio.Aspect_Automatic,
                     Description = "The display aspect ratio.",
                     Flags = CVarFlags.Archive,
+                    Group = "Display",
                     Validator = value => value >= AspectRatio.Aspect_Automatic && value < AspectRatio.Count
                 }
             );
@@ -77,6 +81,7 @@ namespace Nomad.EngineUtils
                     DefaultValue = VSyncMode.Disabled,
                     Description = "Sets the engine's vertical sync policy.",
                     Flags = CVarFlags.Archive,
+                    Group = "Display",
                     Validator = value => value >= VSyncMode.Disabled && value < VSyncMode.Count
                 }
             );
@@ -87,6 +92,7 @@ namespace Nomad.EngineUtils
                     DefaultValue = 60,
                     Description = "Sets the maximum amount of gameplay loops per second, set to 0 for unlimited.",
                     Flags = CVarFlags.Archive,
+                    Group = "Display",
                     Validator = value => value >= 30 && value <= 1000
                 }
             );
@@ -97,6 +103,7 @@ namespace Nomad.EngineUtils
                     DefaultValue = AntiAliasingMode.None,
                     Description = "Sets the renderer's method for reduces aliasing (jaggies) for the final displayed image.",
                     Flags = CVarFlags.Archive,
+                    Group = "Display",
                     Validator = value => value >= AntiAliasingMode.None && value < AntiAliasingMode.Count
                 }
             );
@@ -135,7 +142,8 @@ namespace Nomad.EngineUtils
                     Name = Core.Constants.CVars.EngineUtils.Display.BRIGHTNESS,
                     DefaultValue = 90.0f,
                     Description = "Sets the brightness level of the game's rendered frame.",
-                    Flags = CVarFlags.Archive
+                    Flags = CVarFlags.Archive,
+                    Group = "Display",
                 }
             );
             cvarSystem.Register(
@@ -144,7 +152,8 @@ namespace Nomad.EngineUtils
                     Name = Core.Constants.CVars.EngineUtils.Display.RESOLUTION_SCALE,
                     DefaultValue = 50.0f,
                     Description = "Sets rendering resolution for the game window.",
-                    Flags = CVarFlags.Archive
+                    Flags = CVarFlags.Archive,
+                    Group = "Display",
                 }
             );
         }

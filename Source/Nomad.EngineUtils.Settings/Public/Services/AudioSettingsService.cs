@@ -48,10 +48,10 @@ namespace Nomad.EngineUtils.Settings.Services
             var maxChannels = cvarSystem.GetCVarOrThrow<int>(Core.Constants.CVars.EngineUtils.Audio.MAX_ACTIVE_CHANNELS);
             maxChannels.Value = config.MaxChannels;
 
-            var musicVolume = cvarSystem.GetCVarOrThrow<int>(Core.Constants.CVars.EngineUtils.Audio.MUSIC_VOLUME);
+            var musicVolume = cvarSystem.GetCVarOrThrow<float>(Core.Constants.CVars.EngineUtils.Audio.MUSIC_VOLUME);
             musicVolume.Value = config.MusicVolume;
 
-            var soundEffectsVolume = cvarSystem.GetCVarOrThrow<int>(Core.Constants.CVars.EngineUtils.Audio.EFFECTS_VOLUME);
+            var soundEffectsVolume = cvarSystem.GetCVarOrThrow<float>(Core.Constants.CVars.EngineUtils.Audio.EFFECTS_VOLUME);
             soundEffectsVolume.Value = config.SoundEffectsVolume;
 
             var musicOn = cvarSystem.GetCVarOrThrow<bool>(Core.Constants.CVars.EngineUtils.Audio.MUSIC_ON);
@@ -70,8 +70,8 @@ namespace Nomad.EngineUtils.Settings.Services
             AudioDriver = cvarSystem.GetCVarOrThrow<string>(Core.Constants.CVars.EngineUtils.Audio.AUDIO_DRIVER).Value,
             OutputDeviceIndex = cvarSystem.GetCVarOrThrow<int>(Core.Constants.CVars.EngineUtils.Audio.OUTPUT_DEVICE_INDEX).Value,
             MaxChannels = cvarSystem.GetCVarOrThrow<int>(Core.Constants.CVars.EngineUtils.Audio.MAX_ACTIVE_CHANNELS).Value,
-            MusicVolume = cvarSystem.GetCVarOrThrow<int>(Core.Constants.CVars.EngineUtils.Audio.MUSIC_VOLUME).Value,
-            SoundEffectsVolume = cvarSystem.GetCVarOrThrow<int>(Core.Constants.CVars.EngineUtils.Audio.EFFECTS_VOLUME).Value,
+            MusicVolume = cvarSystem.GetCVarOrThrow<float>(Core.Constants.CVars.EngineUtils.Audio.MUSIC_VOLUME).Value,
+            SoundEffectsVolume = cvarSystem.GetCVarOrThrow<float>(Core.Constants.CVars.EngineUtils.Audio.EFFECTS_VOLUME).Value,
             MusicOn = cvarSystem.GetCVarOrThrow<bool>(Core.Constants.CVars.EngineUtils.Audio.MUSIC_ON).Value,
             SoundEffectsOn = cvarSystem.GetCVarOrThrow<bool>(Core.Constants.CVars.EngineUtils.Audio.EFFECTS_ON).Value
         };
@@ -85,8 +85,8 @@ namespace Nomad.EngineUtils.Settings.Services
             AudioDriver = cvarSystem.GetCVarOrThrow<string>(Core.Constants.CVars.EngineUtils.Audio.AUDIO_DRIVER).DefaultValue,
             OutputDeviceIndex = cvarSystem.GetCVarOrThrow<int>(Core.Constants.CVars.EngineUtils.Audio.OUTPUT_DEVICE_INDEX).DefaultValue,
             MaxChannels = cvarSystem.GetCVarOrThrow<int>(Core.Constants.CVars.EngineUtils.Audio.MAX_ACTIVE_CHANNELS).DefaultValue,
-            MusicVolume = cvarSystem.GetCVarOrThrow<int>(Core.Constants.CVars.EngineUtils.Audio.MUSIC_VOLUME).DefaultValue,
-            SoundEffectsVolume = cvarSystem.GetCVarOrThrow<int>(Core.Constants.CVars.EngineUtils.Audio.EFFECTS_VOLUME).DefaultValue,
+            MusicVolume = cvarSystem.GetCVarOrThrow<float>(Core.Constants.CVars.EngineUtils.Audio.MUSIC_VOLUME).DefaultValue,
+            SoundEffectsVolume = cvarSystem.GetCVarOrThrow<float>(Core.Constants.CVars.EngineUtils.Audio.EFFECTS_VOLUME).DefaultValue,
             MusicOn = cvarSystem.GetCVarOrThrow<bool>(Core.Constants.CVars.EngineUtils.Audio.MUSIC_ON).DefaultValue,
             SoundEffectsOn = cvarSystem.GetCVarOrThrow<bool>(Core.Constants.CVars.EngineUtils.Audio.EFFECTS_ON).DefaultValue
         };

@@ -40,12 +40,12 @@ namespace Nomad.EngineUtils.Settings.ValueObjects
         /// <summary>
         ///
         /// </summary>
-        public int MusicVolume { get; set; }
+        public float MusicVolume { get; set; }
 
         /// <summary>
         ///
         /// </summary>
-        public int SoundEffectsVolume { get; set; }
+        public float SoundEffectsVolume { get; set; }
 
         /// <summary>
         ///

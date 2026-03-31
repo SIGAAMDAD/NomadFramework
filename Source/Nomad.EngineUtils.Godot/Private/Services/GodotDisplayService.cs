@@ -36,6 +36,8 @@ namespace Nomad.EngineUtils.Godot.Private.Services {
 	
 	internal sealed class GodotDisplayService : IDisplayService {
 		public bool SupportsBloom => true;
+		public bool SupportsSMAA => true;
+		public bool SupportsFXAA => true;
 		public bool SupportsTAA => true;
 
 		public Dictionary<string, Any> CustomSettings => _customSettings;
@@ -68,8 +70,6 @@ namespace Nomad.EngineUtils.Godot.Private.Services {
 				Environment = _environment
 			};
 			sceneTree.Root.CallDeferred( Node.MethodName.AddChild, _world );
-
-			DisplayCVars.Register( cvarSystem );
 
 			_cvarSystem = cvarSystem;
 			_windowService = windowService;

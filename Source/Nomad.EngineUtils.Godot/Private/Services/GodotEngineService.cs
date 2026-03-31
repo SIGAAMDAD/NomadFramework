@@ -75,18 +75,20 @@ namespace Nomad.EngineUtils.Godot.Private.Services {
 
             _loader = new GodotLoader();
 
-            _windowService = new GodotWindowService( _sceneTree, _eventFactory );
+            DisplayCVars.Register( cvarSystem );
+
+            _windowService = new GodotWindowService( _sceneTree, cvarSystem, _eventFactory );
             serviceFactory.AddSingleton( _windowService );
             _windowService.CloseRequested.Subscribe( OnWindowCloseRequested );
 
             _localizationService = new GodotLocalizationService();
             serviceFactory.AddSingleton( _localizationService );
 
-            _sceneManager = new GodotSceneManager( _sceneTree, new BaseCache<PackedScene, string>( _logger, _eventFactory, _loader ) );
-            serviceFactory.AddSingleton( _sceneManager );
-
             _displayService = new GodotDisplayService( sceneTree, _windowService, cvarSystem );
             serviceFactory.AddSingleton( _displayService );
+
+            _sceneManager = new GodotSceneManager( _sceneTree, new BaseCache<PackedScene, string>( _logger, _eventFactory, _loader ) );
+            serviceFactory.AddSingleton( _sceneManager );
 
             _logger.AddSink( new ConsoleSink() );
 

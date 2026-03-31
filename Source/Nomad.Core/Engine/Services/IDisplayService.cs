@@ -34,6 +34,16 @@ namespace Nomad.Core.Engine.Services
         bool SupportsTAA { get; }
 
         /// <summary>
+        /// 
+        /// </summary>
+        bool SupportsFXAA { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        bool SupportsSMAA { get; }
+
+        /// <summary>
         ///
         /// </summary>
         Dictionary<string, Any> CustomSettings { get; }

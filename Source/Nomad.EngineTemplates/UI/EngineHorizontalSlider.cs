@@ -25,6 +25,8 @@ namespace Nomad.EngineTemplates.UI
     [TemplateClass(Contract = typeof(IHorizontalSlider), GodotBase = "Godot.HSlider", UnityBase = "UnityEngine.MonoBehaviour")]
     [TemplateNamespace(Name = "UI")]
     [TemplateEvent(Name = "ValueSet", PayloadType = typeof(float))]
+    [TemplateProperty(Name = "Minimum", Type = typeof(float), GodotGetterExpression = "(float)base.MinValue", GodotSetterExpression = "base.MinValue = value")]
+    [TemplateProperty(Name = "Maximum", Type = typeof(float), GodotGetterExpression = "(float)base.MaxValue", GodotSetterExpression = "base.MaxValue = value")]
     [TemplateUIElement]
     internal class EngineHorizontalSlider
     {

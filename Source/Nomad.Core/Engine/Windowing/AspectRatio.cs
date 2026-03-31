@@ -26,7 +26,7 @@ namespace Nomad.Core.Engine.Windowing
         /// 
         /// </summary>
         Aspect_4_3,
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -71,6 +71,22 @@ namespace Nomad.Core.Engine.Windowing
             AspectRatio.Aspect_16_10 => 16.0f / 10.0f,
             AspectRatio.Aspect_16_9 => 16.0f / 9.0f,
             AspectRatio.Aspect_21_9 => 21.0f / 9.0f,
+            _ => throw new ArgumentOutOfRangeException(nameof(aspectRatio))
+        };
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="aspectRatio"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public static string ToDisplayString(this AspectRatio aspectRatio) => aspectRatio switch
+        {
+            AspectRatio.Aspect_Automatic => "Automatic",
+            AspectRatio.Aspect_4_3 => "4:3",
+            AspectRatio.Aspect_16_10 => "16:10",
+            AspectRatio.Aspect_16_9 => "16:9",
+            AspectRatio.Aspect_21_9 => "21:9",
             _ => throw new ArgumentOutOfRangeException(nameof(aspectRatio))
         };
     }

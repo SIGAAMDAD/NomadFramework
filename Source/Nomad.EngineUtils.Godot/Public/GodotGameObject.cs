@@ -205,7 +205,7 @@ namespace Nomad.EngineUtils
         /// <param name="child"></param>
         public void AddChild(IGameObject child)
         {
-            _node.AddChild(child as Node);
+            _node.AddChild((child as GodotGameObject).Node);
             _children.Add(child);
         }
 
@@ -215,7 +215,7 @@ namespace Nomad.EngineUtils
         /// <param name="child"></param>
         public void RemoveChild(IGameObject child)
         {
-            _node.RemoveChild(child as Node);
+            _node.RemoveChild((child as GodotGameObject).Node);
             _children.Remove(child);
         }
 
@@ -227,7 +227,7 @@ namespace Nomad.EngineUtils
             if (_node.GetScript().AsGodotObject() is GodotObject script && script is IComponent scriptComponent)
             {
                 _components.TryAdd(script.GetType(), scriptComponent);
-                _node.SetScript(Variant.CreateFrom<GodotObject>(null!));
+                _node.SetScript(Variant.CreateFrom<GodotObject>(null));
             }
             foreach (var component in _components)
             {

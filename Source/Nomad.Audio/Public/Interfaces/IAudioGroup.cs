@@ -13,26 +13,26 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.Core.FileSystem.Configs
+namespace Nomad.Audio.Interfaces
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    public record FileReadConfig : ReadConfig
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        public override StreamType Type => StreamType.File;
+	/// <summary>
+	/// 
+	/// </summary>
+	public interface IAudioGroup
+	{
+		/// <summary>
+		/// 
+		/// </summary>
+		string Name { get; }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public StreamFormat Format { get; init; } = StreamFormat.Binary;
+		/// <summary>
+		/// 
+		/// </summary>
+		bool Muted { get; set; }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public string? FilePath { get; init; }
-    }
+		/// <summary>
+		/// 
+		/// </summary>
+		float Volume { get; set; }
+	}
 }

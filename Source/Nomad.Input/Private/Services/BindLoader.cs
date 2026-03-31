@@ -16,12 +16,16 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Text.Json;
 using Nomad.Core.FileSystem;
+using Nomad.Core.FileSystem.Configs;
 using Nomad.Core.Input;
 using Nomad.Core.Input.ValueObjects;
 using Nomad.Input.Private.Extensions;
 using Nomad.Input.Private.ValueObjects;
+using Nomad.Core.Logger;
+using System.IO;
 
 namespace Nomad.Input.Private.Services {
 	/*
@@ -37,6 +41,7 @@ namespace Nomad.Input.Private.Services {
 
 	internal sealed class BindLoader {
 		private readonly IFileSystem _fileSystem;
+		private readonly ILoggerService _logger;
 
 		/*
 		===============
@@ -47,8 +52,9 @@ namespace Nomad.Input.Private.Services {
 		/// 
 		/// </summary>
 		/// <param name="fileSystem"></param>
-		public BindLoader( IFileSystem fileSystem ) {
+		public BindLoader( IFileSystem fileSystem, ILoggerService logger ) {
 			_fileSystem = fileSystem;
+			_logger = logger;
 		}
 
 		/*
@@ -69,7 +75,7 @@ namespace Nomad.Input.Private.Services {
 			}
 
 			using var document = JsonDocument.Parse(
-				_fileSystem.LoadFile( filePath ).Memory,
+				File.ReadAllBytes( filePath ),
 				new JsonDocumentOptions {
 					CommentHandling = JsonCommentHandling.Skip,
 					AllowTrailingCommas = true

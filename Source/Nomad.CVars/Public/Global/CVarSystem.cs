@@ -16,6 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Runtime.CompilerServices;
 using Nomad.Core.CVars;
+using Nomad.Core.FileSystem;
 using Nomad.Core.Exceptions;
 
 namespace Nomad.CVars.Global
@@ -184,6 +185,28 @@ namespace Nomad.CVars.Global
         public static bool TryFind<T>(string name, out ICVar<T>? cvar)
         {
             return Instance.TryFind(name, out cvar);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fileSystem"></param>
+        /// <param name="configFile"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Save(IFileSystem fileSystem, string configFile)
+        {
+            Instance.Save(fileSystem, configFile);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fileSystem"></param>
+        /// <param name="configFile"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Load(IFileSystem fileSystem, string configFile)
+        {
+            Instance.Load(fileSystem, configFile);
         }
     }
 }

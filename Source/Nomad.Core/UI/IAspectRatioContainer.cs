@@ -13,26 +13,18 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.Core.FileSystem.Configs
+using Nomad.Core.Engine.Windowing;
+
+namespace Nomad.Core.UI
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    public record FileReadConfig : ReadConfig
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        public override StreamType Type => StreamType.File;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public StreamFormat Format { get; init; } = StreamFormat.Binary;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public string? FilePath { get; init; }
-    }
+	/// <summary>
+	/// 
+	/// </summary>
+	public interface IAspectRatioContainer : IUIElement
+	{
+		/// <summary>
+		/// 
+		/// </summary>
+		AspectRatioValue Ratio { get; set; }
+	}
 }

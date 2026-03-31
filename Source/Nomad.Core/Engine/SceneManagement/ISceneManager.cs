@@ -29,6 +29,11 @@ namespace Nomad.Core.Engine.SceneManagement
         IScene? ActiveScene { get; }
 
         /// <summary>
+        /// 
+        /// </summary>
+        IScene? RootScene { get; }
+
+        /// <summary>
         ///
         /// </summary>
         IReadOnlyList<IScene> LoadedScenes { get; }
@@ -38,8 +43,9 @@ namespace Nomad.Core.Engine.SceneManagement
         /// </summary>
         /// <param name="path"></param>
         /// <param name="mode"></param>
+        /// <param name="baseScene"></param>
         /// <returns></returns>
-        IScene LoadScene(string path, LoadSceneMode mode = LoadSceneMode.Single);
+        IScene LoadScene(string path, LoadSceneMode mode = LoadSceneMode.Single, IScene? baseScene = null);
 
         /// <summary>
         ///

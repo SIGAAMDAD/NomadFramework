@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -29,6 +29,31 @@ namespace Nomad.EngineUtils.Settings.Services
     /// </summary>
     public sealed class DisplaySettingsService : SettingsService<DisplayConfig, IDisplayConfig>
     {
+        public IReadOnlyList<string> AntiAliasingModes
+        {
+            get
+            {
+                var modes = new List<string>();
+                for (AntiAliasingMode antiAliasing = AntiAliasingMode.MSAA_2x; antiAliasing <= AntiAliasingMode.MSAA_8x; antiAliasing++)
+                {
+                    modes.Add(antiAliasing.ToString());
+                }
+                if (_service.SupportsFXAA)
+                {
+                    modes.Add(AntiAliasingMode.FXAA.ToString());
+                }
+                if (_service.SupportsSMAA)
+                {
+                    modes.Add(AntiAliasingMode.SMAA.ToString());
+                }
+                if (_service.SupportsTAA)
+                {
+                    modes.Add(AntiAliasingMode.TAA.ToString());
+                }
+                return modes;
+            }
+        }
+
         private readonly Dictionary<QualitySetting, DisplayConfig> _presets = new();
         private readonly IDisplayService _service;
 
@@ -118,12 +143,12 @@ namespace Nomad.EngineUtils.Settings.Services
         protected override DisplayConfig CreateDefault() => new DisplayConfig
         {
             AntiAliasing = cvarSystem.GetCVarOrThrow<AntiAliasingMode>(Core.Constants.CVars.EngineUtils.Display.ANTI_ALIASING).DefaultValue,
-            WindowMode = (WindowMode)cvarSystem.GetCVarOrThrow<uint>(Core.Constants.CVars.EngineUtils.Display.WINDOW_MODE).DefaultValue,
-            Resolution = (WindowResolution)cvarSystem.GetCVarOrThrow<uint>(Core.Constants.CVars.EngineUtils.Display.WINDOW_RESOLUTION).DefaultValue,
+            WindowMode = cvarSystem.GetCVarOrThrow<WindowMode>(Core.Constants.CVars.EngineUtils.Display.WINDOW_MODE).DefaultValue,
+            Resolution = cvarSystem.GetCVarOrThrow<WindowResolution>(Core.Constants.CVars.EngineUtils.Display.WINDOW_RESOLUTION).DefaultValue,
             MonitorIndex = cvarSystem.GetCVarOrThrow<int>(Core.Constants.CVars.EngineUtils.Display.MONITOR).DefaultValue,
-            AspectRatio = (AspectRatio)cvarSystem.GetCVarOrThrow<uint>(Core.Constants.CVars.EngineUtils.Display.ASPECT_RATIO).DefaultValue,
+            AspectRatio = cvarSystem.GetCVarOrThrow<AspectRatio>(Core.Constants.CVars.EngineUtils.Display.ASPECT_RATIO).DefaultValue,
             MaximumFrameRate = cvarSystem.GetCVarOrThrow<int>(Core.Constants.CVars.EngineUtils.Display.MAX_FPS).DefaultValue,
-            VSyncMode = (VSyncMode)cvarSystem.GetCVarOrThrow<uint>(Core.Constants.CVars.EngineUtils.Display.VSYNC_MODE).DefaultValue,
+            VSyncMode = cvarSystem.GetCVarOrThrow<VSyncMode>(Core.Constants.CVars.EngineUtils.Display.VSYNC_MODE).DefaultValue,
             Brightness = cvarSystem.GetCVarOrThrow<float>(Core.Constants.CVars.EngineUtils.Display.BRIGHTNESS).DefaultValue,
         };
     }

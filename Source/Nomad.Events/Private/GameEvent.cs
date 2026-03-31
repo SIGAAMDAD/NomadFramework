@@ -57,11 +57,13 @@ namespace Nomad.Events.Private {
 		public int Id => _hashCode;
 		private readonly int _hashCode;
 
+#if DEBUG
 		public TArgs LastPayload => _lastPayload;
 		private TArgs _lastPayload;
 
 		public DateTime LastPublishTime => _lastPublishTime;
 		private DateTime _lastPublishTime;
+#endif
 
 		public int SubscriberCount => _subscriptions.SubscriberCount;
 		public long PublishCount => _subscriptions.PublishCount;

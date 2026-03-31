@@ -38,12 +38,12 @@ namespace Nomad.EngineUtils.Settings.Interfaces
         /// <summary>
         ///
         /// </summary>
-        int MusicVolume { get; set; }
+        float MusicVolume { get; set; }
 
         /// <summary>
         ///
         /// </summary>
-        int SoundEffectsVolume { get; set; }
+        float SoundEffectsVolume { get; set; }
 
         /// <summary>
         ///

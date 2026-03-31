@@ -25,7 +25,6 @@ namespace Nomad.FileSystem.Private.FileStreams {
 	internal readonly struct FileWriter {
 		private readonly StreamWriter _textWriter;
 		private readonly BinaryWriter _binaryWriter;
-		private readonly bool _isText;
 
 		/// <summary>
 		/// Initializes a new instance for text writing.
@@ -33,8 +32,7 @@ namespace Nomad.FileSystem.Private.FileStreams {
 		/// <param name="writer">The underlying StreamWriter.</param>
 		public FileWriter( StreamWriter writer ) {
 			_textWriter = writer;
-			_binaryWriter = null!;
-			_isText = true;
+			_binaryWriter = null;
 		}
 
 		/// <summary>
@@ -42,17 +40,16 @@ namespace Nomad.FileSystem.Private.FileStreams {
 		/// </summary>
 		/// <param name="writer">The underlying BinaryWriter.</param>
 		public FileWriter( BinaryWriter writer ) {
-			_textWriter = null!;
+			_textWriter = null;
 			_binaryWriter = writer;
-			_isText = false;
 		}
 
 		public IDisposable GetStream() {
-			return _isText ? _textWriter : _binaryWriter;
+			return _textWriter != null ? _textWriter : _binaryWriter;
 		}
 
 		public void Write( byte value ) {
-			if ( _isText ) {
+			if ( _textWriter != null ) {
 				_textWriter.Write( value );
 			} else {
 				_binaryWriter.Write( value );
@@ -60,7 +57,7 @@ namespace Nomad.FileSystem.Private.FileStreams {
 		}
 
 		public void Write( sbyte value ) {
-			if ( _isText ) {
+			if ( _textWriter != null ) {
 				_textWriter.Write( value );
 			} else {
 				_binaryWriter.Write( value );
@@ -68,7 +65,7 @@ namespace Nomad.FileSystem.Private.FileStreams {
 		}
 
 		public void Write( char value ) {
-			if ( _isText ) {
+			if ( _textWriter != null ) {
 				_textWriter.Write( value );
 			} else {
 				_binaryWriter.Write( value );
@@ -76,7 +73,7 @@ namespace Nomad.FileSystem.Private.FileStreams {
 		}
 
 		public void Write( short value ) {
-			if ( _isText ) {
+			if ( _textWriter != null ) {
 				_textWriter.Write( value );
 			} else {
 				_binaryWriter.Write( value );
@@ -84,7 +81,7 @@ namespace Nomad.FileSystem.Private.FileStreams {
 		}
 
 		public void Write( ushort value ) {
-			if ( _isText ) {
+			if ( _textWriter != null ) {
 				_textWriter.Write( value );
 			} else {
 				_binaryWriter.Write( value );
@@ -92,7 +89,7 @@ namespace Nomad.FileSystem.Private.FileStreams {
 		}
 
 		public void Write( int value ) {
-			if ( _isText ) {
+			if ( _textWriter != null ) {
 				_textWriter.Write( value );
 			} else {
 				_binaryWriter.Write( value );
@@ -100,7 +97,7 @@ namespace Nomad.FileSystem.Private.FileStreams {
 		}
 
 		public void Write( uint value ) {
-			if ( _isText ) {
+			if ( _textWriter != null ) {
 				_textWriter.Write( value );
 			} else {
 				_binaryWriter.Write( value );
@@ -108,7 +105,7 @@ namespace Nomad.FileSystem.Private.FileStreams {
 		}
 
 		public void Write( long value ) {
-			if ( _isText ) {
+			if ( _textWriter != null ) {
 				_textWriter.Write( value );
 			} else {
 				_binaryWriter.Write( value );
@@ -116,7 +113,7 @@ namespace Nomad.FileSystem.Private.FileStreams {
 		}
 
 		public void Write( ulong value ) {
-			if ( _isText ) {
+			if ( _textWriter != null ) {
 				_textWriter.Write( value );
 			} else {
 				_binaryWriter.Write( value );
@@ -124,7 +121,7 @@ namespace Nomad.FileSystem.Private.FileStreams {
 		}
 
 		public void Write( float value ) {
-			if ( _isText ) {
+			if ( _textWriter != null ) {
 				_textWriter.Write( value );
 			} else {
 				_binaryWriter.Write( value );
@@ -132,7 +129,7 @@ namespace Nomad.FileSystem.Private.FileStreams {
 		}
 
 		public void Write( double value ) {
-			if ( _isText ) {
+			if ( _textWriter != null ) {
 				_textWriter.Write( value );
 			} else {
 				_binaryWriter.Write( value );
@@ -140,7 +137,7 @@ namespace Nomad.FileSystem.Private.FileStreams {
 		}
 
 		public void Write( decimal value ) {
-			if ( _isText ) {
+			if ( _textWriter != null ) {
 				_textWriter.Write( value );
 			} else {
 				_binaryWriter.Write( value );
@@ -148,7 +145,7 @@ namespace Nomad.FileSystem.Private.FileStreams {
 		}
 
 		public void Write( bool value ) {
-			if ( _isText ) {
+			if ( _textWriter != null ) {
 				_textWriter.Write( value );
 			} else {
 				_binaryWriter.Write( value );
@@ -156,7 +153,7 @@ namespace Nomad.FileSystem.Private.FileStreams {
 		}
 
 		public void Write( string value ) {
-			if ( _isText ) {
+			if ( _textWriter != null ) {
 				_textWriter.Write( value );
 			} else {
 				_binaryWriter.Write( value );
@@ -168,7 +165,7 @@ namespace Nomad.FileSystem.Private.FileStreams {
 		// -----------------------------------------------------------------
 
 		public void Write( byte[] buffer ) {
-			if ( _isText ) {
+			if ( _textWriter != null ) {
 				// StreamWriter doesn't have a Write(byte[]) overload,
 				// so we write as characters (maybe not ideal, but demonstrates the pattern).
 				// In practice you'd likely avoid this or use a different approach.
@@ -179,7 +176,7 @@ namespace Nomad.FileSystem.Private.FileStreams {
 		}
 
 		public void Write( ReadOnlySpan<byte> buffer ) {
-			if ( _isText ) {
+			if ( _textWriter != null ) {
 				// StreamWriter doesn't have a Write(byte[]) overload,
 				// so we write as characters (maybe not ideal, but demonstrates the pattern).
 				// In practice you'd likely avoid this or use a different approach.
@@ -190,7 +187,7 @@ namespace Nomad.FileSystem.Private.FileStreams {
 		}
 
 		public void Write( char[] chars ) {
-			if ( _isText ) {
+			if ( _textWriter != null ) {
 				_textWriter.Write( chars );
 			} else {
 				_binaryWriter.Write( chars );
@@ -198,7 +195,7 @@ namespace Nomad.FileSystem.Private.FileStreams {
 		}
 
 		public void Write( ReadOnlySpan<char> chars ) {
-			if ( _isText ) {
+			if ( _textWriter != null ) {
 				_textWriter.Write( chars );
 			} else {
 				_binaryWriter.Write( chars );
@@ -206,7 +203,7 @@ namespace Nomad.FileSystem.Private.FileStreams {
 		}
 
 		public void Flush() {
-			if ( _isText ) {
+			if ( _textWriter != null ) {
 				_textWriter.Flush();
 			} else {
 				_binaryWriter.Flush();
@@ -214,7 +211,7 @@ namespace Nomad.FileSystem.Private.FileStreams {
 		}
 
 		public async ValueTask FlushAsync( CancellationToken ct = default ) {
-			if ( _isText ) {
+			if ( _textWriter != null ) {
 				await _textWriter.FlushAsync();
 			} else {
 				_binaryWriter.Flush();

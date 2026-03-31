@@ -20,6 +20,7 @@ using System.IO;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.CVars;
 using Nomad.Core.FileSystem;
+using Nomad.Core.Logger;
 using Nomad.CVars;
 using Nomad.Input.Private.Services;
 using Nomad.Input.Private.ValueObjects;
@@ -58,15 +59,16 @@ namespace Nomad.Input.Private.Repositories {
 		/// </summary>
 		/// <param name="fileSystem">The file system used to discover and read binding definition files.</param>
 		/// <param name="cvarSystem">The cvar system that supplies the configured defaults file path.</param>
+		/// <param name="logger"></param>
 		/// <exception cref="ArgumentNullException">
 		/// Thrown when <paramref name="fileSystem"/> or <paramref name="cvarSystem"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="FileNotFoundException">Thrown when the configured defaults binding file cannot be found.</exception>
-		public BindRepository( IFileSystem fileSystem, ICVarSystemService cvarSystem ) {
+		public BindRepository( IFileSystem fileSystem, ICVarSystemService cvarSystem, ILoggerService logger ) {
 			ArgumentGuard.ThrowIfNull( cvarSystem );
 
 			_fileSystem = fileSystem ?? throw new ArgumentNullException( nameof( fileSystem ) );
-			_loader = new BindLoader( _fileSystem );
+			_loader = new BindLoader( _fileSystem, logger );
 
 			var defaultsPath = cvarSystem.GetCVarOrThrow<string>( Constants.CVars.DEFAULTS_PATH );
 			_defaultsPath = defaultsPath.Value;

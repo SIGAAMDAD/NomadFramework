@@ -46,6 +46,7 @@ namespace Nomad.Audio.Fmod.Private.Registries {
 					DefaultValue = 12,
 					Description = "The size of FMOD's stream buffer in milliseconds.",
 					Flags = CVarFlags.Archive | CVarFlags.Init,
+					Group = "Audio.FMOD",
 					Validator = value => value > 100 && value <= 5000
 				}
 			);
@@ -55,6 +56,7 @@ namespace Nomad.Audio.Fmod.Private.Registries {
 					DefaultValue = 1024,
 					Description = "The size of FMOD's dsp buffer.",
 					Flags = CVarFlags.Archive | CVarFlags.Init,
+					Group = "Audio.FMOD",
 					Validator = value => value > 10 && value < 48
 				}
 			);
@@ -64,6 +66,7 @@ namespace Nomad.Audio.Fmod.Private.Registries {
 					DefaultValue = 4,
 					Description = "The number of FMOD dsp buffers.",
 					Flags = CVarFlags.Archive | CVarFlags.Init,
+					Group = "Audio.FMOD",
 					Validator = value => value >= 2 && value <= 8
 				}
 			);
@@ -76,7 +79,8 @@ namespace Nomad.Audio.Fmod.Private.Registries {
 					DefaultValue = false,
 #endif
 					Description = "Enables a dedicated FMOD debug log.",
-					Flags = CVarFlags.Developer | CVarFlags.ReadOnly
+					Flags = CVarFlags.Developer | CVarFlags.ReadOnly,
+					Group = "Audio.FMOD",
 				}
 			);
 			cvarSystem.Register(
@@ -85,6 +89,7 @@ namespace Nomad.Audio.Fmod.Private.Registries {
 					DefaultValue = FMODBankLoadingStrategy.Streaming,
 					Description = "Sets the loading policy for how FMOD banks are handled in memory.",
 					Flags = CVarFlags.ReadOnly | CVarFlags.Archive,
+					Group = "Audio.FMOD",
 					Validator = value => value >= FMODBankLoadingStrategy.Streaming && value < FMODBankLoadingStrategy.Compressed
 				}
 			);

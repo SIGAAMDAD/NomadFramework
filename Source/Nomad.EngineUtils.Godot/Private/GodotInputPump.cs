@@ -33,7 +33,7 @@ namespace Nomad.EngineUtils.Godot.Private {
 	///
 	/// </summary>
 
-	public sealed partial class GodotInputPump : Node, IInputAdapter {
+	internal sealed partial class GodotInputPump : Node, IInputAdapter {
 		/// <summary>
 		/// 
 		/// </summary>
@@ -90,7 +90,7 @@ namespace Nomad.EngineUtils.Godot.Private {
 			switch ( @event ) {
 				case InputEventKey keyEvent:
 					_keyboardEvent.Publish(
-						new KeyboardEvent(
+						new KeyboardEventArgs(
 							GodotKeyToNomadKey( keyEvent.GetPhysicalKeycodeWithModifiers() ),
 							now,
 							keyEvent.Pressed
@@ -99,7 +99,7 @@ namespace Nomad.EngineUtils.Godot.Private {
 					break;
 				case InputEventMouseButton mouseButton:
 					_mouseButtonEvent.Publish(
-						new MouseButtonEvent(
+						new MouseButtonEventArgs(
 							GodotMouseButtonToNomadMouseButton( mouseButton.ButtonIndex ),
 							now,
 							mouseButton.Pressed
@@ -108,7 +108,7 @@ namespace Nomad.EngineUtils.Godot.Private {
 					break;
 				case InputEventMouseMotion mouseMotion:
 					_mouseMotionEvent.Publish(
-						new MouseMotionEvent(
+						new MouseMotionEventArgs(
 							now,
 							(int)mouseMotion.Position.X,
 							(int)mouseMotion.Position.Y
@@ -117,7 +117,7 @@ namespace Nomad.EngineUtils.Godot.Private {
 					break;
 				case InputEventJoypadButton joypadButton:
 					_gamepadButtonEvent.Publish(
-						new GamepadButtonEvent(
+						new GamepadButtonEventArgs(
 							GodotJoypadButtonToNomadGamepadButton( joypadButton.ButtonIndex ),
 							joypadButton.Device,
 							now,
@@ -127,7 +127,7 @@ namespace Nomad.EngineUtils.Godot.Private {
 					break;
 				case InputEventJoypadMotion joypadMotion:
 					_gamepadAxisEvent.Publish(
-						new GamepadAxisEvent(
+						new GamepadAxisEventArgs(
 							GodotStickToNomadGamepadStick( joypadMotion.Axis ),
 							now,
 							joypadMotion.Device,

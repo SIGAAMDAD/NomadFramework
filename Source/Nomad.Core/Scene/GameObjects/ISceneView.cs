@@ -13,26 +13,28 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.Core.FileSystem.Configs
+using System.Numerics;
+
+namespace Nomad.Core.Scene.GameObjects
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    public record FileReadConfig : ReadConfig
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        public override StreamType Type => StreamType.File;
+	/// <summary>
+	/// 
+	/// </summary>
+	public interface ISceneView : ISceneObject
+	{
+		/// <summary>
+		/// 
+		/// </summary>
+		Vector2 Size { get; set; }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public StreamFormat Format { get; init; } = StreamFormat.Binary;
+		/// <summary>
+		/// 
+		/// </summary>
+		bool IsActive { get; set; }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public string? FilePath { get; init; }
-    }
+		/// <summary>
+		/// 
+		/// </summary>
+		ICamera2D Camera { get; set; }
+	}
 }

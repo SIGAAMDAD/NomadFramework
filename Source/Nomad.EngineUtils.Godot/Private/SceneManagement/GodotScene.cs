@@ -45,6 +45,11 @@ namespace Nomad.EngineUtils.Godot.Private.SceneManagement {
 
 		private bool _isDisposed = false;
 
+		/*
+		===============
+		GodotScene
+		===============
+		*/
 		/// <summary>
 		///
 		/// </summary>
@@ -53,6 +58,11 @@ namespace Nomad.EngineUtils.Godot.Private.SceneManagement {
 			_root = root;
 		}
 
+		/*
+		===============
+		Dispose
+		===============
+		*/
 		/// <summary>
 		///
 		/// </summary>
@@ -62,6 +72,19 @@ namespace Nomad.EngineUtils.Godot.Private.SceneManagement {
 			}
 			GC.SuppressFinalize( this );
 			_isDisposed = true;
+		}
+
+		/*
+		===============
+		AddScene
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="scene"></param>
+		public void AddScene( GodotGameObject scene ) {
+			_root.Node.AddChild( scene.Node );
 		}
 	}
 }

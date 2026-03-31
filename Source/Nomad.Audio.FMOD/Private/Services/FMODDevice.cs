@@ -58,7 +58,6 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		public FMOD.System System => _systemHandle.System;
 
 		private readonly FMODSystemHandle _systemHandle;
-		private readonly ILoggerService _logger;
 		private readonly ILoggerCategory _fmodCategory;
 
 		private readonly FMODBankRepository _bankRepository;
@@ -79,25 +78,25 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		/// <param name="locator"></param>
 		/// <param name="registry"></param>
 		public FMODDevice( IServiceLocator locator, IServiceRegistry registry ) {
-			_logger = locator.GetService<ILoggerService>();
+			var logger = locator.GetService<ILoggerService>();
 
 			var cvarSystem = locator.GetService<ICVarSystemService>();
 			var eventFactory = locator.GetService<IGameEventRegistryService>();
 			
-			FMODValidator.Initialize( _logger );
+			FMODValidator.Initialize( logger );
 
-			_fmodCategory = _logger.CreateCategory( "FMOD", LogLevel.Info, true );
+			_fmodCategory = logger.CreateCategory( "FMOD", LogLevel.Info, true );
 
 			FMODCVarRegistry.Register( cvarSystem );
-			_systemHandle = new FMODSystemHandle( cvarSystem, _logger );
+			_systemHandle = new FMODSystemHandle( cvarSystem, logger );
 			ConfigureFMODDevice( cvarSystem );
 
-			_driverRepository = new FMODDriverRepository( _logger, cvarSystem, _systemHandle.System );
-			_listener = new FMODListenerService( _logger, this );
+			_driverRepository = new FMODDriverRepository( logger, cvarSystem, _systemHandle.System );
+			_listener = new FMODListenerService( logger, this );
 
 			_guidRepository = new FMODGuidRepository();
-			_bankRepository = new FMODBankRepository( _logger, eventFactory, this );
-			_eventRepository = new FMODEventRepository( _logger, eventFactory, this );
+			_bankRepository = new FMODBankRepository( logger, eventFactory, this );
+			_eventRepository = new FMODEventRepository( logger, eventFactory, this );
 
 			// preload the strings bank so we get all the human-readable event names cached
 			_bankRepository.GetCached( EngineService.GetStoragePath( "Audio/Banks/Desktop/Master.strings.bank", StorageScope.StreamingAssets ) );

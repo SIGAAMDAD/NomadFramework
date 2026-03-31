@@ -93,9 +93,12 @@ namespace Nomad.CVars.Private.Services {
 		/// <returns></returns>/
 		public ICVar<T> Register<T>( in CVarCreateInfo<T> createInfo ) {
 			var cvar = _repository.AddCVar( in createInfo, _eventFactory );
-			if ( GetCVarGroup( createInfo.Group ?? "Default", out var group ) ) {
-				group.AddCVar( cvar );
+			if ( !GetCVarGroup( createInfo.Group ?? "Default", out var group ) ) {
+				var newGroup = new CVarGroup( createInfo.Group, _logger );
+				_groups.TryAdd( newGroup.Name, newGroup );
+				group = newGroup;
 			}
+			group.AddCVar( cvar );
 
 			_logger.PrintLine( $"CVarSystem.Register: registered CVar '{createInfo.Name}' with default value {createInfo.DefaultValue} and flags {createInfo.Flags}." );
 			return cvar;
@@ -168,11 +171,13 @@ namespace Nomad.CVars.Private.Services {
 
 			// ensure we block all access
 			lock ( _repository ) {
+				_logger.PrintLine( "Loading cvar configuration..." );
 				IniLoader reader = new IniLoader( configFile, _logger, fileSystem );
 
 				foreach ( var group in _groups ) {
 					foreach ( var cvar in group.Value.CVars ) {
 						string name = $"{group.Key}:{cvar.Name}";
+						_logger.PrintLine( $"Loading CVar '{cvar.Name}'" );
 						switch ( cvar.Type ) {
 							case CVarType.Int:
 								if ( reader.LoadConfigValue( name, out int intValue ) ) {

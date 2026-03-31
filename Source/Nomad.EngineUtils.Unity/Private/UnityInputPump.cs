@@ -17,6 +17,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Collections.Generic;
 using Nomad.Core.Engine.Services;
+using Nomad.Core.Events;
 using Nomad.Core.Input;
 using Nomad.Core.Input.ValueObjects;
 using UnityEngine;
@@ -48,14 +49,6 @@ namespace Nomad.EngineUtils.Private {
 				_nomadKey = nomadKey;
 			}
 		};
-
-		private const float AXIS_EPSILON = 0.0001f;
-
-		private IInputSystem _system;
-		private Vector2 _lastMousePosition;
-
-		private readonly Dictionary<int, Vector2> _lastLeftStick = new();
-		private readonly Dictionary<int, Vector2> _lastRightStick = new();
 
 		private static readonly KeyTranslation[] _keyboardMap = {
 			new KeyTranslation( Key.Q, KeyNum.Q ),
@@ -98,6 +91,44 @@ namespace Nomad.EngineUtils.Private {
 			new KeyTranslation( Key.DownArrow, KeyNum.DownArrow ),
 			new KeyTranslation( Key.RightArrow, KeyNum.RightArrow )
 		};
+
+		private const float AXIS_EPSILON = 0.0001f;
+
+		private IInputSystem _system;
+		private Vector2 _lastMousePosition;
+
+		private readonly Dictionary<int, Vector2> _lastLeftStick = new();
+		private readonly Dictionary<int, Vector2> _lastRightStick = new();
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public IGameEvent<KeyboardEventArgs> KeyboardEvent => _keyboardEvent;
+		private readonly IGameEvent<KeyboardEventArgs> _keyboardEvent;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public IGameEvent<MouseButtonEventArgs> MouseButtonEvent => _mouseButtonEvent;
+		private readonly IGameEvent<MouseButtonEventArgs> _mouseButtonEvent;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public IGameEvent<MouseMotionEventArgs> MouseMotionEvent => _mouseMotionEvent;
+		private readonly IGameEvent<MouseMotionEventArgs> _mouseMotionEvent;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public IGameEvent<GamepadAxisEventArgs> GamepadAxisEvent => _gamepadAxisEvent;
+		private readonly IGameEvent<GamepadAxisEventArgs> _gamepadAxisEvent;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public IGameEvent<GamepadButtonEventArgs> GamepadButtonEvent => _gamepadButtonEvent;
+		private readonly IGameEvent<GamepadButtonEventArgs> _gamepadButtonEvent;
 
 		/// <summary>
 		/// 
@@ -148,13 +179,13 @@ namespace Nomad.EngineUtils.Private {
 
 				if ( control.wasPressedThisFrame ) {
 					_system.PushKeyboardEvent(
-						new KeyboardEvent( translation.NomadKey, now, true )
+						new KeyboardEventArgs( translation.NomadKey, now, true )
 					);
 				}
 
 				if ( control.wasReleasedThisFrame ) {
 					_system.PushKeyboardEvent(
-						new KeyboardEvent( translation.NomadKey, now, false )
+						new KeyboardEventArgs( translation.NomadKey, now, false )
 					);
 				}
 			}
@@ -179,7 +210,7 @@ namespace Nomad.EngineUtils.Private {
 
 			if ( delta != Vector2.zero || position != _lastMousePosition ) {
 				_system.PushMouseMotionEvent(
-					new MouseMotionEvent(
+					new MouseMotionEventArgs(
 						now,
 						Mathf.RoundToInt( position.x ),
 						Mathf.RoundToInt( position.y )
@@ -208,13 +239,13 @@ namespace Nomad.EngineUtils.Private {
 		private void PumpMouseButton( long now, ButtonControl control, MouseButton button ) {
 			if ( control.wasPressedThisFrame ) {
 				_system.PushMouseButtonEvent(
-					new MouseButtonEvent( button, now, true )
+					new MouseButtonEventArgs( button, now, true )
 				);
 			}
 
 			if ( control.wasReleasedThisFrame ) {
 				_system.PushMouseButtonEvent(
-					new MouseButtonEvent( button, now, false )
+					new MouseButtonEventArgs( button, now, false )
 				);
 			}
 		}
@@ -225,8 +256,8 @@ namespace Nomad.EngineUtils.Private {
 		/// <param name="now"></param>
 		/// <param name="button"></param>
 		private void EmitScrollWheel( long now, MouseButton button ) {
-			_system.PushMouseButtonEvent( new MouseButtonEvent( button, now, true ) );
-			_system.PushMouseButtonEvent( new MouseButtonEvent( button, now, false ) );
+			_system.PushMouseButtonEvent( new MouseButtonEventArgs( button, now, true ) );
+			_system.PushMouseButtonEvent( new MouseButtonEventArgs( button, now, false ) );
 		}
 
 		/// <summary>
@@ -288,13 +319,13 @@ namespace Nomad.EngineUtils.Private {
 
 			if ( control.wasPressedThisFrame ) {
 				_system.PushGamepadButtonEvent(
-					new GamepadButtonEvent( button, deviceId, now, true )
+					new GamepadButtonEventArgs( button, deviceId, now, true )
 				);
 			}
 
 			if ( control.wasReleasedThisFrame ) {
 				_system.PushGamepadButtonEvent(
-					new GamepadButtonEvent( button, deviceId, now, false )
+					new GamepadButtonEventArgs( button, deviceId, now, false )
 				);
 			}
 		}
@@ -313,7 +344,7 @@ namespace Nomad.EngineUtils.Private {
 				cache[deviceId] = currentValue;
 
 				_system.PushGamepadAxisEvent(
-					new GamepadAxisEvent(
+					new GamepadAxisEventArgs(
 						stick,
 						now,
 						deviceId,

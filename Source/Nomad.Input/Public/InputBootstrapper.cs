@@ -20,6 +20,7 @@ using Nomad.Core.Events;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Input;
 using Nomad.Core.ServiceRegistry.Interfaces;
+using Nomad.Core.Logger;
 using Nomad.Input.Private.Services;
 
 namespace Nomad.Input
@@ -44,6 +45,7 @@ namespace Nomad.Input
 			_inputSystem = new InputSystem(
 				locator.GetService<IFileSystem>(),
 				locator.GetService<ICVarSystemService>(),
+				locator.GetService<ILoggerService>(),
 				locator.GetService<IGameEventRegistryService>()
 			);
 			registry.AddSingleton(_inputSystem);

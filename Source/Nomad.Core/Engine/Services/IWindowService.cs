@@ -16,6 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Collections.Generic;
 using Nomad.Core.Engine.Windowing;
+using Nomad.Core.Engine.Rendering;
 using Nomad.Core.Events;
 
 namespace Nomad.Core.Engine.Services
@@ -41,9 +42,19 @@ namespace Nomad.Core.Engine.Services
         int Height { get; set; }
 
         /// <summary>
+        /// 
+        /// </summary>
+        int MaximumFramerate { get; set; }
+
+        /// <summary>
         ///
         /// </summary>
         int ScreenIndex { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        VSyncMode VSyncMode { get; set; }
 
         /// <summary>
         ///

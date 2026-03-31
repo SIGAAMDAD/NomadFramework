@@ -15,6 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using Nomad.Core.CVars;
 using Nomad.Core;
+using System.Text.RegularExpressions;
 
 namespace Nomad.Audio.Fmod.Private.Registries {
 	/*
@@ -45,6 +46,7 @@ namespace Nomad.Audio.Fmod.Private.Registries {
 					DefaultValue = 80.0f,
 					Description = "The maximum volume output of the game.",
 					Flags = CVarFlags.Archive,
+					Group = "Audio",
 					Validator = value => value >= 0.0f && value <= 100.0f
 				}
 			);
@@ -54,6 +56,7 @@ namespace Nomad.Audio.Fmod.Private.Registries {
 					DefaultValue = 50.0f,
 					Description = "Sets sound effects volume.",
 					Flags = CVarFlags.Archive,
+					Group = "Audio",
 					Validator = value => value >= 0.0f && value <= 100.0f
 				}
 			);
@@ -62,7 +65,8 @@ namespace Nomad.Audio.Fmod.Private.Registries {
 					Name = Constants.CVars.EngineUtils.Audio.EFFECTS_ON,
 					DefaultValue = true,
 					Description = "Enables sound effects.",
-					Flags = CVarFlags.Archive
+					Flags = CVarFlags.Archive,
+					Group = "Audio",
 				}
 			);
 			cvarSystem.Register(
@@ -71,6 +75,7 @@ namespace Nomad.Audio.Fmod.Private.Registries {
 					DefaultValue = 50.0f,
 					Description = "Sets music volume.",
 					Flags = CVarFlags.Archive,
+					Group = "Audio",
 					Validator = value => value >= 0.0f && value <= 100.0f
 				}
 			);
@@ -79,7 +84,8 @@ namespace Nomad.Audio.Fmod.Private.Registries {
 					Name = Constants.CVars.EngineUtils.Audio.MUSIC_ON,
 					DefaultValue = true,
 					Description = "Enables music.",
-					Flags = CVarFlags.Archive
+					Flags = CVarFlags.Archive,
+					Group = "Audio",
 				}
 			);
 			cvarSystem.Register(
@@ -87,7 +93,8 @@ namespace Nomad.Audio.Fmod.Private.Registries {
 					Name = Constants.CVars.EngineUtils.Audio.OUTPUT_DEVICE_INDEX,
 					DefaultValue = 0,
 					Description = "The device index of the output device to use for audio.",
-					Flags = CVarFlags.Archive
+					Flags = CVarFlags.Archive,
+					Group = "Audio",
 				}
 			);
 			cvarSystem.Register(
@@ -95,7 +102,8 @@ namespace Nomad.Audio.Fmod.Private.Registries {
 					Name = Constants.CVars.EngineUtils.Audio.AUDIO_DRIVER,
 					DefaultValue = string.Empty,
 					Description = "The active audio driver in use by the Audio system.",
-					Flags = CVarFlags.Archive
+					Flags = CVarFlags.Archive,
+					Group = "Audio",
 				}
 			);
 			cvarSystem.Register(
@@ -104,6 +112,7 @@ namespace Nomad.Audio.Fmod.Private.Registries {
 					DefaultValue = 256,
 					Description = "The maximum number of audio channels that can be allocated at a time",
 					Flags = CVarFlags.Archive,
+					Group = "Audio",
 					Validator = value => value >= Constants.Audio.MIN_AUDIO_CHANNELS && value <= Constants.Audio.MAX_AUDIO_CHANNELS
 				}
 			);
@@ -113,6 +122,7 @@ namespace Nomad.Audio.Fmod.Private.Registries {
 					DefaultValue = 512,
 					Description = "The maximum number of audio channels that can be created.",
 					Flags = CVarFlags.Init | CVarFlags.ReadOnly,
+					Group = "Audio",
 					Validator = value => value >= Constants.Audio.MIN_AUDIO_CHANNELS && value <= Constants.Audio.MAX_AUDIO_CHANNELS
 				}
 			);
@@ -121,7 +131,8 @@ namespace Nomad.Audio.Fmod.Private.Registries {
 					Name = Constants.CVars.EngineUtils.Audio.DISTANCE_FALLOFF_START,
 					DefaultValue = 50.0f,
 					Description = " ",
-					Flags = CVarFlags.Init | CVarFlags.ReadOnly
+					Flags = CVarFlags.Init | CVarFlags.ReadOnly,
+					Group = "Audio",
 				}
 			);
 			cvarSystem.Register(
@@ -129,7 +140,8 @@ namespace Nomad.Audio.Fmod.Private.Registries {
 					Name = Constants.CVars.EngineUtils.Audio.DISTANCE_FALLOFF_END,
 					DefaultValue = 100.0f,
 					Description = " ",
-					Flags = CVarFlags.Init | CVarFlags.ReadOnly
+					Flags = CVarFlags.Init | CVarFlags.ReadOnly,
+					Group = "Audio",
 				}
 			);
 			cvarSystem.Register(
@@ -137,7 +149,8 @@ namespace Nomad.Audio.Fmod.Private.Registries {
 					Name = Constants.CVars.EngineUtils.Audio.MIN_TIME_BETWEEN_CHANNEL_STEALS,
 					DefaultValue = 0.1f,
 					Description = " ",
-					Flags = CVarFlags.Init | CVarFlags.ReadOnly
+					Flags = CVarFlags.Init | CVarFlags.ReadOnly,
+					Group = "Audio",
 				}
 			);
 			cvarSystem.Register(
@@ -145,7 +158,8 @@ namespace Nomad.Audio.Fmod.Private.Registries {
 					Name = Constants.CVars.EngineUtils.Audio.FREQUENCY_PENALTY,
 					DefaultValue = 0.4f,
 					Description = " ",
-					Flags = CVarFlags.Init | CVarFlags.ReadOnly
+					Flags = CVarFlags.Init | CVarFlags.ReadOnly,
+					Group = "Audio",
 				}
 			);
 			cvarSystem.Register(
@@ -153,7 +167,8 @@ namespace Nomad.Audio.Fmod.Private.Registries {
 					Name = Constants.CVars.EngineUtils.Audio.VOLUME_WEIGHT,
 					DefaultValue = 0.2f,
 					Description = " ",
-					Flags = CVarFlags.Init | CVarFlags.ReadOnly
+					Flags = CVarFlags.Init | CVarFlags.ReadOnly,
+					Group = "Audio",
 				}
 			);
 			cvarSystem.Register(
@@ -161,7 +176,8 @@ namespace Nomad.Audio.Fmod.Private.Registries {
 					Name = Constants.CVars.EngineUtils.Audio.DISTANCE_WEIGHT,
 					DefaultValue = 0.3f,
 					Description = " ",
-					Flags = CVarFlags.Init | CVarFlags.ReadOnly
+					Flags = CVarFlags.Init | CVarFlags.ReadOnly,
+					Group = "Audio",
 				}
 			);
 		}

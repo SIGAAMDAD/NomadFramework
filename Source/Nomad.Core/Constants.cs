@@ -58,7 +58,7 @@ namespace Nomad.Core
                     /// <summary>
                     ///
                     /// </summary>
-                    public const string MAX_FPS = "display.MaxFps";
+                    public const string MAX_FPS = "display.MaximumFramerate";
 
                     /// <summary>
                     ///
