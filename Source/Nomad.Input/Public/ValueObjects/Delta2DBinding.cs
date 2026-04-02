@@ -13,15 +13,17 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.Input.Private.ValueObjects {
-	internal record Axis1DBinding {
+namespace Nomad.Input.ValueObjects
+{
+	public sealed class Delta2DBinding
+	{
 		public InputDeviceSlot DeviceId { get; set; }
 		public InputControlId ControlId { get; set; }
 
-		public float Deadzone { get; set; } = 0.0f;
 		public float Sensitivity { get; set; } = 1.0f;
-		public float Scale { get; set; } = 1.0f;
-		public bool Invert { get; set; } = false;
-		public ResponseCurve ResponseCurve { get; set; } = ResponseCurve.Linear;
-	};
-};
+		public float ScaleX { get; set; } = 1.0f;
+		public float ScaleY { get; set; } = 1.0f;
+		public bool InvertX { get; set; } = false;
+		public bool InvertY { get; set; } = false;
+	}
+}

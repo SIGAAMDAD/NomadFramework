@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -48,14 +48,6 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		private readonly IResourceCacheService<IAudioResource, string> _eventRepository;
 		private readonly Queue<FMODChannel> _loopingTracks = new Queue<FMODChannel>();
 
-		private readonly ISubscriptionHandle _musicVolumeChanged;
-		private readonly ISubscriptionHandle _musicOnChanged;
-
-		private float _musicVolume = 0.0f;
-		private bool _musicOn = true;
-
-		private bool _isDisposed = false;
-
 		/*
 		===============
 		FMODMusicService
@@ -69,31 +61,6 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		/// <exception cref="Exception"></exception>
 		public FMODMusicService( IResourceCacheService<IAudioResource, string> eventRepository, ICVarSystemService cvarSystem ) {
 			_eventRepository = eventRepository;
-
-			var musicVolume = cvarSystem.GetCVarOrThrow<float>( Constants.CVars.EngineUtils.Audio.MUSIC_VOLUME );
-			_musicVolumeChanged = musicVolume.ValueChanged.Subscribe( OnMusicVolumeChanged );
-			_musicVolume = musicVolume.Value;
-
-			var musicOn = cvarSystem.GetCVarOrThrow<bool>( Constants.CVars.EngineUtils.Audio.MUSIC_ON );
-			_musicOnChanged = musicOn.ValueChanged.Subscribe( OnMusicOnChanged );
-			_musicOn = musicOn.Value;
-		}
-
-		/*
-		===============
-		Dispose
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		public void Dispose() {
-			if ( !_isDisposed ) {
-				_musicOnChanged?.Dispose();
-				_musicVolumeChanged?.Dispose();
-			}
-			GC.SuppressFinalize( this );
-			_isDisposed = true;
 		}
 
 		/*
@@ -107,19 +74,12 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		/// <param name="name"></param>
 		/// <exception cref="InvalidCastException"></exception>
 		public void PlayTheme( string name ) {
-			if ( !_musicOn ) {
-				QueueTheme( name );
-				// TODO: queue the requested theme to play if we enable music
-				return;
-			}
-
 			_eventRepository.GetCached( name ).Get( out var handle );
 			if ( handle is not FMODEventResource resource ) {
 				return;
 			}
 			_musicHandle = resource;
 			_musicHandle.CreateInstance( out _musicInstance );
-			_musicInstance.Volume = _musicVolume / 100.0f;
 			FMODValidator.ValidateCall( _musicInstance.Start() );
 		}
 
@@ -132,60 +92,10 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		///
 		/// </summary>
 		public void StopTheme() {
-			if ( !_musicOn || !IsPlaying ) {
+			if ( !IsPlaying ) {
 				return;
 			}
 			FMODValidator.ValidateCall( _musicInstance.Stop( FMOD.Studio.STOP_MODE.ALLOWFADEOUT ) );
-		}
-
-		/*
-		===============
-		QueueTheme
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="eventId"></param>
-		/// <exception cref="InvalidCastException"></exception>
-		private void QueueTheme( string eventId ) {
-			_eventRepository.GetCached( eventId ).Get( out var handle );
-			if ( handle is not FMODEventResource resource ) {
-				return;
-			}
-			resource.CreateInstance( out _queuedTheme );
-		}
-
-		/*
-		===============
-		OnMusicOnChanged
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="args"></param>
-		private void OnMusicOnChanged( in CVarValueChangedEventArgs<bool> args ) {
-			_musicOn = args.NewValue;
-			if ( !_musicOn ) {
-				FMODValidator.ValidateCall( _musicInstance.Stop( FMOD.Studio.STOP_MODE.IMMEDIATE ) );
-			}
-		}
-
-		/*
-		===============
-		OnMusicVolumeChanged
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="args"></param>
-		private void OnMusicVolumeChanged( in CVarValueChangedEventArgs<float> args ) {
-			_musicVolume = args.NewValue;
-			if ( IsPlaying ) {
-				_musicInstance.Volume = _musicVolume / 100.0f;
-			}
 		}
 	};
 };

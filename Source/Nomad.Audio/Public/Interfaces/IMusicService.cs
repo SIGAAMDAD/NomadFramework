@@ -13,14 +13,12 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
-
 namespace Nomad.Audio.Interfaces
 {
     /// <summary>
     ///
     /// </summary>
-    public interface IMusicService : IDisposable
+    public interface IMusicService
     {
         /// <summary>
         ///

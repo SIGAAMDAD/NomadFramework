@@ -290,6 +290,7 @@ namespace Nomad.EngineUtils.Godot.Private.Services {
 					resolutions.Add( resolution );
 				}
 			}
+			resolutions.Add( WindowResolution.Res_Native );
 
 			return [.. resolutions];
 		}

@@ -15,7 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using Nomad.Input.Private.ValueObjects;
+using Nomad.Input.ValueObjects;
 
 namespace Nomad.Input.Private.Services {
 	/*

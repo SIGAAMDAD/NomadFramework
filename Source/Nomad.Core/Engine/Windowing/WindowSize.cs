@@ -49,7 +49,6 @@ namespace Nomad.Core.Engine.Windowing
         // Central data source: resolution, width, height (excluding Native)
         private static readonly (WindowResolution resolution, int width, int height)[] _resolutionData = new[]
         {
-            (WindowResolution.Res_640x480,   640, 480),
             (WindowResolution.Res_800x600,   800, 600),
             (WindowResolution.Res_1024x768,  1024, 768),
             (WindowResolution.Res_1280x720,  1280, 720),

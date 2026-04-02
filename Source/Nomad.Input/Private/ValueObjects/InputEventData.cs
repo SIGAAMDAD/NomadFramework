@@ -17,6 +17,7 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Nomad.Core.Input;
+using Nomad.Input.ValueObjects;
 
 namespace Nomad.Input.Private.ValueObjects {
 	[StructLayout( LayoutKind.Explicit, Pack = 16, Size = 32 )]

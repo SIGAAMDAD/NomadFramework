@@ -13,6 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System;
 using Nomad.Audio.Interfaces;
 
 namespace Nomad.Audio.Fmod.Private.Entities {
@@ -34,8 +35,8 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 		public float Volume {
 			get => _volume;
 			set {
-				_volume = value;
-				_channelGroup.setVolume( value );
+				_volume = Math.Clamp( MathF.Pow( 10.0f, ( ( value * 100.0f ) - 80.0f ) / 20.0f ), 0.0f, 1.0f );
+				_bus.setVolume( _volume );
 			}
 		}
 		private float _volume;
@@ -44,12 +45,12 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 			get => _muted;
 			set {
 				_muted = value;
-				_channelGroup.setMute( value );
+				_bus.setMute( value );
 			}
 		}
 		private bool _muted;
 
-		private readonly FMOD.ChannelGroup _channelGroup;
+		private readonly FMOD.Studio.Bus _bus;
 
 		/*
 		===============
@@ -59,15 +60,14 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 		/// <summary>
 		/// 
 		/// </summary>
+		/// <param name="bus"></param>
 		/// <param name="name"></param>
-		/// <param name="system"></param>
-		public FMODAudioGroup( string name, FMOD.Studio.System system ) {
-			FMODValidator.ValidateCall( system.getBus( name, out var bus ) );
-			FMODValidator.ValidateCall( bus.getChannelGroup( out _channelGroup ) );
-			
-			FMODValidator.ValidateCall( _channelGroup.getVolume( out _volume ) );
-			FMODValidator.ValidateCall( _channelGroup.getMute( out _muted ) );
-			FMODValidator.ValidateCall( _channelGroup.getName( out _name, 128 ) );
+		public FMODAudioGroup( FMOD.Studio.Bus bus, string name ) {			
+			_bus = bus;
+			_name = name;
+
+			FMODValidator.ValidateCall( bus.getVolume( out _volume ) );
+			FMODValidator.ValidateCall( bus.getMute( out _muted ) );
 		}
 	};
 };

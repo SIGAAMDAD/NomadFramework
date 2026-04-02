@@ -4,6 +4,7 @@ using Nomad.Core.Input;
 using Nomad.Input.Private.Repositories;
 using Nomad.Input.Private.Services;
 using Nomad.Input.Private.ValueObjects;
+using Nomad.Input.ValueObjects;
 
 namespace Nomad.Input.Tests {
 	[TestFixture]
@@ -21,8 +22,8 @@ namespace Nomad.Input.Tests {
 			var graph = BindingCompilerService.Compile( actions.ToImmutableArray() );
 
 			using ( Assert.EnterMultipleScope() ) {
-				Assert.That( graph.ButtonIndex[new ButtonLookupKey( InputDeviceSlot.Keyboard, InputControlId.Space, true )].Length, Is.EqualTo( 1 ) );
-				Assert.That( graph.ButtonIndex[new ButtonLookupKey( InputDeviceSlot.Keyboard, InputControlId.Space, false )].Length, Is.EqualTo( 1 ) );
+				Assert.That( graph.ButtonIndex[new ButtonLookupKey( InputDeviceSlot.Keyboard, InputControlId.Space, true )], Has.Length.EqualTo( 1 ) );
+				Assert.That( graph.ButtonIndex[new ButtonLookupKey( InputDeviceSlot.Keyboard, InputControlId.Space, false )], Has.Length.EqualTo( 1 ) );
 			}
 		}
 
@@ -44,8 +45,8 @@ namespace Nomad.Input.Tests {
 			var graph = BindingCompilerService.Compile( actions.ToImmutableArray() );
 
 			using ( Assert.EnterMultipleScope() ) {
-				Assert.That( graph.AxisIndex[new AxisLookupKey( InputDeviceSlot.Gamepad0, InputControlId.LeftStick )].Length, Is.EqualTo( 1 ) );
-				Assert.That( graph.DeltaIndex[new AxisLookupKey( InputDeviceSlot.Mouse, InputControlId.Delta )].Length, Is.EqualTo( 1 ) );
+				Assert.That( graph.AxisIndex[new AxisLookupKey( InputDeviceSlot.Gamepad0, InputControlId.LeftStick )], Has.Length.EqualTo( 1 ) );
+				Assert.That( graph.DeltaIndex[new AxisLookupKey( InputDeviceSlot.Mouse, InputControlId.Delta )], Has.Length.EqualTo( 1 ) );
 			}
 		}
 
@@ -67,8 +68,8 @@ namespace Nomad.Input.Tests {
 			var graph = BindingCompilerService.Compile( actions.ToImmutableArray() );
 
 			using ( Assert.EnterMultipleScope() ) {
-				Assert.That( graph.Composite1D.Length, Is.EqualTo( 1 ) );
-				Assert.That( graph.Composite2D.Length, Is.EqualTo( 1 ) );
+				Assert.That( graph.Composite1D, Has.Length.EqualTo( 1 ) );
+				Assert.That( graph.Composite2D, Has.Length.EqualTo( 1 ) );
 			}
 		}
 

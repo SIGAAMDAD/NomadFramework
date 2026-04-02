@@ -18,7 +18,6 @@ using System.Linq;
 using NUnit.Framework;
 using Nomad.Events;
 using Nomad.Input.Private.Repositories;
-using System.Collections.Immutable;
 
 namespace Nomad.Input.Tests
 {
@@ -44,7 +43,7 @@ namespace Nomad.Input.Tests
 		[Test]
 		public void GetDefaultBindings_ReturnsBindingsLoadedFromConfiguredDefaultsFile()
 		{
-			const string defaultsPath = "Config/DefaultBinds.json";
+			const string defaultsPath = "Assets/Config/Bindings/DefaultBinds.json";
 			var fileSystem = new InputFileSystemFixture(
 				(defaultsPath, """
 				{
@@ -61,13 +60,13 @@ namespace Nomad.Input.Tests
 			);
 			var cvarSystem = InputTestHelpers.CreateCVarSystem(_eventRegistry, defaultsPath);
 
-			using var repository = new BindRepository(fileSystem.Object, cvarSystem);
+			using var repository = new BindRepository(fileSystem.Object, cvarSystem, _logger);
 
 			var defaults = repository.GetDefaultBindings();
 
 			using (Assert.EnterMultipleScope())
 			{
-				Assert.That(defaults.Length, Is.EqualTo(1));
+				Assert.That(defaults, Has.Length.EqualTo(1));
 				Assert.That(defaults[0].Name, Is.EqualTo("Jump"));
 			}
 		}
@@ -75,7 +74,7 @@ namespace Nomad.Input.Tests
 		[Test]
 		public void GetBindMappings_ReturnsDefaultsMergedIntoEachMapping()
 		{
-			const string defaultsPath = "Config/DefaultBinds.json";
+			const string defaultsPath = "Assets/Config/Bindings/DefaultBinds.json";
 			var fileSystem = new InputFileSystemFixture(
 				(defaultsPath, """
 				{
@@ -110,7 +109,7 @@ namespace Nomad.Input.Tests
 			);
 			var cvarSystem = InputTestHelpers.CreateCVarSystem(_eventRegistry, defaultsPath);
 
-			using var repository = new BindRepository(fileSystem.Object, cvarSystem);
+			using var repository = new BindRepository(fileSystem.Object, cvarSystem, _logger);
 
 			var mappings = repository.GetBindMappings();
 
@@ -124,7 +123,7 @@ namespace Nomad.Input.Tests
 		[Test]
 		public void GetAllBindings_MergesActionsAcrossDefaultsAndMappingsByName()
 		{
-			const string defaultsPath = "Config/DefaultBinds.json";
+			const string defaultsPath = "Assets/Config/Bindings/DefaultBinds.json";
 			var fileSystem = new InputFileSystemFixture(
 				(defaultsPath, """
 				{
@@ -153,22 +152,22 @@ namespace Nomad.Input.Tests
 			);
 			var cvarSystem = InputTestHelpers.CreateCVarSystem(_eventRegistry, defaultsPath);
 
-			using var repository = new BindRepository(fileSystem.Object, cvarSystem);
+			using var repository = new BindRepository(fileSystem.Object, cvarSystem, _logger);
 
 			var allBindings = repository.GetAllBindings();
 
 			using (Assert.EnterMultipleScope())
 			{
-				Assert.That(allBindings.Length, Is.EqualTo(1));
+				Assert.That(allBindings, Has.Length.EqualTo(1));
 				Assert.That(allBindings[0].Name, Is.EqualTo("Shoot"));
-				Assert.That(allBindings[0].Bindings.Length, Is.EqualTo(2));
+				Assert.That(allBindings[0].Bindings, Has.Length.EqualTo(2));
 			}
 		}
 
 		[Test]
 		public void TryGetBindMapping_WhenMappingDoesNotExist_ReturnsFalse()
 		{
-			const string defaultsPath = "Config/DefaultBinds.json";
+			const string defaultsPath = "Assets/Config/Bindings/DefaultBinds.json";
 			var fileSystem = new InputFileSystemFixture(
 				(defaultsPath, """
 				{
@@ -178,7 +177,7 @@ namespace Nomad.Input.Tests
 			);
 			var cvarSystem = InputTestHelpers.CreateCVarSystem(_eventRegistry, defaultsPath);
 
-			using var repository = new BindRepository(fileSystem.Object, cvarSystem);
+			using var repository = new BindRepository(fileSystem.Object, cvarSystem, _logger);
 
 			bool found = repository.TryGetBindMapping("Missing", out var bindings);
 
@@ -192,7 +191,7 @@ namespace Nomad.Input.Tests
 		[Test]
 		public void Reload_RefreshesTheMergedCachesAfterFileChanges()
 		{
-			const string defaultsPath = "Config/DefaultBinds.json";
+			const string defaultsPath = "Assets/Config/Bindings/DefaultBinds.json";
 			var fileSystem = new InputFileSystemFixture(
 				(defaultsPath, """
 				{
@@ -227,7 +226,7 @@ namespace Nomad.Input.Tests
 			);
 			var cvarSystem = InputTestHelpers.CreateCVarSystem(_eventRegistry, defaultsPath);
 
-			using var repository = new BindRepository(fileSystem.Object, cvarSystem);
+			using var repository = new BindRepository(fileSystem.Object, cvarSystem, _logger);
 			fileSystem.SetFile("Assets/Config/Bindings/Gameplay.json", """
 			{
 			  "Bindings": [
@@ -250,15 +249,15 @@ namespace Nomad.Input.Tests
 		public void Constructor_WhenDefaultsFileIsMissing_ThrowsFileNotFoundException()
 		{
 			var fileSystem = new InputFileSystemFixture();
-			var cvarSystem = InputTestHelpers.CreateCVarSystem(_eventRegistry, "Config/MissingDefaults.json");
+			var cvarSystem = InputTestHelpers.CreateCVarSystem(_eventRegistry, "Assets/Config/Bindings/MissingDefaults.json");
 
-			Assert.That(() => new BindRepository(fileSystem.Object, cvarSystem), Throws.TypeOf<System.IO.FileNotFoundException>());
+			Assert.That(() => new BindRepository(fileSystem.Object, cvarSystem, _logger), Throws.TypeOf<System.IO.FileNotFoundException>());
 		}
 
 		[Test]
 		public void Reload_WhenTwoMappingsShareTheSameFilename_ThrowsInvalidOperationException()
 		{
-			const string defaultsPath = "Config/DefaultBinds.json";
+			const string defaultsPath = "Assets/Config/Bindings/DefaultBinds.json";
 			var fileSystem = new InputFileSystemFixture(
 				(defaultsPath, """
 				{
@@ -270,7 +269,7 @@ namespace Nomad.Input.Tests
 			);
 			var cvarSystem = InputTestHelpers.CreateCVarSystem(_eventRegistry, defaultsPath);
 
-			Assert.That(() => new BindRepository(fileSystem.Object, cvarSystem), Throws.TypeOf<InvalidOperationException>());
+			Assert.That(() => new BindRepository(fileSystem.Object, cvarSystem, _logger), Throws.TypeOf<InvalidOperationException>());
 		}
 	}
 }

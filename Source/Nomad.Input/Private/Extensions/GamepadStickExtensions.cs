@@ -15,7 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using Nomad.Core.Input;
-using Nomad.Input.Private.ValueObjects;
+using Nomad.Input.ValueObjects;
 
 namespace Nomad.Input.Private.Extensions {
 	internal static class GamepadStickExtensions {

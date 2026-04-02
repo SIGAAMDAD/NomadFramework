@@ -27,11 +27,6 @@ namespace Nomad.Core.Engine.Windowing
         /// <summary>
         /// 
         /// </summary>
-        Res_640x480,
-
-        /// <summary>
-        /// 
-        /// </summary>
         Res_800x600,
 
         /// <summary>
@@ -116,7 +111,7 @@ namespace Nomad.Core.Engine.Windowing
         Res_3840x2160,
         Res_Native,
         Count,
-        Min = Res_640x480,
+        Min = Res_800x600,
         Max = Res_3840x2160,
         Default = Res_1920x1080
     }
@@ -129,7 +124,6 @@ namespace Nomad.Core.Engine.Windowing
         // Central data source: resolution, display string, width, height
         private static readonly (WindowResolution resolution, InternString display, int width, int height)[] _resolutionData = new[]
         {
-            (WindowResolution.Res_640x480,   new InternString("640x480"),   640, 480),
             (WindowResolution.Res_800x600,   new InternString("800x600"),   800, 600),
             (WindowResolution.Res_1024x768,  new InternString("1024x768"),  1024, 768),
             (WindowResolution.Res_1280x720,  new InternString("1280x720"),  1280, 720),

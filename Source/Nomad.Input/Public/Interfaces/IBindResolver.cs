@@ -13,15 +13,30 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.Input.Private.ValueObjects {
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using Nomad.Input.ValueObjects;
+
+namespace Nomad.Input.Interfaces
+{
 	/// <summary>
 	/// 
 	/// </summary>
-	internal enum ResponseCurve : byte {
-		Linear,
-		Squared,
-		Cubic,
+	public interface IBindResolver
+	{
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="mappingName"></param>
+		/// <returns></returns>
+		IReadOnlyList<InputActionDefinition> GetBindMapping(string mappingName);
 
-		Count
-	};
-};
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="mappingName"></param>
+		/// <param name="actionId"></param>
+		/// <param name="bindings"></param>
+		void SetActionBindings( string mappingName, string actionId, ImmutableArray<InputBindingDefinition> bindings );
+	}
+}

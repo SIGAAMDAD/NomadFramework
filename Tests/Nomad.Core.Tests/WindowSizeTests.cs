@@ -35,7 +35,7 @@ namespace Nomad.Core.Tests
             }
         }
 
-        [TestCase(WindowResolution.Res_640x480, 640, 480)]
+        [TestCase(WindowResolution.Res_800x600, 800, 600)]
         [TestCase(WindowResolution.Res_1280x720, 1280, 720)]
         [TestCase(WindowResolution.Res_1920x1080, 1920, 1080)]
         [TestCase(WindowResolution.Res_3840x2160, 3840, 2160)]
@@ -61,7 +61,7 @@ namespace Nomad.Core.Tests
             });
         }
 
-        [TestCase(640, 480, WindowResolution.Res_640x480)]
+        [TestCase(800, 600, WindowResolution.Res_800x600)]
         [TestCase(1280, 720, WindowResolution.Res_1280x720)]
         [TestCase(1920, 1080, WindowResolution.Res_1920x1080)]
         [TestCase(3440, 1440, WindowResolution.Res_3440x1440)]

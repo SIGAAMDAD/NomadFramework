@@ -13,7 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.Input.Private.ValueObjects
+namespace Nomad.Input.ValueObjects
 {
     /// <summary>
     /// 

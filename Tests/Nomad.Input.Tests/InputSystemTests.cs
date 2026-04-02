@@ -7,6 +7,7 @@ using Nomad.Events;
 using Nomad.Input.Events;
 using Nomad.Input.Private.Services;
 using Nomad.Input.ValueObjects;
+using Nomad.Core.ServiceRegistry.Services;
 
 namespace Nomad.Input.Tests {
 	[TestFixture]
@@ -15,16 +16,19 @@ namespace Nomad.Input.Tests {
 
 		private GameEventRegistry _eventRegistry;
 		private MockLogger _logger;
+		private ServiceCollection _registry;
 
 		[SetUp]
 		public void SetUp() {
 			_eventRegistry = InputTestHelpers.CreateEventRegistry( out _logger );
+			_registry = new ServiceCollection();
 		}
 
 		[TearDown]
 		public void TearDown() {
 			_eventRegistry.Dispose();
 			_logger.Dispose();
+			_registry.Dispose();
 		}
 
 		[Test]
@@ -49,7 +53,7 @@ namespace Nomad.Input.Tests {
 			_eventRegistry.GetEvent<ButtonActionEventArgs>( $"Jump:{Constants.Events.BUTTON_ACTION}", Constants.Events.NAMESPACE )
 				.Subscribe( ( in ButtonActionEventArgs args ) => published = args );
 
-			using var inputSystem = new InputSystem( fileSystem.Object, cvarSystem, _eventRegistry );
+			using var inputSystem = new InputSystem( fileSystem.Object, cvarSystem, _logger, _eventRegistry, _registry );
 			inputSystem.PushKeyboardEvent( new KeyboardEventArgs( KeyNum.Space, 100, true ) );
 
 			using ( Assert.EnterMultipleScope() ) {
@@ -87,7 +91,7 @@ namespace Nomad.Input.Tests {
 			_eventRegistry.GetEvent<AxisActionEventArgs>( $"Look:{Constants.Events.AXIS_ACTION}", Constants.Events.NAMESPACE )
 				.Subscribe( ( in AxisActionEventArgs args ) => published = args );
 
-			using var inputSystem = new InputSystem( fileSystem.Object, cvarSystem, _eventRegistry );
+			using var inputSystem = new InputSystem( fileSystem.Object, cvarSystem, _logger, _eventRegistry, _registry );
 			inputSystem.PushMouseMotionEvent( new MouseMotionEventArgs( 200, 4, 3 ) );
 
 			using ( Assert.EnterMultipleScope() ) {
@@ -122,7 +126,7 @@ namespace Nomad.Input.Tests {
 			_eventRegistry.GetEvent<AxisActionEventArgs>( $"Aim:{Constants.Events.AXIS_ACTION}", Constants.Events.NAMESPACE )
 				.Subscribe( ( in AxisActionEventArgs args ) => published = args );
 
-			using var inputSystem = new InputSystem( fileSystem.Object, cvarSystem, _eventRegistry );
+			using var inputSystem = new InputSystem( fileSystem.Object, cvarSystem, _logger, _eventRegistry, _registry );
 			SetMode( inputSystem, InputScheme.Gamepad );
 			inputSystem.PushGamepadAxisEvent( new GamepadAxisEventArgs( GamepadStick.Left, 300, 0, new Vector2( 0.25f, -0.5f ) ) );
 
@@ -154,7 +158,7 @@ namespace Nomad.Input.Tests {
 			_eventRegistry.GetEvent<ButtonActionEventArgs>( $"Confirm:{Constants.Events.BUTTON_ACTION}", Constants.Events.NAMESPACE )
 				.Subscribe( ( in ButtonActionEventArgs args ) => published = args );
 
-			using var inputSystem = new InputSystem( fileSystem.Object, cvarSystem, _eventRegistry );
+			using var inputSystem = new InputSystem( fileSystem.Object, cvarSystem, _logger, _eventRegistry, _registry );
 			SetMode( inputSystem, InputScheme.Gamepad );
 			inputSystem.PushGamepadButtonEvent( new GamepadButtonEventArgs( GamepadButton.A, 1, 400, true ) );
 
@@ -192,7 +196,7 @@ namespace Nomad.Input.Tests {
 			_eventRegistry.GetEvent<AxisActionEventArgs>( $"Move:{Constants.Events.AXIS_ACTION}", Constants.Events.NAMESPACE )
 				.Subscribe( ( in AxisActionEventArgs args ) => published = args );
 
-			using var inputSystem = new InputSystem( fileSystem.Object, cvarSystem, _eventRegistry );
+			using var inputSystem = new InputSystem( fileSystem.Object, cvarSystem, _logger, _eventRegistry, _registry );
 			inputSystem.PushKeyboardEvent( new KeyboardEventArgs( KeyNum.W, 500, true ) );
 
 			using ( Assert.EnterMultipleScope() ) {

@@ -12,11 +12,12 @@ using Nomad.Core.Memory.Buffers;
 using Nomad.Events;
 using Nomad.Input.Private.Repositories;
 using Nomad.Input.Private.Services;
-using Nomad.Input.Private.ValueObjects;
+using Nomad.Input.ValueObjects;
 
 namespace Nomad.Input.Tests {
 	internal sealed class InputFileSystemFixture {
 		private readonly Dictionary<string, string> _files = new( StringComparer.OrdinalIgnoreCase );
+		private readonly HashSet<string> _directories = new( StringComparer.OrdinalIgnoreCase );
 
 		public Mock<IFileSystem> Mock { get; }
 		public IFileSystem Object => Mock.Object;
@@ -25,22 +26,28 @@ namespace Nomad.Input.Tests {
 			Mock = new Mock<IFileSystem>( MockBehavior.Strict );
 
 			for ( int i = 0; i < files.Length; i++ ) {
-				SetFile( files[i].Path, files[i].Content );
+				SetFile( files[ i ].Path, files[ i ].Content );
 			}
 
 			Mock.Setup( fileSystem => fileSystem.Dispose() );
 			Mock.Setup( fileSystem => fileSystem.FileExists( It.IsAny<string>() ) )
-				.Returns( (string path) => _files.ContainsKey( NormalizePath( path ) ) );
+				.Returns( ( string path ) => FileExists( path ) );
 			Mock.Setup( fileSystem => fileSystem.LoadFile( It.IsAny<string>() ) )
-				.Returns( (string path) => LoadBuffer( path ) );
+				.Returns( ( string path ) => LoadBuffer( path ) );
 			Mock.Setup( fileSystem => fileSystem.DirectoryExists( It.IsAny<string>() ) )
-				.Returns( (string path) => DirectoryHasFiles( path ) );
+				.Returns( ( string path ) => DirectoryExists( path ) );
 			Mock.Setup( fileSystem => fileSystem.GetFiles( It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>() ) )
-				.Returns( (string path, string pattern, bool recursive) => GetFiles( path, pattern, recursive ) );
+				.Returns( ( string path, string pattern, bool recursive ) => GetFiles( path, pattern, recursive ) );
 		}
 
 		public void SetFile( string path, string content ) {
-			_files[NormalizePath( path )] = content;
+			string normalizedPath = NormalizePath( path );
+			_files[ normalizedPath ] = content;
+			RegisterParentDirectories( normalizedPath );
+		}
+
+		public void SetDirectory( string path ) {
+			RegisterDirectoryHierarchy( path );
 		}
 
 		private IBufferHandle? LoadBuffer( string path ) {
@@ -54,35 +61,87 @@ namespace Nomad.Input.Tests {
 			return buffer;
 		}
 
-		private bool DirectoryHasFiles( string path ) {
+		private bool FileExists( string path ) {
+			return _files.ContainsKey( NormalizePath( path ) );
+		}
+
+		private bool DirectoryExists( string path ) {
 			string normalizedDirectory = NormalizeDirectory( path );
-			return _files.Keys.Any( file => file.StartsWith( normalizedDirectory, StringComparison.OrdinalIgnoreCase ) );
+			return !string.IsNullOrEmpty( normalizedDirectory ) && _directories.Contains( normalizedDirectory );
 		}
 
 		private IReadOnlyList<string> GetFiles( string path, string pattern, bool recursive ) {
 			string normalizedDirectory = NormalizeDirectory( path );
 
 			return _files.Keys
-				.Where( file => file.StartsWith( normalizedDirectory, StringComparison.OrdinalIgnoreCase ) )
-				.Where( file => MatchesPattern( file, pattern ) )
+				.Where( file => IsFileInDirectory( file, normalizedDirectory, recursive ) )
+				.Where( file => MatchesPattern( Path.GetFileName( file ), pattern ) )
 				.OrderBy( file => file, StringComparer.OrdinalIgnoreCase )
 				.ToArray();
 		}
 
-		private static bool MatchesPattern( string path, string pattern ) {
-			return pattern switch {
-				"*.json" => path.EndsWith( ".json", StringComparison.OrdinalIgnoreCase ),
-				_ => Path.GetFileName( path ).Equals( pattern, StringComparison.OrdinalIgnoreCase )
-			};
+		private void RegisterParentDirectories( string filePath ) {
+			string? directoryPath = GetContainingDirectory( filePath );
+			if ( directoryPath == null ) {
+				return;
+			}
+
+			RegisterDirectoryHierarchy( directoryPath );
+		}
+
+		private void RegisterDirectoryHierarchy( string directoryPath ) {
+			for ( string? current = NormalizeDirectory( directoryPath ); !string.IsNullOrEmpty( current ); current = GetParentDirectory( current ) ) {
+				_directories.Add( current );
+			}
+		}
+
+		private static bool IsFileInDirectory( string filePath, string directoryPath, bool recursive ) {
+			if ( string.IsNullOrEmpty( directoryPath ) || !filePath.StartsWith( directoryPath, StringComparison.OrdinalIgnoreCase ) ) {
+				return false;
+			}
+
+			if ( recursive ) {
+				return true;
+			}
+
+			return string.Equals( GetContainingDirectory( filePath ), directoryPath, StringComparison.OrdinalIgnoreCase );
+		}
+
+		private static bool MatchesPattern( string fileName, string pattern ) {
+			if ( string.IsNullOrWhiteSpace( pattern ) || pattern == "*" ) {
+				return true;
+			}
+
+			if ( pattern.StartsWith( "*.", StringComparison.Ordinal ) ) {
+				return fileName.EndsWith( pattern[1..], StringComparison.OrdinalIgnoreCase );
+			}
+
+			return fileName.Equals( pattern, StringComparison.OrdinalIgnoreCase );
+		}
+
+		private static string? GetContainingDirectory( string path ) {
+			string normalizedPath = NormalizePath( path );
+			int separatorIndex = normalizedPath.LastIndexOf( '/' );
+			return separatorIndex < 0 ? null : normalizedPath[..( separatorIndex + 1 )];
+		}
+
+		private static string? GetParentDirectory( string directoryPath ) {
+			string trimmedDirectory = directoryPath.TrimEnd( '/' );
+			if ( string.IsNullOrEmpty( trimmedDirectory ) ) {
+				return null;
+			}
+
+			int separatorIndex = trimmedDirectory.LastIndexOf( '/' );
+			return separatorIndex < 0 ? null : trimmedDirectory[..( separatorIndex + 1 )];
 		}
 
 		private static string NormalizeDirectory( string path ) {
-			string normalized = NormalizePath( path );
-			return normalized.EndsWith( "/", StringComparison.Ordinal ) ? normalized : normalized + "/";
+			string normalized = NormalizePath( path ).TrimEnd( '/' );
+			return string.IsNullOrEmpty( normalized ) ? string.Empty : normalized + "/";
 		}
 
 		private static string NormalizePath( string path ) {
-			return path.Replace( '\\', '/' ).Trim();
+			return ( path ?? string.Empty ).Replace( '\\', '/' ).Trim();
 		}
 	}
 

@@ -24,8 +24,8 @@ using Nomad.Core.Input;
 using Nomad.Core.Input.ValueObjects;
 using Nomad.Input.Private.Extensions;
 using Nomad.Input.Private.ValueObjects;
+using Nomad.Input.ValueObjects;
 using Nomad.Core.Logger;
-using System.IO;
 
 namespace Nomad.Input.Private.Services {
 	/*
@@ -69,13 +69,15 @@ namespace Nomad.Input.Private.Services {
 		/// <param name="binds"></param>
 		/// <returns></returns>
 		public bool LoadBindDatabase( string filePath, out ImmutableArray<InputActionDefinition> binds ) {
-			if ( !_fileSystem.FileExists( filePath ) ) {
+			using var fileBuffer = _fileSystem.LoadFile( filePath );
+			if ( fileBuffer == null ) {
 				binds = ImmutableArray<InputActionDefinition>.Empty;
 				return false;
 			}
+			using var fileStream = fileBuffer.AsStream();
 
 			using var document = JsonDocument.Parse(
-				File.ReadAllBytes( filePath ),
+				fileStream,
 				new JsonDocumentOptions {
 					CommentHandling = JsonCommentHandling.Skip,
 					AllowTrailingCommas = true

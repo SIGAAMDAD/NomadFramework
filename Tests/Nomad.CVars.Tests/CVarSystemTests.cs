@@ -566,7 +566,7 @@ namespace Nomad.CVars.Tests
             }
 
             {
-                _cvarSystem.Load(_fileSystem, "config.ini");
+                _cvarSystem.Load(_fileSystem, "Config/config.ini");
 
                 var intCvar = _cvarSystem.GetCVar<int>("TestCVar.Int");
                 Assert.That(intCvar.Value, Is.Zero);

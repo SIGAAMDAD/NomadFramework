@@ -12,15 +12,3 @@ express or implied, including but not limited to the warranties
 of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
-
-namespace Nomad.Input.Private.ValueObjects {
-	internal sealed class Axis2DCompositeBinding {
-		public InputControlId Up { get; set; }
-		public InputControlId Down { get; set; }
-		public InputControlId Left { get; set; }
-		public InputControlId Right { get; set; }
-		public bool Normalize { get; set; } = true;
-		public float ScaleX { get; set; } = 1.0f;
-		public float ScaleY { get; set; } = 1.0f;
-	};
-};

@@ -34,8 +34,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 	/// </summary>
 
 	internal sealed class SubscriptionSet<TArgs> : ISubscriptionSet<TArgs>
-		where TArgs : struct
-	{
+		where TArgs : struct {
 		public int SubscriberCount => _subscriberCount;
 		private int _subscriberCount = 0;
 
@@ -50,8 +49,6 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		private readonly List<Task> _taskCache = new List<Task>();
 
 		private bool _isDisposed = false;
-
-		private readonly ReaderWriterLockSlim _pumpLock = new ReaderWriterLockSlim();
 
 		/*
 		===============
@@ -84,7 +81,6 @@ namespace Nomad.Events.Private.SubscriptionSets {
 
 				_genericSubscriptions?.Dispose();
 				_asyncSubscriptions?.Dispose();
-				_pumpLock?.Dispose();
 			}
 			GC.SuppressFinalize( this );
 			_isDisposed = true;
@@ -104,13 +100,10 @@ namespace Nomad.Events.Private.SubscriptionSets {
 			StateGuard.ThrowIfDisposed( _isDisposed, this );
 			ArgumentGuard.ThrowIfNull( callback );
 
-			_pumpLock.EnterWriteLock();
-			try {
+			lock ( _genericSubscriptions ) {
 				_genericSubscriptions.Add( callback );
 				Interlocked.Increment( ref _subscriberCount );
 				return true;
-			} finally {
-				_pumpLock.ExitWriteLock();
 			}
 		}
 
@@ -133,14 +126,11 @@ namespace Nomad.Events.Private.SubscriptionSets {
 				return false;
 			}
 
-			_pumpLock.EnterWriteLock();
-			try {
+			lock ( _asyncSubscriptions ) {
 				_asyncSubscriptions.Add( callback );
 				_taskCache.Add( null! );
 				Interlocked.Increment( ref _subscriberCount );
 				return true;
-			} finally {
-				_pumpLock.ExitWriteLock();
 			}
 		}
 
@@ -162,13 +152,10 @@ namespace Nomad.Events.Private.SubscriptionSets {
 				return false;
 			}
 
-			_pumpLock.EnterWriteLock();
-			try {
+			lock ( _genericSubscriptions ) {
 				_genericSubscriptions.RemoveAt( index );
 				Interlocked.Decrement( ref _subscriberCount );
 				return true;
-			} finally {
-				_pumpLock.ExitWriteLock();
 			}
 		}
 
@@ -191,14 +178,11 @@ namespace Nomad.Events.Private.SubscriptionSets {
 				return false;
 			}
 
-			_pumpLock.EnterWriteLock();
-			try {
+			lock ( _asyncSubscriptions ) {
 				_asyncSubscriptions.RemoveAt( index );
 				_taskCache.RemoveAt( index );
 				Interlocked.Increment( ref _subscriberCount );
 				return true;
-			} finally {
-				_pumpLock.ExitWriteLock();
 			}
 		}
 
@@ -217,16 +201,17 @@ namespace Nomad.Events.Private.SubscriptionSets {
 #if EVENT_DEBUG
 			_logger?.PrintLine( $"SubscriptionSet.Pump: publishing event {eventData.DebugName}" );
 #endif
-			_pumpLock.EnterUpgradeableReadLock();
-			try {
-				for ( int i = 0; i < _genericSubscriptions.Count; i++ ) {
-					try {
-						_genericSubscriptions[i].Invoke( in args );
-					} catch {
+			lock ( _genericSubscriptions ) {
+				try {
+					for ( int i = 0; i < _genericSubscriptions.Count; i++ ) {
+						try {
+							_genericSubscriptions[i].Invoke( in args );
+						} catch {
+						}
 					}
+				} catch {
+					// TODO: keep a catch/bubbler counter
 				}
-			} finally {
-				_pumpLock.ExitUpgradeableReadLock();
 			}
 			Interlocked.Increment( ref _publishCount );
 		}
@@ -276,8 +261,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		public bool ContainsCallback( EventCallback<TArgs> callback, out int index ) {
 			StateGuard.ThrowIfDisposed( _isDisposed, this );
 
-			_pumpLock.EnterReadLock();
-			try {
+			lock ( _genericSubscriptions ) {
 				for ( int i = 0; i < _genericSubscriptions.Count; i++ ) {
 					if ( _genericSubscriptions[i] == callback ) {
 						index = i;
@@ -286,8 +270,6 @@ namespace Nomad.Events.Private.SubscriptionSets {
 				}
 				index = -1;
 				return false;
-			} finally {
-				_pumpLock.ExitReadLock();
 			}
 		}
 
@@ -305,8 +287,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		public bool ContainsCallbackAsync( AsyncEventCallback<TArgs> callback, out int index ) {
 			StateGuard.ThrowIfDisposed( _isDisposed, this );
 
-			_pumpLock.EnterUpgradeableReadLock();
-			try {
+			lock ( _asyncSubscriptions ) {
 				for ( int i = 0; i < _asyncSubscriptions.Count; i++ ) {
 					if ( _asyncSubscriptions[i] == callback ) {
 						index = i;
@@ -315,8 +296,6 @@ namespace Nomad.Events.Private.SubscriptionSets {
 				}
 				index = -1;
 				return false;
-			} finally {
-				_pumpLock.ExitUpgradeableReadLock();
 			}
 		}
 	};

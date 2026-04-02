@@ -2,17 +2,24 @@ using System.Linq;
 using NUnit.Framework;
 using Nomad.Core.Input;
 using Nomad.Input.Private.Services;
-using Nomad.Input.Private.ValueObjects;
+using Nomad.Input.ValueObjects;
 
 namespace Nomad.Input.Tests {
 	[TestFixture]
 	public class BindLoaderTests {
+		private MockLogger _logger = new MockLogger();
+
+		[OneTimeTearDown]
+		public void TearDown() {
+			_logger?.Dispose();
+		}
+
 		[Test]
 		public void LoadBindDatabase_WhenFileDoesNotExist_ReturnsFalseAndEmptyBindings() {
 			var fileSystem = new InputFileSystemFixture();
-			var loader = new BindLoader( fileSystem.Object );
+			var loader = new BindLoader( fileSystem.Object, _logger );
 
-			bool loaded = loader.LoadBindDatabase( "Assets/Config/Missing.json", out var binds );
+			bool loaded = loader.LoadBindDatabase( "Assets/Assets/Config/Binds/Missing.json", out var binds );
 
 			using ( Assert.EnterMultipleScope() ) {
 				Assert.That( loaded, Is.False );
@@ -22,7 +29,7 @@ namespace Nomad.Input.Tests {
 
 		[Test]
 		public void LoadBindDatabase_WithArrayPayload_ParsesMultipleBindingKinds() {
-			const string path = "Assets/Config/Bindings/TestBindings.json";
+			const string path = "Assets/Config/Binds/TestBindings.json";
 			var fileSystem = new InputFileSystemFixture( (path, """
 			{
 			  "Bindings": [
@@ -50,27 +57,27 @@ namespace Nomad.Input.Tests {
 			    }
 			  ]
 			}
-			""" ) );
-			var loader = new BindLoader( fileSystem.Object );
+			""") );
+			var loader = new BindLoader( fileSystem.Object, _logger );
 
 			bool loaded = loader.LoadBindDatabase( path, out var binds );
 
 			using ( Assert.EnterMultipleScope() ) {
 				Assert.That( loaded, Is.True );
-				Assert.That( binds.Length, Is.EqualTo( 2 ) );
-				Assert.That( binds[0].Name, Is.EqualTo( "Jump" ) );
-				Assert.That( binds[0].Bindings[0].Kind, Is.EqualTo( InputBindingKind.Button ) );
-				Assert.That( binds[0].Bindings[0].Button.Modifiers, Is.EqualTo( new[] { InputControlId.Shift } ) );
-				Assert.That( binds[1].Name, Is.EqualTo( "Look" ) );
-				Assert.That( binds[1].Bindings[0].Kind, Is.EqualTo( InputBindingKind.Delta2D ) );
-				Assert.That( binds[1].Bindings[0].Delta2D.Sensitivity, Is.EqualTo( 2.0f ) );
-				Assert.That( binds[1].Bindings[0].Delta2D.InvertY, Is.True );
+				Assert.That( binds, Has.Length.EqualTo( 2 ) );
+				Assert.That( binds[ 0 ].Name, Is.EqualTo( "Jump" ) );
+				Assert.That( binds[ 0 ].Bindings[ 0 ].Kind, Is.EqualTo( InputBindingKind.Button ) );
+				Assert.That( binds[ 0 ].Bindings[ 0 ].Button.Modifiers, Is.EqualTo( new[] { InputControlId.Shift } ) );
+				Assert.That( binds[ 1 ].Name, Is.EqualTo( "Look" ) );
+				Assert.That( binds[ 1 ].Bindings[ 0 ].Kind, Is.EqualTo( InputBindingKind.Delta2D ) );
+				Assert.That( binds[ 1 ].Bindings[ 0 ].Delta2D.Sensitivity, Is.EqualTo( 2.0f ) );
+				Assert.That( binds[ 1 ].Bindings[ 0 ].Delta2D.InvertY, Is.True );
 			}
 		}
 
 		[Test]
 		public void LoadBindDatabase_WithObjectPayload_UsesPropertyNameAsFallbackActionName() {
-			const string path = "Assets/Config/Bindings/ObjectBindings.json";
+			const string path = "Assets/Config/Binds/ObjectBindings.json";
 			var fileSystem = new InputFileSystemFixture( (path, """
 			{
 			  "Bindings": {
@@ -87,21 +94,21 @@ namespace Nomad.Input.Tests {
 			    }
 			  }
 			}
-			""" ) );
-			var loader = new BindLoader( fileSystem.Object );
+			""") );
+			var loader = new BindLoader( fileSystem.Object, _logger );
 
 			loader.LoadBindDatabase( path, out var binds );
 
 			using ( Assert.EnterMultipleScope() ) {
-				Assert.That( binds.Length, Is.EqualTo( 1 ) );
-				Assert.That( binds[0].Name, Is.EqualTo( "Move" ) );
-				Assert.That( binds[0].Bindings[0].Kind, Is.EqualTo( InputBindingKind.Axis2DComposite ) );
+				Assert.That( binds, Has.Length.EqualTo( 1 ) );
+				Assert.That( binds[ 0 ].Name, Is.EqualTo( "Move" ) );
+				Assert.That( binds[ 0 ].Bindings[ 0 ].Kind, Is.EqualTo( InputBindingKind.Axis2DComposite ) );
 			}
 		}
 
 		[Test]
 		public void LoadBindDatabase_MergesDuplicateActionNamesWithinTheSameFile() {
-			const string path = "Assets/Config/Bindings/DuplicateActions.json";
+			const string path = "Assets/Config/Binds/DuplicateActions.json";
 			var fileSystem = new InputFileSystemFixture( (path, """
 			{
 			  "Bindings": [
@@ -119,22 +126,22 @@ namespace Nomad.Input.Tests {
 			    }
 			  ]
 			}
-			""" ) );
-			var loader = new BindLoader( fileSystem.Object );
+			""") );
+			var loader = new BindLoader( fileSystem.Object, _logger );
 
 			loader.LoadBindDatabase( path, out var binds );
 
 			using ( Assert.EnterMultipleScope() ) {
-				Assert.That( binds.Length, Is.EqualTo( 1 ) );
-				Assert.That( binds[0].Name, Is.EqualTo( "Shoot" ) );
-				Assert.That( binds[0].Bindings.Length, Is.EqualTo( 2 ) );
-				Assert.That( binds[0].Bindings.Select( binding => binding.Scheme ), Is.EquivalentTo( new[] { InputScheme.KeyboardAndMouse, InputScheme.Gamepad } ) );
+				Assert.That( binds, Has.Length.EqualTo( 1 ) );
+				Assert.That( binds[ 0 ].Name, Is.EqualTo( "Shoot" ) );
+				Assert.That( binds[ 0 ].Bindings, Has.Length.EqualTo( 2 ) );
+				Assert.That( binds[ 0 ].Bindings.Select( binding => binding.Scheme ), Is.EquivalentTo( new[] { InputScheme.KeyboardAndMouse, InputScheme.Gamepad } ) );
 			}
 		}
 
 		[Test]
 		public void LoadBindDatabase_WhenKindIsOmittedForMouseMotion_InfersDelta2D() {
-			const string path = "Assets/Config/Bindings/InferDelta.json";
+			const string path = "Assets/Config/Binds/InferDelta.json";
 			var fileSystem = new InputFileSystemFixture( (path, """
 			{
 			  "Bindings": [
@@ -149,17 +156,17 @@ namespace Nomad.Input.Tests {
 			    }
 			  ]
 			}
-			""" ) );
-			var loader = new BindLoader( fileSystem.Object );
+			""") );
+			var loader = new BindLoader( fileSystem.Object, _logger );
 
 			loader.LoadBindDatabase( path, out var binds );
 
-			Assert.That( binds[0].Bindings[0].Kind, Is.EqualTo( InputBindingKind.Delta2D ) );
+			Assert.That( binds[ 0 ].Bindings[ 0 ].Kind, Is.EqualTo( InputBindingKind.Delta2D ) );
 		}
 
 		[Test]
 		public void LoadBindDatabase_WhenDuplicateActionsDisagreeOnValueType_Throws() {
-			const string path = "Assets/Config/Bindings/ConflictingValueTypes.json";
+			const string path = "Assets/Config/Binds/ConflictingValueTypes.json";
 			var fileSystem = new InputFileSystemFixture( (path, """
 			{
 			  "Bindings": [
@@ -183,8 +190,8 @@ namespace Nomad.Input.Tests {
 			    }
 			  ]
 			}
-			""" ) );
-			var loader = new BindLoader( fileSystem.Object );
+			""") );
+			var loader = new BindLoader( fileSystem.Object, _logger );
 
 			Assert.That( () => loader.LoadBindDatabase( path, out _ ), Throws.Exception );
 		}

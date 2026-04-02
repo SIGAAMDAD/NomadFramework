@@ -177,6 +177,16 @@ namespace Nomad.Core
                     public const string AUDIO_DRIVER = "audio.AudioDriver";
 
                     /// <summary>
+                    /// The group name of the music bus.
+                    /// </summary>
+                    public const string AUDIO_MUSIC_BUS_GROUP_NAME = "audio.MusicBusGroup";
+
+                    /// <summary>
+                    /// The group name of the sound effects bus.
+                    /// </summary>
+                    public const string AUDIO_SOUND_EFFECTS_BUS_GROUP_NAME = "audio.SoundEffectsBusGroup";
+
+                    /// <summary>
                     ///
                     /// </summary>
                     public static class FMOD

@@ -13,6 +13,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using Nomad.Input.ValueObjects;
+
 namespace Nomad.Input.Private.ValueObjects {
 	internal readonly struct AxisLookupKey {
 		/// <summary>

@@ -19,6 +19,7 @@ using System.Collections.Immutable;
 using Nomad.Core.Util;
 using Nomad.Input.Private.Repositories;
 using Nomad.Input.Private.ValueObjects;
+using Nomad.Input.ValueObjects;
 
 namespace Nomad.Input.Private.Services {
 	/*

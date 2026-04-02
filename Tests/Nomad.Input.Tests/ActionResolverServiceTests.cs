@@ -31,7 +31,7 @@ namespace Nomad.Input.Tests {
 			var actions = resolver.ResolveMatches( ref matches, 25 );
 
 			using ( Assert.EnterMultipleScope() ) {
-				Assert.That( actions.Length, Is.EqualTo( 1 ) );
+				Assert.That( actions, Has.Length.EqualTo( 1 ) );
 				Assert.That( actions[0].ActionId.ToString(), Is.EqualTo( "Jump" ) );
 				Assert.That( actions[0].Phase, Is.EqualTo( InputActionPhase.Started ) );
 				Assert.That( actions[0].ButtonValue, Is.True );
@@ -56,7 +56,7 @@ namespace Nomad.Input.Tests {
 			var actions = resolver.ResolveMatches( ref bindingMatches, 50 );
 
 			using ( Assert.EnterMultipleScope() ) {
-				Assert.That( actions.Length, Is.EqualTo( 1 ) );
+				Assert.That( actions, Has.Length.EqualTo( 1 ) );
 				Assert.That( actions[0].FloatValue, Is.EqualTo( -0.4f ).Within( 0.0001f ) );
 				Assert.That( actions[0].Phase, Is.EqualTo( InputActionPhase.Performed ) );
 			}
@@ -80,7 +80,7 @@ namespace Nomad.Input.Tests {
 			var actions = resolver.ResolveMatches( ref bindingMatches, 50 );
 
 			using ( Assert.EnterMultipleScope() ) {
-				Assert.That( actions.Length, Is.EqualTo( 1 ) );
+				Assert.That( actions, Has.Length.EqualTo( 1 ) );
 				Assert.That( actions[0].Vector2Value.X, Is.EqualTo( -1.0f ).Within( 0.0001f ) );
 				Assert.That( actions[0].Vector2Value.Y, Is.EqualTo( -0.5f ).Within( 0.0001f ) );
 			}
@@ -104,7 +104,7 @@ namespace Nomad.Input.Tests {
 			var actions = resolver.ResolveMatches( ref bindingMatches, 75 );
 
 			using ( Assert.EnterMultipleScope() ) {
-				Assert.That( actions.Length, Is.EqualTo( 1 ) );
+				Assert.That( actions, Has.Length.EqualTo( 1 ) );
 				Assert.That( actions[0].Vector2Value.X, Is.EqualTo( 4.0f ).Within( 0.0001f ) );
 				Assert.That( actions[0].Vector2Value.Y, Is.EqualTo( -6.0f ).Within( 0.0001f ) );
 			}
@@ -143,7 +143,7 @@ namespace Nomad.Input.Tests {
 
 			var actions = resolver.ResolveMatches( ref matches, 90 );
 
-			Assert.That( actions.Length, Is.EqualTo( 1 ) );
+			Assert.That( actions, Has.Length.EqualTo( 1 ) );
 		}
 
 		[Test]
@@ -167,7 +167,7 @@ namespace Nomad.Input.Tests {
 
 			var actions = resolver.ResolveComposites( uint.MaxValue, InputScheme.KeyboardAndMouse, 120 );
 
-			Assert.That( actions.Length, Is.EqualTo( 2 ) );
+			Assert.That( actions, Has.Length.EqualTo( 2 ) );
 			Assert.That( actions.Any( action => action.ActionId.ToString() == "Throttle" && action.FloatValue > 0.0f ), Is.True );
 			Assert.That( actions.Any( action => action.ActionId.ToString() == "Move" && action.Vector2Value != Vector2.Zero ), Is.True );
 		}

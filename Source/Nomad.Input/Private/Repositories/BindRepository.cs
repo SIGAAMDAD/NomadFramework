@@ -23,7 +23,7 @@ using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.CVars;
 using Nomad.Input.Private.Services;
-using Nomad.Input.Private.ValueObjects;
+using Nomad.Input.ValueObjects;
 
 namespace Nomad.Input.Private.Repositories {
 	/*
@@ -40,6 +40,7 @@ namespace Nomad.Input.Private.Repositories {
 		private const string BINDINGS_DIRECTORY = "Assets/Config/Bindings/";
 
 		private readonly IFileSystem _fileSystem;
+		private readonly ILoggerCategory _category;
 		private readonly BindLoader _loader;
 		private readonly string _defaultsPath;
 
@@ -61,19 +62,37 @@ namespace Nomad.Input.Private.Repositories {
 		/// <param name="cvarSystem">The cvar system that supplies the configured defaults file path.</param>
 		/// <param name="logger"></param>
 		/// <exception cref="ArgumentNullException">
-		/// Thrown when <paramref name="fileSystem"/> or <paramref name="cvarSystem"/> is <see langword="null"/>.
+		/// Thrown when <paramref name="fileSystem"/>, <paramref name="cvarSystem"/>, or <paramref name="logger"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="FileNotFoundException">Thrown when the configured defaults binding file cannot be found.</exception>
 		public BindRepository( IFileSystem fileSystem, ICVarSystemService cvarSystem, ILoggerService logger ) {
 			ArgumentGuard.ThrowIfNull( cvarSystem );
+			ArgumentGuard.ThrowIfNull( logger );
 
 			_fileSystem = fileSystem ?? throw new ArgumentNullException( nameof( fileSystem ) );
 			_loader = new BindLoader( _fileSystem, logger );
+			_category = logger.CreateCategory( nameof( BindRepository ), LogLevel.Info, true );
 
 			var defaultsPath = cvarSystem.GetCVarOrThrow<string>( Constants.CVars.DEFAULTS_PATH );
 			_defaultsPath = defaultsPath.Value;
 
 			Reload();
+		}
+
+		/*
+		===============
+		Dispose
+		===============
+		*/
+		/// <summary>
+		/// Marks the repository as disposed so it can no longer be queried or reloaded.
+		/// </summary>
+		public void Dispose() {
+			if ( !_isDisposed ) {
+				_category?.Dispose();
+				_isDisposed = true;
+			}
+			GC.SuppressFinalize( this );
 		}
 
 		/*
@@ -181,28 +200,26 @@ namespace Nomad.Input.Private.Repositories {
 		private void LoadAllBindMappings() {
 			var mappingBuilder = ImmutableDictionary.CreateBuilder<string, ImmutableArray<InputActionDefinition>>( StringComparer.OrdinalIgnoreCase );
 			var allSources = new List<ImmutableArray<InputActionDefinition>> { _defaultBindings };
+			var files = _fileSystem.GetFiles( BINDINGS_DIRECTORY, "*.json", true );
 
-			if ( _fileSystem.DirectoryExists( BINDINGS_DIRECTORY ) ) {
-				var files = _fileSystem.GetFiles( BINDINGS_DIRECTORY, "*.json", true );
-
-				for ( int i = 0; i < files.Count; i++ ) {
-					string filePath = files[i];
-					if ( string.Equals( filePath, _defaultsPath, StringComparison.OrdinalIgnoreCase ) ) {
-						continue;
-					}
-
-					if ( !_loader.LoadBindDatabase( filePath, out var mappingBindings ) ) {
-						continue;
-					}
-
-					string mappingName = GetBindMappingName( filePath );
-					if ( mappingBuilder.ContainsKey( mappingName ) ) {
-						throw new InvalidOperationException( $"Duplicate binding mapping name '{mappingName}' discovered while loading '{filePath}'." );
-					}
-
-					mappingBuilder[mappingName] = MergeActions( _defaultBindings, mappingBindings );
-					allSources.Add( mappingBindings );
+			for ( int i = 0; i < files.Count; i++ ) {
+				string filePath = files[i];
+				if ( string.Equals( filePath, _defaultsPath, StringComparison.OrdinalIgnoreCase ) ) {
+					continue;
 				}
+				if ( !_loader.LoadBindDatabase( filePath, out var mappingBindings ) ) {
+					continue;
+				}
+
+				string mappingName = GetBindMappingName( filePath );
+				if ( mappingBuilder.ContainsKey( mappingName ) ) {
+					throw new InvalidOperationException( $"Duplicate binding mapping name '{mappingName}' discovered while loading '{filePath}'." );
+				}
+
+				_category.PrintLine( $"Loaded bind mapping '{mappingName}'..." );
+
+				mappingBuilder[mappingName] = MergeActions( _defaultBindings, mappingBindings );
+				allSources.Add( mappingBindings );
 			}
 
 			_bindMappings = mappingBuilder.ToImmutable();
@@ -288,21 +305,6 @@ namespace Nomad.Input.Private.Repositories {
 		/// <exception cref="ObjectDisposedException">Thrown when the repository has already been disposed.</exception>
 		private void ThrowIfDisposed() {
 			StateGuard.ThrowIfDisposed( _isDisposed, this );
-		}
-
-		/*
-		===============
-		Dispose
-		===============
-		*/
-		/// <summary>
-		/// Marks the repository as disposed so it can no longer be queried or reloaded.
-		/// </summary>
-		public void Dispose() {
-			if ( !_isDisposed ) {
-				_isDisposed = true;
-			}
-			GC.SuppressFinalize( this );
 		}
 	};
 };

@@ -13,11 +13,13 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.Input.Private.ValueObjects {
+namespace Nomad.Input.ValueObjects
+{
 	/// <summary>
 	/// 
 	/// </summary>
-	internal enum InputControlId : byte {
+	public enum InputControlId : byte
+	{
 		/// <summary>
 		/// 
 		/// </summary>
@@ -344,5 +346,5 @@ namespace Nomad.Input.Private.ValueObjects {
 		#endregion
 
 		Count
-	};
-};
+	}
+}

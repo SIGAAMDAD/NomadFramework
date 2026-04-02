@@ -15,16 +15,19 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System.Collections.Immutable;
 
-namespace Nomad.Input.Private.ValueObjects {
-	internal sealed class InputActionDefinition {
+namespace Nomad.Input.ValueObjects
+{
+	public sealed class InputActionDefinition
+	{
 		public string Name { get; }
 		public InputValueType ValueType { get; }
-		public ImmutableArray<InputBindingDefinition> Bindings { get; }
+		public ImmutableArray<InputBindingDefinition> Bindings { get; set; }
 
-		public InputActionDefinition( string name, InputValueType valueType, ImmutableArray<InputBindingDefinition> bindings ) {
+		public InputActionDefinition(string name, InputValueType valueType, ImmutableArray<InputBindingDefinition> bindings)
+		{
 			Name = name;
 			ValueType = valueType;
 			Bindings = bindings;
 		}
-	};
-};
+	}
+}

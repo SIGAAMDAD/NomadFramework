@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 using Nomad.Core.CVars;
 using Nomad.Core.Events;
@@ -24,6 +25,9 @@ using Nomad.Input.Private.Extensions;
 using Nomad.Input.Private.Registries;
 using Nomad.Input.Private.Repositories;
 using Nomad.Input.Private.ValueObjects;
+using Nomad.Input.ValueObjects;
+using Nomad.Input.Interfaces;
+using Nomad.Core.ServiceRegistry.Interfaces;
 
 namespace Nomad.Input.Private.Services {
 	/*
@@ -55,6 +59,8 @@ namespace Nomad.Input.Private.Services {
 		private readonly BindingCompilerService _compilerService;
 		private readonly CompiledBindingRepository _compiledBindings;
 
+		private readonly IBindResolver _bindResolver;
+
 		private readonly ISubscriptionHandle _keyboardEvent;
 		private readonly ISubscriptionHandle _mouseButtonEvent;
 		private readonly ISubscriptionHandle _mouseMotionEvent;
@@ -75,7 +81,8 @@ namespace Nomad.Input.Private.Services {
 		/// <param name="cvarSystem"></param>
 		/// <param name="logger"></param>
 		/// <param name="eventFactory"></param>
-		public InputSystem( IFileSystem fileSystem, ICVarSystemService cvarSystem, ILoggerService logger, IGameEventRegistryService eventFactory ) {
+		/// <param name="registry"></param>
+		public InputSystem( IFileSystem fileSystem, ICVarSystemService cvarSystem, ILoggerService logger, IGameEventRegistryService eventFactory, IServiceRegistry registry ) {
 			InputCVarRegistry.RegisterCVars( cvarSystem );
 
 			_bindRepository = new BindRepository( fileSystem, cvarSystem, logger );
@@ -89,6 +96,9 @@ namespace Nomad.Input.Private.Services {
 			_compilerService.CompileIntoRepository( _bindRepository.GetAllBindings() );
 			_matcherService = new BindingMatcherService( _compiledBindings, _stateService );
 			_actionResolverService = new ActionResolverService( _compiledBindings, _stateService );
+
+			_bindResolver = new BindResolver( _bindRepository );
+			registry.AddSingleton( _bindResolver );
 
 			var keyboardEvent = eventFactory.GetEvent<KeyboardEventArgs>( Core.Constants.Events.Input.KEYBOARD_EVENT, Core.Constants.Events.Input.NAMESPACE );
 			_keyboardEvent = keyboardEvent.Subscribe( OnKeyboardEventTriggered );
@@ -126,6 +136,20 @@ namespace Nomad.Input.Private.Services {
 			}
 			GC.SuppressFinalize( this );
 			_isDisposed = true;
+		}
+
+		/*
+		===============
+		GetBindMapping
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="mapping"></param>
+		/// <returns></returns>
+		public IReadOnlyList<InputActionDefinition>? GetBindMapping( string mapping ) {
+			return _bindRepository.TryGetBindMapping( mapping, out var actions ) ? actions : null;
 		}
 
 		/*

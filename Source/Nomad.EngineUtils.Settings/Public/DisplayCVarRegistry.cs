@@ -54,10 +54,10 @@ namespace Nomad.EngineUtils.Settings
                 new CVarCreateInfo<WindowResolution>
                 {
                     Name = Core.Constants.CVars.EngineUtils.Display.WINDOW_RESOLUTION,
-                    DefaultValue = WindowResolution.Res_640x480,
+                    DefaultValue = WindowResolution.Min,
                     Description = "Size of the game's display window.",
                     Flags = CVarFlags.Archive,
-                    Validator = value => value >= WindowResolution.Res_640x480 && value < WindowResolution.Count
+                    Validator = value => value >= WindowResolution.Min && value <= WindowResolution.Max
                 }
             );
             cvarSystem.Register(

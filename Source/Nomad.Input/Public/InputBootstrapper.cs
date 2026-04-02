@@ -46,7 +46,8 @@ namespace Nomad.Input
 				locator.GetService<IFileSystem>(),
 				locator.GetService<ICVarSystemService>(),
 				locator.GetService<ILoggerService>(),
-				locator.GetService<IGameEventRegistryService>()
+				locator.GetService<IGameEventRegistryService>(),
+				registry
 			);
 			registry.AddSingleton(_inputSystem);
 		}

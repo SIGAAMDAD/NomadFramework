@@ -57,6 +57,8 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		public FMOD.Studio.System StudioSystem => _systemHandle.StudioSystem;
 		public FMOD.System System => _systemHandle.System;
 
+		private readonly FMODAudioGroupRepository _groupRepository;
+
 		private readonly FMODSystemHandle _systemHandle;
 		private readonly ILoggerCategory _fmodCategory;
 
@@ -86,6 +88,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			FMODValidator.Initialize( logger );
 
 			_fmodCategory = logger.CreateCategory( "FMOD", LogLevel.Info, true );
+			_fmodCategory.PrintLine( "Initializing FMOD sound system..." );
 
 			FMODCVarRegistry.Register( cvarSystem );
 			_systemHandle = new FMODSystemHandle( cvarSystem, logger );
@@ -102,7 +105,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			_bankRepository.GetCached( EngineService.GetStoragePath( "Audio/Banks/Desktop/Master.strings.bank", StorageScope.StreamingAssets ) );
 			_bankRepository.GetCached( EngineService.GetStoragePath( "Audio/Banks/Desktop/Master.bank", StorageScope.StreamingAssets ) );
 
-			_fmodCategory.PrintLine( "Initializing FMOD sound system..." );
+			_groupRepository = new FMODAudioGroupRepository( _systemHandle.StudioSystem, _fmodCategory, cvarSystem );
 		}
 
 		/*

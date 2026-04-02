@@ -15,7 +15,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using Nomad.Core.CVars;
 using Nomad.Core;
-using System.Text.RegularExpressions;
 
 namespace Nomad.Audio.Fmod.Private.Registries {
 	/*
@@ -114,6 +113,24 @@ namespace Nomad.Audio.Fmod.Private.Registries {
 					Flags = CVarFlags.Archive,
 					Group = "Audio",
 					Validator = value => value >= Constants.Audio.MIN_AUDIO_CHANNELS && value <= Constants.Audio.MAX_AUDIO_CHANNELS
+				}
+			);
+			cvarSystem.Register(
+				new CVarCreateInfo<string> {
+					Name = Constants.CVars.EngineUtils.Audio.AUDIO_MUSIC_BUS_GROUP_NAME,
+					DefaultValue = "bus:/Music",
+					Description = "The bus name of the music group. For linking music configurables to the underlying audio middleware.",
+					Flags = CVarFlags.Archive | CVarFlags.Init,
+					Group = "Audio"
+				}
+			);
+			cvarSystem.Register(
+				new CVarCreateInfo<string> {
+					Name = Constants.CVars.EngineUtils.Audio.AUDIO_SOUND_EFFECTS_BUS_GROUP_NAME,
+					DefaultValue = "bus:/SoundEffects",
+					Description = "The bus name of the sound effects group. For linking sound effects configurables to the underlying audio middleware.",
+					Flags = CVarFlags.Archive | CVarFlags.Init,
+					Group = "Audio"
 				}
 			);
 			cvarSystem.Register(

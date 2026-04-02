@@ -13,12 +13,14 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.Input.Private.ValueObjects {
-	internal record Axis1DCompositeBinding {
-		public InputControlId Negative { get; set; }
-		public InputControlId Positive { get; set; }
+using System.Collections.Immutable;
 
-		public float Scale { get; set; } = 1.0f;
-		public bool Normalize { get; set; } = true;
-	};
-};
+namespace Nomad.Input.ValueObjects
+{
+	public sealed class ButtonBinding
+	{
+		public InputDeviceSlot DeviceId { get; set; }
+		public InputControlId ControlId { get; set; }
+		public ImmutableArray<InputControlId> Modifiers { get; set; } = default;
+	}
+}

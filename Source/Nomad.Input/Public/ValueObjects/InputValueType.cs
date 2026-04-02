@@ -13,18 +13,14 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.Input.Private.ValueObjects {
-	/// <summary>
-	/// 
-	/// </summary>
-	internal enum InputDeviceSlot : byte {
-		Keyboard,
-		Mouse,
-		Gamepad0,
-		Gamepad1,
-		Gamepad2,
-		Gamepad3,
+namespace Nomad.Input.ValueObjects
+{
+	public enum InputValueType : byte
+	{
+		Button,
+		Float,
+		Vector2,
 
 		Count
-	};
-};
+	}
+}

@@ -3,7 +3,7 @@ using NUnit.Framework;
 using Nomad.Core.Input;
 using Nomad.Core.Input.ValueObjects;
 using Nomad.Input.Private.Services;
-using Nomad.Input.Private.ValueObjects;
+using Nomad.Input.ValueObjects;
 
 namespace Nomad.Input.Tests {
 	[TestFixture]
@@ -42,9 +42,9 @@ namespace Nomad.Input.Tests {
 			var withModifier = matcher.MatchKeyboard( new KeyboardEventArgs( KeyNum.Space, 10, true ), uint.MaxValue, InputScheme.KeyboardAndMouse );
 
 			using ( Assert.EnterMultipleScope() ) {
-				Assert.That( withoutModifier.Span.Length, Is.EqualTo( 0 ) );
+				Assert.That( withoutModifier.Span.Length, Is.Zero );
 				Assert.That( withModifier.Span.Length, Is.EqualTo( 1 ) );
-				Assert.That( withModifier.Span[0].Score, Is.EqualTo( 35 ) );
+				Assert.That( withModifier.Span[ 0 ].Score, Is.EqualTo( 35 ) );
 			}
 		}
 
@@ -96,8 +96,8 @@ namespace Nomad.Input.Tests {
 			var correct = matcher.MatchGamepadAxis( InputDeviceSlot.Gamepad0, InputControlId.RightStick, uint.MaxValue, InputScheme.Gamepad );
 
 			using ( Assert.EnterMultipleScope() ) {
-				Assert.That( wrongContext.Span.Length, Is.EqualTo( 0 ) );
-				Assert.That( wrongScheme.Span.Length, Is.EqualTo( 0 ) );
+				Assert.That( wrongContext.Span.Length, Is.Zero );
+				Assert.That( wrongScheme.Span.Length, Is.Zero );
 				Assert.That( correct.Span.Length, Is.EqualTo( 1 ) );
 			}
 		}
@@ -119,7 +119,7 @@ namespace Nomad.Input.Tests {
 			var withDelta = matcher.MatchMouseDelta( uint.MaxValue, InputScheme.KeyboardAndMouse );
 
 			using ( Assert.EnterMultipleScope() ) {
-				Assert.That( noDelta.Span.Length, Is.EqualTo( 0 ) );
+				Assert.That( noDelta.Span.Length, Is.Zero );
 				Assert.That( withDelta.Span.Length, Is.EqualTo( 1 ) );
 			}
 		}

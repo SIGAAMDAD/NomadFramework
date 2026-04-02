@@ -13,18 +13,18 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Nomad.Core.Input;
-
-namespace Nomad.Input.Private.ValueObjects {
-	internal sealed class InputBindingDefinition {
-		public InputScheme Scheme { get; set; }
-		public InputBindingKind Kind { get; set; }
-		
-		public ButtonBinding Button { get; set; } = default;
-		public Axis1DBinding Axis1D { get; set; } = default;
-		public Axis1DCompositeBinding Axis1DComposite { get; set; } = default;
-		public Axis2DBinding Axis2D { get; set; } = default;
-		public Axis2DCompositeBinding Axis2DComposite { get; set; } = default;
-		public Delta2DBinding Delta2D { get; set; } = default;
-	};
-};
+namespace Nomad.Input.ValueObjects
+{
+	/// <summary>
+	/// 
+	/// </summary>
+	public enum InputBindingKind : byte
+	{
+		Button,
+		Axis1D,
+		Axis1DComposite,
+		Axis2D,
+		Axis2DComposite,
+		Delta2D
+	}
+}

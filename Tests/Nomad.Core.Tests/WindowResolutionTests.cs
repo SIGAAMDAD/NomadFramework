@@ -29,7 +29,7 @@ namespace Nomad.Core.Tests
         {
             using (Assert.EnterMultipleScope())
             {
-                Assert.That((string)WindowResolution.Res_640x480.ToDisplayString(), Is.EqualTo("640x480"));
+                Assert.That((string)WindowResolution.Res_800x600.ToDisplayString(), Is.EqualTo("800x600"));
                 Assert.That((string)WindowResolution.Res_1920x1080.ToDisplayString(), Is.EqualTo("1920x1080"));
                 Assert.That((string)WindowResolution.Res_Native.ToDisplayString(), Is.EqualTo("Native Resolution"));
             }

@@ -2,7 +2,7 @@ using System.Numerics;
 using NUnit.Framework;
 using Nomad.Core.Input;
 using Nomad.Input.Private.Services;
-using Nomad.Input.Private.ValueObjects;
+using Nomad.Input.ValueObjects;
 
 namespace Nomad.Input.Tests {
 	[TestFixture]
