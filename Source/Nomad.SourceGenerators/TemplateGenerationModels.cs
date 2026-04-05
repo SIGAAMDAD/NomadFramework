@@ -289,11 +289,18 @@ namespace Nomad.SourceGenerators
     /// </summary>
     internal sealed class TemplateEventDefinition
     {
-        public TemplateEventDefinition(string name, string? payloadTypeName, string? documentation)
+        public TemplateEventDefinition(
+            string name,
+            string? payloadTypeName,
+            string? documentation,
+            string? godotHookExpression,
+            string? unityHookExpression)
         {
             Name = name;
             PayloadTypeName = payloadTypeName;
             Documentation = documentation;
+            GodotHookExpression = godotHookExpression;
+            UnityHookExpression = unityHookExpression;
         }
 
         public string Name { get; }
@@ -301,6 +308,10 @@ namespace Nomad.SourceGenerators
         public string? PayloadTypeName { get; }
 
         public string? Documentation { get; }
+
+        public string? GodotHookExpression { get; }
+
+        public string? UnityHookExpression { get; }
     }
 
     /// <summary>

@@ -612,6 +612,8 @@ namespace Nomad.SourceGenerators
                 {
                     builder.AppendLine();
                     AppendEventInitializationWithInterpolation(builder, model, "            ");
+                    builder.AppendLine();
+                    AppendEventHooks(builder, model, "            ");
                 }
 
                 builder.AppendLine("        }");

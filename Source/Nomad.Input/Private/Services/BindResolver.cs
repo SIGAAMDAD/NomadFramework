@@ -16,6 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using Nomad.Core.Input;
 using Nomad.Input.Interfaces;
 using Nomad.Input.Private.Repositories;
 using Nomad.Input.ValueObjects;
@@ -34,6 +35,7 @@ namespace Nomad.Input.Private.Services {
 	
 	internal sealed class BindResolver : IBindResolver {
 		private readonly BindRepository _repository;
+		private readonly Action _bindingsChanged;
 
 		/*
 		===============
@@ -44,8 +46,9 @@ namespace Nomad.Input.Private.Services {
 		/// 
 		/// </summary>
 		/// <param name="repository"></param>
-		public BindResolver( BindRepository repository ) {
+		public BindResolver( BindRepository repository, Action bindingsChanged ) {
 			_repository = repository ?? throw new ArgumentNullException( nameof( repository ) );
+			_bindingsChanged = bindingsChanged ?? throw new ArgumentNullException( nameof( bindingsChanged ) );
 		}
 
 		/*
@@ -64,6 +67,54 @@ namespace Nomad.Input.Private.Services {
 
 		/*
 		===============
+		GetMappingsForScheme
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="scheme"></param>
+		/// <returns></returns>
+		public IReadOnlyList<string> GetMappingsForScheme( InputScheme scheme ) {
+			return _repository.GetMappingsForScheme( scheme );
+		}
+
+		/*
+		===============
+		GetActiveMapping
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="scheme"></param>
+		/// <returns></returns>
+		public string? GetActiveMapping( InputScheme scheme ) {
+			return _repository.GetActiveMapping( scheme );
+		}
+
+		/*
+		===============
+		LoadMapping
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="scheme"></param>
+		/// <param name="mappingName"></param>
+		/// <returns></returns>
+		public bool LoadMapping( InputScheme scheme, string mappingName ) {
+			if ( !_repository.SetActiveMapping( scheme, mappingName ) ) {
+				return false;
+			}
+
+			_bindingsChanged();
+			return true;
+		}
+
+		/*
+		===============
 		SetActionBindings
 		===============
 		*/
@@ -74,21 +125,9 @@ namespace Nomad.Input.Private.Services {
 		/// <param name="actionId"></param>
 		/// <param name="bindings"></param>
 		public void SetActionBindings( string mappingName, string actionId, ImmutableArray<InputBindingDefinition> bindings ) {
-			if ( !_repository.TryGetBindMapping( mappingName, out var mapping ) ) {
-				return;
+			if ( _repository.SetActionBindings( mappingName, actionId, bindings ) ) {
+				_bindingsChanged();
 			}
-
-			InputActionDefinition? actionDefinition = null;
-			for ( int i = 0; i < mapping.Length; i++ ) {
-				if ( mapping[ i ].Name.Equals( actionId, StringComparison.InvariantCulture ) ) {
-					actionDefinition = mapping[ i ];
-					break;
-				}
-			}
-			if ( actionDefinition == null ) {
-				return;
-			}
-			actionDefinition.Bindings = bindings;
 		}
 	};
 };

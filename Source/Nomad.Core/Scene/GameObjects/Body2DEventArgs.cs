@@ -13,26 +13,25 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.Core.FileSystem.Configs
+namespace Nomad.Core.Scene.GameObjects
 {
     /// <summary>
-    /// 
+    /// Describes an overlap event involving another collision body.
     /// </summary>
-    public record FileReadConfig : ReadConfig, IReadConfig
+    public readonly struct Body2DEventArgs
     {
         /// <summary>
-        /// 
+        /// The overlapping collision body.
         /// </summary>
-        public override StreamType Type => StreamType.File;
+        public ICollisionBody2D Body => _body;
+        private readonly ICollisionBody2D _body;
 
         /// <summary>
-        /// 
+        /// Creates a new set of body overlap event arguments.
         /// </summary>
-        public StreamFormat Format { get; init; } = StreamFormat.Binary;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public string? FilePath { get; init; }
+        public Body2DEventArgs(ICollisionBody2D body)
+        {
+            _body = body;
+        }
     }
 }

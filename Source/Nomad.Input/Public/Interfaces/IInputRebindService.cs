@@ -13,9 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using Nomad.Core.Input;
+using System;
 using Nomad.Input.ValueObjects;
 
 namespace Nomad.Input.Interfaces
@@ -23,43 +21,52 @@ namespace Nomad.Input.Interfaces
 	/// <summary>
 	/// 
 	/// </summary>
-	public interface IBindResolver
+	public interface IInputRebindService
 	{
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="mappingName"></param>
-		/// <returns></returns>
-		IReadOnlyList<InputActionDefinition> GetBindMapping(string mappingName);
+		bool IsRebinding { get; }
 
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="scheme"></param>
-		/// <returns></returns>
-		IReadOnlyList<string> GetMappingsForScheme(InputScheme scheme);
+		InputRebindRequest? CurrentRequest { get; }
 
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="scheme"></param>
-		/// <returns></returns>
-		string? GetActiveMapping(InputScheme scheme);
+		event Action<InputRebindRequest>? RebindStarted;
 
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="scheme"></param>
-		/// <param name="mappingName"></param>
-		/// <returns></returns>
-		bool LoadMapping(InputScheme scheme, string mappingName);
+		event Action<InputRebindRequest>? RebindCanceled;
 
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="mappingName"></param>
-		/// <param name="actionId"></param>
-		/// <param name="bindings"></param>
-		void SetActionBindings( string mappingName, string actionId, ImmutableArray<InputBindingDefinition> bindings );
+		event Action<InputRebindResult>? RebindCompleted;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="request"></param>
+		/// <returns></returns>
+		bool BeginRebind(in InputRebindRequest request);
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		bool CancelRebind();
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="request"></param>
+		/// <param name="binding"></param>
+		/// <returns></returns>
+		bool ApplyBinding(in InputRebindRequest request, InputBindingDefinition binding);
 	}
 }

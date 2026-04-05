@@ -26,6 +26,7 @@ using Nomad.Core.Engine.Services;
 using Nomad.Core.Engine.SceneManagement;
 using Nomad.Core.Engine.Globals;
 using Nomad.EngineUtils.Godot.Private.SceneManagement;
+using Nomad.Core.Physics.Services;
 
 namespace Nomad.EngineUtils.Godot.Private.Services {
     /// <summary>
@@ -61,12 +62,11 @@ namespace Nomad.EngineUtils.Godot.Private.Services {
         /// <param name="serviceFactory"></param>
         /// <param name="locator"></param>
         public GodotEngineService( SceneTree sceneTree, IServiceRegistry serviceFactory, IServiceLocator locator ) {
-            ArgumentGuard.ThrowIfNull( sceneTree );
             ArgumentGuard.ThrowIfNull( serviceFactory );
             ArgumentGuard.ThrowIfNull( locator );
 
-            _locator = locator;
-            _sceneTree = sceneTree;
+            _locator = locator ?? throw new ArgumentNullException( nameof( locator ) );
+            _sceneTree = sceneTree ?? throw new ArgumentNullException( nameof( sceneTree ) );
             _root = sceneTree.Root;
 
             _logger = locator.GetService<ILoggerService>();
@@ -89,6 +89,8 @@ namespace Nomad.EngineUtils.Godot.Private.Services {
 
             _sceneManager = new GodotSceneManager( _sceneTree, new BaseCache<PackedScene, string>( _logger, _eventFactory, _loader ) );
             serviceFactory.AddSingleton( _sceneManager );
+
+            serviceFactory.AddSingleton<IRaycastService>( new GodotRaycastService( _sceneTree.Root.World2D ) );
 
             _logger.AddSink( new ConsoleSink() );
 

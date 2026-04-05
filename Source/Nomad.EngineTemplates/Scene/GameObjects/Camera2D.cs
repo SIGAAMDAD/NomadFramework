@@ -31,7 +31,8 @@ namespace Nomad.EngineTemplates.Scene.GameObjects
         GodotGetterExpression = "base.Visible",
         GodotSetterExpression = "base.Visible = value",
         UnityGetterExpression = "GetComponent<global::UnityEngine.Camera>() != null && GetComponent<global::UnityEngine.Camera>().enabled",
-        UnitySetterExpression = "(GetComponent<global::UnityEngine.Camera>() ?? throw new global::System.InvalidOperationException(\"A UnityEngine.Camera component is required.\")).enabled = value")]
+        UnitySetterExpression = "(GetComponent<global::UnityEngine.Camera>() ?? throw new global::System.InvalidOperationException(\"A UnityEngine.Camera component is required.\")).enabled = value"
+    )]
 	[TemplatePositionProperty]
 	[TemplateScaleProperty]
 	[TemplateRotationProperty]
@@ -47,7 +48,8 @@ namespace Nomad.EngineTemplates.Scene.GameObjects
         Name = "Zoom",
         Type = typeof(Vector2),
         UnityGetterExpression = "GetComponent<global::UnityEngine.Camera>() != null ? new global::System.Numerics.Vector2(GetComponent<global::UnityEngine.Camera>().orthographicSize, GetComponent<global::UnityEngine.Camera>().orthographicSize) : global::System.Numerics.Vector2.One",
-        UnitySetterExpression = "(GetComponent<global::UnityEngine.Camera>() ?? throw new global::System.InvalidOperationException(\"A UnityEngine.Camera component is required.\")).orthographicSize = value.X")]
+        UnitySetterExpression = "(GetComponent<global::UnityEngine.Camera>() ?? throw new global::System.InvalidOperationException(\"A UnityEngine.Camera component is required.\")).orthographicSize = value.X"
+    )]
 	internal class Camera2D
 	{
 	}

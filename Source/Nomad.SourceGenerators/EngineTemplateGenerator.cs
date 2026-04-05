@@ -651,7 +651,9 @@ namespace Nomad.SourceGenerators
                         templateEvents[name!] = new TemplateEventDefinition(
                             name!,
                             payloadType?.ToDisplayString(TypeDisplayFormat),
-                            GetNamedStringArgument(attribute, "Documentation"));
+                            GetNamedStringArgument(attribute, "Documentation"),
+                            GetNamedStringArgument(attribute, "GodotHookExpression"),
+                            GetNamedStringArgument(attribute, "UnityHookExpression"));
                     }
 
                     continue;
@@ -1111,7 +1113,7 @@ namespace Nomad.SourceGenerators
                 payloadTypeName,
                 "_" + ToCamelCase(propertySymbol.Name),
                 BuildRegistryEventName(propertySymbol),
-                BuildEventHookStatements(engineProjectKind, templateEvent.Name, "_" + ToCamelCase(propertySymbol.Name), payloadTypeName),
+                BuildEventHookStatements(engineProjectKind, templateEvent, "_" + ToCamelCase(propertySymbol.Name), payloadTypeName),
                 BaseTypeHasInstanceMember(baseTypeSymbol, propertySymbol.Name),
                 GetDocumentationLines(propertySymbol, templateEvent.Documentation)
             );
@@ -1690,15 +1692,28 @@ namespace Nomad.SourceGenerators
 
         private static ImmutableArray<string> BuildEventHookStatements(
             EngineProjectKind engineProjectKind,
-            string eventName,
+            TemplateEventDefinition templateEvent,
             string fieldName,
             string payloadTypeName)
         {
+            var customHookExpression = engineProjectKind switch
+            {
+                EngineProjectKind.Godot => templateEvent.GodotHookExpression,
+                EngineProjectKind.Unity => templateEvent.UnityHookExpression,
+                _ => null
+            };
+
+            if (!string.IsNullOrWhiteSpace(customHookExpression))
+            {
+                return BuildCustomHookStatements(customHookExpression!, fieldName, payloadTypeName);
+            }
+
             if (engineProjectKind != EngineProjectKind.Godot)
             {
                 return ImmutableArray<string>.Empty;
             }
 
+            var eventName = templateEvent.Name;
             if (eventName == "Focused")
             {
                 return ImmutableArray.Create(
@@ -1734,6 +1749,21 @@ namespace Nomad.SourceGenerators
             }
 
             return ImmutableArray<string>.Empty;
+        }
+
+        private static ImmutableArray<string> BuildCustomHookStatements(
+            string hookExpression,
+            string fieldName,
+            string payloadTypeName)
+        {
+            var resolvedHookExpression = hookExpression
+                .Replace("{{field}}", fieldName)
+                .Replace("{{payloadType}}", payloadTypeName);
+
+            return resolvedHookExpression
+                .Split(new[] { "\r\n", "\n" }, StringSplitOptions.None)
+                .Where(line => !string.IsNullOrWhiteSpace(line))
+                .ToImmutableArray();
         }
 
         private static string BuildRegistryEventName(IPropertySymbol propertySymbol)

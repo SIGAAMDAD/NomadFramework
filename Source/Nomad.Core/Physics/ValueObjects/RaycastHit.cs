@@ -13,26 +13,34 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.Core.FileSystem.Configs
+using System.Numerics;
+
+namespace Nomad.Core.Physics.ValueObjects
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    public record FileReadConfig : ReadConfig, IReadConfig
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        public override StreamType Type => StreamType.File;
+	public readonly struct RaycastHit
+	{
+		public Vector2 Point { get; }
+		public Vector2 Normal { get; }
+		public float Distance { get; }
+		public int Layer { get; }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public StreamFormat Format { get; init; } = StreamFormat.Binary;
+		public PhysicsObjectHandle Collider { get; }
+		public PhysicsObjectHandle Body { get; }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public string? FilePath { get; init; }
-    }
+		public RaycastHit(
+			Vector2 point,
+			Vector2 normal,
+			float distance,
+			int layer,
+			PhysicsObjectHandle collider,
+			PhysicsObjectHandle body)
+		{
+			Point = point;
+			Normal = normal;
+			Distance = distance;
+			Layer = layer;
+			Collider = collider;
+			Body = body;
+		}
+	}
 }

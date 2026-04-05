@@ -17,11 +17,14 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
+using System.Linq;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.CVars;
 using Nomad.Core.FileSystem;
+using Nomad.Core.Input;
 using Nomad.Core.Logger;
 using Nomad.CVars;
+using Nomad.Input.Extensions;
 using Nomad.Input.Private.Services;
 using Nomad.Input.ValueObjects;
 
@@ -37,15 +40,17 @@ namespace Nomad.Input.Private.Repositories {
 	/// Loads binding databases from disk and exposes the merged action definitions used by the input pipeline.
 	/// </summary>
 	internal sealed class BindRepository : IDisposable {
-		private const string BINDINGS_DIRECTORY = "Assets/Config/Bindings/";
-
 		private readonly IFileSystem _fileSystem;
 		private readonly ILoggerCategory _category;
 		private readonly BindLoader _loader;
 		private readonly string _defaultsPath;
+		private readonly ICVar<string> _keyboardMouseMapping;
+		private readonly ICVar<string> _gamepadMapping;
 
 		private ImmutableArray<InputActionDefinition> _defaultBindings = ImmutableArray<InputActionDefinition>.Empty;
+		private ImmutableDictionary<string, LoadedBindMapping> _loadedMappings = ImmutableDictionary<string, LoadedBindMapping>.Empty;
 		private ImmutableDictionary<string, ImmutableArray<InputActionDefinition>> _bindMappings = ImmutableDictionary<string, ImmutableArray<InputActionDefinition>>.Empty;
+		private ImmutableDictionary<InputScheme, string> _activeMappings = ImmutableDictionary<InputScheme, string>.Empty;
 		private ImmutableArray<InputActionDefinition> _allBindings = ImmutableArray<InputActionDefinition>.Empty;
 
 		private bool _isDisposed = false;
@@ -75,6 +80,8 @@ namespace Nomad.Input.Private.Repositories {
 
 			var defaultsPath = cvarSystem.GetCVarOrThrow<string>( Constants.CVars.DEFAULTS_PATH );
 			_defaultsPath = defaultsPath.Value;
+			_keyboardMouseMapping = cvarSystem.GetCVarOrThrow<string>( Constants.CVars.KEYBOARD_MOUSE_MAPPING );
+			_gamepadMapping = cvarSystem.GetCVarOrThrow<string>( Constants.CVars.GAMEPAD_MAPPING );
 
 			Reload();
 		}
@@ -142,6 +149,68 @@ namespace Nomad.Input.Private.Repositories {
 
 		/*
 		===============
+		GetMappingsForScheme
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="scheme"></param>
+		/// <returns></returns>
+		public IReadOnlyList<string> GetMappingsForScheme( InputScheme scheme ) {
+			ThrowIfDisposed();
+
+			return _loadedMappings.Values
+				.Where( mapping => mapping.Schemes.Contains( scheme ) )
+				.Select( mapping => mapping.Name )
+				.OrderBy( name => name, StringComparer.OrdinalIgnoreCase )
+				.ToArray();
+		}
+
+		/*
+		===============
+		GetActiveMapping
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="scheme"></param>
+		/// <returns></returns>
+		public string? GetActiveMapping( InputScheme scheme ) {
+			ThrowIfDisposed();
+			return _activeMappings.TryGetValue( scheme, out var mappingName ) ? mappingName : null;
+		}
+
+		/*
+		===============
+		SetActiveMapping
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="scheme"></param>
+		/// <param name="mappingName"></param>
+		/// <returns></returns>
+		public bool SetActiveMapping( InputScheme scheme, string mappingName ) {
+			ThrowIfDisposed();
+
+			if ( string.IsNullOrWhiteSpace( mappingName ) ) {
+				return false;
+			}
+			if ( !_loadedMappings.TryGetValue( mappingName, out var mapping ) || !mapping.Schemes.Contains( scheme ) ) {
+				return false;
+			}
+
+			SetMappingSetting( scheme, mappingName );
+			_activeMappings = _activeMappings.SetItem( scheme, mappingName );
+			RebuildCaches();
+			return true;
+		}
+
+		/*
+		===============
 		TryGetBindMapping
 		===============
 		*/
@@ -165,6 +234,63 @@ namespace Nomad.Input.Private.Repositories {
 				return false;
 			}
 			return true;
+		}
+
+		/*
+		===============
+		SetActionBindings
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="mappingName"></param>
+		/// <param name="actionId"></param>
+		/// <param name="bindings"></param>
+		/// <returns></returns>
+		public bool SetActionBindings( string mappingName, string actionId, ImmutableArray<InputBindingDefinition> bindings ) {
+			ThrowIfDisposed();
+
+			if ( string.IsNullOrWhiteSpace( mappingName ) || string.IsNullOrWhiteSpace( actionId ) ) {
+				return false;
+			}
+			if ( !_loadedMappings.TryGetValue( mappingName, out var mapping ) ) {
+				return false;
+			}
+
+			var builder = mapping.Actions.ToBuilder();
+			for ( int i = 0; i < builder.Count; i++ ) {
+				if ( builder[ i ].Name.Equals( actionId, StringComparison.Ordinal ) ) {
+					builder[ i ] = new InputActionDefinition(
+						builder[ i ].Name,
+						builder[ i ].ValueType,
+						bindings.Clone()
+					);
+
+					_loadedMappings = _loadedMappings.SetItem( mappingName, new LoadedBindMapping( mappingName, builder.ToImmutable() ) );
+					ValidateActiveMappings();
+					RebuildCaches();
+					return true;
+				}
+			}
+
+			if ( !_bindMappings.TryGetValue( mappingName, out var mergedMapping ) ) {
+				return false;
+			}
+
+			for ( int i = 0; i < mergedMapping.Length; i++ ) {
+				if ( !mergedMapping[ i ].Name.Equals( actionId, StringComparison.Ordinal ) ) {
+					continue;
+				}
+
+				builder.Add( new InputActionDefinition( actionId, mergedMapping[ i ].ValueType, bindings.Clone() ) );
+				_loadedMappings = _loadedMappings.SetItem( mappingName, new LoadedBindMapping( mappingName, builder.ToImmutable() ) );
+				ValidateActiveMappings();
+				RebuildCaches();
+				return true;
+			}
+
+			return false;
 		}
 
 		/*
@@ -198,9 +324,8 @@ namespace Nomad.Input.Private.Repositories {
 		/// Loads every binding mapping file from the configured mappings directory and rebuilds the merged caches.
 		/// </summary>
 		private void LoadAllBindMappings() {
-			var mappingBuilder = ImmutableDictionary.CreateBuilder<string, ImmutableArray<InputActionDefinition>>( StringComparer.OrdinalIgnoreCase );
-			var allSources = new List<ImmutableArray<InputActionDefinition>> { _defaultBindings };
-			var files = _fileSystem.GetFiles( BINDINGS_DIRECTORY, "*.json", true );
+			var mappingBuilder = ImmutableDictionary.CreateBuilder<string, LoadedBindMapping>( StringComparer.OrdinalIgnoreCase );
+			var files = _fileSystem.GetFiles( Constants.BINDINGS_DIRECTORY, "*.json", true );
 
 			for ( int i = 0; i < files.Count; i++ ) {
 				string filePath = files[i];
@@ -218,12 +343,13 @@ namespace Nomad.Input.Private.Repositories {
 
 				_category.PrintLine( $"Loaded bind mapping '{mappingName}'..." );
 
-				mappingBuilder[mappingName] = MergeActions( _defaultBindings, mappingBindings );
-				allSources.Add( mappingBindings );
+				mappingBuilder[mappingName] = new LoadedBindMapping( mappingName, mappingBindings );
 			}
 
-			_bindMappings = mappingBuilder.ToImmutable();
-			_allBindings = MergeActions( allSources );
+			_loadedMappings = mappingBuilder.ToImmutable();
+			RefreshActiveMappingsFromSettings();
+			ValidateActiveMappings();
+			RebuildCaches();
 		}
 
 		/*
@@ -286,12 +412,177 @@ namespace Nomad.Input.Private.Repositories {
 					builder[actionIndex] = new InputActionDefinition(
 						existing.Name,
 						existing.ValueType,
-						existing.Bindings.AddRange( action.Bindings )
+						OverrideBindingsByScheme( existing.Bindings, action.Bindings )
 					);
 				}
 			}
 
 			return builder.ToImmutable();
+		}
+
+		/*
+		===============
+		OverrideBindingsByScheme
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="left"></param>
+		/// <param name="right"></param>
+		/// <returns></returns>
+		private static ImmutableArray<InputBindingDefinition> OverrideBindingsByScheme( ImmutableArray<InputBindingDefinition> left, ImmutableArray<InputBindingDefinition> right ) {
+			if ( right.IsDefaultOrEmpty ) {
+				return left;
+			}
+
+			var overriddenSchemes = ImmutableHashSet.CreateBuilder<InputScheme>();
+			for ( int i = 0; i < right.Length; i++ ) {
+				overriddenSchemes.Add( right[ i ].Scheme );
+			}
+
+			var builder = ImmutableArray.CreateBuilder<InputBindingDefinition>( left.Length + right.Length );
+
+			for ( int i = 0; i < left.Length; i++ ) {
+				if ( overriddenSchemes.Contains( left[ i ].Scheme ) ) {
+					continue;
+				}
+				builder.Add( left[ i ] );
+			}
+			for ( int i = 0; i < right.Length; i++ ) {
+				if ( ContainsBinding( builder, right[ i ] ) ) {
+					continue;
+				}
+				builder.Add( right[ i ] );
+			}
+
+			return builder.ToImmutable();
+		}
+
+		/*
+		===============
+		RefreshActiveMappingsFromSettings
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		private void RefreshActiveMappingsFromSettings() {
+			var activeMappings = ImmutableDictionary.CreateBuilder<InputScheme, string>();
+			AddActiveMappingFromSetting( activeMappings, InputScheme.KeyboardAndMouse, _keyboardMouseMapping.Value );
+			AddActiveMappingFromSetting( activeMappings, InputScheme.Gamepad, _gamepadMapping.Value );
+			_activeMappings = activeMappings.ToImmutable();
+		}
+
+		/*
+		===============
+		AddActiveMappingFromSetting
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="activeMappings"></param>
+		/// <param name="scheme"></param>
+		/// <param name="mappingName"></param>
+		private void AddActiveMappingFromSetting( ImmutableDictionary<InputScheme, string>.Builder activeMappings, InputScheme scheme, string? mappingName ) {
+			if ( string.IsNullOrWhiteSpace( mappingName ) ) {
+				return;
+			}
+			if ( !_loadedMappings.TryGetValue( mappingName, out var mapping ) || !mapping.Schemes.Contains( scheme ) ) {
+				return;
+			}
+
+			activeMappings[ scheme ] = mappingName;
+		}
+
+		/*
+		===============
+		ValidateActiveMappings
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		private void ValidateActiveMappings() {
+			var builder = _activeMappings.ToBuilder();
+			foreach ( var pair in _activeMappings ) {
+				if ( !_loadedMappings.TryGetValue( pair.Value, out var mapping ) || !mapping.Schemes.Contains( pair.Key ) ) {
+					builder.Remove( pair.Key );
+				}
+			}
+			_activeMappings = builder.ToImmutable();
+		}
+
+		/*
+		===============
+		RebuildCaches
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		private void RebuildCaches() {
+			var mergedMappings = ImmutableDictionary.CreateBuilder<string, ImmutableArray<InputActionDefinition>>( StringComparer.OrdinalIgnoreCase );
+			foreach ( var pair in _loadedMappings ) {
+				mergedMappings[pair.Key] = MergeActions( _defaultBindings, pair.Value.Actions );
+			}
+
+			_bindMappings = mergedMappings.ToImmutable();
+
+			var sources = new List<ImmutableArray<InputActionDefinition>> { _defaultBindings };
+			var includedMappings = new HashSet<string>( StringComparer.OrdinalIgnoreCase );
+			foreach ( var pair in _activeMappings ) {
+				if ( !includedMappings.Add( pair.Value ) ) {
+					continue;
+				}
+				if ( _loadedMappings.TryGetValue( pair.Value, out var mapping ) ) {
+					sources.Add( mapping.Actions );
+				}
+			}
+
+			_allBindings = MergeActions( sources );
+		}
+
+		/*
+		===============
+		SetMappingSetting
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="scheme"></param>
+		/// <param name="mappingName"></param>
+		private void SetMappingSetting( InputScheme scheme, string mappingName ) {
+			switch ( scheme ) {
+				case InputScheme.KeyboardAndMouse:
+					_keyboardMouseMapping.Value = mappingName;
+					break;
+				case InputScheme.Gamepad:
+					_gamepadMapping.Value = mappingName;
+					break;
+			}
+		}
+
+		/*
+		===============
+		ContainsBinding
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="bindings"></param>
+		/// <param name="candidate"></param>
+		/// <returns></returns>
+		private static bool ContainsBinding( ImmutableArray<InputBindingDefinition>.Builder bindings, InputBindingDefinition candidate ) {
+			for ( int i = 0; i < bindings.Count; i++ ) {
+				if ( bindings[ i ].ContentEquals( candidate ) ) {
+					return true;
+				}
+			}
+			return false;
 		}
 
 		/*
@@ -305,6 +596,28 @@ namespace Nomad.Input.Private.Repositories {
 		/// <exception cref="ObjectDisposedException">Thrown when the repository has already been disposed.</exception>
 		private void ThrowIfDisposed() {
 			StateGuard.ThrowIfDisposed( _isDisposed, this );
+		}
+
+		private sealed class LoadedBindMapping {
+			public string Name { get; }
+			public ImmutableArray<InputActionDefinition> Actions { get; }
+			public ImmutableHashSet<InputScheme> Schemes { get; }
+
+			public LoadedBindMapping( string name, ImmutableArray<InputActionDefinition> actions ) {
+				Name = name;
+				Actions = actions;
+				Schemes = GetSchemes( actions );
+			}
+
+			private static ImmutableHashSet<InputScheme> GetSchemes( ImmutableArray<InputActionDefinition> actions ) {
+				var builder = ImmutableHashSet.CreateBuilder<InputScheme>();
+				for ( int i = 0; i < actions.Length; i++ ) {
+					for ( int j = 0; j < actions[ i ].Bindings.Length; j++ ) {
+						builder.Add( actions[ i ].Bindings[ j ].Scheme );
+					}
+				}
+				return builder.ToImmutable();
+			}
 		}
 	};
 };

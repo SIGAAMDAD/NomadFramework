@@ -13,26 +13,28 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.Core.FileSystem.Configs
+using Nomad.Core.Events;
+
+namespace Nomad.Core.UI
 {
     /// <summary>
-    /// 
+    /// Represents a UI element that displays a selectable row of tabs.
     /// </summary>
-    public record FileReadConfig : ReadConfig, IReadConfig
+    public interface ITabBar : IUIElement
     {
         /// <summary>
-        /// 
+        /// The index of the currently selected tab.
         /// </summary>
-        public override StreamType Type => StreamType.File;
+        int SelectedTabIndex { get; set; }
 
         /// <summary>
-        /// 
+        /// The number of tabs currently shown by the tab bar.
         /// </summary>
-        public StreamFormat Format { get; init; } = StreamFormat.Binary;
+        int TabCount { get; }
 
         /// <summary>
-        /// 
+        /// Raised whenever the selected tab changes.
         /// </summary>
-        public string? FilePath { get; init; }
+        IGameEvent<int> TabChanged { get; }
     }
 }

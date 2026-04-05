@@ -13,26 +13,20 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.Core.FileSystem.Configs
+namespace Nomad.Input.ValueObjects
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    public record FileReadConfig : ReadConfig, IReadConfig
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        public override StreamType Type => StreamType.File;
+	/// <summary>
+	/// 
+	/// </summary>
+	public readonly struct InputRebindResult
+	{
+		public InputRebindRequest Request { get; }
+		public InputBindingDefinition Binding { get; }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public StreamFormat Format { get; init; } = StreamFormat.Binary;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public string? FilePath { get; init; }
-    }
+		public InputRebindResult(InputRebindRequest request, InputBindingDefinition binding)
+		{
+			Request = request;
+			Binding = binding;
+		}
+	}
 }

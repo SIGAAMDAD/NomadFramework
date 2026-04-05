@@ -13,26 +13,12 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.Core.FileSystem.Configs
+namespace Nomad.Core.Scene.GameObjects
 {
     /// <summary>
-    /// 
+    /// Represents a 2D engine object that participates in collision or overlap queries.
     /// </summary>
-    public record FileReadConfig : ReadConfig, IReadConfig
+    public interface ICollisionBody2D
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        public override StreamType Type => StreamType.File;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public StreamFormat Format { get; init; } = StreamFormat.Binary;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public string? FilePath { get; init; }
     }
 }

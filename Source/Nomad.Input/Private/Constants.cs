@@ -19,6 +19,8 @@ namespace Nomad.Input.Private {
 			public const string NAMESPACE = "Nomad.Input";
 
 			public const string DEFAULTS_PATH = NAMESPACE + ".DefaultsPath";
+			public const string KEYBOARD_MOUSE_MAPPING = NAMESPACE + ".KeyboardMouseMapping";
+			public const string GAMEPAD_MAPPING = NAMESPACE + ".GamepadMapping";
 		
 			public const string INPUT_DELAY_MS = NAMESPACE + ".InputDelayMS";
 			
@@ -41,6 +43,8 @@ namespace Nomad.Input.Private {
 		public const string MOUSE_BUTTON_DEVICE_ID = "MouseButton";
 		public const string MOUSE_MOTION_DEVICE_ID = "MouseMotion";
 		public const string GAMEPAD_DEVICE_ID = "Gamepad";
+
+		public const string BINDINGS_DIRECTORY = "Assets/Config/Bindings";
 
 		public const int MAX_ACTION_BINDINGS = 3;
 	};

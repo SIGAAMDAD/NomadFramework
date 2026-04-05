@@ -30,6 +30,7 @@ namespace Nomad.Input.Tests {
 			}
 
 			Mock.Setup( fileSystem => fileSystem.Dispose() );
+			Mock.Setup( fileSystem => fileSystem.AddSearchDirectory( It.IsAny<string>() ) );
 			Mock.Setup( fileSystem => fileSystem.FileExists( It.IsAny<string>() ) )
 				.Returns( ( string path ) => FileExists( path ) );
 			Mock.Setup( fileSystem => fileSystem.LoadFile( It.IsAny<string>() ) )
@@ -154,6 +155,8 @@ namespace Nomad.Input.Tests {
 		public static MockCVarSystem CreateCVarSystem( IGameEventRegistryService eventRegistry, string defaultsPath ) {
 			var cvarSystem = new MockCVarSystem( eventRegistry );
 			cvarSystem.SetCVar( Nomad.Input.Private.Constants.CVars.DEFAULTS_PATH, defaultsPath );
+			cvarSystem.SetCVar( Nomad.Input.Private.Constants.CVars.KEYBOARD_MOUSE_MAPPING, "KeyboardAndMouse" );
+			cvarSystem.SetCVar( Nomad.Input.Private.Constants.CVars.GAMEPAD_MAPPING, "Gamepad" );
 			cvarSystem.SetCVar( Nomad.Input.Private.Constants.CVars.INPUT_DELAY_MS, 0 );
 			return cvarSystem;
 		}

@@ -68,7 +68,6 @@ namespace Nomad.FileSystem.Private.Services {
 			_searchHelper = new RecursiveFileSearcher( _category );
 			_searchHelper.AddSearchDirectory( engineService.GetStoragePath( StorageScope.StreamingAssets ) );
 			_searchHelper.AddSearchDirectory( engineService.GetStoragePath( StorageScope.UserData ) );
-//			_searchHelper.AddSearchDirectory( engineService.GetStoragePath( StorageScope.Install ) );
 			_searchHelper.AddSearchDirectory( Path.GetTempPath() );
 		}
 

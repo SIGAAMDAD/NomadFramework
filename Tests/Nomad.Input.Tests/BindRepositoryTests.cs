@@ -16,8 +16,10 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Linq;
 using NUnit.Framework;
+using Nomad.Core.Input;
 using Nomad.Events;
 using Nomad.Input.Private.Repositories;
+using Nomad.Input.ValueObjects;
 
 namespace Nomad.Input.Tests
 {
@@ -161,6 +163,127 @@ namespace Nomad.Input.Tests
 				Assert.That(allBindings, Has.Length.EqualTo(1));
 				Assert.That(allBindings[0].Name, Is.EqualTo("Shoot"));
 				Assert.That(allBindings[0].Bindings, Has.Length.EqualTo(2));
+			}
+		}
+
+		[Test]
+		public void GetAllBindings_UsesOnlyTheActiveMappingForEachScheme()
+		{
+			const string defaultsPath = "Assets/Config/Bindings/DefaultBinds.json";
+			var fileSystem = new InputFileSystemFixture(
+				(defaultsPath, """
+				{
+				  "Bindings": [
+				    {
+				      "Name": "Move",
+				      "ValueType": "Vector2",
+				      "Scheme": "KeyboardAndMouse",
+				      "Bindings": {
+				        "Kind": "Axis2DComposite",
+				        "Up": "W",
+				        "Down": "S",
+				        "Left": "A",
+				        "Right": "D"
+				      }
+				    }
+				  ]
+				}
+				"""),
+				("Assets/Config/Bindings/KeyboardAndMouse.json", """
+				{
+				  "Bindings": [
+				    {
+				      "Name": "Move",
+				      "ValueType": "Vector2",
+				      "Scheme": "KeyboardAndMouse",
+				      "Bindings": {
+				        "Kind": "Axis2DComposite",
+				        "Up": "I",
+				        "Down": "K",
+				        "Left": "J",
+				        "Right": "L"
+				      }
+				    }
+				  ]
+				}
+				"""),
+				("Assets/Config/Bindings/KeyboardAlternative.json", """
+				{
+				  "Bindings": [
+				    {
+				      "Name": "Move",
+				      "ValueType": "Vector2",
+				      "Scheme": "KeyboardAndMouse",
+				      "Bindings": {
+				        "Kind": "Axis2DComposite",
+				        "Up": "UpArrow",
+				        "Down": "DownArrow",
+				        "Left": "LeftArrow",
+				        "Right": "RightArrow"
+				      }
+				    }
+				  ]
+				}
+				""")
+			);
+			var cvarSystem = InputTestHelpers.CreateCVarSystem(_eventRegistry, defaultsPath);
+
+			using var repository = new BindRepository(fileSystem.Object, cvarSystem, _logger);
+
+			bool loaded = repository.SetActiveMapping(InputScheme.KeyboardAndMouse, "KeyboardAlternative");
+			var allBindings = repository.GetAllBindings();
+
+			using (Assert.EnterMultipleScope())
+			{
+				Assert.That(loaded, Is.True);
+				Assert.That(allBindings, Has.Length.EqualTo(1));
+				Assert.That(allBindings[0].Bindings, Has.Length.EqualTo(1));
+				Assert.That(allBindings[0].Bindings[0].Axis2DComposite.Up, Is.EqualTo(InputControlId.UpArrow));
+			}
+		}
+
+		[Test]
+		public void GetMappingsForScheme_ReturnsOnlyMappingsThatContainThatScheme()
+		{
+			const string defaultsPath = "Assets/Config/Bindings/DefaultBinds.json";
+			var fileSystem = new InputFileSystemFixture(
+				(defaultsPath, "{ \"Bindings\": [] }"),
+				("Assets/Config/Bindings/KeyboardAndMouse.json", """
+				{
+				  "Bindings": [
+				    {
+				      "Name": "Jump",
+				      "ValueType": "Button",
+				      "Scheme": "KeyboardAndMouse",
+				      "Bindings": { "DeviceId": "Keyboard", "ControlId": "Space" }
+				    }
+				  ]
+				}
+				"""),
+				("Assets/Config/Bindings/Gamepad.json", """
+				{
+				  "Bindings": [
+				    {
+				      "Name": "Jump",
+				      "ValueType": "Button",
+				      "Scheme": "Gamepad",
+				      "Bindings": { "DeviceId": "Gamepad", "ControlId": "A" }
+				    }
+				  ]
+				}
+				""")
+			);
+			var cvarSystem = InputTestHelpers.CreateCVarSystem(_eventRegistry, defaultsPath);
+
+			using var repository = new BindRepository(fileSystem.Object, cvarSystem, _logger);
+
+			var keyboardMappings = repository.GetMappingsForScheme(InputScheme.KeyboardAndMouse);
+			var gamepadMappings = repository.GetMappingsForScheme(InputScheme.Gamepad);
+
+			using (Assert.EnterMultipleScope())
+			{
+				Assert.That(keyboardMappings, Is.EquivalentTo(new[] { "KeyboardAndMouse" }));
+				Assert.That(gamepadMappings, Is.EquivalentTo(new[] { "Gamepad" }));
 			}
 		}
 

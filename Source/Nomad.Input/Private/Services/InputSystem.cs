@@ -60,6 +60,7 @@ namespace Nomad.Input.Private.Services {
 		private readonly CompiledBindingRepository _compiledBindings;
 
 		private readonly IBindResolver _bindResolver;
+		private readonly IInputRebindService _rebindService;
 
 		private readonly ISubscriptionHandle _keyboardEvent;
 		private readonly ISubscriptionHandle _mouseButtonEvent;
@@ -97,8 +98,11 @@ namespace Nomad.Input.Private.Services {
 			_matcherService = new BindingMatcherService( _compiledBindings, _stateService );
 			_actionResolverService = new ActionResolverService( _compiledBindings, _stateService );
 
-			_bindResolver = new BindResolver( _bindRepository );
+			_bindResolver = new BindResolver( _bindRepository, RecompileBindings );
 			registry.AddSingleton( _bindResolver );
+
+			_rebindService = new InputRebindService( _bindRepository, _compilerService, eventFactory );
+			registry.AddSingleton( _rebindService );
 
 			var keyboardEvent = eventFactory.GetEvent<KeyboardEventArgs>( Core.Constants.Events.Input.KEYBOARD_EVENT, Core.Constants.Events.Input.NAMESPACE );
 			_keyboardEvent = keyboardEvent.Subscribe( OnKeyboardEventTriggered );
@@ -131,6 +135,7 @@ namespace Nomad.Input.Private.Services {
 				_mouseMotionEvent?.Dispose();
 				_gamepadAxisEvent?.Dispose();
 				_gamepadButtonEvent?.Dispose();
+				( _rebindService as IDisposable )?.Dispose();
 
 				_bindRepository?.Dispose();
 			}
@@ -260,6 +265,18 @@ namespace Nomad.Input.Private.Services {
 			foreach ( var action in actions ) {
 				_dispatchService.Dispatch( in action );
 			}
+		}
+
+		/*
+		===============
+		RecompileBindings
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		private void RecompileBindings() {
+			_compilerService.CompileIntoRepository( _bindRepository.GetAllBindings() );
 		}
 
 		/*

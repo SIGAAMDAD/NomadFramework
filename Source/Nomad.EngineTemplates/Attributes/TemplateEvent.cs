@@ -37,5 +37,17 @@ namespace Nomad.EngineTemplates.Attributes
         /// Optional documentation for the generated event member.
         /// </summary>
         public string Documentation { get; set; } = null;
+
+        /// <summary>
+        /// Optional Godot-specific hook expression used to translate engine signals into the generated event.
+        /// Use <c>{{field}}</c> as a placeholder for the generated backing event field.
+        /// </summary>
+        public string GodotHookExpression { get; set; } = null;
+
+        /// <summary>
+        /// Optional Unity-specific hook expression used to translate engine callbacks into the generated event.
+        /// Use <c>{{field}}</c> as a placeholder for the generated backing event field.
+        /// </summary>
+        public string UnityHookExpression { get; set; } = null;
     }
 }

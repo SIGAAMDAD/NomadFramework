@@ -17,13 +17,13 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text;
+using System.IO;
 using System.Text.Json;
 using Nomad.Core.FileSystem;
-using Nomad.Core.FileSystem.Configs;
 using Nomad.Core.Input;
 using Nomad.Core.Input.ValueObjects;
 using Nomad.Input.Private.Extensions;
-using Nomad.Input.Private.ValueObjects;
 using Nomad.Input.ValueObjects;
 using Nomad.Core.Logger;
 
@@ -41,7 +41,7 @@ namespace Nomad.Input.Private.Services {
 
 	internal sealed class BindLoader {
 		private readonly IFileSystem _fileSystem;
-		private readonly ILoggerService _logger;
+		private readonly ILoggerCategory _category;
 
 		/*
 		===============
@@ -52,9 +52,12 @@ namespace Nomad.Input.Private.Services {
 		/// 
 		/// </summary>
 		/// <param name="fileSystem"></param>
+		/// <param name="logger"></param>
 		public BindLoader( IFileSystem fileSystem, ILoggerService logger ) {
 			_fileSystem = fileSystem;
-			_logger = logger;
+			_category = logger.CreateCategory( nameof( BindLoader ), LogLevel.Info, true );
+
+			_fileSystem.AddSearchDirectory( Constants.BINDINGS_DIRECTORY );
 		}
 
 		/*
@@ -69,15 +72,15 @@ namespace Nomad.Input.Private.Services {
 		/// <param name="binds"></param>
 		/// <returns></returns>
 		public bool LoadBindDatabase( string filePath, out ImmutableArray<InputActionDefinition> binds ) {
-			using var fileBuffer = _fileSystem.LoadFile( filePath );
-			if ( fileBuffer == null ) {
+			using var stream = new StreamReader( new FileStream( filePath, FileMode.Open, FileAccess.Read ) );
+			if ( stream == null ) {
 				binds = ImmutableArray<InputActionDefinition>.Empty;
+				_category.PrintLine( $"Couldn't load bind file '{filePath}'!" );
 				return false;
 			}
-			using var fileStream = fileBuffer.AsStream();
 
 			using var document = JsonDocument.Parse(
-				fileStream,
+				stream.ReadToEnd(),
 				new JsonDocumentOptions {
 					CommentHandling = JsonCommentHandling.Skip,
 					AllowTrailingCommas = true
@@ -93,7 +96,7 @@ namespace Nomad.Input.Private.Services {
 
 			switch ( bindingsElement.ValueKind ) {
 				case JsonValueKind.Array:
-					foreach ( var actionElement in bindingsElement.EnumerateArray() ) {
+					foreach ( var actionElement in bindingsElement.EnumerateArray() ) { 
 						ParseActionDefinition( actionElement, actionIndices, actions );
 					}
 					break;

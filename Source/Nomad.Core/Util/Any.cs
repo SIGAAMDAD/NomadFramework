@@ -92,6 +92,8 @@ namespace Nomad.Core.Util
             { AnyType.String, typeof( string ) }
         }.ToImmutableDictionary();
 
+        public static readonly Any Empty = new Any(0);
+
         [FieldOffset(0)] private Union _value;
 
         /// <summary>
@@ -628,6 +630,112 @@ namespace Nomad.Core.Util
             }
             _type = type;
             return Unsafe.As<F, T>(ref Unsafe.AsRef(in from));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
+        public static bool operator !=(Any left, Any right)
+        {
+            if (left.Type != right.Type)
+            {
+                return true;
+            }
+            ReadOnlySpan<byte> leftSpan = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<Any, byte>(ref left), Unsafe.SizeOf<Any>());
+            ReadOnlySpan<byte> rightSpan = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<Any, byte>(ref right), Unsafe.SizeOf<Any>());
+            return !leftSpan.SequenceEqual(rightSpan);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
+        public static bool operator ==(Any left, Any right)
+        {
+            if (left.Type != right.Type)
+            {
+                return false;
+            }
+            ReadOnlySpan<byte> leftSpan = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<Any, byte>(ref left), Unsafe.SizeOf<Any>());
+            ReadOnlySpan<byte> rightSpan = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<Any, byte>(ref right), Unsafe.SizeOf<Any>());
+            return leftSpan.SequenceEqual(rightSpan);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
+        public static bool operator >(Any left, Any right)
+        {
+            if (left.Type != right.Type)
+            {
+                return false;
+            }
+            ReadOnlySpan<byte> leftSpan = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<Any, byte>(ref left), Unsafe.SizeOf<Any>());
+            ReadOnlySpan<byte> rightSpan = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<Any, byte>(ref right), Unsafe.SizeOf<Any>());
+            return leftSpan.SequenceCompareTo(rightSpan) > 0;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
+        public static bool operator <(Any left, Any right)
+        {
+            if (left.Type != right.Type)
+            {
+                return false;
+            }
+            ReadOnlySpan<byte> leftSpan = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<Any, byte>(ref left), Unsafe.SizeOf<Any>());
+            ReadOnlySpan<byte> rightSpan = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<Any, byte>(ref right), Unsafe.SizeOf<Any>());
+            return leftSpan.SequenceCompareTo(rightSpan) < 0;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
+        public static bool operator >=(Any left, Any right)
+        {
+            if (left.Type != right.Type)
+            {
+                return false;
+            }
+            ReadOnlySpan<byte> leftSpan = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<Any, byte>(ref left), Unsafe.SizeOf<Any>());
+            ReadOnlySpan<byte> rightSpan = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<Any, byte>(ref right), Unsafe.SizeOf<Any>());
+
+            int cmp = leftSpan.SequenceCompareTo(rightSpan);
+            return cmp > 0 || cmp == 0;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
+        public static bool operator <=(Any left, Any right)
+        {
+            if (left.Type != right.Type)
+            {
+                return false;
+            }
+            ReadOnlySpan<byte> leftSpan = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<Any, byte>(ref left), Unsafe.SizeOf<Any>());
+            ReadOnlySpan<byte> rightSpan = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<Any, byte>(ref right), Unsafe.SizeOf<Any>());
+
+            int cmp = leftSpan.SequenceCompareTo(rightSpan);
+            return cmp < 0 || cmp == 0;
         }
     }
 }

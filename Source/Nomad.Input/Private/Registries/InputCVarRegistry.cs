@@ -30,9 +30,25 @@ namespace Nomad.Input.Private.Registries {
 			cvarSystem.Register(
 				new CVarCreateInfo<string> {
 					Name = Constants.CVars.DEFAULTS_PATH,
-					DefaultValue = "Assets/Config/DefaultConfig.json",
+					DefaultValue = "Assets/Config/Bindings/DefaultConfig.json",
 					Description = "The default configuration file path for the input subsystem.",
 					Flags = CVarFlags.Init
+				}
+			);
+			cvarSystem.Register(
+				new CVarCreateInfo<string> {
+					Name = Constants.CVars.KEYBOARD_MOUSE_MAPPING,
+					DefaultValue = "KeyboardAndMouse",
+					Description = "The active keyboard and mouse input binding configuration.",
+					Flags = CVarFlags.Archive
+				}
+			);
+			cvarSystem.Register(
+				new CVarCreateInfo<string> {
+					Name = Constants.CVars.GAMEPAD_MAPPING,
+					DefaultValue = "Gamepad",
+					Description = "The active gamepad input binding configuration.",
+					Flags = CVarFlags.Archive
 				}
 			);
 			cvarSystem.Register(

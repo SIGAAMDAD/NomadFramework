@@ -13,26 +13,19 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.Core.FileSystem.Configs
+using Nomad.Core.Scene.GameObjects;
+using Nomad.EngineTemplates.Attributes;
+using Nomad.EngineTemplates.BaseClasses;
+
+namespace Nomad.EngineTemplates.Scene.GameObjects
 {
     /// <summary>
-    /// 
+    /// Declares the shared engine template for 2D collision-participating bodies.
     /// </summary>
-    public record FileReadConfig : ReadConfig, IReadConfig
+    [TemplateClass(Contract = typeof(ICollisionBody2D), GodotBase = "Godot.CollisionShape2D", UnityBase = "UnityEngine.Collider2D")]
+    [TemplateNamespace(Name = "Scene.GameObjects")]
+    [TemplateObject2D]
+    internal class EngineCollisionBody2D
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        public override StreamType Type => StreamType.File;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public StreamFormat Format { get; init; } = StreamFormat.Binary;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public string? FilePath { get; init; }
     }
 }

@@ -145,7 +145,7 @@ namespace Nomad.FileSystem.Private.Services {
 			foreach ( string baseDir in _searchDirectories ) {
 				string? fullPath = GetSafeFullPath( baseDir, cleanPath );
 				if ( fullPath != null && FileExists( fullPath ) ) {
-					return fullPath;
+					return NormalizePath( fullPath );
 				}
 			}
 			return null;

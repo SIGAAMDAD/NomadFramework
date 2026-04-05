@@ -13,26 +13,19 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.Core.FileSystem.Configs
+using Nomad.Core.UI;
+using Nomad.EngineTemplates.Attributes;
+using Nomad.EngineTemplates.BaseClasses;
+
+namespace Nomad.EngineTemplates.UI
 {
     /// <summary>
-    /// 
+    /// Declares the engine template for scroll container UI elements.
     /// </summary>
-    public record FileReadConfig : ReadConfig, IReadConfig
+    [TemplateClass(Contract = typeof(IScrollContainer), GodotBase = "Godot.ScrollContainer", UnityBase = "UnityEngine.UI.ScrollRect")]
+    [TemplateNamespace(Name = "UI")]
+    [TemplateUIElement]
+    internal class EngineScrollContainer
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        public override StreamType Type => StreamType.File;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public StreamFormat Format { get; init; } = StreamFormat.Binary;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public string? FilePath { get; init; }
     }
 }
