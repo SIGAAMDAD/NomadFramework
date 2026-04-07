@@ -100,6 +100,9 @@ namespace Nomad.Events.Private {
 		///
 		/// </summary>
 		public void UnsubscribeAll() {
+			for ( int i = 0; i < _subscriptions.Count; ++i ) {
+				_subscriptions[ i ]?.Dispose();
+			}
 			_subscriptions.Clear();
 		}
 	};

@@ -21,33 +21,19 @@ using Nomad.Audio.ValueObjects;
 
 namespace Nomad.Audio.Fmod.Private.Entities {
 	internal sealed class FMODEmitter : IAudioEmitter {
-		public Vector2 Positon {
-			get {
-				throw new System.NotImplementedException();
-			}
-			set {
-				throw new System.NotImplementedException();
-			}
+		public Vector2 Position {
+			get => _channel != null ? _channel.Instance.Position : Vector2.Zero;
+			set => _channel?.Instance.Position = value;
 		}
-		private Vector2 _position = Vector2.Zero;
 
 		public float Volume {
-			get {
-				throw new System.NotImplementedException();
-			}
-			set {
-				throw new System.NotImplementedException();
-			}
+			get => _channel != null ? _channel.Instance.Volume : 0.0f;
+			set => _channel?.Instance.Volume = value;
 		}
 
 		public float Pitch {
-			get {
-				throw new System.NotImplementedException();
-			}
-
-			set {
-				throw new System.NotImplementedException();
-			}
+			get => _channel != null ? _channel.Instance.Pitch : 0.0f;
+			set => _channel?.Instance.Pitch = value;
 		}
 
 		public string Category => _category.Config.Name;
@@ -68,8 +54,8 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 			_channelRepository = channelRepository;
 		}
 
-		public void PlaySound( string id, float priority = 0.5f ) {
-			_channel = _channelRepository.AllocateChannel( id, _position, _category, priority );
+		public void PlaySound( string id, Vector2 position = default, float priority = 0.5f ) {
+			_channel = _channelRepository.AllocateChannel( id, position, _category, priority );
 		}
 	};
 };

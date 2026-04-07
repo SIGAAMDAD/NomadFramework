@@ -127,6 +127,11 @@ namespace Nomad.Core
                     public const string MAX_CHANNELS = "audio.MaxChannels";
 
                     /// <summary>
+                    /// 
+                    /// </summary>
+                    public const string SPEAKER_MODE = "audio.SpeakerMode";
+
+                    /// <summary>
                     ///
                     /// </summary>
                     public const string MAX_ACTIVE_CHANNELS = "audio.MaxActiveChannels";
@@ -160,12 +165,7 @@ namespace Nomad.Core
                     ///
                     /// </summary>
                     public const string DISTANCE_WEIGHT = "audio.DistanceWeight";
-
-                    /// <summary>
-                    ///
-                    /// </summary>
-                    public const string SPEAKER_MODE = "audio.SpeakerMode";
-
+                    
                     /// <summary>
                     ///
                     /// </summary>

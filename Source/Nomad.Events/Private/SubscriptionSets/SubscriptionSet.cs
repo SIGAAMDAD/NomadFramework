@@ -34,7 +34,8 @@ namespace Nomad.Events.Private.SubscriptionSets {
 	/// </summary>
 
 	internal sealed class SubscriptionSet<TArgs> : ISubscriptionSet<TArgs>
-		where TArgs : struct {
+		where TArgs : struct
+	{
 		public int SubscriberCount => _subscriberCount;
 		private int _subscriberCount = 0;
 

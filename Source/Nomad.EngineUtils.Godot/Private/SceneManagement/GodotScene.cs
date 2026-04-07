@@ -86,5 +86,5 @@ namespace Nomad.EngineUtils.Godot.Private.SceneManagement {
 		public void AddScene( GodotGameObject scene ) {
 			_root.Node.AddChild( scene.Node );
 		}
-	}
-}
+	};
+};

@@ -92,7 +92,7 @@ namespace Nomad.Input.Private.Services {
 			if ( _buttonEvents.TryGetValue( actionId, out var gameEvent ) ) {
 				return gameEvent;
 			}
-			gameEvent = _eventFactory.GetEvent<ButtonActionEventArgs>( $"{actionId}:{Input.Constants.Events.BUTTON_ACTION}", Input.Constants.Events.NAMESPACE );
+			gameEvent = _eventFactory.GetEvent<ButtonActionEventArgs>( $"{(string)actionId}:{Input.Constants.Events.BUTTON_ACTION}", Input.Constants.Events.NAMESPACE );
 			_buttonEvents[ actionId ] = gameEvent;
 			return gameEvent;
 		}
@@ -111,7 +111,7 @@ namespace Nomad.Input.Private.Services {
 			if ( _floatEvents.TryGetValue( actionId, out var gameEvent ) ) {
 				return gameEvent;
 			}
-			gameEvent = _eventFactory.GetEvent<FloatActionEventArgs>( $"{actionId}:{Input.Constants.Events.FLOAT_ACTION}", Input.Constants.Events.NAMESPACE );
+			gameEvent = _eventFactory.GetEvent<FloatActionEventArgs>( $"{(string)actionId}:{Input.Constants.Events.FLOAT_ACTION}", Input.Constants.Events.NAMESPACE );
 			_floatEvents[ actionId ] = gameEvent;
 			return gameEvent;
 		}
@@ -130,7 +130,7 @@ namespace Nomad.Input.Private.Services {
 			if ( _axisEvents.TryGetValue( actionId, out var gameEvent ) ) {
 				return gameEvent;
 			}
-			gameEvent = _eventFactory.GetEvent<AxisActionEventArgs>( $"{actionId}:{Input.Constants.Events.AXIS_ACTION}", Input.Constants.Events.NAMESPACE );
+			gameEvent = _eventFactory.GetEvent<AxisActionEventArgs>( $"{(string)actionId}:{Input.Constants.Events.AXIS_ACTION}", Input.Constants.Events.NAMESPACE );
 			_axisEvents[ actionId ] = gameEvent;
 			return gameEvent;
 		}

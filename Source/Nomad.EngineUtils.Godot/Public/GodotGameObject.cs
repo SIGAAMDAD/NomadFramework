@@ -94,6 +94,21 @@ namespace Nomad.EngineUtils
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T? CastAs<T>()
+            where T : class, IGameObject
+        {
+            if ( _node is T castedType )
+            {
+                return castedType;
+            }
+            return null;
+        }
+
+        /// <summary>
         ///
         /// </summary>
         /// <typeparam name="T"></typeparam>

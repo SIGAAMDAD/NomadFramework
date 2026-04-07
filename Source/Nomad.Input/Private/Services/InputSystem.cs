@@ -67,6 +67,8 @@ namespace Nomad.Input.Private.Services {
 		private readonly ISubscriptionHandle _mouseMotionEvent;
 		private readonly ISubscriptionHandle _gamepadAxisEvent;
 		private readonly ISubscriptionHandle _gamepadButtonEvent;
+
+		private readonly ILoggerService _logger;
 		
 		private bool _isDisposed = false;
 
@@ -85,6 +87,8 @@ namespace Nomad.Input.Private.Services {
 		/// <param name="registry"></param>
 		public InputSystem( IFileSystem fileSystem, ICVarSystemService cvarSystem, ILoggerService logger, IGameEventRegistryService eventFactory, IServiceRegistry registry ) {
 			InputCVarRegistry.RegisterCVars( cvarSystem );
+
+			_logger = logger;
 
 			_bindRepository = new BindRepository( fileSystem, cvarSystem, logger );
 			_dispatchService = new InputDispatchService( eventFactory );

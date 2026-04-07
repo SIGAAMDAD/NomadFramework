@@ -34,7 +34,7 @@ namespace FMOD
     /// </summary>
 
     [SuppressUnmanagedCodeSecurity]
-    public static unsafe class FMODNative
+    internal static unsafe class FMODNative
     {
         private static delegate* unmanaged[Cdecl]<Studio.System**, uint, RESULT> _studio_systemCreate;
         private static delegate* unmanaged[Cdecl]<Studio.System*, RESULT> _studio_systemUpdate;

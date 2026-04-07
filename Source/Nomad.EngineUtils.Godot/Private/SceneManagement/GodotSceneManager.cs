@@ -122,6 +122,21 @@ namespace Nomad.EngineUtils.Godot.Private.SceneManagement {
 
 		/*
 		===============
+		LoadPrefab
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="path"></param>
+		/// <returns></returns>
+		public IScene LoadPrefab( string path ) {
+			_sceneCache.GetCached( path ).Get( out var resource );
+			return WalkSceneTree( resource );
+		}
+
+		/*
+		===============
 		LoadScene
 		===============
 		*/

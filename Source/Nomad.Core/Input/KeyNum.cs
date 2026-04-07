@@ -271,6 +271,11 @@ namespace Nomad.Core.Input.ValueObjects
         RightArrow,
 
         /// <summary>
+        /// The escape key.
+        /// </summary>
+        Escape,
+
+        /// <summary>
         /// Sentinel value representing the total number of defined keys.
         /// </summary>
         Count

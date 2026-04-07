@@ -67,5 +67,18 @@ namespace Nomad.Events.Extensions
         {
             return new ScheduledEvent<TArgs>(source, payload, publishIntervalMS);
         }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TArgs"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="waitMS"></param>
+        /// <returns></returns>
+        public static IGameEvent<TArgs> PublishAfter<TArgs>(this IGameEvent<TArgs> source, int waitMS)
+            where TArgs : struct
+        {
+            return new DelayedEvent<TArgs>(source, waitMS);
+        }
     }
 }

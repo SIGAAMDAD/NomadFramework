@@ -23,12 +23,12 @@ namespace Nomad.Audio.Interfaces
     /// </summary>
     public interface IAudioEmitter
     {
-        Vector2 Positon { get; set; }
+        Vector2 Position { get; set; }
         float Volume { get; set; }
         float Pitch { get; set; }
         string Category { get; }
         ChannelStatus Status { get; }
 
-        void PlaySound(string id, float priority = 0.5f);
+        void PlaySound(string id, Vector2 position = default, float priority = 0.5f);
     }
 }

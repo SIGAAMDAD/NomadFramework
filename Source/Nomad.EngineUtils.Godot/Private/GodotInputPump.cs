@@ -14,7 +14,9 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 using Godot;
 using Nomad.Core.Engine.Services;
 using Nomad.Core.Events;
@@ -64,15 +66,20 @@ namespace Nomad.EngineUtils.Godot.Private {
 		public IGameEvent<GamepadButtonEventArgs> GamepadButtonEvent => _gamepadButtonEvent;
 		private readonly IGameEvent<GamepadButtonEventArgs> _gamepadButtonEvent;
 
+		private readonly Dictionary<int, System.Numerics.Vector2> _leftStickState = new();
+		private readonly Dictionary<int, System.Numerics.Vector2> _rightStickState = new();
+
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <param name="eventFactory"></param>
 		public GodotInputPump( IGameEventRegistryService eventFactory ) {
-			_keyboardEvent = eventFactory.GetEvent<KeyboardEventArgs>( Core.Constants.Events.Input.KEYBOARD_EVENT, Constants.Events.NAMESPACE );
-			_mouseButtonEvent = eventFactory.GetEvent<MouseButtonEventArgs>( Core.Constants.Events.Input.MOUSE_BUTTON_EVENT, Constants.Events.NAMESPACE );
-			_mouseMotionEvent = eventFactory.GetEvent<MouseMotionEventArgs>( Core.Constants.Events.Input.MOUSE_MOTION_EVENT, Constants.Events.NAMESPACE );
-			_gamepadAxisEvent = eventFactory.GetEvent<GamepadAxisEventArgs>( Core.Constants.Events.Input.GAMEPAD_AXIS_EVENT, Constants.Events.NAMESPACE );
+			Name = nameof( GodotInputPump );
+			
+			_keyboardEvent = eventFactory.GetEvent<KeyboardEventArgs>( Core.Constants.Events.Input.KEYBOARD_EVENT, Core.Constants.Events.Input.NAMESPACE );
+			_mouseButtonEvent = eventFactory.GetEvent<MouseButtonEventArgs>( Core.Constants.Events.Input.MOUSE_BUTTON_EVENT, Core.Constants.Events.Input.NAMESPACE );
+			_mouseMotionEvent = eventFactory.GetEvent<MouseMotionEventArgs>( Core.Constants.Events.Input.MOUSE_MOTION_EVENT, Core.Constants.Events.Input.NAMESPACE );
+			_gamepadAxisEvent = eventFactory.GetEvent<GamepadAxisEventArgs>( Core.Constants.Events.Input.GAMEPAD_AXIS_EVENT, Core.Constants.Events.Input.NAMESPACE );
 			_gamepadButtonEvent = eventFactory.GetEvent<GamepadButtonEventArgs>( Core.Constants.Events.Input.GAMEPAD_BUTTON_EVENT, Core.Constants.Events.Input.NAMESPACE );
 		}
 
@@ -86,12 +93,12 @@ namespace Nomad.EngineUtils.Godot.Private {
 		/// </summary>
 		/// <param name="event"></param>
 		public override void _Input( InputEvent @event ) {
-			var now = DateTime.UtcNow.ToFileTimeUtc();
+			var now = DateTime.Now.ToFileTimeUtc();
 			switch ( @event ) {
 				case InputEventKey keyEvent:
 					_keyboardEvent.Publish(
 						new KeyboardEventArgs(
-							GodotKeyToNomadKey( keyEvent.GetPhysicalKeycodeWithModifiers() ),
+							GodotKeyToNomadKey( keyEvent.PhysicalKeycode ),
 							now,
 							keyEvent.Pressed
 						)
@@ -110,8 +117,8 @@ namespace Nomad.EngineUtils.Godot.Private {
 					_mouseMotionEvent.Publish(
 						new MouseMotionEventArgs(
 							now,
-							(int)mouseMotion.Position.X,
-							(int)mouseMotion.Position.Y
+							(int)mouseMotion.Relative.X,
+							(int)mouseMotion.Relative.Y
 						)
 					);
 					break;
@@ -131,7 +138,7 @@ namespace Nomad.EngineUtils.Godot.Private {
 							GodotStickToNomadGamepadStick( joypadMotion.Axis ),
 							now,
 							joypadMotion.Device,
-							GodotAxisValueToVector2( joypadMotion )
+							UpdateStickValue( joypadMotion )
 						)
 					);
 					break;
@@ -144,7 +151,7 @@ namespace Nomad.EngineUtils.Godot.Private {
 
 		/*
 		===============
-		GodotAxisValueToVector2
+		UpdateStickValue
 		===============
 		*/
 		/// <summary>
@@ -154,12 +161,30 @@ namespace Nomad.EngineUtils.Godot.Private {
 		/// <returns></returns>
 		/// <exception cref="ArgumentOutOfRangeException"></exception>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		private static System.Numerics.Vector2 GodotAxisValueToVector2( InputEventJoypadMotion motion ) {
-			return motion.Axis switch {
-				JoyAxis.LeftX or JoyAxis.RightX => new System.Numerics.Vector2( motion.AxisValue, 0.0f ),
-				JoyAxis.LeftY or JoyAxis.RightY => new System.Numerics.Vector2( 0.0f, motion.AxisValue ),
+		private System.Numerics.Vector2 UpdateStickValue( InputEventJoypadMotion motion ) {
+			Dictionary<int, System.Numerics.Vector2> cache = motion.Axis switch {
+				JoyAxis.LeftX or JoyAxis.LeftY => _leftStickState,
+				JoyAxis.RightX or JoyAxis.RightY => _rightStickState,
 				_ => throw new ArgumentOutOfRangeException( nameof( motion ) ),
 			};
+
+			cache.TryGetValue( motion.Device, out var value );
+
+			switch ( motion.Axis ) {
+				case JoyAxis.LeftX:
+				case JoyAxis.RightX:
+					value.X = motion.AxisValue;
+					break;
+				case JoyAxis.LeftY:
+				case JoyAxis.RightY:
+					value.Y = motion.AxisValue;
+					break;
+				default:
+					throw new ArgumentOutOfRangeException( nameof( motion ) );
+			}
+
+			cache[ motion.Device ] = value;
+			return value;
 		}
 
 		/*
@@ -282,6 +307,18 @@ namespace Nomad.EngineUtils.Godot.Private {
 			Key.Down => KeyNum.DownArrow,
 			Key.Right => KeyNum.RightArrow,
 			Key.Alt => KeyNum.Alt,
+			Key.Quoteleft => KeyNum.Grave,
+			Key.Key0 => KeyNum.Num0,
+			Key.Key1 => KeyNum.Num1,
+			Key.Key2 => KeyNum.Num2,
+			Key.Key3 => KeyNum.Num3,
+			Key.Key4 => KeyNum.Num4,
+			Key.Key5 => KeyNum.Num5,
+			Key.Key6 => KeyNum.Num6,
+			Key.Key7 => KeyNum.Num7,
+			Key.Key8 => KeyNum.Num8,
+			Key.Key9 => KeyNum.Num9,
+			Key.Escape => KeyNum.Escape,
 			_ => throw new ArgumentOutOfRangeException( nameof( keyCode ) )
 		};
 	};

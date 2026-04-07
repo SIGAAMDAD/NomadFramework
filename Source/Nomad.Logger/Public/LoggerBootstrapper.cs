@@ -19,6 +19,7 @@ using Nomad.Core.Abstractions;
 using Nomad.Logger.Private.Services;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.Util.Attributes;
+using Nomad.Logger.Globals;
 using System.Reflection;
 
 namespace Nomad.Logger
@@ -45,6 +46,8 @@ namespace Nomad.Logger
 
             var attribute = Assembly.GetAssembly(typeof(LoggerBootstrapper)).GetCustomAttribute<NomadModule>();
             _logger.PrintLine($"Initialized {attribute.Name}\n\tBuildId = {attribute.BuildId}\n\tCompileTime = {attribute.CompileTime}\n\tVersion = {attribute.VersionMajor}.{attribute.VersionMinor}.{attribute.VersionPatch}");
+
+            Logging.Initialize(_logger);
         }
 
         /// <summary>

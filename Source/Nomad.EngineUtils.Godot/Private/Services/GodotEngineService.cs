@@ -43,6 +43,8 @@ namespace Nomad.EngineUtils.Godot.Private.Services {
         private readonly IDisplayService _displayService;
         private readonly ISceneManager _sceneManager;
 
+        private readonly GodotInputPump _inputPump;
+
         private readonly ILoggerService _logger;
         private readonly IGameEventRegistryService _eventFactory;
 
@@ -74,6 +76,9 @@ namespace Nomad.EngineUtils.Godot.Private.Services {
             var cvarSystem = locator.GetService<ICVarSystemService>();
 
             _loader = new GodotLoader();
+
+            _inputPump = new GodotInputPump( _eventFactory );
+            _root.CallDeferred( Node.MethodName.AddChild, _inputPump );
 
             DisplayCVars.Register( cvarSystem );
 

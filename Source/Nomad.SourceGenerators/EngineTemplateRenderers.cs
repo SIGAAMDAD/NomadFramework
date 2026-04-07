@@ -332,21 +332,25 @@ namespace Nomad.SourceGenerators
             AppendSummaryDocumentation(builder, "        ", "Invoked after the generated engine object has completed initialization.");
             builder.AppendLine("        protected virtual void OnInit()");
             builder.AppendLine("        {");
+            builder.AppendLine("            _impl.OnInit();");
             builder.AppendLine("        }");
             builder.AppendLine();
             AppendSummaryDocumentation(builder, "        ", "Invoked when the generated engine object is shutting down.");
             builder.AppendLine("        protected virtual void OnShutdown()");
             builder.AppendLine("        {");
+            builder.AppendLine("            _impl.OnShutdown();");
             builder.AppendLine("        }");
             builder.AppendLine();
             AppendSummaryDocumentation(builder, "        ", "Invoked once per frame by the generated engine wrapper.");
             builder.AppendLine("        protected virtual void OnUpdate(float delta)");
             builder.AppendLine("        {");
+            builder.AppendLine("            _impl.OnUpdate(delta);");
             builder.AppendLine("        }");
             builder.AppendLine();
             AppendSummaryDocumentation(builder, "        ", "Invoked once per physics tick by the generated engine wrapper.");
             builder.AppendLine("        protected virtual void OnPhysicsUpdate(float delta)");
             builder.AppendLine("        {");
+            builder.AppendLine("            _impl.OnPhysicsUpdate(delta);");
             builder.AppendLine("        }");
             builder.AppendLine();
         }
@@ -537,7 +541,7 @@ namespace Nomad.SourceGenerators
                 if (model.EventImplementations.Length > 0)
                 {
                     builder.AppendLine();
-                    AppendEventDisposal(builder, model, "            ");
+//                    AppendEventDisposal(builder, model, "            ");
                 }
 
                 builder.AppendLine("        }");

@@ -12,7 +12,7 @@
 #pragma warning disable CS1591
 namespace FMOD
 {
-    public class Error
+    internal class Error
     {
         public static string String(FMOD.RESULT errcode)
         {

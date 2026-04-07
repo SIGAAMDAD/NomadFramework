@@ -59,6 +59,16 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 				),
 				System: fmodSystem.StudioSystem
 			);
+			_categories["SoundCategory:Foley"] = new SoundCategory(
+				Config: new SoundCategoryCreateInfo(
+					Name: "SoundCategory:Foley",
+					MaxSimultaneous: 16,
+					PriorityScale: 1.5f,
+					StealProtectionTime: 0.2f,
+					AllowStealingFromSameCategory: true
+				),
+				System: fmodSystem.StudioSystem
+			);
 		}
 
 		/*

@@ -93,6 +93,11 @@
       <HintPath Condition="!Exists('$(UnityEnginePath)\UnityEngine.InputModule.dll')">$(UnityEnginePath)\UnityEngine.InputModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="UnityEngine.AnimationModule">
+      <HintPath Condition="Exists('$(UnityEnginePath)\UnityEngine.AnimationModule.dll')">$(UnityEnginePath)\UnityEngine.AnimationModule.dll</HintPath>
+      <HintPath Condition="!Exists('$(UnityEnginePath)\UnityEngine.AnimationModule.dll')">$(UnityEnginePath)\UnityEngine.AnimationModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="Unity.InputSystem">
       <HintPath>Unity.InputSystem.dll</HintPath>
     </Reference>

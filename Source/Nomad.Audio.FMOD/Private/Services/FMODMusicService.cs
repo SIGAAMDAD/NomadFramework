@@ -18,11 +18,7 @@ using System.Collections.Generic;
 using Nomad.Audio.Fmod.Private.Entities;
 using Nomad.Audio.Fmod.Private.ValueObjects;
 using Nomad.Audio.Interfaces;
-using Nomad.Core;
 using Nomad.Core.CVars;
-using Nomad.Core.Events;
-using Nomad.Core.Exceptions;
-using Nomad.CVars;
 using Nomad.ResourceCache;
 
 namespace Nomad.Audio.Fmod.Private.Services {
@@ -89,13 +85,14 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		===============
 		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
-		public void StopTheme() {
+		/// <param name="fade"></param>
+		public void StopTheme( bool fade = false ) {
 			if ( !IsPlaying ) {
 				return;
 			}
-			FMODValidator.ValidateCall( _musicInstance.Stop( FMOD.Studio.STOP_MODE.ALLOWFADEOUT ) );
+			FMODValidator.ValidateCall( _musicInstance.Stop( fade ? FMOD.Studio.STOP_MODE.ALLOWFADEOUT : FMOD.Studio.STOP_MODE.IMMEDIATE ) );
 		}
 	};
 };

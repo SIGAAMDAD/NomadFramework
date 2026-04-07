@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025 Noah Van Til
+Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -13,19 +13,10 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Nomad.Core.Scene.GameObjects;
-using Nomad.EngineTemplates.Attributes;
-using Nomad.EngineTemplates.BaseClasses;
-
-namespace Nomad.EngineTemplates.Scene.GameObjects
+namespace Nomad.Core.Engine.Assets
 {
-    /// <summary>
-    /// Declares the engine template for 2D character objects.
-    /// </summary>
-    [TemplateClass(Contract = typeof(ICharacter2D), GodotBase = "Godot.CharacterBody2D", UnityBase = "UnityEngine.MonoBehaviour")]
-    [TemplateNamespace(Name = "Scene.GameObjects")]
-    [TemplateObject2D]
-    internal sealed class EngineCharacter2D
+    public interface ISpriteFrames : IAsset
     {
+        int FrameCount { get; }
     }
 }

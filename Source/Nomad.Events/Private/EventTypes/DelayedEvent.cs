@@ -17,12 +17,13 @@ using System;
 using System.Threading;
 using Nomad.Core.Events;
 using System.Threading.Tasks;
+using System.Timers;
 
 namespace Nomad.Events.Private.EventTypes {
 	/*
 	===================================================================================
 	
-	ScheduledEvent
+	DelayedEvent
 	
 	===================================================================================
 	*/
@@ -30,7 +31,7 @@ namespace Nomad.Events.Private.EventTypes {
 	/// 
 	/// </summary>
 
-	internal sealed class ScheduledEvent<TArgs> : IGameEvent<TArgs>
+	internal sealed class DelayedEvent<TArgs> : IGameEvent<TArgs>
 		where TArgs : struct
 	{
 #if DEBUG
@@ -54,29 +55,23 @@ namespace Nomad.Events.Private.EventTypes {
 		}
 
 		private readonly IGameEvent<TArgs> _source;
-		private readonly IDisposable _scheduleHandle;
+		private readonly int _waitMS;
 
 		private bool _isDisposed = false;
 
 		/*
 		===============
-		ScheduledEvent
+		DelayedEvent
 		===============
 		*/
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <param name="source"></param>
-		/// <param name="payload"></param>
-		/// <param name="publishIntervalMS"></param>
-		public ScheduledEvent( IGameEvent<TArgs> source, TArgs payload, int publishIntervalMS ) {
+		/// <param name="waitMS"></param>
+		public DelayedEvent( IGameEvent<TArgs> source, int waitMS ) {
 			_source = source;
-			_scheduleHandle = EventScheduler.ScheduleRecurring( () => {
-				if ( _isDisposed ) {
-					return;
-				}
-				source.Publish( in payload );
-			}, publishIntervalMS );
+			_waitMS = waitMS;
 		}
 
 		/*
@@ -89,11 +84,10 @@ namespace Nomad.Events.Private.EventTypes {
 		/// </summary>
 		public void Dispose() {
 			if ( !_isDisposed ) {
-				_isDisposed = true;
-				_scheduleHandle?.Dispose();
 				_source?.Dispose();
 			}
 			GC.SuppressFinalize( this );
+			_isDisposed = true;
 		}
 
 		/*
@@ -106,7 +100,13 @@ namespace Nomad.Events.Private.EventTypes {
 		/// </summary>
 		/// <param name="eventArgs"></param>
 		public void Publish( in TArgs eventArgs ) {
-			_source.Publish( in eventArgs );
+			TArgs payload = eventArgs;
+			EventScheduler.Schedule( () => {
+				if ( _isDisposed ) {
+					return;
+				}
+				_source.Publish( in payload );
+			}, _waitMS );
 		}
 
 		/*

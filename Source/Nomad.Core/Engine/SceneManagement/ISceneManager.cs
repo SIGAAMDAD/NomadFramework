@@ -39,6 +39,13 @@ namespace Nomad.Core.Engine.SceneManagement
         IReadOnlyList<IScene> LoadedScenes { get; }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        IScene LoadPrefab(string path);
+
+        /// <summary>
         ///
         /// </summary>
         /// <param name="path"></param>

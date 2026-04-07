@@ -43,6 +43,9 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 				return mask;
 			}
 			set {
+				if ( !_instance.isValid() ) {
+					return;
+				}
 				FMODValidator.ValidateCall( _instance.setListenerMask( value ) );
 			}
 		}
@@ -52,13 +55,10 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 				return new Vector2() { X = attributes.position.x, Y = attributes.position.z };
 			}
 			set {
-				var attributes = new FMOD.ATTRIBUTES_3D {
-					position = new FMOD.VECTOR { x = value.X, y = 0.0f, z = value.Y },
-					velocity = new FMOD.VECTOR { x = 0.0f, y = 0.0f, z = 0.0f },
-					forward = new FMOD.VECTOR { x = 0.0f, y = 0.0f, z = 0.0f },
-					up = new FMOD.VECTOR { x = 0.0f, y = 0.0f, z = 0.0f }
-				};
-				FMODValidator.ValidateCall( _instance.set3DAttributes( attributes ) );
+				if ( !_instance.isValid() ) {
+					return;
+				}
+				FMODValidator.ValidateCall( _instance.set3DAttributes( Make2DAttributes( value.X, value.Y ) ) );
 			}
 		}
 		public readonly float Volume {
@@ -67,6 +67,9 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 				return volume;
 			}
 			set {
+				if ( !_instance.isValid() ) {
+					return;
+				}
 				FMODValidator.ValidateCall( _instance.setVolume( value ) );
 			}
 		}
@@ -96,6 +99,20 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 		public readonly bool IsValid => _instance.isValid();
 
 		private readonly FMOD.Studio.EventInstance _instance;
+
+		private static FMOD.ATTRIBUTES_3D Make2DAttributes( float x, float y ) {
+			FMOD.ATTRIBUTES_3D a = new FMOD.ATTRIBUTES_3D {
+				position = new FMOD.VECTOR { x = x, y = y, z = 0.0f },
+				velocity = new FMOD.VECTOR { x = 0.0f, y = 0.0f, z = 0.0f },
+
+				// Listener / emitter facing "out of the screen"
+				forward = new FMOD.VECTOR { x = 0.0f, y = 0.0f, z = -1.0f },
+
+				// Because screen-space Y grows downward
+				up = new FMOD.VECTOR { x = 0.0f, y = -1.0f, z = 0.0f }
+			};
+			return a;
+		}
 
 		/*
 		===============

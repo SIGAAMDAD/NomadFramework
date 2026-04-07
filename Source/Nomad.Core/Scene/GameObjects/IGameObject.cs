@@ -45,6 +45,13 @@ namespace Nomad.Core.Scene.GameObjects
         IReadOnlyList<IGameObject> Children { get; }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        T? CastAs<T>() where T : class, IGameObject;
+
+        /// <summary>
         ///
         /// </summary>
         /// <typeparam name="T"></typeparam>

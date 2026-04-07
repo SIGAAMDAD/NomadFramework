@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-The Nomad Framework
+The Nomad MPLv2 Source Code
 Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
@@ -13,28 +13,15 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.Audio.Interfaces
+namespace Nomad.Core.Audio
 {
-    /// <summary>
-    ///
-    /// </summary>
-    public interface IMusicService
-    {
-        /// <summary>
-        ///
-        /// </summary>
-        bool IsPlaying { get; }
+	public enum SpeakerMode : byte
+	{
+		Stereo,
+		Mono,
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="id"></param>
-        void PlayTheme(string id);
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fade"></param>
-        void StopTheme(bool fade = false);
-    }
+		Headphones,
+
+		
+	}
 }

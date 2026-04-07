@@ -22,7 +22,7 @@ namespace FMOD
         FMOD version number.  Check this against FMOD::System::getVersion / System_GetVersion
         0xaaaabbcc -> aaaa = major version number.  bb = minor version number.  cc = development version number.
     */
-    public partial class VERSION
+    internal partial class VERSION
     {
         public const int number = 0x00020311;
 
@@ -42,7 +42,7 @@ namespace FMOD
 #endif
     }
 
-    public class CONSTANTS
+    internal class CONSTANTS
     {
         public const int MAX_CHANNEL_WIDTH = 32;
         public const int MAX_LISTENERS = 8;
@@ -53,7 +53,7 @@ namespace FMOD
     /*
         FMOD core types
     */
-    public enum RESULT : int
+    internal enum RESULT : int
     {
         OK,
         ERR_BADCOMMAND,
@@ -139,7 +139,7 @@ namespace FMOD
         ERR_TOOMANYSAMPLES,
     }
 
-    public enum CHANNELCONTROL_TYPE : int
+    internal enum CHANNELCONTROL_TYPE : int
     {
         CHANNEL,
         CHANNELGROUP,
@@ -147,7 +147,7 @@ namespace FMOD
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct VECTOR
+    internal struct VECTOR
     {
         public float x;
         public float y;
@@ -155,7 +155,7 @@ namespace FMOD
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct ATTRIBUTES_3D
+    internal struct ATTRIBUTES_3D
     {
         public VECTOR position;
         public VECTOR velocity;
@@ -164,7 +164,7 @@ namespace FMOD
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public partial struct GUID
+    internal partial struct GUID
     {
         public int Data1;
         public int Data2;
@@ -173,7 +173,7 @@ namespace FMOD
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct ASYNCREADINFO
+    internal struct ASYNCREADINFO
     {
         public IntPtr handle;
         public uint offset;
@@ -186,7 +186,7 @@ namespace FMOD
         public FILE_ASYNCDONE_FUNC done;
     }
 
-    public enum OUTPUTTYPE : int
+    internal enum OUTPUTTYPE : int
     {
         AUTODETECT,
 
@@ -216,7 +216,7 @@ namespace FMOD
         MAX,
     }
 
-    public enum PORT_TYPE : int
+    internal enum PORT_TYPE : int
     {
         MUSIC,
         COPYRIGHT_MUSIC,
@@ -231,7 +231,7 @@ namespace FMOD
         MAX
     }
 
-    public enum DEBUG_MODE : int
+    internal enum DEBUG_MODE : int
     {
         TTY,
         FILE,
@@ -239,7 +239,7 @@ namespace FMOD
     }
 
     [Flags]
-    public enum DEBUG_FLAGS : uint
+    internal enum DEBUG_FLAGS : uint
     {
         NONE = 0x00000000,
         ERROR = 0x00000001,
@@ -258,7 +258,7 @@ namespace FMOD
     }
 
     [Flags]
-    public enum MEMORY_TYPE : uint
+    internal enum MEMORY_TYPE : uint
     {
         NORMAL = 0x00000000,
         STREAM_FILE = 0x00000001,
@@ -270,7 +270,7 @@ namespace FMOD
         ALL = 0xFFFFFFFF
     }
 
-    public enum SPEAKERMODE : int
+    internal enum SPEAKERMODE : int
     {
         DEFAULT,
         RAW,
@@ -285,7 +285,7 @@ namespace FMOD
         MAX,
     }
 
-    public enum SPEAKER : int
+    internal enum SPEAKER : int
     {
         NONE = -1,
         FRONT_LEFT,
@@ -305,7 +305,7 @@ namespace FMOD
     }
 
     [Flags]
-    public enum CHANNELMASK : uint
+    internal enum CHANNELMASK : uint
     {
         FRONT_LEFT = 0x00000001,
         FRONT_RIGHT = 0x00000002,
@@ -328,7 +328,7 @@ namespace FMOD
         _7POINT1 = (FRONT_LEFT | FRONT_RIGHT | FRONT_CENTER | LOW_FREQUENCY | SURROUND_LEFT | SURROUND_RIGHT | BACK_LEFT | BACK_RIGHT)
     }
 
-    public enum CHANNELORDER : int
+    internal enum CHANNELORDER : int
     {
         DEFAULT,
         WAVEFORMAT,
@@ -340,7 +340,7 @@ namespace FMOD
         MAX,
     }
 
-    public enum PLUGINTYPE : int
+    internal enum PLUGINTYPE : int
     {
         OUTPUT,
         CODEC,
@@ -350,14 +350,14 @@ namespace FMOD
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct PLUGINLIST
+    internal struct PLUGINLIST
     {
         PLUGINTYPE type;
         IntPtr description;
     }
 
     [Flags]
-    public enum INITFLAGS : uint
+    internal enum INITFLAGS : uint
     {
         NORMAL = 0x00000000,
         STREAM_FROM_UPDATE = 0x00000001,
@@ -375,7 +375,7 @@ namespace FMOD
         MEMORY_TRACKING = 0x00400000,
     }
 
-    public enum SOUND_TYPE : int
+    internal enum SOUND_TYPE : int
     {
         UNKNOWN,
         AIFF,
@@ -406,7 +406,7 @@ namespace FMOD
         MAX,
     }
 
-    public enum SOUND_FORMAT : int
+    internal enum SOUND_FORMAT : int
     {
         NONE,
         PCM8,
@@ -420,7 +420,7 @@ namespace FMOD
     }
 
     [Flags]
-    public enum MODE : uint
+    internal enum MODE : uint
     {
         DEFAULT = 0x00000000,
         LOOP_OFF = 0x00000001,
@@ -453,7 +453,7 @@ namespace FMOD
         VIRTUAL_PLAYFROMSTART = 0x80000000
     }
 
-    public enum OPENSTATE : int
+    internal enum OPENSTATE : int
     {
         READY,
         LOADING,
@@ -467,7 +467,7 @@ namespace FMOD
         MAX,
     }
 
-    public enum SOUNDGROUP_BEHAVIOR : int
+    internal enum SOUNDGROUP_BEHAVIOR : int
     {
         BEHAVIOR_FAIL,
         BEHAVIOR_MUTE,
@@ -476,7 +476,7 @@ namespace FMOD
         MAX,
     }
 
-    public enum CHANNELCONTROL_CALLBACK_TYPE : int
+    internal enum CHANNELCONTROL_CALLBACK_TYPE : int
     {
         END,
         VIRTUALVOICE,
@@ -486,14 +486,14 @@ namespace FMOD
         MAX,
     }
 
-    public struct CHANNELCONTROL_DSP_INDEX
+    internal struct CHANNELCONTROL_DSP_INDEX
     {
         public const int HEAD = -1;
         public const int FADER = -2;
         public const int TAIL = -3;
     }
 
-    public enum ERRORCALLBACK_INSTANCETYPE : int
+    internal enum ERRORCALLBACK_INSTANCETYPE : int
     {
         NONE,
         SYSTEM,
@@ -517,7 +517,7 @@ namespace FMOD
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct ERRORCALLBACK_INFO
+    internal struct ERRORCALLBACK_INFO
     {
         public RESULT result;
         public ERRORCALLBACK_INSTANCETYPE instancetype;
@@ -527,7 +527,7 @@ namespace FMOD
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct CPU_USAGE
+    internal struct CPU_USAGE
     {
         public float dsp;                    /* DSP mixing CPU usage. */
         public float stream;                 /* Streaming engine CPU usage. */
@@ -538,7 +538,7 @@ namespace FMOD
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct DSP_DATA_PARAMETER_INFO
+    internal struct DSP_DATA_PARAMETER_INFO
     {
         public IntPtr data;
         public uint length;
@@ -546,7 +546,7 @@ namespace FMOD
     }
 
     [Flags]
-    public enum SYSTEM_CALLBACK_TYPE : uint
+    internal enum SYSTEM_CALLBACK_TYPE : uint
     {
         DEVICELISTCHANGED = 0x00000001,
         DEVICELOST = 0x00000002,
@@ -570,26 +570,26 @@ namespace FMOD
     /*
         FMOD Callbacks
     */
-    public delegate RESULT DEBUG_CALLBACK(DEBUG_FLAGS flags, IntPtr file, int line, IntPtr func, IntPtr message);
-    public delegate RESULT SYSTEM_CALLBACK(IntPtr system, SYSTEM_CALLBACK_TYPE type, IntPtr commanddata1, IntPtr commanddata2, IntPtr userdata);
-    public delegate RESULT CHANNELCONTROL_CALLBACK(IntPtr channelcontrol, CHANNELCONTROL_TYPE controltype, CHANNELCONTROL_CALLBACK_TYPE callbacktype, IntPtr commanddata1, IntPtr commanddata2);
-    public delegate RESULT DSP_CALLBACK(IntPtr dsp, DSP_CALLBACK_TYPE type, IntPtr data);
-    public delegate RESULT SOUND_NONBLOCK_CALLBACK(IntPtr sound, RESULT result);
-    public delegate RESULT SOUND_PCMREAD_CALLBACK(IntPtr sound, IntPtr data, uint datalen);
-    public delegate RESULT SOUND_PCMSETPOS_CALLBACK(IntPtr sound, int subsound, uint position, TIMEUNIT postype);
-    public delegate RESULT FILE_OPEN_CALLBACK(IntPtr name, ref uint filesize, ref IntPtr handle, IntPtr userdata);
-    public delegate RESULT FILE_CLOSE_CALLBACK(IntPtr handle, IntPtr userdata);
-    public delegate RESULT FILE_READ_CALLBACK(IntPtr handle, IntPtr buffer, uint sizebytes, ref uint bytesread, IntPtr userdata);
-    public delegate RESULT FILE_SEEK_CALLBACK(IntPtr handle, uint pos, IntPtr userdata);
-    public delegate RESULT FILE_ASYNCREAD_CALLBACK(IntPtr info, IntPtr userdata);
-    public delegate RESULT FILE_ASYNCCANCEL_CALLBACK(IntPtr info, IntPtr userdata);
-    public delegate void FILE_ASYNCDONE_FUNC(IntPtr info, RESULT result);
-    public delegate IntPtr MEMORY_ALLOC_CALLBACK(uint size, MEMORY_TYPE type, IntPtr sourcestr);
-    public delegate IntPtr MEMORY_REALLOC_CALLBACK(IntPtr ptr, uint size, MEMORY_TYPE type, IntPtr sourcestr);
-    public delegate void MEMORY_FREE_CALLBACK(IntPtr ptr, MEMORY_TYPE type, IntPtr sourcestr);
-    public delegate float CB_3D_ROLLOFF_CALLBACK(IntPtr channelcontrol, float distance);
+    internal delegate RESULT DEBUG_CALLBACK(DEBUG_FLAGS flags, IntPtr file, int line, IntPtr func, IntPtr message);
+    internal delegate RESULT SYSTEM_CALLBACK(IntPtr system, SYSTEM_CALLBACK_TYPE type, IntPtr commanddata1, IntPtr commanddata2, IntPtr userdata);
+    internal delegate RESULT CHANNELCONTROL_CALLBACK(IntPtr channelcontrol, CHANNELCONTROL_TYPE controltype, CHANNELCONTROL_CALLBACK_TYPE callbacktype, IntPtr commanddata1, IntPtr commanddata2);
+    internal delegate RESULT DSP_CALLBACK(IntPtr dsp, DSP_CALLBACK_TYPE type, IntPtr data);
+    internal delegate RESULT SOUND_NONBLOCK_CALLBACK(IntPtr sound, RESULT result);
+    internal delegate RESULT SOUND_PCMREAD_CALLBACK(IntPtr sound, IntPtr data, uint datalen);
+    internal delegate RESULT SOUND_PCMSETPOS_CALLBACK(IntPtr sound, int subsound, uint position, TIMEUNIT postype);
+    internal delegate RESULT FILE_OPEN_CALLBACK(IntPtr name, ref uint filesize, ref IntPtr handle, IntPtr userdata);
+    internal delegate RESULT FILE_CLOSE_CALLBACK(IntPtr handle, IntPtr userdata);
+    internal delegate RESULT FILE_READ_CALLBACK(IntPtr handle, IntPtr buffer, uint sizebytes, ref uint bytesread, IntPtr userdata);
+    internal delegate RESULT FILE_SEEK_CALLBACK(IntPtr handle, uint pos, IntPtr userdata);
+    internal delegate RESULT FILE_ASYNCREAD_CALLBACK(IntPtr info, IntPtr userdata);
+    internal delegate RESULT FILE_ASYNCCANCEL_CALLBACK(IntPtr info, IntPtr userdata);
+    internal delegate void FILE_ASYNCDONE_FUNC(IntPtr info, RESULT result);
+    internal delegate IntPtr MEMORY_ALLOC_CALLBACK(uint size, MEMORY_TYPE type, IntPtr sourcestr);
+    internal delegate IntPtr MEMORY_REALLOC_CALLBACK(IntPtr ptr, uint size, MEMORY_TYPE type, IntPtr sourcestr);
+    internal delegate void MEMORY_FREE_CALLBACK(IntPtr ptr, MEMORY_TYPE type, IntPtr sourcestr);
+    internal delegate float CB_3D_ROLLOFF_CALLBACK(IntPtr channelcontrol, float distance);
 
-    public enum DSP_RESAMPLER : int
+    internal enum DSP_RESAMPLER : int
     {
         DEFAULT,
         NOINTERP,
@@ -600,14 +600,14 @@ namespace FMOD
         MAX,
     }
 
-    public enum DSP_CALLBACK_TYPE : int
+    internal enum DSP_CALLBACK_TYPE : int
     {
         DATAPARAMETERRELEASE,
 
         MAX,
     }
 
-    public enum DSPCONNECTION_TYPE : int
+    internal enum DSPCONNECTION_TYPE : int
     {
         STANDARD,
         SIDECHAIN,
@@ -618,7 +618,7 @@ namespace FMOD
         MAX,
     }
 
-    public enum TAGTYPE : int
+    internal enum TAGTYPE : int
     {
         UNKNOWN,
         ID3V1,
@@ -635,7 +635,7 @@ namespace FMOD
         MAX
     }
 
-    public enum TAGDATATYPE : int
+    internal enum TAGDATATYPE : int
     {
         BINARY,
         INT,
@@ -649,7 +649,7 @@ namespace FMOD
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct TAG
+    internal struct TAG
     {
         public TAGTYPE type;
         public TAGDATATYPE datatype;
@@ -660,7 +660,7 @@ namespace FMOD
     }
 
     [Flags]
-    public enum TIMEUNIT : uint
+    internal enum TIMEUNIT : uint
     {
         MS = 0x00000001,
         PCM = 0x00000002,
@@ -672,13 +672,13 @@ namespace FMOD
         MODPATTERN = 0x00000400,
     }
 
-    public struct PORT_INDEX
+    internal struct PORT_INDEX
     {
         public const ulong NONE = 0xFFFFFFFFFFFFFFFF;
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct CREATESOUNDEXINFO
+    internal struct CREATESOUNDEXINFO
     {
         public int cbsize;
         public uint length;
@@ -767,7 +767,7 @@ namespace FMOD
 
 #pragma warning disable 414
     [StructLayout(LayoutKind.Sequential)]
-    public struct REVERB_PROPERTIES
+    internal struct REVERB_PROPERTIES
     {
         public float DecayTime;
         public float EarlyDelay;
@@ -804,7 +804,7 @@ namespace FMOD
     }
 #pragma warning restore 414
 
-    public class PRESET
+    internal class PRESET
     {
         public static REVERB_PROPERTIES OFF() { return new REVERB_PROPERTIES(1000, 7, 11, 5000, 100, 100, 100, 250, 0, 20, 96, -80.0f); }
         public static REVERB_PROPERTIES GENERIC() { return new REVERB_PROPERTIES(1500, 7, 11, 5000, 83, 100, 100, 250, 0, 14500, 96, -8.0f); }
@@ -833,7 +833,7 @@ namespace FMOD
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct ADVANCEDSETTINGS
+    internal struct ADVANCEDSETTINGS
     {
         public int cbSize;
         public int maxMPEGCodecs;
@@ -860,13 +860,13 @@ namespace FMOD
     }
 
     [Flags]
-    public enum DRIVER_STATE : uint
+    internal enum DRIVER_STATE : uint
     {
         CONNECTED = 0x00000001,
         DEFAULT = 0x00000002,
     }
 
-    public enum THREAD_PRIORITY : int
+    internal enum THREAD_PRIORITY : int
     {
         /* Platform specific priority range */
         PLATFORM_MIN = -32 * 1024,
@@ -898,7 +898,7 @@ namespace FMOD
 
     }
 
-    public enum THREAD_STACK_SIZE : uint
+    internal enum THREAD_STACK_SIZE : uint
     {
         DEFAULT = 0,
         MIXER = 80 * 1024,
@@ -917,7 +917,7 @@ namespace FMOD
     }
 
     [Flags]
-    public enum THREAD_AFFINITY : long
+    internal enum THREAD_AFFINITY : long
     {
         /* Platform agnostic thread groupings */
         GROUP_DEFAULT = 0x4000000000000000,
@@ -960,7 +960,7 @@ namespace FMOD
         CORE_15 = 1 << 15
     }
 
-    public enum THREAD_TYPE : int
+    internal enum THREAD_TYPE : int
     {
         MIXER,
         FEEDER,
@@ -982,7 +982,7 @@ namespace FMOD
     /*
         FMOD System factory functions.  Use this to create an FMOD System Instance.  below you will see System init/close to get started.
     */
-    public struct Factory
+    internal struct Factory
     {
         public static RESULT System_Create(out System system)
         {
@@ -999,7 +999,7 @@ namespace FMOD
     /*
         FMOD global system functions (optional).
     */
-    public struct Memory
+    internal struct Memory
     {
         public static RESULT Initialize(IntPtr poolmem, int poollen, MEMORY_ALLOC_CALLBACK useralloc, MEMORY_REALLOC_CALLBACK userrealloc, MEMORY_FREE_CALLBACK userfree, MEMORY_TYPE memtypeflags = MEMORY_TYPE.ALL)
         {
@@ -1020,7 +1020,7 @@ namespace FMOD
         #endregion
     }
 
-    public struct Debug
+    internal struct Debug
     {
         public static RESULT Initialize(DEBUG_FLAGS flags, DEBUG_MODE mode = DEBUG_MODE.TTY, DEBUG_CALLBACK callback = null, string filename = null)
         {
@@ -1037,7 +1037,7 @@ namespace FMOD
         #endregion
     }
 
-    public struct Thread
+    internal struct Thread
     {
         public static RESULT SetAttributes(THREAD_TYPE type, THREAD_AFFINITY affinity = THREAD_AFFINITY.GROUP_DEFAULT, THREAD_PRIORITY priority = THREAD_PRIORITY.DEFAULT, THREAD_STACK_SIZE stacksize = THREAD_STACK_SIZE.DEFAULT)
         {
@@ -1053,7 +1053,7 @@ namespace FMOD
     /*
         'System' API.
     */
-    public struct System
+    internal struct System
     {
         public RESULT release()
         {
@@ -1763,7 +1763,7 @@ namespace FMOD
     /*
         'Sound' API.
     */
-    public struct Sound
+    internal struct Sound
     {
         public RESULT release()
         {
@@ -2167,7 +2167,7 @@ namespace FMOD
     /*
         'Channel' API
     */
-    public struct Channel : IChannelControl
+    internal struct Channel : IChannelControl
     {
         // Channel specific control functionality.
         public RESULT setFrequency(float frequency)
@@ -2665,7 +2665,7 @@ namespace FMOD
     /*
         'ChannelGroup' API
     */
-    public struct ChannelGroup : IChannelControl
+    internal struct ChannelGroup : IChannelControl
     {
         public RESULT release()
         {
@@ -3137,7 +3137,7 @@ namespace FMOD
     /*
         'SoundGroup' API
     */
-    public struct SoundGroup
+    internal struct SoundGroup
     {
         public RESULT release()
         {
@@ -3275,7 +3275,7 @@ namespace FMOD
     /*
         'DSP' API
     */
-    public struct DSP
+    internal struct DSP
     {
         public RESULT release()
         {
@@ -3594,7 +3594,7 @@ namespace FMOD
     /*
         'DSPConnection' API
     */
-    public struct DSPConnection
+    internal struct DSPConnection
     {
         public RESULT getInput(out DSP input)
         {
@@ -3670,7 +3670,7 @@ namespace FMOD
     /*
         'Geometry' API
     */
-    public struct Geometry
+    internal struct Geometry
     {
         public RESULT release()
         {
@@ -3816,7 +3816,7 @@ namespace FMOD
     /*
         'Reverb3D' API
     */
-    public struct Reverb3D
+    internal struct Reverb3D
     {
         public RESULT release()
         {
@@ -3893,7 +3893,7 @@ namespace FMOD
 
     #region Helper Functions
     [StructLayout(LayoutKind.Sequential)]
-    public struct StringWrapper
+    internal struct StringWrapper
     {
         IntPtr nativeUtf8Ptr;
 
@@ -3952,7 +3952,7 @@ namespace FMOD
         }
     }
 
-    static class StringHelper
+    internal static class StringHelper
     {
         public class ThreadSafeEncoding : IDisposable
         {
