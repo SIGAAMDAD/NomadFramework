@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using System.Collections.Immutable;
 using System.Linq;
 using NUnit.Framework;
 using Nomad.Core.Input;
@@ -393,6 +394,268 @@ namespace Nomad.Input.Tests
 			var cvarSystem = InputTestHelpers.CreateCVarSystem(_eventRegistry, defaultsPath);
 
 			Assert.That(() => new BindRepository(fileSystem.Object, cvarSystem, _logger), Throws.TypeOf<InvalidOperationException>());
+		}
+
+		[Test]
+		public void GetActiveMapping_ReturnsMappingLoadedFromConfiguredSettings()
+		{
+			const string defaultsPath = "Assets/Config/Bindings/DefaultBinds.json";
+			var fileSystem = new InputFileSystemFixture(
+				(defaultsPath, "{ \"Bindings\": [] }"),
+				("Assets/Config/Bindings/KeyboardAlternative.json", """
+				{
+				  "Bindings": [
+				    {
+				      "Name": "Jump",
+				      "ValueType": "Button",
+				      "Scheme": "KeyboardAndMouse",
+				      "Bindings": { "DeviceId": "Keyboard", "ControlId": "Space" }
+				    }
+				  ]
+				}
+				"""),
+				("Assets/Config/Bindings/GamepadCustom.json", """
+				{
+				  "Bindings": [
+				    {
+				      "Name": "Jump",
+				      "ValueType": "Button",
+				      "Scheme": "Gamepad",
+				      "Bindings": { "DeviceId": "Gamepad", "ControlId": "A" }
+				    }
+				  ]
+				}
+				""")
+			);
+			var cvarSystem = InputTestHelpers.CreateCVarSystem(_eventRegistry, defaultsPath);
+			cvarSystem.SetCVar(Nomad.Input.Private.Constants.CVars.KEYBOARD_MOUSE_MAPPING, "KeyboardAlternative");
+			cvarSystem.SetCVar(Nomad.Input.Private.Constants.CVars.GAMEPAD_MAPPING, "GamepadCustom");
+
+			using var repository = new BindRepository(fileSystem.Object, cvarSystem, _logger);
+
+			using (Assert.EnterMultipleScope())
+			{
+				Assert.That(repository.GetActiveMapping(InputScheme.KeyboardAndMouse), Is.EqualTo("KeyboardAlternative"));
+				Assert.That(repository.GetActiveMapping(InputScheme.Gamepad), Is.EqualTo("GamepadCustom"));
+			}
+		}
+
+		[Test]
+		public void GetActiveMapping_IgnoresConfiguredMappingsThatDoNotMatchTheirScheme()
+		{
+			const string defaultsPath = "Assets/Config/Bindings/DefaultBinds.json";
+			var fileSystem = new InputFileSystemFixture(
+				(defaultsPath, "{ \"Bindings\": [] }"),
+				("Assets/Config/Bindings/Gamepad.json", """
+				{
+				  "Bindings": [
+				    {
+				      "Name": "Confirm",
+				      "ValueType": "Button",
+				      "Scheme": "Gamepad",
+				      "Bindings": { "DeviceId": "Gamepad", "ControlId": "A" }
+				    }
+				  ]
+				}
+				""")
+			);
+			var cvarSystem = InputTestHelpers.CreateCVarSystem(_eventRegistry, defaultsPath);
+			cvarSystem.SetCVar(Nomad.Input.Private.Constants.CVars.KEYBOARD_MOUSE_MAPPING, "Gamepad");
+
+			using var repository = new BindRepository(fileSystem.Object, cvarSystem, _logger);
+
+			Assert.That(repository.GetActiveMapping(InputScheme.KeyboardAndMouse), Is.Null);
+		}
+
+		[Test]
+		public void SetActiveMapping_WhenNameIsBlank_ReturnsFalse()
+		{
+			const string defaultsPath = "Assets/Config/Bindings/DefaultBinds.json";
+			var fileSystem = new InputFileSystemFixture(
+				(defaultsPath, "{ \"Bindings\": [] }"),
+				("Assets/Config/Bindings/KeyboardAndMouse.json", """
+				{
+				  "Bindings": [
+				    {
+				      "Name": "Jump",
+				      "ValueType": "Button",
+				      "Scheme": "KeyboardAndMouse",
+				      "Bindings": { "DeviceId": "Keyboard", "ControlId": "Space" }
+				    }
+				  ]
+				}
+				""")
+			);
+			var cvarSystem = InputTestHelpers.CreateCVarSystem(_eventRegistry, defaultsPath);
+
+			using var repository = new BindRepository(fileSystem.Object, cvarSystem, _logger);
+
+			Assert.That(repository.SetActiveMapping(InputScheme.KeyboardAndMouse, "   "), Is.False);
+		}
+
+		[Test]
+		public void SetActionBindings_ReplacesAnExistingBindingSetInTheNamedMapping()
+		{
+			const string defaultsPath = "Assets/Config/Bindings/DefaultBinds.json";
+			var fileSystem = new InputFileSystemFixture(
+				(defaultsPath, "{ \"Bindings\": [] }"),
+				("Assets/Config/Bindings/Gameplay.json", """
+				{
+				  "Bindings": [
+				    {
+				      "Name": "Jump",
+				      "ValueType": "Button",
+				      "Scheme": "KeyboardAndMouse",
+				      "Bindings": { "DeviceId": "Keyboard", "ControlId": "Space" }
+				    }
+				  ]
+				}
+				""")
+			);
+			var cvarSystem = InputTestHelpers.CreateCVarSystem(_eventRegistry, defaultsPath);
+
+			using var repository = new BindRepository(fileSystem.Object, cvarSystem, _logger);
+
+			bool updated = repository.SetActionBindings(
+				"Gameplay",
+				"Jump",
+				new[]
+				{
+					InputTestHelpers.Button(InputScheme.KeyboardAndMouse, InputDeviceSlot.Keyboard, InputControlId.Enter)
+				}.ToImmutableArray());
+
+			using (Assert.EnterMultipleScope())
+			{
+				Assert.That(updated, Is.True);
+				Assert.That(repository.GetBindMappings()["Gameplay"].Single(action => action.Name == "Jump").Bindings[0].Button.ControlId, Is.EqualTo(InputControlId.Enter));
+			}
+		}
+
+		[Test]
+		public void SetActionBindings_AddsActionToMappingWhenItOnlyExistsInDefaults()
+		{
+			const string defaultsPath = "Assets/Config/Bindings/DefaultBinds.json";
+			var fileSystem = new InputFileSystemFixture(
+				(defaultsPath, """
+				{
+				  "Bindings": [
+				    {
+				      "Name": "Jump",
+				      "ValueType": "Button",
+				      "Scheme": "KeyboardAndMouse",
+				      "Bindings": { "DeviceId": "Keyboard", "ControlId": "Space" }
+				    }
+				  ]
+				}
+				"""),
+				("Assets/Config/Bindings/Gameplay.json", "{ \"Bindings\": [] }")
+			);
+			var cvarSystem = InputTestHelpers.CreateCVarSystem(_eventRegistry, defaultsPath);
+
+			using var repository = new BindRepository(fileSystem.Object, cvarSystem, _logger);
+
+			bool updated = repository.SetActionBindings(
+				"Gameplay",
+				"Jump",
+				new[]
+				{
+					InputTestHelpers.Button(InputScheme.KeyboardAndMouse, InputDeviceSlot.Keyboard, InputControlId.Enter)
+				}.ToImmutableArray());
+
+			using (Assert.EnterMultipleScope())
+			{
+				Assert.That(updated, Is.True);
+				Assert.That(repository.GetBindMappings()["Gameplay"].Single(action => action.Name == "Jump").Bindings[0].Button.ControlId, Is.EqualTo(InputControlId.Enter));
+				Assert.That(repository.GetAllBindings().Single(action => action.Name == "Jump").Bindings[0].Button.ControlId, Is.EqualTo(InputControlId.Space));
+			}
+		}
+
+		[Test]
+		public void SetActionBindings_WhenMappingOrActionCannotBeResolved_ReturnsFalse()
+		{
+			const string defaultsPath = "Assets/Config/Bindings/DefaultBinds.json";
+			var fileSystem = new InputFileSystemFixture(
+				(defaultsPath, "{ \"Bindings\": [] }"),
+				("Assets/Config/Bindings/Gameplay.json", "{ \"Bindings\": [] }")
+			);
+			var cvarSystem = InputTestHelpers.CreateCVarSystem(_eventRegistry, defaultsPath);
+
+			using var repository = new BindRepository(fileSystem.Object, cvarSystem, _logger);
+
+			using (Assert.EnterMultipleScope())
+			{
+				Assert.That(repository.SetActionBindings("", "Jump", Enumerable.Empty<InputBindingDefinition>().ToImmutableArray()), Is.False);
+				Assert.That(repository.SetActionBindings("Missing", "Jump", Enumerable.Empty<InputBindingDefinition>().ToImmutableArray()), Is.False);
+				Assert.That(repository.SetActionBindings("Gameplay", "Missing", Enumerable.Empty<InputBindingDefinition>().ToImmutableArray()), Is.False);
+			}
+		}
+
+		[Test]
+		public void Constructor_WhenActionValueTypesConflictAcrossDefaultsAndMapping_ThrowsInvalidOperationException()
+		{
+			const string defaultsPath = "Assets/Config/Bindings/DefaultBinds.json";
+			var fileSystem = new InputFileSystemFixture(
+				(defaultsPath, """
+				{
+				  "Bindings": [
+				    {
+				      "Name": "Interact",
+				      "ValueType": "Button",
+				      "Scheme": "KeyboardAndMouse",
+				      "Bindings": { "DeviceId": "Keyboard", "ControlId": "E" }
+				    }
+				  ]
+				}
+				"""),
+				("Assets/Config/Bindings/Gameplay.json", """
+				{
+				  "Bindings": [
+				    {
+				      "Name": "Interact",
+				      "ValueType": "Vector2",
+				      "Scheme": "KeyboardAndMouse",
+				      "Bindings": {
+				        "Kind": "Axis2DComposite",
+				        "Up": "W",
+				        "Down": "S",
+				        "Left": "A",
+				        "Right": "D"
+				      }
+				    }
+				  ]
+				}
+				""")
+			);
+			var cvarSystem = InputTestHelpers.CreateCVarSystem(_eventRegistry, defaultsPath);
+
+			Assert.That(() => new BindRepository(fileSystem.Object, cvarSystem, _logger), Throws.TypeOf<InvalidOperationException>());
+		}
+
+		[Test]
+		public void PublicMembers_WhenDisposed_ThrowObjectDisposedException()
+		{
+			const string defaultsPath = "Assets/Config/Bindings/DefaultBinds.json";
+			var fileSystem = new InputFileSystemFixture(
+				(defaultsPath, "{ \"Bindings\": [] }"),
+				("Assets/Config/Bindings/Gameplay.json", "{ \"Bindings\": [] }")
+			);
+			var cvarSystem = InputTestHelpers.CreateCVarSystem(_eventRegistry, defaultsPath);
+
+			var repository = new BindRepository(fileSystem.Object, cvarSystem, _logger);
+			repository.Dispose();
+
+			using (Assert.EnterMultipleScope())
+			{
+				Assert.That(() => repository.GetDefaultBindings(), Throws.TypeOf<ObjectDisposedException>());
+				Assert.That(() => repository.GetAllBindings(), Throws.TypeOf<ObjectDisposedException>());
+				Assert.That(() => repository.GetBindMappings(), Throws.TypeOf<ObjectDisposedException>());
+				Assert.That(() => repository.GetMappingsForScheme(InputScheme.KeyboardAndMouse), Throws.TypeOf<ObjectDisposedException>());
+				Assert.That(() => repository.GetActiveMapping(InputScheme.KeyboardAndMouse), Throws.TypeOf<ObjectDisposedException>());
+				Assert.That(() => repository.SetActiveMapping(InputScheme.KeyboardAndMouse, "Gameplay"), Throws.TypeOf<ObjectDisposedException>());
+				Assert.That(() => repository.TryGetBindMapping("Gameplay", out _), Throws.TypeOf<ObjectDisposedException>());
+				Assert.That(() => repository.SetActionBindings("Gameplay", "Jump", Enumerable.Empty<InputBindingDefinition>().ToImmutableArray()), Throws.TypeOf<ObjectDisposedException>());
+				Assert.That(() => repository.Reload(), Throws.TypeOf<ObjectDisposedException>());
+			}
 		}
 	}
 }

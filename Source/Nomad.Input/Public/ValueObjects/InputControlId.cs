@@ -275,6 +275,11 @@ namespace Nomad.Input.ValueObjects
 		/// The Right Arrow key.
 		/// </summary>
 		RightArrow,
+
+		/// <summary>
+		/// The Enter key.
+		/// </summary>
+		Enter,
 		#endregion
 
 		#region Mouse Buttons

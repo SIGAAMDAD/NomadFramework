@@ -30,13 +30,25 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 
 	internal sealed class FMODChannel : IDisposable {
 		public FMODChannelResource Instance = new FMODChannelResource();
-		public float BasePriority;
-		public float CurrentPriority;
-		public float StartTime;
+
+		public float BasePriority = 0.0f;
+		public float CurrentPriority = 0.0f;
+		public float StartTimeSeconds = 0.0f;
+		public float LastStolenTime = 0.0f;
+
+		public int Generation;
 		public int ChannelId;
+
+		public string EventId = string.Empty;
+
 		public IntPtr Id;
 		public SoundCategory? Category;
-		public float LastStolenTime = 0.0f;
+		public FMODChannelHandle? Handle;
+
+		public int PlayCount = 0;
+		public bool IsEssential = false;
+
+		public bool IsPlaying => Instance.IsPlaying;
 
 		public float Volume {
 			get => _volume;
@@ -62,12 +74,6 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 		}
 		private float _pitch = 1.0f;
 
-		public int PlayCount = 0;
-		public bool IsEssential = false;
-
-		public float Age => DateTime.Now.Millisecond / 1000.0f - StartTime;
-		public bool IsPlaying => Instance.IsPlaying;
-
 		/*
 		===============
 		Dispose
@@ -78,6 +84,50 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 		/// </summary>
 		public void Dispose() {
 			Instance.Dispose();
+		}
+
+		/*
+		===============
+		AgeSeconds
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="now"></param>
+		/// <returns></returns>
+		public float AgeSeconds( float now ) {
+			return now - StartTimeSeconds;
+		}
+
+		/*
+		===============
+		Reset
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		public void Reset() {
+			Instance = new FMODChannelResource();
+
+			BasePriority = 0.0f;
+			CurrentPriority = 0.0f;
+			StartTimeSeconds = 0.0f;
+			LastStolenTime = 0.0f;
+
+			ChannelId = -1;
+			Generation = 0;
+
+			EventId = string.Empty;
+			Category = null;
+			Handle = null;
+
+			IsEssential = false;
+			PlayCount = 0;
+
+			_volume = 1.0f;
+			_pitch = 1.0f;
 		}
 	};
 };

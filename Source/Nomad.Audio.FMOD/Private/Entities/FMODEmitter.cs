@@ -22,40 +22,113 @@ using Nomad.Audio.ValueObjects;
 namespace Nomad.Audio.Fmod.Private.Entities {
 	internal sealed class FMODEmitter : IAudioEmitter {
 		public Vector2 Position {
-			get => _channel != null ? _channel.Instance.Position : Vector2.Zero;
-			set => _channel?.Instance.Position = value;
+			get => _position;
+			set {
+				_position = value;
+
+				if ( TryGetCurrentChannel( out var channel ) ) {
+					channel.Instance.Position = value;
+				}
+			}
 		}
+		private Vector2 _position = Vector2.Zero;
 
 		public float Volume {
-			get => _channel != null ? _channel.Instance.Volume : 0.0f;
-			set => _channel?.Instance.Volume = value;
+			get => _volume;
+			set {
+				_volume = value;
+
+				if ( TryGetCurrentChannel( out var channel ) ) {
+					channel.Volume = value;
+				}
+			}
 		}
+		private float _volume = 1.0f;
 
 		public float Pitch {
-			get => _channel != null ? _channel.Instance.Pitch : 0.0f;
-			set => _channel?.Instance.Pitch = value;
+			get => _pitch;
+			set {
+				_pitch = value;
+
+				if ( TryGetCurrentChannel( out var channel ) ) {
+					channel.Pitch = value;
+				}
+			}
 		}
+		private float _pitch = 1.0f;
 
 		public string Category => _category.Config.Name;
-		private readonly SoundCategory _category;
 
 		public ChannelStatus Status {
 			get {
-				throw new System.NotImplementedException();
+				if ( !TryGetCurrentChannel( out var channel ) ) {
+					return ChannelStatus.Stopped;
+				}
+
+				return channel.IsPlaying
+					? ChannelStatus.Playing
+					: ChannelStatus.Stopped;
 			}
 		}
 
-		private FMODChannel? _channel;
-
+		private readonly SoundCategory _category;
 		private readonly FMODChannelRepository _channelRepository;
+
+		private FMODChannelHandle? _currentHandle;
 
 		public FMODEmitter( FMODChannelRepository channelRepository, SoundCategory category ) {
 			_category = category;
 			_channelRepository = channelRepository;
 		}
 
-		public void PlaySound( string id, Vector2 position = default, float priority = 0.5f ) {
-			_channel = _channelRepository.AllocateChannel( id, position, _category, priority );
+		public void PlaySound( string id, float priority = 0.5f ) {
+			UnhookCurrentHandle();
+
+			var handle = _channelRepository.AllocateChannel( id, _position, _category, priority );
+			if ( handle == null ) {
+				_currentHandle = null;
+				return;
+			}
+
+			_currentHandle = handle;
+			_currentHandle.OnEnded += OnCurrentHandleEnded;
+
+			ApplyCachedState();
+		}
+
+		private void ApplyCachedState() {
+			if ( !TryGetCurrentChannel( out var channel ) ) {
+				return;
+			}
+
+			channel.Instance.Position = _position;
+			channel.Volume = _volume;
+			channel.Pitch = _pitch;
+		}
+
+		private bool TryGetCurrentChannel( out FMODChannel channel ) {
+			if ( _currentHandle == null ) {
+				channel = null!;
+				return false;
+			}
+
+			return _channelRepository.TryGetChannel( _currentHandle, out channel );
+		}
+
+		private void OnCurrentHandleEnded( FMODChannelHandle handle ) {
+			if ( !ReferenceEquals( _currentHandle, handle ) ) {
+				return;
+			}
+
+			_currentHandle.OnEnded -= OnCurrentHandleEnded;
+			_currentHandle = null;
+		}
+
+		private void UnhookCurrentHandle() {
+			if ( _currentHandle != null ) {
+				_currentHandle.OnEnded -= OnCurrentHandleEnded;
+				_currentHandle = null;
+			}
 		}
 	};
 };

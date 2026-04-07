@@ -33,7 +33,7 @@ namespace Nomad.Input.Tests {
 
 		[Test]
 		public void PushKeyboardEvent_DispatchesConfiguredButtonAction() {
-			const string defaultsPath = "Config/DefaultBinds.json";
+			const string defaultsPath = "Assets/Config/Bindings/DefaultBinds.json";
 			var fileSystem = new InputFileSystemFixture(
 				(defaultsPath, """
 				{
@@ -65,7 +65,7 @@ namespace Nomad.Input.Tests {
 
 		[Test]
 		public void PushMouseMotionEvent_DispatchesConfiguredDeltaAction() {
-			const string defaultsPath = "Config/DefaultBinds.json";
+			const string defaultsPath = "Assets/Config/Bindings/DefaultBinds.json";
 			var fileSystem = new InputFileSystemFixture(
 				(defaultsPath, """
 				{
@@ -102,7 +102,7 @@ namespace Nomad.Input.Tests {
 
 		[Test]
 		public void PushGamepadAxisEvent_DispatchesConfiguredStickAction() {
-			const string defaultsPath = "Config/DefaultBinds.json";
+			const string defaultsPath = "Assets/Config/Bindings/DefaultBinds.json";
 			var fileSystem = new InputFileSystemFixture(
 				(defaultsPath, """
 				{
@@ -138,7 +138,7 @@ namespace Nomad.Input.Tests {
 
 		[Test]
 		public void PushGamepadButtonEvent_DispatchesConfiguredGamepadButtonAction() {
-			const string defaultsPath = "Config/DefaultBinds.json";
+			const string defaultsPath = "Assets/Config/Bindings/DefaultBinds.json";
 			var fileSystem = new InputFileSystemFixture(
 				(defaultsPath, """
 				{
@@ -170,7 +170,7 @@ namespace Nomad.Input.Tests {
 
 		[Test]
 		public void PushKeyboardEvent_DispatchesCompositeMovementActions() {
-			const string defaultsPath = "Config/DefaultBinds.json";
+			const string defaultsPath = "Assets/Config/Bindings/DefaultBinds.json";
 			var fileSystem = new InputFileSystemFixture(
 				(defaultsPath, """
 				{

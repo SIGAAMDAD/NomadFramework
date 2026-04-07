@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-The Nomad Framework
+The Nomad MPLv2 Source Code
 Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
@@ -14,21 +14,20 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System.Numerics;
-using Nomad.Audio.ValueObjects;
 
-namespace Nomad.Audio.Interfaces
-{
-    /// <summary>
-    ///
-    /// </summary>
-    public interface IAudioEmitter
-    {
-        Vector2 Position { get; set; }
-        float Volume { get; set; }
-        float Pitch { get; set; }
-        string Category { get; }
-        ChannelStatus Status { get; }
+namespace Nomad.Audio.Fmod.Private {
+	internal static class Vector2Extensions {
+		public static FMOD.ATTRIBUTES_3D Make3D( this Vector2 vector ) {
+			return new FMOD.ATTRIBUTES_3D {
+				position = new FMOD.VECTOR { x = vector.X, y = 0.0f, z = vector.Y },
+				velocity = new FMOD.VECTOR { x = 0.0f, y = 0.0f, z = 0.0f },
 
-        void PlaySound(string id, float priority = 0.5f);
-    }
-}
+				// Listener / emitter facing "out of the screen"
+				forward = new FMOD.VECTOR { x = 0.0f, y = 0.0f, z = -1.0f },
+
+				// Because screen-space Y grows downward
+				up = new FMOD.VECTOR { x = 0.0f, y = 1.0f, z = 0.0f }
+			};
+		}
+	};
+};

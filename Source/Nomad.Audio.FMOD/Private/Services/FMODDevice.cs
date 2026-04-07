@@ -64,7 +64,6 @@ namespace Nomad.Audio.Fmod.Private.Services {
 
 		private readonly FMODBankRepository _bankRepository;
 
-		private readonly FMODListenerService _listener;
 		private readonly FMODDriverRepository _driverRepository;
 
 		private bool _isDisposed = false;
@@ -95,7 +94,6 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			ConfigureFMODDevice( cvarSystem );
 
 			_driverRepository = new FMODDriverRepository( logger, cvarSystem, _systemHandle.System );
-			_listener = new FMODListenerService( logger, this );
 
 			_guidRepository = new FMODGuidRepository();
 			_bankRepository = new FMODBankRepository( logger, eventFactory, this );
@@ -120,7 +118,6 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			if ( !_isDisposed ) {
 				_fmodCategory.PrintLine( "Shutting down FMOD sound system..." );
 
-				_listener?.Dispose();
 				_eventRepository?.Dispose();
 				_bankRepository?.Dispose();
 				_guidRepository?.Dispose();

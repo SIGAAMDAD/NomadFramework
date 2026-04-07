@@ -105,7 +105,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			float distance = (float)candidate.Instance.Position.DistanceTo( listenerPos );
 
 			float priorityDiff = newPriority - candidate.CurrentPriority;
-			float ageFactor = Math.Min( candidate.Age / 5.0f, 1.0f );
+			float ageFactor = Math.Min( candidate.AgeSeconds( currentTime ) / 5.0f, 1.0f );
 			float distanceFactor = 1.0f - _priorityCalculator.CalculateDistanceFactor( distance );
 			float volumeFactor = 1.0f - candidate.Volume;
 

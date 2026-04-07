@@ -35,10 +35,8 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 				if ( _position == value ) {
 					return;
 				}
-				FMOD.ATTRIBUTES_3D attributes = new() {
-					position = new FMOD.VECTOR { x = _position.X, y = _position.Y, z = 0.0f }
-				};
-				_system.setListenerAttributes( _listenerIndex, attributes );
+				_position = value;
+				_system.setListenerAttributes( _listenerIndex, value.Make3D() );
 			}
 		}
 		private Vector2 _position = Vector2.Zero;

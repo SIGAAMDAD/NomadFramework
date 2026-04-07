@@ -58,7 +58,7 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 				if ( !_instance.isValid() ) {
 					return;
 				}
-				FMODValidator.ValidateCall( _instance.set3DAttributes( Make2DAttributes( value.X, value.Y ) ) );
+				FMODValidator.ValidateCall( _instance.set3DAttributes( value.Make3D() ) );
 			}
 		}
 		public readonly float Volume {
@@ -99,20 +99,6 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 		public readonly bool IsValid => _instance.isValid();
 
 		private readonly FMOD.Studio.EventInstance _instance;
-
-		private static FMOD.ATTRIBUTES_3D Make2DAttributes( float x, float y ) {
-			FMOD.ATTRIBUTES_3D a = new FMOD.ATTRIBUTES_3D {
-				position = new FMOD.VECTOR { x = x, y = y, z = 0.0f },
-				velocity = new FMOD.VECTOR { x = 0.0f, y = 0.0f, z = 0.0f },
-
-				// Listener / emitter facing "out of the screen"
-				forward = new FMOD.VECTOR { x = 0.0f, y = 0.0f, z = -1.0f },
-
-				// Because screen-space Y grows downward
-				up = new FMOD.VECTOR { x = 0.0f, y = -1.0f, z = 0.0f }
-			};
-			return a;
-		}
 
 		/*
 		===============

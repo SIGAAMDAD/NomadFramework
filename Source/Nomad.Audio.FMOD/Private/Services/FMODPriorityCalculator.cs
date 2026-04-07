@@ -115,12 +115,12 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		/// <returns></returns>
 		public float CalculateActualPriority(
 			float startTime,
-			IntPtr id,
+			string id,
 			Vector2 position,
 			float basePriority,
 			SoundCategory category,
-			Dictionary<IntPtr, float> lastPlayTimes,
-			Dictionary<IntPtr, int> consecutiveStealCounts )
+			Dictionary<string, float> lastPlayTimes,
+			Dictionary<string, int> consecutiveStealCounts )
 		{
 			float priority =
 				basePriority *
@@ -166,7 +166,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		/// <param name="id"></param>
 		/// <param name="lastPlayTimes"></param>
 		/// <returns></returns>
-		private static float CalculateTimePenalty( float startTime, IntPtr id, Dictionary<IntPtr, float> lastPlayTimes ) {
+		private static float CalculateTimePenalty( float startTime, string id, Dictionary<string, float> lastPlayTimes ) {
 			if ( !lastPlayTimes.TryGetValue( id, out float lastTime ) ) {
 				return 0.0f;
 			}
@@ -191,7 +191,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		/// <param name="id"></param>
 		/// <param name="consecutiveStealCounts"></param>
 		/// <returns></returns>
-		private static float CalculateFrequencyPenalty( IntPtr id, Dictionary<IntPtr, int> consecutiveStealCounts ) {
+		private static float CalculateFrequencyPenalty( string id, Dictionary<string, int> consecutiveStealCounts ) {
 			return !consecutiveStealCounts.TryGetValue( id, out int stealCount ) ?
 					0.0f
 				:

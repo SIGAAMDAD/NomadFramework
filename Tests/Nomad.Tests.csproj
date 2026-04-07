@@ -51,7 +51,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="DefaultConfig.json">
-      <Link>Config/DefaultBinds.json</Link>
+      <Link>Assets/Config/Bindings/DefaultBinds.json</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Condition="'$(IsLinux)' == 'true'" Include="libsteam_api.so">

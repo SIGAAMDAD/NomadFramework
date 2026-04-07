@@ -75,20 +75,6 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			ClearListeners();
 		}
 
-		private static FMOD.ATTRIBUTES_3D Make2DAttributes( float x, float y ) {
-			FMOD.ATTRIBUTES_3D a = new FMOD.ATTRIBUTES_3D {
-				position = new FMOD.VECTOR { x = x, y = y, z = 0.0f },
-				velocity = new FMOD.VECTOR { x = 0.0f, y = 0.0f, z = 0.0f },
-
-				// Listener / emitter facing "out of the screen"
-				forward = new FMOD.VECTOR { x = 0.0f, y = 0.0f, z = -1.0f },
-
-				// Because screen-space Y grows downward
-				up = new FMOD.VECTOR { x = 0.0f, y = -1.0f, z = 0.0f }
-			};
-			return a;
-		}
-
 		/*
 		===============
 		SetListenerPosition
@@ -103,12 +89,11 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			RangeGuard.ThrowIfLessThan( listenerIndex, 0, nameof( listenerIndex ) );
 			RangeGuard.ThrowIfGreaterThanOrEqual( listenerIndex, MAX_LISTENERS, nameof( listenerIndex ) );
 
-			if ( listenerIndex > _listenerCount ) {
+			if ( listenerIndex >= _listenerCount ) {
 				FMODValidator.ValidateCall( _system.StudioSystem.setNumListeners( listenerIndex ) );
 				_listeners[listenerIndex] = new FMODListener( _system.StudioSystem, listenerIndex ) { Position = position };
 			}
 			_listeners[listenerIndex].Position = position;
-			FMODValidator.ValidateCall( _system.StudioSystem.setListenerAttributes( listenerIndex, Make2DAttributes( position.X, position.Y ) ) );
 		}
 
 		/*
@@ -123,13 +108,12 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			_logger.PrintLine( $"FMODListenerService.ClearListeners: cleaning up listener data..." );
 
 			for ( int i = 0; i < _listenerCount; i++ ) {
-				_listeners[i] = null!;
+				_listeners[i] = null;
 			}
 			if ( _listenerCount > 0 ) {
 				_system.StudioSystem.setNumListeners( 0 );
 				_listenerCount = 0;
 			}
-			CreateDefaultListener();
 		}
 
 		/*
