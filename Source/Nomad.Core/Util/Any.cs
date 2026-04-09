@@ -16,6 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -549,6 +550,25 @@ namespace Nomad.Core.Util
             AnyType.String => _value.String,
             _ => null
         };
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+		public override bool Equals([NotNullWhen(true)] object? obj)
+        {
+            return obj is Any any && any == this;
+        }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+		public override int GetHashCode()
+		{
+			return base.GetHashCode();
+		}
 
         /// <summary>
         /// Gets the .NET <see cref="Type"/> corresponding to the specified <see cref="AnyType"/>.
