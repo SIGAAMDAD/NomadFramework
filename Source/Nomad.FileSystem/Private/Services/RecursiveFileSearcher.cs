@@ -59,7 +59,12 @@ namespace Nomad.FileSystem.Private.Services {
 		/// <param name="ignoreCase">If true, file lookups are case‑insensitive (recommended for cross‑platform).</param>
 		/// <param name="useIndex">If true, builds an in‑memory index of all files for faster lookups (may impact startup time).</param>
 		public RecursiveFileSearcher( ILoggerCategory category, bool? ignoreCase = null, bool useIndex = false ) {
-			_ignoreCase = ignoreCase ?? OperatingSystem.IsWindows();
+			_ignoreCase = ignoreCase ??
+#if WINDOWS
+				true;
+#else
+				false;
+#endif
 			_useIndex = useIndex;
 			_category = category;
 			if ( _useIndex ) {
