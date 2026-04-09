@@ -20,6 +20,7 @@ using Microsoft.Extensions.Configuration.Ini;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
+using Nomad.Core.Memory.Buffers;
 
 namespace Nomad.CVars.Private.Serialization {
 	/*
@@ -56,20 +57,34 @@ namespace Nomad.CVars.Private.Serialization {
 			logger.PrintLine( $"Loading configuration file '{configFile}'..." );
 
 			try {
-				using var fileStream = new FileStream( configFile, FileMode.Open, FileAccess.Read );
-
-				_iniData = IniStreamConfigurationProvider.Read( fileStream );
-				if ( _iniData == null ) {
-					logger.PrintError( $"IniLoader: error parsing ini data from configuration file '{configFile}'" );
+				string resolvedPath = ResolveConfigPath( configFile, fileSystem );
+				IBufferHandle? fileBuffer = fileSystem.LoadFile( resolvedPath );
+				if ( fileBuffer == null ) {
+					throw new FileNotFoundException( $"Could not find file '{resolvedPath}'.", resolvedPath );
 				}
-				logger.PrintLine( $"{_iniData.Count}" );
-				foreach (var cvar in _iniData) {
-					logger.PrintLine($"{cvar.Key}:{cvar.Value}");
+
+				using ( fileBuffer )
+				using ( var fileStream = fileBuffer.AsStream( 0, fileBuffer.Length ) ) {
+					_iniData = IniStreamConfigurationProvider.Read( fileStream );
+					if ( _iniData == null ) {
+						logger.PrintError( $"IniLoader: error parsing ini data from configuration file '{resolvedPath}'" );
+					}
 				}
 			} catch ( Exception e ) {
 				logger.PrintError( $"IniLoader: Error opening configuration file '{configFile}: {e.Message}" );
 				throw;
 			}
+		}
+
+		private static string ResolveConfigPath( string configFile, IFileSystem fileSystem ) {
+			ArgumentGuard.ThrowIfNull( fileSystem );
+
+			if ( Path.IsPathRooted( configFile ) || !string.IsNullOrEmpty( Path.GetDirectoryName( configFile ) ) ) {
+				return configFile;
+			}
+
+			string configDirectoryCandidate = Path.Combine( fileSystem.GetConfigPath(), configFile );
+			return fileSystem.FileExists( configDirectoryCandidate ) ? configDirectoryCandidate : configFile;
 		}
 
 		/*

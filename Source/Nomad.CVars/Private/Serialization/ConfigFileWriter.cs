@@ -15,6 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.CVars;
 using Nomad.Core.FileSystem;
@@ -61,6 +62,11 @@ namespace Nomad.CVars.Private.Serialization {
 			_writer = null;
 
 			try {
+				string? directoryPath = Path.GetDirectoryName( configFile );
+				if ( !string.IsNullOrWhiteSpace( directoryPath ) && !fileSystem.DirectoryExists( directoryPath ) ) {
+					fileSystem.CreateDirectory( directoryPath );
+				}
+
 				using ( _writer = fileSystem.OpenWrite( new FileWriteConfig { FilePath = configFile, Format = StreamFormat.Utf8 } ) as IFileWriteStream ) {
 					WriteHeader();
 					foreach ( var group in groups ) {
