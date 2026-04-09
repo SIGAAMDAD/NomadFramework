@@ -2,13 +2,12 @@
   <PropertyGroup>
     <!-- NuGet Package Information -->
     <PackageId>NomadFramework.Nomad.Audio</PackageId>
-    <Version>1.0.0</Version>
+    <Version>0.1.0-alpha1</Version>
   </PropertyGroup>
 
   <!-- SPECIAL PROPS -->
   <PropertyGroup>
     <!-- Performance -->
-    <PubishAOT>true</PubishAOT>
     <TieredCompilation>true</TieredCompilation>
     <Deterministic>true</Deterministic>
     <UseSharedCompilation>true</UseSharedCompilation>

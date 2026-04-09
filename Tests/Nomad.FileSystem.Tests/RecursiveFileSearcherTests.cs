@@ -157,6 +157,32 @@ namespace Nomad.FileSystem.Tests
             Assert.That(result, Is.EqualTo(file));
         }
 
+        [Test]
+        public void FindFile_OnWindows_MatchesFileStreamForDifferentPathCasing()
+        {
+            if (!OperatingSystem.IsWindows())
+            {
+                Assert.Ignore("Windows-specific case-insensitive filesystem behavior.");
+            }
+
+            _searcher.AddSearchDirectory(_dir1);
+            string subDir = Path.Combine(_dir1, "Sub");
+            Directory.CreateDirectory(subDir);
+            string file = Path.Combine(subDir, "File.txt");
+            File.WriteAllText(file, "data");
+
+            string requestedPath = SwapPathCase(file);
+
+            using (var stream = new FileStream(requestedPath, FileMode.Open, FileAccess.Read))
+            {
+                Assert.That(stream.Length, Is.GreaterThan(0));
+            }
+
+            var result = _searcher.FindFile(requestedPath);
+            Assert.That(result, Is.Not.Null);
+            Assert.That(string.Equals(result, file, StringComparison.OrdinalIgnoreCase), Is.True);
+        }
+
         #endregion
 
         #region FindFiles
@@ -224,6 +250,22 @@ namespace Nomad.FileSystem.Tests
         }
 
         #endregion
+
+        private static string SwapPathCase(string path)
+        {
+            char[] chars = path.ToCharArray();
+            for (int i = 0; i < chars.Length; i++)
+            {
+                if (char.IsLetter(chars[i]))
+                {
+                    chars[i] = char.IsUpper(chars[i])
+                        ? char.ToLowerInvariant(chars[i])
+                        : char.ToUpperInvariant(chars[i]);
+                }
+            }
+
+            return new string(chars);
+        }
     }
 }
 #endif

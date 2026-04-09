@@ -225,6 +225,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 
 			var flags = FMOD.INITFLAGS.CHANNEL_DISTANCEFILTER | FMOD.INITFLAGS.CHANNEL_LOWPASS | FMOD.INITFLAGS.VOL0_BECOMES_VIRTUAL;
 
+			FMODValidator.ValidateCall( _fmodCategory, System.set3DSettings( 0.0f, 1.0f, 1.0f ) );
 			FMODValidator.ValidateCall( _fmodCategory, System.setStreamBufferSize( (uint)streamBufferSize.Value, FMOD.TIMEUNIT.MS ) );
 			FMODValidator.ValidateCall( _fmodCategory, System.setDSPBufferSize( dspBufferSize.Value, dspBufferCount.Value ) );
 			FMODValidator.ValidateCall( _fmodCategory, StudioSystem.initialize( maxChannels.Value, FMOD.Studio.INITFLAGS.LIVEUPDATE | FMOD.Studio.INITFLAGS.SYNCHRONOUS_UPDATE, flags, (IntPtr)null ) );

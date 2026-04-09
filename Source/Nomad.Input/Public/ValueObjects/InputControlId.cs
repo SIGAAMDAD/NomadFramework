@@ -277,6 +277,11 @@ namespace Nomad.Input.ValueObjects
 		RightArrow,
 
 		/// <summary>
+		/// The Escape key.
+		/// </summary>
+		Escape,
+
+		/// <summary>
 		/// The Enter key.
 		/// </summary>
 		Enter,

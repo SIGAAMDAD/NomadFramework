@@ -16,6 +16,10 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using Nomad.Input.ValueObjects;
+using Nomad.Core.Input;
+using Nomad.Input.Interfaces;
+using System.Runtime.InteropServices;
+using System;
 
 namespace Nomad.Input.Private.Services {
 	/*
@@ -29,22 +33,56 @@ namespace Nomad.Input.Private.Services {
 	/// 
 	/// </summary>
 
-	internal sealed class InputStateService {
+	internal unsafe sealed class InputStateService : IInputSnapshotService, IDisposable {
 		private const int DEVICE_SLOT_COUNT = (int)InputDeviceSlot.Count;
 		private const int CONTROL_COUNT = (int)InputControlId.Count;
 
 		private const int WORDS_PER_DEVICE = 4;
 
-		private readonly ulong[] _pressedBits = new ulong[DEVICE_SLOT_COUNT * WORDS_PER_DEVICE];
+		private readonly ulong* _pressedBits;
+		private readonly float* _axis1D;
+		private readonly Vector2* _axis2D;
 
-		private readonly float[] _axis1D = new float[DEVICE_SLOT_COUNT * CONTROL_COUNT];
-		private readonly Vector2[] _axis2D = new Vector2[DEVICE_SLOT_COUNT * CONTROL_COUNT];
+		private readonly void* _pMemory;
 
 		public Vector2 MouseDelta => _mouseDelta;
 		private Vector2 _mouseDelta;
 
 		public Vector2 MousePosition => _mousePosition;
 		private Vector2 _mousePosition;
+
+		private bool _isDisposed = false;
+
+		public InputStateService() {
+			long totalBytes = 0;
+			totalBytes += PadBytes( sizeof( ulong ) * DEVICE_SLOT_COUNT * WORDS_PER_DEVICE, 32 );
+			totalBytes += PadBytes( sizeof( float ) * DEVICE_SLOT_COUNT * CONTROL_COUNT, 32 );
+			totalBytes += PadBytes( (sizeof( float ) * 2) * DEVICE_SLOT_COUNT * CONTROL_COUNT, 32 );
+
+			_pMemory = (void*)Marshal.AllocHGlobal( (int)totalBytes );
+			_pressedBits = (ulong*)_pMemory;
+			_axis1D = (float*)((byte*)_pressedBits + PadBytes( sizeof( ulong ) * DEVICE_SLOT_COUNT * WORDS_PER_DEVICE, 16 ));
+			_axis2D = (Vector2*)((byte*)_axis1D + PadBytes( sizeof( float ) * DEVICE_SLOT_COUNT * CONTROL_COUNT, 16 ));
+			new Span<byte>( (byte*)_pMemory, (int)totalBytes ).Clear();
+		}
+
+		/*
+		===============
+		Dispose
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		public void Dispose() {
+			if ( !_isDisposed ) {
+				if ( _pMemory != null ) {
+					Marshal.FreeHGlobal( (nint)_pMemory );
+				}
+			}
+			GC.SuppressFinalize( this );
+			_isDisposed = true;
+		}
 
 		/*
 		===============
@@ -57,7 +95,6 @@ namespace Nomad.Input.Private.Services {
 		/// <param name="slot"></param>
 		/// <param name="control"></param>
 		/// <returns></returns>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public bool IsPressed( InputDeviceSlot slot, InputControlId control ) {
 			int controlIndex = (int)control;
 			int baseWord = ((int)slot * WORDS_PER_DEVICE) + (controlIndex >> 6);
@@ -215,18 +252,10 @@ namespace Nomad.Input.Private.Services {
 		/// <param name="control"></param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		private static bool IsAxis2DControl( InputControlId control ) {
-			switch ( control ) {
-				case InputControlId.LeftStick:
-				case InputControlId.RightStick:
-				case InputControlId.Delta:
-				case InputControlId.Position:
-				case InputControlId.Scroll:
-					return true;
-				default:
-					return false;
-			}
-		}
+		private static bool IsAxis2DControl( InputControlId control ) => control switch {
+			InputControlId.LeftStick or InputControlId.RightStick or InputControlId.Delta or InputControlId.Position or InputControlId.Scroll => true,
+			_ => false,
+		};
 
 		/*
 		===============
@@ -276,6 +305,16 @@ namespace Nomad.Input.Private.Services {
 			int baseWord = ((int)slot * WORDS_PER_DEVICE) + (controlIndex >> 6);
 			ulong mask = 1UL << (controlIndex & 63);
 			_pressedBits[baseWord] &= ~mask;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="size"></param>
+		/// <param name="alignment"></param>
+		/// <returns></returns>
+		private static long PadBytes( long size, long alignment ) {
+			return (size + alignment - 1) & ~(alignment - 1);
 		}
 	};
 };

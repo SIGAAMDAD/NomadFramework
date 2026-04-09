@@ -518,6 +518,11 @@ namespace Nomad.Core
                 ///
                 /// </summary>
                 public const string FOCUS_CHANGED = NAMESPACE + ":FocusChanged";
+
+                /// <summary>
+                /// 
+                /// </summary>
+                public const string PAUSE_STATE_CHANGED = NAMESPACE + ".PauseStateChanged";
             }
         }
 

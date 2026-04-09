@@ -146,7 +146,7 @@ namespace Nomad.Audio.Fmod.Private.Registries {
 			cvarSystem.Register(
 				new CVarCreateInfo<float> {
 					Name = Constants.CVars.EngineUtils.Audio.DISTANCE_FALLOFF_START,
-					DefaultValue = 50.0f,
+					DefaultValue = 600.0f,
 					Description = " ",
 					Flags = CVarFlags.Init | CVarFlags.ReadOnly,
 					Group = "Audio",
@@ -155,7 +155,7 @@ namespace Nomad.Audio.Fmod.Private.Registries {
 			cvarSystem.Register(
 				new CVarCreateInfo<float> {
 					Name = Constants.CVars.EngineUtils.Audio.DISTANCE_FALLOFF_END,
-					DefaultValue = 100.0f,
+					DefaultValue = 2000.0f,
 					Description = " ",
 					Flags = CVarFlags.Init | CVarFlags.ReadOnly,
 					Group = "Audio",

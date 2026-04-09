@@ -22,6 +22,7 @@ using Nomad.Input.Private.ValueObjects;
 using Nomad.Input.ValueObjects;
 using Nomad.Input.Private.Repositories;
 using Nomad.Core.Input;
+using Nomad.Core.Util;
 
 namespace Nomad.Input.Private.Services {
 	/*
@@ -38,6 +39,7 @@ namespace Nomad.Input.Private.Services {
 	internal sealed class ActionResolverService {
 		private readonly CompiledBindingRepository _compiledBindings;
 		private readonly InputStateService _stateService;
+		private readonly Dictionary<string, bool> _actionActiveStates = new();
 
 		/*
 		===============
@@ -121,7 +123,7 @@ namespace Nomad.Input.Private.Services {
 				}
 
 				float value = ResolveComposite1D( binding.Axis1DComposite );
-				var phase = MathF.Abs( value ) > 0.0001f ? InputActionPhase.Performed : InputActionPhase.Canceled;
+				var phase = ResolvePhase( binding.ActionId, MathF.Abs( value ) > 0.0001f );
 
 				builder.Add( new ResolvedAction(
 					actionId: binding.ActionId,
@@ -142,7 +144,7 @@ namespace Nomad.Input.Private.Services {
 				}
 
 				Vector2 value = ResolveComposite2D( binding.Axis2DComposite );
-				var phase = value.LengthSquared() > 0.0001f ? InputActionPhase.Performed : InputActionPhase.Canceled;
+				var phase = ResolvePhase( binding.ActionId, value.LengthSquared() > 0.0001f );
 
 				builder.Add( new ResolvedAction(
 					actionId: binding.ActionId,
@@ -175,7 +177,7 @@ namespace Nomad.Input.Private.Services {
 						action = new ResolvedAction(
 							actionId: binding.ActionId,
 							valueType: InputValueType.Button,
-							phase: pressed ? InputActionPhase.Started : InputActionPhase.Canceled,
+							phase: ResolvePhase( binding.ActionId, pressed ),
 							timeStamp: timeStamp,
 							buttonValue: pressed
 						);
@@ -191,7 +193,7 @@ namespace Nomad.Input.Private.Services {
 						action = new ResolvedAction(
 							actionId: binding.ActionId,
 							valueType: InputValueType.Float,
-							phase: MathF.Abs( value ) > 0.0001f ? InputActionPhase.Performed : InputActionPhase.Canceled,
+							phase: ResolvePhase( binding.ActionId, MathF.Abs( value ) > 0.0001f ),
 							timeStamp: timeStamp,
 							floatValue: value
 						);
@@ -207,7 +209,7 @@ namespace Nomad.Input.Private.Services {
 						action = new ResolvedAction(
 							actionId: binding.ActionId,
 							valueType: InputValueType.Vector2,
-							phase: value.LengthSquared() > 0.0001f ? InputActionPhase.Performed : InputActionPhase.Canceled,
+							phase: ResolvePhase( binding.ActionId, value.LengthSquared() > 0.0001f ),
 							timeStamp: timeStamp,
 							vector2Value: value
 						);
@@ -220,7 +222,7 @@ namespace Nomad.Input.Private.Services {
 						action = new ResolvedAction(
 							actionId: binding.ActionId,
 							valueType: InputValueType.Vector2,
-							phase: value.LengthSquared() > 0.0001f ? InputActionPhase.Performed : InputActionPhase.Canceled,
+							phase: ResolvePhase( binding.ActionId, value.LengthSquared() > 0.0001f ),
 							timeStamp: timeStamp,
 							vector2Value: value
 						);
@@ -374,6 +376,28 @@ namespace Nomad.Input.Private.Services {
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		private static bool ContextMatches( uint bindingMask, uint activeMask ) {
 			return bindingMask == 0 || (bindingMask & activeMask) != 0;
+		}
+
+		/*
+		===============
+		ResolvePhase
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="actionId"></param>
+		/// <param name="isActive"></param>
+		/// <returns></returns>
+		private InputActionPhase ResolvePhase( InternString actionId, bool isActive ) {
+			bool wasActive = _actionActiveStates.TryGetValue( actionId, out var active ) && active;
+			_actionActiveStates[actionId] = isActive;
+
+			if ( !isActive ) {
+				return InputActionPhase.Canceled;
+			}
+
+			return wasActive ? InputActionPhase.Performed : InputActionPhase.Started;
 		}
 
 		/*

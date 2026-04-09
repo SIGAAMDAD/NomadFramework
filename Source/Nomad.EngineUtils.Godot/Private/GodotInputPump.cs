@@ -16,7 +16,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
 using Godot;
 using Nomad.Core.Engine.Services;
 using Nomad.Core.Events;
@@ -75,6 +74,7 @@ namespace Nomad.EngineUtils.Godot.Private {
 		/// <param name="eventFactory"></param>
 		public GodotInputPump( IGameEventRegistryService eventFactory ) {
 			Name = nameof( GodotInputPump );
+			ProcessMode = ProcessModeEnum.Always;
 			
 			_keyboardEvent = eventFactory.GetEvent<KeyboardEventArgs>( Core.Constants.Events.Input.KEYBOARD_EVENT, Core.Constants.Events.Input.NAMESPACE );
 			_mouseButtonEvent = eventFactory.GetEvent<MouseButtonEventArgs>( Core.Constants.Events.Input.MOUSE_BUTTON_EVENT, Core.Constants.Events.Input.NAMESPACE );

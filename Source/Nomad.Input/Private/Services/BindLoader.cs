@@ -18,11 +18,11 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
-using System.IO;
 using System.Text.Json;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Input;
 using Nomad.Core.Input.ValueObjects;
+using Nomad.Core.Memory.Buffers;
 using Nomad.Input.Private.Extensions;
 using Nomad.Input.ValueObjects;
 using Nomad.Core.Logger;
@@ -72,49 +72,54 @@ namespace Nomad.Input.Private.Services {
 		/// <param name="binds"></param>
 		/// <returns></returns>
 		public bool LoadBindDatabase( string filePath, out ImmutableArray<InputActionDefinition> binds ) {
-			using var stream = new StreamReader( new FileStream( filePath, FileMode.Open, FileAccess.Read ) );
-			if ( stream == null ) {
+			IBufferHandle? fileBuffer = _fileSystem.LoadFile( filePath );
+			if ( fileBuffer == null ) {
 				binds = ImmutableArray<InputActionDefinition>.Empty;
 				_category.PrintLine( $"Couldn't load bind file '{filePath}'!" );
 				return false;
 			}
 
-			using var document = JsonDocument.Parse(
-				stream.ReadToEnd(),
-				new JsonDocumentOptions {
-					CommentHandling = JsonCommentHandling.Skip,
-					AllowTrailingCommas = true
+			try {
+				using var stream = fileBuffer.AsStream( 0, fileBuffer.Length );
+				using var document = JsonDocument.Parse(
+					stream,
+					new JsonDocumentOptions {
+						CommentHandling = JsonCommentHandling.Skip,
+						AllowTrailingCommas = true
+					}
+				);
+
+				if ( !TryGetProperty( document.RootElement, "Bindings", out var bindingsElement ) ) {
+					throw new Exception( $"Bindings file '{filePath}' is missing a 'Bindings' property." );
 				}
-			);
 
-			if ( !TryGetProperty( document.RootElement, "Bindings", out var bindingsElement ) ) {
-				throw new Exception( $"Bindings file '{filePath}' is missing a 'Bindings' property." );
+				var actionIndices = new Dictionary<string, int>( StringComparer.Ordinal );
+				var actions = new List<ActionBuilder>();
+
+				switch ( bindingsElement.ValueKind ) {
+					case JsonValueKind.Array:
+						foreach ( var actionElement in bindingsElement.EnumerateArray() ) { 
+							ParseActionDefinition( actionElement, actionIndices, actions );
+						}
+						break;
+					case JsonValueKind.Object:
+						foreach ( var actionProperty in bindingsElement.EnumerateObject() ) {
+							ParseActionDefinition( actionProperty.Value, actionIndices, actions, actionProperty.Name );
+						}
+						break;
+					default:
+						throw new Exception( $"Bindings file '{filePath}' has an invalid 'Bindings' payload. Expected an array or object." );
+				}
+
+				var builder = ImmutableArray.CreateBuilder<InputActionDefinition>( actions.Count );
+				for ( int i = 0; i < actions.Count; i++ ) {
+					builder.Add( actions[i].Build() );
+				}
+				binds = builder.ToImmutable();
+				return true;
+			} finally {
+				fileBuffer.DisposeAsync().AsTask().GetAwaiter().GetResult();
 			}
-
-			var actionIndices = new Dictionary<string, int>( StringComparer.Ordinal );
-			var actions = new List<ActionBuilder>();
-
-			switch ( bindingsElement.ValueKind ) {
-				case JsonValueKind.Array:
-					foreach ( var actionElement in bindingsElement.EnumerateArray() ) { 
-						ParseActionDefinition( actionElement, actionIndices, actions );
-					}
-					break;
-				case JsonValueKind.Object:
-					foreach ( var actionProperty in bindingsElement.EnumerateObject() ) {
-						ParseActionDefinition( actionProperty.Value, actionIndices, actions, actionProperty.Name );
-					}
-					break;
-				default:
-					throw new Exception( $"Bindings file '{filePath}' has an invalid 'Bindings' payload. Expected an array or object." );
-			}
-
-			var builder = ImmutableArray.CreateBuilder<InputActionDefinition>( actions.Count );
-			for ( int i = 0; i < actions.Count; i++ ) {
-				builder.Add( actions[i].Build() );
-			}
-			binds = builder.ToImmutable();
-			return true;
 		}
 
 		/*

@@ -13,29 +13,15 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Nomad.Core.Events;
-using Nomad.Core.Input;
+using System;
+using System.Collections.Generic;
+using Nomad.Core.Scene.GameObjects;
 
 namespace Nomad.Core.Engine.Services
 {
-    /// <summary>
-    ///
-    /// </summary>
-    public interface IInputAdapter
+    public interface ISplitScreenService : IDisposable
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        IGameEvent<KeyboardEventArgs> KeyboardEvent { get; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        IGameEvent<GamepadAxisEventArgs> GamepadAxisEvent { get; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        IGameEvent<GamepadButtonEventArgs> GamepadButtonEvent { get; }
+        void Apply(IGameObject worldRoot, IReadOnlyList<IGameObject> participants);
+        void Clear();
     }
 }

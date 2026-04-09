@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025-2026 Noah Van Til
+Copyright (C) 2025 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -13,29 +13,28 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Nomad.Core.Events;
-using Nomad.Core.Input;
+using System.Numerics;
 
-namespace Nomad.Core.Engine.Services
+namespace Nomad.Core.Scene.GameObjects
 {
     /// <summary>
-    ///
+    /// Represents a visible 2D sprite.
     /// </summary>
-    public interface IInputAdapter
+    public interface ISprite2D : IObject2D
     {
         /// <summary>
-        /// 
+        /// The sprite tint color in RGBA form.
         /// </summary>
-        IGameEvent<KeyboardEventArgs> KeyboardEvent { get; }
+        Vector4 Color { get; set; }
 
         /// <summary>
-        /// 
+        /// Whether the sprite is flipped horizontally.
         /// </summary>
-        IGameEvent<GamepadAxisEventArgs> GamepadAxisEvent { get; }
+        bool FlipHorizontal { get; set; }
 
         /// <summary>
-        /// 
+        /// Whether the sprite is flipped vertically.
         /// </summary>
-        IGameEvent<GamepadButtonEventArgs> GamepadButtonEvent { get; }
+        bool FlipVertical { get; set; }
     }
 }

@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-The Nomad Framework
+The Nomad MPLv2 Source Code
 Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
@@ -13,29 +13,15 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Nomad.Core.Events;
+using System.Numerics;
 using Nomad.Core.Input;
 
-namespace Nomad.Core.Engine.Services
+namespace Nomad.Input.Interfaces
 {
-    /// <summary>
-    ///
-    /// </summary>
-    public interface IInputAdapter
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        IGameEvent<KeyboardEventArgs> KeyboardEvent { get; }
+	public interface IMouseService
+	{
+		Vector2 Position { get; }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        IGameEvent<GamepadAxisEventArgs> GamepadAxisEvent { get; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        IGameEvent<GamepadButtonEventArgs> GamepadButtonEvent { get; }
-    }
+		bool IsPressed(MouseButton mouseButton);
+	}
 }

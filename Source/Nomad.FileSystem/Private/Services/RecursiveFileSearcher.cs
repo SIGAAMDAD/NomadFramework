@@ -58,12 +58,12 @@ namespace Nomad.FileSystem.Private.Services {
 		/// <param name="category"></param>
 		/// <param name="ignoreCase">If true, file lookups are case‑insensitive (recommended for cross‑platform).</param>
 		/// <param name="useIndex">If true, builds an in‑memory index of all files for faster lookups (may impact startup time).</param>
-		public RecursiveFileSearcher( ILoggerCategory category, bool ignoreCase = false, bool useIndex = false ) {
-			_ignoreCase = ignoreCase;
+		public RecursiveFileSearcher( ILoggerCategory category, bool? ignoreCase = null, bool useIndex = false ) {
+			_ignoreCase = ignoreCase ?? OperatingSystem.IsWindows();
 			_useIndex = useIndex;
 			_category = category;
 			if ( _useIndex ) {
-				_fileIndex = new Dictionary<string, List<string>>( ignoreCase ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal );
+				_fileIndex = new Dictionary<string, List<string>>( _ignoreCase ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal );
 				_indexWatcher = new FileSystemWatcher();
 				// Optional: set up a FileSystemWatcher to keep index fresh (not implemented here for simplicity)
 			}
@@ -328,12 +328,12 @@ namespace Nomad.FileSystem.Private.Services {
 		private void IndexDirectory( string directory ) {
 			// Build index of all files relative to this directory
 			foreach ( string file in Directory.EnumerateFiles( directory, "*", SearchOption.AllDirectories ) ) {
-				string relative = Path.GetRelativePath( directory, file );
+				string relative = NormalizePath( Path.GetRelativePath( directory, file ) );
 				if ( !_fileIndex.TryGetValue( relative, out var list ) ) {
 					list = new List<string>();
 					_fileIndex[relative] = list;
 				}
-				list.Add( file );
+				list.Add( NormalizePath( file ) );
 			}
 		}
 

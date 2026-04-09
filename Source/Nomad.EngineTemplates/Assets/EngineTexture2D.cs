@@ -26,11 +26,13 @@ namespace Nomad.Engine.Assets
     [TemplateNamespace(Name = "Assets")]
     [TemplateProperty(Name = "Width", Type = typeof(int), GodotGetterExpression = "base.GetWidth()", UnityGetterExpression = "(this as global::UnityEngine.Texture2D).width", IsReadOnly = true)]
     [TemplateProperty(Name = "Height", Type = typeof(int), GodotGetterExpression = "base.GetHeight()", UnityGetterExpression = "(this as global::UnityEngine.Texture2D).height", IsReadOnly = true)]
+    [TemplateProperty(Name = "EngineObject", Type = typeof(object), GodotGetterExpression = "this" )]
     [TemplateProperty(
         Name = "Image",
         Type = typeof(ReadOnlyMemory<byte>),
         UnityGetterExpression = "new global::System.ReadOnlyMemory<byte>(base.GetRawTextureData<byte>().ToArray())",
-        IsReadOnly = true)]
+        IsReadOnly = true
+    )]
     internal class EngineTexture2D
     {
     }

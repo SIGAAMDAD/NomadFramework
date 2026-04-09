@@ -195,5 +195,31 @@ namespace Nomad.Input.Tests {
 
 			Assert.That( () => loader.LoadBindDatabase( path, out _ ), Throws.Exception );
 		}
+
+		[Test]
+		public void LoadBindDatabase_UsesVirtualFileSystemSearchDirectories() {
+			var fileSystem = new InputFileSystemFixture( ("Assets/Config/Bindings/SearchOnly.json", """
+			{
+			  "Bindings": [
+			    {
+			      "Name": "Pause",
+			      "ValueType": "Button",
+			      "Scheme": "KeyboardAndMouse",
+			      "Bindings": { "DeviceId": "Keyboard", "ControlId": "Escape" }
+			    }
+			  ]
+			}
+			""") );
+			var loader = new BindLoader( fileSystem.Object, _logger );
+
+			bool loaded = loader.LoadBindDatabase( "SearchOnly.json", out var binds );
+
+			using ( Assert.EnterMultipleScope() ) {
+				Assert.That( loaded, Is.True );
+				Assert.That( binds, Has.Length.EqualTo( 1 ) );
+				Assert.That( binds[ 0 ].Name, Is.EqualTo( "Pause" ) );
+				Assert.That( binds[ 0 ].Bindings[ 0 ].Button.ControlId, Is.EqualTo( InputControlId.Escape ) );
+			}
+		}
 	}
 }

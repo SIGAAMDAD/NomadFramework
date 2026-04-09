@@ -18,6 +18,7 @@ namespace Nomad.Input.Tests {
 	internal sealed class InputFileSystemFixture {
 		private readonly Dictionary<string, string> _files = new( StringComparer.OrdinalIgnoreCase );
 		private readonly HashSet<string> _directories = new( StringComparer.OrdinalIgnoreCase );
+		private readonly List<string> _searchDirectories = new();
 
 		public Mock<IFileSystem> Mock { get; }
 		public IFileSystem Object => Mock.Object;
@@ -30,7 +31,8 @@ namespace Nomad.Input.Tests {
 			}
 
 			Mock.Setup( fileSystem => fileSystem.Dispose() );
-			Mock.Setup( fileSystem => fileSystem.AddSearchDirectory( It.IsAny<string>() ) );
+			Mock.Setup( fileSystem => fileSystem.AddSearchDirectory( It.IsAny<string>() ) )
+				.Callback( ( string path ) => AddSearchDirectory( path ) );
 			Mock.Setup( fileSystem => fileSystem.FileExists( It.IsAny<string>() ) )
 				.Returns( ( string path ) => FileExists( path ) );
 			Mock.Setup( fileSystem => fileSystem.LoadFile( It.IsAny<string>() ) )
@@ -51,8 +53,20 @@ namespace Nomad.Input.Tests {
 			RegisterDirectoryHierarchy( path );
 		}
 
+		private void AddSearchDirectory( string path ) {
+			string normalizedDirectory = NormalizeDirectory( path );
+			if ( string.IsNullOrEmpty( normalizedDirectory ) ) {
+				return;
+			}
+
+			RegisterDirectoryHierarchy( normalizedDirectory );
+			if ( !_searchDirectories.Contains( normalizedDirectory, StringComparer.OrdinalIgnoreCase ) ) {
+				_searchDirectories.Add( normalizedDirectory );
+			}
+		}
+
 		private IBufferHandle? LoadBuffer( string path ) {
-			if ( !_files.TryGetValue( NormalizePath( path ), out string? content ) ) {
+			if ( !_files.TryGetValue( ResolvePath( path ), out string? content ) ) {
 				return null;
 			}
 
@@ -63,7 +77,7 @@ namespace Nomad.Input.Tests {
 		}
 
 		private bool FileExists( string path ) {
-			return _files.ContainsKey( NormalizePath( path ) );
+			return _files.ContainsKey( ResolvePath( path ) );
 		}
 
 		private bool DirectoryExists( string path ) {
@@ -143,6 +157,22 @@ namespace Nomad.Input.Tests {
 
 		private static string NormalizePath( string path ) {
 			return ( path ?? string.Empty ).Replace( '\\', '/' ).Trim();
+		}
+
+		private string ResolvePath( string path ) {
+			string normalizedPath = NormalizePath( path );
+			if ( _files.ContainsKey( normalizedPath ) ) {
+				return normalizedPath;
+			}
+
+			foreach ( string searchDirectory in _searchDirectories ) {
+				string candidate = NormalizePath( Path.Combine( searchDirectory, normalizedPath ) );
+				if ( _files.ContainsKey( candidate ) ) {
+					return candidate;
+				}
+			}
+
+			return normalizedPath;
 		}
 	}
 

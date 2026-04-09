@@ -36,5 +36,10 @@ namespace Nomad.Core.Engine.Assets
         ///
         /// </summary>
         ReadOnlyMemory<byte> Image { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        object EngineObject { get; }
     }
 }

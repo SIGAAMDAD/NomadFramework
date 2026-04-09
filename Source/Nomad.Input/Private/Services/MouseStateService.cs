@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-The Nomad Framework
+The Nomad MPLv2 Source Code
 Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
@@ -13,29 +13,24 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Nomad.Core.Events;
+using System;
+using System.Numerics;
 using Nomad.Core.Input;
+using Nomad.Input.Interfaces;
 
-namespace Nomad.Core.Engine.Services
-{
-    /// <summary>
-    ///
-    /// </summary>
-    public interface IInputAdapter
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        IGameEvent<KeyboardEventArgs> KeyboardEvent { get; }
+namespace Nomad.Input.Private.Services {
+	internal sealed class MouseStateService : IMouseService {
+		public Vector2 Position => _position;
+		private Vector2 _position;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        IGameEvent<GamepadAxisEventArgs> GamepadAxisEvent { get; }
+		private readonly IInputSnapshotService _snapshotService;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        IGameEvent<GamepadButtonEventArgs> GamepadButtonEvent { get; }
-    }
-}
+		public MouseStateService( IInputSnapshotService snapshotService ) {
+			_snapshotService = snapshotService ?? throw new ArgumentNullException( nameof( snapshotService ) );
+		}
+
+		public bool IsPressed( MouseButton mouseButton ) {
+			throw new NotImplementedException();
+		}
+	};
+};

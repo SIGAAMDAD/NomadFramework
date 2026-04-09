@@ -53,7 +53,7 @@ namespace Nomad.Audio.Fmod.Private.Registries {
 			cvarSystem.Register(
 				new CVarCreateInfo<uint> {
 					Name = Constants.CVars.EngineUtils.Audio.FMOD.DSP_BUFFER_SIZE,
-					DefaultValue = 1024,
+					DefaultValue = 32,
 					Description = "The size of FMOD's dsp buffer.",
 					Flags = CVarFlags.Archive | CVarFlags.Init,
 					Group = "Audio.FMOD",

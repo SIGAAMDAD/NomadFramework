@@ -34,7 +34,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 	/// </summary>
 
 	internal sealed class FMODMusicService : IMusicService {
-		public bool IsPlaying => _musicInstance.PlaybackState == FMOD.Studio.PLAYBACK_STATE.PLAYING;
+		public bool IsPlaying => _musicInstance.PlaybackState == FMOD.Studio.PLAYBACK_STATE.PLAYING || _musicInstance.PlaybackState == FMOD.Studio.PLAYBACK_STATE.SUSTAINING;
 
 		private FMODEventResource _musicHandle;
 		private FMODChannelResource _musicInstance;

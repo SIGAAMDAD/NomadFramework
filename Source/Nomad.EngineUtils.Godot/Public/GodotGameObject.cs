@@ -220,7 +220,10 @@ namespace Nomad.EngineUtils
         /// <param name="child"></param>
         public void AddChild(IGameObject child)
         {
-            _node.AddChild((child as GodotGameObject).Node);
+            if (child is Node node)
+            {
+                _node.AddChild(node);
+            }
             _children.Add(child);
         }
 
@@ -230,7 +233,10 @@ namespace Nomad.EngineUtils
         /// <param name="child"></param>
         public void RemoveChild(IGameObject child)
         {
-            _node.RemoveChild((child as GodotGameObject).Node);
+            if (child is Node node)
+            {
+                _node.RemoveChild(node);
+            }
             _children.Remove(child);
         }
 

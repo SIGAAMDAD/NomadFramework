@@ -27,6 +27,7 @@ using Nomad.Core.Engine.SceneManagement;
 using Nomad.Core.Engine.Globals;
 using Nomad.EngineUtils.Godot.Private.SceneManagement;
 using Nomad.Core.Physics.Services;
+using Nomad.EngineUtils.Private.Godot;
 
 namespace Nomad.EngineUtils.Godot.Private.Services {
     /// <summary>
@@ -94,10 +95,14 @@ namespace Nomad.EngineUtils.Godot.Private.Services {
 
             _sceneManager = new GodotSceneManager( _sceneTree, new BaseCache<PackedScene, string>( _logger, _eventFactory, _loader ) );
             serviceFactory.AddSingleton( _sceneManager );
+            serviceFactory.AddSingleton<ISplitScreenService>( new GodotSplitScreenService() );
 
             serviceFactory.AddSingleton<IRaycastService>( new GodotRaycastService( _sceneTree.Root.World2D ) );
 
             _logger.AddSink( new ConsoleSink() );
+
+            serviceFactory.AddSingleton<ITimeService>( new GodotTimeService() );
+            serviceFactory.AddSingleton<IGamePauseService>( new GodotPauseService( _sceneTree, _eventFactory ) );
 
             EngineService.Initialize( this );
         }

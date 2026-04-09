@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 The Nomad Framework
-Copyright (C) 2025-2026 Noah Van Til
+Copyright (C) 2025 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v2. If a copy of the MPL was not distributed with this
@@ -13,51 +13,58 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.Core.Input
+using Nomad.Core.Events;
+
+namespace Nomad.Core.Scene.GameObjects
 {
     /// <summary>
-    /// 
+    /// Represents a 2D sprite that can play frame-based animations.
     /// </summary>
-    public enum MouseButton : byte
+    public interface IAnimatedSprite2D : ISprite2D
     {
         /// <summary>
-        /// 
+        /// The active animation name.
         /// </summary>
-        None = 0,
+        string Animation { get; set; }
 
         /// <summary>
-        /// 
+        /// The current frame index.
         /// </summary>
-        Left = 1 << 0,
+        int Frame { get; set; }
 
         /// <summary>
-        /// 
+        /// Playback speed multiplier.
         /// </summary>
-        Right = 1 << 1,
+        float SpeedScale { get; set; }
 
         /// <summary>
-        /// 
+        /// Whether the sprite is currently playing.
         /// </summary>
-        Middle = 1 << 2,
+        bool IsPlaying { get; }
+
+		/// <summary>
+        /// Fired when the current animation finishes.
+        /// </summary>
+        IGameEvent<EmptyEventArgs> AnimationFinished { get; }
+
+		/// <summary>
+		/// Fired when the current animation loops.
+		/// </summary>
+		IGameEvent<EmptyEventArgs> AnimationLooped { get; }
 
         /// <summary>
-        /// 
+        /// Starts playback of the current animation.
         /// </summary>
-        WheelDown = 1 << 3,
+        void Play();
 
         /// <summary>
-        /// 
+        /// Pauses playback.
         /// </summary>
-        WheelUp = 1 << 4,
+        void Pause();
 
         /// <summary>
-        /// 
+        /// Stops playback.
         /// </summary>
-        X1 = 1 << 5,
-
-        /// <summary>
-        /// 
-        /// </summary>
-        X2 = 1 << 6
+        void Stop();
     }
 }

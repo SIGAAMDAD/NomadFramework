@@ -81,6 +81,7 @@ namespace Nomad.EngineUtils {
 
 			_displayService = new UnityDisplayService( _windowService, cvarSystem );
 			serviceFactory.AddSingleton( _displayService );
+			serviceFactory.AddSingleton<ISplitScreenService>( new UnitySplitScreenService() );
 
 			_logger.AddSink( new UnityDebugSink() );
 
