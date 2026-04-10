@@ -158,6 +158,22 @@ namespace Nomad.FileSystem.Tests
         }
 
         [Test]
+        public void FindFile_WhenPathIncludesSearchRootFolder_ResolvesInsideRegisteredDirectory()
+        {
+            string assetsDir = Path.Combine(_tempDir, "Assets");
+            string bindingsDir = Path.Combine(assetsDir, "Config", "Bindings");
+            Directory.CreateDirectory(bindingsDir);
+
+            _searcher.AddSearchDirectory(assetsDir);
+
+            string file = Path.Combine(bindingsDir, "DefaultConfig.json");
+            File.WriteAllText(file, "content");
+
+            var result = _searcher.FindFile("Assets/Config/Bindings/DefaultConfig.json");
+            Assert.That(result, Is.EqualTo(file));
+        }
+
+        [Test]
         public void FindFile_OnWindows_MatchesFileStreamForDifferentPathCasing()
         {
             if (!OperatingSystem.IsWindows())
@@ -224,6 +240,19 @@ namespace Nomad.FileSystem.Tests
                 Assert.That(all[0], Is.EqualTo(file1)); // first directory added
                 Assert.That(all[1], Is.EqualTo(file2));
             }
+        }
+
+        [Test]
+        public void FindDirectory_WhenPathIncludesSearchRootFolder_ResolvesInsideRegisteredDirectory()
+        {
+            string assetsDir = Path.Combine(_tempDir, "Assets");
+            string bindingsDir = Path.Combine(assetsDir, "Config", "Bindings");
+            Directory.CreateDirectory(bindingsDir);
+
+            _searcher.AddSearchDirectory(assetsDir);
+
+            var result = _searcher.FindDirectory("Assets/Config/Bindings");
+            Assert.That(result, Is.EqualTo(bindingsDir));
         }
 
         #endregion

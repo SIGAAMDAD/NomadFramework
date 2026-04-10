@@ -37,6 +37,7 @@ namespace Nomad.Input.Private.Services {
 	internal sealed class BindingMatcherService {
 		private readonly CompiledBindingRepository _compiledBindings;
 		private readonly InputStateService _stateService;
+		private BindingMatch[] _matchBuffer = Array.Empty<BindingMatch>();
 
 		/*
 		===============
@@ -155,8 +156,10 @@ namespace Nomad.Input.Private.Services {
 		/// <param name="activeScheme"></param>
 		/// <returns></returns>
 		private ReadOnlyMemory<BindingMatch> MatchButtons( ReadOnlySpan<CompiledBinding> candidates, uint activeContextMask, InputScheme? activeScheme ) {
-			var matches = new BindingMatch[ candidates.Length ];
+			EnsureMatchCapacity( candidates.Length );
 			int matchCount = 0;
+			bool hasActiveScheme = activeScheme.HasValue;
+			InputScheme activeSchemeValue = activeScheme.GetValueOrDefault();
 
 			for ( int i = 0; i < candidates.Length; i++ ) {
 				ref readonly var binding = ref candidates[i];
@@ -164,15 +167,15 @@ namespace Nomad.Input.Private.Services {
 				if ( !ContextMatches( binding.ContextMask, activeContextMask ) ) {
 					continue;
 				}
-				if ( activeScheme.HasValue && binding.Scheme != activeScheme.Value ) {
+				if ( hasActiveScheme && binding.Scheme != activeSchemeValue ) {
 					continue;
 				}
 				if ( !ModifiersSatisfied( binding ) ) {
 					continue;
 				}
-				matches[ matchCount++ ] = new BindingMatch { Binding = binding, Score = Score( binding, modifierCount: binding.Button.Modifiers.Length, exactScheme: true ) };
+				_matchBuffer[matchCount++] = new BindingMatch { Binding = binding, Score = Score( binding, modifierCount: binding.Button.Modifiers.Length, exactScheme: true ) };
 			}
-			return matches.AsMemory( 0, matchCount );
+			return _matchBuffer.AsMemory( 0, matchCount );
 		}
 
 		/*
@@ -187,9 +190,11 @@ namespace Nomad.Input.Private.Services {
 		/// <param name="activeContextMask"></param>
 		/// <param name="activeScheme"></param>
 		/// <returns></returns>
-		private static ReadOnlyMemory<BindingMatch> MatchAxes( ReadOnlySpan<CompiledBinding> candidates, uint activeContextMask, InputScheme? activeScheme ) {
-			var matches = new BindingMatch[ candidates.Length ];
+		private ReadOnlyMemory<BindingMatch> MatchAxes( ReadOnlySpan<CompiledBinding> candidates, uint activeContextMask, InputScheme? activeScheme ) {
+			EnsureMatchCapacity( candidates.Length );
 			int matchCount = 0;
+			bool hasActiveScheme = activeScheme.HasValue;
+			InputScheme activeSchemeValue = activeScheme.GetValueOrDefault();
 
 			for ( int i = 0; i < candidates.Length; i++ ) {
 				ref readonly var binding = ref candidates[i];
@@ -197,13 +202,13 @@ namespace Nomad.Input.Private.Services {
 				if ( !ContextMatches( binding.ContextMask, activeContextMask ) ) {
 					continue;
 				}
-				if ( activeScheme.HasValue && binding.Scheme != activeScheme.Value ) {
+				if ( hasActiveScheme && binding.Scheme != activeSchemeValue ) {
 					continue;
 				}
-				matches[ matchCount++ ] = new BindingMatch { Binding = binding, Score = Score( binding, modifierCount: 0, exactScheme: true ) };
+				_matchBuffer[matchCount++] = new BindingMatch { Binding = binding, Score = Score( binding, modifierCount: 0, exactScheme: true ) };
 			}
 
-			return matches.AsMemory( 0, matchCount );
+			return _matchBuffer.AsMemory( 0, matchCount );
 		}
 
 		/*
@@ -236,12 +241,23 @@ namespace Nomad.Input.Private.Services {
 			if ( binding.Kind != InputBindingKind.Button ) {
 				return true;
 			}
-			foreach ( var modifier in binding.Button.Modifiers ) {
+			var modifiers = binding.Button.Modifiers;
+			for ( int i = 0; i < modifiers.Length; i++ ) {
+				InputControlId modifier = modifiers[i];
 				if ( !_stateService.IsPressed( InputDeviceSlot.Keyboard, modifier ) ) {
 					return false;
 				}
 			}
 			return true;
+		}
+
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		private void EnsureMatchCapacity( int requiredCapacity ) {
+			if ( _matchBuffer.Length >= requiredCapacity ) {
+				return;
+			}
+
+			_matchBuffer = new BindingMatch[Math.Max( requiredCapacity, _matchBuffer.Length == 0 ? 8 : _matchBuffer.Length * 2 )];
 		}
 		
 		/*

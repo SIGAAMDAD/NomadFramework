@@ -43,7 +43,7 @@ namespace Nomad.Input.Private.Services {
 		private readonly float* _axis1D;
 		private readonly Vector2* _axis2D;
 
-		private readonly void* _pMemory;
+		private readonly void* _pFrameStateMemoryBuffer;
 
 		public Vector2 MouseDelta => _mouseDelta;
 		private Vector2 _mouseDelta;
@@ -55,15 +55,15 @@ namespace Nomad.Input.Private.Services {
 
 		public InputStateService() {
 			long totalBytes = 0;
-			totalBytes += PadBytes( sizeof( ulong ) * DEVICE_SLOT_COUNT * WORDS_PER_DEVICE, 32 );
-			totalBytes += PadBytes( sizeof( float ) * DEVICE_SLOT_COUNT * CONTROL_COUNT, 32 );
-			totalBytes += PadBytes( (sizeof( float ) * 2) * DEVICE_SLOT_COUNT * CONTROL_COUNT, 32 );
+			totalBytes += PadBytes( sizeof( ulong ) * DEVICE_SLOT_COUNT * WORDS_PER_DEVICE, Core.Constants.WORDSIZE );
+			totalBytes += PadBytes( sizeof( float ) * DEVICE_SLOT_COUNT * CONTROL_COUNT, Core.Constants.WORDSIZE );
+			totalBytes += PadBytes( (sizeof( float ) * 2) * DEVICE_SLOT_COUNT * CONTROL_COUNT, Core.Constants.WORDSIZE );
 
-			_pMemory = (void*)Marshal.AllocHGlobal( (int)totalBytes );
-			_pressedBits = (ulong*)_pMemory;
-			_axis1D = (float*)((byte*)_pressedBits + PadBytes( sizeof( ulong ) * DEVICE_SLOT_COUNT * WORDS_PER_DEVICE, 16 ));
-			_axis2D = (Vector2*)((byte*)_axis1D + PadBytes( sizeof( float ) * DEVICE_SLOT_COUNT * CONTROL_COUNT, 16 ));
-			new Span<byte>( (byte*)_pMemory, (int)totalBytes ).Clear();
+			_pFrameStateMemoryBuffer = (void*)Marshal.AllocHGlobal( (int)totalBytes );
+			_pressedBits = (ulong*)_pFrameStateMemoryBuffer;
+			_axis1D = (float*)((byte*)_pressedBits + PadBytes( sizeof( ulong ) * DEVICE_SLOT_COUNT * WORDS_PER_DEVICE, Core.Constants.WORDSIZE ));
+			_axis2D = (Vector2*)((byte*)_axis1D + PadBytes( sizeof( float ) * DEVICE_SLOT_COUNT * CONTROL_COUNT, Core.Constants.WORDSIZE ));
+			new Span<byte>( (byte*)_pFrameStateMemoryBuffer, (int)totalBytes ).Clear();
 		}
 
 		/*
@@ -76,8 +76,8 @@ namespace Nomad.Input.Private.Services {
 		/// </summary>
 		public void Dispose() {
 			if ( !_isDisposed ) {
-				if ( _pMemory != null ) {
-					Marshal.FreeHGlobal( (nint)_pMemory );
+				if ( _pFrameStateMemoryBuffer != null ) {
+					Marshal.FreeHGlobal( (nint)_pFrameStateMemoryBuffer );
 				}
 			}
 			GC.SuppressFinalize( this );
@@ -95,6 +95,7 @@ namespace Nomad.Input.Private.Services {
 		/// <param name="slot"></param>
 		/// <param name="control"></param>
 		/// <returns></returns>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public bool IsPressed( InputDeviceSlot slot, InputControlId control ) {
 			int controlIndex = (int)control;
 			int baseWord = ((int)slot * WORDS_PER_DEVICE) + (controlIndex >> 6);
@@ -139,7 +140,7 @@ namespace Nomad.Input.Private.Services {
 				value = default;
 				return false;
 			}
-			value = _axis1D[GetFlatIndex( slot, control )];
+			value = GetAxis1DUnchecked( slot, control );
 			return true;
 		}
 
@@ -160,8 +161,18 @@ namespace Nomad.Input.Private.Services {
 				value = default;
 				return false;
 			}
-			value = _axis2D[GetFlatIndex( slot, control )];
+			value = GetAxis2DUnchecked( slot, control );
 			return true;
+		}
+
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public float GetAxis1DUnchecked( InputDeviceSlot slot, InputControlId control ) {
+			return _axis1D[GetFlatIndex( slot, control )];
+		}
+
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public Vector2 GetAxis2DUnchecked( InputDeviceSlot slot, InputControlId control ) {
+			return _axis2D[GetFlatIndex( slot, control )];
 		}
 
 		/*

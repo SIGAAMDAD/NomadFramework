@@ -98,7 +98,7 @@ namespace Nomad.FileSystem.Private.Services {
 		/// </summary>
 		/// <param name="directory"></param>
 		public void AddSearchDirectory( string directory ) {
-			_searchHelper.AddSearchDirectory( directory );
+			_searchHelper.AddSearchDirectory( ResolveDirectoryPath( directory ) ?? directory );
 		}
 
 		/*
@@ -207,7 +207,11 @@ namespace Nomad.FileSystem.Private.Services {
 		/// <param name="path"></param>
 		/// <returns></returns>
 		public bool DirectoryExists( string path ) {
-			return !string.IsNullOrEmpty( path ) && Directory.Exists( path );
+			if ( string.IsNullOrWhiteSpace( path ) ) {
+				return false;
+			}
+
+			return Directory.Exists( path ) || ResolveDirectoryPath( path ) != null;
 		}
 
 		/*
@@ -248,7 +252,15 @@ namespace Nomad.FileSystem.Private.Services {
 		/// <param name="path"></param>
 		/// <returns></returns>
 		public bool FileExists( string path ) {
-			return File.Exists( path );
+			if ( string.IsNullOrWhiteSpace( path ) ) {
+				return false;
+			}
+
+			if ( Path.IsPathRooted( path ) ) {
+				return File.Exists( path ) || _searchHelper.FindFile( path ) != null;
+			}
+
+			return _searchHelper.FindFile( path ) != null || File.Exists( path );
 		}
 
 		/*
@@ -314,7 +326,10 @@ namespace Nomad.FileSystem.Private.Services {
 		/// <param name="path">The path to get directories from.</param>
 		/// <returns>A list of directory paths.</returns>
 		public IReadOnlyList<string> GetDirectories( string path ) {
-			return Directory.GetDirectories( path );
+			string? resolvedPath = ResolveDirectoryPath( path );
+			return resolvedPath == null
+				? Array.Empty<string>()
+				: Directory.GetDirectories( resolvedPath );
 		}
 
 		/*
@@ -330,7 +345,10 @@ namespace Nomad.FileSystem.Private.Services {
 		/// <param name="recursive">Whether to search recursively.</param>
 		/// <returns>A list of file paths.</returns>
 		public IReadOnlyList<string> GetFiles( string path, string searchPattern, bool recursive ) {
-			return Directory.GetFiles( path, searchPattern, recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly );
+			string? resolvedPath = ResolveDirectoryPath( path );
+			return resolvedPath == null
+				? Array.Empty<string>()
+				: Directory.GetFiles( resolvedPath, searchPattern, recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly );
 		}
 
 		/*
@@ -591,6 +609,35 @@ namespace Nomad.FileSystem.Private.Services {
 			ct.ThrowIfCancellationRequested();
 			using var stream = await OpenWriteAsync( new FileWriteConfig { FilePath = path }, ct ) ?? throw new IOException( $"Error opening file {path}" );
 			await stream.WriteAsync( buffer.Slice( offset, length ), ct );
+		}
+
+		/*
+		===============
+		ResolveDirectoryPath
+		===============
+		*/
+		/// <summary>
+		/// Resolves an existing directory path either directly from the OS path or through the VFS search roots.
+		/// </summary>
+		/// <param name="path"></param>
+		/// <returns></returns>
+		private string? ResolveDirectoryPath( string path ) {
+			if ( string.IsNullOrWhiteSpace( path ) ) {
+				return null;
+			}
+
+			if ( Path.IsPathRooted( path ) && Directory.Exists( path ) ) {
+				return Path.GetFullPath( path );
+			}
+
+			string? resolvedPath = _searchHelper.FindDirectory( path );
+			if ( resolvedPath != null ) {
+				return resolvedPath;
+			}
+
+			return Directory.Exists( path )
+				? Path.GetFullPath( path )
+				: null;
 		}
 	};
 };

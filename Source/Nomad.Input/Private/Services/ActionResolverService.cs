@@ -15,9 +15,9 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using Nomad.Input.Private.ValueObjects;
 using Nomad.Input.ValueObjects;
 using Nomad.Input.Private.Repositories;
@@ -39,7 +39,9 @@ namespace Nomad.Input.Private.Services {
 	internal sealed class ActionResolverService {
 		private readonly CompiledBindingRepository _compiledBindings;
 		private readonly InputStateService _stateService;
-		private readonly Dictionary<string, bool> _actionActiveStates = new();
+		private readonly Dictionary<InternString, bool> _actionActiveStates = new();
+		private readonly Dictionary<InternString, BestResolvedAction> _bestByAction = new();
+		private ResolvedAction[] _resolvedActionBuffer = Array.Empty<ResolvedAction>();
 
 		/*
 		===============
@@ -68,9 +70,13 @@ namespace Nomad.Input.Private.Services {
 		/// <param name="matches"></param>
 		/// <param name="timeStamp"></param>
 		/// <returns></returns>
-		public ImmutableArray<ResolvedAction> ResolveMatches( ref ReadOnlySpan<BindingMatch> matches, long timeStamp ) {
-			var bestByAction = new Dictionary<string, (BindingMatch Match, ResolvedAction Action, float Magnitude)>();
+		public ResolvedAction[] ResolveMatches( ref ReadOnlySpan<BindingMatch> matches, long timeStamp ) {
+			ReadOnlySpan<ResolvedAction> actions = ResolveMatchesNonAlloc( matches, timeStamp );
+			return actions.ToArray();
+		}
 
+		public ReadOnlySpan<ResolvedAction> ResolveMatchesNonAlloc( ReadOnlySpan<BindingMatch> matches, long timeStamp ) {
+			_bestByAction.Clear();
 			for ( int i = 0; i < matches.Length; i++ ) {
 				ref readonly var match = ref matches[i];
 				if ( !TryResolve( match.Binding, timeStamp, out var action ) ) {
@@ -78,21 +84,19 @@ namespace Nomad.Input.Private.Services {
 				}
 				float magnitude = GetMagnitude( action );
 
-				if ( !bestByAction.TryGetValue( action.ActionId, out var current ) ) {
-					bestByAction[action.ActionId] = (match, action, magnitude);
-					continue;
-				}
-				if ( ShouldReplace( current.Match, match, current.Magnitude, magnitude ) ) {
-					bestByAction[action.ActionId] = (match, action, magnitude);
+				ref BestResolvedAction current = ref CollectionsMarshal.GetValueRefOrAddDefault( _bestByAction, action.ActionId, out bool exists );
+				if ( !exists || ShouldReplace( current.Match, match, current.Magnitude, magnitude ) ) {
+					current = new BestResolvedAction( match, action, magnitude );
 				}
 			}
 
-			var builder = ImmutableArray.CreateBuilder<ResolvedAction>( bestByAction.Count );
-			foreach ( var pair in bestByAction ) {
-				builder.Add( pair.Value.Action );
+			EnsureResolvedActionCapacity( _bestByAction.Count );
+			int actionCount = 0;
+			foreach ( var pair in _bestByAction ) {
+				_resolvedActionBuffer[actionCount++] = pair.Value.Action;
 			}
 
-			return builder.ToImmutable();
+			return _resolvedActionBuffer.AsSpan( 0, actionCount );
 		}
 
 		/*
@@ -107,31 +111,39 @@ namespace Nomad.Input.Private.Services {
 		/// <param name="activeScheme"></param>
 		/// <param name="timeStamp"></param>
 		/// <returns></returns>
-		public ImmutableArray<ResolvedAction> ResolveComposites( uint activeContextMask, InputScheme? activeScheme, long timeStamp ) {
-			var current = _compiledBindings.Current;
-			var composite1D = current.Composite1D.AsSpan();
-			var composite2D = current.Composite2D.AsSpan();
-			var builder = ImmutableArray.CreateBuilder<ResolvedAction>();
+		public ResolvedAction[] ResolveComposites( uint activeContextMask, InputScheme? activeScheme, long timeStamp ) {
+			ReadOnlySpan<ResolvedAction> actions = ResolveCompositesNonAlloc( activeContextMask, activeScheme, timeStamp );
+			return actions.ToArray();
+		}
+
+		public ReadOnlySpan<ResolvedAction> ResolveCompositesNonAlloc( uint activeContextMask, InputScheme? activeScheme, long timeStamp ) {
+			var composite1D = _compiledBindings.GetComposite1DBindings();
+			var composite2D = _compiledBindings.GetComposite2DBindings();
+
+			EnsureResolvedActionCapacity( composite1D.Length + composite2D.Length );
+			int actionCount = 0;
+			bool hasActiveScheme = activeScheme.HasValue;
+			InputScheme activeSchemeValue = activeScheme.GetValueOrDefault();
 
 			for ( int i = 0; i < composite1D.Length; i++ ) {
 				ref readonly var binding = ref composite1D[i];
 				if ( !ContextMatches( binding.ContextMask, activeContextMask ) ) {
 					continue;
 				}
-				if ( activeScheme.HasValue && binding.Scheme != activeScheme.Value ) {
+				if ( hasActiveScheme && binding.Scheme != activeSchemeValue ) {
 					continue;
 				}
 
 				float value = ResolveComposite1D( binding.Axis1DComposite );
 				var phase = ResolvePhase( binding.ActionId, MathF.Abs( value ) > 0.0001f );
 
-				builder.Add( new ResolvedAction(
+				_resolvedActionBuffer[actionCount++] = new ResolvedAction(
 					actionId: binding.ActionId,
 					valueType: InputValueType.Float,
 					phase: phase,
 					timeStamp: timeStamp,
 					floatValue: value
-				) );
+				);
 			}
 
 			for ( int i = 0; i < composite2D.Length; i++ ) {
@@ -139,23 +151,23 @@ namespace Nomad.Input.Private.Services {
 				if ( !ContextMatches( binding.ContextMask, activeContextMask ) ) {
 					continue;
 				}
-				if ( activeScheme.HasValue && binding.Scheme != activeScheme.Value ) {
+				if ( hasActiveScheme && binding.Scheme != activeSchemeValue ) {
 					continue;
 				}
 
 				Vector2 value = ResolveComposite2D( binding.Axis2DComposite );
 				var phase = ResolvePhase( binding.ActionId, value.LengthSquared() > 0.0001f );
 
-				builder.Add( new ResolvedAction(
+				_resolvedActionBuffer[actionCount++] = new ResolvedAction(
 					actionId: binding.ActionId,
 					valueType: InputValueType.Vector2,
 					phase: phase,
 					timeStamp: timeStamp,
 					vector2Value: value
-				) );
+				);
 			}
 
-			return builder.ToImmutable();
+			return _resolvedActionBuffer.AsSpan( 0, actionCount );
 		}
 
 		/*
@@ -184,12 +196,10 @@ namespace Nomad.Input.Private.Services {
 						return true;
 					}
 				case InputBindingKind.Axis1D: {
-						if ( !_stateService.TryGetAxis1D( binding.Axis1D.DeviceId, binding.Axis1D.ControlId, out var value ) ) {
-							action = default;
-							return false;
-						}
-
-						value = ApplyAxis1DProcessors( value, binding.Axis1D );
+						float value = ApplyAxis1DProcessors(
+							_stateService.GetAxis1DUnchecked( binding.Axis1D.DeviceId, binding.Axis1D.ControlId ),
+							binding.Axis1D
+						);
 						action = new ResolvedAction(
 							actionId: binding.ActionId,
 							valueType: InputValueType.Float,
@@ -200,12 +210,10 @@ namespace Nomad.Input.Private.Services {
 						return true;
 					}
 				case InputBindingKind.Axis2D: {
-						if ( !_stateService.TryGetAxis2D( binding.Axis2D.DeviceId, binding.Axis2D.ControlId, out var value ) ) {
-							action = default;
-							return false;
-						}
-
-						value = ApplyAxis2DProcessors( value, binding.Axis2D );
+						Vector2 value = ApplyAxis2DProcessors(
+							_stateService.GetAxis2DUnchecked( binding.Axis2D.DeviceId, binding.Axis2D.ControlId ),
+							binding.Axis2D
+						);
 						action = new ResolvedAction(
 							actionId: binding.ActionId,
 							valueType: InputValueType.Vector2,
@@ -321,7 +329,8 @@ namespace Nomad.Input.Private.Services {
 		/// <param name="binding"></param>
 		/// <returns></returns>
 		private static Vector2 ApplyAxis2DProcessors( Vector2 value, Axis2DBinding binding ) {
-			if ( value.Length() < binding.Deadzone ) {
+			float deadzone = binding.Deadzone;
+			if ( value.LengthSquared() < deadzone * deadzone ) {
 				return Vector2.Zero;
 			}
 			if ( binding.InvertX ) {
@@ -390,8 +399,9 @@ namespace Nomad.Input.Private.Services {
 		/// <param name="isActive"></param>
 		/// <returns></returns>
 		private InputActionPhase ResolvePhase( InternString actionId, bool isActive ) {
-			bool wasActive = _actionActiveStates.TryGetValue( actionId, out var active ) && active;
-			_actionActiveStates[actionId] = isActive;
+			ref bool active = ref CollectionsMarshal.GetValueRefOrAddDefault( _actionActiveStates, actionId, out bool exists );
+			bool wasActive = exists && active;
+			active = isActive;
 
 			if ( !isActive ) {
 				return InputActionPhase.Canceled;
@@ -415,7 +425,7 @@ namespace Nomad.Input.Private.Services {
 			return action.ValueType switch {
 				InputValueType.Button => action.ButtonValue ? 1.0f : 0.0f,
 				InputValueType.Float => MathF.Abs( action.FloatValue ),
-				InputValueType.Vector2 => action.Vector2Value.Length(),
+				InputValueType.Vector2 => action.Vector2Value.LengthSquared(),
 				_ => 0.0f
 			};
 		}
@@ -440,5 +450,16 @@ namespace Nomad.Input.Private.Services {
 			}
 			return challengerMagnitude > currentMagnitude;
 		}
+
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		private void EnsureResolvedActionCapacity( int requiredCapacity ) {
+			if ( _resolvedActionBuffer.Length >= requiredCapacity ) {
+				return;
+			}
+
+			_resolvedActionBuffer = new ResolvedAction[Math.Max( requiredCapacity, _resolvedActionBuffer.Length == 0 ? 8 : _resolvedActionBuffer.Length * 2 )];
+		}
+
+		private readonly record struct BestResolvedAction( BindingMatch Match, ResolvedAction Action, float Magnitude );
 	}
 }

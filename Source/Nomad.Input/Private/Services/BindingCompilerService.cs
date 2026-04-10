@@ -77,8 +77,8 @@ namespace Nomad.Input.Private.Services {
 			var buttonIndex = new Dictionary<ButtonLookupKey, List<CompiledBinding>>();
 			var axisIndex = new Dictionary<AxisLookupKey, List<CompiledBinding>>();
 			var deltaIndex = new Dictionary<AxisLookupKey, List<CompiledBinding>>();
-			var composite1D = ImmutableArray.CreateBuilder<CompiledBinding>();
-			var composite2D = ImmutableArray.CreateBuilder<CompiledBinding>();
+			var composite1D = new List<CompiledBinding>();
+			var composite2D = new List<CompiledBinding>();
 
 			foreach ( var action in actions ) {
 				foreach ( var bindingDef in action.Bindings ) {
@@ -144,11 +144,11 @@ namespace Nomad.Input.Private.Services {
 				}
 			}
 			return new CompiledBindingGraph {
-				ButtonIndex = ToImmutable( buttonIndex ),
-				AxisIndex = ToImmutable( axisIndex ),
-				DeltaIndex = ToImmutable( deltaIndex ),
-				Composite1D = composite1D.ToImmutable(),
-				Composite2D = composite2D.ToImmutable()
+				ButtonIndex = ToCompiledBindingArrayIndex( buttonIndex ),
+				AxisIndex = ToCompiledBindingArrayIndex( axisIndex ),
+				DeltaIndex = ToCompiledBindingArrayIndex( deltaIndex ),
+				Composite1D = composite1D.ToArray(),
+				Composite2D = composite2D.ToArray()
 			};
 		}
 
@@ -185,14 +185,14 @@ namespace Nomad.Input.Private.Services {
 		/// <typeparam name="TKey"></typeparam>
 		/// <param name="source"></param>
 		/// <returns></returns>
-		private static ImmutableDictionary<TKey, ImmutableArray<CompiledBinding>> ToImmutable<TKey>( Dictionary<TKey, List<CompiledBinding>> source )
+		private static Dictionary<TKey, CompiledBinding[]> ToCompiledBindingArrayIndex<TKey>( Dictionary<TKey, List<CompiledBinding>> source )
 			where TKey : notnull
 		{
-			var builder = ImmutableDictionary.CreateBuilder<TKey, ImmutableArray<CompiledBinding>>();
+			var builder = new Dictionary<TKey, CompiledBinding[]>( source.Count );
 			foreach ( var pair in source ) {
-				builder[pair.Key] = pair.Value.ToImmutableArray();
+				builder[pair.Key] = pair.Value.ToArray();
 			}
-			return builder.ToImmutable();
+			return builder;
 		}
 	}
 };

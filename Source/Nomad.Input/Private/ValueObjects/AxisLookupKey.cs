@@ -14,9 +14,10 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using Nomad.Input.ValueObjects;
+using System;
 
 namespace Nomad.Input.Private.ValueObjects {
-	internal readonly struct AxisLookupKey {
+	internal readonly struct AxisLookupKey : IEquatable<AxisLookupKey> {
 		/// <summary>
 		/// 
 		/// </summary>
@@ -32,6 +33,18 @@ namespace Nomad.Input.Private.ValueObjects {
 		public AxisLookupKey( InputDeviceSlot device, InputControlId control ) {
 			_device = device;
 			_control = control;
+		}
+
+		public bool Equals( AxisLookupKey other ) {
+			return _device == other._device && _control == other._control;
+		}
+
+		public override bool Equals( object? obj ) {
+			return obj is AxisLookupKey other && Equals( other );
+		}
+
+		public override int GetHashCode() {
+			return HashCode.Combine( (int)_device, (int)_control );
 		}
 	};
 };

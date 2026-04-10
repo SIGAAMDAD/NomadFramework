@@ -46,6 +46,8 @@ namespace Nomad.Input.Private.Services {
 		/// 
 		/// </summary>
 		/// <param name="repository"></param>
+		/// <param name="bindingsChanged"></param>
+		/// <exception cref="ArgumentNullException"></exception>
 		public BindResolver( BindRepository repository, Action bindingsChanged ) {
 			_repository = repository ?? throw new ArgumentNullException( nameof( repository ) );
 			_bindingsChanged = bindingsChanged ?? throw new ArgumentNullException( nameof( bindingsChanged ) );

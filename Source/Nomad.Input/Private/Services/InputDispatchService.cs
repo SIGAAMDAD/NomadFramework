@@ -32,11 +32,11 @@ namespace Nomad.Input.Private.Services {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal sealed class InputDispatchService {
-		private readonly Dictionary<string, IGameEvent<ButtonActionEventArgs>> _buttonEvents = new();
-		private readonly Dictionary<string, IGameEvent<FloatActionEventArgs>> _floatEvents = new();
-		private readonly Dictionary<string, IGameEvent<AxisActionEventArgs>> _axisEvents = new();
+		private readonly Dictionary<InternString, IGameEvent<ButtonActionEventArgs>> _buttonEvents = new();
+		private readonly Dictionary<InternString, IGameEvent<FloatActionEventArgs>> _floatEvents = new();
+		private readonly Dictionary<InternString, IGameEvent<AxisActionEventArgs>> _axisEvents = new();
 		private readonly IGameEventRegistryService _eventFactory;
 
 		/*
@@ -93,7 +93,7 @@ namespace Nomad.Input.Private.Services {
 				return gameEvent;
 			}
 			gameEvent = _eventFactory.GetEvent<ButtonActionEventArgs>( $"{(string)actionId}:{Input.Constants.Events.BUTTON_ACTION}", Input.Constants.Events.NAMESPACE );
-			_buttonEvents[ actionId ] = gameEvent;
+			_buttonEvents[actionId] = gameEvent;
 			return gameEvent;
 		}
 
@@ -112,7 +112,7 @@ namespace Nomad.Input.Private.Services {
 				return gameEvent;
 			}
 			gameEvent = _eventFactory.GetEvent<FloatActionEventArgs>( $"{(string)actionId}:{Input.Constants.Events.FLOAT_ACTION}", Input.Constants.Events.NAMESPACE );
-			_floatEvents[ actionId ] = gameEvent;
+			_floatEvents[actionId] = gameEvent;
 			return gameEvent;
 		}
 
@@ -131,7 +131,7 @@ namespace Nomad.Input.Private.Services {
 				return gameEvent;
 			}
 			gameEvent = _eventFactory.GetEvent<AxisActionEventArgs>( $"{(string)actionId}:{Input.Constants.Events.AXIS_ACTION}", Input.Constants.Events.NAMESPACE );
-			_axisEvents[ actionId ] = gameEvent;
+			_axisEvents[actionId] = gameEvent;
 			return gameEvent;
 		}
 	};

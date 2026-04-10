@@ -242,6 +242,20 @@ namespace Nomad.FileSystem.Tests
         }
 
         [Test]
+        public void FileExists_ProjectStylePathWithinSearchDirectory_ReturnsTrue()
+        {
+            string assetsDir = Path.Combine(_tempDir, "Assets");
+            string bindingsDir = Path.Combine(assetsDir, "Config", "Bindings");
+            Directory.CreateDirectory(bindingsDir);
+            string file = Path.Combine(bindingsDir, "DefaultConfig.json");
+            File.WriteAllText(file, "data");
+
+            _service.AddSearchDirectory(assetsDir);
+
+            Assert.That(_service.FileExists("Assets/Config/Bindings/DefaultConfig.json"), Is.True);
+        }
+
+        [Test]
         public void GetConfigPath_ReturnsExpected()
         {
             string expected = Path.Combine(_userDataDir, "Config");
@@ -278,6 +292,26 @@ namespace Nomad.FileSystem.Tests
         }
 
         [Test]
+        public void GetDirectories_ProjectStylePathWithinSearchDirectory_ReturnsSubdirectories()
+        {
+            string assetsDir = Path.Combine(_tempDir, "Assets");
+            string configDir = Path.Combine(assetsDir, "Config");
+            Directory.CreateDirectory(Path.Combine(configDir, "Bindings"));
+            Directory.CreateDirectory(Path.Combine(configDir, "Gameplay"));
+
+            _service.AddSearchDirectory(assetsDir);
+
+            var directories = _service.GetDirectories("Assets/Config");
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(directories, Has.Count.EqualTo(2));
+                Assert.That(directories, Contains.Item(Path.Combine(configDir, "Bindings")));
+                Assert.That(directories, Contains.Item(Path.Combine(configDir, "Gameplay")));
+            }
+        }
+
+        [Test]
         public void GetFiles_ReturnsMatchingFiles()
         {
             File.WriteAllText(Path.Combine(_userDataDir, "a.txt"), "");
@@ -295,6 +329,21 @@ namespace Nomad.FileSystem.Tests
             File.WriteAllText(Path.Combine(sub, "deep.txt"), "");
             var files = _service.GetFiles(_userDataDir, "*.txt", true);
             Assert.That(files, Has.Count.EqualTo(1));
+        }
+
+        [Test]
+        public void GetFiles_ProjectStylePathWithinSearchDirectory_ReturnsMatches()
+        {
+            string assetsDir = Path.Combine(_tempDir, "Assets");
+            string bindingsDir = Path.Combine(assetsDir, "Config", "Bindings");
+            Directory.CreateDirectory(bindingsDir);
+            File.WriteAllText(Path.Combine(bindingsDir, "DefaultConfig.json"), "");
+            File.WriteAllText(Path.Combine(bindingsDir, "KeyboardAndMouse.json"), "");
+
+            _service.AddSearchDirectory(assetsDir);
+
+            var files = _service.GetFiles("Assets/Config/Bindings", "*.json", false);
+            Assert.That(files, Has.Count.EqualTo(2));
         }
 
         [Test]

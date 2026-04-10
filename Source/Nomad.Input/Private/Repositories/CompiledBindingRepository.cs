@@ -14,7 +14,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using Nomad.Input.Private.ValueObjects;
@@ -61,7 +60,7 @@ namespace Nomad.Input.Private.Repositories {
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public ReadOnlySpan<CompiledBinding> GetButtonCandidates( in ButtonLookupKey key ) {
 			if ( Current.ButtonIndex.TryGetValue( key, out var bindings ) ) {
-				return bindings.AsSpan();
+				return bindings;
 			}
 			return ReadOnlySpan<CompiledBinding>.Empty;
 		}
@@ -79,7 +78,7 @@ namespace Nomad.Input.Private.Repositories {
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public ReadOnlySpan<CompiledBinding> GetAxisCandidates( in AxisLookupKey key ) {
 			if ( Current.AxisIndex.TryGetValue( key, out var bindings ) ) {
-				return bindings.AsSpan();
+				return bindings;
 			}
 			return ReadOnlySpan<CompiledBinding>.Empty;
 		}
@@ -97,7 +96,7 @@ namespace Nomad.Input.Private.Repositories {
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public ReadOnlySpan<CompiledBinding> GetDeltaCandidates( in AxisLookupKey key ) {
 			if ( Current.DeltaIndex.TryGetValue( key, out var bindings ) ) {
-				return bindings.AsSpan();
+				return bindings;
 			}
 			return ReadOnlySpan<CompiledBinding>.Empty;
 		}
@@ -112,7 +111,7 @@ namespace Nomad.Input.Private.Repositories {
 		/// </summary>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public ImmutableArray<CompiledBinding> GetComposite1DBindings()
+		public ReadOnlySpan<CompiledBinding> GetComposite1DBindings()
 			=> Current.Composite1D;
 
 		/*
@@ -125,7 +124,7 @@ namespace Nomad.Input.Private.Repositories {
 		/// </summary>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public ImmutableArray<CompiledBinding> GetComposite2DBindings()
+		public ReadOnlySpan<CompiledBinding> GetComposite2DBindings()
 			=> Current.Composite2D;
 	};
 };

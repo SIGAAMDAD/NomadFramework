@@ -148,12 +148,56 @@ namespace Nomad.FileSystem.Private.Services {
 
 			// Exact match search without index
 			foreach ( string baseDir in _searchDirectories ) {
-				string? fullPath = GetSafeFullPath( baseDir, cleanPath );
-				if ( fullPath != null && FileExists( fullPath ) ) {
-					return NormalizePath( fullPath );
+				foreach ( string candidatePath in GetRelativePathCandidates( baseDir, cleanPath ) ) {
+					if ( string.IsNullOrEmpty( candidatePath ) ) {
+						continue;
+					}
+
+					string? fullPath = GetSafeFullPath( baseDir, candidatePath );
+					if ( fullPath != null && FileExists( fullPath ) ) {
+						return NormalizePath( fullPath );
+					}
 				}
 			}
 			return null;
+		}
+
+		/*
+		===============
+		FindDirectory
+		===============
+		*/
+		/// <summary>
+		/// Finds a directory by its relative path or by a path already rooted in a registered search directory.
+		/// </summary>
+		/// <param name="path">The directory path to resolve.</param>
+		/// <returns>The resolved full path when found; otherwise <see langword="null"/>.</returns>
+		public string? FindDirectory( string path ) {
+			if ( string.IsNullOrWhiteSpace( path ) ) {
+				throw new ArgumentException( "Directory path cannot be null or empty.", nameof( path ) );
+			}
+
+			if ( Path.IsPathRooted( path ) && Directory.Exists( path ) ) {
+				return NormalizePath( Path.GetFullPath( path ) );
+			}
+
+			string cleanPath = NormalizePath( path ).TrimEnd( Path.DirectorySeparatorChar );
+			foreach ( string baseDir in _searchDirectories ) {
+				foreach ( string candidatePath in GetRelativePathCandidates( baseDir, cleanPath ) ) {
+					if ( string.IsNullOrEmpty( candidatePath ) ) {
+						return NormalizePath( baseDir.TrimEnd( Path.DirectorySeparatorChar ) );
+					}
+
+					string? fullPath = GetSafeFullPath( baseDir, candidatePath );
+					if ( fullPath != null && Directory.Exists( fullPath ) ) {
+						return NormalizePath( fullPath );
+					}
+				}
+			}
+
+			return Directory.Exists( path )
+				? NormalizePath( Path.GetFullPath( path ) )
+				: null;
 		}
 
 		/*
@@ -175,16 +219,21 @@ namespace Nomad.FileSystem.Private.Services {
 			var results = new List<string>();
 
 			if ( _useIndex ) {
-				if ( _fileIndex.TryGetValue( cleanPath, out var paths ) ) {
-					results.AddRange( paths );
-				}
+				results.AddRange( FindAllFilesFromIndex( cleanPath ) );
 				return results;
 			}
 
 			foreach ( string baseDir in _searchDirectories ) {
-				string? fullPath = GetSafeFullPath( baseDir, cleanPath );
-				if ( fullPath != null && FileExists( fullPath ) ) {
-					results.Add( fullPath );
+				foreach ( string candidatePath in GetRelativePathCandidates( baseDir, cleanPath ) ) {
+					if ( string.IsNullOrEmpty( candidatePath ) ) {
+						continue;
+					}
+
+					string? fullPath = GetSafeFullPath( baseDir, candidatePath );
+					if ( fullPath != null && FileExists( fullPath ) ) {
+						results.Add( fullPath );
+						break;
+					}
 				}
 			}
 			return results;
@@ -323,6 +372,40 @@ namespace Nomad.FileSystem.Private.Services {
 
 		/*
 		===============
+		GetRelativePathCandidates
+		===============
+		*/
+		/// <summary>
+		/// Generates compatible relative-path candidates for a registered search directory.
+		/// This allows callers to pass either paths relative to the search root (for example
+		/// "Config/Bindings/file.json") or project-style paths that repeat the search-root
+		/// folder name (for example "Assets/Config/Bindings/file.json").
+		/// </summary>
+		/// <param name="baseDir"></param>
+		/// <param name="path"></param>
+		/// <returns></returns>
+		private IEnumerable<string> GetRelativePathCandidates( string baseDir, string path ) {
+			yield return path;
+
+			string searchRootName = Path.GetFileName( baseDir.TrimEnd( Path.DirectorySeparatorChar ) );
+			if ( string.IsNullOrEmpty( searchRootName ) ) {
+				yield break;
+			}
+
+			StringComparison comparison = _ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+			if ( path.Equals( searchRootName, comparison ) ) {
+				yield return string.Empty;
+				yield break;
+			}
+
+			string prefix = searchRootName + Path.DirectorySeparatorChar;
+			if ( path.StartsWith( prefix, comparison ) ) {
+				yield return path.Substring( prefix.Length );
+			}
+		}
+
+		/*
+		===============
 		IndexDirectory
 		===============
 		*/
@@ -353,14 +436,57 @@ namespace Nomad.FileSystem.Private.Services {
 		/// <param name="relativePath"></param>
 		/// <returns></returns>
 		private string? FindFileFromIndex( string relativePath ) {
-			if ( _fileIndex.TryGetValue( relativePath, out var fullPaths ) ) {
-				// The index stores files in the order they were added (i.e., insertion order of directories)
-				// But we need to respect the current _searchDirectories order.
-				// So we must reorder the results based on directory priority.
-				var ordered = fullPaths.OrderBy( p => _searchDirectories.FindIndex( d => p.StartsWith( d, _ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal ) ) );
-				return ordered.FirstOrDefault();
+			foreach ( string baseDir in _searchDirectories ) {
+				foreach ( string candidatePath in GetRelativePathCandidates( baseDir, relativePath ) ) {
+					if ( string.IsNullOrEmpty( candidatePath ) ) {
+						continue;
+					}
+
+					if ( _fileIndex.TryGetValue( candidatePath, out var fullPaths ) ) {
+						string? match = fullPaths.FirstOrDefault( path =>
+							path.StartsWith( baseDir, _ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal ) );
+						if ( match != null ) {
+							return match;
+						}
+					}
+				}
 			}
 			return null;
+		}
+
+		/*
+		===============
+		FindAllFilesFromIndex
+		===============
+		*/
+		/// <summary>
+		/// Resolves every indexed match for a relative path while respecting search directory order.
+		/// </summary>
+		/// <param name="relativePath"></param>
+		/// <returns></returns>
+		private List<string> FindAllFilesFromIndex( string relativePath ) {
+			var results = new List<string>();
+
+			foreach ( string baseDir in _searchDirectories ) {
+				foreach ( string candidatePath in GetRelativePathCandidates( baseDir, relativePath ) ) {
+					if ( string.IsNullOrEmpty( candidatePath ) ) {
+						continue;
+					}
+
+					if ( !_fileIndex.TryGetValue( candidatePath, out var fullPaths ) ) {
+						continue;
+					}
+
+					string? match = fullPaths.FirstOrDefault( path =>
+						path.StartsWith( baseDir, _ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal ) );
+					if ( match != null ) {
+						results.Add( match );
+						break;
+					}
+				}
+			}
+
+			return results;
 		}
 
 		/*

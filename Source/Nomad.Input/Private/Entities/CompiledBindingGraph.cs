@@ -13,7 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System.Collections.Immutable;
+using System.Collections.Generic;
 
 namespace Nomad.Input.Private.ValueObjects {
 	/*
@@ -27,20 +27,20 @@ namespace Nomad.Input.Private.ValueObjects {
 	/// 
 	/// </summary>
 	
-	internal record CompiledBindingGraph {
-		public ImmutableDictionary<ButtonLookupKey, ImmutableArray<CompiledBinding>> ButtonIndex { get; init; }
-		public ImmutableDictionary<AxisLookupKey, ImmutableArray<CompiledBinding>> AxisIndex { get; init; }
-		public ImmutableDictionary<AxisLookupKey, ImmutableArray<CompiledBinding>> DeltaIndex { get; init; }
+	internal sealed class CompiledBindingGraph {
+		public Dictionary<ButtonLookupKey, CompiledBinding[]> ButtonIndex { get; init; }
+		public Dictionary<AxisLookupKey, CompiledBinding[]> AxisIndex { get; init; }
+		public Dictionary<AxisLookupKey, CompiledBinding[]> DeltaIndex { get; init; }
 
-		public ImmutableArray<CompiledBinding> Composite1D { get; init; }
-		public ImmutableArray<CompiledBinding> Composite2D { get; init; }
+		public CompiledBinding[] Composite1D { get; init; }
+		public CompiledBinding[] Composite2D { get; init; }
 
-		public static CompiledBindingGraph Empty => new CompiledBindingGraph {
-			ButtonIndex = ImmutableDictionary<ButtonLookupKey, ImmutableArray<CompiledBinding>>.Empty,
-			AxisIndex = ImmutableDictionary<AxisLookupKey, ImmutableArray<CompiledBinding>>.Empty,
-			DeltaIndex = ImmutableDictionary<AxisLookupKey, ImmutableArray<CompiledBinding>>.Empty,
-			Composite1D = ImmutableArray<CompiledBinding>.Empty,
-			Composite2D = ImmutableArray<CompiledBinding>.Empty
+		public static CompiledBindingGraph Empty { get; } = new CompiledBindingGraph {
+			ButtonIndex = new Dictionary<ButtonLookupKey, CompiledBinding[]>(),
+			AxisIndex = new Dictionary<AxisLookupKey, CompiledBinding[]>(),
+			DeltaIndex = new Dictionary<AxisLookupKey, CompiledBinding[]>(),
+			Composite1D = System.Array.Empty<CompiledBinding>(),
+			Composite2D = System.Array.Empty<CompiledBinding>()
 		};
 	};
 };

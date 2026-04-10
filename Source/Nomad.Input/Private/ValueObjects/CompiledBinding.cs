@@ -18,74 +18,49 @@ using Nomad.Core.Input;
 using Nomad.Input.ValueObjects;
 
 namespace Nomad.Input.Private.ValueObjects {
-    internal readonly struct CompiledBinding {
-        public InternString ActionId => _actionId;
-        private readonly InternString _actionId;
+	internal readonly struct CompiledBinding {
+		public InternString ActionId { get; }
+		public InputValueType ValueType { get; }
+		public InputBindingKind Kind { get; }
+		public InputScheme Scheme { get; }
+		public int Priority { get; }
+		public bool ConsumesInput { get; }
+		public uint ContextMask { get; }
+		public ButtonBinding Button { get; }
+		public Axis1DBinding Axis1D { get; }
+		public Axis1DCompositeBinding Axis1DComposite { get; }
+		public Axis2DBinding Axis2D { get; }
+		public Axis2DCompositeBinding Axis2DComposite { get; }
+		public Delta2DBinding Delta2D { get; }
 
-        public InputValueType ValueType => _valueType;
-        private readonly InputValueType _valueType;
-
-        public InputBindingKind Kind => _kind;
-        private readonly InputBindingKind _kind;
-
-        public InputScheme Scheme => _scheme;
-        private readonly InputScheme _scheme;
-
-        public int Priority => _priority;
-        private readonly int _priority;
-
-        public bool ConsumesInput => _consumesInput;
-        private readonly bool _consumesInput;
-
-        public uint ContextMask => _contextMask;
-        private readonly uint _contextMask;
-
-        public ButtonBinding Button => _button;
-        private readonly ButtonBinding _button;
-
-        public Axis1DBinding Axis1D => _axis1D;
-        private readonly Axis1DBinding _axis1D;
-
-        public Axis1DCompositeBinding Axis1DComposite => _axis1DComposite;
-        private readonly Axis1DCompositeBinding _axis1DComposite;
-
-        public Axis2DBinding Axis2D => _axis2D;
-        private readonly Axis2DBinding _axis2D;
-
-        public Axis2DCompositeBinding Axis2DComposite => _axis2DComposite;
-        private readonly Axis2DCompositeBinding _axis2DComposite;
-
-        public Delta2DBinding Delta2D => _delta2D;
-        private readonly Delta2DBinding _delta2D;
-
-        public CompiledBinding(
-            InternString actionId,
-            InputValueType valueType,
-            InputBindingKind kind,
-            InputScheme scheme,
-            int priority,
-            bool consumesInput,
-            uint contextMask,
-            ButtonBinding button = default,
-            Axis1DBinding axis1D = default,
-            Axis1DCompositeBinding axis1DComposite = default,
-            Axis2DBinding axis2D = default,
-            Axis2DCompositeBinding axis2DComposite = default,
-            Delta2DBinding delta2D = default
-        ) {
-            _actionId = actionId;
-            _valueType = valueType;
-            _kind = kind;
-            _scheme = scheme;
-            _priority = priority;
-            _consumesInput = consumesInput;
-            _contextMask = contextMask;
-            _button = button;
-            _axis1D = axis1D;
-            _axis1DComposite = axis1DComposite;
-            _axis2D = axis2D;
-            _axis2DComposite = axis2DComposite;
-            _delta2D = delta2D;
-        }
-    };
+		public CompiledBinding(
+			InternString actionId,
+			InputValueType valueType,
+			InputBindingKind kind,
+			InputScheme scheme,
+			int priority,
+			bool consumesInput,
+			uint contextMask,
+			ButtonBinding button = default,
+			Axis1DBinding axis1D = default,
+			Axis1DCompositeBinding axis1DComposite = default,
+			Axis2DBinding axis2D = default,
+			Axis2DCompositeBinding axis2DComposite = default,
+			Delta2DBinding delta2D = default
+		) {
+			ActionId = actionId;
+			ValueType = valueType;
+			Kind = kind;
+			Scheme = scheme;
+			Priority = priority;
+			ConsumesInput = consumesInput;
+			ContextMask = contextMask;
+			Button = button;
+			Axis1D = axis1D;
+			Axis1DComposite = axis1DComposite;
+			Axis2D = axis2D;
+			Axis2DComposite = axis2DComposite;
+			Delta2D = delta2D;
+		}
+	};
 };

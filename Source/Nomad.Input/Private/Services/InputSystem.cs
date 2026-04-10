@@ -287,10 +287,14 @@ namespace Nomad.Input.Private.Services {
 		/// <param name="matches"></param>
 		/// <param name="timeStamp"></param>
 		private void ResolveBindMatches( ref ReadOnlySpan<BindingMatch> matches, long timeStamp ) {
-			var actions = _actionResolverService.ResolveMatches( ref matches, timeStamp );
-			actions = actions.AddRange( _actionResolverService.ResolveComposites( _contextMask, _mode, timeStamp ) );
-			foreach ( var action in actions ) {
-				_dispatchService.Dispatch( in action );
+			ReadOnlySpan<ResolvedAction> actions = _actionResolverService.ResolveMatchesNonAlloc( matches, timeStamp );
+			for ( int i = 0; i < actions.Length; i++ ) {
+				_dispatchService.Dispatch( in actions[i] );
+			}
+
+			actions = _actionResolverService.ResolveCompositesNonAlloc( _contextMask, _mode, timeStamp );
+			for ( int i = 0; i < actions.Length; i++ ) {
+				_dispatchService.Dispatch( in actions[i] );
 			}
 		}
 
