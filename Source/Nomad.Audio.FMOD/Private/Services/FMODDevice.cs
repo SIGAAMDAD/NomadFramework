@@ -203,7 +203,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			var dspBufferCount = cvarSystem.GetCVarOrThrow<int>( Constants.CVars.EngineUtils.Audio.FMOD.DSP_BUFFER_COUNT );
 			var speakerMode = cvarSystem.GetCVarOrThrow<SpeakerMode>( Constants.CVars.EngineUtils.Audio.SPEAKER_MODE );
 
-			var flags = FMOD.INITFLAGS.CHANNEL_DISTANCEFILTER | FMOD.INITFLAGS.CHANNEL_LOWPASS | FMOD.INITFLAGS.VOL0_BECOMES_VIRTUAL | FMOD.INITFLAGS.THREAD_UNSAFE;
+			var flags = FMOD.INITFLAGS.CHANNEL_DISTANCEFILTER | FMOD.INITFLAGS.CHANNEL_LOWPASS | FMOD.INITFLAGS.VOL0_BECOMES_VIRTUAL;
 
 			FMODValidator.ValidateCall( _category, System.set3DSettings( 0.0f, 1.0f, 1.0f ) );
 			FMODValidator.ValidateCall( _category, System.setSoftwareFormat( 44100, SpeakerModeToFMOD( speakerMode.Value ), 0 ) );

@@ -1,20 +1,8 @@
-/*
-===========================================================================
-The Nomad Framework
-Copyright (C) 2025-2026 Noah Van Til
-
-This Source Code Form is subject to the terms of the Mozilla Public
-License, v2. If a copy of the MPL was not distributed with this
-file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-This software is provided "as is", without warranty of any kind,
-express or implied, including but not limited to the warranties
-of merchantability, fitness for a particular purpose and noninfringement.
-===========================================================================
-*/
-
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using Nomad.Audio.Fmod.Private.Entities;
 using Nomad.Audio.Fmod.Private.Repositories;
 using Nomad.Audio.Fmod.Private.ValueObjects;
@@ -22,55 +10,91 @@ using Nomad.Audio.Fmod.ValueObjects;
 using Nomad.Audio.Interfaces;
 using Nomad.Core;
 using Nomad.Core.CVars;
-using Nomad.Core.Exceptions;
 using Nomad.Core.Logger;
-using Nomad.Core.Memory;
 using Nomad.CVars;
 using Nomad.ResourceCache;
 
 namespace Nomad.Audio.Fmod.Private.Services {
-	/*
-	===================================================================================
-	
-	FMODChannelService
-	
-	===================================================================================
-	*/
-	/// <summary>
-	/// 
-	/// </summary>
-	
-	internal sealed class FMODChannelService : IChannelRepository {
-		private const int INVALID_CHANNEL = -1;
+	internal unsafe sealed class FMODChannelService : IChannelRepository {
+		private const int INVALID_INDEX = -1;
+		private const byte FLAG_ESSENTIAL = 1 << 0;
 
-		private readonly IResourceCacheService<IAudioResource, string> _eventRepository;
+		private readonly ILoggerCategory _log;
 		private readonly IListenerService _listenerService;
-
+		private readonly IResourceCacheService<IAudioResource, string> _eventRepository;
 		private readonly FMODPriorityCalculator _priorityCalculator;
-		private readonly FMODChannelStealCalculator _channelStealCalculator;
-		private readonly FMODChannelTracker _tracker;
-		private readonly FMODChannelStealService _channelStealService;
-		private readonly FMODBusRepository _busRepository;
-
-		private readonly BasicObjectPool<FMODChannel> _channelPool =
-			new BasicObjectPool<FMODChannel>( BasicObjectPool<FMODChannel>.DefaultFactory );
-
-		private readonly ILoggerCategory _category;
-		private readonly FMOD.Studio.EVENT_CALLBACK _soundFinishedCallback;
-
-		private readonly ICVar<int> _maxChannels;
-		private readonly ICVar<int> _maxActiveChannels;
+		private readonly FMODChannelStealCalculator _stealCalculator;
+		private readonly FMOD.Studio.EVENT_CALLBACK _finishedCallback;
+		private readonly ConcurrentQueue<nint> _finishedInstances = new ConcurrentQueue<nint>();
 
 		private readonly int _capacity;
-		private int _nextGeneration = 1;
+		private readonly int[] _slotToDense;
+		private readonly int[] _denseToSlot;
+		private readonly int[] _freeSlots;
+		private readonly uint[] _slotGeneration;
+		private int _freeTop;
+		private int _denseCount;
+
+		/*
+		// Dense hot SoA
+		private readonly nint[] _instancePtr;
+		private readonly float[] _arena.PosX;
+		private readonly float[] _arena.PosY;
+		private readonly float[] _arena.BasePriority;
+		private readonly float[] _arena.CurrentPriority;
+		private readonly float[] _arena.StartTime;
+		private readonly float[] _arena.LastStolenTime;
+		private readonly float[] _arena.Volume;
+		private readonly float[] _arena.UserVolume;
+		private readonly float[] _arena.Pitch;
+		private readonly float[] _arena.Attenuation;
+		private readonly ushort[] _arena.EventId;
+		private readonly ushort[] _arena.CategoryId;
+		private readonly byte[] _arena.Flags;
+
+		// Stable-slot category intrusive list
+		private readonly int[] _arena.SlotNextInCategory;
+		private readonly int[] _arena.SlotPrevInCategory;
+		*/
+
+		private readonly ChannelArena _arena;
+
+		// Cold-path registries (acceptable here; not used in per-frame hot loops)
+		private readonly Dictionary<string, ushort> _eventIds = new Dictionary<string, ushort>( StringComparer.Ordinal );
+		private readonly Dictionary<string, ushort> _categoryIds = new Dictionary<string, ushort>( StringComparer.Ordinal );
+		private string[] _eventNames;
+		private string[] _categoryNames;
+		private int _eventCount;
+		private int _categoryCount;
+
+		// Event stats by numeric event id
+		private float[] _lastPlayTimeByEventId;
+		private ushort[] _consecutiveStealCountByEventId;
+		private ushort[] _dirtyStealEventIds;
+		private byte[] _dirtyStealEventMarks;
+		private int _dirtyStealEventCount;
+		private bool _shouldDecay;
+
+		// Category metadata by numeric category id
+		private int[] _categoryHeadById;
+		private ushort[] _activeCountByCategoryId;
+		private ushort[] _maxSimultaneousByCategoryId;
+		private float[] _priorityScaleByCategoryId;
+		private float[] _stealProtectionByCategoryId;
+		private byte[] _allowStealFromSameCategoryById;
+
+		private readonly InstanceToSlotMap _instanceToSlot;
+		private readonly ICVar<int> _maxChannels;
+		private readonly ICVar<int> _maxActiveChannels;
 
 		private float _elapsedSeconds;
 		private float _effectsVolume;
 		private float _minTimeBetweenChannelSteals;
+		private bool _disposed;
 
-		private bool _isDisposed;
-
-		public FMODBusRepository BusRepository => _busRepository;
+		public FMODBusRepository BusRepository { get; }
+		public int ActiveCount => _denseCount;
+		public int Capacity => _capacity;
 
 		public FMODChannelService(
 			ILoggerService logger,
@@ -79,313 +103,701 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			FMODDevice fmodSystem ) {
 
 			_listenerService = listenerService;
-
+			_eventRepository = fmodSystem.EventRepository;
 			_priorityCalculator = new FMODPriorityCalculator( cvarSystem, listenerService );
-			_channelStealCalculator = new FMODChannelStealCalculator( cvarSystem, _priorityCalculator );
+			_stealCalculator = new FMODChannelStealCalculator( cvarSystem, _priorityCalculator );
+			BusRepository = new FMODBusRepository( fmodSystem );
 
 			_maxChannels = cvarSystem.GetCVarOrThrow<int>( Constants.CVars.EngineUtils.Audio.MAX_CHANNELS );
 			_maxActiveChannels = cvarSystem.GetCVarOrThrow<int>( Constants.CVars.EngineUtils.Audio.MAX_ACTIVE_CHANNELS );
 
-			ValidateInitialChannelConfig();
+			if ( _maxChannels.Value <= 0 ) {
+				throw new InvalidOperationException( "MAX_CHANNELS must be > 0." );
+			}
+			if ( _maxActiveChannels.Value <= 0 || _maxActiveChannels.Value > _maxChannels.Value ) {
+				throw new InvalidOperationException( "MAX_ACTIVE_CHANNELS must be in range [1, MAX_CHANNELS]." );
+			}
 
 			_capacity = _maxChannels.Value;
-			_tracker = new FMODChannelTracker( _capacity );
-			_channelStealService = new FMODChannelStealService(
-				listenerService,
-				_priorityCalculator,
-				_channelStealCalculator,
-				_capacity );
+			_slotToDense = new int[_capacity];
+			_denseToSlot = new int[_capacity];
+			_freeSlots = new int[_capacity];
+			_slotGeneration = new uint[_capacity];
+//			_arena.SlotNextInCategory = new int[_capacity];
+//			_arena.SlotPrevInCategory = new int[_capacity];
 
-			_eventRepository = fmodSystem.EventRepository;
-			_busRepository = new FMODBusRepository( fmodSystem );
+			Array.Fill( _slotToDense, INVALID_INDEX );
+//			Array.Fill( _arena.SlotNextInCategory, INVALID_INDEX );
+//			Array.Fill( _arena.SlotPrevInCategory, INVALID_INDEX );
 
-			_category = logger.CreateCategory( nameof( FMODChannelService ), LogLevel.Debug, true );
-			_soundFinishedCallback = SoundFinishedCallback;
+			for ( int i = 0; i < _capacity; i++ ) {
+				_freeSlots[i] = _capacity - 1 - i;
+			}
+			_freeTop = _capacity;
 
-			_maxActiveChannels.ValueChanged.Subscribe( OnMaxActiveChannelsValueChanged );
+			/*
+			_instancePtr = new nint[_capacity];
+			_arena.PosX = new float[_capacity];
+			_arena.PosY = new float[_capacity];
+			_arena.BasePriority = new float[_capacity];
+			_arena.CurrentPriority = new float[_capacity];
+			_arena.StartTime = new float[_capacity];
+			_arena.LastStolenTime = new float[_capacity];
+			_arena.Volume = new float[_capacity];
+			_arena.EventId = new ushort[_capacity];
+			_arena.CategoryId = new ushort[_capacity];
+			_arena.Flags = new byte[_capacity];
+			_arena.UserVolume = new float[_capacity];
+			_arena.Pitch = new float[_capacity];
+			_arena.Attenuation = new float[_capacity];
+			*/
+
+			_arena = new ChannelArena(_capacity);
+			new Span<int>( _arena.SlotNextInCategory, _arena.Capacity ).Fill( INVALID_INDEX );
+			new Span<int>( _arena.SlotPrevInCategory, _arena.Capacity ).Fill( INVALID_INDEX );
+
+			_eventNames = new string[16];
+			_categoryNames = new string[16];
+			_lastPlayTimeByEventId = new float[16];
+			_consecutiveStealCountByEventId = new ushort[16];
+			_dirtyStealEventIds = new ushort[16];
+			_dirtyStealEventMarks = new byte[16];
+			_categoryHeadById = new int[16];
+			_activeCountByCategoryId = new ushort[16];
+			_maxSimultaneousByCategoryId = new ushort[16];
+			_priorityScaleByCategoryId = new float[16];
+			_stealProtectionByCategoryId = new float[16];
+			_allowStealFromSameCategoryById = new byte[16];
+			Array.Fill( _categoryHeadById, INVALID_INDEX );
+
+			_instanceToSlot = new InstanceToSlotMap( _capacity * 2 );
+			_finishedCallback = SoundFinishedCallback;
+			_log = logger.CreateCategory( "FMODChannelService.SoA", LogLevel.Debug, true );
+
 			InitConfig( cvarSystem );
+			_maxActiveChannels.ValueChanged.Subscribe( OnMaxActiveChannelsValueChanged );
 		}
 
 		public void Dispose() {
-			if ( _isDisposed ) {
+			if ( _disposed ) {
 				return;
 			}
 
-			for ( int i = _tracker.ActiveCount - 1; i >= 0; i-- ) {
-				FMODChannel channel = _tracker.GetActiveChannel( i );
-				StopSound( _elapsedSeconds, channel, false );
+			for ( int dense = _denseCount - 1; dense >= 0; dense-- ) {
+				ForceStopDense( dense, false );
 			}
 
-			_channelPool.Dispose();
-			_category.Dispose();
+			_arena?.Dispose();
 
-			_isDisposed = true;
+			_disposed = true;
 			GC.SuppressFinalize( this );
 		}
 
 		public FMODChannelHandle? AllocateChannel(
-			string id,
+			string eventName,
 			Vector2 position,
-			SoundCategory config,
+			SoundCategory category,
 			float basePriority = 0.5f,
 			bool isEssential = false ) {
 
-			// Keep counts/handles clean before making admission decisions.
-			ProcessFinishedSounds();
+			ProcessFinishedInstances();
 
-			int soundsInCategory = _tracker.CountSoundsInCategory( config.Config.Name );
-			if ( soundsInCategory >= config.Config.MaxSimultaneous &&
-			     !config.Config.AllowStealingFromSameCategory ) {
+			ushort categoryNumericId = GetOrCreateCategoryId( category );
+			ushort eventNumericId = GetOrCreateEventId( eventName );
+
+			if ( _activeCountByCategoryId[categoryNumericId] >= _maxSimultaneousByCategoryId[categoryNumericId] &&
+				 _allowStealFromSameCategoryById[categoryNumericId] == 0 ) {
 				return null;
 			}
 
-			float startTime = _elapsedSeconds;
-			FMODEventResource resource = CreateSoundInstance( id );
+			float now = _elapsedSeconds;
+			float actualPriority = CalculateActualPriority(
+				now,
+				eventNumericId,
+				categoryNumericId,
+				position.X,
+				position.Y,
+				basePriority );
 
-			float actualPriority = _channelStealService.CalculateActualPriority(
-				startTime,
-				id,
-				position,
-				basePriority,
-				config );
-
-			int channelId = AllocateChannelId(
-				startTime,
-				actualPriority,
-				config,
-				isEssential );
-
-			if ( channelId == INVALID_CHANNEL ) {
-				_category.PrintError( $"Couldn't allocate a channel for sound event '{id}'." );
+			int slot = AcquireSlotOrSteal( now, actualPriority, categoryNumericId, isEssential );
+			if ( slot == INVALID_INDEX ) {
+				_log.PrintError( $"AllocateChannel: no channel available for '{eventName}'." );
 				return null;
 			}
 
-			resource.CreateInstance( out var eventInstance );
-			eventInstance.Position = position;
-			eventInstance.Volume = _effectsVolume * 0.1f;
+			FMODEventResource resource = CreateSoundInstance( eventName );
+			resource.CreateInstance( out var instance );
+			instance.Position = position;
+			instance.Volume = _effectsVolume * 0.1f;
+			FMODValidator.ValidateCall( instance.SetFinishedCallback( _finishedCallback ) );
+			FMODValidator.ValidateCall( instance.Start() );
 
-			FMODValidator.ValidateCall( eventInstance.SetFinishedCallback( _soundFinishedCallback ) );
-			FMODValidator.ValidateCall( eventInstance.Start() );
+			uint generation = ++_slotGeneration[slot];
+			int dense = _denseCount++;
+			_slotToDense[slot] = dense;
+			_denseToSlot[dense] = slot;
 
-			FMODChannel channel = _channelPool.Rent();
-			channel.Instance = eventInstance;
-			channel.Category = config;
-			channel.BasePriority = basePriority;
-			channel.CurrentPriority = actualPriority;
-			channel.StartTimeSeconds = startTime;
-			channel.IsEssential = isEssential;
-			channel.ChannelId = channelId;
-			channel.Generation = _nextGeneration++;
-			channel.EventId = id;
-			channel.Volume = 1.0f;
+			nint instanceHandle = (nint)instance;
+			_arena.InstancePtr[dense] = instanceHandle;
+			_arena.PosX[dense] = position.X;
+			_arena.PosY[dense] = position.Y;
+			_arena.BasePriority[dense] = basePriority;
+			_arena.CurrentPriority[dense] = actualPriority;
+			_arena.StartTime[dense] = now;
+			_arena.LastStolenTime[dense] = -999999.0f;
+			_arena.Volume[dense] = 1.0f;
+			_arena.EventId[dense] = eventNumericId;
+			_arena.CategoryId[dense] = categoryNumericId;
+			_arena.Flags[dense] = isEssential ? FLAG_ESSENTIAL : (byte)0;
+			_arena.UserVolume[dense] = 1.0f;
+			_arena.Pitch[dense] = 1.0f;
+			_arena.Attenuation[dense] = 1.0f;
 
-			var handle = new FMODChannelHandle( channelId, channel.Generation );
-			channel.Handle = handle;
+			_instanceToSlot.Set( instanceHandle, slot );
+			LinkSlotIntoCategory( slot, categoryNumericId );
+			_activeCountByCategoryId[categoryNumericId]++;
+			_lastPlayTimeByEventId[eventNumericId] = now;
 
-			_tracker.Register( channel, handle );
-			_channelStealService.UpdateLastPlayTime( startTime, id );
-
-			return handle;
+			return new FMODChannelHandle( slot, generation );
 		}
 
 		public void Update( float deltaTime ) {
 			_elapsedSeconds += deltaTime;
 
-			ProcessFinishedSounds();
-			_channelStealService.DecayStealCountsIfNeeded();
-
-			UpdateChannelPrioritiesAndVolumes();
-			CleanupFinishedSounds( _elapsedSeconds );
-			EnforceCategoryLimits( _elapsedSeconds );
-		}
-
-		public bool TryGetChannel( FMODChannelHandle? handle, out FMODChannel channel ) {
-			return _tracker.TryGetChannel( handle, out channel );
+			ProcessFinishedInstances();
+			DecayStealCountsIfNeeded();
+			UpdatePrioritiesAndVolumes();
+			CleanupStoppedInstances();
+			EnforceCategoryLimits();
 		}
 
 		public bool IsAlive( FMODChannelHandle handle ) {
-			return _tracker.TryGetChannel( handle, out _ );
+			if ( !handle.IsValid ) {
+				return false;
+			}
+			int slot = handle.Slot;
+			if ( (uint)slot >= (uint)_capacity ) {
+				return false;
+			}
+			return _slotGeneration[slot] == handle.Generation && _slotToDense[slot] != INVALID_INDEX;
 		}
 
-		private int AllocateChannelId(
-			float currentTime,
-			float incomingPriority,
-			SoundCategory incomingCategory,
-			bool isEssential ) {
-
-			if ( !isEssential && _tracker.ActiveCount >= _maxActiveChannels.Value ) {
-				return TryStealChannel( currentTime, incomingPriority, incomingCategory );
+		public bool TryStopChannel( FMODChannelHandle handle, bool wasStolen = false ) {
+			if ( !IsAlive( handle ) ) {
+				return false;
 			}
-
-			if ( _tracker.TryAllocateChannelId( out int freeChannelId ) ) {
-				return freeChannelId;
-			}
-
-			return TryStealChannel( currentTime, incomingPriority, incomingCategory );
+			ForceStopSlot( handle.Slot, wasStolen );
+			return true;
 		}
 
-		private int TryStealChannel( float currentTime, float incomingPriority, SoundCategory incomingCategory ) {
-			if ( _channelStealService.TryFindStealCandidate(
-				currentTime,
-				incomingPriority,
-				incomingCategory,
-				_tracker,
-				out FMODChannel? candidate
-			) && candidate != null ) {
-
-				int stolenChannelId = candidate.ChannelId;
-				string stolenEventId = candidate.EventId;
-
-				StopSound( currentTime, candidate, true );
-				_channelStealService.UpdateStealStatistics( stolenEventId );
-
-				return stolenChannelId;
+		public bool TryGetChannelView( FMODChannelHandle handle, out FMODChannelView view ) {
+			view = default;
+			if ( !IsAlive( handle ) ) {
+				return false;
 			}
 
-			return INVALID_CHANNEL;
+			int dense = _slotToDense[handle.Slot];
+			ushort ev = _arena.EventId[dense];
+			ushort cat = _arena.CategoryId[dense];
+			bool playing = IsInstancePlaying( _arena.InstancePtr[dense] );
+
+			view = new FMODChannelView(
+				handle,
+				_eventNames[ev],
+				ev,
+				cat,
+				new Vector2( _arena.PosX[dense], _arena.PosY[dense] ),
+				_arena.BasePriority[dense],
+				_arena.CurrentPriority[dense],
+				_arena.StartTime[dense],
+				_arena.LastStolenTime[dense],
+				_arena.Volume[dense],
+				(_arena.Flags[dense] & FLAG_ESSENTIAL) != 0,
+				playing );
+			return true;
 		}
 
-		private void ProcessFinishedSounds() {
-			while ( _tracker.TryDequeueFinishedInstance( out nint instanceHandle ) ) {
-				if ( _tracker.TryGetChannelByInstance( instanceHandle, out FMODChannel channel ) ) {
-					StopSound( _elapsedSeconds, channel, false );
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public bool TryResolveDense( FMODChannelHandle handle, out int dense ) {
+			dense = INVALID_INDEX;
+
+			int slot = handle.Slot;
+			if ( (uint)slot >= (uint)_capacity ) {
+				return false;
+			}
+			if ( _slotGeneration[slot] != handle.Generation ) {
+				return false;
+			}
+			dense = _slotToDense[slot];
+			return dense != INVALID_INDEX;
+		}
+
+		public bool TrySetPosition( FMODChannelHandle handle, Vector2 position ) {
+			if ( !TryResolveDense( handle, out int dense ) ) {
+				return false;
+			}
+
+			_arena.PosX[dense] = position.X;
+			_arena.PosY[dense] = position.Y;
+
+			var instance = new FMOD.Studio.EventInstance( _arena.InstancePtr[dense] );
+			if ( instance.isValid() ) {
+				instance.set3DAttributes( position.Make3D() );
+			}
+
+			return true;
+		}
+
+		public bool TrySetVolume( FMODChannelHandle handle, float volume ) {
+			if ( !TryResolveDense( handle, out int dense ) ) {
+				return false;
+			}
+
+			_arena.UserVolume[dense] = volume;
+
+			var instance = new FMOD.Studio.EventInstance( _arena.InstancePtr[dense] );
+			if ( instance.isValid() ) {
+				instance.setVolume( volume );
+			}
+			return true;
+		}
+
+		public bool TrySetPitch( FMODChannelHandle handle, float pitch ) {
+			if ( !TryResolveDense( handle, out int dense ) ) {
+				return false;
+			}
+
+			_arena.Pitch[dense] = pitch;
+
+			var instance = new FMOD.Studio.EventInstance( _arena.InstancePtr[dense] );
+			if ( instance.isValid() ) {
+				instance.setPitch( pitch );
+			}
+
+			return true;
+		}
+
+		public bool IsPlaying( FMODChannelHandle handle ) {
+			return TryResolveDense( handle, out int dense ) && IsInstancePlaying( _arena.InstancePtr[dense] );
+		}
+
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		private int AcquireSlotOrSteal( float now, float incomingPriority, ushort incomingCategoryId, bool isEssential ) {
+			if ( !isEssential && _denseCount >= _maxActiveChannels.Value ) {
+				return StealBestCandidate( now, incomingPriority, incomingCategoryId );
+			}
+
+			if ( _freeTop > 0 ) {
+				return _freeSlots[--_freeTop];
+			}
+
+			return StealBestCandidate( now, incomingPriority, incomingCategoryId );
+		}
+
+		private int StealBestCandidate( float now, float incomingPriority, ushort incomingCategoryId ) {
+			float bestScore = float.MinValue;
+			int bestDense = INVALID_INDEX;
+
+			for ( int dense = 0; dense < _denseCount; dense++ ) {
+				if ( (_arena.Flags[dense] & FLAG_ESSENTIAL) != 0 ) {
+					continue;
 				}
-			}
-		}
-
-		private void UpdateChannelPrioritiesAndVolumes() {
-			Vector2 listenerPosition = _listenerService.ActiveListener;
-			float globalVolume = _effectsVolume * 0.1f;
-
-			for ( int i = 0; i < _tracker.ActiveCount; i++ ) {
-				FMODChannel channel = _tracker.GetActiveChannel( i );
-
-				if ( !channel.IsPlaying ) {
+				if ( !IsInstancePlaying( _arena.InstancePtr[dense] ) ) {
 					continue;
 				}
 
-				float distanceFactor = _priorityCalculator.CalculateDistanceFactor(
-					Vector2.Distance( channel.Instance.Position, listenerPosition ) );
+				ushort cat = _arena.CategoryId[dense];
+				float age = now - _arena.StartTime[dense];
+				if ( age < _stealProtectionByCategoryId[cat] ) {
+					continue;
+				}
+				if ( now - _arena.LastStolenTime[dense] < _minTimeBetweenChannelSteals ) {
+					continue;
+				}
 
-				channel.Volume = distanceFactor;
-				channel.CurrentPriority =
-					channel.BasePriority *
-					channel.Category.Config.PriorityScale *
+				float stealScore = CalculateStealScore( dense, now, incomingPriority, incomingCategoryId );
+				if ( stealScore > bestScore ) {
+					bestScore = stealScore;
+					bestDense = dense;
+				}
+			}
+
+			if ( bestDense == INVALID_INDEX || bestScore <= 0.0f ) {
+				return INVALID_INDEX;
+			}
+
+			ushort stolenEventId = _arena.EventId[bestDense];
+			int reusedSlot = _denseToSlot[bestDense];
+			ForceStopDense( bestDense, true );
+			RecordSteal( stolenEventId );
+			return reusedSlot;
+		}
+
+		private void ProcessFinishedInstances() {
+			while ( _finishedInstances.TryDequeue( out nint instanceHandle ) ) {
+				if ( _instanceToSlot.TryGet( instanceHandle, out int slot ) ) {
+					if ( _slotToDense[slot] != INVALID_INDEX ) {
+						ForceStopSlot( slot, false );
+					}
+				}
+			}
+		}
+
+		private void DecayStealCountsIfNeeded() {
+			if ( !_shouldDecay ) {
+				return;
+			}
+			_shouldDecay = false;
+
+			int write = 0;
+			for ( int i = 0; i < _dirtyStealEventCount; i++ ) {
+				ushort eventNumericId = _dirtyStealEventIds[i];
+				ushort value = _consecutiveStealCountByEventId[eventNumericId];
+				if ( value > 0 ) {
+					value--;
+					_consecutiveStealCountByEventId[eventNumericId] = value;
+				}
+				if ( value > 0 ) {
+					_dirtyStealEventIds[write++] = eventNumericId;
+				} else {
+					_dirtyStealEventMarks[eventNumericId] = 0;
+				}
+			}
+			_dirtyStealEventCount = write;
+		}
+
+		private void UpdatePrioritiesAndVolumes() {
+			Vector2 listener = _listenerService.ActiveListener;
+			float lx = listener.X;
+			float ly = listener.Y;
+			float globalFxVolume = _effectsVolume * 0.1f;
+
+			for ( int dense = 0; dense < _denseCount; dense++ ) {
+				nint ptr = _arena.InstancePtr[dense];
+				if ( !IsInstancePlaying( ptr ) ) {
+					continue;
+				}
+
+				float dx = _arena.PosX[dense] - lx;
+				float dy = _arena.PosY[dense] - ly;
+				float distance = MathF.Sqrt( dx * dx + dy * dy );
+				float distanceFactor = _priorityCalculator.CalculateDistanceFactor( distance );
+
+				_arena.Attenuation[dense] = distanceFactor;
+				_arena.CurrentPriority[dense] =
+					_arena.BasePriority[dense] *
+					_priorityScaleByCategoryId[_arena.CategoryId[dense]] *
 					distanceFactor;
 
-				channel.Instance.Volume = globalVolume * distanceFactor;
+				var instance = new FMOD.Studio.EventInstance( ptr );
+
+				instance.setVolume( globalFxVolume * distanceFactor );
 			}
 		}
 
-		private void CleanupFinishedSounds( float currentTime ) {
-			for ( int i = _tracker.ActiveCount - 1; i >= 0; i-- ) {
-				FMODChannel channel = _tracker.GetActiveChannel( i );
-				if ( !channel.IsPlaying ) {
-					StopSound( currentTime, channel, false );
+		private void CleanupStoppedInstances() {
+			for ( int dense = _denseCount - 1; dense >= 0; dense-- ) {
+				if ( !IsInstancePlaying( _arena.InstancePtr[dense] ) ) {
+					ForceStopDense( dense, false );
 				}
 			}
 		}
 
-		private void EnforceCategoryLimits( float currentTime ) {
-			foreach ( var category in _busRepository.Categories ) {
-				string categoryName = category.Key;
-				int maxSimultaneous = category.Value.Config.MaxSimultaneous;
-
-				while ( _tracker.CountSoundsInCategory( categoryName ) > maxSimultaneous ) {
-					if ( !_tracker.TryFindLowestPriorityInCategory( categoryName, out FMODChannel? victim ) ||
-					     victim == null ) {
+		private void EnforceCategoryLimits() {
+			for ( ushort categoryNumericId = 0; categoryNumericId < _categoryCount; categoryNumericId++ ) {
+				while ( _activeCountByCategoryId[categoryNumericId] > _maxSimultaneousByCategoryId[categoryNumericId] ) {
+					int victimSlot = FindLowestPrioritySlotInCategory( categoryNumericId );
+					if ( victimSlot == INVALID_INDEX ) {
 						break;
 					}
-
-					StopSound( currentTime, victim, true );
+					ForceStopSlot( victimSlot, true );
 				}
 			}
 		}
 
-		private void StopSound( float currentTime, FMODChannel channel, bool wasStolen ) {
-			FMODChannelHandle? handle = channel.Handle;
+		private int FindLowestPrioritySlotInCategory( ushort categoryNumericId ) {
+			int slot = _categoryHeadById[categoryNumericId];
+			int bestSlot = INVALID_INDEX;
+			float lowestPriority = float.MaxValue;
 
-			if ( wasStolen ) {
-				channel.LastStolenTime = currentTime;
+			while ( slot != INVALID_INDEX ) {
+				int next = _arena.SlotNextInCategory[slot];
+				int dense = _slotToDense[slot];
+				if ( dense != INVALID_INDEX ) {
+					if ( (_arena.Flags[dense] & FLAG_ESSENTIAL) == 0 && IsInstancePlaying( _arena.InstancePtr[dense] ) ) {
+						float prio = _arena.CurrentPriority[dense];
+						if ( prio < lowestPriority ) {
+							lowestPriority = prio;
+							bestSlot = slot;
+						}
+					}
+				}
+				slot = next;
 			}
 
-			if ( channel.Instance.IsValid ) {
-				channel.Instance.Unload();
-			}
-
-			_tracker.Unregister( channel );
-
-			channel.Handle = null;
-			channel.Reset();
-			_channelPool.Return( channel );
-
-			handle?.Invalidate();
+			return bestSlot;
 		}
 
-		private FMODEventResource CreateSoundInstance( string id ) {
-			var cached = _eventRepository.GetCached( id )
-				?? throw new Exception( $"Couldn't find event description for '{id}'." );
+		private void ForceStopSlot( int slot, bool wasStolen ) {
+			int dense = _slotToDense[slot];
+			if ( dense != INVALID_INDEX ) {
+				ForceStopDense( dense, wasStolen );
+			}
+		}
 
+		private void ForceStopDense( int dense, bool wasStolen ) {
+			int slot = _denseToSlot[dense];
+			ushort cat = _arena.CategoryId[dense];
+
+			if ( wasStolen ) {
+				_arena.LastStolenTime[dense] = _elapsedSeconds;
+			}
+
+			nint instanceHandle = _arena.InstancePtr[dense];
+			var instance = new FMOD.Studio.EventInstance( instanceHandle );
+			if ( instance.isValid() ) {
+				instance.clearHandle();
+			}
+
+			_instanceToSlot.Remove( instanceHandle );
+			UnlinkSlotFromCategory( slot, cat );
+			_activeCountByCategoryId[cat]--;
+
+			int lastDense = --_denseCount;
+			if ( dense != lastDense ) {
+				MoveDense( lastDense, dense );
+			}
+
+			_arena.InstancePtr[lastDense] = 0;
+			_arena.PosX[lastDense] = 0.0f;
+			_arena.PosY[lastDense] = 0.0f;
+			_arena.BasePriority[lastDense] = 0.0f;
+			_arena.CurrentPriority[lastDense] = 0.0f;
+			_arena.StartTime[lastDense] = 0.0f;
+			_arena.LastStolenTime[lastDense] = 0.0f;
+			_arena.Volume[lastDense] = 0.0f;
+			_arena.EventId[lastDense] = 0;
+			_arena.CategoryId[lastDense] = 0;
+			_arena.Flags[lastDense] = 0;
+			_arena.UserVolume[lastDense] = 0.0f;
+			_arena.Pitch[lastDense] = 0.0f;
+			_arena.Attenuation[lastDense] = 0.0f;
+
+			_slotToDense[slot] = INVALID_INDEX;
+			_freeSlots[_freeTop++] = slot;
+		}
+
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		private void MoveDense( int srcDense, int dstDense ) {
+			int movedSlot = _denseToSlot[srcDense];
+			_denseToSlot[dstDense] = movedSlot;
+			_slotToDense[movedSlot] = dstDense;
+
+			_arena.InstancePtr[dstDense] = _arena.InstancePtr[srcDense];
+			_arena.PosX[dstDense] = _arena.PosX[srcDense];
+			_arena.PosY[dstDense] = _arena.PosY[srcDense];
+			_arena.BasePriority[dstDense] = _arena.BasePriority[srcDense];
+			_arena.CurrentPriority[dstDense] = _arena.CurrentPriority[srcDense];
+			_arena.StartTime[dstDense] = _arena.StartTime[srcDense];
+			_arena.LastStolenTime[dstDense] = _arena.LastStolenTime[srcDense];
+			_arena.Volume[dstDense] = _arena.Volume[srcDense];
+			_arena.EventId[dstDense] = _arena.EventId[srcDense];
+			_arena.CategoryId[dstDense] = _arena.CategoryId[srcDense];
+			_arena.Flags[dstDense] = _arena.Flags[srcDense];
+			_arena.UserVolume[dstDense] = _arena.UserVolume[srcDense];
+			_arena.Pitch[dstDense] = _arena.Pitch[srcDense];
+			_arena.Attenuation[dstDense] = _arena.Attenuation[srcDense];
+		}
+
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		private void LinkSlotIntoCategory( int slot, ushort categoryNumericId ) {
+			int head = _categoryHeadById[categoryNumericId];
+			_arena.SlotPrevInCategory[slot] = INVALID_INDEX;
+			_arena.SlotNextInCategory[slot] = head;
+			if ( head != INVALID_INDEX ) {
+				_arena.SlotPrevInCategory[head] = slot;
+			}
+			_categoryHeadById[categoryNumericId] = slot;
+		}
+
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		private void UnlinkSlotFromCategory( int slot, ushort categoryNumericId ) {
+			int prev = _arena.SlotPrevInCategory[slot];
+			int next = _arena.SlotNextInCategory[slot];
+
+			if ( prev != INVALID_INDEX ) {
+				_arena.SlotNextInCategory[prev] = next;
+			} else {
+				_categoryHeadById[categoryNumericId] = next;
+			}
+			if ( next != INVALID_INDEX ) {
+				_arena.SlotPrevInCategory[next] = prev;
+			}
+
+			_arena.SlotPrevInCategory[slot] = INVALID_INDEX;
+			_arena.SlotNextInCategory[slot] = INVALID_INDEX;
+		}
+
+		private float CalculateActualPriority(
+			float now,
+			ushort eventNumericId,
+			ushort categoryNumericId,
+			float x,
+			float y,
+			float basePriority ) {
+
+			Vector2 listener = _listenerService.ActiveListener;
+			float dx = x - listener.X;
+			float dy = y - listener.Y;
+			float distance = MathF.Sqrt( dx * dx + dy * dy );
+			float distanceFactor = _priorityCalculator.CalculateDistanceFactor( distance );
+
+			float priority = basePriority * _priorityScaleByCategoryId[categoryNumericId] * distanceFactor;
+
+			float timeSinceLastPlay = now - _lastPlayTimeByEventId[eventNumericId];
+			if ( timeSinceLastPlay < 0.050f ) {
+				priority *= 0.70f;
+			} else if ( timeSinceLastPlay < 0.100f ) {
+				priority *= 0.85f;
+			}
+
+			ushort steals = _consecutiveStealCountByEventId[eventNumericId];
+			if ( steals > 0 ) {
+				priority *= 1.0f + (steals * 0.05f);
+			}
+
+			return priority;
+		}
+
+		private float CalculateStealScore( int dense, float now, float incomingPriority, ushort incomingCategoryId ) {
+			// You can substitute your exact existing steal formula here.
+			// This shape is intentionally simple and branch-light.
+			float age = now - _arena.StartTime[dense];
+			float score = incomingPriority - _arena.CurrentPriority[dense];
+
+			if ( _arena.CategoryId[dense] == incomingCategoryId ) {
+				score += 0.05f;
+			}
+			if ( age > 0.25f ) {
+				score += 0.05f;
+			}
+			if ( age > 0.50f ) {
+				score += 0.05f;
+			}
+			if ( age > 1.00f ) {
+				score += 0.05f;
+			}
+
+			return score;
+		}
+
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		private void RecordSteal( ushort eventNumericId ) {
+			if ( _consecutiveStealCountByEventId[eventNumericId] < ushort.MaxValue ) {
+				_consecutiveStealCountByEventId[eventNumericId]++;
+			}
+			if ( _dirtyStealEventMarks[eventNumericId] == 0 ) {
+				_dirtyStealEventMarks[eventNumericId] = 1;
+				_dirtyStealEventIds[_dirtyStealEventCount++] = eventNumericId;
+			}
+			_shouldDecay = true;
+		}
+
+		private FMODEventResource CreateSoundInstance( string eventName ) {
+			var cached = _eventRepository.GetCached( eventName )
+				?? throw new Exception( $"Couldn't find event description for '{eventName}'." );
 			cached.Get( out var description );
 
 			if ( description is not FMODEventResource eventResource ) {
-				throw new InvalidCastException(
-					$"Cached audio resource '{id}' is not an {nameof( FMODEventResource )}." );
+				throw new InvalidCastException();
 			}
 
 			return eventResource;
 		}
 
-		private FMOD.RESULT SoundFinishedCallback(
-			FMOD.Studio.EVENT_CALLBACK_TYPE type,
-			nint instance,
-			IntPtr parameters ) {
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		private static bool IsInstancePlaying( nint instanceHandle ) {
+			var instance = new FMOD.Studio.EventInstance( instanceHandle );
+			instance.getPlaybackState( out var state );
+			return instance.isValid() && state == FMOD.Studio.PLAYBACK_STATE.PLAYING;
+		}
 
-			// Never mutate channel state on the FMOD callback thread.
-			_tracker.EnqueueFinishedInstance( instance );
-			return FMOD.RESULT.OK;
+		private ushort GetOrCreateEventId( string eventName ) {
+			if ( _eventIds.TryGetValue( eventName, out ushort existing ) ) {
+				return existing;
+			}
+
+			ushort id = checked((ushort)_eventCount++);
+			EnsureEventCapacity( _eventCount );
+			_eventIds.Add( eventName, id );
+			_eventNames[id] = eventName;
+			return id;
+		}
+
+		private ushort GetOrCreateCategoryId( SoundCategory category ) {
+			string categoryName = category.Config.Name;
+			if ( _categoryIds.TryGetValue( categoryName, out ushort existing ) ) {
+				return existing;
+			}
+
+			ushort id = checked((ushort)_categoryCount++);
+			EnsureCategoryCapacity( _categoryCount );
+			_categoryIds.Add( categoryName, id );
+			_categoryNames[id] = categoryName;
+			_categoryHeadById[id] = INVALID_INDEX;
+			_maxSimultaneousByCategoryId[id] = (ushort)Math.Clamp( category.Config.MaxSimultaneous, 0, ushort.MaxValue );
+			_priorityScaleByCategoryId[id] = category.Config.PriorityScale;
+			_stealProtectionByCategoryId[id] = category.Config.StealProtectionTime;
+			_allowStealFromSameCategoryById[id] = category.Config.AllowStealingFromSameCategory ? (byte)1 : (byte)0;
+			return id;
+		}
+
+		private void EnsureEventCapacity( int count ) {
+			if ( count <= _eventNames.Length ) {
+				return;
+			}
+			int newSize = NextPow2( count );
+			Array.Resize( ref _eventNames, newSize );
+			Array.Resize( ref _lastPlayTimeByEventId, newSize );
+			Array.Resize( ref _consecutiveStealCountByEventId, newSize );
+			Array.Resize( ref _dirtyStealEventMarks, newSize );
+			Array.Resize( ref _dirtyStealEventIds, newSize );
+		}
+
+		private void EnsureCategoryCapacity( int count ) {
+			if ( count <= _categoryNames.Length ) {
+				return;
+			}
+			int old = _categoryNames.Length;
+			int newSize = NextPow2( count );
+			Array.Resize( ref _categoryNames, newSize );
+			Array.Resize( ref _categoryHeadById, newSize );
+			Array.Resize( ref _activeCountByCategoryId, newSize );
+			Array.Resize( ref _maxSimultaneousByCategoryId, newSize );
+			Array.Resize( ref _priorityScaleByCategoryId, newSize );
+			Array.Resize( ref _stealProtectionByCategoryId, newSize );
+			Array.Resize( ref _allowStealFromSameCategoryById, newSize );
+			for ( int i = old; i < newSize; i++ ) {
+				_categoryHeadById[i] = INVALID_INDEX;
+			}
 		}
 
 		private void InitConfig( ICVarSystemService cvarSystem ) {
-			var effectsVolume = cvarSystem.GetCVarOrThrow<float>(
-				Constants.CVars.EngineUtils.Audio.EFFECTS_VOLUME );
+			var effectsVolume = cvarSystem.GetCVarOrThrow<float>( Constants.CVars.EngineUtils.Audio.EFFECTS_VOLUME );
 			_effectsVolume = effectsVolume.Value;
 			effectsVolume.ValueChanged.Subscribe( OnEffectsVolumeChanged );
 
-			var minTimeBetweenChannelSteals = cvarSystem.GetCVarOrThrow<float>(
-				Constants.CVars.EngineUtils.Audio.MIN_TIME_BETWEEN_CHANNEL_STEALS );
+			var minTimeBetweenChannelSteals = cvarSystem.GetCVarOrThrow<float>( Constants.CVars.EngineUtils.Audio.MIN_TIME_BETWEEN_CHANNEL_STEALS );
 			_minTimeBetweenChannelSteals = minTimeBetweenChannelSteals.Value;
 			minTimeBetweenChannelSteals.ValueChanged.Subscribe( OnMinTimeBetweenChannelStealsValueChanged );
-
-			_channelStealService.SetMinTimeBetweenChannelSteals( _minTimeBetweenChannelSteals );
-		}
-
-		private void ValidateInitialChannelConfig() {
-			if ( _maxChannels.Value <= 0 ) {
-				throw new InvalidOperationException( "MAX_CHANNELS must be > 0." );
-			}
-
-			if ( _maxActiveChannels.Value <= 0 ) {
-				throw new InvalidOperationException( "MAX_ACTIVE_CHANNELS must be > 0." );
-			}
-
-			if ( _maxActiveChannels.Value > _maxChannels.Value ) {
-				throw new InvalidOperationException(
-					"MAX_ACTIVE_CHANNELS cannot be larger than MAX_CHANNELS for FMODChannelService." );
-			}
 		}
 
 		private void OnMaxActiveChannelsValueChanged( in CVarValueChangedEventArgs<int> args ) {
 			if ( args.NewValue <= 0 ) {
-				_category.PrintError(
-					$"OnMaxActiveChannelsValueChanged: attempted to set MAX_ACTIVE_CHANNELS to {args.NewValue}. Reverting." );
 				_maxActiveChannels.Value = Math.Max( 1, args.OldValue );
 				return;
 			}
-
 			if ( args.NewValue > _capacity ) {
-				_category.PrintError(
-					$"OnMaxActiveChannelsValueChanged: attempted to set MAX_ACTIVE_CHANNELS to {args.NewValue}, but service capacity is fixed at {_capacity}. Clamping." );
 				_maxActiveChannels.Value = _capacity;
 			}
 		}
@@ -396,7 +808,132 @@ namespace Nomad.Audio.Fmod.Private.Services {
 
 		private void OnMinTimeBetweenChannelStealsValueChanged( in CVarValueChangedEventArgs<float> args ) {
 			_minTimeBetweenChannelSteals = args.NewValue;
-			_channelStealService.SetMinTimeBetweenChannelSteals( args.NewValue );
+		}
+
+		private FMOD.RESULT SoundFinishedCallback( FMOD.Studio.EVENT_CALLBACK_TYPE type, nint instance, IntPtr parameters ) {
+			_finishedInstances.Enqueue( instance );
+			return FMOD.RESULT.OK;
+		}
+
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		private static int NextPow2( int value ) {
+			value--;
+			value |= value >> 1;
+			value |= value >> 2;
+			value |= value >> 4;
+			value |= value >> 8;
+			value |= value >> 16;
+			value++;
+			return value < 8 ? 8 : value;
+		}
+
+		private sealed class InstanceToSlotMap {
+			private nint[] _keys;
+			private int[] _values;
+			private byte[] _state; // 0 empty, 1 used, 2 tombstone
+			private int _count;
+			private int _mask;
+
+			public InstanceToSlotMap( int capacity ) {
+				int size = NextPow2( Math.Max( 8, capacity ) );
+				_keys = new nint[size];
+				_values = new int[size];
+				_state = new byte[size];
+				_mask = size - 1;
+			}
+
+			[MethodImpl( MethodImplOptions.AggressiveInlining )]
+			public void Set( nint key, int value ) {
+				if ( (_count + 1) * 2 >= _keys.Length ) {
+					Resize( _keys.Length << 1 );
+				}
+				InsertOrUpdate( key, value );
+			}
+
+			[MethodImpl( MethodImplOptions.AggressiveInlining )]
+			public bool TryGet( nint key, out int value ) {
+				int idx = FindIndex( key );
+				if ( idx < 0 ) {
+					value = -1;
+					return false;
+				}
+				value = _values[idx];
+				return true;
+			}
+
+			[MethodImpl( MethodImplOptions.AggressiveInlining )]
+			public void Remove( nint key ) {
+				int idx = FindIndex( key );
+				if ( idx < 0 ) {
+					return;
+				}
+				_state[idx] = 2;
+				_keys[idx] = 0;
+				_values[idx] = 0;
+				_count--;
+			}
+
+			private void InsertOrUpdate( nint key, int value ) {
+				int idx = Hash( key ) & _mask;
+				int firstTombstone = -1;
+				while ( true ) {
+					byte state = _state[idx];
+					if ( state == 0 ) {
+						int target = firstTombstone >= 0 ? firstTombstone : idx;
+						_state[target] = 1;
+						_keys[target] = key;
+						_values[target] = value;
+						_count++;
+						return;
+					}
+					if ( state == 2 ) {
+						if ( firstTombstone < 0 ) {
+							firstTombstone = idx;
+						}
+					} else if ( _keys[idx] == key ) {
+						_values[idx] = value;
+						return;
+					}
+					idx = (idx + 1) & _mask;
+				}
+			}
+
+			private int FindIndex( nint key ) {
+				int idx = Hash( key ) & _mask;
+				while ( true ) {
+					byte state = _state[idx];
+					if ( state == 0 ) {
+						return -1;
+					}
+
+					if ( state == 1 && _keys[idx] == key ) {
+						return idx;
+					}
+
+					idx = (idx + 1) & _mask;
+				}
+			}
+
+			private void Resize( int newSize ) {
+				nint[] oldKeys = _keys;
+				int[] oldValues = _values;
+				byte[] oldState = _state;
+
+				_keys = new nint[newSize];
+				_values = new int[newSize];
+				_state = new byte[newSize];
+				_mask = newSize - 1;
+				_count = 0;
+
+				for ( int i = 0; i < oldKeys.Length; i++ ) {
+					if ( oldState[i] == 1 ) {
+						InsertOrUpdate( oldKeys[i], oldValues[i] );
+					}
+				}
+			}
+
+			[MethodImpl( MethodImplOptions.AggressiveInlining )]
+			private static int Hash( nint value ) => value.GetHashCode();
 		}
 	}
 }

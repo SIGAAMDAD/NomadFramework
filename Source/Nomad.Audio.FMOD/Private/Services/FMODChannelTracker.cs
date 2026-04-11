@@ -13,6 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+#if false
 using System;
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
@@ -442,3 +443,4 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		}
 	}
 }
+#endif

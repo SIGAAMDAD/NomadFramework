@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-The Nomad MPLv2 Source Code
+The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
@@ -14,31 +14,22 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using System.Runtime.CompilerServices;
 
 namespace Nomad.Audio.Fmod.Private.Entities {
-	internal sealed class FMODChannelHandle {
-		public int ChannelId { get; }
-		public int Generation { get; }
+	internal readonly struct FMODChannelHandle {
+		public readonly int Slot;
+		public readonly uint Generation;
 
-		public bool IsValid => _isValid;
-		private bool _isValid = false;
-
-		public event Action<FMODChannelHandle>? OnEnded;
-
-		public FMODChannelHandle( int channelId, int generation ) {
-			ChannelId = channelId;
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public FMODChannelHandle( int slot, uint generation ) {
+			Slot = slot;
 			Generation = generation;
-			_isValid = true;
-			OnEnded = null;
 		}
 
-		public void Invalidate() {
-			if ( !_isValid ) {
-				return;
-			}
-			_isValid = false;
-			OnEnded?.Invoke( this );
-			OnEnded = null;
+		public bool IsValid {
+			[MethodImpl( MethodImplOptions.AggressiveInlining )]
+			get => Slot >= 0 && Generation != 0;
 		}
-	};
+	}
 };

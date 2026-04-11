@@ -37,8 +37,8 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 			set {
 				_position = value;
 
-				if ( TryGetCurrentChannel( out var channel ) ) {
-					channel.Instance.Position = value;
+				if ( TryResolveCurrentHandle( out var handle ) ) {
+					_channelService.TrySetPosition( handle, value );
 				}
 			}
 		}
@@ -49,8 +49,8 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 			set {
 				_volume = value;
 
-				if ( TryGetCurrentChannel( out var channel ) ) {
-					channel.Volume = value;
+				if ( TryResolveCurrentHandle( out var handle ) ) {
+					_channelService.TrySetVolume( handle, value );
 				}
 			}
 		}
@@ -61,8 +61,8 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 			set {
 				_pitch = value;
 
-				if ( TryGetCurrentChannel( out var channel ) ) {
-					channel.Pitch = value;
+				if ( TryResolveCurrentHandle( out var handle ) ) {
+					_channelService.TrySetPitch( handle, value );
 				}
 			}
 		}
@@ -70,76 +70,73 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 
 		public string Category => _category.Config.Name;
 
+		private readonly SoundCategory _category;
+		private readonly FMODChannelService _channelService;
+
+		private FMODChannelHandle? _currentHandle;
+
 		public ChannelStatus Status {
 			get {
-				if ( !TryGetCurrentChannel( out var channel ) ) {
+				if ( !TryResolveCurrentHandle( out var handle ) ) {
 					return ChannelStatus.Stopped;
 				}
 
-				return channel.IsPlaying
+				return _channelService.IsPlaying( handle )
 					? ChannelStatus.Playing
 					: ChannelStatus.Stopped;
 			}
 		}
 
-		private readonly SoundCategory _category;
-		private readonly FMODChannelService _channelRepository;
-
-		private FMODChannelHandle? _currentHandle;
-
-		public FMODEmitter( FMODChannelService channelRepository, SoundCategory category ) {
+		public FMODEmitter( FMODChannelService channelService, SoundCategory category ) {
+			_channelService = channelService;
 			_category = category;
-			_channelRepository = channelRepository;
 		}
 
 		public void PlaySound( string id, float priority = 0.5f ) {
-			UnhookCurrentHandle();
+			// We do not need to unhook events anymore because handles are value types.
+			_currentHandle = null;
 
-			var handle = _channelRepository.AllocateChannel( id, _position, _category, priority );
+			FMODChannelHandle? handle = _channelService.AllocateChannel(
+				id,
+				_position,
+				_category,
+				priority );
+
 			if ( handle == null ) {
-				_currentHandle = null;
 				return;
 			}
 
-			_currentHandle = handle;
-			_currentHandle.OnEnded += OnCurrentHandleEnded;
-
+			_currentHandle = handle.Value;
 			ApplyCachedState();
 		}
 
-		private void ApplyCachedState() {
-			if ( !TryGetCurrentChannel( out var channel ) ) {
-				return;
+		public void Stop() {
+			if ( TryResolveCurrentHandle( out var handle ) ) {
+				_channelService.TryStopChannel( handle, false );
 			}
 
-			channel.Instance.Position = _position;
-			channel.Volume = _volume;
-			channel.Pitch = _pitch;
-		}
-
-		private bool TryGetCurrentChannel( out FMODChannel channel ) {
-			if ( _currentHandle == null ) {
-				channel = null!;
-				return false;
-			}
-
-			return _channelRepository.TryGetChannel( _currentHandle, out channel );
-		}
-
-		private void OnCurrentHandleEnded( FMODChannelHandle handle ) {
-			if ( !ReferenceEquals( _currentHandle, handle ) ) {
-				return;
-			}
-
-			_currentHandle.OnEnded -= OnCurrentHandleEnded;
 			_currentHandle = null;
 		}
 
-		private void UnhookCurrentHandle() {
-			if ( _currentHandle != null ) {
-				_currentHandle.OnEnded -= OnCurrentHandleEnded;
-				_currentHandle = null;
+		private void ApplyCachedState() {
+			if ( !TryResolveCurrentHandle( out var handle ) ) {
+				return;
 			}
+
+			_channelService.TrySetPosition( handle, _position );
+			_channelService.TrySetVolume( handle, _volume );
+			_channelService.TrySetPitch( handle, _pitch );
+		}
+
+		private bool TryResolveCurrentHandle( out FMODChannelHandle handle ) {
+			if ( _currentHandle is FMODChannelHandle existing && _channelService.IsAlive( existing ) ) {
+				handle = existing;
+				return true;
+			}
+
+			_currentHandle = null;
+			handle = default;
+			return false;
 		}
 	};
 };
