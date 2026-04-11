@@ -173,7 +173,7 @@ namespace Nomad.Input.Private.Services {
 		/// <param name="request"></param>
 		/// <param name="binding"></param>
 		/// <returns></returns>
-		public bool ApplyBinding( in InputRebindRequest request, InputBindingDefinition binding ) {
+		public bool ApplyBinding( in InputRebindRequest request, in InputBindingDefinition binding ) {
 			if ( !_repository.TryGetBindMapping( request.MappingName, out var actions ) ) {
 				return false;
 			}
@@ -405,11 +405,10 @@ namespace Nomad.Input.Private.Services {
 		/// <returns></returns>
 		private static int FindActionIndex( ImmutableArray<InputActionDefinition> actions, string actionId ) {
 			for ( int i = 0; i < actions.Length; i++ ) {
-				if ( actions[i].Name.Equals( actionId, StringComparison.Ordinal ) ) {
+				if ( actions[i].Id.Equals( actionId, StringComparison.Ordinal ) ) {
 					return i;
 				}
 			}
-
 			return -1;
 		}
 		

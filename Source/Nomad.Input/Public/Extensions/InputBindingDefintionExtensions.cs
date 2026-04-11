@@ -99,104 +99,81 @@ namespace Nomad.Input.Extensions
 			};
 		}
 
-		private static ButtonBinding Clone(this ButtonBinding binding)
+		private static ButtonBinding Clone(this in ButtonBinding binding)
 		{
-			return binding is null
-				? new ButtonBinding()
-				: new ButtonBinding
-				{
-					DeviceId = binding.DeviceId,
-					ControlId = binding.ControlId,
-					Modifiers = binding.Modifiers.IsDefault ? default : binding.Modifiers.ToImmutableArray()
-				};
+			return new ButtonBinding(
+				binding.DeviceId,
+				binding.ControlId,
+				binding.Modifiers.IsDefault ? default : binding.Modifiers.ToImmutableArray()
+			);
 		}
 
-		private static Axis1DBinding Clone(this Axis1DBinding binding)
+		private static Axis1DBinding Clone(this in Axis1DBinding binding)
 		{
-			return binding is null
-				? new Axis1DBinding()
-				: new Axis1DBinding
-				{
-					DeviceId = binding.DeviceId,
-					ControlId = binding.ControlId,
-					Deadzone = binding.Deadzone,
-					Sensitivity = binding.Sensitivity,
-					Scale = binding.Scale,
-					Invert = binding.Invert,
-					ResponseCurve = binding.ResponseCurve
-				};
+			return new Axis1DBinding(
+				binding.DeviceId,
+				binding.ControlId,
+				binding.Deadzone,
+				binding.Sensitivity,
+				binding.Scale,
+				binding.Invert,
+				binding.ResponseCurve
+			);
 		}
 
-		private static Axis1DCompositeBinding Clone(this Axis1DCompositeBinding binding)
+		private static Axis1DCompositeBinding Clone(this in Axis1DCompositeBinding binding)
 		{
-			return binding is null
-				? new Axis1DCompositeBinding()
-				: new Axis1DCompositeBinding
-				{
-					Negative = binding.Negative,
-					Positive = binding.Positive,
-					Scale = binding.Scale,
-					Normalize = binding.Normalize
-				};
+			return new Axis1DCompositeBinding(
+				binding.Negative,
+				binding.Positive,
+				binding.Scale,
+				binding.Normalize
+			);
 		}
 
-		private static Axis2DBinding Clone(this Axis2DBinding binding)
+		private static Axis2DBinding Clone(this in Axis2DBinding binding)
 		{
-			return binding is null
-				? new Axis2DBinding()
-				: new Axis2DBinding
-				{
-					DeviceId = binding.DeviceId,
-					ControlId = binding.ControlId,
-					Deadzone = binding.Deadzone,
-					Sensitivity = binding.Sensitivity,
-					ScaleX = binding.ScaleX,
-					ScaleY = binding.ScaleY,
-					InvertX = binding.InvertX,
-					InvertY = binding.InvertY,
-					ResponseCurve = binding.ResponseCurve
-				};
+			return new Axis2DBinding(
+				binding.DeviceId,
+				binding.ControlId,
+				binding.Deadzone,
+				binding.Sensitivity,
+				binding.ScaleX,
+				binding.ScaleY,
+				binding.InvertX,
+				binding.InvertY,
+				binding.ResponseCurve
+			);
 		}
 
-		private static Axis2DCompositeBinding Clone(this Axis2DCompositeBinding binding)
+		private static Axis2DCompositeBinding Clone(this in Axis2DCompositeBinding binding)
 		{
-			return binding is null
-				? new Axis2DCompositeBinding()
-				: new Axis2DCompositeBinding
-				{
-					Up = binding.Up,
-					Down = binding.Down,
-					Left = binding.Left,
-					Right = binding.Right,
-					Normalize = binding.Normalize,
-					ScaleX = binding.ScaleX,
-					ScaleY = binding.ScaleY
-				};
+			return new Axis2DCompositeBinding(
+				binding.Up,
+				binding.Down,
+				binding.Left,
+				binding.Right,
+				binding.Normalize,
+				binding.ScaleX,
+				binding.ScaleY
+			);
 		}
 
-		private static Delta2DBinding Clone(this Delta2DBinding binding)
+		private static Delta2DBinding Clone(this in Delta2DBinding binding)
 		{
-			return binding is null
-				? new Delta2DBinding()
-				: new Delta2DBinding
-				{
-					DeviceId = binding.DeviceId,
-					ControlId = binding.ControlId,
-					Sensitivity = binding.Sensitivity,
-					ScaleX = binding.ScaleX,
-					ScaleY = binding.ScaleY,
-					InvertX = binding.InvertX,
-					InvertY = binding.InvertY
-				};
+			return new Delta2DBinding(
+				binding.DeviceId,
+				binding.ControlId,
+				binding.Sensitivity,
+				binding.ScaleX,
+				binding.ScaleY,
+				binding.InvertX,
+				binding.InvertY
+			);
 		}
 
-		private static bool ButtonEquals(ButtonBinding left, ButtonBinding right)
+		private static bool ButtonEquals(in ButtonBinding left, in ButtonBinding right)
 		{
-			if (left is null || right is null)
-			{
-				return left is null && right is null;
-			}
-
 			if (left.DeviceId != right.DeviceId || left.ControlId != right.ControlId)
 			{
 				return false;
@@ -220,13 +197,8 @@ namespace Nomad.Input.Extensions
 			return true;
 		}
 
-		private static bool Axis1DEquals(Axis1DBinding left, Axis1DBinding right)
+		private static bool Axis1DEquals(in Axis1DBinding left, in Axis1DBinding right)
 		{
-			if (left is null || right is null)
-			{
-				return left is null && right is null;
-			}
-
 			return left.DeviceId == right.DeviceId
 				&& left.ControlId == right.ControlId
 				&& left.Deadzone == right.Deadzone
@@ -236,26 +208,16 @@ namespace Nomad.Input.Extensions
 				&& left.ResponseCurve == right.ResponseCurve;
 		}
 
-		private static bool Axis1DCompositeEquals(Axis1DCompositeBinding left, Axis1DCompositeBinding right)
+		private static bool Axis1DCompositeEquals(in Axis1DCompositeBinding left, in Axis1DCompositeBinding right)
 		{
-			if (left is null || right is null)
-			{
-				return left is null && right is null;
-			}
-
 			return left.Negative == right.Negative
 				&& left.Positive == right.Positive
 				&& left.Scale == right.Scale
 				&& left.Normalize == right.Normalize;
 		}
 
-		private static bool Axis2DEquals(Axis2DBinding left, Axis2DBinding right)
+		private static bool Axis2DEquals(in Axis2DBinding left, in Axis2DBinding right)
 		{
-			if (left is null || right is null)
-			{
-				return left is null && right is null;
-			}
-
 			return left.DeviceId == right.DeviceId
 				&& left.ControlId == right.ControlId
 				&& left.Deadzone == right.Deadzone
@@ -267,13 +229,8 @@ namespace Nomad.Input.Extensions
 				&& left.ResponseCurve == right.ResponseCurve;
 		}
 
-		private static bool Axis2DCompositeEquals(Axis2DCompositeBinding left, Axis2DCompositeBinding right)
+		private static bool Axis2DCompositeEquals(in Axis2DCompositeBinding left, in Axis2DCompositeBinding right)
 		{
-			if (left is null || right is null)
-			{
-				return left is null && right is null;
-			}
-
 			return left.Up == right.Up
 				&& left.Down == right.Down
 				&& left.Left == right.Left
@@ -283,13 +240,8 @@ namespace Nomad.Input.Extensions
 				&& left.ScaleY == right.ScaleY;
 		}
 
-		private static bool Delta2DEquals(Delta2DBinding left, Delta2DBinding right)
+		private static bool Delta2DEquals(in Delta2DBinding left, in Delta2DBinding right)
 		{
-			if (left is null || right is null)
-			{
-				return left is null && right is null;
-			}
-
 			return left.DeviceId == right.DeviceId
 				&& left.ControlId == right.ControlId
 				&& left.Sensitivity == right.Sensitivity

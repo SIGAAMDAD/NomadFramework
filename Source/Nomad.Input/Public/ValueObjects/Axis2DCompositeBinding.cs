@@ -15,14 +15,34 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Input.ValueObjects
 {
-	public sealed class Axis2DCompositeBinding
+	public struct Axis2DCompositeBinding
 	{
+		public float ScaleX { get; set; }
+		public float ScaleY { get; set; }
+
+		public bool Normalize { get; set; }
+
 		public InputControlId Up { get; set; }
 		public InputControlId Down { get; set; }
 		public InputControlId Left { get; set; }
 		public InputControlId Right { get; set; }
-		public bool Normalize { get; set; } = true;
-		public float ScaleX { get; set; } = 1.0f;
-		public float ScaleY { get; set; } = 1.0f;
+
+		public Axis2DCompositeBinding(
+			InputControlId up,
+			InputControlId down,
+			InputControlId left,
+			InputControlId right,
+			bool normalize = true,
+			float scaleX = 1.0f,
+			float scaleY = 1.0f
+		) {
+			Up = up;
+			Down = down;
+			Left = left;
+			Right = right;
+			Normalize = normalize;
+			ScaleX = scaleX;
+			ScaleY = scaleY;
+		}
 	}
 }

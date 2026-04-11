@@ -31,6 +31,9 @@ using Nomad.Core.CVars;
 using Nomad.CVars;
 using Nomad.Core.Engine.Globals;
 using Nomad.Core.Engine.Services;
+using System.Collections.Generic;
+using Nomad.Core.Audio;
+using Nomad.Audio.ValueObjects;
 
 namespace Nomad.Audio.Fmod.Private.Services {
 	/*
@@ -54,13 +57,16 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		public FMODGuidRepository GuidRepository => _guidRepository;
 		private readonly FMODGuidRepository _guidRepository;
 
+		public IReadOnlyList<string> OutputDevices => _driverRepository.OutputDevices;
+		public IReadOnlyList<string> AudioDrivers => _driverRepository.Drivers;
+
 		public FMOD.Studio.System StudioSystem => _systemHandle.StudioSystem;
 		public FMOD.System System => _systemHandle.System;
 
 		private readonly FMODAudioGroupRepository _groupRepository;
 
 		private readonly FMODSystemHandle _systemHandle;
-		private readonly ILoggerCategory _fmodCategory;
+		private readonly ILoggerCategory _category;
 
 		private readonly FMODBankRepository _bankRepository;
 
@@ -86,14 +92,14 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			
 			FMODValidator.Initialize( logger );
 
-			_fmodCategory = logger.CreateCategory( "FMOD", LogLevel.Info, true );
-			_fmodCategory.PrintLine( "Initializing FMOD sound system..." );
+			_category = logger.CreateCategory( "FMOD", LogLevel.Info, true );
+			_category.PrintLine( "Initializing FMOD sound system..." );
 
 			FMODCVarRegistry.Register( cvarSystem );
 			_systemHandle = new FMODSystemHandle( cvarSystem, logger );
 			ConfigureFMODDevice( cvarSystem );
 
-			_driverRepository = new FMODDriverRepository( logger, cvarSystem, _systemHandle.System );
+			_driverRepository = new FMODDriverRepository( _category, cvarSystem, _systemHandle.System );
 
 			_guidRepository = new FMODGuidRepository();
 			_bankRepository = new FMODBankRepository( logger, eventFactory, this );
@@ -103,7 +109,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			_bankRepository.GetCached( EngineService.GetStoragePath( "Audio/Banks/Desktop/Master.strings.bank", StorageScope.StreamingAssets ) );
 			_bankRepository.GetCached( EngineService.GetStoragePath( "Audio/Banks/Desktop/Master.bank", StorageScope.StreamingAssets ) );
 
-			_groupRepository = new FMODAudioGroupRepository( _systemHandle.StudioSystem, _fmodCategory, cvarSystem );
+			_groupRepository = new FMODAudioGroupRepository( _systemHandle.StudioSystem, _category, cvarSystem );
 		}
 
 		/*
@@ -116,13 +122,13 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		/// </summary>
 		public void Dispose() {
 			if ( !_isDisposed ) {
-				_fmodCategory.PrintLine( "Shutting down FMOD sound system..." );
+				_category.PrintLine( "Shutting down FMOD sound system..." );
 
 				_eventRepository?.Dispose();
 				_bankRepository?.Dispose();
 				_guidRepository?.Dispose();
 				_driverRepository?.Dispose();
-				_fmodCategory?.Dispose();
+				_category?.Dispose();
 				_systemHandle.Dispose();
 			}
 			GC.SuppressFinalize(this);
@@ -169,40 +175,13 @@ namespace Nomad.Audio.Fmod.Private.Services {
 
 		/*
 		===============
-		GetOutputDevices
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <returns></returns>
-		public IImmutableList<string> GetOutputDevices() {
-			var devices = new string[_driverRepository.Devices.Length];
-
-			for ( int i = 0; i < devices.Length; i++ ) {
-				devices[i] = _driverRepository.Devices[i].Name;
-			}
-
-			return devices.ToImmutableList();
-		}
-
-		/*
-		===============
-		GetAudioDrivers
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <returns></returns>
-		public IImmutableList<string> GetAudioDrivers()
-			=> _driverRepository.Drivers.ToImmutableList();
-
-		/*
-		===============
 		Update
 		===============
 		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="deltaTime"></param>
 		public void Update( float deltaTime ) {
 			_systemHandle.Update();
 		}
@@ -222,13 +201,35 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			var maxChannels = cvarSystem.GetCVarOrThrow<int>( Constants.CVars.EngineUtils.Audio.MAX_CHANNELS );
 			var dspBufferSize = cvarSystem.GetCVarOrThrow<uint>( Constants.CVars.EngineUtils.Audio.FMOD.DSP_BUFFER_SIZE );
 			var dspBufferCount = cvarSystem.GetCVarOrThrow<int>( Constants.CVars.EngineUtils.Audio.FMOD.DSP_BUFFER_COUNT );
+			var speakerMode = cvarSystem.GetCVarOrThrow<SpeakerMode>( Constants.CVars.EngineUtils.Audio.SPEAKER_MODE );
 
-			var flags = FMOD.INITFLAGS.CHANNEL_DISTANCEFILTER | FMOD.INITFLAGS.CHANNEL_LOWPASS | FMOD.INITFLAGS.VOL0_BECOMES_VIRTUAL;
+			var flags = FMOD.INITFLAGS.CHANNEL_DISTANCEFILTER | FMOD.INITFLAGS.CHANNEL_LOWPASS | FMOD.INITFLAGS.VOL0_BECOMES_VIRTUAL | FMOD.INITFLAGS.THREAD_UNSAFE;
 
-			FMODValidator.ValidateCall( _fmodCategory, System.set3DSettings( 0.0f, 1.0f, 1.0f ) );
-			FMODValidator.ValidateCall( _fmodCategory, System.setStreamBufferSize( (uint)streamBufferSize.Value, FMOD.TIMEUNIT.MS ) );
-			FMODValidator.ValidateCall( _fmodCategory, System.setDSPBufferSize( dspBufferSize.Value, dspBufferCount.Value ) );
-			FMODValidator.ValidateCall( _fmodCategory, StudioSystem.initialize( maxChannels.Value, FMOD.Studio.INITFLAGS.LIVEUPDATE | FMOD.Studio.INITFLAGS.SYNCHRONOUS_UPDATE, flags, (IntPtr)null ) );
+			FMODValidator.ValidateCall( _category, System.set3DSettings( 0.0f, 1.0f, 1.0f ) );
+			FMODValidator.ValidateCall( _category, System.setSoftwareFormat( 44100, SpeakerModeToFMOD( speakerMode.Value ), 0 ) );
+			FMODValidator.ValidateCall( _category, System.setStreamBufferSize( (uint)streamBufferSize.Value, FMOD.TIMEUNIT.MS ) );
+			FMODValidator.ValidateCall( _category, System.setDSPBufferSize( dspBufferSize.Value, dspBufferCount.Value ) );
+			FMODValidator.ValidateCall( _category, StudioSystem.initialize( maxChannels.Value, FMOD.Studio.INITFLAGS.LIVEUPDATE | FMOD.Studio.INITFLAGS.SYNCHRONOUS_UPDATE, flags, (IntPtr)null ) );
 		}
+
+		/*
+		===============
+		SpeakerModeToFMOD
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="mode"></param>
+		/// <returns></returns>
+		/// <exception cref="ArgumentOutOfRangeException"></exception>
+		private static FMOD.SPEAKERMODE SpeakerModeToFMOD( SpeakerMode mode ) => mode switch {
+			SpeakerMode.Auto => FMOD.SPEAKERMODE.DEFAULT,
+			SpeakerMode.StereoSpeakers or SpeakerMode.Headphones => FMOD.SPEAKERMODE.STEREO,
+			SpeakerMode.Surround_5_1 => FMOD.SPEAKERMODE._5POINT1,
+			SpeakerMode.Surround_7_1 => FMOD.SPEAKERMODE._7POINT1,
+			SpeakerMode.Atmos => FMOD.SPEAKERMODE._7POINT1POINT4,
+			_ => throw new ArgumentOutOfRangeException( nameof( mode ) )
+		};
 	};
 };

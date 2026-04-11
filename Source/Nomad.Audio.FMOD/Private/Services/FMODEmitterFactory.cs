@@ -15,14 +15,15 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using Nomad.Audio.Fmod.Private.Entities;
 using Nomad.Audio.Fmod.Private.Repositories;
+using Nomad.Audio.Fmod.Private.Services;
 using Nomad.Audio.Interfaces;
 
 namespace Nomad.Audio.Fmod.Private.Services {
 	internal sealed class FMODEmitterFactory : IEmitterFactory {
-		private readonly FMODChannelRepository _channelRepository;
+		private readonly FMODChannelService _channelRepository;
 		private readonly FMODBusRepository _busRepository;
 
-		public FMODEmitterFactory( FMODChannelRepository channelRepository, FMODBusRepository busRepository ) {
+		public FMODEmitterFactory( FMODChannelService channelRepository, FMODBusRepository busRepository ) {
 			_channelRepository = channelRepository;
 			_busRepository = busRepository;
 		}

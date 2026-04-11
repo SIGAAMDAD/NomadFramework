@@ -28,14 +28,14 @@ namespace Nomad.Input.Tests {
 		public void Dispatch_PublishesButtonActionsToTheButtonEvent() {
 			var dispatcher = new InputDispatchService( _eventRegistry );
 			ButtonActionEventArgs? published = null;
-			var gameEvent = _eventRegistry.GetEvent<ButtonActionEventArgs>( $"Jump:{Constants.Events.BUTTON_ACTION}", Constants.Events.NAMESPACE );
+			var gameEvent = _eventRegistry.GetEvent<ButtonActionEventArgs>( $"player.jump:{Constants.Events.BUTTON_ACTION}", Constants.Events.NAMESPACE );
 			gameEvent.Subscribe( ( in ButtonActionEventArgs args ) => published = args );
 
-			dispatcher.Dispatch( new ResolvedAction( new InternString( "Jump" ), InputValueType.Button, InputActionPhase.Started, 10, buttonValue: true ) );
+			dispatcher.Dispatch( new ResolvedAction( new InternString( "player.jump" ), InputValueType.Button, InputActionPhase.Started, 10, buttonValue: true ) );
 
 			using ( Assert.EnterMultipleScope() ) {
 				Assert.That( published.HasValue, Is.True );
-				Assert.That( published!.Value.ActionId.ToString(), Is.EqualTo( "Jump" ) );
+				Assert.That( published!.Value.ActionId.ToString(), Is.EqualTo( "player.jump" ) );
 				Assert.That( published.Value.Value, Is.True );
 			}
 		}

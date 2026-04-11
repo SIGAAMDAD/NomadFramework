@@ -15,6 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using Nomad.Core.CVars;
 using Nomad.Core;
+using Nomad.Audio.ValueObjects;
 
 namespace Nomad.Audio.Fmod.Private.Registries {
 	/*
@@ -103,6 +104,15 @@ namespace Nomad.Audio.Fmod.Private.Registries {
 					Description = "The active audio driver in use by the Audio system.",
 					Flags = CVarFlags.Archive,
 					Group = "Audio",
+				}
+			);
+			cvarSystem.Register(
+				new CVarCreateInfo<SpeakerMode> {
+					Name = Constants.CVars.EngineUtils.Audio.SPEAKER_MODE,
+					DefaultValue = SpeakerMode.Headphones,
+					Description = "The speaker configuration.",
+					Flags = CVarFlags.Archive,
+					Group = "Audio"
 				}
 			);
 			cvarSystem.Register(

@@ -20,12 +20,14 @@ namespace Nomad.Input.ValueObjects
 	public sealed class InputActionDefinition
 	{
 		public string Name { get; }
+		public string Id { get; }
 		public InputValueType ValueType { get; }
 		public ImmutableArray<InputBindingDefinition> Bindings { get; set; }
 
-		public InputActionDefinition(string name, InputValueType valueType, ImmutableArray<InputBindingDefinition> bindings)
+		public InputActionDefinition(string name, string id, InputValueType valueType, ImmutableArray<InputBindingDefinition> bindings)
 		{
 			Name = name;
+			Id = id;
 			ValueType = valueType;
 			Bindings = bindings;
 		}

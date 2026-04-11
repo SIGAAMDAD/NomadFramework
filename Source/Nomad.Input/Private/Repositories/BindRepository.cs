@@ -37,7 +37,7 @@ namespace Nomad.Input.Private.Repositories {
 	===================================================================================
 	*/
 	/// <summary>
-	/// Loads binding databases from disk and exposes the merged action definitions used by the input pipeline.
+		/// Loads binding databases from disk and exposes the merged action definitions used by the input pipeline.
 	/// </summary>
 	internal sealed class BindRepository : IDisposable {
 		private readonly IFileSystem _fileSystem;
@@ -125,7 +125,7 @@ namespace Nomad.Input.Private.Repositories {
 		/// <summary>
 		/// Gets a merged view of the defaults database and every discovered binding mapping.
 		/// </summary>
-		/// <returns>All loaded action definitions merged by action name.</returns>
+		/// <returns>All loaded action definitions merged by action id.</returns>
 		/// <exception cref="ObjectDisposedException">Thrown when the repository has been disposed.</exception>
 		public ImmutableArray<InputActionDefinition> GetAllBindings() {
 			ThrowIfDisposed();
@@ -260,9 +260,10 @@ namespace Nomad.Input.Private.Repositories {
 
 			var builder = mapping.Actions.ToBuilder();
 			for ( int i = 0; i < builder.Count; i++ ) {
-				if ( builder[ i ].Name.Equals( actionId, StringComparison.Ordinal ) ) {
+				if ( builder[ i ].Id.Equals( actionId, StringComparison.Ordinal ) ) {
 					builder[ i ] = new InputActionDefinition(
 						builder[ i ].Name,
+						builder[ i ].Id,
 						builder[ i ].ValueType,
 						bindings.Clone()
 					);
@@ -279,11 +280,11 @@ namespace Nomad.Input.Private.Repositories {
 			}
 
 			for ( int i = 0; i < mergedMapping.Length; i++ ) {
-				if ( !mergedMapping[ i ].Name.Equals( actionId, StringComparison.Ordinal ) ) {
+				if ( !mergedMapping[ i ].Id.Equals( actionId, StringComparison.Ordinal ) ) {
 					continue;
 				}
 
-				builder.Add( new InputActionDefinition( actionId, mergedMapping[ i ].ValueType, bindings.Clone() ) );
+				builder.Add( new InputActionDefinition( mergedMapping[ i ].Name, mergedMapping[ i ].Id, mergedMapping[ i ].ValueType, bindings.Clone() ) );
 				_loadedMappings = _loadedMappings.SetItem( mappingName, new LoadedBindMapping( mappingName, builder.ToImmutable() ) );
 				ValidateActiveMappings();
 				RebuildCaches();
@@ -372,7 +373,7 @@ namespace Nomad.Input.Private.Repositories {
 		===============
 		*/
 		/// <summary>
-		/// Merges action definition sets by action name while preserving the order in which the sources were supplied.
+		/// Merges action definition sets by action id while preserving the order in which the sources were supplied.
 		/// </summary>
 		/// <param name="sources">The action definition sets to merge.</param>
 		/// <returns>A single merged action definition array.</returns>
@@ -386,11 +387,11 @@ namespace Nomad.Input.Private.Repositories {
 		===============
 		*/
 		/// <summary>
-		/// Merges action definition sets by action name while concatenating the bindings for matching actions.
+		/// Merges action definition sets by action id while concatenating the bindings for matching actions.
 		/// </summary>
 		/// <param name="sources">The action definition sets to merge.</param>
 		/// <returns>A single merged action definition array.</returns>
-		/// <exception cref="InvalidOperationException">Thrown when two actions share a name but disagree on value type.</exception>
+		/// <exception cref="InvalidOperationException">Thrown when two actions share an id but disagree on value type.</exception>
 		private static ImmutableArray<InputActionDefinition> MergeActions( IEnumerable<ImmutableArray<InputActionDefinition>> sources ) {
 			var actionIndices = new Dictionary<string, int>( StringComparer.Ordinal );
 			var builder = ImmutableArray.CreateBuilder<InputActionDefinition>();
@@ -398,19 +399,20 @@ namespace Nomad.Input.Private.Repositories {
 			foreach ( var source in sources ) {
 				for ( int i = 0; i < source.Length; i++ ) {
 					var action = source[i];
-					if ( !actionIndices.TryGetValue( action.Name, out int actionIndex ) ) {
-						actionIndices.Add( action.Name, builder.Count );
+					if ( !actionIndices.TryGetValue( action.Id, out int actionIndex ) ) {
+						actionIndices.Add( action.Id, builder.Count );
 						builder.Add( action );
 						continue;
 					}
 
 					var existing = builder[actionIndex];
 					if ( existing.ValueType != action.ValueType ) {
-						throw new InvalidOperationException( $"Binding action '{action.Name}' has conflicting value types across binding databases." );
+						throw new InvalidOperationException( $"Binding action '{action.Id}' has conflicting value types across binding databases." );
 					}
 
 					builder[actionIndex] = new InputActionDefinition(
 						existing.Name,
+						existing.Id,
 						existing.ValueType,
 						OverrideBindingsByScheme( existing.Bindings, action.Bindings )
 					);
@@ -576,7 +578,7 @@ namespace Nomad.Input.Private.Repositories {
 		/// <param name="bindings"></param>
 		/// <param name="candidate"></param>
 		/// <returns></returns>
-		private static bool ContainsBinding( ImmutableArray<InputBindingDefinition>.Builder bindings, InputBindingDefinition candidate ) {
+		private static bool ContainsBinding( ImmutableArray<InputBindingDefinition>.Builder bindings, in InputBindingDefinition candidate ) {
 			for ( int i = 0; i < bindings.Count; i++ ) {
 				if ( bindings[ i ].ContentEquals( candidate ) ) {
 					return true;

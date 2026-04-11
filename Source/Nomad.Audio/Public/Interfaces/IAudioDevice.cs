@@ -14,7 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using System.Collections.Immutable;
+using System.Collections.Generic;
 
 namespace Nomad.Audio.Interfaces
 {
@@ -29,16 +29,14 @@ namespace Nomad.Audio.Interfaces
         string AudioDriver { get; }
 
         /// <summary>
-        ///
+        /// 
         /// </summary>
-        /// <returns></returns>
-        IImmutableList<string> GetOutputDevices();
+        IReadOnlyList<string> OutputDevices { get; }
 
         /// <summary>
-        ///
+        /// 
         /// </summary>
-        /// <returns></returns>s
-        IImmutableList<string> GetAudioDrivers();
+        IReadOnlyList<string> AudioDrivers { get; }
 
         /// <summary>
         ///

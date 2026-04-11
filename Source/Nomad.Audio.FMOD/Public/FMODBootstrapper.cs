@@ -14,7 +14,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using Nomad.Audio.Fmod.Private.Registries;
-using Nomad.Audio.Fmod.Private.Repositories;
 using Nomad.Audio.Fmod.Private.Services;
 using Nomad.Audio.Interfaces;
 using Nomad.Core.Abstractions;
@@ -35,7 +34,7 @@ namespace Nomad.Audio.Fmod
     {
         private FMODDevice _device;
         private FMODListenerService _listenerService;
-        private FMODChannelRepository _channelRepository;
+        private FMODChannelService _channelService;
 
         /// <summary>
         /// Initializes the FMOD audio backend.
@@ -58,13 +57,13 @@ namespace Nomad.Audio.Fmod
 
             _device = new FMODDevice(locator, registry);
             _listenerService = new FMODListenerService(logger, _device);
-            _channelRepository = new FMODChannelRepository(logger, cvarSystem, _listenerService, _device);
+            _channelService = new FMODChannelService(logger, cvarSystem, _listenerService, _device);
 
             registry.AddSingleton<IAudioDevice>(_device);
             registry.AddSingleton<IListenerService>(_listenerService);
-            registry.AddSingleton<IChannelRepository>(_channelRepository);
+            registry.AddSingleton<IChannelRepository>(_channelService);
             registry.AddSingleton<IMusicService>(new FMODMusicService(_device.EventRepository, cvarSystem));
-            registry.AddSingleton<IEmitterFactory>(new FMODEmitterFactory(_channelRepository, _channelRepository.BusRepository));
+            registry.AddSingleton<IEmitterFactory>(new FMODEmitterFactory(_channelService, _channelService.BusRepository));
         }
 
         /// <summary>
@@ -74,7 +73,7 @@ namespace Nomad.Audio.Fmod
         {
             _device?.Dispose();
             _listenerService?.Dispose();
-            _channelRepository?.Dispose();
+            _channelService?.Dispose();
         }
     }
 }

@@ -67,6 +67,6 @@ namespace Nomad.Input.Interfaces
 		/// <param name="request"></param>
 		/// <param name="binding"></param>
 		/// <returns></returns>
-		bool ApplyBinding(in InputRebindRequest request, InputBindingDefinition binding);
+		bool ApplyBinding(in InputRebindRequest request, in InputBindingDefinition binding);
 	}
 }

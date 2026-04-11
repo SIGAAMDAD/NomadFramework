@@ -237,7 +237,7 @@ namespace Nomad.Input.Private.Services {
 		/// </summary>
 		/// <param name="binding"></param>
 		/// <returns></returns>
-		private bool ModifiersSatisfied( CompiledBinding binding ) {
+		private bool ModifiersSatisfied( in CompiledBinding binding ) {
 			if ( binding.Kind != InputBindingKind.Button ) {
 				return true;
 			}
@@ -272,7 +272,7 @@ namespace Nomad.Input.Private.Services {
 		/// <param name="modifierCount"></param>
 		/// <param name="exactScheme"></param>
 		/// <returns></returns>
-		private static int Score( CompiledBinding binding, int modifierCount, bool exactScheme ) {
+		private static int Score( in CompiledBinding binding, int modifierCount, bool exactScheme ) {
 			int score = 0;
 			score += binding.Priority * 100;
 			score += modifierCount * 25;

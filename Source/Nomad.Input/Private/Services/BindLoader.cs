@@ -16,13 +16,12 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Input;
 using Nomad.Core.Input.ValueObjects;
 using Nomad.Core.Memory.Buffers;
+using Nomad.Core.Util;
 using Nomad.Input.Private.Extensions;
 using Nomad.Input.ValueObjects;
 using Nomad.Core.Logger;
@@ -81,15 +80,9 @@ namespace Nomad.Input.Private.Services {
 
 			try {
 				using var stream = fileBuffer.AsStream( 0, fileBuffer.Length );
-				using var document = JsonDocument.Parse(
-					stream,
-					new JsonDocumentOptions {
-						CommentHandling = JsonCommentHandling.Skip,
-						AllowTrailingCommas = true
-					}
-				);
+				using var document = JsonLoader.Parse( stream );
 
-				if ( !TryGetProperty( document.RootElement, "Bindings", out var bindingsElement ) ) {
+				if ( !JsonLoader.TryGetProperty( document.RootElement, "Bindings", out var bindingsElement ) ) {
 					throw new Exception( $"Bindings file '{filePath}' is missing a 'Bindings' property." );
 				}
 
@@ -137,19 +130,20 @@ namespace Nomad.Input.Private.Services {
 		/// <exception cref="Exception"></exception>
 		private static void ParseActionDefinition( JsonElement actionElement, Dictionary<string, int> actionIndices, List<ActionBuilder> actions, string? fallbackName = null ) {
 			string name = GetRequiredString( actionElement, "Name", fallbackName );
-			InputValueType valueType = ParseEnum<InputValueType>( GetRequiredString( actionElement, "ValueType" ), "ValueType" );
-			InputScheme scheme = ParseEnum<InputScheme>( GetRequiredString( actionElement, "Scheme" ), "Scheme" );
+			string id = GetRequiredString( actionElement, "Id", fallbackName );
+			InputValueType valueType = JsonLoader.GetRequired<InputValueType>( actionElement, "ValueType" );
+			InputScheme scheme = JsonLoader.GetRequired<InputScheme>( actionElement, "Scheme" );
 
-			if ( !TryGetProperty( actionElement, "Bindings", out var bindingsElement ) && !TryGetProperty( actionElement, "Binding", out bindingsElement ) ) {
-				throw new Exception( $"Binding action '{name}' is missing a binding payload." );
+			if ( !JsonLoader.TryGetProperty( actionElement, "Bindings", out var bindingsElement ) && !JsonLoader.TryGetProperty( actionElement, "Binding", out bindingsElement ) ) {
+				throw new Exception( $"Binding action '{id}' is missing a binding payload." );
 			}
 
-			if ( !actionIndices.TryGetValue( name, out int actionIndex ) ) {
+			if ( !actionIndices.TryGetValue( id, out int actionIndex ) ) {
 				actionIndex = actions.Count;
-				actionIndices.Add( name, actionIndex );
-				actions.Add( new ActionBuilder( name, valueType ) );
+				actionIndices.Add( id, actionIndex );
+				actions.Add( new ActionBuilder( name, id, valueType ) );
 			} else if ( actions[actionIndex].ValueType != valueType ) {
-				throw new Exception( $"Binding action '{name}' has conflicting value types." );
+				throw new Exception( $"Binding action '{id}' has conflicting value types." );
 			}
 
 			if ( bindingsElement.ValueKind == JsonValueKind.Array ) {
@@ -160,7 +154,7 @@ namespace Nomad.Input.Private.Services {
 			}
 
 			if ( bindingsElement.ValueKind != JsonValueKind.Object ) {
-				throw new Exception( $"Binding action '{name}' has an invalid binding payload." );
+				throw new Exception( $"Binding action '{id}' has an invalid binding payload." );
 			}
 
 			actions[actionIndex].Bindings.Add( ParseBindingDefinition( bindingsElement, scheme ) );
@@ -179,8 +173,8 @@ namespace Nomad.Input.Private.Services {
 		/// <returns></returns>
 		/// <exception cref="Exception"></exception>
 		private static InputBindingDefinition ParseBindingDefinition( JsonElement bindingElement, InputScheme scheme ) {
-			InputBindingKind kind = TryGetProperty( bindingElement, "Kind", out var kindElement )
-				? ParseEnum<InputBindingKind>( GetRequiredString( kindElement, "Kind value" ), "Kind" )
+			InputBindingKind kind = JsonLoader.TryGetProperty( bindingElement, "Kind", out var kindElement )
+				? JsonLoader.Read<InputBindingKind>( kindElement, "Kind" )
 				: InferBindingKind( bindingElement );
 
 			var definition = new InputBindingDefinition {
@@ -250,7 +244,7 @@ namespace Nomad.Input.Private.Services {
 			string controlName = GetRequiredString( bindingElement, "ControlId", GetOptionalString( bindingElement, "ButtonId" ) );
 
 			var modifiers = ImmutableArray.CreateBuilder<InputControlId>();
-			if ( TryGetProperty( bindingElement, "Modifiers", out var modifiersElement ) ) {
+			if ( JsonLoader.TryGetProperty( bindingElement, "Modifiers", out var modifiersElement ) ) {
 				if ( modifiersElement.ValueKind != JsonValueKind.Array ) {
 					throw new Exception( "Binding modifiers must be an array." );
 				}
@@ -263,11 +257,11 @@ namespace Nomad.Input.Private.Services {
 				}
 			}
 
-			return new ButtonBinding {
-				DeviceId = deviceId,
-				ControlId = ParseButtonControl( deviceId, controlName ),
-				Modifiers = modifiers.ToImmutable()
-			};
+			return new ButtonBinding(
+				deviceId: deviceId,
+				controlId: ParseButtonControl( deviceId, controlName ),
+				modifiers: modifiers.ToImmutable()
+			);
 		}
 
 		/*
@@ -282,15 +276,15 @@ namespace Nomad.Input.Private.Services {
 		/// <returns></returns>
 		private static Axis1DBinding ParseAxis1DBinding( JsonElement bindingElement ) {
 			InputDeviceSlot deviceId = ParseDeviceSlot( GetRequiredString( bindingElement, "DeviceId" ) );
-			return new Axis1DBinding {
-				DeviceId = deviceId,
-				ControlId = ParseAnalogControl( deviceId, GetRequiredString( bindingElement, "ControlId" ) ),
-				Deadzone = GetOptionalSingle( bindingElement, "Deadzone", 0.0f ),
-				Sensitivity = GetOptionalSingle( bindingElement, "Sensitivity", 1.0f ),
-				Scale = GetOptionalSingle( bindingElement, "Scale", 1.0f ),
-				Invert = GetOptionalBoolean( bindingElement, "Invert", false ),
-				ResponseCurve = GetOptionalEnum( bindingElement, "ResponseCurve", ResponseCurve.Linear )
-			};
+			return new Axis1DBinding(
+				deviceId: deviceId,
+				controlId: ParseAnalogControl( deviceId, GetRequiredString( bindingElement, "ControlId" ) ),
+				deadzone: JsonLoader.GetOptional<float>( bindingElement, "Deadzone", 0.0f ),
+				sensitivity: JsonLoader.GetOptional<float>( bindingElement, "Sensitivity", 1.0f ),
+				scale: JsonLoader.GetOptional<float>( bindingElement, "Scale", 1.0f ),
+				invert: JsonLoader.GetOptional<bool>( bindingElement, "Invert", false ),
+				responseCurve: JsonLoader.GetOptional<ResponseCurve>( bindingElement, "ResponseCurve", ResponseCurve.Linear )
+			);
 		}
 		
 		/*
@@ -304,12 +298,12 @@ namespace Nomad.Input.Private.Services {
 		/// <param name="bindingElement"></param>
 		/// <returns></returns>
 		private static Axis1DCompositeBinding ParseAxis1DCompositeBinding( JsonElement bindingElement ) {
-			return new Axis1DCompositeBinding {
-				Negative = ParseKeyboardControl( GetRequiredString( bindingElement, "Negative" ) ),
-				Positive = ParseKeyboardControl( GetRequiredString( bindingElement, "Positive" ) ),
-				Scale = GetOptionalSingle( bindingElement, "Scale", 1.0f ),
-				Normalize = GetOptionalBoolean( bindingElement, "Normalize", true )
-			};
+			return new Axis1DCompositeBinding(
+				negative: ParseKeyboardControl( GetRequiredString( bindingElement, "Negative" ) ),
+				positive: ParseKeyboardControl( GetRequiredString( bindingElement, "Positive" ) ),
+				scale: JsonLoader.GetOptional<float>( bindingElement, "Scale", 1.0f ),
+				normalize: JsonLoader.GetOptional<bool>( bindingElement, "Normalize", true )
+			);
 		}
 
 		/*
@@ -324,17 +318,17 @@ namespace Nomad.Input.Private.Services {
 		/// <returns></returns>
 		private static Axis2DBinding ParseAxis2DBinding( JsonElement bindingElement ) {
 			InputDeviceSlot deviceId = ParseDeviceSlot( GetRequiredString( bindingElement, "DeviceId" ) );
-			return new Axis2DBinding {
-				DeviceId = deviceId,
-				ControlId = ParseAnalogControl( deviceId, GetRequiredString( bindingElement, "ControlId" ) ),
-				Deadzone = GetOptionalSingle( bindingElement, "Deadzone", 0.0f ),
-				Sensitivity = GetOptionalSingle( bindingElement, "Sensitivity", 1.0f ),
-				ScaleX = GetOptionalSingle( bindingElement, "ScaleX", 1.0f ),
-				ScaleY = GetOptionalSingle( bindingElement, "ScaleY", 1.0f ),
-				InvertX = GetOptionalBoolean( bindingElement, "InvertX", false ),
-				InvertY = GetOptionalBoolean( bindingElement, "InvertY", false ),
-				ResponseCurve = GetOptionalEnum( bindingElement, "ResponseCurve", ResponseCurve.Linear )
-			};
+			return new Axis2DBinding(
+				deviceId: deviceId,
+				controlId: ParseAnalogControl( deviceId, GetRequiredString( bindingElement, "ControlId" ) ),
+				deadzone: JsonLoader.GetOptional<float>( bindingElement, "Deadzone", 0.0f ),
+				sensitivity: JsonLoader.GetOptional<float>( bindingElement, "Sensitivity", 1.0f ),
+				scaleX: JsonLoader.GetOptional<float>( bindingElement, "ScaleX", 1.0f ),
+				scaleY: JsonLoader.GetOptional<float>( bindingElement, "ScaleY", 1.0f ),
+				invertX: JsonLoader.GetOptional<bool>( bindingElement, "InvertX", false ),
+				invertY: JsonLoader.GetOptional<bool>( bindingElement, "InvertY", false ),
+				responseCurve: JsonLoader.GetOptional<ResponseCurve>( bindingElement, "ResponseCurve", ResponseCurve.Linear )
+			);
 		}
 
 		/*
@@ -348,15 +342,15 @@ namespace Nomad.Input.Private.Services {
 		/// <param name="bindingElement"></param>
 		/// <returns></returns>
 		private static Axis2DCompositeBinding ParseAxis2DCompositeBinding( JsonElement bindingElement ) {
-			return new Axis2DCompositeBinding {
-				Up = ParseKeyboardControl( GetRequiredString( bindingElement, "Up" ) ),
-				Down = ParseKeyboardControl( GetRequiredString( bindingElement, "Down" ) ),
-				Left = ParseKeyboardControl( GetRequiredString( bindingElement, "Left" ) ),
-				Right = ParseKeyboardControl( GetRequiredString( bindingElement, "Right" ) ),
-				Normalize = GetOptionalBoolean( bindingElement, "Normalize", true ),
-				ScaleX = GetOptionalSingle( bindingElement, "ScaleX", 1.0f ),
-				ScaleY = GetOptionalSingle( bindingElement, "ScaleY", 1.0f )
-			};
+			return new Axis2DCompositeBinding(
+				up: ParseKeyboardControl( GetRequiredString( bindingElement, "Up" ) ),
+				down: ParseKeyboardControl( GetRequiredString( bindingElement, "Down" ) ),
+				left: ParseKeyboardControl( GetRequiredString( bindingElement, "Left" ) ),
+				right: ParseKeyboardControl( GetRequiredString( bindingElement, "Right" ) ),
+				normalize: JsonLoader.GetOptional<bool>( bindingElement, "Normalize", true ),
+				scaleX: JsonLoader.GetOptional<float>( bindingElement, "ScaleX", 1.0f ),
+				scaleY: JsonLoader.GetOptional<float>( bindingElement, "ScaleY", 1.0f )
+			);
 		}
 
 		/*
@@ -371,15 +365,15 @@ namespace Nomad.Input.Private.Services {
 		/// <returns></returns>
 		private static Delta2DBinding ParseDelta2DBinding( JsonElement bindingElement ) {
 			InputDeviceSlot deviceId = ParseDeviceSlot( GetRequiredString( bindingElement, "DeviceId" ) );
-			return new Delta2DBinding {
-				DeviceId = deviceId,
-				ControlId = ParseAnalogControl( deviceId, GetRequiredString( bindingElement, "ControlId", InputControlId.Delta.ToString() ) ),
-				Sensitivity = GetOptionalSingle( bindingElement, "Sensitivity", 1.0f ),
-				ScaleX = GetOptionalSingle( bindingElement, "ScaleX", 1.0f ),
-				ScaleY = GetOptionalSingle( bindingElement, "ScaleY", 1.0f ),
-				InvertX = GetOptionalBoolean( bindingElement, "InvertX", false ),
-				InvertY = GetOptionalBoolean( bindingElement, "InvertY", false )
-			};
+			return new Delta2DBinding(
+				deviceId: deviceId,
+				controlId: ParseAnalogControl( deviceId, GetRequiredString( bindingElement, "ControlId", InputControlId.Delta.ToString() ) ),
+				sensitivity: JsonLoader.GetOptional<float>( bindingElement, "Sensitivity", 1.0f ),
+				scaleX: JsonLoader.GetOptional<float>( bindingElement, "ScaleX", 1.0f ),
+				scaleY: JsonLoader.GetOptional<float>( bindingElement, "ScaleY", 1.0f ),
+				invertX: JsonLoader.GetOptional<bool>( bindingElement, "InvertX", false ),
+				invertY: JsonLoader.GetOptional<bool>( bindingElement, "InvertY", false )
+			);
 		}
 
 		private static InputDeviceSlot ParseDeviceSlot( string deviceId ) {
@@ -472,10 +466,10 @@ namespace Nomad.Input.Private.Services {
 
 		private static string GetRequiredString( JsonElement element, string propertyName, string? fallback = null ) {
 			if ( element.ValueKind == JsonValueKind.String ) {
-				return element.GetString() ?? throw new Exception( $"Encountered null string while reading '{propertyName}'." );
+				return JsonLoader.Read<string>( element, propertyName );
 			}
-			if ( TryGetProperty( element, propertyName, out var property ) && property.ValueKind == JsonValueKind.String ) {
-				return property.GetString() ?? throw new Exception( $"Encountered null string while reading '{propertyName}'." );
+			if ( JsonLoader.TryGet<string>( element, propertyName, out string? value ) ) {
+				return value;
 			}
 			if ( fallback != null ) {
 				return fallback;
@@ -484,78 +478,23 @@ namespace Nomad.Input.Private.Services {
 		}
 
 		private static string? GetOptionalString( JsonElement element, string propertyName ) {
-			if ( TryGetProperty( element, propertyName, out var property ) && property.ValueKind == JsonValueKind.String ) {
-				return property.GetString();
-			}
-			return null;
-		}
-
-		private static float GetOptionalSingle( JsonElement element, string propertyName, float defaultValue ) {
-			if ( !TryGetProperty( element, propertyName, out var property ) ) {
-				return defaultValue;
-			}
-			if ( property.ValueKind == JsonValueKind.Number && property.TryGetSingle( out float value ) ) {
-				return value;
-			}
-			throw new Exception( $"Binding property '{propertyName}' must be a number." );
-		}
-
-		private static bool GetOptionalBoolean( JsonElement element, string propertyName, bool defaultValue ) {
-			if ( !TryGetProperty( element, propertyName, out var property ) ) {
-				return defaultValue;
-			}
-			if ( property.ValueKind is JsonValueKind.True or JsonValueKind.False ) {
-				return property.GetBoolean();
-			}
-			throw new Exception( $"Binding property '{propertyName}' must be a boolean." );
-		}
-
-		private static TEnum GetOptionalEnum<TEnum>( JsonElement element, string propertyName, TEnum defaultValue )
-			where TEnum : struct, Enum
-		{
-			if ( !TryGetProperty( element, propertyName, out var property ) ) {
-				return defaultValue;
-			}
-			if ( property.ValueKind != JsonValueKind.String ) {
-				throw new Exception( $"Binding property '{propertyName}' must be a string." );
-			}
-			return ParseEnum<TEnum>( property.GetString()!, propertyName );
-		}
-
-		private static TEnum ParseEnum<TEnum>( string value, string propertyName )
-			where TEnum : struct, Enum
-		{
-			if ( Enum.TryParse<TEnum>( value, true, out var result ) ) {
-				return result;
-			}
-			throw new Exception( $"Invalid {propertyName} '{value}' in bindings file." );
-		}
-
-		private static bool TryGetProperty( JsonElement element, string propertyName, out JsonElement propertyValue ) {
-			if ( element.ValueKind == JsonValueKind.Object ) {
-				foreach ( var property in element.EnumerateObject() ) {
-					if ( property.Name.Equals( propertyName, StringComparison.OrdinalIgnoreCase ) ) {
-						propertyValue = property.Value;
-						return true;
-					}
-				}
-			}
-			propertyValue = default;
-			return false;
+			return JsonLoader.TryGet<string>( element, propertyName, out string? value ) ? value : null;
 		}
 
 		private sealed class ActionBuilder {
 			public string Name { get; }
+			public string Id { get; }
 			public InputValueType ValueType { get; }
 			public List<InputBindingDefinition> Bindings { get; } = new();
 
-			public ActionBuilder( string name, InputValueType valueType ) {
+			public ActionBuilder( string name, string id, InputValueType valueType ) {
 				Name = name;
+				Id = id;
 				ValueType = valueType;
 			}
 
 			public InputActionDefinition Build() {
-				return new InputActionDefinition( Name, ValueType, Bindings.ToImmutableArray() );
+				return new InputActionDefinition( Name, Id, ValueType, Bindings.ToImmutableArray() );
 			}
 		}
 	};

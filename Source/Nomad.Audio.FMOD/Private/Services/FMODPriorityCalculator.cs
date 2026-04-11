@@ -16,6 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using Nomad.Audio.Fmod.ValueObjects;
 using Nomad.Audio.Interfaces;
 using Nomad.Core;
@@ -36,8 +37,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 	internal sealed class FMODPriorityCalculator : IDisposable {
 		private float _distanceFalloffStart;
 		private float _distanceFalloffEnd;
-		private float _distanceFalloff;
-
+		private float _invDistanceFalloffRange;
 		private float _frequencyPenalty = 0.4f;
 
 		private const float TIME_PENALTY_MULTIPLIER = 0.5f;
@@ -76,7 +76,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			_frequencyPenalty = frequencyPenalty.Value;
 			frequencyPenalty.ValueChanged.Subscribe( OnFrequencyPenaltyValueChanged );
 
-			_distanceFalloff = _distanceFalloffEnd / _distanceFalloffStart;
+			RecomputeDistanceRange();
 		}
 
 		/*
@@ -106,29 +106,35 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		/// 
 		/// </summary>
 		/// <param name="startTime"></param>
-		/// <param name="id"></param>
 		/// <param name="position"></param>
 		/// <param name="basePriority"></param>
 		/// <param name="category"></param>
-		/// <param name="lastPlayTimes"></param>
-		/// <param name="consecutiveStealCounts"></param>
+		/// <param name="lastTimePlayed"></param>
+		/// <param name="consecutiveStealCount"></param>
 		/// <returns></returns>
 		public float CalculateActualPriority(
 			float startTime,
-			string id,
 			Vector2 position,
 			float basePriority,
 			SoundCategory category,
-			Dictionary<string, float> lastPlayTimes,
-			Dictionary<string, int> consecutiveStealCounts )
-		{
-			float priority =
-				basePriority *
-				category.Config.PriorityScale *
-				CalculateDistanceFactor( Vector2.Distance( position, _listenerService.ActiveListener ) );
+			float? lastTimePlayed,
+			int consecutiveStealCount
+		 ) {
+			Vector2 listener = _listenerService.ActiveListener;
+			float dx = position.X - listener.X;
+			float dy = position.Y - listener.Y;
+			float distance = MathF.Sqrt( dx * dx + dy * dy );
 
-			priority *= 1.0f - CalculateTimePenalty( startTime, id, lastPlayTimes ) * TIME_PENALTY_MULTIPLIER;
-			priority *= 1.0f - CalculateFrequencyPenalty( id, consecutiveStealCounts ) * _frequencyPenalty;
+			float priority = basePriority * category.Config.PriorityScale * CalculateDistanceFactor( distance );
+
+			if ( lastTimePlayed.HasValue ) {
+				float timeSinceLast = startTime - lastTimePlayed.Value;
+				float timePenalty = timeSinceLast >= 0.5f ? 0f : 1f - (timeSinceLast * 2f);
+				priority *= 1f - (timePenalty * 0.5f);
+			}
+
+			float freqPenalty = consecutiveStealCount >= 5 ? 0.5f : consecutiveStealCount * 0.1f;
+			priority *= 1f - (freqPenalty * _frequencyPenalty);
 
 			return Math.Clamp( priority, 0.01f, 1.0f );
 		}
@@ -150,8 +156,8 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			if ( distance >= _distanceFalloffEnd ) {
 				return 0.1f;
 			}
-			float t = (distance - _distanceFalloffStart) / _distanceFalloff;
-			return 1.0f - t * 0.5f;
+			float t = (distance - _distanceFalloffStart) * _invDistanceFalloffRange;
+			return 1.0f - (t * 0.9f); // 1.0 -> 0.1 linearly
 		}
 
 		/*
@@ -163,15 +169,14 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		/// 
 		/// </summary>
 		/// <param name="startTime"></param>
-		/// <param name="id"></param>
-		/// <param name="lastPlayTimes"></param>
+		/// <param name="lastTimePlayed"></param>
 		/// <returns></returns>
-		private static float CalculateTimePenalty( float startTime, string id, Dictionary<string, float> lastPlayTimes ) {
-			if ( !lastPlayTimes.TryGetValue( id, out float lastTime ) ) {
+		private static float CalculateTimePenalty( float startTime, float? lastTimePlayed ) {
+			if ( !lastTimePlayed.HasValue ) {
 				return 0.0f;
 			}
 
-			float timeSinceLast = startTime - lastTime;
+			float timeSinceLast = startTime - lastTimePlayed.Value;
 			const float protectionTime = 0.5f;
 
 			return timeSinceLast > protectionTime ?
@@ -188,14 +193,10 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="id"></param>
-		/// <param name="consecutiveStealCounts"></param>
+		/// <param name="consecutiveStealCount"></param>
 		/// <returns></returns>
-		private static float CalculateFrequencyPenalty( string id, Dictionary<string, int> consecutiveStealCounts ) {
-			return !consecutiveStealCounts.TryGetValue( id, out int stealCount ) ?
-					0.0f
-				:
-					Math.Clamp( stealCount * 0.1f, 0.0f, 0.5f );
+		private static float CalculateFrequencyPenalty( int consecutiveStealCount ) {
+			return Math.Clamp( consecutiveStealCount * 0.1f, 0.0f, 0.5f );
 		}
 
 		/*
@@ -209,7 +210,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		/// <param name="args"></param>
 		private void OnDistanceFalloffEndValueChanged( in CVarValueChangedEventArgs<float> args ) {
 			_distanceFalloffEnd = args.NewValue;
-			_distanceFalloff = _distanceFalloffEnd / _distanceFalloffStart;
+			RecomputeDistanceRange();
 		}
 
 		/*
@@ -223,7 +224,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		/// <param name="args"></param>
 		private void OnDistanceFalloffStartValueChanged( in CVarValueChangedEventArgs<float> args ) {
 			_distanceFalloffStart = args.NewValue;
-			_distanceFalloff = _distanceFalloffEnd / _distanceFalloffStart;
+			RecomputeDistanceRange();
 		}
 
 		/*
@@ -237,6 +238,15 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		/// <param name="args"></param>
 		private void OnFrequencyPenaltyValueChanged( in CVarValueChangedEventArgs<float> args ) {
 			_frequencyPenalty = args.NewValue;
+		}
+
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		private void RecomputeDistanceRange() {
+			float range = _distanceFalloffEnd - _distanceFalloffStart;
+			if ( range < 0.0001f ) {
+				range = 0.0001f;
+			}
+			_invDistanceFalloffRange = 1f / range;
 		}
 	};
 };

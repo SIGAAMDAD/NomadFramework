@@ -124,7 +124,7 @@ namespace Nomad.Input.Tests
 		}
 
 		[Test]
-		public void GetAllBindings_MergesActionsAcrossDefaultsAndMappingsByName()
+		public void GetAllBindings_MergesActionsAcrossDefaultsAndMappingsById()
 		{
 			const string defaultsPath = "Assets/Config/Bindings/DefaultBinds.json";
 			var fileSystem = new InputFileSystemFixture(
@@ -133,6 +133,7 @@ namespace Nomad.Input.Tests
 				  "Bindings": [
 				    {
 				      "Name": "Shoot",
+				      "Id": "player.shoot",
 				      "ValueType": "Button",
 				      "Scheme": "KeyboardAndMouse",
 				      "Bindings": { "DeviceId": "MouseButton", "ControlId": "Left" }
@@ -144,7 +145,8 @@ namespace Nomad.Input.Tests
 				{
 				  "Bindings": [
 				    {
-				      "Name": "Shoot",
+				      "Name": "Fire",
+				      "Id": "player.shoot",
 				      "ValueType": "Button",
 				      "Scheme": "Gamepad",
 				      "Bindings": { "DeviceId": "Gamepad", "ControlId": "A" }
@@ -163,6 +165,7 @@ namespace Nomad.Input.Tests
 			{
 				Assert.That(allBindings, Has.Length.EqualTo(1));
 				Assert.That(allBindings[0].Name, Is.EqualTo("Shoot"));
+				Assert.That(allBindings[0].Id, Is.EqualTo("player.shoot"));
 				Assert.That(allBindings[0].Bindings, Has.Length.EqualTo(2));
 			}
 		}
@@ -504,6 +507,7 @@ namespace Nomad.Input.Tests
 				  "Bindings": [
 				    {
 				      "Name": "Jump",
+				      "Id": "player.jump",
 				      "ValueType": "Button",
 				      "Scheme": "KeyboardAndMouse",
 				      "Bindings": { "DeviceId": "Keyboard", "ControlId": "Space" }
@@ -518,7 +522,7 @@ namespace Nomad.Input.Tests
 
 			bool updated = repository.SetActionBindings(
 				"Gameplay",
-				"Jump",
+				"player.jump",
 				new[]
 				{
 					InputTestHelpers.Button(InputScheme.KeyboardAndMouse, InputDeviceSlot.Keyboard, InputControlId.Enter)
@@ -541,6 +545,7 @@ namespace Nomad.Input.Tests
 				  "Bindings": [
 				    {
 				      "Name": "Jump",
+				      "Id": "player.jump",
 				      "ValueType": "Button",
 				      "Scheme": "KeyboardAndMouse",
 				      "Bindings": { "DeviceId": "Keyboard", "ControlId": "Space" }
@@ -556,7 +561,7 @@ namespace Nomad.Input.Tests
 
 			bool updated = repository.SetActionBindings(
 				"Gameplay",
-				"Jump",
+				"player.jump",
 				new[]
 				{
 					InputTestHelpers.Button(InputScheme.KeyboardAndMouse, InputDeviceSlot.Keyboard, InputControlId.Enter)

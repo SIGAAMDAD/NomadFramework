@@ -27,7 +27,7 @@ namespace Nomad.Audio.Fmod.Private.ValueObjects {
 	///
 	/// </summary>
 
-	internal record FMODDeviceInfo(
+	internal sealed record FMODDeviceInfo(
 		string Name,
 		Guid Guid,
 		int SystemRate,

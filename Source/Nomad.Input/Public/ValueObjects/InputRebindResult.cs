@@ -23,7 +23,7 @@ namespace Nomad.Input.ValueObjects
 		public InputRebindRequest Request { get; }
 		public InputBindingDefinition Binding { get; }
 
-		public InputRebindResult(InputRebindRequest request, InputBindingDefinition binding)
+		public InputRebindResult(in InputRebindRequest request, in InputBindingDefinition binding)
 		{
 			Request = request;
 			Binding = binding;

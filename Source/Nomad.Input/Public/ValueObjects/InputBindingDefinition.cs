@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using Nomad.Core.Input;
+using System.Text;
 
 namespace Nomad.Input.ValueObjects
 {
@@ -22,15 +23,17 @@ namespace Nomad.Input.ValueObjects
 	/// </summary>
 	public sealed class InputBindingDefinition
 	{
+		private const string UNBOUND = "Unbound";
+
 		public InputScheme Scheme { get; set; }
 		public InputBindingKind Kind { get; set; }
 
-		public ButtonBinding Button { get; set; } = default;
-		public Axis1DBinding Axis1D { get; set; } = default;
-		public Axis1DCompositeBinding Axis1DComposite { get; set; } = default;
-		public Axis2DBinding Axis2D { get; set; } = default;
-		public Axis2DCompositeBinding Axis2DComposite { get; set; } = default;
-		public Delta2DBinding Delta2D { get; set; } = default;
+		public ButtonBinding Button = default;
+		public Axis1DBinding Axis1D = default;
+		public Axis1DCompositeBinding Axis1DComposite = default;
+		public Axis2DBinding Axis2D = default;
+		public Axis2DCompositeBinding Axis2DComposite = default;
+		public Delta2DBinding Delta2D = default;
 
 		/// <summary>
 		/// 
@@ -46,15 +49,15 @@ namespace Nomad.Input.ValueObjects
 				InputBindingKind.Axis2D => FormatAxis2D(Axis2D),
 				InputBindingKind.Axis2DComposite => FormatAxis2DComposite(Axis2DComposite),
 				InputBindingKind.Delta2D => FormatDelta2D(Delta2D),
-				_ => "Unbound"
+				_ => UNBOUND
 			};
 		}
 
-		private static string FormatButton(ButtonBinding binding)
+		private static string FormatButton(in ButtonBinding binding)
 		{
-			if (binding is null || binding.ControlId == InputControlId.None)
+			if (binding.ControlId == InputControlId.None)
 			{
-				return "Unbound";
+				return UNBOUND;
 			}
 
 			string control = FormatControl(binding.ControlId);
@@ -73,55 +76,48 @@ namespace Nomad.Input.ValueObjects
 			return PrefixWithDevice(binding.DeviceId, string.Join(" + ", parts));
 		}
 
-		private static string FormatAxis1D(Axis1DBinding binding)
+		private static string FormatAxis1D(in Axis1DBinding binding)
 		{
-			if (binding is null || binding.ControlId == InputControlId.None)
+			if (binding.ControlId == InputControlId.None)
 			{
-				return "Unbound";
+				return UNBOUND;
 			}
-
 			return PrefixWithDevice(binding.DeviceId, FormatControl(binding.ControlId));
 		}
 
-		private static string FormatAxis1DComposite(Axis1DCompositeBinding binding)
+		private static string FormatAxis1DComposite(in Axis1DCompositeBinding binding)
 		{
-			if (binding is null || (binding.Negative == InputControlId.None && binding.Positive == InputControlId.None))
+			if (binding.Negative == InputControlId.None && binding.Positive == InputControlId.None)
 			{
-				return "Unbound";
+				return UNBOUND;
 			}
-
 			return $"Negative: {FormatControl(binding.Negative)}, Positive: {FormatControl(binding.Positive)}";
 		}
 
-		private static string FormatAxis2D(Axis2DBinding binding)
+		private static string FormatAxis2D(in Axis2DBinding binding)
 		{
-			if (binding is null || binding.ControlId == InputControlId.None)
+			if (binding.ControlId == InputControlId.None)
 			{
-				return "Unbound";
+				return UNBOUND;
 			}
-
 			return PrefixWithDevice(binding.DeviceId, FormatControl(binding.ControlId));
 		}
 
-		private static string FormatAxis2DComposite(Axis2DCompositeBinding binding)
+		private static string FormatAxis2DComposite(in Axis2DCompositeBinding binding)
 		{
-			if (binding is null
-				|| (binding.Up == InputControlId.None
-					&& binding.Down == InputControlId.None
-					&& binding.Left == InputControlId.None
-					&& binding.Right == InputControlId.None))
+			if (binding.Up == InputControlId.None && binding.Down == InputControlId.None && binding.Left == InputControlId.None && binding.Right == InputControlId.None)
 			{
-				return "Unbound";
+				return UNBOUND;
 			}
 
 			return $"Up: {FormatControl(binding.Up)}, Down: {FormatControl(binding.Down)}, Left: {FormatControl(binding.Left)}, Right: {FormatControl(binding.Right)}";
 		}
 
-		private static string FormatDelta2D(Delta2DBinding binding)
+		private static string FormatDelta2D(in Delta2DBinding binding)
 		{
-			if (binding is null || binding.ControlId == InputControlId.None)
+			if (binding.ControlId == InputControlId.None)
 			{
-				return "Unbound";
+				return UNBOUND;
 			}
 			return PrefixWithDevice(binding.DeviceId, FormatControl(binding.ControlId));
 		}
@@ -149,7 +145,7 @@ namespace Nomad.Input.ValueObjects
 		{
 			return control switch
 			{
-				InputControlId.None => "Unbound",
+				InputControlId.None => UNBOUND,
 				InputControlId.Num0 => "0",
 				InputControlId.Num1 => "1",
 				InputControlId.Num2 => "2",
@@ -200,7 +196,7 @@ namespace Nomad.Input.ValueObjects
 				return string.Empty;
 			}
 
-			System.Text.StringBuilder builder = new(value.Length + 8);
+			var builder = new StringBuilder(value.Length + 8);
 			builder.Append(value[0]);
 
 			for (int i = 1; i < value.Length; i++)
@@ -213,10 +209,8 @@ namespace Nomad.Input.ValueObjects
 				{
 					builder.Append(' ');
 				}
-
 				builder.Append(current);
 			}
-
 			return builder.ToString();
 		}
 	}

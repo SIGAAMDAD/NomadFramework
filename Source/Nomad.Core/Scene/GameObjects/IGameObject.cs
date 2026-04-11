@@ -63,28 +63,27 @@ namespace Nomad.Core.Scene.GameObjects
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        T? GetComponent<T>() where T : IComponent;
+        T? GetComponent<T>() where T : class, IComponent;
 
         /// <summary>
         ///
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        bool HasComponent<T>() where T : IComponent;
+        bool HasComponent<T>() where T : class, IComponent;
 
         /// <summary>
         ///
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        void RemoveComponent<T>() where T : IComponent;
+        void RemoveComponent<T>() where T : class, IComponent;
 
         /// <summary>
         ///
         /// </summary>
         /// <param name="childName"></param>
         /// <returns></returns>
-        T? FindChild<T>(string childName)
-            where T : class, IGameObject;
+        T? FindChild<T>(string childName) where T : class, IGameObject;
 
         /// <summary>
         ///

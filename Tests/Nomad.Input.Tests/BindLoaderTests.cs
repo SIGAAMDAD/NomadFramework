@@ -35,6 +35,7 @@ namespace Nomad.Input.Tests {
 			  "Bindings": [
 			    {
 			      "Name": "Jump",
+			      "Id": "player.jump",
 			      "ValueType": "Button",
 			      "Scheme": "KeyboardAndMouse",
 			      "Bindings": {
@@ -45,6 +46,7 @@ namespace Nomad.Input.Tests {
 			    },
 			    {
 			      "Name": "Look",
+			      "Id": "camera.look",
 			      "ValueType": "Vector2",
 			      "Scheme": "KeyboardAndMouse",
 			      "Bindings": {
@@ -66,9 +68,11 @@ namespace Nomad.Input.Tests {
 				Assert.That( loaded, Is.True );
 				Assert.That( binds, Has.Length.EqualTo( 2 ) );
 				Assert.That( binds[ 0 ].Name, Is.EqualTo( "Jump" ) );
+				Assert.That( binds[ 0 ].Id, Is.EqualTo( "player.jump" ) );
 				Assert.That( binds[ 0 ].Bindings[ 0 ].Kind, Is.EqualTo( InputBindingKind.Button ) );
 				Assert.That( binds[ 0 ].Bindings[ 0 ].Button.Modifiers, Is.EqualTo( new[] { InputControlId.Shift } ) );
 				Assert.That( binds[ 1 ].Name, Is.EqualTo( "Look" ) );
+				Assert.That( binds[ 1 ].Id, Is.EqualTo( "camera.look" ) );
 				Assert.That( binds[ 1 ].Bindings[ 0 ].Kind, Is.EqualTo( InputBindingKind.Delta2D ) );
 				Assert.That( binds[ 1 ].Bindings[ 0 ].Delta2D.Sensitivity, Is.EqualTo( 2.0f ) );
 				Assert.That( binds[ 1 ].Bindings[ 0 ].Delta2D.InvertY, Is.True );
@@ -102,6 +106,7 @@ namespace Nomad.Input.Tests {
 			using ( Assert.EnterMultipleScope() ) {
 				Assert.That( binds, Has.Length.EqualTo( 1 ) );
 				Assert.That( binds[ 0 ].Name, Is.EqualTo( "Move" ) );
+				Assert.That( binds[ 0 ].Id, Is.EqualTo( "Move" ) );
 				Assert.That( binds[ 0 ].Bindings[ 0 ].Kind, Is.EqualTo( InputBindingKind.Axis2DComposite ) );
 			}
 		}

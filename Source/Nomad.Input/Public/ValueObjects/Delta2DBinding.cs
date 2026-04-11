@@ -15,15 +15,33 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Input.ValueObjects
 {
-	public sealed class Delta2DBinding
+	public struct Delta2DBinding
 	{
+		public float Sensitivity { get; set; }
+		public float ScaleX { get; set; }
+		public float ScaleY { get; set; }
+		public bool InvertX { get; set; }
+		public bool InvertY { get; set; }
+
 		public InputDeviceSlot DeviceId { get; set; }
 		public InputControlId ControlId { get; set; }
 
-		public float Sensitivity { get; set; } = 1.0f;
-		public float ScaleX { get; set; } = 1.0f;
-		public float ScaleY { get; set; } = 1.0f;
-		public bool InvertX { get; set; } = false;
-		public bool InvertY { get; set; } = false;
+		public Delta2DBinding(
+			InputDeviceSlot deviceId,
+			InputControlId controlId,
+			float sensitivity = 1.0f,
+			float scaleX = 1.0f,
+			float scaleY = 1.0f,
+			bool invertX = false,
+			bool invertY = false
+		) {
+			DeviceId = deviceId;
+			ControlId = controlId;
+			Sensitivity = sensitivity;
+			ScaleX = scaleX;
+			ScaleY = scaleY;
+			InvertX = invertX;
+			InvertY = invertY;
+		}
 	}
 }

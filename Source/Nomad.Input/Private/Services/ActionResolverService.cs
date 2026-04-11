@@ -75,6 +75,17 @@ namespace Nomad.Input.Private.Services {
 			return actions.ToArray();
 		}
 
+		/*
+		===============
+		ResolveMatchesNonAlloc
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="matches"></param>
+		/// <param name="timeStamp"></param>
+		/// <returns></returns>
 		public ReadOnlySpan<ResolvedAction> ResolveMatchesNonAlloc( ReadOnlySpan<BindingMatch> matches, long timeStamp ) {
 			_bestByAction.Clear();
 			for ( int i = 0; i < matches.Length; i++ ) {
@@ -84,10 +95,17 @@ namespace Nomad.Input.Private.Services {
 				}
 				float magnitude = GetMagnitude( action );
 
+#if NET6_0_OR_GREATER
 				ref BestResolvedAction current = ref CollectionsMarshal.GetValueRefOrAddDefault( _bestByAction, action.ActionId, out bool exists );
 				if ( !exists || ShouldReplace( current.Match, match, current.Magnitude, magnitude ) ) {
 					current = new BestResolvedAction( match, action, magnitude );
 				}
+#else
+				bool exists = _bestByAction.TryGetValue( action.ActionId, out BestResolvedAction current );
+				if ( !exists || ShouldReplace( current.Match, match, current.Magnitude, magnitude ) ) {
+					_bestByAction[action.ActionId] = new BestResolvedAction( match, action, magnitude );
+				}
+#endif
 			}
 
 			EnsureResolvedActionCapacity( _bestByAction.Count );
@@ -116,6 +134,18 @@ namespace Nomad.Input.Private.Services {
 			return actions.ToArray();
 		}
 
+		/*
+		===============
+		ResolveCompositesNonAlloc
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="activeContextMask"></param>
+		/// <param name="activeScheme"></param>
+		/// <param name="timeStamp"></param>
+		/// <returns></returns>
 		public ReadOnlySpan<ResolvedAction> ResolveCompositesNonAlloc( uint activeContextMask, InputScheme? activeScheme, long timeStamp ) {
 			var composite1D = _compiledBindings.GetComposite1DBindings();
 			var composite2D = _compiledBindings.GetComposite2DBindings();
@@ -182,7 +212,7 @@ namespace Nomad.Input.Private.Services {
 		/// <param name="timeStamp"></param>
 		/// <param name="action"></param>
 		/// <returns></returns>
-		private bool TryResolve( CompiledBinding binding, long timeStamp, out ResolvedAction action ) {
+		private bool TryResolve( in CompiledBinding binding, long timeStamp, out ResolvedAction action ) {
 			switch ( binding.Kind ) {
 				case InputBindingKind.Button: {
 						bool pressed = _stateService.IsPressed( binding.Button.DeviceId, binding.Button.ControlId );
@@ -252,7 +282,7 @@ namespace Nomad.Input.Private.Services {
 		/// </summary>
 		/// <param name="binding"></param>
 		/// <returns></returns>
-		private float ResolveComposite1D( Axis1DCompositeBinding binding ) {
+		private float ResolveComposite1D( in Axis1DCompositeBinding binding ) {
 			float negative = _stateService.IsPressed( InputDeviceSlot.Keyboard, binding.Negative ) ? 1.0f : 0.0f;
 			float positive = _stateService.IsPressed( InputDeviceSlot.Keyboard, binding.Positive ) ? 1.0f : 0.0f;
 			float value = (positive - negative) * binding.Scale;
@@ -274,13 +304,13 @@ namespace Nomad.Input.Private.Services {
 		/// </summary>
 		/// <param name="binding"></param>
 		/// <returns></returns>
-		private Vector2 ResolveComposite2D( Axis2DCompositeBinding binding ) {
+		private Vector2 ResolveComposite2D( in Axis2DCompositeBinding binding ) {
 			float up = _stateService.IsPressed( InputDeviceSlot.Keyboard, binding.Up ) ? 1.0f : 0.0f;
 			float down = _stateService.IsPressed( InputDeviceSlot.Keyboard, binding.Down ) ? 1.0f : 0.0f;
 			float left = _stateService.IsPressed( InputDeviceSlot.Keyboard, binding.Left ) ? 1.0f : 0.0f;
 			float right = _stateService.IsPressed( InputDeviceSlot.Keyboard, binding.Right ) ? 1.0f : 0.0f;
 
-			Vector2 value = new(
+			Vector2 value = new Vector2(
 				(right - left) * binding.ScaleX,
 				(up - down) * binding.ScaleY
 			);
@@ -303,7 +333,7 @@ namespace Nomad.Input.Private.Services {
 		/// <param name="value"></param>
 		/// <param name="binding"></param>
 		/// <returns></returns>
-		private static float ApplyAxis1DProcessors( float value, Axis1DBinding binding ) {
+		private static float ApplyAxis1DProcessors( float value, in Axis1DBinding binding ) {
 			if ( MathF.Abs( value ) < binding.Deadzone ) {
 				value = 0.0f;
 			}
@@ -328,7 +358,7 @@ namespace Nomad.Input.Private.Services {
 		/// <param name="value"></param>
 		/// <param name="binding"></param>
 		/// <returns></returns>
-		private static Vector2 ApplyAxis2DProcessors( Vector2 value, Axis2DBinding binding ) {
+		private static Vector2 ApplyAxis2DProcessors( Vector2 value, in Axis2DBinding binding ) {
 			float deadzone = binding.Deadzone;
 			if ( value.LengthSquared() < deadzone * deadzone ) {
 				return Vector2.Zero;
@@ -357,7 +387,7 @@ namespace Nomad.Input.Private.Services {
 		/// <param name="value"></param>
 		/// <param name="binding"></param>
 		/// <returns></returns>
-		private static Vector2 ApplyDelta2DProcessors( Vector2 value, Delta2DBinding binding ) {
+		private static Vector2 ApplyDelta2DProcessors( Vector2 value, in Delta2DBinding binding ) {
 			if ( binding.InvertX ) {
 				value.X = -value.X;
 			}
@@ -399,14 +429,19 @@ namespace Nomad.Input.Private.Services {
 		/// <param name="isActive"></param>
 		/// <returns></returns>
 		private InputActionPhase ResolvePhase( InternString actionId, bool isActive ) {
+#if NET6_0_OR_GREATER
 			ref bool active = ref CollectionsMarshal.GetValueRefOrAddDefault( _actionActiveStates, actionId, out bool exists );
 			bool wasActive = exists && active;
 			active = isActive;
+#else
+			bool exists = _actionActiveStates.TryGetValue( actionId, out bool active );
+			bool wasActive = exists && active;
+			_actionActiveStates[actionId] = isActive;
+#endif
 
 			if ( !isActive ) {
 				return InputActionPhase.Canceled;
 			}
-
 			return wasActive ? InputActionPhase.Performed : InputActionPhase.Started;
 		}
 
@@ -421,7 +456,7 @@ namespace Nomad.Input.Private.Services {
 		/// <param name="action"></param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		private static float GetMagnitude( ResolvedAction action ) {
+		private static float GetMagnitude( in ResolvedAction action ) {
 			return action.ValueType switch {
 				InputValueType.Button => action.ButtonValue ? 1.0f : 0.0f,
 				InputValueType.Float => MathF.Abs( action.FloatValue ),
@@ -444,22 +479,40 @@ namespace Nomad.Input.Private.Services {
 		/// <param name="challengerMagnitude"></param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		private static bool ShouldReplace( BindingMatch current, BindingMatch challenger, float currentMagnitude, float challengerMagnitude ) {
+		private static bool ShouldReplace( in BindingMatch current, in BindingMatch challenger, float currentMagnitude, float challengerMagnitude ) {
 			if ( challenger.Score != current.Score ) {
 				return challenger.Score > current.Score;
 			}
 			return challengerMagnitude > currentMagnitude;
 		}
 
+		/*
+		===============
+		EnsureResolvedActionCapacity
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="requiredCapacity"></param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		private void EnsureResolvedActionCapacity( int requiredCapacity ) {
 			if ( _resolvedActionBuffer.Length >= requiredCapacity ) {
 				return;
 			}
-
 			_resolvedActionBuffer = new ResolvedAction[Math.Max( requiredCapacity, _resolvedActionBuffer.Length == 0 ? 8 : _resolvedActionBuffer.Length * 2 )];
 		}
 
-		private readonly record struct BestResolvedAction( BindingMatch Match, ResolvedAction Action, float Magnitude );
-	}
-}
+		private readonly struct BestResolvedAction {
+			public readonly BindingMatch Match;
+			public readonly ResolvedAction Action;
+			public readonly float Magnitude;
+
+			public BestResolvedAction(BindingMatch match, ResolvedAction action, float magnitude) {
+				Match = match;
+				Action = action;
+				Magnitude = magnitude;
+			}
+		};
+	};
+};

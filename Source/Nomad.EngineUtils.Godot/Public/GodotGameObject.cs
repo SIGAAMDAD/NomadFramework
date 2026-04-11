@@ -14,11 +14,11 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Godot;
 using Nomad.Core.ECS;
 using Nomad.Core.Scene.GameObjects;
+using Nomad.EngineUtils.Private.Godot;
 
 namespace Nomad.EngineUtils
 {
@@ -67,7 +67,7 @@ namespace Nomad.EngineUtils
         public IReadOnlyList<IGameObject> Children => _children;
         private readonly List<IGameObject> _children = new();
 
-        private readonly ConcurrentDictionary<Type, IComponent> _components = new();
+        private readonly ComponentCollection _components;
 
         private bool _isDisposed = false;
 
@@ -78,6 +78,7 @@ namespace Nomad.EngineUtils
         public GodotGameObject(Node node)
         {
             _node = node;
+            _components = new ComponentCollection(this);
         }
 
         /// <summary>
@@ -116,14 +117,7 @@ namespace Nomad.EngineUtils
         public T AddComponent<T>(Action<T>? initializer = null)
             where T : IComponent, new()
         {
-            var comp = new T()
-            {
-                Object = this
-            };
-            initializer?.Invoke(comp);
-            comp.OnInit();
-            _components[typeof(T)] = comp;
-            return comp;
+            return _components.Add(initializer);
         }
 
         /// <summary>
@@ -132,9 +126,9 @@ namespace Nomad.EngineUtils
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         public T? GetComponent<T>()
-            where T : IComponent
+            where T : class, IComponent
         {
-            return _components.TryGetValue(typeof(T), out var component) ? (T)component : default;
+            return _components.Get<T>();
         }
 
         /// <summary>
@@ -143,9 +137,9 @@ namespace Nomad.EngineUtils
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         public bool HasComponent<T>()
-            where T : IComponent
+            where T : class, IComponent
         {
-            return _components.ContainsKey(typeof(T));
+            return _components.Has<T>();
         }
 
         /// <summary>
@@ -153,9 +147,9 @@ namespace Nomad.EngineUtils
         /// </summary>
         /// <typeparam name="T"></typeparam>
         public void RemoveComponent<T>()
-            where T : IComponent
+            where T : class, IComponent
         {
-            _components.TryRemove(typeof(T), out _);
+            _components.Remove(typeof(T));
         }
 
         /// <summary>
@@ -245,15 +239,7 @@ namespace Nomad.EngineUtils
         /// </summary>
         public void OnInit()
         {
-            if (_node.GetScript().AsGodotObject() is GodotObject script && script is IComponent scriptComponent)
-            {
-                _components.TryAdd(script.GetType(), scriptComponent);
-                _node.SetScript(Variant.CreateFrom<GodotObject>(null));
-            }
-            foreach (var component in _components)
-            {
-                component.Value.OnInit();
-            }
+            _components.InitializePending();
         }
 
         /// <summary>
@@ -261,10 +247,7 @@ namespace Nomad.EngineUtils
         /// </summary>
         public void OnShutdown()
         {
-            foreach (var component in _components)
-            {
-                component.Value.OnShutdown();
-            }
+            _components.ShutdownAll();
         }
 
         /// <summary>
@@ -273,11 +256,7 @@ namespace Nomad.EngineUtils
         /// <param name="delta"></param>
         public void OnUpdate(float delta)
         {
-            float deltaTime = (float)delta;
-            foreach (var component in _components)
-            {
-                component.Value.OnUpdate(deltaTime);
-            }
+            _components.UpdateAll(delta);
         }
 
         /// <summary>
@@ -286,11 +265,7 @@ namespace Nomad.EngineUtils
         /// <param name="delta"></param>
         public void OnPhysicsUpdate(float delta)
         {
-            float deltaTime = (float)delta;
-            foreach (var component in _components)
-            {
-                component.Value.OnPhysicsUpdate(deltaTime);
-            }
+            _components.PhysicsUpdateAll(delta);
         }
     }
 }

@@ -17,10 +17,17 @@ using System.Collections.Immutable;
 
 namespace Nomad.Input.ValueObjects
 {
-	public sealed class ButtonBinding
+	public struct ButtonBinding
 	{
+		public ImmutableArray<InputControlId> Modifiers { get; set; }
 		public InputDeviceSlot DeviceId { get; set; }
 		public InputControlId ControlId { get; set; }
-		public ImmutableArray<InputControlId> Modifiers { get; set; } = default;
+
+		public ButtonBinding(InputDeviceSlot deviceId, InputControlId controlId, ImmutableArray<InputControlId> modifiers)
+		{
+			DeviceId = deviceId;
+			ControlId = controlId;
+			Modifiers = modifiers;
+		}
 	}
 }

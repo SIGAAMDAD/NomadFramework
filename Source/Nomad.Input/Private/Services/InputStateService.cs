@@ -59,7 +59,11 @@ namespace Nomad.Input.Private.Services {
 			totalBytes += PadBytes( sizeof( float ) * DEVICE_SLOT_COUNT * CONTROL_COUNT, Core.Constants.WORDSIZE );
 			totalBytes += PadBytes( (sizeof( float ) * 2) * DEVICE_SLOT_COUNT * CONTROL_COUNT, Core.Constants.WORDSIZE );
 
+#if NET6_0_OR_GREATER
+			_pFrameStateMemoryBuffer = NativeMemory.AlignedAlloc( (nuint)totalBytes, Core.Constants.WORDSIZE );
+#else
 			_pFrameStateMemoryBuffer = (void*)Marshal.AllocHGlobal( (int)totalBytes );
+#endif
 			_pressedBits = (ulong*)_pFrameStateMemoryBuffer;
 			_axis1D = (float*)((byte*)_pressedBits + PadBytes( sizeof( ulong ) * DEVICE_SLOT_COUNT * WORDS_PER_DEVICE, Core.Constants.WORDSIZE ));
 			_axis2D = (Vector2*)((byte*)_axis1D + PadBytes( sizeof( float ) * DEVICE_SLOT_COUNT * CONTROL_COUNT, Core.Constants.WORDSIZE ));
@@ -77,7 +81,11 @@ namespace Nomad.Input.Private.Services {
 		public void Dispose() {
 			if ( !_isDisposed ) {
 				if ( _pFrameStateMemoryBuffer != null ) {
+#if NET6_0_OR_GREATER
+					NativeMemory.AlignedFree( _pFrameStateMemoryBuffer );
+#else
 					Marshal.FreeHGlobal( (nint)_pFrameStateMemoryBuffer );
+#endif
 				}
 			}
 			GC.SuppressFinalize( this );

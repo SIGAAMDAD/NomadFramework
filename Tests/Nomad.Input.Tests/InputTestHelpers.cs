@@ -192,7 +192,11 @@ namespace Nomad.Input.Tests {
 		}
 
 		public static InputActionDefinition Action( string name, InputValueType valueType, params InputBindingDefinition[] bindings ) {
-			return new InputActionDefinition( name, valueType, bindings.ToImmutableArray() );
+			return Action( name, name, valueType, bindings );
+		}
+
+		public static InputActionDefinition Action( string name, string id, InputValueType valueType, params InputBindingDefinition[] bindings ) {
+			return new InputActionDefinition( name, id, valueType, bindings.ToImmutableArray() );
 		}
 
 		public static InputBindingDefinition Button( InputScheme scheme, InputDeviceSlot device, InputControlId control, params InputControlId[] modifiers ) {

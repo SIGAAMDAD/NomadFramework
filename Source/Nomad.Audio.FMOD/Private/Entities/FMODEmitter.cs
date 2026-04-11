@@ -14,12 +14,23 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System.Numerics;
-using Nomad.Audio.Fmod.Private.Repositories;
+using Nomad.Audio.Fmod.Private.Services;
 using Nomad.Audio.Fmod.ValueObjects;
 using Nomad.Audio.Interfaces;
 using Nomad.Audio.ValueObjects;
 
 namespace Nomad.Audio.Fmod.Private.Entities {
+	/*
+	===================================================================================
+	
+	FMODEmitter
+	
+	===================================================================================
+	*/
+	/// <summary>
+	/// 
+	/// </summary>
+	
 	internal sealed class FMODEmitter : IAudioEmitter {
 		public Vector2 Position {
 			get => _position;
@@ -72,11 +83,11 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 		}
 
 		private readonly SoundCategory _category;
-		private readonly FMODChannelRepository _channelRepository;
+		private readonly FMODChannelService _channelRepository;
 
 		private FMODChannelHandle? _currentHandle;
 
-		public FMODEmitter( FMODChannelRepository channelRepository, SoundCategory category ) {
+		public FMODEmitter( FMODChannelService channelRepository, SoundCategory category ) {
 			_category = category;
 			_channelRepository = channelRepository;
 		}

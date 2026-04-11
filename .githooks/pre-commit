@@ -1,4 +1,4 @@
-#!/usr/bin/env
+#!/usr/bin
  
 echo "🚀 Running pre-commit tests..." 
  

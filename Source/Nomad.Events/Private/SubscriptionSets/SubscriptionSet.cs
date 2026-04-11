@@ -203,15 +203,8 @@ namespace Nomad.Events.Private.SubscriptionSets {
 			_logger?.PrintLine( $"SubscriptionSet.Pump: publishing event {eventData.DebugName}" );
 #endif
 			lock ( _genericSubscriptions ) {
-				try {
-					for ( int i = 0; i < _genericSubscriptions.Count; i++ ) {
-						try {
-							_genericSubscriptions[i].Invoke( in args );
-						} catch {
-						}
-					}
-				} catch {
-					// TODO: keep a catch/bubbler counter
+				for ( int i = 0; i < _genericSubscriptions.Count; i++ ) {
+					_genericSubscriptions[i].Invoke( in args );
 				}
 			}
 			Interlocked.Increment( ref _publishCount );

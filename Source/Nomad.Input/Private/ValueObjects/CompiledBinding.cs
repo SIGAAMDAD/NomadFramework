@@ -19,6 +19,7 @@ using Nomad.Input.ValueObjects;
 
 namespace Nomad.Input.Private.ValueObjects {
 	internal readonly struct CompiledBinding {
+		public InternString ActionName { get; }
 		public InternString ActionId { get; }
 		public InputValueType ValueType { get; }
 		public InputBindingKind Kind { get; }
@@ -34,6 +35,7 @@ namespace Nomad.Input.Private.ValueObjects {
 		public Delta2DBinding Delta2D { get; }
 
 		public CompiledBinding(
+			InternString actionName,
 			InternString actionId,
 			InputValueType valueType,
 			InputBindingKind kind,
@@ -48,6 +50,7 @@ namespace Nomad.Input.Private.ValueObjects {
 			Axis2DCompositeBinding axis2DComposite = default,
 			Delta2DBinding delta2D = default
 		) {
+			ActionName = actionName;
 			ActionId = actionId;
 			ValueType = valueType;
 			Kind = kind;

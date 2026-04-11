@@ -30,7 +30,8 @@ namespace Nomad.Events.Private {
 	/// </summary>
 
 	internal sealed class SubscriptionCache<TArgs, TCallback> : IDisposable
-		where TArgs : struct {
+		where TArgs : struct
+	{
 #if EVENT_DEBUG
 		public int DeadCount {
 			get {

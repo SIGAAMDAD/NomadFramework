@@ -18,6 +18,7 @@ namespace Nomad.Input.Tests {
 			var repository = InputTestHelpers.CompileToRepository(
 				InputTestHelpers.Action(
 					"Jump",
+					"player.jump",
 					InputValueType.Button,
 					InputTestHelpers.Button( InputScheme.KeyboardAndMouse, InputDeviceSlot.Keyboard, InputControlId.Space )
 				)
@@ -32,7 +33,7 @@ namespace Nomad.Input.Tests {
 
 			using ( Assert.EnterMultipleScope() ) {
 				Assert.That( actions, Has.Length.EqualTo( 1 ) );
-				Assert.That( actions[0].ActionId.ToString(), Is.EqualTo( "Jump" ) );
+				Assert.That( actions[0].ActionId.ToString(), Is.EqualTo( "player.jump" ) );
 				Assert.That( actions[0].Phase, Is.EqualTo( InputActionPhase.Started ) );
 				Assert.That( actions[0].ButtonValue, Is.True );
 			}
@@ -219,6 +220,7 @@ namespace Nomad.Input.Tests {
 			var resolver = new ActionResolverService( new CompiledBindingRepository(), state );
 
 			var higherScoreBinding = new CompiledBinding(
+				actionName: new InternString( "Jump" ),
 				actionId: new InternString( "Jump" ),
 				valueType: InputValueType.Button,
 				kind: InputBindingKind.Button,
@@ -229,6 +231,7 @@ namespace Nomad.Input.Tests {
 				button: new ButtonBinding { DeviceId = InputDeviceSlot.Keyboard, ControlId = InputControlId.Space }
 			);
 			var lowerScoreBinding = new CompiledBinding(
+				actionName: new InternString( "Jump" ),
 				actionId: new InternString( "Jump" ),
 				valueType: InputValueType.Button,
 				kind: InputBindingKind.Button,

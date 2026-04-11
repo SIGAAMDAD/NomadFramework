@@ -13,8 +13,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Nomad.Core.Abstractions;
-
 namespace Nomad.Audio.ValueObjects
 {
     /// <summary>
@@ -31,5 +29,5 @@ namespace Nomad.Audio.ValueObjects
         float PriorityScale = 1.5f,
         float StealProtectionTime = 0.2f, // in seconds
         bool AllowStealingFromSameCategory = false
-    ) : IValueObject<SoundCategoryCreateInfo>;
+    );
 }

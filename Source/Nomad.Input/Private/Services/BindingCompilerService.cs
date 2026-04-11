@@ -83,7 +83,8 @@ namespace Nomad.Input.Private.Services {
 			foreach ( var action in actions ) {
 				foreach ( var bindingDef in action.Bindings ) {
 					var binding = new CompiledBinding(
-						actionId: new InternString( action.Name ),
+						actionName: new InternString( action.Name ),
+						actionId: new InternString( action.Id ),
 						valueType: action.ValueType,
 						kind: bindingDef.Kind,
 						scheme: bindingDef.Scheme,

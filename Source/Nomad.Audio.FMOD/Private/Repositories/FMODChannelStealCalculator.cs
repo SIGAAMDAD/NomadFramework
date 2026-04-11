@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 using Nomad.Audio.Fmod.Private.Entities;
 using Nomad.Audio.Fmod.ValueObjects;
@@ -35,7 +36,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal sealed class FMODChannelStealCalculator : IDisposable {
 		private float _distanceWeight;
 		private float _volumeWeight = 0.2f;
@@ -95,17 +96,20 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		/// 
 		/// </summary>
 		/// <param name="currentTime"></param>
+		/// <param name="listenerPos"></param>
 		/// <param name="candidate"></param>
 		/// <param name="newPriority"></param>
 		/// <param name="category"></param>
-		/// <param name="listenerService"></param>
 		/// <returns></returns>
-		public float CalculateStealScore( float currentTime, FMODChannel candidate, float newPriority, SoundCategory category, IListenerService listenerService ) {
-			Vector2 listenerPos = listenerService.ActiveListener;
-			float distance = (float)candidate.Instance.Position.DistanceTo( listenerPos );
+		public float CalculateStealScore( float currentTime, in Vector2 listenerPos, FMODChannel candidate, float newPriority, SoundCategory category ) {
+			Vector2 pos = candidate.Instance.Position;
+			float dx = pos.X - listenerPos.X;
+			float dy = pos.Y - listenerPos.Y;
+			float distance = MathF.Sqrt( dx * dx + dy * dy );
 
 			float priorityDiff = newPriority - candidate.CurrentPriority;
-			float ageFactor = Math.Min( candidate.AgeSeconds( currentTime ) / 5.0f, 1.0f );
+			float age = currentTime - candidate.StartTimeSeconds;
+			float ageFactor = age >= 5.0f ? 1.0f : age * 0.2f;
 			float distanceFactor = 1.0f - _priorityCalculator.CalculateDistanceFactor( distance );
 			float volumeFactor = 1.0f - candidate.Volume;
 
@@ -115,7 +119,9 @@ namespace Nomad.Audio.Fmod.Private.Services {
 				distanceFactor * _distanceWeight +
 				volumeFactor * _volumeWeight;
 
-			score *= category.Config.Name == candidate.Category.Config.Name ? 0.5f : 1.0f;
+			if ( ReferenceEquals( candidate.Category, category ) ) {
+				score *= 0.5f;
+			}
 
 			float timeSinceLastStolen = currentTime - candidate.LastStolenTime;
 			if ( timeSinceLastStolen < 1.0f ) {

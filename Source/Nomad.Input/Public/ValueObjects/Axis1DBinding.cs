@@ -15,15 +15,34 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Input.ValueObjects
 {
-	public record Axis1DBinding
+	public struct Axis1DBinding
 	{
+		public float Deadzone { get; set; }
+		public float Sensitivity { get; set; }
+		public float Scale { get; set; }
+		public bool Invert { get; set; }
+
+		public ResponseCurve ResponseCurve { get; set; }
+
 		public InputDeviceSlot DeviceId { get; set; }
 		public InputControlId ControlId { get; set; }
 
-		public float Deadzone { get; set; } = 0.0f;
-		public float Sensitivity { get; set; } = 1.0f;
-		public float Scale { get; set; } = 1.0f;
-		public bool Invert { get; set; } = false;
-		public ResponseCurve ResponseCurve { get; set; } = ResponseCurve.Linear;
+		public Axis1DBinding(
+			InputDeviceSlot deviceId,
+			InputControlId controlId,
+			float deadzone = 0.0f,
+			float sensitivity = 1.0f,
+			float scale = 1.0f,
+			bool invert = false,
+			ResponseCurve responseCurve = ResponseCurve.Linear
+		) {
+			DeviceId = deviceId;
+			ControlId = controlId;
+			Deadzone = deadzone;
+			Sensitivity = sensitivity;
+			Scale = scale;
+			Invert = invert;
+			ResponseCurve = responseCurve;
+		}
 	}
 }

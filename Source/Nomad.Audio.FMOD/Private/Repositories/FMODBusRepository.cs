@@ -13,7 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Nomad.Audio.Fmod.Private.Services;
 using Nomad.Audio.Fmod.ValueObjects;
@@ -32,8 +32,8 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 	/// </summary>
 
 	internal sealed class FMODBusRepository {
-		public ConcurrentDictionary<string, SoundCategory> Categories => _categories;
-		private readonly ConcurrentDictionary<string, SoundCategory> _categories = new();
+		public Dictionary<string, SoundCategory> Categories => _categories;
+		private readonly Dictionary<string, SoundCategory> _categories = new();
 
 		private readonly FMODDevice _fmodSystem;
 
@@ -62,10 +62,20 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 			_categories["SoundCategory:Foley"] = new SoundCategory(
 				Config: new SoundCategoryCreateInfo(
 					Name: "SoundCategory:Foley",
+					MaxSimultaneous: 32,
+					PriorityScale: 1.5f,
+					StealProtectionTime: 1.5f,
+					AllowStealingFromSameCategory: false
+				),
+				System: fmodSystem.StudioSystem
+			);
+			_categories["SoundCategory:FX"] = new SoundCategory(
+				Config: new SoundCategoryCreateInfo(
+					Name: "SoundCategory:FX",
 					MaxSimultaneous: 16,
 					PriorityScale: 1.5f,
 					StealProtectionTime: 0.2f,
-					AllowStealingFromSameCategory: true
+					AllowStealingFromSameCategory: false
 				),
 				System: fmodSystem.StudioSystem
 			);

@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-The Nomad MPLv2 Source Code
+The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
@@ -13,15 +13,24 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.Core.Audio
+namespace Nomad.Audio.ValueObjects
 {
+	/// <summary>
+	/// 
+	/// </summary>
 	public enum SpeakerMode : byte
 	{
-		Stereo,
-		Mono,
+		Auto,
 
 		Headphones,
 
-		
+		StereoSpeakers,
+
+		Surround_5_1,
+		Surround_7_1,
+
+		Atmos,
+
+		Count
 	}
 }
