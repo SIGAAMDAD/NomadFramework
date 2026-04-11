@@ -13,7 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System.Collections.Generic;
+using System;
 
 namespace Nomad.Input.Private.ValueObjects {
 	/*
@@ -28,19 +28,56 @@ namespace Nomad.Input.Private.ValueObjects {
 	/// </summary>
 	
 	internal sealed class CompiledBindingGraph {
-		public Dictionary<ButtonLookupKey, CompiledBinding[]> ButtonIndex { get; init; }
-		public Dictionary<AxisLookupKey, CompiledBinding[]> AxisIndex { get; init; }
-		public Dictionary<AxisLookupKey, CompiledBinding[]> DeltaIndex { get; init; }
+		public static readonly CompiledBindingGraph Empty = new(
+			Array.Empty<CompiledBinding>(),
+			Array.Empty<CompiledActionInfo>(),
+			Array.Empty<Bucket>(),
+			Array.Empty<int>(),
+			Array.Empty<Bucket>(),
+			Array.Empty<int>(),
+			Array.Empty<Bucket>(),
+			Array.Empty<int>(),
+			Array.Empty<int>(),
+			Array.Empty<int>()
+		);
 
-		public CompiledBinding[] Composite1D { get; init; }
-		public CompiledBinding[] Composite2D { get; init; }
+		public readonly CompiledBinding[] Bindings;
+		public readonly CompiledActionInfo[] Actions;
 
-		public static CompiledBindingGraph Empty { get; } = new CompiledBindingGraph {
-			ButtonIndex = new Dictionary<ButtonLookupKey, CompiledBinding[]>(),
-			AxisIndex = new Dictionary<AxisLookupKey, CompiledBinding[]>(),
-			DeltaIndex = new Dictionary<AxisLookupKey, CompiledBinding[]>(),
-			Composite1D = System.Array.Empty<CompiledBinding>(),
-			Composite2D = System.Array.Empty<CompiledBinding>()
-		};
+		public readonly Bucket[] ButtonBuckets;
+		public readonly int[] ButtonBindingIndices;
+
+		public readonly Bucket[] AxisBuckets;
+		public readonly int[] AxisBindingIndices;
+
+		public readonly Bucket[] DeltaBuckets;
+		public readonly int[] DeltaBindingIndices;
+
+		public readonly int[] Composite1DBindingIndices;
+		public readonly int[] Composite2DBindingIndices;
+
+		public CompiledBindingGraph(
+			CompiledBinding[] bindings,
+			CompiledActionInfo[] actions,
+			Bucket[] buttonBuckets,
+			int[] buttonBindingIndices,
+			Bucket[] axisBuckets,
+			int[] axisBindingIndices,
+			Bucket[] deltaBuckets,
+			int[] deltaBindingIndices,
+			int[] composite1DBindingIndices,
+			int[] composite2DBindingIndices
+		) {
+			Bindings = bindings;
+			Actions = actions;
+			ButtonBuckets = buttonBuckets;
+			ButtonBindingIndices = buttonBindingIndices;
+			AxisBuckets = axisBuckets;
+			AxisBindingIndices = axisBindingIndices;
+			DeltaBuckets = deltaBuckets;
+			DeltaBindingIndices = deltaBindingIndices;
+			Composite1DBindingIndices = composite1DBindingIndices;
+			Composite2DBindingIndices = composite2DBindingIndices;
+		}
 	};
 };

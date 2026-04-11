@@ -1,18 +1,3 @@
-/*
-===========================================================================
-The Nomad Framework
-Copyright (C) 2025-2026 Noah Van Til
-
-This Source Code Form is subject to the terms of the Mozilla Public
-License, v2. If a copy of the MPL was not distributed with this
-file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-This software is provided "as is", without warranty of any kind,
-express or implied, including but not limited to the warranties
-of merchantability, fitness for a particular purpose and noninfringement.
-===========================================================================
-*/
-
 using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -23,146 +8,82 @@ using Nomad.Input.Private.ValueObjects;
 using Nomad.Input.ValueObjects;
 
 namespace Nomad.Input.Private.Services {
-	/*
-	===================================================================================
-	
-	BindingMatcherService
-	
-	===================================================================================
-	*/
-	/// <summary>
-	/// 
-	/// </summary>
-
 	internal sealed class BindingMatcherService {
 		private readonly CompiledBindingRepository _compiledBindings;
 		private readonly InputStateService _stateService;
-		private BindingMatch[] _matchBuffer = Array.Empty<BindingMatch>();
 
-		/*
-		===============
-		BindingMatcherService
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="compiledBindings"></param>
-		/// <param name="stateService"></param>
-		/// <exception cref="ArgumentNullException"></exception>
+		private int[] _matchedBindingIndices = Array.Empty<int>();
+		private int[] _matchedScores = Array.Empty<int>();
+
 		public BindingMatcherService( CompiledBindingRepository compiledBindings, InputStateService stateService ) {
 			_compiledBindings = compiledBindings ?? throw new ArgumentNullException( nameof( compiledBindings ) );
 			_stateService = stateService ?? throw new ArgumentNullException( nameof( stateService ) );
 		}
 
-		/*
-		===============
-		MatchKeyboard
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="evt"></param>
-		/// <param name="activeContextMask"></param>
-		/// <param name="activeScheme"></param>
-		/// <returns></returns>
-		public ReadOnlyMemory<BindingMatch> MatchKeyboard( in KeyboardEventArgs evt, uint activeContextMask, InputScheme? activeScheme ) {
-			var key = new ButtonLookupKey( InputDeviceSlot.Keyboard, evt.KeyNum.ToControlId(), evt.Pressed );
-			return MatchButtons( _compiledBindings.GetButtonCandidates( key ), activeContextMask, activeScheme );
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public BindingMatchSet MatchKeyboard( CompiledBindingGraph graph, in KeyboardEventArgs evt, uint activeContextMask, InputScheme? activeScheme ) {
+			return MatchButtons(
+				graph,
+				CompiledBindingRepository.GetButtonCandidateIndices( graph, InputDeviceSlot.Keyboard, evt.KeyNum.ToControlId(), evt.Pressed ),
+				activeContextMask,
+				activeScheme
+			);
 		}
 
-		/*
-		===============
-		MatchMouseButton
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="evt"></param>
-		/// <param name="activeContextMask"></param>
-		/// <param name="activeScheme"></param>
-		/// <returns></returns>
-		public ReadOnlyMemory<BindingMatch> MatchMouseButton( in MouseButtonEventArgs evt, uint activeContextMask, InputScheme? activeScheme ) {
-			var key = new ButtonLookupKey( InputDeviceSlot.Mouse, evt.Button.ToControlId(), evt.Pressed );
-			return MatchButtons( _compiledBindings.GetButtonCandidates( key ), activeContextMask, activeScheme );
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public BindingMatchSet MatchMouseButton( CompiledBindingGraph graph, in MouseButtonEventArgs evt, uint activeContextMask, InputScheme? activeScheme ) {
+			return MatchButtons(
+				graph,
+				CompiledBindingRepository.GetButtonCandidateIndices( graph, InputDeviceSlot.Mouse, evt.Button.ToControlId(), evt.Pressed ),
+				activeContextMask,
+				activeScheme
+			);
 		}
 
-		/*
-		===============
-		MatchGamepadButton
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="evt"></param>
-		/// <param name="activeContextMask"></param>
-		/// <param name="activeScheme"></param>
-		/// <returns></returns>
-		public ReadOnlyMemory<BindingMatch> MatchGamepadButton( in GamepadButtonEventArgs evt, uint activeContextMask, InputScheme? activeScheme ) {
-			var key = new ButtonLookupKey( GetGamepadDeviceSlot( evt.DeviceId ), evt.Button.ToControlId(), evt.Pressed );
-			return MatchButtons( _compiledBindings.GetButtonCandidates( key ), activeContextMask, activeScheme );
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public BindingMatchSet MatchGamepadButton( CompiledBindingGraph graph, in GamepadButtonEventArgs evt, uint activeContextMask, InputScheme? activeScheme ) {
+			return MatchButtons(
+				graph,
+				CompiledBindingRepository.GetButtonCandidateIndices( graph, GetGamepadDeviceSlot( evt.DeviceId ), evt.Button.ToControlId(), evt.Pressed ),
+				activeContextMask,
+				activeScheme
+			);
 		}
 
-		/*
-		===============
-		MatchGamepadAxis
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="device"></param>
-		/// <param name="control"></param>
-		/// <param name="activeContextMask"></param>
-		/// <param name="activeScheme"></param>
-		/// <returns></returns>
-		public ReadOnlyMemory<BindingMatch> MatchGamepadAxis( InputDeviceSlot device, InputControlId control, uint activeContextMask, InputScheme? activeScheme ) {
-			var key = new AxisLookupKey( device, control );
-			return MatchAxes( _compiledBindings.GetAxisCandidates( key ), activeContextMask, activeScheme );
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public BindingMatchSet MatchGamepadAxis( CompiledBindingGraph graph, InputDeviceSlot device, InputControlId control, uint activeContextMask, InputScheme? activeScheme ) {
+			return MatchAxes(
+				graph,
+				CompiledBindingRepository.GetAxisCandidateIndices( graph, device, control ),
+				activeContextMask,
+				activeScheme
+			);
 		}
 
-		/*
-		===============
-		MatchMouseDelta
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="activeContextMask"></param>
-		/// <param name="activeScheme"></param>
-		/// <returns></returns>
-		public ReadOnlyMemory<BindingMatch> MatchMouseDelta( uint activeContextMask, InputScheme? activeScheme ) {
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public BindingMatchSet MatchMouseDelta( CompiledBindingGraph graph, uint activeContextMask, InputScheme? activeScheme ) {
 			if ( _stateService.MouseDelta == Vector2.Zero ) {
-				return Array.Empty<BindingMatch>();
+				return new BindingMatchSet( ReadOnlySpan<int>.Empty, ReadOnlySpan<int>.Empty );
 			}
-			var key = new AxisLookupKey( InputDeviceSlot.Mouse, InputControlId.Delta );
-			return MatchAxes( _compiledBindings.GetDeltaCandidates( key ), activeContextMask, activeScheme );
+
+			return MatchAxes(
+				graph,
+				CompiledBindingRepository.GetDeltaCandidateIndices( graph, InputDeviceSlot.Mouse, InputControlId.Delta ),
+				activeContextMask,
+				activeScheme
+			);
 		}
 
-		/*
-		===============
-		MatchButtons
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="candidates"></param>
-		/// <param name="activeContextMask"></param>
-		/// <param name="activeScheme"></param>
-		/// <returns></returns>
-		private ReadOnlyMemory<BindingMatch> MatchButtons( ReadOnlySpan<CompiledBinding> candidates, uint activeContextMask, InputScheme? activeScheme ) {
-			EnsureMatchCapacity( candidates.Length );
-			int matchCount = 0;
+		private BindingMatchSet MatchButtons( CompiledBindingGraph graph, ReadOnlySpan<int> candidateIndices, uint activeContextMask, InputScheme? activeScheme ) {
+			EnsureMatchCapacity( candidateIndices.Length );
+
+			int count = 0;
 			bool hasActiveScheme = activeScheme.HasValue;
 			InputScheme activeSchemeValue = activeScheme.GetValueOrDefault();
 
-			for ( int i = 0; i < candidates.Length; i++ ) {
-				ref readonly var binding = ref candidates[i];
+			for ( int i = 0; i < candidateIndices.Length; i++ ) {
+				int bindingIndex = candidateIndices[i];
+				ref readonly var binding = ref graph.Bindings[bindingIndex];
 
 				if ( !ContextMatches( binding.ContextMask, activeContextMask ) ) {
 					continue;
@@ -170,34 +91,31 @@ namespace Nomad.Input.Private.Services {
 				if ( hasActiveScheme && binding.Scheme != activeSchemeValue ) {
 					continue;
 				}
-				if ( !ModifiersSatisfied( binding ) ) {
+				if ( !ModifiersSatisfied( in binding ) ) {
 					continue;
 				}
-				_matchBuffer[matchCount++] = new BindingMatch { Binding = binding, Score = Score( binding, modifierCount: binding.Button.Modifiers.Length, exactScheme: true ) };
+
+				_matchedBindingIndices[count] = bindingIndex;
+				_matchedScores[count] = binding.ScoreBase;
+				count++;
 			}
-			return _matchBuffer.AsMemory( 0, matchCount );
+
+			return new BindingMatchSet(
+				_matchedBindingIndices.AsSpan( 0, count ),
+				_matchedScores.AsSpan( 0, count )
+			);
 		}
 
-		/*
-		===============
-		MatchAxes
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="candidates"></param>
-		/// <param name="activeContextMask"></param>
-		/// <param name="activeScheme"></param>
-		/// <returns></returns>
-		private ReadOnlyMemory<BindingMatch> MatchAxes( ReadOnlySpan<CompiledBinding> candidates, uint activeContextMask, InputScheme? activeScheme ) {
-			EnsureMatchCapacity( candidates.Length );
-			int matchCount = 0;
+		private BindingMatchSet MatchAxes( CompiledBindingGraph graph, ReadOnlySpan<int> candidateIndices, uint activeContextMask, InputScheme? activeScheme ) {
+			EnsureMatchCapacity( candidateIndices.Length );
+
+			int count = 0;
 			bool hasActiveScheme = activeScheme.HasValue;
 			InputScheme activeSchemeValue = activeScheme.GetValueOrDefault();
 
-			for ( int i = 0; i < candidates.Length; i++ ) {
-				ref readonly var binding = ref candidates[i];
+			for ( int i = 0; i < candidateIndices.Length; i++ ) {
+				int bindingIndex = candidateIndices[i];
+				ref readonly var binding = ref graph.Bindings[bindingIndex];
 
 				if ( !ContextMatches( binding.ContextMask, activeContextMask ) ) {
 					continue;
@@ -205,93 +123,50 @@ namespace Nomad.Input.Private.Services {
 				if ( hasActiveScheme && binding.Scheme != activeSchemeValue ) {
 					continue;
 				}
-				_matchBuffer[matchCount++] = new BindingMatch { Binding = binding, Score = Score( binding, modifierCount: 0, exactScheme: true ) };
+
+				_matchedBindingIndices[count] = bindingIndex;
+				_matchedScores[count] = binding.ScoreBase;
+				count++;
 			}
 
-			return _matchBuffer.AsMemory( 0, matchCount );
+			return new BindingMatchSet(
+				_matchedBindingIndices.AsSpan( 0, count ),
+				_matchedScores.AsSpan( 0, count )
+			);
 		}
 
-		/*
-		===============
-		ContextMatches
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="bindingMask"></param>
-		/// <param name="activeMask"></param>
-		/// <returns></returns>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		private unsafe bool ModifiersSatisfied( in CompiledBinding binding ) {
+			if ( binding.Kind != InputBindingKind.Button ) {
+				return true;
+			}
+
+			ulong* keyboardWords = _stateService.GetPressedWords( InputDeviceSlot.Keyboard );
+			ref readonly var button = ref binding.Button;
+
+			return ((keyboardWords[0] & button.ModifierMask0) == button.ModifierMask0)
+				&& ((keyboardWords[1] & button.ModifierMask1) == button.ModifierMask1)
+				&& ((keyboardWords[2] & button.ModifierMask2) == button.ModifierMask2)
+				&& ((keyboardWords[3] & button.ModifierMask3) == button.ModifierMask3);
+		}
+
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		private static bool ContextMatches( uint bindingMask, uint activeMask ) {
 			return bindingMask == 0 || (bindingMask & activeMask) != 0;
 		}
 
-		/*
-		===============
-		ModifiersSatisfied
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="binding"></param>
-		/// <returns></returns>
-		private bool ModifiersSatisfied( in CompiledBinding binding ) {
-			if ( binding.Kind != InputBindingKind.Button ) {
-				return true;
-			}
-			var modifiers = binding.Button.Modifiers;
-			for ( int i = 0; i < modifiers.Length; i++ ) {
-				InputControlId modifier = modifiers[i];
-				if ( !_stateService.IsPressed( InputDeviceSlot.Keyboard, modifier ) ) {
-					return false;
-				}
-			}
-			return true;
-		}
-
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		private void EnsureMatchCapacity( int requiredCapacity ) {
-			if ( _matchBuffer.Length >= requiredCapacity ) {
+			if ( _matchedBindingIndices.Length >= requiredCapacity ) {
 				return;
 			}
 
-			_matchBuffer = new BindingMatch[Math.Max( requiredCapacity, _matchBuffer.Length == 0 ? 8 : _matchBuffer.Length * 2 )];
-		}
-		
-		/*
-		===============
-		Score
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="binding"></param>
-		/// <param name="modifierCount"></param>
-		/// <param name="exactScheme"></param>
-		/// <returns></returns>
-		private static int Score( in CompiledBinding binding, int modifierCount, bool exactScheme ) {
-			int score = 0;
-			score += binding.Priority * 100;
-			score += modifierCount * 25;
-			score += exactScheme ? 10 : 0;
-			score += binding.ConsumesInput ? 1 : 0;
-			return score;
+			int newCapacity = Math.Max( requiredCapacity, _matchedBindingIndices.Length == 0 ? 8 : _matchedBindingIndices.Length * 2 );
+			Array.Resize( ref _matchedBindingIndices, newCapacity );
+			Array.Resize( ref _matchedScores, newCapacity );
 		}
 
-		/*
-		===============
-		GetGamepadDeviceSlot
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="deviceId"></param>
-		/// <returns></returns>
-		/// <exception cref="ArgumentOutOfRangeException"></exception>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		private static InputDeviceSlot GetGamepadDeviceSlot( int deviceId ) {
 			return deviceId switch {
 				0 => InputDeviceSlot.Gamepad0,
@@ -301,5 +176,5 @@ namespace Nomad.Input.Private.Services {
 				_ => throw new ArgumentOutOfRangeException( nameof( deviceId ) )
 			};
 		}
-	};
-};
+	}
+}

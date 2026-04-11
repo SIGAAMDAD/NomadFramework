@@ -1,162 +1,76 @@
-/*
-===========================================================================
-The Nomad Framework
-Copyright (C) 2025-2026 Noah Van Til
-
-This Source Code Form is subject to the terms of the Mozilla Public
-License, v2. If a copy of the MPL was not distributed with this
-file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-This software is provided "as is", without warranty of any kind,
-express or implied, including but not limited to the warranties
-of merchantability, fitness for a particular purpose and noninfringement.
-===========================================================================
-*/
-
 using System;
-using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using Nomad.Input.Private.ValueObjects;
-using Nomad.Input.ValueObjects;
-using Nomad.Input.Private.Repositories;
 using Nomad.Core.Input;
 using Nomad.Core.Util;
+using Nomad.Input.Private.Repositories;
+using Nomad.Input.Private.ValueObjects;
+using Nomad.Input.ValueObjects;
 
 namespace Nomad.Input.Private.Services {
-	/*
-	===================================================================================
-	
-	ActionResolverService
-	
-	===================================================================================
-	*/
-	/// <summary>
-	/// 
-	/// </summary>
-	
 	internal sealed class ActionResolverService {
 		private readonly CompiledBindingRepository _compiledBindings;
 		private readonly InputStateService _stateService;
-		private readonly Dictionary<InternString, bool> _actionActiveStates = new();
-		private readonly Dictionary<InternString, BestResolvedAction> _bestByAction = new();
+
+		private bool[] _activeByAction = Array.Empty<bool>();
+		private int[] _slotGeneration = Array.Empty<int>();
+		private int[] _touchedSlots = Array.Empty<int>();
+
+		private int[] _bestBindingIndex = Array.Empty<int>();
+		private int[] _bestScore = Array.Empty<int>();
+		private float[] _bestMagnitude = Array.Empty<float>();
+		private bool[] _bestButtonValue = Array.Empty<bool>();
+		private float[] _bestFloatValue = Array.Empty<float>();
+		private Vector2[] _bestVector2Value = Array.Empty<Vector2>();
+		private InputValueType[] _bestValueType = Array.Empty<InputValueType>();
+
+		private int _generation;
+		private int _touchedCount;
+
 		private ResolvedAction[] _resolvedActionBuffer = Array.Empty<ResolvedAction>();
 
-		/*
-		===============
-		ActionResolverService
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="compiledBindings"></param>
-		/// <param name="stateService"></param>
-		/// <exception cref="ArgumentNullException"></exception>
 		public ActionResolverService( CompiledBindingRepository compiledBindings, InputStateService stateService ) {
 			_compiledBindings = compiledBindings ?? throw new ArgumentNullException( nameof( compiledBindings ) );
 			_stateService = stateService ?? throw new ArgumentNullException( nameof( stateService ) );
 		}
 
-		/*
-		===============
-		ResolveMatches
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="matches"></param>
-		/// <param name="timeStamp"></param>
-		/// <returns></returns>
-		public ResolvedAction[] ResolveMatches( ref ReadOnlySpan<BindingMatch> matches, long timeStamp ) {
-			ReadOnlySpan<ResolvedAction> actions = ResolveMatchesNonAlloc( matches, timeStamp );
-			return actions.ToArray();
-		}
+		public ReadOnlySpan<ResolvedAction> ResolveMatchesNonAlloc( CompiledBindingGraph graph, BindingMatchSet matches, long timeStamp ) {
+			BeginPass( graph.Actions.Length );
 
-		/*
-		===============
-		ResolveMatchesNonAlloc
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="matches"></param>
-		/// <param name="timeStamp"></param>
-		/// <returns></returns>
-		public ReadOnlySpan<ResolvedAction> ResolveMatchesNonAlloc( ReadOnlySpan<BindingMatch> matches, long timeStamp ) {
-			_bestByAction.Clear();
 			for ( int i = 0; i < matches.Length; i++ ) {
-				ref readonly var match = ref matches[i];
-				if ( !TryResolve( match.Binding, timeStamp, out var action ) ) {
+				int bindingIndex = matches.BindingIndices[i];
+				ref readonly var binding = ref graph.Bindings[bindingIndex];
+
+				if ( !TryEvaluateBinding( in binding, out var valueType, out var buttonValue, out var floatValue, out var vector2Value, out var magnitude ) ) {
 					continue;
 				}
-				float magnitude = GetMagnitude( action );
 
-#if NET6_0_OR_GREATER
-				ref BestResolvedAction current = ref CollectionsMarshal.GetValueRefOrAddDefault( _bestByAction, action.ActionId, out bool exists );
-				if ( !exists || ShouldReplace( current.Match, match, current.Magnitude, magnitude ) ) {
-					current = new BestResolvedAction( match, action, magnitude );
-				}
-#else
-				bool exists = _bestByAction.TryGetValue( action.ActionId, out BestResolvedAction current );
-				if ( !exists || ShouldReplace( current.Match, match, current.Magnitude, magnitude ) ) {
-					_bestByAction[action.ActionId] = new BestResolvedAction( match, action, magnitude );
-				}
-#endif
+				StoreBestCandidate(
+					actionSlot: binding.ActionIndex,
+					bindingIndex: bindingIndex,
+					score: matches.Scores[i],
+					valueType: valueType,
+					buttonValue: buttonValue,
+					floatValue: floatValue,
+					vector2Value: vector2Value,
+					magnitude: magnitude
+				);
 			}
 
-			EnsureResolvedActionCapacity( _bestByAction.Count );
-			int actionCount = 0;
-			foreach ( var pair in _bestByAction ) {
-				_resolvedActionBuffer[actionCount++] = pair.Value.Action;
-			}
-
-			return _resolvedActionBuffer.AsSpan( 0, actionCount );
+			return MaterializeResolvedActions( graph, timeStamp );
 		}
 
-		/*
-		===============
-		ResolveComposites
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="activeContextMask"></param>
-		/// <param name="activeScheme"></param>
-		/// <param name="timeStamp"></param>
-		/// <returns></returns>
-		public ResolvedAction[] ResolveComposites( uint activeContextMask, InputScheme? activeScheme, long timeStamp ) {
-			ReadOnlySpan<ResolvedAction> actions = ResolveCompositesNonAlloc( activeContextMask, activeScheme, timeStamp );
-			return actions.ToArray();
-		}
+		public ReadOnlySpan<ResolvedAction> ResolveKeyboardCompositesNonAlloc( CompiledBindingGraph graph, uint activeContextMask, InputScheme? activeScheme, long timeStamp ) {
+			BeginPass( graph.Actions.Length );
 
-		/*
-		===============
-		ResolveCompositesNonAlloc
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="activeContextMask"></param>
-		/// <param name="activeScheme"></param>
-		/// <param name="timeStamp"></param>
-		/// <returns></returns>
-		public ReadOnlySpan<ResolvedAction> ResolveCompositesNonAlloc( uint activeContextMask, InputScheme? activeScheme, long timeStamp ) {
-			var composite1D = _compiledBindings.GetComposite1DBindings();
-			var composite2D = _compiledBindings.GetComposite2DBindings();
-
-			EnsureResolvedActionCapacity( composite1D.Length + composite2D.Length );
-			int actionCount = 0;
 			bool hasActiveScheme = activeScheme.HasValue;
 			InputScheme activeSchemeValue = activeScheme.GetValueOrDefault();
 
+			ReadOnlySpan<int> composite1D = CompiledBindingRepository.GetComposite1DBindingIndices( graph );
 			for ( int i = 0; i < composite1D.Length; i++ ) {
-				ref readonly var binding = ref composite1D[i];
+				int bindingIndex = composite1D[i];
+				ref readonly var binding = ref graph.Bindings[bindingIndex];
+
 				if ( !ContextMatches( binding.ContextMask, activeContextMask ) ) {
 					continue;
 				}
@@ -164,20 +78,24 @@ namespace Nomad.Input.Private.Services {
 					continue;
 				}
 
-				float value = ResolveComposite1D( binding.Axis1DComposite );
-				var phase = ResolvePhase( binding.ActionId, MathF.Abs( value ) > 0.0001f );
-
-				_resolvedActionBuffer[actionCount++] = new ResolvedAction(
-					actionId: binding.ActionId,
+				float value = ResolveComposite1D( in binding.Axis1DComposite );
+				StoreBestCandidate(
+					actionSlot: binding.ActionIndex,
+					bindingIndex: bindingIndex,
+					score: binding.ScoreBase,
 					valueType: InputValueType.Float,
-					phase: phase,
-					timeStamp: timeStamp,
-					floatValue: value
+					buttonValue: false,
+					floatValue: value,
+					vector2Value: default,
+					magnitude: MathF.Abs( value )
 				);
 			}
 
+			ReadOnlySpan<int> composite2D = CompiledBindingRepository.GetComposite2DBindingIndices( graph );
 			for ( int i = 0; i < composite2D.Length; i++ ) {
-				ref readonly var binding = ref composite2D[i];
+				int bindingIndex = composite2D[i];
+				ref readonly var binding = ref graph.Bindings[bindingIndex];
+
 				if ( !ContextMatches( binding.ContextMask, activeContextMask ) ) {
 					continue;
 				}
@@ -185,103 +103,191 @@ namespace Nomad.Input.Private.Services {
 					continue;
 				}
 
-				Vector2 value = ResolveComposite2D( binding.Axis2DComposite );
-				var phase = ResolvePhase( binding.ActionId, value.LengthSquared() > 0.0001f );
+				Vector2 value = ResolveComposite2D( in binding.Axis2DComposite );
+				StoreBestCandidate(
+					actionSlot: binding.ActionIndex,
+					bindingIndex: bindingIndex,
+					score: binding.ScoreBase,
+					valueType: InputValueType.Vector2,
+					buttonValue: false,
+					floatValue: 0.0f,
+					vector2Value: value,
+					magnitude: value.LengthSquared()
+				);
+			}
+
+			return MaterializeResolvedActions( graph, timeStamp );
+		}
+
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		private void BeginPass( int actionCount ) {
+			EnsureActionCapacity( actionCount );
+			_touchedCount = 0;
+
+			_generation++;
+			if ( _generation == 0 ) {
+				Array.Clear( _slotGeneration, 0, _slotGeneration.Length );
+				_generation = 1;
+			}
+		}
+
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		private void StoreBestCandidate(
+			int actionSlot,
+			int bindingIndex,
+			int score,
+			InputValueType valueType,
+			bool buttonValue,
+			float floatValue,
+			Vector2 vector2Value,
+			float magnitude
+		) {
+			if ( _slotGeneration[actionSlot] != _generation ) {
+				_slotGeneration[actionSlot] = _generation;
+				_touchedSlots[_touchedCount++] = actionSlot;
+
+				_bestBindingIndex[actionSlot] = bindingIndex;
+				_bestScore[actionSlot] = score;
+				_bestMagnitude[actionSlot] = magnitude;
+				_bestValueType[actionSlot] = valueType;
+				_bestButtonValue[actionSlot] = buttonValue;
+				_bestFloatValue[actionSlot] = floatValue;
+				_bestVector2Value[actionSlot] = vector2Value;
+				return;
+			}
+
+			if ( score < _bestScore[actionSlot] ) {
+				return;
+			}
+			if ( score == _bestScore[actionSlot] && magnitude <= _bestMagnitude[actionSlot] ) {
+				return;
+			}
+
+			_bestBindingIndex[actionSlot] = bindingIndex;
+			_bestScore[actionSlot] = score;
+			_bestMagnitude[actionSlot] = magnitude;
+			_bestValueType[actionSlot] = valueType;
+			_bestButtonValue[actionSlot] = buttonValue;
+			_bestFloatValue[actionSlot] = floatValue;
+			_bestVector2Value[actionSlot] = vector2Value;
+		}
+
+		private ReadOnlySpan<ResolvedAction> MaterializeResolvedActions( CompiledBindingGraph graph, long timeStamp ) {
+			EnsureResolvedActionCapacity( _touchedCount );
+
+			int actionCount = 0;
+			for ( int i = 0; i < _touchedCount; i++ ) {
+				int slot = _touchedSlots[i];
+				InputValueType valueType = _bestValueType[slot];
+
+				bool isActive = valueType switch {
+					InputValueType.Button => _bestButtonValue[slot],
+					InputValueType.Float => MathF.Abs( _bestFloatValue[slot] ) > 0.0001f,
+					InputValueType.Vector2 => _bestVector2Value[slot].LengthSquared() > 0.0001f,
+					_ => false
+				};
+
+				if ( !TryResolvePhase( slot, isActive, out var phase ) ) {
+					continue;
+				}
 
 				_resolvedActionBuffer[actionCount++] = new ResolvedAction(
-					actionId: binding.ActionId,
-					valueType: InputValueType.Vector2,
+					actionId: graph.Actions[slot].ActionId,
+					actionIndex: slot,
+					valueType: valueType,
 					phase: phase,
 					timeStamp: timeStamp,
-					vector2Value: value
+					buttonValue: _bestButtonValue[slot],
+					floatValue: _bestFloatValue[slot],
+					vector2Value: _bestVector2Value[slot]
 				);
 			}
 
 			return _resolvedActionBuffer.AsSpan( 0, actionCount );
 		}
 
-		/*
-		===============
-		TryResolve
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="binding"></param>
-		/// <param name="timeStamp"></param>
-		/// <param name="action"></param>
-		/// <returns></returns>
-		private bool TryResolve( in CompiledBinding binding, long timeStamp, out ResolvedAction action ) {
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		private bool TryResolvePhase( int actionSlot, bool isActive, out InputActionPhase phase ) {
+			bool wasActive = _activeByAction[actionSlot];
+
+			if ( isActive ) {
+				_activeByAction[actionSlot] = true;
+				phase = wasActive ? InputActionPhase.Performed : InputActionPhase.Started;
+				return true;
+			}
+
+			if ( wasActive ) {
+				_activeByAction[actionSlot] = false;
+				phase = InputActionPhase.Canceled;
+				return true;
+			}
+
+			phase = default;
+			return false;
+		}
+
+		private bool TryEvaluateBinding( in CompiledBinding binding, out InputValueType valueType, out bool buttonValue, out float floatValue, out Vector2 vector2Value, out float magnitude ) {
 			switch ( binding.Kind ) {
 				case InputBindingKind.Button: {
-						bool pressed = _stateService.IsPressed( binding.Button.DeviceId, binding.Button.ControlId );
-						action = new ResolvedAction(
-							actionId: binding.ActionId,
-							valueType: InputValueType.Button,
-							phase: ResolvePhase( binding.ActionId, pressed ),
-							timeStamp: timeStamp,
-							buttonValue: pressed
-						);
-						return true;
-					}
-				case InputBindingKind.Axis1D: {
-						float value = ApplyAxis1DProcessors(
-							_stateService.GetAxis1DUnchecked( binding.Axis1D.DeviceId, binding.Axis1D.ControlId ),
-							binding.Axis1D
-						);
-						action = new ResolvedAction(
-							actionId: binding.ActionId,
-							valueType: InputValueType.Float,
-							phase: ResolvePhase( binding.ActionId, MathF.Abs( value ) > 0.0001f ),
-							timeStamp: timeStamp,
-							floatValue: value
-						);
-						return true;
-					}
-				case InputBindingKind.Axis2D: {
-						Vector2 value = ApplyAxis2DProcessors(
-							_stateService.GetAxis2DUnchecked( binding.Axis2D.DeviceId, binding.Axis2D.ControlId ),
-							binding.Axis2D
-						);
-						action = new ResolvedAction(
-							actionId: binding.ActionId,
-							valueType: InputValueType.Vector2,
-							phase: ResolvePhase( binding.ActionId, value.LengthSquared() > 0.0001f ),
-							timeStamp: timeStamp,
-							vector2Value: value
-						);
-						return true;
-					}
-				case InputBindingKind.Delta2D: {
-						Vector2 value = _stateService.MouseDelta;
-						value = ApplyDelta2DProcessors( value, binding.Delta2D );
+					bool pressed = _stateService.IsPressed( binding.Button.DeviceId, binding.Button.ControlId );
+					valueType = InputValueType.Button;
+					buttonValue = pressed;
+					floatValue = 0.0f;
+					vector2Value = default;
+					magnitude = pressed ? 1.0f : 0.0f;
+					return true;
+				}
 
-						action = new ResolvedAction(
-							actionId: binding.ActionId,
-							valueType: InputValueType.Vector2,
-							phase: ResolvePhase( binding.ActionId, value.LengthSquared() > 0.0001f ),
-							timeStamp: timeStamp,
-							vector2Value: value
-						);
-						return true;
-					}
+				case InputBindingKind.Axis1D: {
+					float value = ApplyAxis1DProcessors(
+						_stateService.GetAxis1D( binding.Axis1D.DeviceId, binding.Axis1D.ControlId ),
+						in binding.Axis1D
+					);
+
+					valueType = InputValueType.Float;
+					buttonValue = false;
+					floatValue = value;
+					vector2Value = default;
+					magnitude = MathF.Abs( value );
+					return true;
+				}
+
+				case InputBindingKind.Axis2D: {
+					Vector2 value = ApplyAxis2DProcessors(
+						_stateService.GetAxis2D( binding.Axis2D.DeviceId, binding.Axis2D.ControlId ),
+						in binding.Axis2D
+					);
+
+					valueType = InputValueType.Vector2;
+					buttonValue = false;
+					floatValue = 0.0f;
+					vector2Value = value;
+					magnitude = value.LengthSquared();
+					return true;
+				}
+
+				case InputBindingKind.Delta2D: {
+					Vector2 value = ApplyDelta2DProcessors( _stateService.MouseDelta, in binding.Delta2D );
+
+					valueType = InputValueType.Vector2;
+					buttonValue = false;
+					floatValue = 0.0f;
+					vector2Value = value;
+					magnitude = value.LengthSquared();
+					return true;
+				}
+
 				default:
-					action = default;
+					valueType = default;
+					buttonValue = default;
+					floatValue = default;
+					vector2Value = default;
+					magnitude = default;
 					return false;
 			}
 		}
 
-		/*
-		===============
-		ResolveComposite1D
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="binding"></param>
-		/// <returns></returns>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		private float ResolveComposite1D( in Axis1DCompositeBinding binding ) {
 			float negative = _stateService.IsPressed( InputDeviceSlot.Keyboard, binding.Negative ) ? 1.0f : 0.0f;
 			float positive = _stateService.IsPressed( InputDeviceSlot.Keyboard, binding.Positive ) ? 1.0f : 0.0f;
@@ -294,23 +300,14 @@ namespace Nomad.Input.Private.Services {
 			return value;
 		}
 
-		/*
-		===============
-		ResolveComposite2D
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="binding"></param>
-		/// <returns></returns>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		private Vector2 ResolveComposite2D( in Axis2DCompositeBinding binding ) {
 			float up = _stateService.IsPressed( InputDeviceSlot.Keyboard, binding.Up ) ? 1.0f : 0.0f;
 			float down = _stateService.IsPressed( InputDeviceSlot.Keyboard, binding.Down ) ? 1.0f : 0.0f;
 			float left = _stateService.IsPressed( InputDeviceSlot.Keyboard, binding.Left ) ? 1.0f : 0.0f;
 			float right = _stateService.IsPressed( InputDeviceSlot.Keyboard, binding.Right ) ? 1.0f : 0.0f;
 
-			Vector2 value = new Vector2(
+			Vector2 value = new(
 				(right - left) * binding.ScaleX,
 				(up - down) * binding.ScaleY
 			);
@@ -322,17 +319,7 @@ namespace Nomad.Input.Private.Services {
 			return value;
 		}
 
-		/*
-		===============
-		ApplyAxis1DProcessors
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="value"></param>
-		/// <param name="binding"></param>
-		/// <returns></returns>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		private static float ApplyAxis1DProcessors( float value, in Axis1DBinding binding ) {
 			if ( MathF.Abs( value ) < binding.Deadzone ) {
 				value = 0.0f;
@@ -341,26 +328,13 @@ namespace Nomad.Input.Private.Services {
 				value = -value;
 			}
 
-			value *= binding.Sensitivity;
-			value *= binding.Scale;
-
-			return value;
+			return value * binding.Sensitivity * binding.Scale;
 		}
 
-		/*
-		===============
-		ApplyAxis2DProcessors
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="value"></param>
-		/// <param name="binding"></param>
-		/// <returns></returns>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		private static Vector2 ApplyAxis2DProcessors( Vector2 value, in Axis2DBinding binding ) {
-			float deadzone = binding.Deadzone;
-			if ( value.LengthSquared() < deadzone * deadzone ) {
+			float deadzoneSq = binding.Deadzone * binding.Deadzone;
+			if ( value.LengthSquared() < deadzoneSq ) {
 				return Vector2.Zero;
 			}
 			if ( binding.InvertX ) {
@@ -372,21 +346,10 @@ namespace Nomad.Input.Private.Services {
 
 			value.X *= binding.ScaleX * binding.Sensitivity;
 			value.Y *= binding.ScaleY * binding.Sensitivity;
-
 			return value;
 		}
 
-		/*
-		===============
-		ApplyDelta2DProcessors
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="value"></param>
-		/// <param name="binding"></param>
-		/// <returns></returns>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		private static Vector2 ApplyDelta2DProcessors( Vector2 value, in Delta2DBinding binding ) {
 			if ( binding.InvertX ) {
 				value.X = -value.X;
@@ -397,122 +360,40 @@ namespace Nomad.Input.Private.Services {
 
 			value.X *= binding.ScaleX * binding.Sensitivity;
 			value.Y *= binding.ScaleY * binding.Sensitivity;
-
 			return value;
 		}
-		
-		/*
-		===============
-		ContextMatches
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="bindingMask"></param>
-		/// <param name="activeMask"></param>
-		/// <returns></returns>
+
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		private static bool ContextMatches( uint bindingMask, uint activeMask ) {
 			return bindingMask == 0 || (bindingMask & activeMask) != 0;
 		}
 
-		/*
-		===============
-		ResolvePhase
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="actionId"></param>
-		/// <param name="isActive"></param>
-		/// <returns></returns>
-		private InputActionPhase ResolvePhase( InternString actionId, bool isActive ) {
-#if NET6_0_OR_GREATER
-			ref bool active = ref CollectionsMarshal.GetValueRefOrAddDefault( _actionActiveStates, actionId, out bool exists );
-			bool wasActive = exists && active;
-			active = isActive;
-#else
-			bool exists = _actionActiveStates.TryGetValue( actionId, out bool active );
-			bool wasActive = exists && active;
-			_actionActiveStates[actionId] = isActive;
-#endif
-
-			if ( !isActive ) {
-				return InputActionPhase.Canceled;
+		private void EnsureActionCapacity( int actionCount ) {
+			if ( _activeByAction.Length >= actionCount ) {
+				return;
 			}
-			return wasActive ? InputActionPhase.Performed : InputActionPhase.Started;
+
+			Array.Resize( ref _activeByAction, actionCount );
+			Array.Resize( ref _slotGeneration, actionCount );
+			Array.Resize( ref _touchedSlots, actionCount );
+
+			Array.Resize( ref _bestBindingIndex, actionCount );
+			Array.Resize( ref _bestScore, actionCount );
+			Array.Resize( ref _bestMagnitude, actionCount );
+			Array.Resize( ref _bestButtonValue, actionCount );
+			Array.Resize( ref _bestFloatValue, actionCount );
+			Array.Resize( ref _bestVector2Value, actionCount );
+			Array.Resize( ref _bestValueType, actionCount );
 		}
 
-		/*
-		===============
-		GetMagnitude
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="action"></param>
-		/// <returns></returns>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		private static float GetMagnitude( in ResolvedAction action ) {
-			return action.ValueType switch {
-				InputValueType.Button => action.ButtonValue ? 1.0f : 0.0f,
-				InputValueType.Float => MathF.Abs( action.FloatValue ),
-				InputValueType.Vector2 => action.Vector2Value.LengthSquared(),
-				_ => 0.0f
-			};
-		}
-
-		/*
-		===============
-		ShouldReplace
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="current"></param>
-		/// <param name="challenger"></param>
-		/// <param name="currentMagnitude"></param>
-		/// <param name="challengerMagnitude"></param>
-		/// <returns></returns>
-		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		private static bool ShouldReplace( in BindingMatch current, in BindingMatch challenger, float currentMagnitude, float challengerMagnitude ) {
-			if ( challenger.Score != current.Score ) {
-				return challenger.Score > current.Score;
-			}
-			return challengerMagnitude > currentMagnitude;
-		}
-
-		/*
-		===============
-		EnsureResolvedActionCapacity
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="requiredCapacity"></param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		private void EnsureResolvedActionCapacity( int requiredCapacity ) {
 			if ( _resolvedActionBuffer.Length >= requiredCapacity ) {
 				return;
 			}
-			_resolvedActionBuffer = new ResolvedAction[Math.Max( requiredCapacity, _resolvedActionBuffer.Length == 0 ? 8 : _resolvedActionBuffer.Length * 2 )];
+
+			int newCapacity = Math.Max( requiredCapacity, _resolvedActionBuffer.Length == 0 ? 8 : _resolvedActionBuffer.Length * 2 );
+			Array.Resize( ref _resolvedActionBuffer, newCapacity );
 		}
-
-		private readonly struct BestResolvedAction {
-			public readonly BindingMatch Match;
-			public readonly ResolvedAction Action;
-			public readonly float Magnitude;
-
-			public BestResolvedAction(BindingMatch match, ResolvedAction action, float magnitude) {
-				Match = match;
-				Action = action;
-				Magnitude = magnitude;
-			}
-		};
-	};
-};
+	}
+}

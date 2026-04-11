@@ -1,3 +1,18 @@
+/*
+===========================================================================
+The Nomad Framework
+Copyright (C) 2025-2026 Noah Van Til
+
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v2. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+This software is provided "as is", without warranty of any kind,
+express or implied, including but not limited to the warranties
+of merchantability, fitness for a particular purpose and noninfringement.
+===========================================================================
+*/
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -15,6 +30,17 @@ using Nomad.CVars;
 using Nomad.ResourceCache;
 
 namespace Nomad.Audio.Fmod.Private.Services {
+	/*
+	===================================================================================
+	
+	FMODChannelService
+	
+	===================================================================================
+	*/
+	/// <summary>
+	/// 
+	/// </summary>
+	
 	internal unsafe sealed class FMODChannelService : IChannelRepository {
 		private const int INVALID_INDEX = -1;
 		private const byte FLAG_ESSENTIAL = 1 << 0;
@@ -57,7 +83,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		private readonly int[] _arena.SlotPrevInCategory;
 		*/
 
-		private readonly ChannelArena _arena;
+		private readonly FMODChannelStorage _arena;
 
 		// Cold-path registries (acceptable here; not used in per-frame hot loops)
 		private readonly Dictionary<string, ushort> _eventIds = new Dictionary<string, ushort>( StringComparer.Ordinal );

@@ -46,17 +46,15 @@ namespace Nomad.Input.Interfaces
 		/// </summary>
 		/// <param name="slot"></param>
 		/// <param name="control"></param>
-		/// <param name="value"></param>
 		/// <returns></returns>
-		bool TryGetAxis1D( InputDeviceSlot slot, InputControlId control, out float value );
+		float GetAxis1D( InputDeviceSlot slot, InputControlId control );
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <param name="slot"></param>
 		/// <param name="control"></param>
-		/// <param name="value"></param>
 		/// <returns></returns>
-		bool TryGetAxis2D( InputDeviceSlot slot, InputControlId control, out Vector2 value );
+		Vector2 GetAxis2D( InputDeviceSlot slot, InputControlId control );
 	}
 }

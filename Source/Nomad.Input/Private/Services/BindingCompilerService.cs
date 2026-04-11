@@ -1,96 +1,82 @@
-/*
-===========================================================================
-The Nomad Framework
-Copyright (C) 2025-2026 Noah Van Til
-
-This Source Code Form is subject to the terms of the Mozilla Public
-License, v2. If a copy of the MPL was not distributed with this
-file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-This software is provided "as is", without warranty of any kind,
-express or implied, including but not limited to the warranties
-of merchantability, fitness for a particular purpose and noninfringement.
-===========================================================================
-*/
-
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using Nomad.Core.Input;
 using Nomad.Core.Util;
 using Nomad.Input.Private.Repositories;
 using Nomad.Input.Private.ValueObjects;
 using Nomad.Input.ValueObjects;
 
 namespace Nomad.Input.Private.Services {
-	/*
-	===================================================================================
-	
-	BindingCompilerService
-	
-	===================================================================================
-	*/
-	/// <summary>
-	/// 
-	/// </summary>
-	
 	internal sealed class BindingCompilerService {
+		private const int DEVICE_COUNT = (int)InputDeviceSlot.Count;
+		private const int CONTROL_COUNT = (int)InputControlId.Count;
+		private const int BUTTON_BUCKET_COUNT = DEVICE_COUNT * CONTROL_COUNT * 2;
+		private const int AXIS_BUCKET_COUNT = DEVICE_COUNT * CONTROL_COUNT;
+
 		private readonly CompiledBindingRepository _compiledBindings;
 
-		/*
-		===============
-		BindingCompilerService
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="compiledBindings"></param>
 		public BindingCompilerService( CompiledBindingRepository compiledBindings ) {
 			_compiledBindings = compiledBindings ?? throw new ArgumentNullException( nameof( compiledBindings ) );
 		}
 
-		/*
-		===============
-		CompileIntoRepository
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="actions"></param>
 		public void CompileIntoRepository( ImmutableArray<InputActionDefinition> actions ) {
 			_compiledBindings.Replace( Compile( actions ) );
 		}
 
-		/*
-		===============
-		Compile
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="actions"></param>
-		/// <returns></returns>
-		/// <exception cref="ArgumentOutOfRangeException"></exception>
 		public static CompiledBindingGraph Compile( ImmutableArray<InputActionDefinition> actions ) {
-			var buttonIndex = new Dictionary<ButtonLookupKey, List<CompiledBinding>>();
-			var axisIndex = new Dictionary<AxisLookupKey, List<CompiledBinding>>();
-			var deltaIndex = new Dictionary<AxisLookupKey, List<CompiledBinding>>();
-			var composite1D = new List<CompiledBinding>();
-			var composite2D = new List<CompiledBinding>();
+			if ( actions.IsDefaultOrEmpty ) {
+				return CompiledBindingGraph.Empty;
+			}
 
-			foreach ( var action in actions ) {
-				foreach ( var bindingDef in action.Bindings ) {
+			var actionInfos = new CompiledActionInfo[actions.Length];
+			var allBindings = new List<CompiledBinding>( EstimateBindingCapacity( actions ) );
+
+			var buttonCounts = new int[BUTTON_BUCKET_COUNT];
+			var axisCounts = new int[AXIS_BUCKET_COUNT];
+			var deltaCounts = new int[AXIS_BUCKET_COUNT];
+
+			var composite1DIndices = new List<int>( 16 );
+			var composite2DIndices = new List<int>( 16 );
+
+			for ( int actionIndex = 0; actionIndex < actions.Length; actionIndex++ ) {
+				var action = actions[actionIndex];
+				actionInfos[actionIndex] = new CompiledActionInfo( new InternString( action.Id ) );
+
+				for ( int i = 0; i < action.Bindings.Length; i++ ) {
+					ref readonly var bindingDef = ref action.Bindings.ItemRef( i );
+
+					BuildModifierMask(
+						in bindingDef,
+						out ulong modifierMask0,
+						out ulong modifierMask1,
+						out ulong modifierMask2,
+						out ulong modifierMask3,
+						out int modifierCount
+					);
+
+					int scoreBase = ComputeScoreBase(
+						priority: 0,
+						modifierCount: modifierCount,
+						exactScheme: true,
+						consumesInput: false
+					);
+
 					var binding = new CompiledBinding(
 						actionName: new InternString( action.Name ),
 						actionId: new InternString( action.Id ),
+						actionIndex: actionIndex,
 						valueType: action.ValueType,
 						kind: bindingDef.Kind,
 						scheme: bindingDef.Scheme,
 						priority: 0,
+						scoreBase: scoreBase,
 						consumesInput: false,
 						contextMask: 0xFFFFFFFF,
+						modifierMask0: modifierMask0,
+						modifierMask1: modifierMask1,
+						modifierMask2: modifierMask2,
+						modifierMask3: modifierMask3,
 						button: bindingDef.Button,
 						axis1D: bindingDef.Axis1D,
 						axis1DComposite: bindingDef.Axis1DComposite,
@@ -99,101 +85,179 @@ namespace Nomad.Input.Private.Services {
 						delta2D: bindingDef.Delta2D
 					);
 
+					int bindingIndex = allBindings.Count;
+					allBindings.Add( binding );
+
 					switch ( binding.Kind ) {
-						case InputBindingKind.Button:
-							Add(
-								buttonIndex,
-								new ButtonLookupKey( binding.Button.DeviceId, binding.Button.ControlId, true ),
-								binding
-							);
-							Add(
-								buttonIndex,
-								new ButtonLookupKey( binding.Button.DeviceId, binding.Button.ControlId, false ),
-								binding
-							);
+						case InputBindingKind.Button: {
+							int pressedBucket = GetButtonBucketIndex( binding.Button.DeviceId, binding.Button.ControlId, true );
+							int releasedBucket = GetButtonBucketIndex( binding.Button.DeviceId, binding.Button.ControlId, false );
+
+							buttonCounts[pressedBucket]++;
+							buttonCounts[releasedBucket]++;
 							break;
+						}
+
 						case InputBindingKind.Axis1D:
-							Add(
-								axisIndex,
-								new AxisLookupKey( binding.Axis1D.DeviceId, binding.Axis1D.ControlId ),
-								binding
-							);
+							axisCounts[GetAxisBucketIndex( binding.Axis1D.DeviceId, binding.Axis1D.ControlId )]++;
 							break;
+
 						case InputBindingKind.Axis2D:
-							Add(
-								axisIndex,
-								new AxisLookupKey( binding.Axis2D.DeviceId, binding.Axis2D.ControlId ),
-								binding
-							);
+							axisCounts[GetAxisBucketIndex( binding.Axis2D.DeviceId, binding.Axis2D.ControlId )]++;
 							break;
+
 						case InputBindingKind.Delta2D:
-							Add(
-								deltaIndex,
-								new AxisLookupKey( binding.Delta2D.DeviceId, binding.Delta2D.ControlId ),
-								binding
-							);
+							deltaCounts[GetAxisBucketIndex( binding.Delta2D.DeviceId, binding.Delta2D.ControlId )]++;
 							break;
+
 						case InputBindingKind.Axis1DComposite:
-							composite1D.Add( binding );
+							composite1DIndices.Add( bindingIndex );
 							break;
+
 						case InputBindingKind.Axis2DComposite:
-							composite2D.Add( binding );
+							composite2DIndices.Add( bindingIndex );
 							break;
+
 						default:
-							throw new ArgumentOutOfRangeException();
+							throw new ArgumentOutOfRangeException( nameof( binding.Kind ) );
 					}
 				}
 			}
-			return new CompiledBindingGraph {
-				ButtonIndex = ToCompiledBindingArrayIndex( buttonIndex ),
-				AxisIndex = ToCompiledBindingArrayIndex( axisIndex ),
-				DeltaIndex = ToCompiledBindingArrayIndex( deltaIndex ),
-				Composite1D = composite1D.ToArray(),
-				Composite2D = composite2D.ToArray()
-			};
+
+			var buttonBuckets = BuildBuckets( buttonCounts, out int[] buttonWriteOffsets, out int totalButtonRefs );
+			var axisBuckets = BuildBuckets( axisCounts, out int[] axisWriteOffsets, out int totalAxisRefs );
+			var deltaBuckets = BuildBuckets( deltaCounts, out int[] deltaWriteOffsets, out int totalDeltaRefs );
+
+			var buttonBindingIndices = new int[totalButtonRefs];
+			var axisBindingIndices = new int[totalAxisRefs];
+			var deltaBindingIndices = new int[totalDeltaRefs];
+
+			for ( int bindingIndex = 0; bindingIndex < allBindings.Count; bindingIndex++ ) {
+				ref readonly var binding = ref allBindings.ItemRef( bindingIndex );
+
+				switch ( binding.Kind ) {
+					case InputBindingKind.Button: {
+						int pressedBucket = GetButtonBucketIndex( binding.Button.DeviceId, binding.Button.ControlId, true );
+						int releasedBucket = GetButtonBucketIndex( binding.Button.DeviceId, binding.Button.ControlId, false );
+
+						buttonBindingIndices[buttonWriteOffsets[pressedBucket]++] = bindingIndex;
+						buttonBindingIndices[buttonWriteOffsets[releasedBucket]++] = bindingIndex;
+						break;
+					}
+
+					case InputBindingKind.Axis1D:
+						axisBindingIndices[axisWriteOffsets[GetAxisBucketIndex( binding.Axis1D.DeviceId, binding.Axis1D.ControlId )]++] = bindingIndex;
+						break;
+
+					case InputBindingKind.Axis2D:
+						axisBindingIndices[axisWriteOffsets[GetAxisBucketIndex( binding.Axis2D.DeviceId, binding.Axis2D.ControlId )]++] = bindingIndex;
+						break;
+
+					case InputBindingKind.Delta2D:
+						deltaBindingIndices[deltaWriteOffsets[GetAxisBucketIndex( binding.Delta2D.DeviceId, binding.Delta2D.ControlId )]++] = bindingIndex;
+						break;
+				}
+			}
+
+			return new CompiledBindingGraph(
+				bindings: allBindings.ToArray(),
+				actions: actionInfos,
+				buttonBuckets: buttonBuckets,
+				buttonBindingIndices: buttonBindingIndices,
+				axisBuckets: axisBuckets,
+				axisBindingIndices: axisBindingIndices,
+				deltaBuckets: deltaBuckets,
+				deltaBindingIndices: deltaBindingIndices,
+				composite1DBindingIndices: composite1DIndices.ToArray(),
+				composite2DBindingIndices: composite2DIndices.ToArray()
+			);
 		}
 
-		/*
-		===============
-		Add
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <typeparam name="TKey"></typeparam>
-		/// <param name="index"></param>
-		/// <param name="key"></param>
-		/// <param name="binding"></param>
-		private static void Add<TKey>( Dictionary<TKey, List<CompiledBinding>> index, TKey key, in CompiledBinding binding )
-			where TKey : notnull
-		{
-			if ( !index.TryGetValue( key, out var list ) ) {
-				list = new List<CompiledBinding>();
-				index[key] = list;
+		private static int EstimateBindingCapacity( ImmutableArray<InputActionDefinition> actions ) {
+			int total = 0;
+			for ( int i = 0; i < actions.Length; i++ ) {
+				total += actions[i].Bindings.Length;
 			}
-			list.Add( binding );
+			return total;
 		}
 
-		/*
-		===============
-		ToImmutable
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <typeparam name="TKey"></typeparam>
-		/// <param name="source"></param>
-		/// <returns></returns>
-		private static Dictionary<TKey, CompiledBinding[]> ToCompiledBindingArrayIndex<TKey>( Dictionary<TKey, List<CompiledBinding>> source )
-			where TKey : notnull
-		{
-			var builder = new Dictionary<TKey, CompiledBinding[]>( source.Count );
-			foreach ( var pair in source ) {
-				builder[pair.Key] = pair.Value.ToArray();
+		private static Bucket[] BuildBuckets( int[] counts, out int[] writeOffsets, out int totalEntries ) {
+			var buckets = new Bucket[counts.Length];
+			writeOffsets = new int[counts.Length];
+
+			int cursor = 0;
+			for ( int i = 0; i < counts.Length; i++ ) {
+				int count = counts[i];
+				buckets[i] = new Bucket( cursor, count );
+				writeOffsets[i] = cursor;
+				cursor += count;
 			}
-			return builder;
+
+			totalEntries = cursor;
+			return buckets;
+		}
+
+		private static void BuildModifierMask(
+			in InputBindingDefinition bindingDef,
+			out ulong mask0,
+			out ulong mask1,
+			out ulong mask2,
+			out ulong mask3,
+			out int modifierCount
+		) {
+			mask0 = 0UL;
+			mask1 = 0UL;
+			mask2 = 0UL;
+			mask3 = 0UL;
+			modifierCount = 0;
+
+			if ( bindingDef.Kind != InputBindingKind.Button ) {
+				return;
+			}
+
+			var modifiers = bindingDef.Button.Modifiers;
+			for ( int i = 0; i < modifiers.Length; i++ ) {
+				int control = (int)modifiers[i];
+				int word = control >> 6;
+				ulong bit = 1UL << (control & 63);
+
+				switch ( word ) {
+					case 0: mask0 |= bit; break;
+					case 1: mask1 |= bit; break;
+					case 2: mask2 |= bit; break;
+					case 3: mask3 |= bit; break;
+					default: throw new ArgumentOutOfRangeException( nameof( bindingDef ) );
+				}
+
+				modifierCount++;
+			}
+		}
+
+		private static int ComputeScoreBase( int priority, int modifierCount, bool exactScheme, bool consumesInput ) {
+			int score = 0;
+			score += priority * 100;
+			score += modifierCount * 25;
+			score += exactScheme ? 10 : 0;
+			score += consumesInput ? 1 : 0;
+			return score;
+		}
+
+		private static int GetButtonBucketIndex( InputDeviceSlot device, InputControlId control, bool pressed ) {
+			return ((((int)device * CONTROL_COUNT) + (int)control) << 1) | (pressed ? 1 : 0);
+		}
+
+		private static int GetAxisBucketIndex( InputDeviceSlot device, InputControlId control ) {
+			return ((int)device * CONTROL_COUNT) + (int)control;
 		}
 	}
-};
+
+	internal static class ListRefExtensions {
+		public static ref readonly T ItemRef<T>( this List<T> list, int index ) {
+#if NET6_0_OR_GREATER
+			return ref System.Runtime.InteropServices.CollectionsMarshal.AsSpan( list )[index];
+#else
+			return ref list[index];
+#endif
+		}
+	}
+}

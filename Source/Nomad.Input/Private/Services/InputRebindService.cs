@@ -1,21 +1,5 @@
-/*
-===========================================================================
-The Nomad Framework
-Copyright (C) 2025-2026 Noah Van Til
-
-This Source Code Form is subject to the terms of the Mozilla Public
-License, v2. If a copy of the MPL was not distributed with this
-file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-This software is provided "as is", without warranty of any kind,
-express or implied, including but not limited to the warranties
-of merchantability, fitness for a particular purpose and noninfringement.
-===========================================================================
-*/
-
 using System;
 using System.Collections.Immutable;
-using System.Numerics;
 using Nomad.Core.Events;
 using Nomad.Core.Input;
 using Nomad.Input.Extensions;
@@ -25,14 +9,17 @@ using Nomad.Input.Private.Repositories;
 using Nomad.Input.ValueObjects;
 
 namespace Nomad.Input.Private.Services {
-	/// <summary>
-	/// 
-	/// </summary>
 	internal sealed class InputRebindService : IInputRebindService, IDisposable {
 		private const float AXIS_CAPTURE_THRESHOLD = 0.5f;
+		private const float AXIS_CAPTURE_THRESHOLD_SQUARED = AXIS_CAPTURE_THRESHOLD * AXIS_CAPTURE_THRESHOLD;
 
-		public bool IsRebinding => _currentRequest.HasValue;
-		public InputRebindRequest? CurrentRequest => _currentRequest;
+		public bool IsRebinding {
+			get => _currentRequest.HasValue;
+		}
+
+		public InputRebindRequest? CurrentRequest {
+			get => _currentRequest;
+		}
 
 		public event Action<InputRebindRequest>? RebindStarted;
 		public event Action<InputRebindRequest>? RebindCanceled;
@@ -41,96 +28,74 @@ namespace Nomad.Input.Private.Services {
 		private readonly BindRepository _repository;
 		private readonly BindingCompilerService _compilerService;
 
-		private readonly IGameEventRegistryService _eventFactory;
+		private readonly IGameEvent<KeyboardEventArgs> _keyboardEvent;
+		private readonly IGameEvent<MouseButtonEventArgs> _mouseButtonEvent;
+		private readonly IGameEvent<MouseMotionEventArgs> _mouseMotionEvent;
+		private readonly IGameEvent<GamepadButtonEventArgs> _gamepadButtonEvent;
+		private readonly IGameEvent<GamepadAxisEventArgs> _gamepadAxisEvent;
 
 		private InputRebindRequest? _currentRequest;
+		private bool _isDisposed;
 
-		private bool _isDisposed = false;
-
-		/*
-		===============
-		InputRebindService
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="repository"></param>
-		/// <param name="compilerService"></param>
-		/// <param name="eventRegistry"></param>
-		/// <exception cref="ArgumentNullException"></exception>
-		public InputRebindService( BindRepository repository, BindingCompilerService compilerService, IGameEventRegistryService eventRegistry ) {
+		public InputRebindService(
+			BindRepository repository,
+			BindingCompilerService compilerService,
+			IGameEventRegistryService eventRegistry
+		) {
 			_repository = repository ?? throw new ArgumentNullException( nameof( repository ) );
 			_compilerService = compilerService ?? throw new ArgumentNullException( nameof( compilerService ) );
-			_eventFactory = eventRegistry ?? throw new ArgumentNullException( nameof( eventRegistry ) );
-
-			eventRegistry
-				.GetEvent<KeyboardEventArgs>( Core.Constants.Events.Input.KEYBOARD_EVENT, Core.Constants.Events.Input.NAMESPACE )
-				.Subscribe( OnKeyboardEventTriggered );
-
-			eventRegistry
-				.GetEvent<MouseButtonEventArgs>( Core.Constants.Events.Input.MOUSE_BUTTON_EVENT, Core.Constants.Events.Input.NAMESPACE )
-				.Subscribe( OnMouseButtonEventTriggered );
-
-			eventRegistry
-				.GetEvent<MouseMotionEventArgs>( Core.Constants.Events.Input.MOUSE_MOTION_EVENT, Core.Constants.Events.Input.NAMESPACE )
-				.Subscribe( OnMouseMotionEventTriggered );
-
-			eventRegistry
-				.GetEvent<GamepadButtonEventArgs>( Core.Constants.Events.Input.GAMEPAD_BUTTON_EVENT, Core.Constants.Events.Input.NAMESPACE )
-				.Subscribe( OnGamepadButtonEventTriggered );
-
-			eventRegistry
-				.GetEvent<GamepadAxisEventArgs>( Core.Constants.Events.Input.GAMEPAD_AXIS_EVENT, Core.Constants.Events.Input.NAMESPACE )
-				.Subscribe( OnGamepadAxisEventTriggered );
-		}
-
-		/*
-		===============
-		Dispose
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		public void Dispose() {
-			if ( !_isDisposed ) {
-				_eventFactory
-					.GetEvent<KeyboardEventArgs>( Core.Constants.Events.Input.KEYBOARD_EVENT, Core.Constants.Events.Input.NAMESPACE )
-					.Subscribe( OnKeyboardEventTriggered );
-
-				_eventFactory
-					.GetEvent<MouseButtonEventArgs>( Core.Constants.Events.Input.MOUSE_BUTTON_EVENT, Core.Constants.Events.Input.NAMESPACE )
-					.Subscribe( OnMouseButtonEventTriggered );
-
-				_eventFactory
-					.GetEvent<MouseMotionEventArgs>( Core.Constants.Events.Input.MOUSE_MOTION_EVENT, Core.Constants.Events.Input.NAMESPACE )
-					.Subscribe( OnMouseMotionEventTriggered );
-
-				_eventFactory
-					.GetEvent<GamepadButtonEventArgs>( Core.Constants.Events.Input.GAMEPAD_BUTTON_EVENT, Core.Constants.Events.Input.NAMESPACE )
-					.Subscribe( OnGamepadButtonEventTriggered );
-
-				_eventFactory
-					.GetEvent<GamepadAxisEventArgs>( Core.Constants.Events.Input.GAMEPAD_AXIS_EVENT, Core.Constants.Events.Input.NAMESPACE )
-					.Subscribe( OnGamepadAxisEventTriggered );
+			if ( eventRegistry == null ) {
+				throw new ArgumentNullException( nameof( eventRegistry ) );
 			}
-			GC.SuppressFinalize( this );
-			_isDisposed = true;
+
+			_keyboardEvent = eventRegistry.GetEvent<KeyboardEventArgs>(
+				Core.Constants.Events.Input.KEYBOARD_EVENT,
+				Core.Constants.Events.Input.NAMESPACE
+			);
+			_mouseButtonEvent = eventRegistry.GetEvent<MouseButtonEventArgs>(
+				Core.Constants.Events.Input.MOUSE_BUTTON_EVENT,
+				Core.Constants.Events.Input.NAMESPACE
+			);
+			_mouseMotionEvent = eventRegistry.GetEvent<MouseMotionEventArgs>(
+				Core.Constants.Events.Input.MOUSE_MOTION_EVENT,
+				Core.Constants.Events.Input.NAMESPACE
+			);
+			_gamepadButtonEvent = eventRegistry.GetEvent<GamepadButtonEventArgs>(
+				Core.Constants.Events.Input.GAMEPAD_BUTTON_EVENT,
+				Core.Constants.Events.Input.NAMESPACE
+			);
+			_gamepadAxisEvent = eventRegistry.GetEvent<GamepadAxisEventArgs>(
+				Core.Constants.Events.Input.GAMEPAD_AXIS_EVENT,
+				Core.Constants.Events.Input.NAMESPACE
+			);
+
+			_keyboardEvent.Subscribe( OnKeyboardEventTriggered );
+			_mouseButtonEvent.Subscribe( OnMouseButtonEventTriggered );
+			_mouseMotionEvent.Subscribe( OnMouseMotionEventTriggered );
+			_gamepadButtonEvent.Subscribe( OnGamepadButtonEventTriggered );
+			_gamepadAxisEvent.Subscribe( OnGamepadAxisEventTriggered );
 		}
 
-		/*
-		===============
-		BeginRebind
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="request"></param>
-		/// <returns></returns>
+		public void Dispose() {
+			if ( _isDisposed ) {
+				return;
+			}
+
+			_keyboardEvent.Unsubscribe( OnKeyboardEventTriggered );
+			_mouseButtonEvent.Unsubscribe( OnMouseButtonEventTriggered );
+			_mouseMotionEvent.Unsubscribe( OnMouseMotionEventTriggered );
+			_gamepadButtonEvent.Unsubscribe( OnGamepadButtonEventTriggered );
+			_gamepadAxisEvent.Unsubscribe( OnGamepadAxisEventTriggered );
+
+			_isDisposed = true;
+			GC.SuppressFinalize( this );
+		}
+
 		public bool BeginRebind( in InputRebindRequest request ) {
-			if ( IsRebinding || !TryGetBinding( request, out var binding ) ) {
+			if ( _currentRequest.HasValue ) {
+				return false;
+			}
+			if ( !TryGetRequestBinding( request, out _, out var binding ) ) {
 				return false;
 			}
 			if ( !IsSupported( binding.Kind, request.Part ) ) {
@@ -142,101 +107,64 @@ namespace Nomad.Input.Private.Services {
 			return true;
 		}
 
-		/*
-		===============
-		CancelRebind
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns></returns>
 		public bool CancelRebind() {
 			if ( !_currentRequest.HasValue ) {
 				return false;
 			}
 
-			InputRebindRequest request = _currentRequest.Value;
+			var request = _currentRequest.Value;
 			_currentRequest = null;
 			RebindCanceled?.Invoke( request );
 			return true;
 		}
 
-		/*
-		===============
-		ApplyBinding
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="request"></param>
-		/// <param name="binding"></param>
-		/// <returns></returns>
 		public bool ApplyBinding( in InputRebindRequest request, in InputBindingDefinition binding ) {
-			if ( !_repository.TryGetBindMapping( request.MappingName, out var actions ) ) {
+			if ( !TryGetRequestBinding( request, out var actions, out _ ) ) {
 				return false;
 			}
 
 			int actionIndex = FindActionIndex( actions, request.ActionId );
-			if ( actionIndex < 0 || (uint)request.BindingIndex >= (uint)actions[actionIndex].Bindings.Length ) {
+			if ( actionIndex < 0 ) {
 				return false;
 			}
 
-			var bindingsBuilder = actions[actionIndex].Bindings.Clone().ToBuilder();
-			bindingsBuilder[request.BindingIndex] = binding.Clone();
+			var updatedBindings = actions[actionIndex].Bindings;
+			if ( (uint)request.BindingIndex >= (uint)updatedBindings.Length ) {
+				return false;
+			}
 
-			if ( !_repository.SetActionBindings( request.MappingName, request.ActionId, bindingsBuilder.ToImmutable() ) ) {
+			var builder = updatedBindings.ToBuilder();
+			builder[request.BindingIndex] = binding.Clone();
+
+			ImmutableArray<InputBindingDefinition> finalBindings = builder.MoveToImmutable();
+
+			if ( !_repository.SetActionBindings( request.MappingName, request.ActionId, finalBindings ) ) {
 				return false;
 			}
 
 			_compilerService.CompileIntoRepository( _repository.GetAllBindings() );
+
 			_currentRequest = null;
 			RebindCompleted?.Invoke( new InputRebindResult( request, binding.Clone() ) );
 			return true;
 		}
 
-		/*
-		===============
-		OnKeyboardEventTriggered
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="args"></param>
 		private void OnKeyboardEventTriggered( in KeyboardEventArgs args ) {
 			if ( !_currentRequest.HasValue || !args.Pressed ) {
 				return;
 			}
+
 			ApplyCapturedButton( InputDeviceSlot.Keyboard, args.KeyNum.ToControlId() );
 		}
 
-		/*
-		===============
-		OnMouseButtonEventTriggered
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="args"></param>
 		private void OnMouseButtonEventTriggered( in MouseButtonEventArgs args ) {
 			if ( !_currentRequest.HasValue || !args.Pressed ) {
 				return;
 			}
+
 			ApplyCapturedButton( InputDeviceSlot.Mouse, args.Button.ToControlId() );
 		}
 
-		/*
-		===============
-		OnMouseMotionEventTriggered
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="args"></param>
 		private void OnMouseMotionEventTriggered( in MouseMotionEventArgs args ) {
 			if ( !_currentRequest.HasValue ) {
 				return;
@@ -246,7 +174,10 @@ namespace Nomad.Input.Private.Services {
 			}
 
 			var request = _currentRequest.Value;
-			if ( !TryGetBinding( request, out var existing ) || existing.Kind != InputBindingKind.Delta2D || request.Part != InputRebindPart.Whole ) {
+			if ( !TryGetRequestBinding( request, out _, out var existing ) ) {
+				return;
+			}
+			if ( existing.Kind != InputBindingKind.Delta2D || request.Part != InputRebindPart.Whole ) {
 				return;
 			}
 
@@ -257,38 +188,24 @@ namespace Nomad.Input.Private.Services {
 			ApplyBinding( request, updated );
 		}
 
-		/*
-		===============
-		OnGamepadButtonEventTriggered
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="args"></param>
 		private void OnGamepadButtonEventTriggered( in GamepadButtonEventArgs args ) {
 			if ( !_currentRequest.HasValue || !args.Pressed ) {
 				return;
 			}
+
 			ApplyCapturedButton( GetGamepadDeviceSlot( args.DeviceId ), args.Button.ToControlId() );
 		}
 
-		/*
-		===============
-		OnGamepadAxisEventTriggered
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="args"></param>
 		private void OnGamepadAxisEventTriggered( in GamepadAxisEventArgs args ) {
-			if ( !_currentRequest.HasValue || args.Value.LengthSquared() < AXIS_CAPTURE_THRESHOLD * AXIS_CAPTURE_THRESHOLD ) {
+			if ( !_currentRequest.HasValue || args.Value.LengthSquared() < AXIS_CAPTURE_THRESHOLD_SQUARED ) {
 				return;
 			}
 
 			var request = _currentRequest.Value;
-			if ( !TryGetBinding( request, out var existing ) || existing.Kind != InputBindingKind.Axis2D || request.Part != InputRebindPart.Whole ) {
+			if ( !TryGetRequestBinding( request, out _, out var existing ) ) {
+				return;
+			}
+			if ( existing.Kind != InputBindingKind.Axis2D || request.Part != InputRebindPart.Whole ) {
 				return;
 			}
 
@@ -299,36 +216,31 @@ namespace Nomad.Input.Private.Services {
 			ApplyBinding( request, updated );
 		}
 
-		/*
-		===============
-		ApplyCapturedButton
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="deviceId"></param>
-		/// <param name="controlId"></param>
 		private void ApplyCapturedButton( InputDeviceSlot deviceId, InputControlId controlId ) {
 			if ( !_currentRequest.HasValue ) {
 				return;
 			}
 
-			InputRebindRequest request = _currentRequest.Value;
-			if ( !TryGetBinding( request, out var existing ) ) {
+			var request = _currentRequest.Value;
+			if ( !TryGetRequestBinding( request, out _, out var existing ) ) {
 				return;
 			}
 
-			InputBindingDefinition updated = existing.Clone();
+			var updated = existing.Clone();
+
 			switch ( updated.Kind ) {
 				case InputBindingKind.Button:
 					if ( request.Part != InputRebindPart.Whole ) {
 						return;
 					}
-					updated.Button.DeviceId = deviceId;
-					updated.Button.ControlId = controlId;
-					updated.Button.Modifiers = ImmutableArray<InputControlId>.Empty;
+
+					updated.Button = new ButtonBinding(
+						deviceId: deviceId,
+						controlId: controlId,
+						modifiers: ImmutableArray<InputControlId>.Empty
+					);
 					break;
+
 				case InputBindingKind.Axis1DComposite:
 					switch ( request.Part ) {
 						case InputRebindPart.Negative:
@@ -341,6 +253,7 @@ namespace Nomad.Input.Private.Services {
 							return;
 					}
 					break;
+
 				case InputBindingKind.Axis2DComposite:
 					switch ( request.Part ) {
 						case InputRebindPart.Up:
@@ -359,6 +272,7 @@ namespace Nomad.Input.Private.Services {
 							return;
 					}
 					break;
+
 				default:
 					return;
 			}
@@ -366,25 +280,23 @@ namespace Nomad.Input.Private.Services {
 			ApplyBinding( request, updated );
 		}
 
-		/*
-		===============
-		TryGetBinding
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="request"></param>
-		/// <param name="binding"></param>
-		/// <returns></returns>
-		private bool TryGetBinding( InputRebindRequest request, out InputBindingDefinition binding ) {
+		private bool TryGetRequestBinding(
+			in InputRebindRequest request,
+			out ImmutableArray<InputActionDefinition> actions,
+			out InputBindingDefinition binding
+		) {
+			actions = default;
 			binding = null;
-			if ( !_repository.TryGetBindMapping( request.MappingName, out var actions ) ) {
+
+			if ( !_repository.TryGetBindMapping( request.MappingName, out actions ) ) {
 				return false;
 			}
 
 			int actionIndex = FindActionIndex( actions, request.ActionId );
-			if ( actionIndex < 0 || (uint)request.BindingIndex >= (uint)actions[actionIndex].Bindings.Length ) {
+			if ( actionIndex < 0 ) {
+				return false;
+			}
+			if ( (uint)request.BindingIndex >= (uint)actions[actionIndex].Bindings.Length ) {
 				return false;
 			}
 
@@ -392,60 +304,29 @@ namespace Nomad.Input.Private.Services {
 			return binding != null;
 		}
 
-		/*
-		===============
-		FindActionIndex
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="actions"></param>
-		/// <param name="actionId"></param>
-		/// <returns></returns>
 		private static int FindActionIndex( ImmutableArray<InputActionDefinition> actions, string actionId ) {
 			for ( int i = 0; i < actions.Length; i++ ) {
-				if ( actions[i].Id.Equals( actionId, StringComparison.Ordinal ) ) {
+				if ( string.Equals( actions[i].Id, actionId, StringComparison.Ordinal ) ) {
 					return i;
 				}
 			}
 			return -1;
 		}
-		
-		/*
-		===============
-		IsSupported
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="kind"></param>
-		/// <param name="part"></param>
-		/// <returns></returns>
+
 		private static bool IsSupported( InputBindingKind kind, InputRebindPart part ) {
 			return kind switch {
 				InputBindingKind.Button => part == InputRebindPart.Whole,
-				InputBindingKind.Axis1D => part == InputRebindPart.Whole,
-				InputBindingKind.Axis2D => part == InputRebindPart.Whole,
 				InputBindingKind.Delta2D => part == InputRebindPart.Whole,
+				InputBindingKind.Axis2D => part == InputRebindPart.Whole,
 				InputBindingKind.Axis1DComposite => part == InputRebindPart.Negative || part == InputRebindPart.Positive,
-				InputBindingKind.Axis2DComposite => part == InputRebindPart.Up || part == InputRebindPart.Down || part == InputRebindPart.Left || part == InputRebindPart.Right,
+				InputBindingKind.Axis2DComposite => part == InputRebindPart.Up
+					|| part == InputRebindPart.Down
+					|| part == InputRebindPart.Left
+					|| part == InputRebindPart.Right,
 				_ => false
 			};
 		}
 
-		/*
-		===============
-		GetGamepadDeviceSlot
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="deviceId"></param>
-		/// <returns></returns>
-		/// <exception cref="ArgumentOutOfRangeException"></exception>
 		private static InputDeviceSlot GetGamepadDeviceSlot( int deviceId ) {
 			return deviceId switch {
 				0 => InputDeviceSlot.Gamepad0,
