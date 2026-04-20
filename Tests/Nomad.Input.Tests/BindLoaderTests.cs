@@ -86,6 +86,7 @@ namespace Nomad.Input.Tests {
 			{
 			  "Bindings": {
 			    "Move": {
+				  "Id": "Move",
 			      "ValueType": "Vector2",
 			      "Scheme": "KeyboardAndMouse",
 			      "Bindings": {
@@ -118,12 +119,14 @@ namespace Nomad.Input.Tests {
 			{
 			  "Bindings": [
 			    {
+				  "Id": "Shoot",
 			      "Name": "Shoot",
 			      "ValueType": "Button",
 			      "Scheme": "KeyboardAndMouse",
 			      "Bindings": { "DeviceId": "MouseButton", "ControlId": "Left" }
 			    },
 			    {
+				  "Id": "Shoot",
 			      "Name": "Shoot",
 			      "ValueType": "Button",
 			      "Scheme": "Gamepad",
@@ -151,6 +154,7 @@ namespace Nomad.Input.Tests {
 			{
 			  "Bindings": [
 			    {
+				  "Id": "Look",
 			      "Name": "Look",
 			      "ValueType": "Vector2",
 			      "Scheme": "KeyboardAndMouse",
@@ -176,12 +180,14 @@ namespace Nomad.Input.Tests {
 			{
 			  "Bindings": [
 			    {
+				  "Id": "Move",
 			      "Name": "Move",
 			      "ValueType": "Button",
 			      "Scheme": "KeyboardAndMouse",
 			      "Bindings": { "DeviceId": "Keyboard", "ControlId": "W" }
 			    },
 			    {
+				  "Id": "Move",
 			      "Name": "Move",
 			      "ValueType": "Vector2",
 			      "Scheme": "KeyboardAndMouse",
@@ -207,6 +213,7 @@ namespace Nomad.Input.Tests {
 			{
 			  "Bindings": [
 			    {
+				  "Id": "Pause",
 			      "Name": "Pause",
 			      "ValueType": "Button",
 			      "Scheme": "KeyboardAndMouse",

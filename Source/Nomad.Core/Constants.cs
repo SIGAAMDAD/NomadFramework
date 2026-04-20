@@ -442,6 +442,8 @@ namespace Nomad.Core
                 /// </summary>
                 public const string MOUSE_MOTION_EVENT = NAMESPACE + ".MouseMotionEvent";
 
+                public const string MOUSE_POSITION_CHANGED_EVENT = NAMESPACE + ".MousePositionChanged";
+
                 /// <summary>
                 /// 
                 /// </summary>
@@ -595,6 +597,11 @@ namespace Nomad.Core
             /// to disk. Set to 1 GiB.
             /// </summary>
             public const int MAXIMUM_MEMORY_STREAM_CAPACITY = 1 * 1024 * 1024 * 1024;
+        }
+
+        public static class Input
+        {
+            public const int MAX_COOP_PLAYERS = 4;
         }
 
         /// <summary>

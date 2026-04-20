@@ -15,6 +15,9 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Threading.Tasks;
+using System.Threading;
+using System.Collections.Generic;
+using Nomad.Core.Events;
 
 namespace Nomad.Core.OnlineServices
 {
@@ -23,10 +26,25 @@ namespace Nomad.Core.OnlineServices
     /// </summary>
     public interface IMatchMakingService : IDisposable
     {
+        bool IsSearching { get; }
+        MatchMakingInfo? CurrentRequest { get; }
+
+        IGameEvent<EmptyEventArgs> SearchResultsUpdated { get; }
+
+        IGameEvent<Guid> MatchFound { get; }
+
+        IGameEvent<EmptyEventArgs> MatchMakingFailed { get; }
+
         /// <summary>
         ///
         /// </summary>
         /// <returns></returns>
-        ValueTask<LobbyInfo> FindLobby();
+        Task<IReadOnlyList<LobbyInfo>> SearchLobbies(MatchMakingInfo info, CancellationToken ct = default);
+
+        Task<LobbyInfo?> FindBestLobby(MatchMakingInfo info, CancellationToken ct = default);
+
+        Task<bool> StartQuickPlay(MatchMakingInfo info, CancellationToken ct = default);
+
+        Task Cancel(CancellationToken ct = default);
     }
 }

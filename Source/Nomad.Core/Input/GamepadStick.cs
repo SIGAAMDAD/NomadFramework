@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-The Nomad MPLv2 Source Code
+The Nomad Framework
 Copyright (C) 2025-2026 Noah Van Til
 
 This Source Code Form is subject to the terms of the Mozilla Public
@@ -15,19 +15,19 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Core.Input
 {
-	/// <summary>
-	/// 
-	/// </summary>
-	public enum GamepadStick : byte
-	{
-		/// <summary>
-		/// 
-		/// </summary>
-		Left,
+    /// <summary>
+    /// Represents the sticks (analog controls) on a gamepad controller.
+    /// </summary>
+    public enum GamepadStick : byte
+    {
+        /// <summary>
+        /// The left analog stick.
+        /// </summary>
+        Left,
 
-		/// <summary>
-		/// 
-		/// </summary>
-		Right,
-	}
+        /// <summary>
+        /// The right analog stick.
+        /// </summary>
+        Right,
+    }
 }

@@ -17,6 +17,8 @@ using Nomad.Core.CVars;
 using Nomad.CVars;
 using Nomad.EngineUtils.Settings.ValueObjects;
 using Nomad.EngineUtils.Settings.Interfaces;
+using Nomad.Audio.Interfaces;
+using System;
 
 namespace Nomad.EngineUtils.Settings.Services
 {
@@ -25,13 +27,17 @@ namespace Nomad.EngineUtils.Settings.Services
     /// </summary>
     public sealed class AudioSettingsService : SettingsService<AudioConfig, IAudioConfig>
     {
+        private readonly IAudioDevice _device;
+
         /// <summary>
-        ///
+        /// 
         /// </summary>
+        /// <param name="device"></param>
         /// <param name="cvarSystem"></param>
-        public AudioSettingsService(ICVarSystemService cvarSystem)
+        public AudioSettingsService(IAudioDevice device, ICVarSystemService cvarSystem)
             : base(cvarSystem)
         {
+            _device = device ?? throw new ArgumentNullException(nameof(device));
         }
 
         /// <summary>
@@ -39,7 +45,7 @@ namespace Nomad.EngineUtils.Settings.Services
         /// </summary>
         protected override void SaveInternal()
         {
-            var audioDriver = cvarSystem.GetCVarOrThrow<string>(Core.Constants.CVars.EngineUtils.Audio.AUDIO_DRIVER);
+            var audioDriver = cvarSystem.GetCVarOrThrow<int>(Core.Constants.CVars.EngineUtils.Audio.AUDIO_DRIVER);
             audioDriver.Value = config.AudioDriver;
 
             var outputDeviceIndex = cvarSystem.GetCVarOrThrow<int>(Core.Constants.CVars.EngineUtils.Audio.OUTPUT_DEVICE_INDEX);
@@ -67,7 +73,7 @@ namespace Nomad.EngineUtils.Settings.Services
         /// <returns></returns>
         protected override AudioConfig CreateConfig() => new AudioConfig
         {
-            AudioDriver = cvarSystem.GetCVarOrThrow<string>(Core.Constants.CVars.EngineUtils.Audio.AUDIO_DRIVER).Value,
+            AudioDriver = cvarSystem.GetCVarOrThrow<int>(Core.Constants.CVars.EngineUtils.Audio.AUDIO_DRIVER).Value,
             OutputDeviceIndex = cvarSystem.GetCVarOrThrow<int>(Core.Constants.CVars.EngineUtils.Audio.OUTPUT_DEVICE_INDEX).Value,
             MaxChannels = cvarSystem.GetCVarOrThrow<int>(Core.Constants.CVars.EngineUtils.Audio.MAX_ACTIVE_CHANNELS).Value,
             MusicVolume = cvarSystem.GetCVarOrThrow<float>(Core.Constants.CVars.EngineUtils.Audio.MUSIC_VOLUME).Value,
@@ -82,7 +88,7 @@ namespace Nomad.EngineUtils.Settings.Services
         /// <returns></returns>
         protected override AudioConfig CreateDefault() => new AudioConfig
         {
-            AudioDriver = cvarSystem.GetCVarOrThrow<string>(Core.Constants.CVars.EngineUtils.Audio.AUDIO_DRIVER).DefaultValue,
+            AudioDriver = cvarSystem.GetCVarOrThrow<int>(Core.Constants.CVars.EngineUtils.Audio.AUDIO_DRIVER).DefaultValue,
             OutputDeviceIndex = cvarSystem.GetCVarOrThrow<int>(Core.Constants.CVars.EngineUtils.Audio.OUTPUT_DEVICE_INDEX).DefaultValue,
             MaxChannels = cvarSystem.GetCVarOrThrow<int>(Core.Constants.CVars.EngineUtils.Audio.MAX_ACTIVE_CHANNELS).DefaultValue,
             MusicVolume = cvarSystem.GetCVarOrThrow<float>(Core.Constants.CVars.EngineUtils.Audio.MUSIC_VOLUME).DefaultValue,

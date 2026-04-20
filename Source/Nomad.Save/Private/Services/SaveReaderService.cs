@@ -102,6 +102,7 @@ namespace Nomad.Save.Private.Services {
 		void ISaveReaderService.Load( string name ) {
 			var filepath = _slotRepository.AddSaveFile( name, false );
 
+			_sections.Clear();
 			_category.PrintLine( $"Loading save data from {filepath}..." );
 
 			using var reader = _fileSystem.OpenRead( new MemoryFileReadConfig { FilePath = filepath, MaxCapacity = 8 * 1024 * 1024 } ) as IMemoryReadStream;

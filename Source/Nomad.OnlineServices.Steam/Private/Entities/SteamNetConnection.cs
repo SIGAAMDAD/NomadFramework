@@ -13,55 +13,57 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System;
+using Nomad.Core.OnlineServices;
 using Steamworks;
 
 namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
-	internal class SteamNetConnection {
-		public SteamConnectionStatus Status => _status;
-		private SteamConnectionStatus _status;
+	/*
+	===================================================================================
+	
+	SteamNetConnection
+	
+	===================================================================================
+	*/
+	/// <summary>
+	/// 
+	/// </summary>
+	
+	internal sealed class SteamNetConnection {
+		public NetworkConnectionState Status => _status;
+		private NetworkConnectionState _status;
+
+		public DateTime LastStateChangeUtc { get; private set; } = DateTime.UtcNow;
+
+		public CSteamID? RemoteSteamId => _remoteSteamId;
+		private readonly CSteamID? _remoteSteamId;
 
 		public HSteamNetConnection Connection => _connection;
 		private readonly HSteamNetConnection _connection = HSteamNetConnection.Invalid;
 
-		public SteamNetConnection( HSteamNetConnection connection ) {
-			_connection = connection;
-			_status = SteamConnectionStatus.Opened;
-		}
-
-		public void SetStatus( SteamConnectionStatus status ) {
-			switch ( status ) {
-				case SteamConnectionStatus.Opened: {
-						if ( _status != SteamConnectionStatus.Opened ) {
-							if ( SteamNetworkingSockets.AcceptConnection( _connection ) != EResult.k_EResultOK ) {
-								_status = SteamConnectionStatus.Connected;
-							} else {
-								Close( "Connection accept failed." );
-							}
-						} else {
-
-						}
-						break;
-					}
-				case SteamConnectionStatus.Closed:
-					if ( _connection != HSteamNetConnection.Invalid ) {
-						Close( "Client connection closed." );
-					}
-					break;
-			}
-			_status = status;
-		}
-
+		private readonly SteamNetworkingIdentity _identity;
+		
 		/*
 		===============
-		Close
+		SteamNetConnection
 		===============
 		*/
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="message"></param>
-		private void Close( string message ) {
-			SteamNetworkingSockets.CloseConnection( _connection, 0, message, false );
+		/// <param name="connection"></param>
+		/// <param name="remoteIdentity"></param>
+		public SteamNetConnection( HSteamNetConnection connection, SteamNetworkingIdentity remoteIdentity ) {
+			_connection = connection;
+			_identity = remoteIdentity;
+
+			if ( remoteIdentity.GetSteamID64() != 0 ) {
+				_remoteSteamId = new CSteamID( remoteIdentity.GetSteamID64() );
+			}
+		}
+
+		public void SetStatus( NetworkConnectionState state ) {
+			_status = state;
 		}
 	};
 };

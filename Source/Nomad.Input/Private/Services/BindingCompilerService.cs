@@ -1,3 +1,18 @@
+/*
+===========================================================================
+The Nomad Framework
+Copyright (C) 2025-2026 Noah Van Til
+
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v2. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+This software is provided "as is", without warranty of any kind,
+express or implied, including but not limited to the warranties
+of merchantability, fitness for a particular purpose and noninfringement.
+===========================================================================
+*/
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -256,8 +271,25 @@ namespace Nomad.Input.Private.Services {
 #if NET6_0_OR_GREATER
 			return ref System.Runtime.InteropServices.CollectionsMarshal.AsSpan( list )[index];
 #else
-			return ref list[index];
+			if ( (uint)index >= (uint)list.Count ) {
+				throw new ArgumentOutOfRangeException( nameof( index ) );
+			}
+
+			return ref ListLayoutAccessor<T>.GetItems( list )[index];
 #endif
 		}
+
+#if !NET6_0_OR_GREATER
+		private static class ListLayoutAccessor<T> {
+			[System.Runtime.InteropServices.StructLayout( System.Runtime.InteropServices.LayoutKind.Sequential )]
+			private sealed class ListLayout {
+				public T[] _items = null!;
+			}
+
+			public static T[] GetItems( List<T> list ) {
+				return System.Runtime.CompilerServices.Unsafe.As<ListLayout>( list )._items;
+			}
+		}
+#endif
 	}
 }

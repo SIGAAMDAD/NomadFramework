@@ -1,9 +1,12 @@
+using System;
 using System.Numerics;
 using NUnit.Framework;
 using Nomad.Core.Input;
-using Nomad.Core.Input.ValueObjects;
+using Nomad.Input.Private.Repositories;
 using Nomad.Input.Private.Services;
+using Nomad.Input.Private.ValueObjects;
 using Nomad.Input.ValueObjects;
+using Nomad.Core.Input.ValueObjects;
 
 namespace Nomad.Input.Tests {
 	[TestFixture]
@@ -19,10 +22,11 @@ namespace Nomad.Input.Tests {
 			);
 			var state = new InputStateService();
 			var matcher = new BindingMatcherService( repository, state );
+			CompiledBindingGraph graph = repository.Current;
 
-			var matches = matcher.MatchKeyboard( new KeyboardEventArgs( KeyNum.Space, 10, true ), uint.MaxValue, InputScheme.KeyboardAndMouse );
+			BindingMatchSet matches = matcher.MatchKeyboard( graph, new KeyboardEventArgs( KeyNum.Space, 10, true ), uint.MaxValue, InputScheme.KeyboardAndMouse );
 
-			Assert.That( matches.Span.Length, Is.EqualTo( 1 ) );
+			Assert.That( matches.Length, Is.EqualTo( 1 ) );
 		}
 
 		[Test]
@@ -36,15 +40,16 @@ namespace Nomad.Input.Tests {
 			);
 			var state = new InputStateService();
 			var matcher = new BindingMatcherService( repository, state );
+			CompiledBindingGraph graph = repository.Current;
 
-			var withoutModifier = matcher.MatchKeyboard( new KeyboardEventArgs( KeyNum.Space, 10, true ), uint.MaxValue, InputScheme.KeyboardAndMouse );
+			BindingMatchSet withoutModifier = matcher.MatchKeyboard( graph, new KeyboardEventArgs( KeyNum.Space, 10, true ), uint.MaxValue, InputScheme.KeyboardAndMouse );
 			state.SetPressed( InputDeviceSlot.Keyboard, InputControlId.Shift, true );
-			var withModifier = matcher.MatchKeyboard( new KeyboardEventArgs( KeyNum.Space, 10, true ), uint.MaxValue, InputScheme.KeyboardAndMouse );
+			BindingMatchSet withModifier = matcher.MatchKeyboard( graph, new KeyboardEventArgs( KeyNum.Space, 10, true ), uint.MaxValue, InputScheme.KeyboardAndMouse );
 
 			using ( Assert.EnterMultipleScope() ) {
-				Assert.That( withoutModifier.Span.Length, Is.Zero );
-				Assert.That( withModifier.Span.Length, Is.EqualTo( 1 ) );
-				Assert.That( withModifier.Span[ 0 ].Score, Is.EqualTo( 35 ) );
+				Assert.That( withoutModifier.Length, Is.Zero );
+				Assert.That( withModifier.Length, Is.EqualTo( 1 ) );
+				Assert.That( withModifier.Scores[0], Is.EqualTo( 35 ) );
 			}
 		}
 
@@ -58,10 +63,11 @@ namespace Nomad.Input.Tests {
 				)
 			);
 			var matcher = new BindingMatcherService( repository, new InputStateService() );
+			CompiledBindingGraph graph = repository.Current;
 
-			var matches = matcher.MatchMouseButton( new MouseButtonEventArgs( MouseButton.Right, 10, true ), uint.MaxValue, InputScheme.KeyboardAndMouse );
+			BindingMatchSet matches = matcher.MatchMouseButton( graph, new MouseButtonEventArgs( MouseButton.Right, 10, true ), uint.MaxValue, InputScheme.KeyboardAndMouse );
 
-			Assert.That( matches.Span.Length, Is.EqualTo( 1 ) );
+			Assert.That( matches.Length, Is.EqualTo( 1 ) );
 		}
 
 		[Test]
@@ -74,10 +80,11 @@ namespace Nomad.Input.Tests {
 				)
 			);
 			var matcher = new BindingMatcherService( repository, new InputStateService() );
+			CompiledBindingGraph graph = repository.Current;
 
-			var matches = matcher.MatchGamepadButton( new GamepadButtonEventArgs( GamepadButton.A, 1, 10, true ), uint.MaxValue, InputScheme.Gamepad );
+			BindingMatchSet matches = matcher.MatchGamepadButton( graph, new GamepadButtonEventArgs( GamepadButton.A, 1, 10, true ), uint.MaxValue, InputScheme.Gamepad );
 
-			Assert.That( matches.Span.Length, Is.EqualTo( 1 ) );
+			Assert.That( matches.Length, Is.EqualTo( 1 ) );
 		}
 
 		[Test]
@@ -90,15 +97,16 @@ namespace Nomad.Input.Tests {
 				)
 			);
 			var matcher = new BindingMatcherService( repository, new InputStateService() );
+			CompiledBindingGraph graph = repository.Current;
 
-			var wrongContext = matcher.MatchGamepadAxis( InputDeviceSlot.Gamepad0, InputControlId.RightStick, 0, InputScheme.Gamepad );
-			var wrongScheme = matcher.MatchGamepadAxis( InputDeviceSlot.Gamepad0, InputControlId.RightStick, uint.MaxValue, InputScheme.KeyboardAndMouse );
-			var correct = matcher.MatchGamepadAxis( InputDeviceSlot.Gamepad0, InputControlId.RightStick, uint.MaxValue, InputScheme.Gamepad );
+			BindingMatchSet wrongContext = matcher.MatchGamepadAxis( graph, InputDeviceSlot.Gamepad0, InputControlId.RightStick, 0, InputScheme.Gamepad );
+			BindingMatchSet wrongScheme = matcher.MatchGamepadAxis( graph, InputDeviceSlot.Gamepad0, InputControlId.RightStick, uint.MaxValue, InputScheme.KeyboardAndMouse );
+			BindingMatchSet correct = matcher.MatchGamepadAxis( graph, InputDeviceSlot.Gamepad0, InputControlId.RightStick, uint.MaxValue, InputScheme.Gamepad );
 
 			using ( Assert.EnterMultipleScope() ) {
-				Assert.That( wrongContext.Span.Length, Is.Zero );
-				Assert.That( wrongScheme.Span.Length, Is.Zero );
-				Assert.That( correct.Span.Length, Is.EqualTo( 1 ) );
+				Assert.That( wrongContext.Length, Is.Zero );
+				Assert.That( wrongScheme.Length, Is.Zero );
+				Assert.That( correct.Length, Is.EqualTo( 1 ) );
 			}
 		}
 
@@ -113,14 +121,15 @@ namespace Nomad.Input.Tests {
 			);
 			var state = new InputStateService();
 			var matcher = new BindingMatcherService( repository, state );
+			CompiledBindingGraph graph = repository.Current;
 
-			var noDelta = matcher.MatchMouseDelta( uint.MaxValue, InputScheme.KeyboardAndMouse );
+			BindingMatchSet noDelta = matcher.MatchMouseDelta( graph, uint.MaxValue, InputScheme.KeyboardAndMouse );
 			state.AddMouseDelta( new Vector2( 3.0f, -2.0f ) );
-			var withDelta = matcher.MatchMouseDelta( uint.MaxValue, InputScheme.KeyboardAndMouse );
+			BindingMatchSet withDelta = matcher.MatchMouseDelta( graph, uint.MaxValue, InputScheme.KeyboardAndMouse );
 
 			using ( Assert.EnterMultipleScope() ) {
-				Assert.That( noDelta.Span.Length, Is.Zero );
-				Assert.That( withDelta.Span.Length, Is.EqualTo( 1 ) );
+				Assert.That( noDelta.Length, Is.Zero );
+				Assert.That( withDelta.Length, Is.EqualTo( 1 ) );
 			}
 		}
 	}

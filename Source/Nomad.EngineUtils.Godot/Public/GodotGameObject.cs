@@ -218,6 +218,10 @@ namespace Nomad.EngineUtils
             {
                 _node.AddChild(node);
             }
+            else if (child is GodotGameObject gameObject)
+            {
+                _node.AddChild(gameObject._node);
+            }
             _children.Add(child);
         }
 
@@ -230,6 +234,10 @@ namespace Nomad.EngineUtils
             if (child is Node node)
             {
                 _node.RemoveChild(node);
+            }
+            else if (child is GodotGameObject gameObject)
+            {
+                _node.RemoveChild(gameObject._node);
             }
             _children.Remove(child);
         }

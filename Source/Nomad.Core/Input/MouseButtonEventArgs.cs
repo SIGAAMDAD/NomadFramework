@@ -19,50 +19,47 @@ using System.Runtime.CompilerServices;
 namespace Nomad.Core.Input
 {
     /// <summary>
-    /// 
+    /// Represents the arguments for a mouse button input event.
     /// </summary>
     public readonly struct MouseButtonEventArgs : IEquatable<MouseButtonEventArgs>
     {
         /// <summary>
-        /// 
+        /// Gets the timestamp when the mouse button event occurred.
         /// </summary>
-        public long TimeStamp => _timeStamp;
-        private readonly long _timeStamp;
+        public long TimeStamp { get; }
 
         /// <summary>
-        /// 
+        /// Gets the mouse button that was pressed or released.
         /// </summary>
-        public MouseButton Button => _button;
-        private readonly MouseButton _button;
+        public MouseButton Button { get; }
 
         /// <summary>
-        /// 
+        /// Gets a value indicating whether the button was pressed (true) or released (false).
         /// </summary>
-        public bool Pressed => _pressed;
-        private readonly bool _pressed;
+        public bool Pressed { get; }
 
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="MouseButtonEventArgs"/> struct.
         /// </summary>
-        /// <param name="button"></param>
-        /// <param name="timestamp"></param>
-        /// <param name="pressed"></param>
+        /// <param name="button">The mouse button that was pressed or released.</param>
+        /// <param name="timestamp">The timestamp of the event.</param>
+        /// <param name="pressed">True if the button was pressed, false if released.</param>
         public MouseButtonEventArgs(MouseButton button, long timestamp, bool pressed)
         {
-            _button = button;
-            _timeStamp = timestamp;
-            _pressed = pressed;
+            Button = button;
+            TimeStamp = timestamp;
+            Pressed = pressed;
         }
 
         /// <summary>
-        /// 
+        /// Determines whether the specified <see cref="MouseButtonEventArgs"/> is equal to the current instance.
         /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
+        /// <param name="other">The <see cref="MouseButtonEventArgs"/> to compare with the current instance.</param>
+        /// <returns>True if the specified object is equal to the current instance; otherwise, false.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Equals(MouseButtonEventArgs other)
         {
-            return _button == other._button && _pressed == other._pressed;
+            return Button == other.Button && Pressed == other.Pressed;
         }
     }
 }

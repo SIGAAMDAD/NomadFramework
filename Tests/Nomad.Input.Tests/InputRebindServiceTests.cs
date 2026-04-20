@@ -1,7 +1,20 @@
-using System.Collections.Immutable;
+/*
+===========================================================================
+The Nomad Framework
+Copyright (C) 2025-2026 Noah Van Til
+
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v2. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+This software is provided "as is", without warranty of any kind,
+express or implied, including but not limited to the warranties
+of merchantability, fitness for a particular purpose and noninfringement.
+===========================================================================
+*/
+
 using System.Numerics;
 using NUnit.Framework;
-using Nomad.Core;
 using Nomad.Core.Input;
 using Nomad.Events;
 using Nomad.Input.Private.Repositories;
@@ -175,7 +188,7 @@ namespace Nomad.Input.Tests {
 				{
 					Assert.That( applied, Is.True );
 					Assert.That( repository.GetBindMappings()["Gameplay"][0].Bindings[0].Button.ControlId, Is.EqualTo( InputControlId.Enter ) );
-					Assert.That( compiledRepository.GetButtonCandidates( new Nomad.Input.Private.ValueObjects.ButtonLookupKey( InputDeviceSlot.Keyboard, InputControlId.Enter, true ) ).Length, Is.EqualTo( 1 ) );
+					Assert.That( CompiledBindingRepository.GetButtonCandidateIndices( compiledRepository.Current, InputDeviceSlot.Keyboard, InputControlId.Enter, true ).Length, Is.EqualTo( 1 ) );
 					Assert.That( service.IsRebinding, Is.False );
 					Assert.That( completed.HasValue, Is.True );
 					Assert.That( completed!.Value.Binding.Button.ControlId, Is.EqualTo( InputControlId.Enter ) );
@@ -228,6 +241,7 @@ namespace Nomad.Input.Tests {
 				{
 				  "Bindings": [
 				    {
+					  "Id": "Look",
 				      "Name": "Look",
 				      "ValueType": "Vector2",
 				      "Scheme": "KeyboardAndMouse",
@@ -267,6 +281,7 @@ namespace Nomad.Input.Tests {
 				{
 				  "Bindings": [
 				    {
+					  "Id": "Aim",
 				      "Name": "Aim",
 				      "ValueType": "Vector2",
 				      "Scheme": "Gamepad",
@@ -306,6 +321,7 @@ namespace Nomad.Input.Tests {
 				{
 				  "Bindings": [
 				    {
+					  "Id": "Throttle",
 				      "Name": "Throttle",
 				      "ValueType": "Float",
 				      "Scheme": "KeyboardAndMouse",
@@ -316,6 +332,7 @@ namespace Nomad.Input.Tests {
 				      }
 				    },
 				    {
+					  "Id": "Move",
 				      "Name": "Move",
 				      "ValueType": "Vector2",
 				      "Scheme": "KeyboardAndMouse",

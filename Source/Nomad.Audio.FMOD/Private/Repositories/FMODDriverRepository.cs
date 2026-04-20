@@ -13,15 +13,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
-using Nomad.Audio.Fmod.Private.ValueObjects;
-using Nomad.Core;
-using Nomad.Core.CVars;
-using Nomad.Core.Logger;
-using Nomad.CVars;
 
 namespace Nomad.Audio.Fmod.Private.Repositories {
 	/*
@@ -32,45 +25,28 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 	===================================================================================
 	*/
 	/// <summary>
-	/// Holds FMOD audio driver data.
+	/// Holds the supported FMOD output backends and tracks the currently selected one.
 	/// </summary>
 
-	internal sealed class FMODDriverRepository : IDisposable {
+	internal sealed class FMODDriverRepository {
 		/// <summary>
-		/// A list of all output devices available to the FMOD API.
+		/// A list of all audio driver APIs available for usage with FMOD.
 		/// </summary>
-		public FMODDeviceInfo[] Devices => _devices;
-		private FMODDeviceInfo[] _devices;
+		public IReadOnlyList<string> Drivers => _drivers;
+		private readonly ImmutableArray<string> _drivers;
 
 		/// <summary>
-		/// The index of the current audio output device.
+		/// The currently selected FMOD output backend.
 		/// </summary>
-		public int OutputDeviceIndex {
-			get => _outputDeviceIndex;
-			set {
-				SetOutputDevice( value );
-			}
-		}
-		private int _outputDeviceIndex = 0;
-
-		public IReadOnlyList<string> OutputDevices => _outputDevices;
-		private readonly List<string> _outputDevices = new();
-
-		/// <summary>
-		/// A list of all the audio driver APIs available for usage with FMOD.
-		/// </summary>
-		public IReadOnlyList<string> Drivers => _supportedAudioDrivers.Values.ToArray();
-
-		/// <summary>
-		///
-		/// </summary>
-		public string Driver => _supportedAudioDrivers[_audioDriver];
+		public FMOD.OUTPUTTYPE AudioDriver => _audioDriver;
 		private FMOD.OUTPUTTYPE _audioDriver;
 
-		private readonly ImmutableDictionary<FMOD.OUTPUTTYPE, string> _supportedAudioDrivers;
+		/// <summary>
+		/// The human-readable name of the current output backend.
+		/// </summary>
+		public string Driver => GetDriverName( _audioDriver );
 
-		private readonly ILoggerCategory _category;
-		private readonly FMOD.System _system;
+		private readonly ImmutableDictionary<FMOD.OUTPUTTYPE, string> _supportedAudioDrivers;
 
 		/*
 		===============
@@ -78,15 +54,9 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 		===============
 		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
-		/// <param name="category"></param>
-		/// <param name="cvarSystem"></param>
-		/// <param name="system"></param>
-		public FMODDriverRepository( ILoggerCategory category, ICVarSystemService cvarSystem, FMOD.System system ) {
-			_category = category;
-			_system = system;
-
+		public FMODDriverRepository() {
 			_supportedAudioDrivers = new Dictionary<FMOD.OUTPUTTYPE, string>() {
 				[FMOD.OUTPUTTYPE.AUTODETECT] = "Auto Detect",
 #if WINDOWS
@@ -99,134 +69,35 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 #endif
 			}.ToImmutableDictionary();
 
-			var audioDriver = cvarSystem.GetCVarOrThrow<string>( Constants.CVars.EngineUtils.Audio.AUDIO_DRIVER );
-			audioDriver.ValueChanged.Subscribe( OnAudioDriverValueChanged );
-
-			var outputDeviceIndex = cvarSystem.GetCVarOrThrow<int>( Constants.CVars.EngineUtils.Audio.OUTPUT_DEVICE_INDEX );
-			outputDeviceIndex.ValueChanged.Subscribe( OnAudioDeviceValueChanged );
-
-			FMODValidator.ValidateCall( _system.setCallback( OnAudioOutputDeviceListChanged, FMOD.SYSTEM_CALLBACK_TYPE.DEVICELISTCHANGED ) );
-
-			GetAudioDeviceData();
-			FMODValidator.ValidateCall( _system.getOutput( out _audioDriver ) );
+			_drivers = _supportedAudioDrivers.Values.ToImmutableArray();
+			_audioDriver = FMOD.OUTPUTTYPE.AUTODETECT;
 		}
 
 		/*
 		===============
-		Dispose
+		SetCurrentDriver
 		===============
 		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
-		public void Dispose() {
-			_devices = null;
+		/// <param name="audioDriver"></param>
+		public void SetCurrentDriver( FMOD.OUTPUTTYPE audioDriver ) {
+			_audioDriver = audioDriver;
 		}
 
 		/*
 		===============
-		SetOutputDevice
+		GetDriverName
 		===============
 		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
-		/// <param name="deviceIndex"></param>
-		public void SetOutputDevice( int deviceIndex ) {
-			if ( deviceIndex < 0 || deviceIndex >= _devices.Length ) {
-				throw new ArgumentOutOfRangeException( nameof( deviceIndex ) );
-			}
-			var device = _devices[deviceIndex];
-
-			_category.PrintLine( $"FMODDriverRepository.SetOutputDevice: setting output audio device to '{device.Name}'..." );
-			FMODValidator.ValidateCall( _system.setDriver( deviceIndex ) );
-			_outputDeviceIndex = deviceIndex;
-		}
-
-		/*
-		===============
-		GetAudioDeviceData
-		===============
-		*/
-		/// <summary>
-		/// Refreshes the audio output device list.
-		/// </summary>
-		private void GetAudioDeviceData() {
-			FMODValidator.ValidateCall( _system.getNumDrivers( out int numDrivers ) );
-
-			_devices = new FMODDeviceInfo[numDrivers];
-
-			_outputDevices.Clear();
-			_outputDevices.Capacity = numDrivers;
-
-			for ( int i = 0; i < numDrivers; i++ ) {
-				FMODValidator.ValidateCall( _system.getDriverInfo( i, out string name, 256, out var guid, out int systemRate, out FMOD.SPEAKERMODE speakerMode, out int speakerChannels ) );
-				_devices[i] = new FMODDeviceInfo( name, guid, systemRate, speakerMode, speakerChannels );
-				_outputDevices.Add( name );
-				_category.PrintLine( $"FMODDevice.GetAudioDeviceData: found audio output device '{name}' - speakerMode = '{speakerMode}', channelCount = '{speakerChannels}'" );
-			}
-
-			_system.getDriver( out _outputDeviceIndex );
-		}
-
-		/*
-		===============
-		OnAudioDriverValueChanged
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="args"></param>
-		private void OnAudioDriverValueChanged( in CVarValueChangedEventArgs<string> args ) {
-			FMOD.OUTPUTTYPE outputType = FMOD.OUTPUTTYPE.MAX;
-
-			foreach ( var drivers in _supportedAudioDrivers ) {
-				if ( drivers.Value.Equals( args.NewValue, StringComparison.InvariantCulture ) ) {
-					outputType = drivers.Key;
-					break;
-				}
-			}
-			if ( outputType == FMOD.OUTPUTTYPE.MAX ) {
-				_category.PrintError( $"FMODDriverRepository.OnAudioDriverValueChanged: invalid audio driver name '{args.NewValue}'" );
-				return;
-			}
-
-			_audioDriver = outputType;
-			_category.PrintLine( $"FMODDriverRepository.OnAudioDriverValueChanged: setting audio driver API to '{_audioDriver}'..." );
-			FMODValidator.ValidateCall( _system.setOutput( _audioDriver ) );
-		}
-
-		/*
-		===============
-		OnAudioDeviceValueChanged
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="args"></param>
-		private void OnAudioDeviceValueChanged( in CVarValueChangedEventArgs<int> args ) {
-			SetOutputDevice( args.NewValue );
-		}
-
-		/*
-		===============
-		OnAudioOutputDeviceListChanged
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="system"></param>
-		/// <param name="type"></param>
-		/// <param name="commanddata1"></param>
-		/// <param name="commanddata2"></param>
-		/// <param name="userdata"></param>
+		/// <param name="audioDriver"></param>
 		/// <returns></returns>
-		private FMOD.RESULT OnAudioOutputDeviceListChanged( nint system, FMOD.SYSTEM_CALLBACK_TYPE type, nint commanddata1, nint commanddata2, nint userdata ) {
-			GetAudioDeviceData();
-			return FMOD.RESULT.OK;
+		public string GetDriverName( FMOD.OUTPUTTYPE audioDriver ) {
+			return _supportedAudioDrivers.TryGetValue( audioDriver, out string name ) ? name : audioDriver.ToString();
 		}
 	};
 };

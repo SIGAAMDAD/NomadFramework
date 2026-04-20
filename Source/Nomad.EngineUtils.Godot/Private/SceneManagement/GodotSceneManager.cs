@@ -39,7 +39,10 @@ namespace Nomad.EngineUtils.Godot.Private.SceneManagement {
 		/// <summary>
 		/// The currently active runtime scene. At startup this is the persistent root scene.
 		/// </summary>
-		public IScene? ActiveScene => _activeScene;
+		public IScene? ActiveScene {
+			get => _activeScene;
+			set => SetScene( _activeScene );
+		}
 		private GodotScene? _activeScene;
 
 		/// <summary>
@@ -52,7 +55,7 @@ namespace Nomad.EngineUtils.Godot.Private.SceneManagement {
 		/// Additively loaded scenes managed by this scene manager.
 		/// </summary>
 		public IReadOnlyList<IScene> LoadedScenes => _additiveScenes;
-		private readonly List<GodotScene> _additiveScenes = new();
+		private readonly List<IScene> _additiveScenes = new();
 
 		private readonly IResourceCacheService<PackedScene, string> _sceneCache;
 		private readonly SceneTree _sceneTree;
@@ -133,6 +136,37 @@ namespace Nomad.EngineUtils.Godot.Private.SceneManagement {
 		public IScene LoadPrefab( string path ) {
 			_sceneCache.GetCached( path ).Get( out var resource );
 			return WalkSceneTree( resource );
+		}
+
+		/*
+		===============
+		SetScene
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="scene"></param>
+		/// <param name="mode"></param>
+		/// <param name="baseScene"></param>
+		/// <exception cref="InvalidOperationException"></exception>
+		/// <exception cref="ArgumentOutOfRangeException"></exception>
+		public void SetScene( IScene scene, LoadSceneMode mode = LoadSceneMode.Single, IScene? baseScene = null ) {
+			ArgumentGuard.ThrowIfNull( scene );
+
+			switch ( mode ) {
+				case LoadSceneMode.Additive: {
+						var parent = ResolveParentNode( scene );
+						AttachScene( scene, parent );
+						_additiveScenes.Add( scene );
+						break;
+					}
+				case LoadSceneMode.Single:
+					SetActiveScene( baseScene );
+					break;
+				default:
+					throw new ArgumentOutOfRangeException( nameof( mode ) );
+			}
 		}
 
 		/*
@@ -350,7 +384,7 @@ namespace Nomad.EngineUtils.Godot.Private.SceneManagement {
 		/// </summary>
 		/// <param name="scene"></param>
 		/// <param name="parent"></param>
-		private static void AttachScene( GodotScene scene, Node parent ) {
+		private static void AttachScene( IScene scene, Node parent ) {
 			var node = ((GodotGameObject)scene.Root).Node;
 			var currentParent = node.GetParent();
 
@@ -371,7 +405,7 @@ namespace Nomad.EngineUtils.Godot.Private.SceneManagement {
 		/// 
 		/// </summary>
 		/// <param name="scene"></param>
-		private void ReleaseSceneInstance( GodotScene scene ) {
+		private void ReleaseSceneInstance( IScene scene ) {
 			var node = ((GodotGameObject)scene.Root).Node;
 
 			UnregisterNodeTree( node );
@@ -380,7 +414,7 @@ namespace Nomad.EngineUtils.Godot.Private.SceneManagement {
 			parent?.RemoveChild( node );
 			node.QueueFree();
 
-			_sceneCache.Unload( scene.Path );
+			_sceneCache.Unload( ((GodotScene)scene).Path );
 		}
 
 		/*

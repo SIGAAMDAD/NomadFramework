@@ -14,12 +14,12 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.Events;
 using Nomad.Core.Logger;
-using System.Collections.Generic;
 
 namespace Nomad.Events.Private.SubscriptionSets {
 	/*
@@ -32,24 +32,12 @@ namespace Nomad.Events.Private.SubscriptionSets {
 	/// <summary>
 	///
 	/// </summary>
-
-	internal sealed class SubscriptionSet<TArgs> : ISubscriptionSet<TArgs>
+	internal sealed class SubscriptionSet<TArgs> : SubscriptionSetBase<TArgs>
 		where TArgs : struct
 	{
-		public int SubscriberCount => _subscriberCount;
-		private int _subscriberCount = 0;
-
-		public long PublishCount => _publishCount;
-		private long _publishCount = 0;
-
-		private readonly ILoggerService _logger;
-		private readonly IGameEvent<TArgs> _eventData;
-
 		private readonly SubscriptionCache<TArgs, EventCallback<TArgs>> _genericSubscriptions;
 		private readonly SubscriptionCache<TArgs, AsyncEventCallback<TArgs>> _asyncSubscriptions;
 		private readonly List<Task> _taskCache = new List<Task>();
-
-		private bool _isDisposed = false;
 
 		/*
 		===============
@@ -61,30 +49,24 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// </summary>
 		/// <param name="eventData"></param>
 		/// <param name="logger"></param>
-		public SubscriptionSet( IGameEvent<TArgs> eventData, ILoggerService logger ) {
+		public SubscriptionSet( IGameEvent<TArgs> eventData, ILoggerService logger )
+			: base( eventData, logger )
+		{
 			_genericSubscriptions = new SubscriptionCache<TArgs, EventCallback<TArgs>>( logger );
 			_asyncSubscriptions = new SubscriptionCache<TArgs, AsyncEventCallback<TArgs>>( logger );
-			_logger = logger;
-			_eventData = eventData;
 		}
 
 		/*
 		===============
-		Dispose
+		OnDispose
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
-		public void Dispose() {
-			if ( !_isDisposed ) {
-				_logger?.PrintLine( $"Releasing subscription set for event {_eventData.DebugName}..." );
-
-				_genericSubscriptions?.Dispose();
-				_asyncSubscriptions?.Dispose();
-			}
-			GC.SuppressFinalize( this );
-			_isDisposed = true;
+		protected override void OnDispose() {
+			_genericSubscriptions?.Dispose();
+			_asyncSubscriptions?.Dispose();
 		}
 
 		/*
@@ -97,13 +79,13 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// </summary>
 		/// <param name="callback">The method that is called whenever the event triggers.</param>
 		/// <exception cref="ArgumentNullException">Thrown if <paramref name="callback"/> is null.</exception>
-		public bool AddSubscription( EventCallback<TArgs> callback ) {
-			StateGuard.ThrowIfDisposed( _isDisposed, this );
+		public override bool AddSubscription( EventCallback<TArgs> callback ) {
+			ThrowIfDisposed();
 			ArgumentGuard.ThrowIfNull( callback );
 
 			lock ( _genericSubscriptions ) {
 				_genericSubscriptions.Add( callback );
-				Interlocked.Increment( ref _subscriberCount );
+				IncrementSubscriberCount();
 				return true;
 			}
 		}
@@ -118,19 +100,19 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// </summary>
 		/// <param name="callback">The method that is called whenever the event triggers.</param>
 		/// <exception cref="ArgumentNullException">Thrown if <paramref name="callback"/> is null.</exception>
-		public bool AddSubscriptionAsync( AsyncEventCallback<TArgs> callback ) {
-			StateGuard.ThrowIfDisposed( _isDisposed, this );
+		public override bool AddSubscriptionAsync( AsyncEventCallback<TArgs> callback ) {
+			ThrowIfDisposed();
 			ArgumentGuard.ThrowIfNull( callback );
 
 			if ( ContainsCallbackAsync( callback, out _ ) ) {
-				_logger?.PrintWarning( $"SubscriptionSet.AddSubscriptionAsync: subscription for callback '{callback.Method.Name}' already exists!" );
+				Logger?.PrintWarning( $"SubscriptionSet.AddSubscriptionAsync: subscription for callback '{callback.Method.Name}' already exists!" );
 				return false;
 			}
 
 			lock ( _asyncSubscriptions ) {
 				_asyncSubscriptions.Add( callback );
 				_taskCache.Add( null! );
-				Interlocked.Increment( ref _subscriberCount );
+				IncrementSubscriberCount();
 				return true;
 			}
 		}
@@ -144,25 +126,25 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// Removes the provided <paramref name="callback"/> from the event's subscription list.
 		/// </summary>
 		/// <param name="callback">The callback to remove from the subscription list.</param>
-		public bool RemoveSubscription( EventCallback<TArgs> callback ) {
-			StateGuard.ThrowIfDisposed( _isDisposed, this );
+		public override bool RemoveSubscription( EventCallback<TArgs> callback ) {
+			ThrowIfDisposed();
 			ArgumentGuard.ThrowIfNull( callback );
 
 			if ( !ContainsCallback( callback, out int index ) ) {
-				_logger?.PrintError( $"SubscriptionSet.RemoveSubscription: no such existing subscription for callback '{callback.Method.Name}'" );
+				Logger?.PrintError( $"SubscriptionSet.RemoveSubscription: no such existing subscription for callback '{callback.Method.Name}'" );
 				return false;
 			}
 
 			lock ( _genericSubscriptions ) {
 				_genericSubscriptions.RemoveAt( index );
-				Interlocked.Decrement( ref _subscriberCount );
+				DecrementSubscriberCount();
 				return true;
 			}
 		}
 
 		/*
 		===============
-		RemoveSubscription
+		RemoveSubscriptionAsync
 		===============
 		*/
 		/// <summary>
@@ -170,44 +152,45 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// </summary>
 		/// <param name="callback">The callback to remove from the subscription list.</param>
 		/// <exception cref="ArgumentNullException">Thrown if <paramref name="callback"/> is null.</exception>
-		public bool RemoveSubscriptionAsync( AsyncEventCallback<TArgs> callback ) {
-			StateGuard.ThrowIfDisposed( _isDisposed, this );
+		public override bool RemoveSubscriptionAsync( AsyncEventCallback<TArgs> callback ) {
+			ThrowIfDisposed();
 			ArgumentGuard.ThrowIfNull( callback );
 
 			if ( !ContainsCallbackAsync( callback, out int index ) ) {
-				_logger?.PrintError( $"SubscriptionSet.RemoveSubscriptionAsync: no such existing subscription for callback '{callback.Method.Name}'" );
+				Logger?.PrintError( $"SubscriptionSet.RemoveSubscriptionAsync: no such existing subscription for callback '{callback.Method.Name}'" );
 				return false;
 			}
 
 			lock ( _asyncSubscriptions ) {
 				_asyncSubscriptions.RemoveAt( index );
 				_taskCache.RemoveAt( index );
-				Interlocked.Increment( ref _subscriberCount );
+				DecrementSubscriberCount();
 				return true;
 			}
 		}
 
 		/*
 		===============
-		PumpWithLock
+		Pump
 		===============
 		*/
 		/// <summary>
 		/// "Publishes" an event to all subscribers with thread-safety.
 		/// </summary>
 		/// <param name="args"></param>
-		public void Pump( in TArgs args ) {
-			StateGuard.ThrowIfDisposed( _isDisposed, this );
+		public override void Pump( in TArgs args ) {
+			ThrowIfDisposed();
 
 #if EVENT_DEBUG
-			_logger?.PrintLine( $"SubscriptionSet.Pump: publishing event {eventData.DebugName}" );
+			Logger?.PrintLine( $"SubscriptionSet.Pump: publishing event {EventData.DebugName}" );
 #endif
 			lock ( _genericSubscriptions ) {
 				for ( int i = 0; i < _genericSubscriptions.Count; i++ ) {
 					_genericSubscriptions[i].Invoke( in args );
 				}
 			}
-			Interlocked.Increment( ref _publishCount );
+
+			IncrementPublishCount();
 		}
 
 		/*
@@ -221,11 +204,11 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// <param name="args"></param>
 		/// <param name="ct"></param>
 		/// <returns></returns>
-		public async Task PumpAsync( TArgs args, CancellationToken ct ) {
-			StateGuard.ThrowIfDisposed( _isDisposed, this );
+		public override async Task PumpAsync( TArgs args, CancellationToken ct ) {
+			ThrowIfDisposed();
 
 #if EVENT_DEBUG
-			_logger?.PrintLine( $"SubscriptionSet.PumpAsync: publishing event {eventData.DebugName} asynchronously..." );
+			Logger?.PrintLine( $"SubscriptionSet.PumpAsync: publishing event {EventData.DebugName} asynchronously..." );
 #endif
 			int subscriptionCount = _asyncSubscriptions.Count;
 
@@ -239,6 +222,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 			ct.ThrowIfCancellationRequested();
 
 			await Task.WhenAll( _taskCache ).ConfigureAwait( false );
+			IncrementPublishCount();
 		}
 
 		/*
@@ -252,18 +236,11 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// <param name="callback"></param>
 		/// <param name="index"></param>
 		/// <returns></returns>
-		public bool ContainsCallback( EventCallback<TArgs> callback, out int index ) {
-			StateGuard.ThrowIfDisposed( _isDisposed, this );
+		public override bool ContainsCallback( EventCallback<TArgs> callback, out int index ) {
+			ThrowIfDisposed();
 
 			lock ( _genericSubscriptions ) {
-				for ( int i = 0; i < _genericSubscriptions.Count; i++ ) {
-					if ( _genericSubscriptions[i] == callback ) {
-						index = i;
-						return true;
-					}
-				}
-				index = -1;
-				return false;
+				return TryFindCallback( _genericSubscriptions, callback, out index );
 			}
 		}
 
@@ -278,18 +255,11 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// <param name="callback"></param>
 		/// <param name="index"></param>
 		/// <returns></returns>
-		public bool ContainsCallbackAsync( AsyncEventCallback<TArgs> callback, out int index ) {
-			StateGuard.ThrowIfDisposed( _isDisposed, this );
+		public override bool ContainsCallbackAsync( AsyncEventCallback<TArgs> callback, out int index ) {
+			ThrowIfDisposed();
 
 			lock ( _asyncSubscriptions ) {
-				for ( int i = 0; i < _asyncSubscriptions.Count; i++ ) {
-					if ( _asyncSubscriptions[i] == callback ) {
-						index = i;
-						return true;
-					}
-				}
-				index = -1;
-				return false;
+				return TryFindCallback( _asyncSubscriptions, callback, out index );
 			}
 		}
 	};

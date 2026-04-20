@@ -32,6 +32,7 @@ namespace Nomad.OnlineServices.Steam.Private.Services.LobbyServices {
 	/// </summary>
 
 	internal sealed class SteamLobbyMemberService : IDisposable {
+		public HashSet<ulong> Members => _members;
 		private readonly HashSet<ulong> _members;
 
 		private readonly Callback<LobbyChatUpdate_t> _lobbyChatUpdate;

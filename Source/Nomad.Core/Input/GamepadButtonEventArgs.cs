@@ -19,58 +19,54 @@ using System.Runtime.CompilerServices;
 namespace Nomad.Core.Input
 {
     /// <summary>
-    /// 
+    /// Represents the arguments for a gamepad button input event.
     /// </summary>
     public readonly struct GamepadButtonEventArgs : IEquatable<GamepadButtonEventArgs>
     {
         /// <summary>
-        /// 
+        /// Gets the timestamp when the gamepad button event occurred.
         /// </summary>
-        public long TimeStamp => _timeStamp;
-        private readonly long _timeStamp;
+        public long TimeStamp { get; }
 
         /// <summary>
-        /// 
+        /// Gets the device ID of the gamepad.
         /// </summary>
-        public int DeviceId => _deviceId;
-        private readonly int _deviceId;
+        public int DeviceId { get; }
 
         /// <summary>
-        /// 
+        /// Gets the gamepad button that was pressed or released.
         /// </summary>
-        public GamepadButton Button => _button;
-        private readonly GamepadButton _button;
+        public GamepadButton Button { get; }
 
         /// <summary>
-        /// 
+        /// Gets a value indicating whether the button was pressed (true) or released (false).
         /// </summary>
-        public bool Pressed => _pressed;
-        private readonly bool _pressed;
+        public bool Pressed { get; }
 
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="GamepadButtonEventArgs"/> struct.
         /// </summary>
-        /// <param name="button"></param>
-        /// <param name="deviceId"></param>
-        /// <param name="timestamp"></param>
-        /// <param name="pressed"></param>
+        /// <param name="button">The gamepad button that was pressed or released.</param>
+        /// <param name="deviceId">The device ID of the gamepad.</param>
+        /// <param name="timestamp">The timestamp of the event.</param>
+        /// <param name="pressed">True if the button was pressed, false if released.</param>
         public GamepadButtonEventArgs(GamepadButton button, int deviceId, long timestamp, bool pressed)
         {
-            _timeStamp = timestamp;
-            _deviceId = deviceId;
-            _button = button;
-            _pressed = pressed;
+            TimeStamp = timestamp;
+            DeviceId = deviceId;
+            Button = button;
+            Pressed = pressed;
         }
 
         /// <summary>
-        /// 
+        /// Determines whether the specified <see cref="GamepadButtonEventArgs"/> is equal to the current instance.
         /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
+        /// <param name="other">The <see cref="GamepadButtonEventArgs"/> to compare with the current instance.</param>
+        /// <returns>True if the specified object is equal to the current instance; otherwise, false.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Equals(GamepadButtonEventArgs other)
         {
-            return _button == other._button && _pressed == other._pressed;
+            return Button == other.Button && Pressed == other.Pressed;
         }
     }
 }

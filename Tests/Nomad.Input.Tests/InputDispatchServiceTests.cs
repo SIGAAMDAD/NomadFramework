@@ -1,3 +1,4 @@
+using System;
 using System.Numerics;
 using NUnit.Framework;
 using Nomad.Core.Util;
@@ -12,10 +13,27 @@ namespace Nomad.Input.Tests {
 	public class InputDispatchServiceTests {
 		private GameEventRegistry _eventRegistry;
 		private MockLogger _logger;
+		private CompiledBindingGraph _graph;
 
 		[SetUp]
 		public void SetUp() {
 			_eventRegistry = InputTestHelpers.CreateEventRegistry( out _logger );
+			_graph = new CompiledBindingGraph(
+				Array.Empty<CompiledBinding>(),
+				new[] {
+					new CompiledActionInfo( new InternString( "player.jump" ) ),
+					new CompiledActionInfo( new InternString( "Throttle" ) ),
+					new CompiledActionInfo( new InternString( "Look" ) )
+				},
+				Array.Empty<Bucket>(),
+				Array.Empty<int>(),
+				Array.Empty<Bucket>(),
+				Array.Empty<int>(),
+				Array.Empty<Bucket>(),
+				Array.Empty<int>(),
+				Array.Empty<int>(),
+				Array.Empty<int>()
+			);
 		}
 
 		[TearDown]
@@ -31,7 +49,7 @@ namespace Nomad.Input.Tests {
 			var gameEvent = _eventRegistry.GetEvent<ButtonActionEventArgs>( $"player.jump:{Constants.Events.BUTTON_ACTION}", Constants.Events.NAMESPACE );
 			gameEvent.Subscribe( ( in ButtonActionEventArgs args ) => published = args );
 
-			dispatcher.Dispatch( new ResolvedAction( new InternString( "player.jump" ), InputValueType.Button, InputActionPhase.Started, 10, buttonValue: true ) );
+			dispatcher.Dispatch( _graph, new ResolvedAction( new InternString( "player.jump" ), 0, InputValueType.Button, InputActionPhase.Started, 10, buttonValue: true ) );
 
 			using ( Assert.EnterMultipleScope() ) {
 				Assert.That( published.HasValue, Is.True );
@@ -47,7 +65,7 @@ namespace Nomad.Input.Tests {
 			var gameEvent = _eventRegistry.GetEvent<FloatActionEventArgs>( $"Throttle:{Constants.Events.FLOAT_ACTION}", Constants.Events.NAMESPACE );
 			gameEvent.Subscribe( ( in FloatActionEventArgs args ) => published = args );
 
-			dispatcher.Dispatch( new ResolvedAction( new InternString( "Throttle" ), InputValueType.Float, InputActionPhase.Performed, 20, floatValue: 0.75f ) );
+			dispatcher.Dispatch( _graph, new ResolvedAction( new InternString( "Throttle" ), 1, InputValueType.Float, InputActionPhase.Performed, 20, floatValue: 0.75f ) );
 
 			using ( Assert.EnterMultipleScope() ) {
 				Assert.That( published.HasValue, Is.True );
@@ -62,7 +80,7 @@ namespace Nomad.Input.Tests {
 			var gameEvent = _eventRegistry.GetEvent<AxisActionEventArgs>( $"Look:{Constants.Events.AXIS_ACTION}", Constants.Events.NAMESPACE );
 			gameEvent.Subscribe( ( in AxisActionEventArgs args ) => published = args );
 
-			dispatcher.Dispatch( new ResolvedAction( new InternString( "Look" ), InputValueType.Vector2, InputActionPhase.Performed, 30, vector2Value: new Vector2( 4.0f, -2.0f ) ) );
+			dispatcher.Dispatch( _graph, new ResolvedAction( new InternString( "Look" ), 2, InputValueType.Vector2, InputActionPhase.Performed, 30, vector2Value: new Vector2( 4.0f, -2.0f ) ) );
 
 			using ( Assert.EnterMultipleScope() ) {
 				Assert.That( published.HasValue, Is.True );

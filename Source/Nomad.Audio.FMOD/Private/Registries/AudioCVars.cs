@@ -98,9 +98,9 @@ namespace Nomad.Audio.Fmod.Private.Registries {
 				}
 			);
 			cvarSystem.Register(
-				new CVarCreateInfo<string> {
+				new CVarCreateInfo<int> {
 					Name = Constants.CVars.EngineUtils.Audio.AUDIO_DRIVER,
-					DefaultValue = string.Empty,
+					DefaultValue = 0,
 					Description = "The active audio driver in use by the Audio system.",
 					Flags = CVarFlags.Archive,
 					Group = "Audio",

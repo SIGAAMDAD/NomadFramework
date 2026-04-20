@@ -181,7 +181,7 @@ namespace Nomad.Logger.Private {
 							_sinks[ i ].Print( message );
 						}
 					}
-					await Task.Delay( 500 );
+					await Task.Delay( 250 );
 				}
 			} catch ( Exception e ) {
 				Console.WriteLine( $"LoggerThreadAsync: exception caught - {e}" );

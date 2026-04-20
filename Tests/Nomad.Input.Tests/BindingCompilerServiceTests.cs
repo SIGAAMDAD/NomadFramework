@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Immutable;
 using NUnit.Framework;
 using Nomad.Core.Input;
@@ -20,10 +21,14 @@ namespace Nomad.Input.Tests {
 			};
 
 			var graph = BindingCompilerService.Compile( actions.ToImmutableArray() );
+			ReadOnlySpan<int> pressedCandidates = CompiledBindingRepository.GetButtonCandidateIndices( graph, InputDeviceSlot.Keyboard, InputControlId.Space, true );
+			ReadOnlySpan<int> releasedCandidates = CompiledBindingRepository.GetButtonCandidateIndices( graph, InputDeviceSlot.Keyboard, InputControlId.Space, false );
 
 			using ( Assert.EnterMultipleScope() ) {
-				Assert.That( graph.ButtonIndex[new ButtonLookupKey( InputDeviceSlot.Keyboard, InputControlId.Space, true )], Has.Length.EqualTo( 1 ) );
-				Assert.That( graph.ButtonIndex[new ButtonLookupKey( InputDeviceSlot.Keyboard, InputControlId.Space, false )], Has.Length.EqualTo( 1 ) );
+				Assert.That( pressedCandidates.Length, Is.EqualTo( 1 ) );
+				Assert.That( releasedCandidates.Length, Is.EqualTo( 1 ) );
+				Assert.That( graph.Bindings[pressedCandidates[0]].ActionId.ToString(), Is.EqualTo( "Jump" ) );
+				Assert.That( graph.Bindings[releasedCandidates[0]].ActionId.ToString(), Is.EqualTo( "Jump" ) );
 			}
 		}
 
@@ -43,10 +48,14 @@ namespace Nomad.Input.Tests {
 			};
 
 			var graph = BindingCompilerService.Compile( actions.ToImmutableArray() );
+			ReadOnlySpan<int> axisCandidates = CompiledBindingRepository.GetAxisCandidateIndices( graph, InputDeviceSlot.Gamepad0, InputControlId.LeftStick );
+			ReadOnlySpan<int> deltaCandidates = CompiledBindingRepository.GetDeltaCandidateIndices( graph, InputDeviceSlot.Mouse, InputControlId.Delta );
 
 			using ( Assert.EnterMultipleScope() ) {
-				Assert.That( graph.AxisIndex[new AxisLookupKey( InputDeviceSlot.Gamepad0, InputControlId.LeftStick )], Has.Length.EqualTo( 1 ) );
-				Assert.That( graph.DeltaIndex[new AxisLookupKey( InputDeviceSlot.Mouse, InputControlId.Delta )], Has.Length.EqualTo( 1 ) );
+				Assert.That( axisCandidates.Length, Is.EqualTo( 1 ) );
+				Assert.That( deltaCandidates.Length, Is.EqualTo( 1 ) );
+				Assert.That( graph.Bindings[axisCandidates[0]].ActionId.ToString(), Is.EqualTo( "Aim" ) );
+				Assert.That( graph.Bindings[deltaCandidates[0]].ActionId.ToString(), Is.EqualTo( "Look" ) );
 			}
 		}
 
@@ -66,10 +75,14 @@ namespace Nomad.Input.Tests {
 			};
 
 			var graph = BindingCompilerService.Compile( actions.ToImmutableArray() );
+			ReadOnlySpan<int> composite1D = CompiledBindingRepository.GetComposite1DBindingIndices( graph );
+			ReadOnlySpan<int> composite2D = CompiledBindingRepository.GetComposite2DBindingIndices( graph );
 
 			using ( Assert.EnterMultipleScope() ) {
-				Assert.That( graph.Composite1D, Has.Length.EqualTo( 1 ) );
-				Assert.That( graph.Composite2D, Has.Length.EqualTo( 1 ) );
+				Assert.That( composite1D.Length, Is.EqualTo( 1 ) );
+				Assert.That( composite2D.Length, Is.EqualTo( 1 ) );
+				Assert.That( graph.Bindings[composite1D[0]].ActionId.ToString(), Is.EqualTo( "Throttle" ) );
+				Assert.That( graph.Bindings[composite2D[0]].ActionId.ToString(), Is.EqualTo( "Move" ) );
 			}
 		}
 
@@ -87,7 +100,7 @@ namespace Nomad.Input.Tests {
 
 			compiler.CompileIntoRepository( actions.ToImmutableArray() );
 
-			Assert.That( repository.GetButtonCandidates( new ButtonLookupKey( InputDeviceSlot.Keyboard, InputControlId.Space, true ) ).Length, Is.EqualTo( 1 ) );
+			Assert.That( CompiledBindingRepository.GetButtonCandidateIndices( repository.Current, InputDeviceSlot.Keyboard, InputControlId.Space, true ).Length, Is.EqualTo( 1 ) );
 		}
 	}
 }

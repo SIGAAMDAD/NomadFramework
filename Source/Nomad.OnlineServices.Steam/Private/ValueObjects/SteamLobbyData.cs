@@ -38,6 +38,8 @@ namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
 		public ulong OwnerId => _info.OwnerId;
 		public LobbyVisibility Visibility => _info.Visibility;
 		public Dictionary<string, string> Metadata => _info.Metadata;
+
+		public LobbyInfo Info => _info;
 		private LobbyInfo _info;
 
 		public DateTime LastSeenUtc => _lastSeenTime;

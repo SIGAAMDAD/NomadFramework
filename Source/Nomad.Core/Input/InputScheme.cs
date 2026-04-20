@@ -13,29 +13,31 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.Core.Input {
-	/// <summary>
-	/// 
-	/// </summary>
-	public enum InputScheme : byte {
-		/// <summary>
-		/// 
-		/// </summary>
-		KeyboardAndMouse,
+namespace Nomad.Core.Input
+{
+    /// <summary>
+    /// Defines the different input schemes supported by the input system.
+    /// </summary>
+    public enum InputScheme : byte
+    {
+        /// <summary>
+        /// Input scheme using keyboard and mouse.
+        /// </summary>
+        KeyboardAndMouse,
 
-		/// <summary>
-		/// 
-		/// </summary>
-		Gamepad,
+        /// <summary>
+        /// Input scheme using a gamepad controller.
+        /// </summary>
+        Gamepad,
 
-		/// <summary>
-		/// 
-		/// </summary>
-		Touch,
+        /// <summary>
+        /// Input scheme using touch input (for mobile devices).
+        /// </summary>
+        Touch,
 
-		/// <summary>
-		/// 
-		/// </summary>
-		Count
-	}
+        /// <summary>
+        /// Sentinel value representing the total number of input schemes.
+        /// </summary>
+        Count
+    }
 }

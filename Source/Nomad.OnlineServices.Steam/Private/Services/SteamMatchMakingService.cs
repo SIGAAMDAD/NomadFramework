@@ -15,7 +15,9 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
+using Nomad.Core.Events;
 using Nomad.Core.OnlineServices;
 using Steamworks;
 
@@ -39,6 +41,36 @@ namespace Nomad.OnlineServices.Steam.Private {
 		private readonly CallResult<LobbyEnter_t> _lobbyEnter;
 
 		private bool _isDisposed = false;
+
+		public bool IsSearching {
+			get {
+				throw new NotImplementedException();
+			}
+		}
+
+		public MatchMakingInfo? CurrentRequest {
+			get {
+				throw new NotImplementedException();
+			}
+		}
+
+		public IGameEvent<EmptyEventArgs> SearchResultsUpdated {
+			get {
+				throw new NotImplementedException();
+			}
+		}
+
+		public IGameEvent<Guid> MatchFound {
+			get {
+				throw new NotImplementedException();
+			}
+		}
+
+		public IGameEvent<EmptyEventArgs> MatchMakingFailed {
+			get {
+				throw new NotImplementedException();
+			}
+		}
 
 		/*
 		===============
@@ -70,19 +102,6 @@ namespace Nomad.OnlineServices.Steam.Private {
 			}
 			GC.SuppressFinalize( this );
 			_isDisposed = true;
-		}
-
-		/*
-		===============
-		FindLobby
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <returns></returns>
-		public async ValueTask<LobbyInfo> FindLobby() {
-			return null;
 		}
 
 		/*
@@ -125,6 +144,21 @@ namespace Nomad.OnlineServices.Steam.Private {
 		/// <param name="param"></param>
 		/// <param name="bIOFailure"></param>
 		private void OnLobbyCreated( LobbyCreated_t param, bool bIOFailure ) {
+		}
+
+		public async Task<IReadOnlyList<LobbyInfo>> SearchLobbies( MatchMakingInfo info, CancellationToken ct = default ) {
+			return null;
+		}
+
+		public async Task<LobbyInfo?> FindBestLobby( MatchMakingInfo info, CancellationToken ct = default ) {
+			return null;
+		}
+
+		public async Task<bool> StartQuickPlay( MatchMakingInfo info, CancellationToken ct = default ) {
+			return false;
+		}
+
+		public async Task Cancel( CancellationToken ct = default ) {
 		}
 	};
 };

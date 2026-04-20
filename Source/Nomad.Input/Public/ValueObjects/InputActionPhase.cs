@@ -16,27 +16,27 @@ of merchantability, fitness for a particular purpose and noninfringement.
 namespace Nomad.Input.ValueObjects
 {
 	/// <summary>
-	/// 
+	/// Defines the phases of an input action's lifecycle.
 	/// </summary>
 	public enum InputActionPhase : byte
 	{
 		/// <summary>
-		/// 
+		/// The action has just started (e.g., button pressed, axis moved from neutral).
 		/// </summary>
 		Started,
 
 		/// <summary>
-		/// 
+		/// The action is being performed (e.g., button held, axis at non-neutral position).
 		/// </summary>
 		Performed,
 
 		/// <summary>
-		/// 
+		/// The action has been canceled (e.g., button released, axis returned to neutral).
 		/// </summary>
 		Canceled,
 
 		/// <summary>
-		/// 
+		/// Sentinel value representing the total number of action phases.
 		/// </summary>
 		Count
 	}

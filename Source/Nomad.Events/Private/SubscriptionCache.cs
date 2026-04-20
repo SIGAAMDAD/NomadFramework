@@ -14,7 +14,9 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using Nomad.Core.Collections;
+using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.Logger;
 
 namespace Nomad.Events.Private {
@@ -32,25 +34,14 @@ namespace Nomad.Events.Private {
 	internal sealed class SubscriptionCache<TArgs, TCallback> : IDisposable
 		where TArgs : struct
 	{
-#if EVENT_DEBUG
-		public int DeadCount {
-			get {
-				int dead = 0;
-				for ( int i = 0; i < _subscriptions.Count; i++ ) {
-					if ( !_subscriptions[ i ].IsAlive ) {
-						dead++;
-					}
-				}
-				return dead;
-			}
+		public int Count => _subscriptions != null ? _subscriptions.Count : 0;
+
+		public TCallback this[int index] {
+			[MethodImpl( MethodImplOptions.AggressiveInlining )]
+			get => _subscriptions[index];
 		}
-#endif
 
-		public int Count => _subscriptions.Count;
-		public TCallback this[int index] => _subscriptions[index];
-
-		private readonly List<TCallback> _subscriptions = new List<TCallback>( 16 );
-
+		private FixedList<TCallback>? _subscriptions;
 		private readonly ILoggerService _logger;
 
 		/*
@@ -75,7 +66,7 @@ namespace Nomad.Events.Private {
 		///
 		/// </summary>
 		public void Dispose() {
-			_subscriptions.Clear();
+			_subscriptions?.Clear();
 		}
 
 		/*
@@ -88,6 +79,7 @@ namespace Nomad.Events.Private {
 		/// </summary>
 		/// <param name="entry"></param>
 		public void Add( TCallback entry ) {
+			_subscriptions ??= new FixedList<TCallback>();
 			_subscriptions.Add( entry );
 		}
 
@@ -101,7 +93,8 @@ namespace Nomad.Events.Private {
 		/// </summary>
 		/// <param name="index"></param>
 		public void RemoveAt( int index ) {
-			_subscriptions.RemoveAt( index );
+			_subscriptions ??= new FixedList<TCallback>();
+			_subscriptions.RemoveAtSwapBack( index );
 		}
 	};
 };

@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.Events;
 
-namespace Nomad.Events.Private {
+namespace Nomad.Events.Private.EventTypes {
 	/*
 	===================================================================================
 	

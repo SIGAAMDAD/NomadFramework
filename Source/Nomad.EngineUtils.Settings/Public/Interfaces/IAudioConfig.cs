@@ -23,7 +23,7 @@ namespace Nomad.EngineUtils.Settings.Interfaces
         /// <summary>
         ///
         /// </summary>
-        string AudioDriver { get; set; }
+        int AudioDriver { get; set; }
 
         /// <summary>
         ///

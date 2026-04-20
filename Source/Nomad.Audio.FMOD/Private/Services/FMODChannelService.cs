@@ -178,7 +178,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			_arena.Attenuation = new float[_capacity];
 			*/
 
-			_arena = new ChannelArena(_capacity);
+			_arena = new FMODChannelStorage(_capacity);
 			new Span<int>( _arena.SlotNextInCategory, _arena.Capacity ).Fill( INVALID_INDEX );
 			new Span<int>( _arena.SlotPrevInCategory, _arena.Capacity ).Fill( INVALID_INDEX );
 

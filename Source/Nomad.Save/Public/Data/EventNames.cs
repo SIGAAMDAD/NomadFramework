@@ -23,7 +23,7 @@ namespace Nomad.Save.Data
         /// <summary>
         /// 
         /// </summary>
-        public const string NAMESPACE = nameof(Nomad.Save);
+        public const string NAMESPACE = "Nomad.Save";
 
         /// <summary>
         /// 

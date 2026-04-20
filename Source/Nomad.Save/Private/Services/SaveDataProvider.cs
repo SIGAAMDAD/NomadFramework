@@ -32,6 +32,7 @@ using Nomad.Save.Private.Registries;
 using Nomad.Core.Engine.Services;
 using Nomad.Save.Private.Repositories;
 using Nomad.Core.CVars;
+using Nomad.CVars;
 
 namespace Nomad.Save.Private.Services {
 	/*
@@ -83,23 +84,21 @@ namespace Nomad.Save.Private.Services {
 		public SaveDataProvider( IEngineService engineService, IGameEventRegistryService eventFactory, ICVarSystemService cvarSystem, IFileSystem fileSystem, ILoggerService logger ) {
 			ArgumentGuard.ThrowIfNull( engineService );
 			ArgumentGuard.ThrowIfNull( eventFactory );
-			ArgumentGuard.ThrowIfNull( fileSystem );
-			ArgumentGuard.ThrowIfNull( logger );
 			ArgumentGuard.ThrowIfNull( cvarSystem );
 
-			_saveBegin = eventFactory.GetEvent<SaveBeginEventArgs>( EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT );
-			_loadBegin = eventFactory.GetEvent<LoadBeginEventArgs>( EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT );
+			_saveBegin = eventFactory.GetEvent<SaveBeginEventArgs>( EventNames.SAVE_BEGIN_EVENT, EventNames.NAMESPACE );
+			_loadBegin = eventFactory.GetEvent<LoadBeginEventArgs>( EventNames.LOAD_BEGIN_EVENT, EventNames.NAMESPACE );
 
-			_vfs = fileSystem;
-			_logger = logger;
+			_vfs = fileSystem ?? throw new ArgumentNullException( nameof( fileSystem ) );
+			_logger = logger ?? throw new ArgumentNullException( nameof( logger ) );
 			_category = logger.CreateCategory( nameof( Nomad.Save ), LogLevel.Info, true );
 
 			_config = InitConfiguration( engineService, cvarSystem );
 
-			var autoSaveEnabled = cvarSystem.GetCVar<bool>( Constants.CVars.AUTO_SAVE_ENABLED ) ?? throw new CVarMissing( Constants.CVars.AUTO_SAVE_ENABLED );
+			var autoSaveEnabled = cvarSystem.GetCVarOrThrow<bool>( Constants.CVars.AUTO_SAVE_ENABLED );
 			_autoSaveChanged = autoSaveEnabled.ValueChanged.Subscribe( OnAutoSaveEnabledChanged );
 
-			var autoSaveInterval = cvarSystem.GetCVar<int>( Constants.CVars.AUTO_SAVE_INTERVAL ) ?? throw new CVarMissing( Constants.CVars.AUTO_SAVE_INTERVAL );
+			var autoSaveInterval = cvarSystem.GetCVarOrThrow<int>( Constants.CVars.AUTO_SAVE_INTERVAL );
 			_autoSaveIntervalChanged = autoSaveInterval.ValueChanged.Subscribe( OnAutoSaveIntervalChanged );
 
 			_atomicWriter = new AtomicWriterService( engineService, fileSystem );
@@ -143,8 +142,9 @@ namespace Nomad.Save.Private.Services {
 		///
 		/// </summary>
 		/// <returns></returns>
-		public IReadOnlyList<SaveFileMetadata> ListSaveFiles()
-			=> _slotRepository.GetMetadataList();
+		public IReadOnlyList<SaveFileMetadata> ListSaveFiles() {
+			return _slotRepository.GetMetadataList();
+		}
 
 		/*
 		===============
@@ -159,7 +159,6 @@ namespace Nomad.Save.Private.Services {
 		public async Task Load( string name ) {
 			try {
 				_readerService.Load( name );
-
 				_loadBegin.Publish( new LoadBeginEventArgs( _readerService ) );
 			} catch ( FieldCorruptException fieldCorrupt ) {
 				_category.PrintError( $"Field corruption: [FieldIndex] {fieldCorrupt.FieldIndex}, [FileOffset] {fieldCorrupt.FileOffset}, [Section] {fieldCorrupt.SectionName} - {fieldCorrupt.Message}" );
@@ -203,19 +202,19 @@ namespace Nomad.Save.Private.Services {
 		private static SaveConfig InitConfiguration( IEngineService engineService, ICVarSystemService cvarSystem ) {
 			SaveCVarRegistry.RegisterCVars( engineService, cvarSystem );
 
-			var dataPath = cvarSystem.GetCVar<string>( Constants.CVars.DATA_PATH ) ?? throw new CVarMissing( Constants.CVars.DATA_PATH );
+			var dataPath = cvarSystem.GetCVarOrThrow<string>( Constants.CVars.DATA_PATH );
 
-			var backupPath = cvarSystem.GetCVar<string>( Constants.CVars.BACKUP_DIRECTORY ) ?? throw new CVarMissing( Constants.CVars.BACKUP_DIRECTORY );
-			var maxBackups = cvarSystem.GetCVar<int>( Constants.CVars.MAX_BACKUPS ) ?? throw new CVarMissing( Constants.CVars.MAX_BACKUPS );
+			var backupPath = cvarSystem.GetCVarOrThrow<string>( Constants.CVars.BACKUP_DIRECTORY );
+			var maxBackups = cvarSystem.GetCVarOrThrow<int>( Constants.CVars.MAX_BACKUPS );
 
-			var autoSaveEnabled = cvarSystem.GetCVar<bool>( Constants.CVars.AUTO_SAVE_ENABLED ) ?? throw new CVarMissing( Constants.CVars.AUTO_SAVE_ENABLED );
-			var autoSaveInterval = cvarSystem.GetCVar<int>( Constants.CVars.AUTO_SAVE_INTERVAL ) ?? throw new CVarMissing( Constants.CVars.AUTO_SAVE_INTERVAL );
+			var autoSaveEnabled = cvarSystem.GetCVarOrThrow<bool>( Constants.CVars.AUTO_SAVE_ENABLED );
+			var autoSaveInterval = cvarSystem.GetCVarOrThrow<int>( Constants.CVars.AUTO_SAVE_INTERVAL );
 
-			var checksumsEnabled = cvarSystem.GetCVar<bool>( Constants.CVars.CHECKSUM_ENABLED ) ?? throw new CVarMissing( Constants.CVars.CHECKSUM_ENABLED );
-			var verifyAfterWrite = cvarSystem.GetCVar<bool>( Constants.CVars.VERIFY_AFTER_WRITE ) ?? throw new CVarMissing( Constants.CVars.VERIFY_AFTER_WRITE );
-			var logSerializationTree = cvarSystem.GetCVar<bool>( Constants.CVars.LOG_SERIALIZATION_TREE ) ?? throw new CVarMissing( Constants.CVars.LOG_SERIALIZATION_TREE );
-			var logWriteTimings = cvarSystem.GetCVar<bool>( Constants.CVars.LOG_WRITE_TIMINGS ) ?? throw new CVarMissing( Constants.CVars.LOG_WRITE_TIMINGS );
-			var debugLogging = cvarSystem.GetCVar<bool>( Constants.CVars.DEBUG_LOGGING ) ?? throw new CVarMissing( Constants.CVars.DEBUG_LOGGING );
+			var checksumsEnabled = cvarSystem.GetCVarOrThrow<bool>( Constants.CVars.CHECKSUM_ENABLED );
+			var verifyAfterWrite = cvarSystem.GetCVarOrThrow<bool>( Constants.CVars.VERIFY_AFTER_WRITE );
+			var logSerializationTree = cvarSystem.GetCVarOrThrow<bool>( Constants.CVars.LOG_SERIALIZATION_TREE );
+			var logWriteTimings = cvarSystem.GetCVarOrThrow<bool>( Constants.CVars.LOG_WRITE_TIMINGS );
+			var debugLogging = cvarSystem.GetCVarOrThrow<bool>( Constants.CVars.DEBUG_LOGGING );
 
 			return new SaveConfig {
 				DataPath = dataPath.Value,

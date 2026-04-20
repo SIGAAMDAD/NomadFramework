@@ -16,7 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 namespace Nomad.Core.Input
 {
     /// <summary>
-    /// 
+    /// Defines the types of input devices supported by the input system.
     /// </summary>
     public enum InputDeviceType : byte
     {
@@ -36,7 +36,7 @@ namespace Nomad.Core.Input
         Gamepad,
 
         /// <summary>
-        /// 
+        /// Sentinel value representing the total number of input device types.
         /// </summary>
         Count
     }

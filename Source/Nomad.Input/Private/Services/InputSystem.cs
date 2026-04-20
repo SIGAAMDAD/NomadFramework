@@ -1,3 +1,18 @@
+/*
+===========================================================================
+The Nomad Framework
+Copyright (C) 2025-2026 Noah Van Til
+
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v2. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+This software is provided "as is", without warranty of any kind,
+express or implied, including but not limited to the warranties
+of merchantability, fitness for a particular purpose and noninfringement.
+===========================================================================
+*/
+
 using System;
 using System.Collections.Generic;
 using System.Numerics;
@@ -11,7 +26,6 @@ using Nomad.Input.Interfaces;
 using Nomad.Input.Private.Extensions;
 using Nomad.Input.Private.Registries;
 using Nomad.Input.Private.Repositories;
-using Nomad.Input.Private.Services;
 using Nomad.Input.Private.ValueObjects;
 using Nomad.Input.ValueObjects;
 
@@ -58,11 +72,13 @@ namespace Nomad.Input.Private.Services {
 
 			registry.AddSingleton( _bindResolver );
 			registry.AddSingleton( _rebindService );
+			registry.AddSingleton<IInputSnapshotService>( _stateService );
 
 			eventFactory.GetEvent<bool>( Core.Constants.Events.EngineUtils.PAUSE_STATE_CHANGED, Core.Constants.Events.EngineUtils.NAMESPACE ).Subscribe( OnPauseStateChanged );
 			eventFactory.GetEvent<KeyboardEventArgs>( Core.Constants.Events.Input.KEYBOARD_EVENT, Core.Constants.Events.Input.NAMESPACE ).Subscribe( OnKeyboardEventTriggered );
 			eventFactory.GetEvent<MouseButtonEventArgs>( Core.Constants.Events.Input.MOUSE_BUTTON_EVENT, Core.Constants.Events.Input.NAMESPACE ).Subscribe( OnMouseButtonEventTriggered );
 			eventFactory.GetEvent<MouseMotionEventArgs>( Core.Constants.Events.Input.MOUSE_MOTION_EVENT, Core.Constants.Events.Input.NAMESPACE ).Subscribe( OnMouseMotionEventTriggered );
+			eventFactory.GetEvent<MousePositionChangedEventArgs>( Core.Constants.Events.Input.MOUSE_POSITION_CHANGED_EVENT, Core.Constants.Events.Input.NAMESPACE ).Subscribe( OnMousePositionChangedEventTriggered );
 			eventFactory.GetEvent<GamepadAxisEventArgs>( Core.Constants.Events.Input.GAMEPAD_AXIS_EVENT, Core.Constants.Events.Input.NAMESPACE ).Subscribe( OnGamepadAxisEventTriggered );
 			eventFactory.GetEvent<GamepadButtonEventArgs>( Core.Constants.Events.Input.GAMEPAD_BUTTON_EVENT, Core.Constants.Events.Input.NAMESPACE ).Subscribe( OnGamepadButtonEventTriggered );
 		}
@@ -74,7 +90,7 @@ namespace Nomad.Input.Private.Services {
 
 			_eventFactory.GetEvent<KeyboardEventArgs>( Core.Constants.Events.Input.KEYBOARD_EVENT, Core.Constants.Events.Input.NAMESPACE ).Unsubscribe( OnKeyboardEventTriggered );
 			_eventFactory.GetEvent<MouseButtonEventArgs>( Core.Constants.Events.Input.MOUSE_BUTTON_EVENT, Core.Constants.Events.Input.NAMESPACE ).Unsubscribe( OnMouseButtonEventTriggered );
-			_eventFactory.GetEvent<MouseMotionEventArgs>( Core.Constants.Events.Input.MOUSE_MOTION_EVENT, Core.Constants.Events.Input.NAMESPACE ).Unsubscribe( OnMouseMotionEventTriggered );
+			_eventFactory.GetEvent<MousePositionChangedEventArgs>( Core.Constants.Events.Input.MOUSE_POSITION_CHANGED_EVENT, Core.Constants.Events.Input.NAMESPACE ).Unsubscribe( OnMousePositionChangedEventTriggered );
 			_eventFactory.GetEvent<GamepadAxisEventArgs>( Core.Constants.Events.Input.GAMEPAD_AXIS_EVENT, Core.Constants.Events.Input.NAMESPACE ).Unsubscribe( OnGamepadAxisEventTriggered );
 			_eventFactory.GetEvent<GamepadButtonEventArgs>( Core.Constants.Events.Input.GAMEPAD_BUTTON_EVENT, Core.Constants.Events.Input.NAMESPACE ).Unsubscribe( OnGamepadButtonEventTriggered );
 
@@ -116,6 +132,15 @@ namespace Nomad.Input.Private.Services {
 			BindingMatchSet matches = _matcherService.MatchMouseDelta( graph, _contextMask, _mode );
 
 			DispatchResolved( graph, _actionResolverService.ResolveMatchesNonAlloc( graph, matches, mouseMotionEvent.TimeStamp ) );
+		}
+
+		public void PushMousePositionChangedEvent( in MousePositionChangedEventArgs mousePositionChangedEvent ) {
+			_stateService.SetMousePosition( new Vector2( mousePositionChangedEvent.PositionX, mousePositionChangedEvent.PositionY ) );
+
+			CompiledBindingGraph graph = _compiledBindings.Current;
+			BindingMatchSet matches = _matcherService.MatchMouseDelta( graph, _contextMask, _mode );
+
+			DispatchResolved( graph, _actionResolverService.ResolveMatchesNonAlloc( graph, matches, mousePositionChangedEvent.TimeStamp ) );
 		}
 
 		public void PushGamepadButtonEvent( in GamepadButtonEventArgs gamepadButtonEvent ) {
@@ -178,6 +203,12 @@ namespace Nomad.Input.Private.Services {
 		private void OnMouseMotionEventTriggered( in MouseMotionEventArgs args ) {
 			if ( _processEvents ) {
 				PushMouseMotionEvent( in args );
+			}
+		}
+
+		private void OnMousePositionChangedEventTriggered( in MousePositionChangedEventArgs args ) {
+			if ( _processEvents ) {
+				PushMousePositionChangedEvent( in args );
 			}
 		}
 

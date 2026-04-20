@@ -26,13 +26,11 @@ using Nomad.Core;
 using Nomad.Core.Logger;
 using Nomad.Core.ServiceRegistry.Interfaces;
 using Nomad.Core.Events;
-using System.Collections.Immutable;
 using Nomad.Core.CVars;
 using Nomad.CVars;
 using Nomad.Core.Engine.Globals;
 using Nomad.Core.Engine.Services;
 using System.Collections.Generic;
-using Nomad.Core.Audio;
 using Nomad.Audio.ValueObjects;
 
 namespace Nomad.Audio.Fmod.Private.Services {
@@ -48,7 +46,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 	/// </summary>
 
 	internal sealed class FMODDevice : IAudioDevice {
-		public int OutputDevice => _driverRepository.OutputDeviceIndex;
+		public int OutputDevice => _outputDeviceRepository.OutputDeviceIndex;
 		public string AudioDriver => _driverRepository.Driver;
 
 		public FMODEventRepository EventRepository => _eventRepository;
@@ -57,7 +55,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		public FMODGuidRepository GuidRepository => _guidRepository;
 		private readonly FMODGuidRepository _guidRepository;
 
-		public IReadOnlyList<string> OutputDevices => _driverRepository.OutputDevices;
+		public IReadOnlyList<string> OutputDevices => _outputDeviceRepository.OutputDevices;
 		public IReadOnlyList<string> AudioDrivers => _driverRepository.Drivers;
 
 		public FMOD.Studio.System StudioSystem => _systemHandle.StudioSystem;
@@ -71,6 +69,9 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		private readonly FMODBankRepository _bankRepository;
 
 		private readonly FMODDriverRepository _driverRepository;
+		private readonly FMODOutputDeviceRepository _outputDeviceRepository;
+		private readonly FMODDriverService _driverService;
+		private readonly FMODCallbackDispatcher _callbackDispatcher;
 
 		private bool _isDisposed = false;
 
@@ -89,7 +90,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 
 			var cvarSystem = locator.GetService<ICVarSystemService>();
 			var eventFactory = locator.GetService<IGameEventRegistryService>();
-			
+
 			FMODValidator.Initialize( logger );
 
 			_category = logger.CreateCategory( "FMOD", LogLevel.Info, true );
@@ -99,7 +100,10 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			_systemHandle = new FMODSystemHandle( cvarSystem, logger );
 			ConfigureFMODDevice( cvarSystem );
 
-			_driverRepository = new FMODDriverRepository( _category, cvarSystem, _systemHandle.System );
+			_callbackDispatcher = new FMODCallbackDispatcher( _systemHandle.System );
+			_driverRepository = new FMODDriverRepository();
+			_outputDeviceRepository = new FMODOutputDeviceRepository( _category );
+			_driverService = new FMODDriverService( _category, _systemHandle.System, cvarSystem, _callbackDispatcher, _driverRepository, _outputDeviceRepository );
 
 			_guidRepository = new FMODGuidRepository();
 			_bankRepository = new FMODBankRepository( logger, eventFactory, this );
@@ -127,11 +131,13 @@ namespace Nomad.Audio.Fmod.Private.Services {
 				_eventRepository?.Dispose();
 				_bankRepository?.Dispose();
 				_guidRepository?.Dispose();
-				_driverRepository?.Dispose();
+				_driverService?.Dispose();
+				_outputDeviceRepository?.Dispose();
+				_callbackDispatcher?.Dispose();
 				_category?.Dispose();
 				_systemHandle.Dispose();
 			}
-			GC.SuppressFinalize(this);
+			GC.SuppressFinalize( this );
 			_isDisposed = true;
 		}
 

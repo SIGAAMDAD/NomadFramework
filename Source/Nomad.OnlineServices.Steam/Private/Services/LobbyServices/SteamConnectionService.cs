@@ -14,8 +14,12 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using System.Collections.Concurrent;
+using System.Threading;
+using System.Threading.Tasks;
 using Nomad.Core.Events;
+using Nomad.Core.Logger;
+using Nomad.Core.OnlineServices;
+using Nomad.OnlineServices.Steam.Private.Repositories;
 using Nomad.OnlineServices.Steam.Private.ValueObjects;
 using Steamworks;
 
@@ -23,18 +27,19 @@ namespace Nomad.OnlineServices.Steam.Private.Services.LobbyServices {
 	internal sealed class SteamConnectionService : IDisposable {
 		private readonly Callback<SteamNetConnectionStatusChangedCallback_t> _netConnectionStatusChanged;
 
-		private readonly ConcurrentDictionary<CSteamID, SteamNetConnection> _connectionCache = new ConcurrentDictionary<CSteamID, SteamNetConnection>();
+		private readonly SteamConnectionRepository _connections;
+
+		private readonly IGameEventRegistryService _eventFactory;
+
+		private HSteamNetPollGroup _pollGroup = HSteamNetPollGroup.Invalid;
+		private HSteamListenSocket _listenSocket = HSteamListenSocket.Invalid;
+		private readonly SteamNetworkingConfigValue_t[] _socketOptions;
+
+		public event Action<SteamNetConnection> ConnectionRequested;
+		public event Action<SteamNetConnection> ConnectionEstablished;
+		public event Action<SteamNetConnection> ConnectionClosed;
 
 		private bool _isDisposed = false;
-
-		private readonly ISubscriptionHandle _userJoined;
-		private readonly ISubscriptionHandle _userLeft;
-
-		public IGameEvent<ulong> ClientConnected => _clientConnected;
-		private readonly IGameEvent<ulong> _clientConnected;
-
-		public IGameEvent<ulong> ClientDisconnected => _clientDisconnected;
-		private readonly IGameEvent<ulong> _clientDisconnected;
 
 		/*
 		===============
@@ -44,24 +49,51 @@ namespace Nomad.OnlineServices.Steam.Private.Services.LobbyServices {
 		/// <summary>
 		/// 
 		/// </summary>
+		/// <param name="logger"></param>
 		/// <param name="eventFactory"></param>
-		public SteamConnectionService( IGameEventRegistryService eventFactory ) {
-			_netConnectionStatusChanged = Callback<SteamNetConnectionStatusChangedCallback_t>.Create( OnNetConnectionStatusChanged );
+		public SteamConnectionService( ILoggerService logger, IGameEventRegistryService eventFactory ) {
+			_eventFactory = eventFactory ?? throw new ArgumentNullException( nameof( eventFactory ) );
+			_connections = new SteamConnectionRepository( logger );
 
-			_clientConnected = eventFactory.GetEvent<ulong>( Constants.Events.CLIENT_CONNECTED, Constants.Events.NAMESPACE );
-			_clientDisconnected = eventFactory.GetEvent<ulong>( Constants.Events.CLIENT_DISCONNECTED, Constants.Events.NAMESPACE );
+			_netConnectionStatusChanged = Callback<SteamNetConnectionStatusChangedCallback_t>.Create( OnConnectionStatusChanged );
 
-			var userJoined = eventFactory.GetEvent<ulong>( Constants.Events.USER_JOINED_LOBBY, Constants.Events.NAMESPACE );
-			_userJoined = userJoined.Subscribe( OnUserJoined );
-
-			var userLeft = eventFactory.GetEvent<ulong>( Constants.Events.USER_LEFT_LOBBY, Constants.Events.NAMESPACE );
-			_userLeft = userLeft.Subscribe( OnUserLeft );
-		}
-
-		private void OnUserJoined( in ulong userId ) {
-		}
-
-		private void OnUserLeft( in ulong userId ) {
+			_socketOptions = new SteamNetworkingConfigValue_t[] {
+				new SteamNetworkingConfigValue_t {
+					m_eValue = ESteamNetworkingConfigValue.k_ESteamNetworkingConfig_SendBufferSize,
+					m_eDataType = ESteamNetworkingConfigDataType.k_ESteamNetworkingConfig_Int32,
+					m_val = new SteamNetworkingConfigValue_t.OptionValue { m_int32 = 64 * 1024 }
+				},
+				new SteamNetworkingConfigValue_t {
+					m_eValue = ESteamNetworkingConfigValue.k_ESteamNetworkingConfig_SendRateMin,
+					m_eDataType = ESteamNetworkingConfigDataType.k_ESteamNetworkingConfig_Int32,
+					m_val = new SteamNetworkingConfigValue_t.OptionValue { m_int32 = 64000 }
+				},
+				new SteamNetworkingConfigValue_t {
+					m_eValue = ESteamNetworkingConfigValue.k_ESteamNetworkingConfig_RecvBufferSize,
+					m_eDataType = ESteamNetworkingConfigDataType.k_ESteamNetworkingConfig_Int32,
+					m_val = new SteamNetworkingConfigValue_t.OptionValue { m_int32 = 64 * 1024 }
+				},
+				new SteamNetworkingConfigValue_t {
+					m_eValue = ESteamNetworkingConfigValue.k_ESteamNetworkingConfig_NagleTime,
+					m_eDataType = ESteamNetworkingConfigDataType.k_ESteamNetworkingConfig_Int32,
+					m_val = new SteamNetworkingConfigValue_t.OptionValue { m_int32 = 0 }
+				},
+				new SteamNetworkingConfigValue_t {
+					m_eValue = ESteamNetworkingConfigValue.k_ESteamNetworkingConfig_TimeoutInitial,
+					m_eDataType = ESteamNetworkingConfigDataType.k_ESteamNetworkingConfig_Int32,
+					m_val = new SteamNetworkingConfigValue_t.OptionValue { m_int32 = 100000 }
+				},
+				new SteamNetworkingConfigValue_t {
+					m_eValue = ESteamNetworkingConfigValue.k_ESteamNetworkingConfig_TimeoutConnected,
+					m_eDataType = ESteamNetworkingConfigDataType.k_ESteamNetworkingConfig_Int32,
+					m_val = new SteamNetworkingConfigValue_t.OptionValue { m_int32 = 1000000 }
+				},
+				new SteamNetworkingConfigValue_t {
+					m_eValue = ESteamNetworkingConfigValue.k_ESteamNetworkingConfig_SymmetricConnect,
+					m_eDataType = ESteamNetworkingConfigDataType.k_ESteamNetworkingConfig_Int32,
+					m_val = new SteamNetworkingConfigValue_t.OptionValue { m_int32 = 1 }
+				}
+			};
 		}
 
 		/*
@@ -74,62 +106,94 @@ namespace Nomad.OnlineServices.Steam.Private.Services.LobbyServices {
 		/// </summary>
 		public void Dispose() {
 			if ( !_isDisposed ) {
+				foreach ( var connection in _connections.Snapshot() ) {
+					SteamNetworkingSockets.CloseConnection( connection.Connection, 0, "Shutdown", false );
+				}
+				if ( _listenSocket != HSteamListenSocket.Invalid ) {
+					SteamNetworkingSockets.CloseListenSocket( _listenSocket );
+					_listenSocket = HSteamListenSocket.Invalid;
+				}
+				if ( _pollGroup != HSteamNetPollGroup.Invalid ) {
+					SteamNetworkingSockets.DestroyPollGroup( _pollGroup );
+					_pollGroup = HSteamNetPollGroup.Invalid;
+				}
 				_netConnectionStatusChanged?.Dispose();
-
-				_clientConnected?.Dispose();
-				_clientDisconnected?.Dispose();
-
-				_userJoined?.Dispose();
-				_userLeft?.Dispose();
 			}
 			GC.SuppressFinalize( this );
 			_isDisposed = true;
 		}
 
-		/*
-		===============
-		OnIncomingConnection
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="senderId"></param>
-		private void OnIncomingConnection( CSteamID senderId ) {
-			if ( _connectionCache.TryGetValue( senderId, out var connection ) && connection.Status != SteamConnectionStatus.Opened ) {
-
-			} else {
-
-			}
+		public void StartHosting( int virtualPort = 0 ) {
+			SteamNetworkingUtils.InitRelayNetworkAccess();
+			_pollGroup = SteamNetworkingSockets.CreatePollGroup();
+			_listenSocket = SteamNetworkingSockets.CreateListenSocketP2P( virtualPort, _socketOptions.Length, _socketOptions );
 		}
 
-		/*
-		===============
-		OnNetConnectionStatusChanged
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="pCallback"></param>
-		private void OnNetConnectionStatusChanged( SteamNetConnectionStatusChangedCallback_t pCallback ) {
-			CSteamID senderId = pCallback.m_info.m_identityRemote.GetSteamID();
+		public HSteamNetConnection ConnectP2P( CSteamID remoteSteamId, int virtualPort = 0 ) {
+			var identity = new SteamNetworkingIdentity();
+			identity.SetSteamID( remoteSteamId );
 
-			var connection = _connectionCache.GetOrAdd( senderId, f => new SteamNetConnection( pCallback.m_hConn ) );
-			switch ( pCallback.m_info.m_eState ) {
-				case ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_Connected:
-					connection.SetStatus( SteamConnectionStatus.Connected );
-					break;
+			var conn = SteamNetworkingSockets.ConnectP2P( ref identity, virtualPort, 0, null );
+			if ( conn == HSteamNetConnection.Invalid ) {
+				return conn;
+			}
+
+			var session = new SteamNetConnection( conn, identity );
+			_connections.Add( session );
+			return conn;
+		}
+
+		public bool Accept( HSteamNetConnection handle ) {
+			if ( !_connections.TryGet( handle, out var connection ) || connection == null ) {
+				return false;
+			}
+
+			var result = SteamNetworkingSockets.AcceptConnection( connection.Connection );
+			if ( result != EResult.k_EResultOK ) {
+				return false;
+			}
+
+			SteamNetworkingSockets.SetConnectionPollGroup( handle, _pollGroup );
+			return true;
+		}
+
+		private void OnConnectionStatusChanged( SteamNetConnectionStatusChangedCallback_t pCallback ) {
+			var handle = pCallback.m_hConn;
+			var info = pCallback.m_info;
+
+			switch ( info.m_eState ) {
 				case ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_Connecting:
-					connection.SetStatus( SteamConnectionStatus.Opened );
-					OnIncomingConnection( senderId );
+					if ( !_connections.TryGet( handle, out var existing ) || existing == null ) {
+						var inbound = new SteamNetConnection(
+							handle,
+							info.m_identityRemote
+						);
+						_connections.Add( inbound );
+						ConnectionRequested?.Invoke( inbound );
+					} else {
+						existing.SetStatus( NetworkConnectionState.Connected );
+					}
 					break;
-				case ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_Dead:
-				case ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_ProblemDetectedLocally:
+				case ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_Connected: {
+						if ( _connections.TryGet( handle, out var connection ) && connection != null ) {
+							connection.SetStatus( NetworkConnectionState.Connected );
+							ConnectionEstablished?.Invoke( connection );
+						}
+						break;
+					}
 				case ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_ClosedByPeer:
-					connection.SetStatus( SteamConnectionStatus.Closed );
-					_clientDisconnected.Publish( (ulong)senderId );
-					break;
+				case ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_ProblemDetectedLocally: {
+						if ( _connections.TryGet( handle, out var connection ) && connection != null ) {
+							bool localProblem = info.m_eState == ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_ProblemDetectedLocally;
+							connection.SetStatus( NetworkConnectionState.Disconnected );
+							ConnectionClosed?.Invoke( connection );
+						}
+						SteamNetworkingSockets.CloseConnection( handle, 0, "Cleanup", false );
+						_connections.Remove( handle );
+						break;
+					}
+				default:
+					throw new ArgumentOutOfRangeException( nameof( info.m_eState ) );
 			}
 		}
 	};

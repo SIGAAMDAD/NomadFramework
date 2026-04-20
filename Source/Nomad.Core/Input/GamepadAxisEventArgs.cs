@@ -20,58 +20,54 @@ using System.Runtime.CompilerServices;
 namespace Nomad.Core.Input
 {
     /// <summary>
-    /// 
+    /// Represents the arguments for a gamepad axis input event.
     /// </summary>
     public readonly struct GamepadAxisEventArgs : IEquatable<GamepadAxisEventArgs>
     {
         /// <summary>
-        /// 
+        /// Gets the timestamp when the gamepad axis event occurred.
         /// </summary>
-        public long TimeStamp => _timeStamp;
-        private readonly long _timeStamp;
+        public long TimeStamp { get; }
 
         /// <summary>
-        /// 
+        /// Gets the device ID of the gamepad.
         /// </summary>
-        public int DeviceId => _deviceId;
-        private readonly int _deviceId;
+        public int DeviceId { get; }
 
         /// <summary>
-        /// 
+        /// Gets the gamepad stick that was moved.
         /// </summary>
-        public GamepadStick Stick => _stick;
-        private readonly GamepadStick _stick;
+        public GamepadStick Stick { get; }
 
         /// <summary>
-        /// 
+        /// Gets the axis values as a 2D vector (X and Y components).
         /// </summary>
-        public Vector2 Value => _value;
-        private readonly Vector2 _value;
+        public Vector2 Value { get; }
 
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="GamepadAxisEventArgs"/> struct.
         /// </summary>
-        /// <param name="stick"></param>
-        /// <param name="timestamp"></param>
-        /// <param name="deviceId"></param>
-        /// <param name="value"></param>
+        /// <param name="stick">The gamepad stick that was moved.</param>
+        /// <param name="timestamp">The timestamp of the event.</param>
+        /// <param name="deviceId">The device ID of the gamepad.</param>
+        /// <param name="value">The axis values as a 2D vector.</param>
         public GamepadAxisEventArgs(GamepadStick stick, long timestamp, int deviceId, Vector2 value)
         {
-            _stick = stick;
-            _timeStamp = timestamp;
-            _deviceId = deviceId;
-            _value = value;
+            Stick = stick;
+            TimeStamp = timestamp;
+            DeviceId = deviceId;
+            Value = value;
         }
 
         /// <summary>
-        /// 
+        /// Determines whether the specified <see cref="GamepadAxisEventArgs"/> is equal to the current instance.
         /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
+        /// <param name="other">The <see cref="GamepadAxisEventArgs"/> to compare with the current instance.</param>
+        /// <returns>True if the specified object is equal to the current instance; otherwise, false.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Equals(GamepadAxisEventArgs other)
         {
-            return _stick == other._stick && _value == other._value;
+            return Stick == other.Stick && Value == other.Value;
         }
     }
 }

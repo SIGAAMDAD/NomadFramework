@@ -25,7 +25,7 @@ namespace Nomad.EngineUtils.Settings.ValueObjects
         /// <summary>
         ///
         /// </summary>
-        public string AudioDriver { get; set; }
+        public int AudioDriver { get; set; }
 
         /// <summary>
         ///

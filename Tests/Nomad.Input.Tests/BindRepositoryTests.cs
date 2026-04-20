@@ -52,6 +52,7 @@ namespace Nomad.Input.Tests
 				{
 				  "Bindings": [
 				    {
+					  "Id": "Jump",
 				      "Name": "Jump",
 				      "ValueType": "Button",
 				      "Scheme": "KeyboardAndMouse",
@@ -83,6 +84,7 @@ namespace Nomad.Input.Tests
 				{
 				  "Bindings": [
 				    {
+					  "Id": "Jump",
 				      "Name": "Jump",
 				      "ValueType": "Button",
 				      "Scheme": "KeyboardAndMouse",
@@ -95,6 +97,7 @@ namespace Nomad.Input.Tests
 				{
 				  "Bindings": [
 				    {
+					  "Id": "Move",
 				      "Name": "Move",
 				      "ValueType": "Vector2",
 				      "Scheme": "KeyboardAndMouse",
@@ -179,6 +182,7 @@ namespace Nomad.Input.Tests
 				{
 				  "Bindings": [
 				    {
+					  "Id": "Move",
 				      "Name": "Move",
 				      "ValueType": "Vector2",
 				      "Scheme": "KeyboardAndMouse",
@@ -197,6 +201,7 @@ namespace Nomad.Input.Tests
 				{
 				  "Bindings": [
 				    {
+					  "Id": "Move",
 				      "Name": "Move",
 				      "ValueType": "Vector2",
 				      "Scheme": "KeyboardAndMouse",
@@ -215,6 +220,7 @@ namespace Nomad.Input.Tests
 				{
 				  "Bindings": [
 				    {
+					  "Id": "Move",
 				      "Name": "Move",
 				      "ValueType": "Vector2",
 				      "Scheme": "KeyboardAndMouse",
@@ -256,6 +262,7 @@ namespace Nomad.Input.Tests
 				{
 				  "Bindings": [
 				    {
+					  "Id": "Jump",
 				      "Name": "Jump",
 				      "ValueType": "Button",
 				      "Scheme": "KeyboardAndMouse",
@@ -268,6 +275,7 @@ namespace Nomad.Input.Tests
 				{
 				  "Bindings": [
 				    {
+					  "Id": "Jump",
 				      "Name": "Jump",
 				      "ValueType": "Button",
 				      "Scheme": "Gamepad",
@@ -324,6 +332,7 @@ namespace Nomad.Input.Tests
 				{
 				  "Bindings": [
 				    {
+					  "Id": "Jump",
 				      "Name": "Jump",
 				      "ValueType": "Button",
 				      "Scheme": "KeyboardAndMouse",
@@ -336,6 +345,7 @@ namespace Nomad.Input.Tests
 				{
 				  "Bindings": [
 				    {
+					  "Id": "Move",
 				      "Name": "Move",
 				      "ValueType": "Vector2",
 				      "Scheme": "KeyboardAndMouse",
@@ -358,6 +368,7 @@ namespace Nomad.Input.Tests
 			{
 			  "Bindings": [
 			    {
+				  "Id": "Crouch",
 			      "Name": "Crouch",
 			      "ValueType": "Button",
 			      "Scheme": "KeyboardAndMouse",
@@ -409,6 +420,7 @@ namespace Nomad.Input.Tests
 				{
 				  "Bindings": [
 				    {
+					  "Id": "Jump",
 				      "Name": "Jump",
 				      "ValueType": "Button",
 				      "Scheme": "KeyboardAndMouse",
@@ -421,6 +433,7 @@ namespace Nomad.Input.Tests
 				{
 				  "Bindings": [
 				    {
+					  "Id": "Jump",
 				      "Name": "Jump",
 				      "ValueType": "Button",
 				      "Scheme": "Gamepad",
@@ -453,6 +466,7 @@ namespace Nomad.Input.Tests
 				{
 				  "Bindings": [
 				    {
+					  "Id": "Confirm",
 				      "Name": "Confirm",
 				      "ValueType": "Button",
 				      "Scheme": "Gamepad",
@@ -480,6 +494,7 @@ namespace Nomad.Input.Tests
 				{
 				  "Bindings": [
 				    {
+					  "Id": "Jump",
 				      "Name": "Jump",
 				      "ValueType": "Button",
 				      "Scheme": "KeyboardAndMouse",
@@ -604,6 +619,7 @@ namespace Nomad.Input.Tests
 				{
 				  "Bindings": [
 				    {
+					  "Id": "Interact",
 				      "Name": "Interact",
 				      "ValueType": "Button",
 				      "Scheme": "KeyboardAndMouse",
@@ -616,6 +632,7 @@ namespace Nomad.Input.Tests
 				{
 				  "Bindings": [
 				    {
+					  "Id": "Interact",
 				      "Name": "Interact",
 				      "ValueType": "Vector2",
 				      "Scheme": "KeyboardAndMouse",

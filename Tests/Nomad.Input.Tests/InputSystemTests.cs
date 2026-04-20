@@ -2,12 +2,12 @@ using System.Reflection;
 using System.Numerics;
 using NUnit.Framework;
 using Nomad.Core.Input;
-using Nomad.Core.Input.ValueObjects;
 using Nomad.Events;
 using Nomad.Input.Events;
 using Nomad.Input.Private.Services;
 using Nomad.Input.ValueObjects;
 using Nomad.Core.ServiceRegistry.Services;
+using Nomad.Core.Input.ValueObjects;
 
 namespace Nomad.Input.Tests {
 	[TestFixture]
@@ -39,6 +39,7 @@ namespace Nomad.Input.Tests {
 				{
 				  "Bindings": [
 				    {
+					  "Id": "Jump",
 				      "Name": "Jump",
 				      "ValueType": "Button",
 				      "Scheme": "KeyboardAndMouse",
@@ -71,6 +72,7 @@ namespace Nomad.Input.Tests {
 				{
 				  "Bindings": [
 				    {
+					  "Id": "Look",
 				      "Name": "Look",
 				      "ValueType": "Vector2",
 				      "Scheme": "KeyboardAndMouse",
@@ -108,6 +110,7 @@ namespace Nomad.Input.Tests {
 				{
 				  "Bindings": [
 				    {
+					  "Id": "Aim",
 				      "Name": "Aim",
 				      "ValueType": "Vector2",
 				      "Scheme": "Gamepad",
@@ -144,6 +147,7 @@ namespace Nomad.Input.Tests {
 				{
 				  "Bindings": [
 				    {
+					  "Id": "Confirm",
 				      "Name": "Confirm",
 				      "ValueType": "Button",
 				      "Scheme": "Gamepad",
@@ -176,6 +180,7 @@ namespace Nomad.Input.Tests {
 				{
 				  "Bindings": [
 				    {
+					  "Id": "Move",
 				      "Name": "Move",
 				      "ValueType": "Vector2",
 				      "Scheme": "KeyboardAndMouse",

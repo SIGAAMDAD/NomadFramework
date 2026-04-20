@@ -13,31 +13,21 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
+namespace Nomad.Core.OnlineServices
+{
 	/// <summary>
 	/// 
 	/// </summary>
-	internal enum SteamConnectionStatus : byte {
-		/// <summary>
-		/// We're attempting to connect.
-		/// </summary>
-		Opened,
-
-		/// <summary>
-		/// The connection is secure.
-		/// </summary>
+	public enum NetworkConnectionState : byte
+	{
+		Disconnected = 0,
+		StartingHost,
+		Hosting,
+		Connecting,
 		Connected,
-
-		/// <summary>
-		/// The connection has be closed.
-		/// </summary>
-		Closed,
-
-		/// <summary>
-		/// The connection process failed.
-		/// </summary>
-		Failed,
+		Stopping,
+		Faulted,
 
 		Count
-	};
-};
+	}
+}

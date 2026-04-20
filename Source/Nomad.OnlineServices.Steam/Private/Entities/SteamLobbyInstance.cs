@@ -14,12 +14,15 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using Nomad.Core.CVars;
 using Nomad.Core.Events;
+using Nomad.Core.OnlineServices;
 using Nomad.CVars;
 using Nomad.OnlineServices.Steam.Private.Services.LobbyServices;
 using Nomad.OnlineServices.Steam.Private.ValueObjects;
+using Steamworks;
 
 namespace Nomad.OnlineServices.Steam.Private.Entities {
 	/*
@@ -34,8 +37,12 @@ namespace Nomad.OnlineServices.Steam.Private.Entities {
 	/// </summary>
 
 	internal sealed class SteamLobbyInstance : IDisposable {
-		private readonly SteamLobbyMemberService _memberService;
+		public HashSet<ulong> Members => _memberService.Members;
+
+		public LobbyInfo Info => _info.Info;
 		private readonly SteamLobbyData _info;
+
+		private readonly SteamLobbyMemberService _memberService;
 		private readonly Timer _updateTimer;
 
 		private bool _isDisposed = false;
@@ -74,6 +81,18 @@ namespace Nomad.OnlineServices.Steam.Private.Entities {
 			}
 			GC.SuppressFinalize( this );
 			_isDisposed = true;
+		}
+
+		/*
+		===============
+		Leave
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		public void Leave() {
+			SteamMatchmaking.LeaveLobby( _info.Id );
 		}
 
 		/*

@@ -35,7 +35,6 @@ namespace Nomad.Save.Private.ValueObjects {
 		/// 
 		/// </summary>
 		public static readonly Checksum Empty = new Checksum( 0 );
-		private static readonly Crc64 _checksum64 = new Crc64();
 
 		/// <summary>
 		/// 
@@ -66,9 +65,9 @@ namespace Nomad.Save.Private.ValueObjects {
 		/// <param name="buffer"></param>
 		/// <returns></returns>
 		public static Checksum Compute( ReadOnlySpan<byte> buffer ) {
-			_checksum64.Reset();
-			_checksum64.Append( buffer );
-			return new Checksum( _checksum64.GetCurrentHashAsUInt64() );
+			var checksum64 = new Crc64();
+			checksum64.Append( buffer );
+			return new Checksum( checksum64.GetCurrentHashAsUInt64() );
 		}
 
 		/*

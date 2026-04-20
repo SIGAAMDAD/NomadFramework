@@ -111,7 +111,7 @@ namespace Nomad.Core.Input
         DPadRight,
 
         /// <summary>
-        /// 
+        /// Sentinel value representing the total number of gamepad buttons.
         /// </summary>
         Count
     }

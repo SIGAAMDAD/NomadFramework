@@ -25,12 +25,27 @@ namespace Nomad.Core.OnlineServices
     public interface ILobbyService : IDisposable
     {
         /// <summary>
+        /// 
+        /// </summary>
+        bool IsInLobby { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        bool IsLobbyLeader { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        LobbyInfo? Current { get; }
+
+        /// <summary>
         /// Creates a new lobby with the provided parameters
         /// </summary>
         /// <param name="lobbyInfo">The information to create the lobby with.</param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        ValueTask<Guid> CreateLobby(LobbyInfo lobbyInfo, CancellationToken ct = default);
+        Task<Guid> CreateLobby(LobbyInfo lobbyInfo, CancellationToken ct = default);
 
         /// <summary>
         ///
@@ -38,14 +53,14 @@ namespace Nomad.Core.OnlineServices
         /// <param name="lobbyId">The lobby's unique 64-bit id.</param>
         /// <param name="ct"></param>
         /// <returns>True if the lobby was joined successfully, false otherwise.</returns>
-        ValueTask<bool> JoinLobby(Guid lobbyId, CancellationToken ct = default);
+        Task<bool> JoinLobby(Guid lobbyId, CancellationToken ct = default);
 
         /// <summary>
         /// Leaves the current lobby.
         /// </summary>
         /// <param name="ct"></param>
         /// <returns><c>True</c> if the lobby was left successfully, <c>false</c> otherwise.</returns>
-        ValueTask<bool> LeaveLobby(CancellationToken ct = default);
+        Task<bool> LeaveLobby(CancellationToken ct = default);
 
         /// <summary>
         /// Promotes a member to lobby leader.
@@ -53,6 +68,6 @@ namespace Nomad.Core.OnlineServices
         /// <param name="player">The player to promote.</param>
         /// <param name="ct"></param>
         /// <returns><c>True</c> if the player was promoted successfully, <c>false</c> otherwise.</returns>
-        ValueTask<bool> PromoteMember(Guid player, CancellationToken ct = default);
+        Task<bool> PromoteMember(Guid player, CancellationToken ct = default);
     }
 }

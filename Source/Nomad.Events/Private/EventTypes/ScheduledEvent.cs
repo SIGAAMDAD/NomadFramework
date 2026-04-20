@@ -81,6 +81,27 @@ namespace Nomad.Events.Private.EventTypes {
 
 		/*
 		===============
+		ScheduledEvent
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="source"></param>
+		/// <param name="payloadCallback"></param>
+		/// <param name="publishIntervalMS"></param>
+		public ScheduledEvent( IGameEvent<TArgs> source, Func<TArgs> payloadCallback, int publishIntervalMS ) {
+			_source = source;
+			_scheduleHandle = EventScheduler.ScheduleRecurring( () => {
+				if ( _isDisposed ) {
+					return;
+				}
+				source.Publish( payloadCallback.Invoke() );
+			}, publishIntervalMS );
+		}
+
+		/*
+		===============
 		Dispose
 		===============
 		*/

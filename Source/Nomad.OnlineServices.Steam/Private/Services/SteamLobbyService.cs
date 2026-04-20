@@ -44,7 +44,11 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 		private readonly SteamLobbyFactory _factory;
 
 		private readonly object _operationsLock = new object();
+
+		public LobbyInfo? Current => _current != null ? _current.Info : null;
 		private SteamLobbyInstance? _current = null;
+
+		private readonly SteamUserData _userData;
 
 		private readonly Callback<LobbyInvite_t> _lobbyInvite;
 		private readonly Callback<LobbyChatMsg_t> _lobbyChatMsg;
@@ -53,6 +57,9 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 		private readonly IGameEventRegistryService _eventFactory;
 
 		private bool _isDisposed = false;
+
+		public bool IsInLobby => _current != null;
+		public bool IsLobbyLeader => _current != null && _current.Info.OwnerId == _userData.UserID.m_SteamID;
 
 		/*
 		===============
@@ -68,8 +75,9 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 		/// <param name="cvarSystem"></param>
 		/// <param name="eventFactory"></param>
 		public SteamLobbyService( SteamUserData userData, SteamAppData appData, ILoggerService logger, ICVarSystemService cvarSystem, IGameEventRegistryService eventFactory ) {
-			_cvarSystem = cvarSystem;
-			_eventFactory = eventFactory;
+			_cvarSystem = cvarSystem ?? throw new ArgumentNullException( nameof( cvarSystem ) );
+			_eventFactory = eventFactory ?? throw new ArgumentNullException( nameof( eventFactory ) );
+			_userData = userData;
 
 			_lobbyInvite = Callback<LobbyInvite_t>.Create( OnLobbyInvite );
 			_lobbyChatMsg = Callback<LobbyChatMsg_t>.Create( OnLobbyChatMsg );
@@ -137,7 +145,7 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 		/// <param name="lobbyInfo"></param>
 		/// <param name="ct"></param>
 		/// <returns></returns>
-		public async ValueTask<Guid> CreateLobby( LobbyInfo lobbyInfo, CancellationToken ct = default ) {
+		public async Task<Guid> CreateLobby( LobbyInfo lobbyInfo, CancellationToken ct = default ) {
 			var lobby = await _factory.CreateLobby( lobbyInfo, ct );
 			if ( lobby == null ) {
 				return Guid.Empty;
@@ -150,16 +158,23 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 			return lobby.Guid;
 		}
 
-		public async ValueTask<bool> JoinLobby( Guid lobbyId, CancellationToken ct = default ) {
+		public async Task<bool> JoinLobby( Guid lobbyId, CancellationToken ct = default ) {
+			if ( !_repository.TryGetLobby( lobbyId, out var lobby ) ) {
+				return false;
+			}
+			return true;
+		}
+
+		public async Task<bool> LeaveLobby( CancellationToken ct = default ) {
+			if ( _current == null ) {
+				return false;
+			}
+			_current.Leave();
+			return true;
+		}
+
+		public async Task<bool> PromoteMember( Guid player, CancellationToken ct = default ) {
 			return false;
-		}
-
-		public async ValueTask<bool> LeaveLobby( CancellationToken ct = default ) {
-			throw new System.NotImplementedException();
-		}
-
-		public async ValueTask<bool> PromoteMember( Guid player, CancellationToken ct = default ) {
-			throw new System.NotImplementedException();
 		}
 	}
 }

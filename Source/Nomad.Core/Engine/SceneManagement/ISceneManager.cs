@@ -26,7 +26,7 @@ namespace Nomad.Core.Engine.SceneManagement
         /// <summary>
         ///
         /// </summary>
-        IScene? ActiveScene { get; }
+        IScene? ActiveScene { get; set; }
 
         /// <summary>
         /// 
@@ -44,6 +44,14 @@ namespace Nomad.Core.Engine.SceneManagement
         /// <param name="path"></param>
         /// <returns></returns>
         IScene LoadPrefab(string path);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="scene"></param>
+        /// <param name="mode"></param>
+        /// <param name="baseSceen"></param>
+        void SetScene(IScene scene, LoadSceneMode mode = LoadSceneMode.Single, IScene? baseSceen = null);
 
         /// <summary>
         ///

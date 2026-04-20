@@ -67,6 +67,20 @@ namespace Nomad.Events.Extensions
         {
             return new ScheduledEvent<TArgs>(source, payload, publishIntervalMS);
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TArgs"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="payloadCallback"></param>
+        /// <param name="publishIntervalMS"></param>
+        /// <returns></returns>
+        public static IGameEvent<TArgs> PublishEvery<TArgs>(this IGameEvent<TArgs> source, Func<TArgs> payloadCallback, int publishIntervalMS)
+            where TArgs : struct
+        {
+            return new ScheduledEvent<TArgs>(source, payloadCallback, publishIntervalMS);
+        }
         
         /// <summary>
         /// 

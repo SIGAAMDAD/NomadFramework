@@ -20,6 +20,8 @@ using Nomad.OnlineServices.Steam.Private.ValueObjects;
 using Nomad.Core.CVars;
 using System.Threading;
 using Nomad.CVars;
+using Steamworks;
+using Nomad.Core.OnlineServices;
 
 namespace Nomad.OnlineServices.Steam.Private.Repositories {
 	/*
@@ -35,7 +37,8 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 
 	internal sealed class SteamLobbyRepository : IDisposable {
 		public ICollection<SteamLobbyData> Lobbies => _lobbyList.Values;
-		private readonly ConcurrentDictionary<SteamLobbyKey, SteamLobbyData> _lobbyList = new ConcurrentDictionary<SteamLobbyKey, SteamLobbyData>();
+		private readonly ConcurrentDictionary<SteamLobbyKey, SteamLobbyData> _lobbyList = new();
+		private readonly ConcurrentDictionary<Guid, CSteamID> _idToSteam = new();
 
 		private readonly int _lobbyPurgeTimeout = 0;
 		private readonly Timer _purgeTimer;
@@ -105,12 +108,32 @@ namespace Nomad.OnlineServices.Steam.Private.Repositories {
 		public void AddLobby( SteamLobbyData lobby ) {
 			var key = new SteamLobbyKey( lobby.Id, lobby.Guid );
 			if ( !_lobbyList.TryGetValue( key, out SteamLobbyData? value ) ) {
+				_idToSteam[lobby.Guid] = lobby.Id;
 				_lobbyList.TryAdd( key, lobby );
 			} else {
 				lock ( value ) {
 					value.Update();
 				}
 			}
+		}
+
+		/*
+		===============
+		TryGetLobby
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="lobbyId"></param>
+		/// <param name="info"></param>
+		/// <returns></returns>
+		public bool TryGetLobby( Guid lobbyId, out SteamLobbyData? info ) {
+			if ( !_idToSteam.TryGetValue( lobbyId, out var steamID ) ) {
+				info = null;
+				return false;
+			}
+			return _lobbyList.TryGetValue( new SteamLobbyKey( steamID, lobbyId ), out info );
 		}
 
 		/*

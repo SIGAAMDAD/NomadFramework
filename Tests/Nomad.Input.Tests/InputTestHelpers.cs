@@ -196,18 +196,19 @@ namespace Nomad.Input.Tests {
 		}
 
 		public static InputActionDefinition Action( string name, string id, InputValueType valueType, params InputBindingDefinition[] bindings ) {
-			return new InputActionDefinition( name, id, valueType, bindings.ToImmutableArray() );
+			return new InputActionDefinition(
+				name,
+				id,
+				valueType,
+				bindings.ToImmutableArray()
+			);
 		}
 
 		public static InputBindingDefinition Button( InputScheme scheme, InputDeviceSlot device, InputControlId control, params InputControlId[] modifiers ) {
 			return new InputBindingDefinition {
 				Scheme = scheme,
 				Kind = InputBindingKind.Button,
-				Button = new ButtonBinding {
-					DeviceId = device,
-					ControlId = control,
-					Modifiers = modifiers.ToImmutableArray()
-				}
+				Button = new ButtonBinding( device, control, modifiers.ToImmutableArray() )
 			};
 		}
 
@@ -215,14 +216,7 @@ namespace Nomad.Input.Tests {
 			return new InputBindingDefinition {
 				Scheme = scheme,
 				Kind = InputBindingKind.Axis1D,
-				Axis1D = new Axis1DBinding {
-					DeviceId = device,
-					ControlId = control,
-					Deadzone = deadzone,
-					Sensitivity = sensitivity,
-					Scale = scale,
-					Invert = invert
-				}
+				Axis1D = new Axis1DBinding( device, control, deadzone, sensitivity, scale, invert )
 			};
 		}
 
@@ -230,16 +224,7 @@ namespace Nomad.Input.Tests {
 			return new InputBindingDefinition {
 				Scheme = scheme,
 				Kind = InputBindingKind.Axis2D,
-				Axis2D = new Axis2DBinding {
-					DeviceId = device,
-					ControlId = control,
-					Deadzone = deadzone,
-					Sensitivity = sensitivity,
-					ScaleX = scaleX,
-					ScaleY = scaleY,
-					InvertX = invertX,
-					InvertY = invertY
-				}
+				Axis2D = new Axis2DBinding( device, control, deadzone, sensitivity, scaleX, scaleY, invertX, invertY )
 			};
 		}
 
@@ -247,15 +232,7 @@ namespace Nomad.Input.Tests {
 			return new InputBindingDefinition {
 				Scheme = scheme,
 				Kind = InputBindingKind.Delta2D,
-				Delta2D = new Delta2DBinding {
-					DeviceId = device,
-					ControlId = control,
-					Sensitivity = sensitivity,
-					ScaleX = scaleX,
-					ScaleY = scaleY,
-					InvertX = invertX,
-					InvertY = invertY
-				}
+				Delta2D = new Delta2DBinding( device, control, sensitivity, scaleX, scaleY, invertX, invertY )
 			};
 		}
 
@@ -263,12 +240,7 @@ namespace Nomad.Input.Tests {
 			return new InputBindingDefinition {
 				Scheme = scheme,
 				Kind = InputBindingKind.Axis1DComposite,
-				Axis1DComposite = new Axis1DCompositeBinding {
-					Negative = negative,
-					Positive = positive,
-					Scale = scale,
-					Normalize = normalize
-				}
+				Axis1DComposite = new Axis1DCompositeBinding( negative, positive, scale, normalize )
 			};
 		}
 
@@ -276,15 +248,7 @@ namespace Nomad.Input.Tests {
 			return new InputBindingDefinition {
 				Scheme = scheme,
 				Kind = InputBindingKind.Axis2DComposite,
-				Axis2DComposite = new Axis2DCompositeBinding {
-					Up = up,
-					Down = down,
-					Left = left,
-					Right = right,
-					ScaleX = scaleX,
-					ScaleY = scaleY,
-					Normalize = normalize
-				}
+				Axis2DComposite = new Axis2DCompositeBinding( up, down, left, right, normalize, scaleX, scaleY )
 			};
 		}
 

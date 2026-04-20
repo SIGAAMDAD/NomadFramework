@@ -20,50 +20,47 @@ using Nomad.Core.Input.ValueObjects;
 namespace Nomad.Core.Input
 {
     /// <summary>
-    /// 
+    /// Represents the arguments for a keyboard input event.
     /// </summary>
     public readonly struct KeyboardEventArgs : IEquatable<KeyboardEventArgs>
     {
         /// <summary>
-        /// 
+        /// Gets the timestamp when the keyboard event occurred.
         /// </summary>
-        public long TimeStamp => _timeStamp;
-        private readonly long _timeStamp;
+        public long TimeStamp { get; }
 
         /// <summary>
-        /// 
+        /// Gets the key that was pressed or released.
         /// </summary>
-        public KeyNum KeyNum => _keyNum;
-        private readonly KeyNum _keyNum;
+        public KeyNum KeyNum { get; }
 
         /// <summary>
-        /// 
+        /// Gets a value indicating whether the key was pressed (true) or released (false).
         /// </summary>
-        public bool Pressed => _pressed;
-        private readonly bool _pressed;
+        public bool Pressed { get; }
 
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="KeyboardEventArgs"/> struct.
         /// </summary>
-        /// <param name="keyNum"></param>
-        /// <param name="timeStamp"></param>
-        /// <param name="pressed"></param>
+        /// <param name="keyNum">The key that was pressed or released.</param>
+        /// <param name="timeStamp">The timestamp of the event.</param>
+        /// <param name="pressed">True if the key was pressed, false if released.</param>
         public KeyboardEventArgs(KeyNum keyNum, long timeStamp, bool pressed)
         {
-            _keyNum = keyNum;
-            _timeStamp = timeStamp;
-            _pressed = pressed;
+            KeyNum = keyNum;
+            TimeStamp = timeStamp;
+            Pressed = pressed;
         }
 
         /// <summary>
-        /// 
+        /// Determines whether the specified <see cref="KeyboardEventArgs"/> is equal to the current instance.
         /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
+        /// <param name="other">The <see cref="KeyboardEventArgs"/> to compare with the current instance.</param>
+        /// <returns>True if the specified object is equal to the current instance; otherwise, false.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Equals(KeyboardEventArgs other)
         {
-            return _keyNum == other._keyNum && _pressed == other._pressed;
+            return KeyNum == other.KeyNum && Pressed == other.Pressed;
         }
     }
 }

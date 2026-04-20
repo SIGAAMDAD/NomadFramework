@@ -16,12 +16,12 @@ of merchantability, fitness for a particular purpose and noninfringement.
 namespace Nomad.Input.ValueObjects
 {
 	/// <summary>
-	/// 
+	/// Defines all available input controls across different device types.
 	/// </summary>
 	public enum InputControlId : byte
 	{
 		/// <summary>
-		/// 
+		/// No input control.
 		/// </summary>
 		None = 0,
 
@@ -289,72 +289,160 @@ namespace Nomad.Input.ValueObjects
 
 		#region Mouse Buttons
 		/// <summary>
-		/// 
+		/// The left mouse button.
 		/// </summary>
 		Left,
 
 		/// <summary>
-		/// 
+		/// The right mouse button.
 		/// </summary>
 		Right,
 
 		/// <summary>
-		/// 
+		/// The middle mouse button (wheel click).
 		/// </summary>
 		Middle,
 
 		/// <summary>
-		/// 
+		/// Mouse wheel scroll down.
 		/// </summary>
 		WheelDown,
 
 		/// <summary>
-		/// 
+		/// Mouse wheel scroll up.
 		/// </summary>
 		WheelUp,
 
 		/// <summary>
-		/// 
+		/// The first extra mouse button (X1).
 		/// </summary>
 		X1,
 
 		/// <summary>
-		/// 
+		/// The second extra mouse button (X2).
 		/// </summary>
 		X2,
 		#endregion
 
 		#region Mouse Analogs
+		/// <summary>
+		/// Mouse movement delta (relative motion).
+		/// </summary>
 		Delta,
+
+		/// <summary>
+		/// Mouse cursor position (absolute coordinates).
+		/// </summary>
 		Position,
+
+		/// <summary>
+		/// Mouse scroll wheel movement.
+		/// </summary>
 		Scroll,
 		#endregion
 
 		#region Gamepad Buttons
+		/// <summary>
+		/// Gamepad A button (bottom face button).
+		/// </summary>
 		GamepadA,
+
+		/// <summary>
+		/// Gamepad B button (right face button).
+		/// </summary>
 		GamepadB,
+
+		/// <summary>
+		/// Gamepad X button (left face button).
+		/// </summary>
 		GamepadX,
+
+		/// <summary>
+		/// Gamepad Y button (top face button).
+		/// </summary>
 		GamepadY,
+
+		/// <summary>
+		/// D-Pad up button.
+		/// </summary>
 		DPadUp,
+
+		/// <summary>
+		/// D-Pad down button.
+		/// </summary>
 		DPadDown,
+
+		/// <summary>
+		/// D-Pad left button.
+		/// </summary>
 		DPadLeft,
+
+		/// <summary>
+		/// D-Pad right button.
+		/// </summary>
 		DPadRight,
+
+		/// <summary>
+		/// Left shoulder button (L1/LB).
+		/// </summary>
 		LeftShoulder,
+
+		/// <summary>
+		/// Right shoulder button (R1/RB).
+		/// </summary>
 		RightShoulder,
+
+		/// <summary>
+		/// Left stick button (L3/LS).
+		/// </summary>
 		LeftStickButton,
+
+		/// <summary>
+		/// Right stick button (R3/RS).
+		/// </summary>
 		RightStickButton,
+
+		/// <summary>
+		/// Back/select button.
+		/// </summary>
 		Back,
+
+		/// <summary>
+		/// Start/menu button.
+		/// </summary>
 		Start,
+
+		/// <summary>
+		/// Guide/home button.
+		/// </summary>
 		Guide,
 		#endregion
 
 		#region Gamepad Analogs
+		/// <summary>
+		/// Left trigger analog input.
+		/// </summary>
 		LeftTrigger,
+
+		/// <summary>
+		/// Right trigger analog input.
+		/// </summary>
 		RightTrigger,
+
+		/// <summary>
+		/// Left analog stick (2D vector).
+		/// </summary>
 		LeftStick,
+
+		/// <summary>
+		/// Right analog stick (2D vector).
+		/// </summary>
 		RightStick,
 		#endregion
 
+		/// <summary>
+		/// Sentinel value representing the total number of input controls.
+		/// </summary>
 		Count
 	}
 }

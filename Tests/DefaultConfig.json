@@ -1,6 +1,7 @@
 {
     "Bindings": [
         {
+            "Id": "Move",
             "Name": "Move",
             "ValueType": "Vector2",
             "Scheme": "KeyboardAndMouse",
@@ -13,6 +14,7 @@
             }
         },
         {
+            "Id": "Look",
             "Name": "Look",
             "ValueType": "Vector2",
             "Scheme": "KeyboardAndMouse",

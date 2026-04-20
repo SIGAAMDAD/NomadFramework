@@ -1,6 +1,5 @@
 using System.Numerics;
 using NUnit.Framework;
-using Nomad.Core.Input;
 using Nomad.Input.Private.Services;
 using Nomad.Input.ValueObjects;
 
@@ -9,7 +8,7 @@ namespace Nomad.Input.Tests {
 	public class InputStateServiceTests {
 		[Test]
 		public void SetPressed_TracksPressedStatePerDeviceAndControl() {
-			var state = new InputStateService();
+			using var state = new InputStateService();
 
 			state.SetPressed( InputDeviceSlot.Keyboard, InputControlId.Space, true );
 
@@ -17,61 +16,86 @@ namespace Nomad.Input.Tests {
 		}
 
 		[Test]
-		public void TryGetAxis1D_ReturnsFalseForNonAxisControls() {
-			var state = new InputStateService();
+		public void SetPressed_FalseClearsPreviouslyPressedControl() {
+			using var state = new InputStateService();
 
-			bool success = state.TryGetAxis1D( InputDeviceSlot.Keyboard, InputControlId.Space, out float value );
+			state.SetPressed( InputDeviceSlot.Keyboard, InputControlId.Space, true );
+			state.SetPressed( InputDeviceSlot.Keyboard, InputControlId.Space, false );
 
-			using ( Assert.EnterMultipleScope() ) {
-				Assert.That( success, Is.False );
-				Assert.That( value, Is.EqualTo( 0.0f ) );
-			}
+			Assert.That( state.IsPressed( InputDeviceSlot.Keyboard, InputControlId.Space ), Is.False );
+		}
+
+		[Test]
+		public void GetAxis1D_ReturnsZeroForUnsetControls() {
+			using var state = new InputStateService();
+
+			float value = state.GetAxis1D( InputDeviceSlot.Keyboard, InputControlId.Space );
+
+			Assert.That( value, Is.EqualTo( 0.0f ) );
 		}
 
 		[Test]
 		public void SetAxis1D_StoresTriggerValues() {
-			var state = new InputStateService();
+			using var state = new InputStateService();
 
 			state.SetAxis1D( InputDeviceSlot.Gamepad0, InputControlId.LeftTrigger, 0.75f );
-			bool success = state.TryGetAxis1D( InputDeviceSlot.Gamepad0, InputControlId.LeftTrigger, out float value );
 
-			using ( Assert.EnterMultipleScope() ) {
-				Assert.That( success, Is.True );
-				Assert.That( value, Is.EqualTo( 0.75f ) );
-			}
+			Assert.That( state.GetAxis1D( InputDeviceSlot.Gamepad0, InputControlId.LeftTrigger ), Is.EqualTo( 0.75f ) );
+		}
+
+		[Test]
+		public void GetAxis2D_ReturnsZeroForUnsetControls() {
+			using var state = new InputStateService();
+
+			Vector2 value = state.GetAxis2D( InputDeviceSlot.Gamepad0, InputControlId.LeftStick );
+
+			Assert.That( value, Is.EqualTo( Vector2.Zero ) );
 		}
 
 		[Test]
 		public void SetAxis2D_StoresStickValues() {
-			var state = new InputStateService();
+			using var state = new InputStateService();
 			Vector2 expected = new( 0.25f, -0.75f );
 
 			state.SetAxis2D( InputDeviceSlot.Gamepad0, InputControlId.LeftStick, expected );
-			bool success = state.TryGetAxis2D( InputDeviceSlot.Gamepad0, InputControlId.LeftStick, out Vector2 value );
+
+			Assert.That( state.GetAxis2D( InputDeviceSlot.Gamepad0, InputControlId.LeftStick ), Is.EqualTo( expected ) );
+		}
+
+		[Test]
+		public void SetMousePosition_UpdatesMousePositionAndSnapshotAxis() {
+			using var state = new InputStateService();
+			Vector2 position = new( 320.0f, 180.0f );
+
+			state.SetMousePosition( position );
 
 			using ( Assert.EnterMultipleScope() ) {
-				Assert.That( success, Is.True );
-				Assert.That( value, Is.EqualTo( expected ) );
+				Assert.That( state.MousePosition, Is.EqualTo( position ) );
+				Assert.That( state.GetAxis2D( InputDeviceSlot.Mouse, InputControlId.Position ), Is.EqualTo( position ) );
 			}
 		}
 
 		[Test]
-		public void SetMousePositionAndAddMouseDelta_UpdateMouseState() {
-			var state = new InputStateService();
-			Vector2 position = new( 320.0f, 180.0f );
+		public void AddMouseDelta_UpdatesMouseDeltaAndSnapshotAxis() {
+			using var state = new InputStateService();
 			Vector2 delta = new( 5.0f, -3.0f );
 
-			state.SetMousePosition( position );
 			state.AddMouseDelta( delta );
 
 			using ( Assert.EnterMultipleScope() ) {
-				Assert.That( state.MousePosition, Is.EqualTo( position ) );
 				Assert.That( state.MouseDelta, Is.EqualTo( delta ) );
-				Assert.That( state.TryGetAxis2D( InputDeviceSlot.Mouse, InputControlId.Position, out Vector2 storedPosition ), Is.True );
-				Assert.That( storedPosition, Is.EqualTo( position ) );
-				Assert.That( state.TryGetAxis2D( InputDeviceSlot.Mouse, InputControlId.Delta, out Vector2 storedDelta ), Is.True );
-				Assert.That( storedDelta, Is.EqualTo( delta ) );
+				Assert.That( state.GetAxis2D( InputDeviceSlot.Mouse, InputControlId.Delta ), Is.EqualTo( delta ) );
 			}
+		}
+
+		[Test]
+		public void AddMouseDelta_ReplacesPreviousDeltaInsteadOfAccumulating() {
+			using var state = new InputStateService();
+
+			state.AddMouseDelta( new Vector2( 5.0f, -3.0f ) );
+			state.AddMouseDelta( new Vector2( -2.0f, 4.0f ) );
+
+			Assert.That( state.MouseDelta, Is.EqualTo( new Vector2( -2.0f, 4.0f ) ) );
 		}
 	}
 }

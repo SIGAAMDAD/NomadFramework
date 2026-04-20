@@ -16,37 +16,37 @@ of merchantability, fitness for a particular purpose and noninfringement.
 namespace Nomad.Input.ValueObjects
 {
     /// <summary>
-    /// 
+    /// Defines the different types of input sources supported by the input system.
     /// </summary>
     public enum InputType : byte
     {
         /// <summary>
-        /// 
+        /// Input from a keyboard key press/release.
         /// </summary>
         Keyboard,
 
         /// <summary>
-        /// 
+        /// Input from mouse movement (relative motion).
         /// </summary>
         MouseMotion,
 
         /// <summary>
-        /// 
+        /// Input from mouse button press/release.
         /// </summary>
         MouseButton,
 
         /// <summary>
-        /// 
+        /// Input from gamepad button press/release.
         /// </summary>
         GamepadButton,
 
         /// <summary>
-        /// 
+        /// Input from gamepad analog stick/axis movement.
         /// </summary>
         GamepadAxis,
 
         /// <summary>
-        /// 
+        /// Sentinel value representing the total number of input types.
         /// </summary>
         Count
     }

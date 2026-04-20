@@ -14,172 +14,269 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security;
 
-#if !NETSTANDARD2_1
+#if false
 namespace FMOD
 {
     /*
-	===================================================================================
-	
-	FMODNative
-	
-	===================================================================================
-	*/
-    /// <summary>
-    /// 
-    /// </summary>
+    ===================================================================================
 
+    FMODNative
+
+    ===================================================================================
+    */
     [SuppressUnmanagedCodeSecurity]
-    internal static unsafe class FMODNative
+    internal static unsafe partial class FMODNative
     {
-        private static delegate* unmanaged[Cdecl]<Studio.System**, uint, RESULT> _studio_systemCreate;
-        private static delegate* unmanaged[Cdecl]<Studio.System*, RESULT> _studio_systemUpdate;
-        private static delegate* unmanaged[Cdecl]<Studio.System*, RESULT> _studio_systemRelease;
-        private static delegate* unmanaged[Cdecl]<Studio.System*, int, Studio.INITFLAGS, INITFLAGS, void*, RESULT> _studio_systemInitialize;
-        private static delegate* unmanaged[Cdecl]<Studio.System*, RESULT> _studio_systemFlushSampleLoading;
-        private static delegate* unmanaged[Cdecl]<Studio.System*, RESULT> _studio_systemFlushCommands;
-        private static delegate* unmanaged[Cdecl]<Studio.System*, ADVANCEDSETTINGS*, RESULT> _studio_systemGetAdvancedSettings;
-        private static delegate* unmanaged[Cdecl]<Studio.System*, char*, Studio.Bank**, RESULT> _studio_systemGetBank;
-        private static delegate* unmanaged[Cdecl]<Studio.System*, char*, Studio.Bank**> _studio_systemGetBankByID;
-        private static delegate* unmanaged[Cdecl]<Studio.System*, int*, RESULT> _studio_systemGetBankCount;
-        private static delegate* unmanaged[Cdecl]<Studio.System*, System**, RESULT> _studio_systemGetCoreSystem;
-        private static delegate* unmanaged[Cdecl]<Studio.System*, char*, Studio.EventDescription**, RESULT> _studio_systemGetEvent;
-        private static delegate* unmanaged[Cdecl]<Studio.System*, int, ATTRIBUTES_3D*, VECTOR*> _studio_systemGetListenerAttributes;
-        private static delegate* unmanaged[Cdecl]<Studio.System*, int, float*> _studio_systemGetListenerWeight;
-        private static delegate* unmanaged[Cdecl]<Studio.System*, Studio.MEMORY_USAGE*> _studio_systemGetMemoryUsage;
-        private static delegate* unmanaged[Cdecl]<Studio.System*, int*> _studio_systemGetNumListeners;
-        private static delegate* unmanaged[Cdecl]<Studio.System*, char*, float*, float*> _studio_systemGetParameterByName;
-        private static delegate* unmanaged[Cdecl]<Studio.System*, char*, Studio.PARAMETER_DESCRIPTION*> _studio_systemGetParameterDescriptionByName;
-        private static delegate* unmanaged[Cdecl]<Studio.System*, int*> _studio_systemGetParameterDescriptionCount;
+        private static readonly Lazy<IntPtr> s_studioModule = new(() => NativeLibrary.Load(Studio.STUDIO_VERSION.dll));
+        private static readonly Lazy<IntPtr> s_coreModule = new(() => NativeLibrary.Load(VERSION.dll));
 
-        static FMODNative()
+        private static delegate* unmanaged[Cdecl]<IntPtr*, uint, RESULT> s_studioSystemCreatePtr;
+        private static delegate* unmanaged[Cdecl]<IntPtr, int, Studio.INITFLAGS, INITFLAGS, IntPtr, RESULT> s_studioSystemInitializePtr;
+        private static delegate* unmanaged[Cdecl]<IntPtr, RESULT> s_studioSystemReleasePtr;
+        private static delegate* unmanaged[Cdecl]<IntPtr, RESULT> s_studioSystemUpdatePtr;
+        private static delegate* unmanaged[Cdecl]<IntPtr, Studio.ADVANCEDSETTINGS*, RESULT> s_studioSystemGetAdvancedSettingsPtr;
+        private static delegate* unmanaged[Cdecl]<IntPtr, GUID*, IntPtr*, RESULT> s_studioSystemGetBankByIdPtr;
+        private static delegate* unmanaged[Cdecl]<IntPtr, int*, RESULT> s_studioSystemGetBankCountPtr;
+        private static delegate* unmanaged[Cdecl]<IntPtr, IntPtr*, RESULT> s_studioSystemGetCoreSystemPtr;
+        private static delegate* unmanaged[Cdecl]<IntPtr, int, ATTRIBUTES_3D*, IntPtr, RESULT> s_studioSystemGetListenerAttributesNullPtr;
+        private static delegate* unmanaged[Cdecl]<IntPtr, int, ATTRIBUTES_3D*, VECTOR*, RESULT> s_studioSystemGetListenerAttributesPtr;
+        private static delegate* unmanaged[Cdecl]<IntPtr, int, float*, RESULT> s_studioSystemGetListenerWeightPtr;
+        private static delegate* unmanaged[Cdecl]<IntPtr, Studio.MEMORY_USAGE*, RESULT> s_studioSystemGetMemoryUsagePtr;
+        private static delegate* unmanaged[Cdecl]<IntPtr, int*, RESULT> s_studioSystemGetNumListenersPtr;
+        private static delegate* unmanaged[Cdecl]<IntPtr, int*, RESULT> s_studioSystemGetParameterDescriptionCountPtr;
+        private static delegate* unmanaged[Cdecl]<IntPtr, RESULT> s_studioSystemFlushCommandsPtr;
+        private static delegate* unmanaged[Cdecl]<IntPtr, RESULT> s_studioSystemFlushSampleLoadingPtr;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static T LoadStudioFunction<T>(string name)
+            where T : Delegate
         {
-
+            return Marshal.GetDelegateForFunctionPointer<T>(NativeLibrary.GetExport(s_studioModule.Value, name));
         }
 
-        private static void LoadFunctionProcs()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static IntPtr LoadStudioExport(string name)
         {
-            // Load both the studio and core libraries so callers can resolve Studio and Core functions.
-            IntPtr moduleStudio = NativeLibrary.Load(GetPlatformLibraryName("fmodstudio"));
-            IntPtr moduleCore = NativeLibrary.Load(GetPlatformLibraryName("fmod"));
-
-            _studio_systemCreate = (delegate* unmanaged[Cdecl]<Studio.System**, uint, RESULT>)GetProc(moduleStudio, "FMOD_Studio_System_Create");
-            _studio_systemUpdate = (delegate* unmanaged[Cdecl]<Studio.System*, RESULT>)GetProc(moduleStudio, "FMOD_Studio_System_Update");
-            _studio_systemRelease = (delegate* unmanaged[Cdecl]<Studio.System*, RESULT>)GetProc(moduleStudio, "FMOD_Studio_System_Release");
-            _studio_systemInitialize = (delegate* unmanaged[Cdecl]<Studio.System*, int, Studio.INITFLAGS, INITFLAGS, void*, RESULT>)GetProc(moduleStudio, "FMOD_Studio_System_Initialize");
-            _studio_systemFlushSampleLoading = (delegate* unmanaged[Cdecl]<Studio.System*, RESULT>)GetProc(moduleStudio, "FMOD_Studio_System_FlushSampleLoading");
-            _studio_systemFlushCommands = (delegate* unmanaged[Cdecl]<Studio.System*, RESULT>)GetProc(moduleStudio, "FMOD_Studio_System_FlushCommands");
-            _studio_systemGetAdvancedSettings = (delegate* unmanaged[Cdecl]<Studio.System*, ADVANCEDSETTINGS*, RESULT>)GetProc(moduleStudio, "FMOD_Studio_System_GetAdvancedSettings");
-            _studio_systemGetBank = (delegate* unmanaged[Cdecl]<Studio.System*, char*, Studio.Bank**, RESULT>)GetProc(moduleStudio, "FMOD_Studio_System_GetBank");
-            _studio_systemGetBankCount = (delegate* unmanaged[Cdecl]<Studio.System*, int*, RESULT>)GetProc(moduleStudio, "FMOD_Studio_System_GetBankCount");
-            _studio_systemGetCoreSystem = (delegate* unmanaged[Cdecl]<Studio.System*, System**, RESULT>)GetProc(moduleStudio, "FMOD_Studio_System_GetCoreSystem");
-            _studio_systemGetEvent = (delegate* unmanaged[Cdecl]<Studio.System*, char*, Studio.EventDescription**, RESULT>)GetProc(moduleStudio, "FMOD_Studio_System_GetEvent");
-            _studio_systemGetListenerAttributes = (delegate* unmanaged[Cdecl]<Studio.System*, int, ATTRIBUTES_3D*, VECTOR*>)GetProc(moduleStudio, "FMOD_Studio_System_GetListenerAttributes");
-            _studio_systemGetListenerWeight = (delegate* unmanaged[Cdecl]<Studio.System*, int, float*>)GetProc(moduleStudio, "FMOD_Studio_System_GetListenerWeight");
-            _studio_systemGetMemoryUsage = (delegate* unmanaged[Cdecl]<Studio.System*, Studio.MEMORY_USAGE*>)GetProc(moduleStudio, "FMOD_Studio_System_GetMemoryUsage");
-            _studio_systemGetNumListeners = (delegate* unmanaged[Cdecl]<Studio.System*, int*>)GetProc(moduleStudio, "FMOD_Studio_System_GetNumListeners");
-            _studio_systemGetParameterByName = (delegate* unmanaged[Cdecl]<Studio.System*, char*, float*, float*>)GetProc(moduleStudio, "FMOD_Studio_System_GetParameterByName");
-            _studio_systemGetParameterDescriptionByName = (delegate* unmanaged[Cdecl]<Studio.System*, char*, Studio.PARAMETER_DESCRIPTION*>)GetProc(moduleStudio, "FMOD_Studio_System_GetParameterDescriptionByName");
-            _studio_systemGetParameterDescriptionCount = (delegate* unmanaged[Cdecl]<Studio.System*, int*>)GetProc(moduleStudio, "FMOD_Studio_System_GetParameterDescriptionCount");
+            return NativeLibrary.GetExport(s_studioModule.Value, name);
         }
 
-        private static IntPtr GetProc(IntPtr module, string name)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static T LoadCoreFunction<T>(string name)
+            where T : Delegate
         {
-            return NativeLibrary.GetExport(module, name);
+            return Marshal.GetDelegateForFunctionPointer<T>(NativeLibrary.GetExport(s_coreModule.Value, name));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static IntPtr LoadCoreExport(string name)
+        {
+            return NativeLibrary.GetExport(s_coreModule.Value, name);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RESULT Studio_System_Create(ref Studio.System system, uint version)
         {
-            fixed (Studio.System* pSystem = &system)
-            {
-                return _studio_systemCreate(&pSystem, version);
-            }
+            s_studioSystemCreatePtr ??= (delegate* unmanaged[Cdecl]<IntPtr*, uint, RESULT>)LoadStudioExport("FMOD_Studio_System_Create");
+            IntPtr handle;
+            RESULT result = s_studioSystemCreatePtr(&handle, version);
+            system.handle = handle;
+            return result;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RESULT Studio_System_Update(ref Studio.System system)
+        public static RESULT Studio_System_Initialize(ref Studio.System system, int maxChannels, Studio.INITFLAGS studioFlags, INITFLAGS flags, IntPtr extraDriverData)
         {
-            fixed (Studio.System* pSystem = &system)
-            {
-                return _studio_systemUpdate(pSystem);
-            }
+            s_studioSystemInitializePtr ??= (delegate* unmanaged[Cdecl]<IntPtr, int, Studio.INITFLAGS, INITFLAGS, IntPtr, RESULT>)LoadStudioExport("FMOD_Studio_System_Initialize");
+            return s_studioSystemInitializePtr(system.handle, maxChannels, studioFlags, flags, extraDriverData);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RESULT Studio_System_Release(ref Studio.System system)
         {
-            fixed (Studio.System* pSystem = &system)
+            s_studioSystemReleasePtr ??= (delegate* unmanaged[Cdecl]<IntPtr, RESULT>)LoadStudioExport("FMOD_Studio_System_Release");
+            return s_studioSystemReleasePtr(system.handle);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static RESULT Studio_System_Update(ref Studio.System system)
+        {
+            s_studioSystemUpdatePtr ??= (delegate* unmanaged[Cdecl]<IntPtr, RESULT>)LoadStudioExport("FMOD_Studio_System_Update");
+            return s_studioSystemUpdatePtr(system.handle);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static RESULT Studio_System_GetAdvancedSettings(ref Studio.System system, out Studio.ADVANCEDSETTINGS settings)
+        {
+            settings = default;
+            settings.cbsize = Marshal.SizeOf<Studio.ADVANCEDSETTINGS>();
+            s_studioSystemGetAdvancedSettingsPtr ??= (delegate* unmanaged[Cdecl]<IntPtr, Studio.ADVANCEDSETTINGS*, RESULT>)LoadStudioExport("FMOD_Studio_System_GetAdvancedSettings");
+            fixed (Studio.ADVANCEDSETTINGS* settingsPtr = &settings)
             {
-                return _studio_systemRelease(pSystem);
+                return s_studioSystemGetAdvancedSettingsPtr(system.handle, settingsPtr);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static RESULT Studio_System_GetBank(ref Studio.System system, string path, out Studio.Bank bank)
+        {
+            bank = default;
+            using (StringHelper.ThreadSafeEncoding encoder = StringHelper.GetFreeHelper())
+            {
+                RESULT result = Studio_System_GetBank(system.handle, encoder.byteFromStringUTF8(path), out IntPtr handle);
+                bank.handle = handle;
+                return result;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static RESULT Studio_System_GetBankByID(ref Studio.System system, ref GUID id, out Studio.Bank bank)
+        {
+            bank = default;
+            s_studioSystemGetBankByIdPtr ??= (delegate* unmanaged[Cdecl]<IntPtr, GUID*, IntPtr*, RESULT>)LoadStudioExport("FMOD_Studio_System_GetBankByID");
+            IntPtr handle;
+            fixed (GUID* idPtr = &id)
+            {
+                RESULT result = s_studioSystemGetBankByIdPtr(system.handle, idPtr, &handle);
+                bank.handle = handle;
+                return result;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static RESULT Studio_System_GetBankCount(ref Studio.System system, out int count)
+        {
+            s_studioSystemGetBankCountPtr ??= (delegate* unmanaged[Cdecl]<IntPtr, int*, RESULT>)LoadStudioExport("FMOD_Studio_System_GetBankCount");
+            count = 0;
+            fixed (int* countPtr = &count)
+            {
+                return s_studioSystemGetBankCountPtr(system.handle, countPtr);
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RESULT Studio_System_GetCoreSystem(ref Studio.System system, ref System coreSystem)
         {
-            fixed (Studio.System* pSystem = &system)
-            fixed (System* pCoreSystem = &coreSystem)
+            s_studioSystemGetCoreSystemPtr ??= (delegate* unmanaged[Cdecl]<IntPtr, IntPtr*, RESULT>)LoadStudioExport("FMOD_Studio_System_GetCoreSystem");
+            IntPtr handle;
+            RESULT result = s_studioSystemGetCoreSystemPtr(system.handle, &handle);
+            coreSystem.handle = handle;
+            return result;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static RESULT Studio_System_GetEvent(ref Studio.System system, string path, out Studio.EventDescription eventDescription)
+        {
+            eventDescription = default;
+            using (StringHelper.ThreadSafeEncoding encoder = StringHelper.GetFreeHelper())
             {
-                return _studio_systemGetCoreSystem(pSystem, &pCoreSystem);
+                RESULT result = Studio_System_GetEvent(system.handle, encoder.byteFromStringUTF8(path), out IntPtr handle);
+                eventDescription.handle = handle;
+                return result;
             }
         }
 
-        /// <summary>
-        /// Gets the native dll name extension.
-        /// </summary>
-        /// <param name="baseName"></param>
-        /// <returns></returns>
-        private static string GetPlatformLibraryName(string baseName)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static RESULT Studio_System_GetListenerAttributes(ref Studio.System system, int listener, out ATTRIBUTES_3D attributes)
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            s_studioSystemGetListenerAttributesNullPtr ??= (delegate* unmanaged[Cdecl]<IntPtr, int, ATTRIBUTES_3D*, IntPtr, RESULT>)LoadStudioExport("FMOD_Studio_System_GetListenerAttributes");
+            attributes = default;
+            fixed (ATTRIBUTES_3D* attributesPtr = &attributes)
             {
-                return $"{baseName}.dll";
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                return $"{baseName}.dylib";
-            }
-            else
-            {
-                if (IsAndroid())
-                {
-                    return $"lib{baseName}.so";
-                }
-
-                string arch = RuntimeInformation.ProcessArchitecture switch
-                {
-                    Architecture.X64 => "x86_64",
-                    Architecture.Arm64 => "aarch64",
-                    Architecture.Armv6 => "aarch32", // TODO: check if this is ACTUALLY what it is
-                    Architecture.X86 => "i386",
-                    _ => throw new Exception("...what the fuck are you running this on")
-                };
-
-                return $"lib{baseName}-{arch}.so";
+                return s_studioSystemGetListenerAttributesNullPtr(system.handle, listener, attributesPtr, IntPtr.Zero);
             }
         }
 
-        /// <summary>
-        /// Checks if we're on android.
-        /// </summary>
-        /// <returns></returns>
-        private static bool IsAndroid()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static RESULT Studio_System_GetListenerAttributes(ref Studio.System system, int listener, out ATTRIBUTES_3D attributes, out VECTOR attenuationPosition)
         {
-            try
+            s_studioSystemGetListenerAttributesPtr ??= (delegate* unmanaged[Cdecl]<IntPtr, int, ATTRIBUTES_3D*, VECTOR*, RESULT>)LoadStudioExport("FMOD_Studio_System_GetListenerAttributes");
+            attributes = default;
+            attenuationPosition = default;
+            fixed (ATTRIBUTES_3D* attributesPtr = &attributes)
+            fixed (VECTOR* attenuationPositionPtr = &attenuationPosition)
             {
-                return File.Exists("/system/build.prop")
-                    || Directory.Exists("/system/app")
-                    || Environment.GetEnvironmentVariable("ANDROID_ROOT") != null;
+                return s_studioSystemGetListenerAttributesPtr(system.handle, listener, attributesPtr, attenuationPositionPtr);
             }
-            catch
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static RESULT Studio_System_GetListenerWeight(ref Studio.System system, int listener, out float weight)
+        {
+            s_studioSystemGetListenerWeightPtr ??= (delegate* unmanaged[Cdecl]<IntPtr, int, float*, RESULT>)LoadStudioExport("FMOD_Studio_System_GetListenerWeight");
+            weight = 0.0f;
+            fixed (float* weightPtr = &weight)
             {
-                return false;
+                return s_studioSystemGetListenerWeightPtr(system.handle, listener, weightPtr);
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static RESULT Studio_System_GetMemoryUsage(ref Studio.System system, out Studio.MEMORY_USAGE memoryUsage)
+        {
+            s_studioSystemGetMemoryUsagePtr ??= (delegate* unmanaged[Cdecl]<IntPtr, Studio.MEMORY_USAGE*, RESULT>)LoadStudioExport("FMOD_Studio_System_GetMemoryUsage");
+            memoryUsage = default;
+            fixed (Studio.MEMORY_USAGE* memoryUsagePtr = &memoryUsage)
+            {
+                return s_studioSystemGetMemoryUsagePtr(system.handle, memoryUsagePtr);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static RESULT Studio_System_GetNumListeners(ref Studio.System system, out int numListeners)
+        {
+            s_studioSystemGetNumListenersPtr ??= (delegate* unmanaged[Cdecl]<IntPtr, int*, RESULT>)LoadStudioExport("FMOD_Studio_System_GetNumListeners");
+            numListeners = 0;
+            fixed (int* numListenersPtr = &numListeners)
+            {
+                return s_studioSystemGetNumListenersPtr(system.handle, numListenersPtr);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static RESULT Studio_System_GetParameterByName(ref Studio.System system, string name, out float value, out float finalValue)
+        {
+            using (StringHelper.ThreadSafeEncoding encoder = StringHelper.GetFreeHelper())
+            {
+                return Studio_System_GetParameterByName(system.handle, encoder.byteFromStringUTF8(name), out value, out finalValue);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static RESULT Studio_System_GetParameterDescriptionByName(ref Studio.System system, string name, out Studio.PARAMETER_DESCRIPTION parameter)
+        {
+            using (StringHelper.ThreadSafeEncoding encoder = StringHelper.GetFreeHelper())
+            {
+                return Studio_System_GetParameterDescriptionByName(system.handle, encoder.byteFromStringUTF8(name), out parameter);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static RESULT Studio_System_GetParameterDescriptionCount(ref Studio.System system, out int count)
+        {
+            s_studioSystemGetParameterDescriptionCountPtr ??= (delegate* unmanaged[Cdecl]<IntPtr, int*, RESULT>)LoadStudioExport("FMOD_Studio_System_GetParameterDescriptionCount");
+            count = 0;
+            fixed (int* countPtr = &count)
+            {
+                return s_studioSystemGetParameterDescriptionCountPtr(system.handle, countPtr);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static RESULT Studio_System_FlushCommands(ref Studio.System system)
+        {
+            s_studioSystemFlushCommandsPtr ??= (delegate* unmanaged[Cdecl]<IntPtr, RESULT>)LoadStudioExport("FMOD_Studio_System_FlushCommands");
+            return s_studioSystemFlushCommandsPtr(system.handle);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static RESULT Studio_System_FlushSampleLoading(ref Studio.System system)
+        {
+            s_studioSystemFlushSampleLoadingPtr ??= (delegate* unmanaged[Cdecl]<IntPtr, RESULT>)LoadStudioExport("FMOD_Studio_System_FlushSampleLoading");
+            return s_studioSystemFlushSampleLoadingPtr(system.handle);
         }
     }
 }
