@@ -47,12 +47,13 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="eventData"></param>
 		/// <param name="logger"></param>
-		public AtomicSubscriptionSet( IGameEvent<TArgs> eventData, ILoggerService logger )
-			: base( eventData, logger )
+		/// <param name="exceptionPolicy"></param>
+		public AtomicSubscriptionSet( IGameEvent<TArgs> eventData, ILoggerService logger, EventExceptionPolicy exceptionPolicy )
+			: base( eventData, logger, exceptionPolicy )
 		{
 			_genericSubscriptions = _emptySubscriptions;
 			_asyncSubscriptions = _emptyAsyncSubscriptions;

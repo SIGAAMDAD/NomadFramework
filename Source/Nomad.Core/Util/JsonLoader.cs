@@ -71,7 +71,7 @@ namespace Nomad.Core.Util
         /// <param name="propertyName">The property name to find.</param>
         /// <param name="propertyValue">The matched property value.</param>
         /// <returns>True when the property exists; otherwise false.</returns>
-        public static bool TryGetProperty(JsonElement element, string propertyName, out JsonElement propertyValue)
+        public static bool TryGetProperty(this JsonElement element, string propertyName, out JsonElement propertyValue)
         {
             ArgumentGuard.ThrowIfNull(propertyName);
 
@@ -99,7 +99,7 @@ namespace Nomad.Core.Util
         /// <param name="propertyName">The property name to read.</param>
         /// <param name="value">The parsed value when found.</param>
         /// <returns>True when the property exists; otherwise false.</returns>
-        public static bool TryGet<T>(JsonElement element, string propertyName, [MaybeNullWhen(false)] out T value)
+        public static bool TryGet<T>(this JsonElement element, string propertyName, [MaybeNullWhen(false)] out T value)
         {
             if (!TryGetProperty(element, propertyName, out JsonElement propertyValue))
             {
@@ -118,7 +118,7 @@ namespace Nomad.Core.Util
         /// <param name="element">The JSON object that owns the property.</param>
         /// <param name="propertyName">The property name to read.</param>
         /// <returns>The parsed value.</returns>
-        public static T GetRequired<T>(JsonElement element, string propertyName)
+        public static T GetRequired<T>(this JsonElement element, string propertyName)
         {
             if (!TryGetProperty(element, propertyName, out JsonElement propertyValue))
             {
@@ -136,7 +136,7 @@ namespace Nomad.Core.Util
         /// <param name="propertyName">The property name to read.</param>
         /// <param name="defaultValue">The value to return when the property is absent.</param>
         /// <returns>The parsed value or the provided default.</returns>
-        public static T GetOptional<T>(JsonElement element, string propertyName, T defaultValue)
+        public static T GetOptional<T>(this JsonElement element, string propertyName, T defaultValue)
         {
             if (!TryGetProperty(element, propertyName, out JsonElement propertyValue))
             {
@@ -153,7 +153,7 @@ namespace Nomad.Core.Util
         /// <param name="element">The JSON value to read.</param>
         /// <param name="valueName">A descriptive name used in error messages.</param>
         /// <returns>The parsed value.</returns>
-        public static T Read<T>(JsonElement element, string valueName)
+        public static T Read<T>(this JsonElement element, string valueName)
         {
             object value = ReadValue(typeof(T), element, valueName);
             return (T)value;
@@ -166,7 +166,7 @@ namespace Nomad.Core.Util
         /// <param name="element">The JSON object that owns the property.</param>
         /// <param name="propertyName">The array property name.</param>
         /// <returns>The parsed array.</returns>
-        public static T[] GetRequiredArray<T>(JsonElement element, string propertyName)
+        public static T[] GetRequiredArray<T>(this JsonElement element, string propertyName)
         {
             if (!TryGetProperty(element, propertyName, out JsonElement propertyValue))
             {
@@ -183,7 +183,7 @@ namespace Nomad.Core.Util
         /// <param name="propertyName">The array property name.</param>
         /// <param name="defaultValue">The value to return when the property is absent.</param>
         /// <returns>The parsed array or the provided default.</returns>
-        public static T[] GetOptionalArray<T>(JsonElement element, string propertyName, T[]? defaultValue = null)
+        public static T[] GetOptionalArray<T>(this JsonElement element, string propertyName, T[]? defaultValue = null)
         {
             if (!TryGetProperty(element, propertyName, out JsonElement propertyValue))
             {
@@ -199,12 +199,12 @@ namespace Nomad.Core.Util
         /// <param name="element">The JSON array value.</param>
         /// <param name="valueName">A descriptive name used in error messages.</param>
         /// <returns>The parsed array.</returns>
-        public static T[] ReadArray<T>(JsonElement element, string valueName)
+        public static T[] ReadArray<T>(this JsonElement element, string valueName)
         {
             return (T[])ReadArray(typeof(T), element, valueName);
         }
 
-        private static object ReadValue(Type targetType, JsonElement element, string valueName)
+        private static object ReadValue(this Type targetType, JsonElement element, string valueName)
         {
             if (targetType.IsArray)
             {

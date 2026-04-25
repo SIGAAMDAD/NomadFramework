@@ -20,16 +20,20 @@ using System.Runtime.CompilerServices;
 namespace Nomad.Core.Util
 {
     /// <summary>
-    ///
+    /// Provides extension methods for <see cref="Vector2"/> operations.
     /// </summary>
     public static class Vector2Extensions
     {
         /// <summary>
-        ///
+        /// Calculates the Euclidean distance between two vectors.
         /// </summary>
-        /// <param name="from"></param>
-        /// <param name="to"></param>
-        /// <returns></returns>
+        /// <remarks>
+        /// This method computes the straight-line distance between two points in 2D space.
+        /// This is an extension method for convenience and is marked with <see cref="MethodImplOptions.AggressiveInlining"/> for performance.
+        /// </remarks>
+        /// <param name="from">The starting vector.</param>
+        /// <param name="to">The ending vector.</param>
+        /// <returns>The Euclidean distance between the two vectors.</returns>
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public static float DistanceTo(this Vector2 from, Vector2 to)
         {

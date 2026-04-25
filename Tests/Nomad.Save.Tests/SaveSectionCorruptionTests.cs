@@ -50,7 +50,7 @@ namespace Nomad.Save.Tests
         private void WriteValidFile()
         {
             using var writer = new MemoryFileWriteStream(new MemoryFileWriteConfig { FilePath = _tempFile, InitialCapacity = 8192 }); // allocate initial capacity
-            var sectionWriter = new SaveSectionWriter(_config, _logger, _category, "TestSection", writer);
+            var sectionWriter = new SaveSectionWriter(_config, _category, "TestSection", writer);
             {
                 var header = new SaveHeader("testfile", default, 1, Checksum.Empty);
                 header.Serialize(writer);
@@ -74,7 +74,7 @@ namespace Nomad.Save.Tests
         {
             using var reader = new MemoryFileReadStream(new MemoryFileReadConfig { FilePath = _tempFile, MaxCapacity = 1024 });
             var header = SaveHeader.Deserialize(reader, out _);
-            var section = new SaveSectionReader(_config, 0, reader, _logger);
+            var section = new SaveSectionReader(_config, 0, reader, _logger.CreateCategory(nameof(SaveSectionReader), LogLevel.Info, true));
             return section.GetField<int>("Health");
         }
 
@@ -107,7 +107,7 @@ namespace Nomad.Save.Tests
             var globalHeader = SaveHeader.Deserialize(reader, out _);
             Assert.Throws<SectionCorruptException>(() =>
             {
-                var section = new SaveSectionReader(_config, 0, reader, _logger);
+                var section = new SaveSectionReader(_config, 0, reader, _logger.CreateCategory(nameof(SaveSectionReader), LogLevel.Info, true));
             });
         }
 
@@ -132,7 +132,7 @@ namespace Nomad.Save.Tests
             // Since we corrupted data, the checksum should mismatch, causing SectionCorruptException.
             Assert.Throws<SectionCorruptException>(() =>
             {
-                var section = new SaveSectionReader(_config, 0, reader, _logger);
+                var section = new SaveSectionReader(_config, 0, reader, _logger.CreateCategory(nameof(SaveSectionReader), LogLevel.Info, true));
             });
         }
 
@@ -156,7 +156,7 @@ namespace Nomad.Save.Tests
             // Write a file with duplicate field names using SaveSectionWriter (which should prevent it,
             // but we'll manually craft a file with duplicates)
             using var writer = new MemoryFileWriteStream(new MemoryFileWriteConfig { FilePath = _tempFile, InitialCapacity = 1024 });
-            var sectionWriter = new SaveSectionWriter(_config, _logger, _category, "TestSection", writer);
+            var sectionWriter = new SaveSectionWriter(_config, _category, "TestSection", writer);
             sectionWriter.AddField("Health", 100);
             // Cannot add another "Health" because AddField checks for duplicates.
             // So we'll manually write the section data by accessing the underlying stream after disposal? Not easy.
@@ -217,7 +217,7 @@ namespace Nomad.Save.Tests
             var global = SaveHeader.Deserialize(reader, out _);
             Assert.Throws<DuplicateFieldException>(() =>
             {
-                var section = new SaveSectionReader(_config, 0, reader, _logger);
+                var section = new SaveSectionReader(_config, 0, reader, _logger.CreateCategory(nameof(SaveSectionReader), LogLevel.Info, true));
             });
         }
 

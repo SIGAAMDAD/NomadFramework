@@ -13,36 +13,29 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-namespace Nomad.Save.Exceptions
+namespace Nomad.Core.Events
 {
     /// <summary>
-    ///
+    /// 
     /// </summary>
-    /// @module Nomad.Save
-    public sealed class FieldCorruptException : SaveFileCorruptException
+    public enum EventExceptionPolicy
     {
         /// <summary>
-        /// The name of the section where the corrupted field was found.
+        /// First subscriber exception immediately aborts publishing.
+        /// Best for command-style events where failure means the operation is invalid.
         /// </summary>
-        public string SectionName { get; }
+        Propagate,
 
         /// <summary>
-        /// The index of the field that is corrupted.
+        /// Run every subscriber, collect all failures, then throw one aggregate exception.
+        /// Best default for editor/debug/framework-level correctness.
         /// </summary>
-        public long FieldIndex { get; }
+        AggregateAfterDispatch,
 
         /// <summary>
-        /// 
+        /// Run every subscriber, log/report failures, never throw from Publish.
+        /// Best for hot-path runtime events like input, UI notifications, telemetry, audio state changes.
         /// </summary>
-        /// <param name="sectionName"></param>
-        /// <param name="fieldIndex"></param>
-        /// <param name="fileOffset"></param>
-        /// <param name="message"></param>
-        public FieldCorruptException(string sectionName, long fieldIndex, long fileOffset, string message = "")
-            : base(fileOffset, message)
-        {
-            SectionName = sectionName;
-            FieldIndex = fieldIndex;
-        }
+        ReportAndContinue
     }
 }

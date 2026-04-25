@@ -34,14 +34,14 @@ namespace Nomad.Core.Events
         Asynchronous = 1 << 1,
 
         /// <summary>
-        /// Don't use a WeakReference when allocating a new subscription.
-        /// </summary>
-        StrongSubscriptions = 1 << 2,
-
-        /// <summary>
         /// Don't do any synchronization when publishing the event. This also disables asynchronous subscriptions.
         /// </summary>
-        NoLock = 1 << 3,
+        NoLock = 1 << 2,
+
+        /// <summary>
+        /// 
+        /// </summary>
+        AtomicSafe = 1 << 3,
 
         /// <summary>
         ///

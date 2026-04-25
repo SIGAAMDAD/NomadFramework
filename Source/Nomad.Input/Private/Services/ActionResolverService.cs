@@ -24,10 +24,12 @@ using Nomad.Input.ValueObjects;
 
 namespace Nomad.Input.Private.Services {
 	internal sealed class ActionResolverService {
+		private const int ResolvedActionBufferRingSize = 8;
+
 		private readonly CompiledBindingRepository _compiledBindings;
 		private readonly InputStateService _stateService;
 
-		private bool[] _activeByAction = Array.Empty<bool>();
+		private InputActionPhase[] _phaseByAction = Array.Empty<InputActionPhase>();
 		private int[] _slotGeneration = Array.Empty<int>();
 		private int[] _touchedSlots = Array.Empty<int>();
 
@@ -42,7 +44,8 @@ namespace Nomad.Input.Private.Services {
 		private int _generation;
 		private int _touchedCount;
 
-		private ResolvedAction[] _resolvedActionBuffer = Array.Empty<ResolvedAction>();
+		private ResolvedAction[][] _resolvedActionBuffers = Array.Empty<ResolvedAction[]>();
+		private int _resolvedActionBufferCursor;
 
 		public ActionResolverService( CompiledBindingRepository compiledBindings, InputStateService stateService ) {
 			_compiledBindings = compiledBindings ?? throw new ArgumentNullException( nameof( compiledBindings ) );
@@ -188,7 +191,7 @@ namespace Nomad.Input.Private.Services {
 		}
 
 		private ReadOnlySpan<ResolvedAction> MaterializeResolvedActions( CompiledBindingGraph graph, long timeStamp ) {
-			EnsureResolvedActionCapacity( _touchedCount );
+			ResolvedAction[] resolvedActionBuffer = GetResolvedActionBuffer( _touchedCount );
 
 			int actionCount = 0;
 			for ( int i = 0; i < _touchedCount; i++ ) {
@@ -206,7 +209,7 @@ namespace Nomad.Input.Private.Services {
 					continue;
 				}
 
-				_resolvedActionBuffer[actionCount++] = new ResolvedAction(
+				resolvedActionBuffer[actionCount++] = new ResolvedAction(
 					actionId: graph.Actions[slot].ActionId,
 					actionIndex: slot,
 					valueType: valueType,
@@ -218,22 +221,23 @@ namespace Nomad.Input.Private.Services {
 				);
 			}
 
-			return _resolvedActionBuffer.AsSpan( 0, actionCount );
+			return resolvedActionBuffer.AsSpan( 0, actionCount );
 		}
 
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		private bool TryResolvePhase( int actionSlot, bool isActive, out InputActionPhase phase ) {
-			bool wasActive = _activeByAction[actionSlot];
+			InputActionPhase previousPhase = _phaseByAction[actionSlot];
+			bool wasActive = previousPhase is InputActionPhase.Started or InputActionPhase.Performed;
 
 			if ( isActive ) {
-				_activeByAction[actionSlot] = true;
 				phase = wasActive ? InputActionPhase.Performed : InputActionPhase.Started;
+				_phaseByAction[actionSlot] = phase;
 				return true;
 			}
 
 			if ( wasActive ) {
-				_activeByAction[actionSlot] = false;
 				phase = InputActionPhase.Canceled;
+				_phaseByAction[actionSlot] = phase;
 				return true;
 			}
 
@@ -384,11 +388,13 @@ namespace Nomad.Input.Private.Services {
 		}
 
 		private void EnsureActionCapacity( int actionCount ) {
-			if ( _activeByAction.Length >= actionCount ) {
+			if ( _phaseByAction.Length >= actionCount ) {
 				return;
 			}
 
-			Array.Resize( ref _activeByAction, actionCount );
+			int previousLength = _phaseByAction.Length;
+			Array.Resize( ref _phaseByAction, actionCount );
+			Array.Fill( _phaseByAction, InputActionPhase.Count, previousLength, actionCount - previousLength );
 			Array.Resize( ref _slotGeneration, actionCount );
 			Array.Resize( ref _touchedSlots, actionCount );
 
@@ -402,13 +408,24 @@ namespace Nomad.Input.Private.Services {
 		}
 
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		private void EnsureResolvedActionCapacity( int requiredCapacity ) {
-			if ( _resolvedActionBuffer.Length >= requiredCapacity ) {
-				return;
+		private ResolvedAction[] GetResolvedActionBuffer( int requiredCapacity ) {
+			if ( _resolvedActionBuffers.Length == 0 ) {
+				_resolvedActionBuffers = new ResolvedAction[ResolvedActionBufferRingSize][];
+				Array.Fill( _resolvedActionBuffers, Array.Empty<ResolvedAction>() );
 			}
 
-			int newCapacity = Math.Max( requiredCapacity, _resolvedActionBuffer.Length == 0 ? 8 : _resolvedActionBuffer.Length * 2 );
-			Array.Resize( ref _resolvedActionBuffer, newCapacity );
+			int bufferIndex = _resolvedActionBufferCursor;
+			_resolvedActionBufferCursor = (_resolvedActionBufferCursor + 1) % _resolvedActionBuffers.Length;
+
+			ResolvedAction[] buffer = _resolvedActionBuffers[bufferIndex];
+			if ( buffer.Length >= requiredCapacity ) {
+				return buffer;
+			}
+
+			int newCapacity = Math.Max( requiredCapacity, buffer.Length == 0 ? 8 : buffer.Length * 2 );
+			Array.Resize( ref buffer, newCapacity );
+			_resolvedActionBuffers[bufferIndex] = buffer;
+			return buffer;
 		}
 	}
 }

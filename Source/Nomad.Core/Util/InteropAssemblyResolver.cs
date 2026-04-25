@@ -23,19 +23,28 @@ using System.IO;
 namespace Nomad.Core.Util
 {
     /// <summary>
-    ///
+    /// Provides platform-specific native library resolution for DLLImport declarations.
     /// </summary>
+    /// <remarks>
+    /// This class allows you to hook assemblies to resolve native library imports to platform-specific binaries.
+    /// For example, you can map a generic library name to 'foo.dll' on Windows and 'libfoo.so' on Linux.
+    /// This is particularly useful for cross-platform interop scenarios.
+    /// </remarks>
     public static class InteropAssemblyResolver
     {
         private static readonly Dictionary<Assembly, Dictionary<string, (string, string)>> _hooks = new();
 
         /// <summary>
-        ///
+        /// Registers a mapping for platform-specific native library names for an assembly.
         /// </summary>
-        /// <param name="assembly"></param>
-        /// <param name="libraryName"></param>
-        /// <param name="libraryNameLinux"></param>
-        /// <param name="libraryNameWindows"></param>
+        /// <remarks>
+        /// Call this method to set up library name mappings before making DLLImport calls.
+        /// The resolver will automatically select the appropriate library name based on the current platform.
+        /// </remarks>
+        /// <param name="assembly">The assembly to hook the resolver into.</param>
+        /// <param name="libraryName">The generic library name used in DLLImport declarations.</param>
+        /// <param name="libraryNameLinux">The library name to use on Linux (without extension).</param>
+        /// <param name="libraryNameWindows">The library name to use on Windows (without extension).</param>
         public static void Hook(Assembly assembly, string libraryName, string libraryNameLinux, string libraryNameWindows)
         {
             if (!_hooks.TryGetValue(assembly, out var resolvers))
@@ -48,12 +57,16 @@ namespace Nomad.Core.Util
         }
 
         /// <summary>
-        ///
+        /// Resolves a native library name to its platform-specific binary path.
         /// </summary>
-        /// <param name="libraryName"></param>
-        /// <param name="assembly"></param>
-        /// <param name="searchPath"></param>
-        /// <returns></returns>
+        /// <remarks>
+        /// This method is called automatically by the runtime when a DLLImport cannot be resolved.
+        /// It searches for the library in the application's base directory and current directory.
+        /// </remarks>
+        /// <param name="libraryName">The generic library name being imported.</param>
+        /// <param name="assembly">The assembly performing the import.</param>
+        /// <param name="searchPath">The search path hint from the DLLImport attribute.</param>
+        /// <returns>A handle to the loaded library, or <see cref="IntPtr.Zero"/> if not found.</returns>
         private static IntPtr Resolve(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
         {
             if (!_hooks.TryGetValue(assembly, out var dict))

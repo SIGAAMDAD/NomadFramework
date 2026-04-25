@@ -16,8 +16,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Runtime.CompilerServices;
 using Nomad.Core.Collections;
-using Nomad.Core.Compatibility.Guards;
-using Nomad.Core.Logger;
 
 namespace Nomad.Events.Private {
 	/*
@@ -42,20 +40,6 @@ namespace Nomad.Events.Private {
 		}
 
 		private FixedList<TCallback>? _subscriptions;
-		private readonly ILoggerService _logger;
-
-		/*
-		===============
-		SubscriptionCache
-		===============
-		*/
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="logger"></param>
-		public SubscriptionCache( ILoggerService logger ) {
-			_logger = logger;
-		}
 
 		/*
 		===============

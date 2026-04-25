@@ -31,7 +31,7 @@ namespace Nomad.Save.Private.ValueObjects {
 	/// </summary>
 
 	internal readonly struct SaveField {
-		public static readonly SaveField Empty = new SaveField();
+		public static readonly SaveField Empty = default;
 
 		public readonly string Name;
 		public readonly AnyType Type;
@@ -86,7 +86,7 @@ namespace Nomad.Save.Private.ValueObjects {
 		/// <exception cref="FieldCorruptException">Thrown if the field's data is invalid.</exception>
 		public static SaveField Read( string section, int index, IMemoryReadStream stream ) {
 			string name = stream.ReadString();
-			if ( name.Length < 0 || name.Length > Constants.MAX_FIELD_NAME_LENGTH ) {
+			if ( string.IsNullOrEmpty( name ) || name.Length > Constants.MAX_FIELD_NAME_LENGTH ) {
 				throw new FieldCorruptException( section, index, stream.Position, $"Field name length corrupted (0 or string overflow, {name.Length} bytes)" );
 			}
 

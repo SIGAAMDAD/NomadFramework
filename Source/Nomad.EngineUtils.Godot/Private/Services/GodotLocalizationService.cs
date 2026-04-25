@@ -17,6 +17,7 @@ using System.Collections.Concurrent;
 using Godot;
 using Nomad.Core.Engine.Globals;
 using Nomad.Core.Engine.Services;
+using Nomad.Core.Logger;
 using Nomad.Core.Util;
 
 namespace Nomad.EngineUtils.Godot.Private.Services {
@@ -45,9 +46,11 @@ namespace Nomad.EngineUtils.Godot.Private.Services {
 		===============
 		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
 		public GodotLocalizationService() {
+			TranslationServer.SetLocale( OS.GetLocale() );
+
 			LocalizationService.Initialize( this );
 		}
 

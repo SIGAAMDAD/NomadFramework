@@ -72,8 +72,8 @@ public class SaveDataProviderTests
         _cvarSystem = new CVarSystem(_eventFactory, _logger);
         _dataProvider = new SaveDataProvider(engineService.Object, _eventFactory, _cvarSystem, _fileSystem, _logger);
 
-        _saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
-        _loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
+        _saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.SAVE_BEGIN_EVENT, EventNames.NAMESPACE);
+        _loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.LOAD_BEGIN_EVENT, EventNames.NAMESPACE);
     }
 
     [TearDown]

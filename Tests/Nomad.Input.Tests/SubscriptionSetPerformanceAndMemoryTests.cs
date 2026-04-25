@@ -17,6 +17,7 @@ namespace Nomad.Input.Tests {
 		private const int MutationBatches = 128;
 		private const int SubscriberCount = 32;
 		private static readonly TestArgs SampleArgs = new TestArgs( 7 );
+		private static readonly MockLogger logger = new MockLogger();
 
 		private static IEnumerable<TestCaseData> SyncImplementations() {
 			yield return new TestCaseData( "SubscriptionSet" );
@@ -27,6 +28,11 @@ namespace Nomad.Input.Tests {
 		private static IEnumerable<TestCaseData> AsyncImplementations() {
 			yield return new TestCaseData( "SubscriptionSet" );
 			yield return new TestCaseData( "AtomicSubscriptionSet" );
+		}
+
+		[OneTimeTearDown]
+		public void OneTimeTearDown() {
+			logger?.Dispose();
 		}
 
 		[TestCaseSource( nameof( SyncImplementations ) )]
@@ -263,15 +269,15 @@ namespace Nomad.Input.Tests {
 		}
 
 		private static ISubscriptionSet<TestArgs> CreateSubscriptionSet() {
-			return new SubscriptionSet<TestArgs>( new TestEventMetadata( "SubscriptionSet" ), null! );
+			return new SubscriptionSet<TestArgs>( new TestEventMetadata( "SubscriptionSet" ), logger, EventExceptionPolicy.AggregateAfterDispatch );
 		}
 
 		private static ISubscriptionSet<TestArgs> CreateLockFreeSubscriptionSet() {
-			return new LockFreeSubscriptionSet<TestArgs>( new TestEventMetadata( "LockFreeSubscriptionSet" ), null! );
+			return new LockFreeSubscriptionSet<TestArgs>( new TestEventMetadata( "LockFreeSubscriptionSet" ),  logger, EventExceptionPolicy.ReportAndContinue );
 		}
 
 		private static ISubscriptionSet<TestArgs> CreateAtomicSubscriptionSet() {
-			return new AtomicSubscriptionSet<TestArgs>( new TestEventMetadata( "AtomicSubscriptionSet" ), null! );
+			return new AtomicSubscriptionSet<TestArgs>( new TestEventMetadata( "AtomicSubscriptionSet" ), logger, EventExceptionPolicy.AggregateAfterDispatch );
 		}
 
 		private static Func<ISubscriptionSet<TestArgs>> ResolveFactory( string implementationName ) {

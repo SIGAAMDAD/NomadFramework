@@ -16,29 +16,34 @@ of merchantability, fitness for a particular purpose and noninfringement.
 namespace Nomad.Core.Util
 {
     /// <summary>
-    ///
+    /// Represents the result of an operation that either succeeds or fails with an error.
     /// </summary>
+    /// <remarks>
+    /// This record is used for error handling without exceptions. Use <see cref="Success"/> to create a successful result
+    /// and <see cref="Failure"/> to create a failed result with an <see cref="IError"/>.
+    /// For operations that return a value on success, use <see cref="Result{T}"/> instead.
+    /// </remarks>
     public record Result
     {
         /// <summary>
-        /// 
+        /// Gets a value indicating whether the operation succeeded.
         /// </summary>
         public bool IsSuccess { get; init; }
 
         /// <summary>
-        /// 
+        /// Gets the error associated with this result, if the operation failed.
         /// </summary>
         public IError? Error { get; init; }
 
         /// <summary>
-        /// 
+        /// Gets a value indicating whether the operation failed.
         /// </summary>
         public bool IsFailure => !IsSuccess;
 
         /// <summary>
-        /// 
+        /// Initializes a new failed result with the specified error.
         /// </summary>
-        /// <param name="error"></param>
+        /// <param name="error">The error that caused the failure.</param>
         private Result(IError error)
         {
             IsSuccess = false;
@@ -46,7 +51,7 @@ namespace Nomad.Core.Util
         }
 
         /// <summary>
-        /// 
+        /// Initializes a new successful result.
         /// </summary>
         private Result()
         {
@@ -55,29 +60,29 @@ namespace Nomad.Core.Util
         }
 
         /// <summary>
-        /// 
+        /// Creates a successful result.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Result"/> indicating success.</returns>
         public static Result Success()
         {
             return new Result();
         }
 
         /// <summary>
-        /// 
+        /// Creates a failed result with the specified error.
         /// </summary>
-        /// <param name="error"></param>
-        /// <returns></returns>
+        /// <param name="error">The error that caused the failure.</param>
+        /// <returns>A <see cref="Result"/> indicating failure.</returns>
         public static Result Failure(IError error)
         {
             return new Result(error);
         }
 
         /// <summary>
-        ///
+        /// Deconstructs the result into its components for pattern matching.
         /// </summary>
-        /// <param name="isSuccess"></param>
-        /// <param name="error"></param>
+        /// <param name="isSuccess">Whether the operation succeeded.</param>
+        /// <param name="error">The error, if the operation failed.</param>
         public void Deconstruct(out bool isSuccess, out IError? error)
         {
             isSuccess = IsSuccess;

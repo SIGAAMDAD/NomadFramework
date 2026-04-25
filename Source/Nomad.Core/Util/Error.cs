@@ -16,21 +16,25 @@ of merchantability, fitness for a particular purpose and noninfringement.
 namespace Nomad.Core.Util
 {
     /// <summary>
-    /// 
+    /// Represents an internal error with a descriptive message and an error type classification.
     /// </summary>
-    /// <param name="Message"></param>
-    /// <param name="Type"></param>
+    /// <remarks>
+    /// This record implements the <see cref="IError"/> interface and provides a standard way to create and track errors
+    /// within the Nomad framework. Use the <see cref="Create"/> factory method to instantiate errors.
+    /// </remarks>
+    /// <param name="Message">A descriptive message explaining the error.</param>
+    /// <param name="Type">The classification of the error type.</param>
     public record InternalError(
         string Message,
         ErrorType Type = ErrorType.Validation
     ) : IError
     {
         /// <summary>
-        /// 
+        /// Creates a new instance of <see cref="InternalError"/> with the specified message and type.
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="type"></param>
-        /// <returns></returns>
+        /// <param name="message">A descriptive message explaining the error.</param>
+        /// <param name="type">The classification of the error type. Defaults to <see cref="ErrorType.Validation"/>.</param>
+        /// <returns>A new <see cref="InternalError"/> instance.</returns>
         public static InternalError Create(string message, ErrorType type = ErrorType.Validation)
         {
             return new InternalError(message, type);

@@ -45,6 +45,7 @@ namespace Nomad.Save.Private.Services {
 	/// <summary>
 	///
 	/// </summary>
+	/// TODO: refactor this is doing WAY too much.
 
 	internal sealed class SaveDataProvider : ISaveDataProvider {
 		private readonly ISaveWriterService _writerService;
@@ -52,16 +53,15 @@ namespace Nomad.Save.Private.Services {
 
 		private readonly IFileSystem _vfs;
 
-		private readonly ILoggerService _logger;
 		private readonly ILoggerCategory _category;
 
 		private readonly SlotRepository _slotRepository;
 		private readonly AtomicWriterService _atomicWriter;
 
-		private SaveConfig _config;
+		private volatile SaveConfig _config;
 
-		private readonly ISubscriptionHandle _autoSaveChanged;
-		private readonly ISubscriptionHandle _autoSaveIntervalChanged;
+		private readonly ICVar<bool> _autoSaveEnabled;
+		private readonly ICVar<int> _autoSaveInterval;
 
 		private readonly IGameEvent<SaveBeginEventArgs> _saveBegin;
 		private readonly IGameEvent<LoadBeginEventArgs> _loadBegin;
@@ -85,27 +85,27 @@ namespace Nomad.Save.Private.Services {
 			ArgumentGuard.ThrowIfNull( engineService );
 			ArgumentGuard.ThrowIfNull( eventFactory );
 			ArgumentGuard.ThrowIfNull( cvarSystem );
+			ArgumentGuard.ThrowIfNull( logger );
 
 			_saveBegin = eventFactory.GetEvent<SaveBeginEventArgs>( EventNames.SAVE_BEGIN_EVENT, EventNames.NAMESPACE );
 			_loadBegin = eventFactory.GetEvent<LoadBeginEventArgs>( EventNames.LOAD_BEGIN_EVENT, EventNames.NAMESPACE );
 
 			_vfs = fileSystem ?? throw new ArgumentNullException( nameof( fileSystem ) );
-			_logger = logger ?? throw new ArgumentNullException( nameof( logger ) );
 			_category = logger.CreateCategory( nameof( Nomad.Save ), LogLevel.Info, true );
 
 			_config = InitConfiguration( engineService, cvarSystem );
 
-			var autoSaveEnabled = cvarSystem.GetCVarOrThrow<bool>( Constants.CVars.AUTO_SAVE_ENABLED );
-			_autoSaveChanged = autoSaveEnabled.ValueChanged.Subscribe( OnAutoSaveEnabledChanged );
+			_autoSaveEnabled = cvarSystem.GetCVarOrThrow<bool>( Constants.CVars.AUTO_SAVE_ENABLED );
+			_autoSaveEnabled.ValueChanged.Subscribe( OnAutoSaveEnabledChanged );
 
-			var autoSaveInterval = cvarSystem.GetCVarOrThrow<int>( Constants.CVars.AUTO_SAVE_INTERVAL );
-			_autoSaveIntervalChanged = autoSaveInterval.ValueChanged.Subscribe( OnAutoSaveIntervalChanged );
+			_autoSaveInterval = cvarSystem.GetCVarOrThrow<int>( Constants.CVars.AUTO_SAVE_INTERVAL );
+			_autoSaveInterval.ValueChanged.Subscribe( OnAutoSaveIntervalChanged );
 
 			_atomicWriter = new AtomicWriterService( engineService, fileSystem );
 
 			_slotRepository = new SlotRepository( fileSystem, logger, _config );
-			_readerService = new SaveReaderService( _config, _slotRepository, _vfs, _logger );
-			_writerService = new SaveWriterService( _config, _atomicWriter, _slotRepository, _vfs, _logger );
+			_readerService = new SaveReaderService( _config, _slotRepository, _vfs, logger );
+			_writerService = new SaveWriterService( _config, _atomicWriter, _slotRepository, _vfs, logger );
 		}
 
 		/*
@@ -123,8 +123,8 @@ namespace Nomad.Save.Private.Services {
 				_slotRepository?.Dispose();
 				_category?.Dispose();
 
-				_autoSaveChanged?.Dispose();
-				_autoSaveIntervalChanged?.Dispose();
+				_autoSaveEnabled.ValueChanged.Unsubscribe( OnAutoSaveEnabledChanged );
+				_autoSaveInterval.ValueChanged.Unsubscribe( OnAutoSaveIntervalChanged );
 
 				_saveBegin?.Dispose();
 				_loadBegin?.Dispose();

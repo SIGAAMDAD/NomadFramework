@@ -16,35 +16,40 @@ of merchantability, fitness for a particular purpose and noninfringement.
 namespace Nomad.Core.Util
 {
     /// <summary>
-    ///
+    /// Represents the result of an operation that either returns a value on success or fails with an error.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The type of the value returned on success.</typeparam>
+    /// <remarks>
+    /// This generic record extends the error handling pattern to include a success value.
+    /// Use <see cref="Success"/> to create a successful result with a value and <see cref="Failure"/> to create a failed result with an <see cref="IError"/>.
+    /// For operations that don't return a value, use <see cref="Result"/> instead.
+    /// </remarks>
     public record Result<T>
     {
         /// <summary>
-        /// 
+        /// Gets a value indicating whether the operation succeeded.
         /// </summary>
         public bool IsSuccess { get; init; }
 
         /// <summary>
-        /// 
+        /// Gets a value indicating whether the operation failed. Considers failure if the operation did not succeed or the value is null.
         /// </summary>
         public bool IsFailure => !IsSuccess || Value == null;
 
         /// <summary>
-        /// 
+        /// Gets the value returned by the operation on success.
         /// </summary>
         public T? Value { get; init; }
 
         /// <summary>
-        /// 
+        /// Gets the error associated with this result, if the operation failed.
         /// </summary>
         public IError? Error { get; init; }
 
         /// <summary>
-        /// 
+        /// Initializes a new successful result with the specified value.
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="value">The value returned by the successful operation.</param>
         protected Result(T value)
         {
             IsSuccess = true;
@@ -53,9 +58,9 @@ namespace Nomad.Core.Util
         }
 
         /// <summary>
-        /// 
+        /// Initializes a new failed result with the specified error.
         /// </summary>
-        /// <param name="error"></param>
+        /// <param name="error">The error that caused the failure.</param>
         protected Result(IError error)
         {
             IsSuccess = false;
@@ -64,31 +69,31 @@ namespace Nomad.Core.Util
         }
 
         /// <summary>
-        /// 
+        /// Creates a successful result with the specified value.
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="value">The value to return on success.</param>
+        /// <returns>A <see cref="Result{T}"/> indicating success with the specified value.</returns>
         public static Result<T> Success(T value)
         {
             return new Result<T>(value);
         }
 
         /// <summary>
-        /// 
+        /// Creates a failed result with the specified error.
         /// </summary>
-        /// <param name="error"></param>
-        /// <returns></returns>
+        /// <param name="error">The error that caused the failure.</param>
+        /// <returns>A <see cref="Result{T}"/> indicating failure.</returns>
         public static Result<T> Failure(IError error)
         {
             return new Result<T>(error);
         }
 
         /// <summary>
-        ///
+        /// Deconstructs the result into its components for pattern matching.
         /// </summary>
-        /// <param name="isSuccess"></param>
-        /// <param name="value"></param>
-        /// <param name="error"></param>
+        /// <param name="isSuccess">Whether the operation succeeded.</param>
+        /// <param name="value">The value returned on success.</param>
+        /// <param name="error">The error, if the operation failed.</param>
         public void Deconstruct(out bool isSuccess, out T? value, out IError? error)
         {
             isSuccess = IsSuccess;

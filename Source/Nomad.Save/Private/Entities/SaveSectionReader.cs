@@ -37,23 +37,20 @@ namespace Nomad.Save.Private.Entities {
 
 	internal sealed class SaveSectionReader : ISaveSectionReader {
 		/// <summary>
-		/// 
+		/// The name of the section.
 		/// </summary>
-		public string Name {
-			get => _isDisposed ? throw new ObjectDisposedException( nameof( SaveSectionReader ) ) : _name;
-		}
+		public string Name => _isDisposed ? throw new ObjectDisposedException( nameof( SaveSectionReader ) ) : _name;
 		private readonly string _name;
 
 		/// <summary>
-		/// 
+		/// The number of fields in the section.
 		/// </summary>
-		public int FieldCount => _fields.Count;
+		public int FieldCount => _isDisposed ? throw new ObjectDisposedException( nameof( SaveSectionReader ) ) : _fields.Count;
 
 		private readonly Dictionary<string, SaveField> _fields;
+		private readonly ILoggerCategory _category;
 
 		private bool _isDisposed = false;
-
-		private readonly ILoggerService _logger;
 
 		/*
 		===============
@@ -66,15 +63,18 @@ namespace Nomad.Save.Private.Entities {
 		/// <param name="config"></param>
 		/// <param name="index"></param>
 		/// <param name="reader"></param>
-		/// <param name="logger"></param>
-		public SaveSectionReader( SaveConfig config, int index, IMemoryReadStream reader, ILoggerService logger ) {
+		/// <param name="category"></param>
+		/// <exception cref="ArgumentNullException"></exception>
+		/// <exception cref="DuplicateFieldException"></exception>
+		public SaveSectionReader( SaveConfig config, int index, IMemoryReadStream reader, ILoggerCategory category ) {
+			// TODO: implement a field pool or something of that nature.
 			_fields = new Dictionary<string, SaveField>();
-			_logger = logger;
+			_category = category ?? throw new ArgumentNullException( nameof( category ) );
 
-			var header = SectionHeader.Load( index, in reader );
+			var header = SectionHeader.Load( index, reader );
 
 			if ( config.LogSerializationTree ) {
-				_logger.PrintLine( $"\t[Section] (NAME) {header.Name}" );
+				_category.PrintLine( $"\t[Section] (NAME) {header.Name}" );
 			}
 
 			int fieldCount = header.FieldCount;
@@ -85,7 +85,7 @@ namespace Nomad.Save.Private.Entities {
 				var field = SaveField.Read( Name, i, reader );
 
 				if ( config.LogSerializationTree ) {
-					_logger.PrintLine( $"\t\t[Field] (NAME) {field.Name}, (TYPE) {field.Type}, (VALUE) {field.Value}" );
+					_category.PrintLine( $"\t\t[Field] (NAME) {field.Name}, (TYPE) {field.Type}, (VALUE) {field.Value}" );
 				}
 				if ( _fields.ContainsKey( field.Name ) ) {
 					throw new DuplicateFieldException( _name, field.Name );
@@ -124,7 +124,8 @@ namespace Nomad.Save.Private.Entities {
 		/// <returns></returns>
 		/// <exception cref="InvalidCastException"></exception>
 		public T GetField<T>( string fieldName )
-			where T : unmanaged {
+			where T : unmanaged
+		{
 			StateGuard.ThrowIfDisposed( _isDisposed, this );
 			ArgumentGuard.ThrowIfNullOrEmpty( fieldName );
 
@@ -153,12 +154,12 @@ namespace Nomad.Save.Private.Entities {
 			StateGuard.ThrowIfDisposed( _isDisposed, this );
 			ArgumentGuard.ThrowIfNullOrEmpty( fieldName );
 
-			string value = String.Empty;
+			string value = string.Empty;
 			if ( _fields.TryGetValue( fieldName, out var field ) ) {
 				if ( field.Type != AnyType.String ) {
 					throw new InvalidCastException( "Field type found in file does not match the requested type" );
 				}
-				value = field.Value.GetReferenceValue<string>()!;
+				value = field.Value.GetReferenceValue<string>() ?? string.Empty;
 			}
 			return value;
 		}

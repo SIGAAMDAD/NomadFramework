@@ -85,8 +85,9 @@ namespace Nomad.Save.Private.Serialization.FieldSerializers {
 		/// <returns></returns>
 		/// <exception cref="InvalidOperationException"></exception>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public static IFieldSerializer<T> GetSerializer<T>()
-			=> _serializers.TryGetValue( typeof( T ), out var serializer ) ? (IFieldSerializer<T>)serializer : throw new InvalidOperationException( $"No serializer for {typeof( T )}" );
+		public static IFieldSerializer<T> GetSerializer<T>() {
+			return _serializers.TryGetValue( typeof( T ), out var serializer ) ? (IFieldSerializer<T>)serializer : throw new InvalidOperationException( $"No serializer for {typeof( T )}" );
+		}
 
 		/*
 		===============
@@ -99,7 +100,11 @@ namespace Nomad.Save.Private.Serialization.FieldSerializers {
 		/// <param name="type"></param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public static IFieldSerializer GetSerializer( Type type )
-			=> _serializers[type];
+		public static IFieldSerializer GetSerializer( Type type ) {
+			if ( !_serializers.TryGetValue( type, out var serializer ) ) {
+				throw new InvalidOperationException( $"No serializer registered for type {type.Name}" );
+			}
+			return serializer;
+		}
 	};
 };

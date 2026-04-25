@@ -32,6 +32,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 	/// <summary>
 	///
 	/// </summary>
+	
 	internal sealed class SubscriptionSet<TArgs> : SubscriptionSetBase<TArgs>
 		where TArgs : struct
 	{
@@ -49,11 +50,12 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// </summary>
 		/// <param name="eventData"></param>
 		/// <param name="logger"></param>
-		public SubscriptionSet( IGameEvent<TArgs> eventData, ILoggerService logger )
-			: base( eventData, logger )
+		/// <param name="exceptionPolicy"></param>
+		public SubscriptionSet( IGameEvent<TArgs> eventData, ILoggerService logger, EventExceptionPolicy exceptionPolicy )
+			: base( eventData, logger, exceptionPolicy )
 		{
-			_genericSubscriptions = new SubscriptionCache<TArgs, EventCallback<TArgs>>( logger );
-			_asyncSubscriptions = new SubscriptionCache<TArgs, AsyncEventCallback<TArgs>>( logger );
+			_genericSubscriptions = new SubscriptionCache<TArgs, EventCallback<TArgs>>();
+			_asyncSubscriptions = new SubscriptionCache<TArgs, AsyncEventCallback<TArgs>>();
 		}
 
 		/*
@@ -184,13 +186,25 @@ namespace Nomad.Events.Private.SubscriptionSets {
 #if EVENT_DEBUG
 			Logger?.PrintLine( $"SubscriptionSet.Pump: publishing event {EventData.DebugName}" );
 #endif
+			
+			List<EventHandlerException>? failures = null;
+
 			lock ( _genericSubscriptions ) {
 				for ( int i = 0; i < _genericSubscriptions.Count; i++ ) {
-					_genericSubscriptions[i].Invoke( in args );
+					var callback = _genericSubscriptions[i];
+					InvokeCallback( callback, i, in args );
 				}
 			}
 
 			IncrementPublishCount();
+
+			if ( failures is  { Count: > 0 } && ExceptionPolicy == EventExceptionPolicy.AggregateAfterDispatch ) {
+				throw new EventPublishException(
+					EventData.DebugName,
+					typeof( TArgs ),
+					failures
+				);
+			}
 		}
 
 		/*
@@ -219,9 +233,45 @@ namespace Nomad.Events.Private.SubscriptionSets {
 				_taskCache[i] = _asyncSubscriptions[i].Invoke( args, ct );
 			}
 
-			ct.ThrowIfCancellationRequested();
+			try {
+				await Task.WhenAll( _taskCache ).ConfigureAwait( false );
+			} catch {
+				List<EventHandlerException> failures = new();
 
-			await Task.WhenAll( _taskCache ).ConfigureAwait( false );
+				for ( int i = 0; i < subscriptionCount; i++ ) {
+					Task task = _taskCache[i];
+
+					if ( task.IsFaulted && task.Exception != null ) {
+						foreach ( Exception ex in task.Exception.InnerExceptions ) {
+							failures.Add(
+								new EventHandlerException(
+									EventData.DebugName,
+									typeof( TArgs ),
+									_asyncSubscriptions[i].Method.Name,
+									i,
+									ex
+								)
+							);
+						}
+					}
+				}
+
+				foreach ( var failure in failures ) {
+					Logger?.PrintError( failure.ToString() );
+				}
+
+				if ( ExceptionPolicy != EventExceptionPolicy.ReportAndContinue ) {
+					throw new EventPublishException(
+						EventData.DebugName,
+						typeof( TArgs ),
+						failures
+					);
+				}
+			} finally {
+				for ( int i = 0; i < subscriptionCount; i++ ) {
+					_taskCache[i] = null;
+				}
+			}
 			IncrementPublishCount();
 		}
 

@@ -105,15 +105,20 @@ namespace Nomad.Events.Private {
 			bool isSynchronous = flags.HasFlag( EventFlags.Synchronous );
 			bool isAsync = flags.HasFlag( EventFlags.Asynchronous );
 			bool lockFree = flags.HasFlag( EventFlags.NoLock );
+			bool atomicSafe = flags.HasFlag( EventFlags.AtomicSafe );
 
 			if ( lockFree && isAsync ) {
 				throw new NotSupportedException( "Cannot have an event that is both lock free and asynchronous!" );
 			}
 
 			if ( lockFree ) {
-				_subscriptions = new LockFreeSubscriptionSet<TArgs>( this, logger );
+				_subscriptions = new LockFreeSubscriptionSet<TArgs>( this, logger, EventExceptionPolicy.ReportAndContinue );
+			} else if ( atomicSafe ) {
+				_subscriptions = new AtomicSubscriptionSet<TArgs>( this, logger, EventExceptionPolicy.AggregateAfterDispatch );
 			} else if ( isAsync ) {
-				_subscriptions = new SubscriptionSet<TArgs>( this, logger );
+				_subscriptions = new SubscriptionSet<TArgs>( this, logger, EventExceptionPolicy.AggregateAfterDispatch );
+			} else if ( isSynchronous ) {
+				_subscriptions = new SubscriptionSet<TArgs>( this, logger, EventExceptionPolicy.AggregateAfterDispatch );
 			}
 		}
 

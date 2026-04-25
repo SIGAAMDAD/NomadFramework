@@ -49,10 +49,11 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// </summary>
 		/// <param name="eventData"></param>
 		/// <param name="logger"></param>
-		public LockFreeSubscriptionSet( IGameEvent<TArgs> eventData, ILoggerService logger )
-			: base( eventData, logger )
+		/// <param name="exceptionPolicy"></param>
+		public LockFreeSubscriptionSet( IGameEvent<TArgs> eventData, ILoggerService logger, EventExceptionPolicy exceptionPolicy )
+			: base( eventData, logger, exceptionPolicy )
 		{
-			_genericSubscriptions = new SubscriptionCache<TArgs, EventCallback<TArgs>>( logger );
+			_genericSubscriptions = new SubscriptionCache<TArgs, EventCallback<TArgs>>();
 		}
 
 		/*
@@ -159,7 +160,8 @@ namespace Nomad.Events.Private.SubscriptionSets {
 			Logger?.PrintLine( $"SubscriptionSet.Pump: publishing event {EventData.DebugName}" );
 #endif
 			for ( int i = 0; i < _genericSubscriptions.Count; i++ ) {
-				_genericSubscriptions[i].Invoke( in args );
+				var callback = _genericSubscriptions[i];
+				InvokeCallback( callback, i, in args );
 			}
 
 			IncrementPublishCount();

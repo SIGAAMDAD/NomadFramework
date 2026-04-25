@@ -555,7 +555,7 @@ namespace Nomad.Events.Tests
         public void CreateScheduledEvent_IsScheduledEvent()
         {
             // Arrange
-            var evt = CreateEvent<EmptyEventArgs>().PublishEvery(default, 1000);
+            var evt = CreateEvent<EmptyEventArgs>().PublishEvery(EmptyEventArgs.Args, 1000);
 
             // Assert
             Assert.That(evt, Is.InstanceOf<ScheduledEvent<EmptyEventArgs>>());
@@ -565,7 +565,7 @@ namespace Nomad.Events.Tests
         public void PublishScheduledEvent_DoesNotPublishBeforeInterval_WaitAndCheckPublish()
         {
             // Arrange
-            var evt = CreateEvent<EmptyEventArgs>().PublishEvery(default, 900);
+            var evt = CreateEvent<EmptyEventArgs>().PublishEvery(EmptyEventArgs.Args, 900);
             bool called = false;
             evt.Subscribe((in EmptyEventArgs args) => called = true);
 

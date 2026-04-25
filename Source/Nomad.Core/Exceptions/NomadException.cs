@@ -17,6 +17,7 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text;
 using Nomad.Core.Util.Attributes;
 
 namespace Nomad.Core.Exceptions
@@ -24,44 +25,81 @@ namespace Nomad.Core.Exceptions
     /// <summary>
     /// 
     /// </summary>
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class NomadException : Exception
     {
         /// <summary>
-        /// 
+        /// UTC timestamp for when the exception object was created.
         /// </summary>
-		public override string Message => GetMessage();
+        public DateTimeOffset TimestampUtc { get; } = DateTimeOffset.UtcNow;
 
         /// <summary>
         /// The system where the exception was thrown.
         /// </summary>
-        public string Module => _module;
-        private readonly string _module;
+        public string Module { get; }
 
-        private readonly DateTime _timeStamp = DateTime.UtcNow;
+        /// <summary>
+        /// Optional stable error identifier.
+        /// </summary>
+        public virtual string? ErrorCode => null;
+
+        private string? DebuggerDisplay => $"{GetType().Name}: {Message} [{Module}]";
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="message"></param>
-        public NomadException(string message)
-            : base(message)
+        public NomadException()
+            : base($"A NomadFramework exception has occurred.")
         {
-            _module = ResolveNomadModuleInfo() ?? "(UNKNOWN)";
+            Module = ResolveNomadModuleInfo() ?? "(UNKNOWN)";
+
+            InitializeMetadata();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private string GetMessage()
+        public NomadException(string message)
+            : base(message, null)
         {
-            // looks like this:
-            // FROM (module id) AT (time)
-            //     [ERROR STRING] (error message)
-            // [STACKTRACE]:
-            // (stacktrace)
-            return $"FROM {_module} AT {_timeStamp}\n\t[ERROR STRING]: {base.Message}\n[STACKTRACE]:\n{base.StackTrace}";
+            Module = ResolveNomadModuleInfo() ?? "(UNKNOWN)";
+
+            InitializeMetadata();
+        }
+
+        public NomadException(string message, Exception? innerException)
+            : base(message, innerException)
+        {
+            Module = ResolveNomadModuleInfo() ?? "(UNKNOWN)";
+
+            InitializeMetadata();
+        }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder(256);
+
+            sb.Append("FROM ");
+            sb.Append(Module);
+            sb.Append(" AT ");
+            sb.Append(TimestampUtc.ToString("O"));
+            sb.AppendLine();
+
+            if (ErrorCode != null)
+            {
+                sb.Append("[ERROR CODE]: ").Append(ErrorCode).AppendLine();
+            }
+
+            sb.Append("[EXCEPTION TYPE]: ").Append(GetType().FullName).AppendLine();
+            sb.Append("[MESSAGE]: ").Append(base.Message).AppendLine();
+
+            if (InnerException != null)
+            {
+                sb.AppendLine("[INNER EXCEPTION]:");
+                sb.AppendLine(InnerException.ToString());
+            }
+
+            sb.AppendLine("[STACKTRACE]:");
+            sb.AppendLine(StackTrace ?? "(stack trace unavailable; exception has not been thrown yet)");
+
+            return sb.ToString();
         }
 
         /// <summary>
@@ -76,6 +114,10 @@ namespace Nomad.Core.Exceptions
             // skip 1 to move past this method's own fame
             var st = new StackTrace(skipFrames: 1, fNeedFileInfo: true);
             var frames = st.GetFrames();
+            if (frames == null)
+            {
+                return null;
+            }
 
             for (int i = 0; i < frames.Length; i++)
             {
@@ -98,6 +140,18 @@ namespace Nomad.Core.Exceptions
                 }
             }
             return null;
+        }
+
+        private void InitializeMetadata()
+        {
+            Data["Nomad.Module"] = Module;
+            Data["Nomad.TimestampUtc"] = TimestampUtc.ToString("O");
+            Data["Nomad.ExceptionType"] = GetType().FullName ?? GetType().Name;
+
+            if (ErrorCode != null)
+            {
+                Data["Nomad.ErrorCode"] = ErrorCode;
+            }
         }
     }
 }

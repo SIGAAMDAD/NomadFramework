@@ -17,25 +17,11 @@ using Nomad.Core.Exceptions;
 
 namespace Nomad.Save.Exceptions
 {
-    /// <summary>
-    ///
-    /// </summary>
-    public class SaveFileCorruptException : NomadException
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        public long FileOffset { get; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fileOffset"></param>
-        /// <param name="message"></param>
-        public SaveFileCorruptException(long fileOffset, string message)
-            : base(message)
-        {
-            FileOffset = fileOffset;
-        }
-    }
+	public sealed class CreateSaveFileFailed : NomadException
+	{
+		public CreateSaveFileFailed(string filePath)
+			: base($"Creating save file with file path '{filePath}'")
+		{
+		}
+	}
 }

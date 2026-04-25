@@ -101,7 +101,7 @@ namespace Nomad.Save.Private.Repositories {
 		public string AddSaveFile( string name, bool autoSave = false ) {
 			DateTime lastAccessTime = DateTime.Now;
 			SaveFileMetadata metadata;
-			string fileName = String.Empty;
+			string fileName = string.Empty;
 
 			if ( _saveSlots.TryGetValue( name, out var slotData ) ) {
 				// update the metadata
@@ -179,20 +179,17 @@ namespace Nomad.Save.Private.Repositories {
 				DateTime creationTime = fileInfo.CreationTime;
 
 				var header = SaveHeader.Deserialize( fileReader, out bool magicMatches );
-				_saveSlots.Add(
-					header.Name,
-					new SaveSlot(
-						slots[i],
-						new SaveFileMetadata(
-							SaveName: header.Name,
-							FileSize: reader.Length,
-							LastAccessYear: lastAccessTime.Year,
-							LastAccessMonth: lastAccessTime.Month,
-							LastAccessDay: lastAccessTime.Day,
-							CreationYear: creationTime.Year,
-							CreationMonth: creationTime.Month,
-							CreationDay: creationTime.Day
-						)
+				_saveSlots[header.Name] = new SaveSlot(
+					slots[i],
+					new SaveFileMetadata(
+						SaveName: header.Name,
+						FileSize: reader.Length,
+						LastAccessYear: lastAccessTime.Year,
+						LastAccessMonth: lastAccessTime.Month,
+						LastAccessDay: lastAccessTime.Day,
+						CreationYear: creationTime.Year,
+						CreationMonth: creationTime.Month,
+						CreationDay: creationTime.Day
 					)
 				);
 			}

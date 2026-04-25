@@ -80,7 +80,7 @@ namespace Nomad.Save.Private.ValueObjects {
 		///
 		/// </summary>
 		/// <param name="stream"></param>
-		public void Save( in IWriteStream stream ) {
+		public void Save( IWriteStream stream ) {
 			stream.WriteInt32( ByteLength );
 			stream.WriteUInt64( Checksum.Value );
 			stream.WriteString( Name );
@@ -98,7 +98,7 @@ namespace Nomad.Save.Private.ValueObjects {
 		/// <param name="index"></param>
 		/// <param name="stream"></param>
 		/// <returns></returns>
-		public static SectionHeader Load( int index, in IMemoryReadStream stream ) {
+		public static SectionHeader Load( int index, IMemoryReadStream stream ) {
 			RangeGuard.ThrowIfNegative( index, nameof( index ) );
 
 			int byteLength = stream.ReadInt32();
@@ -109,6 +109,9 @@ namespace Nomad.Save.Private.ValueObjects {
 			Checksum loadedChecksum = new Checksum( stream.ReadUInt64() );
 
 			long position = stream.Position;
+			if ( stream.Position + byteLength > stream.Buffer.Length ) {
+				throw new SectionCorruptException( null, index, stream.Position, "Section extends beyond buffer" );
+			}
 			Checksum actualChecksum = Checksum.Compute( stream.Buffer!.GetSlice( (int)stream.Position, byteLength ) );
 			if ( loadedChecksum != actualChecksum ) {
 				throw new SectionCorruptException( null, index, stream.Position, $"Section checksum64 does not match the value found in the save file data ({loadedChecksum.Value} != {actualChecksum.Value})" );

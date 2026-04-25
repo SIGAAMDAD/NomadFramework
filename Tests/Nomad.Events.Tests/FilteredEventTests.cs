@@ -18,6 +18,7 @@ using Nomad.Core.Events;
 using Nomad.Core.Logger;
 using Nomad.Core.Util;
 using Nomad.Events.Extensions;
+using Nomad.Events.Private.EventTypes;
 using Nomad.Events.Private;
 using NUnit.Framework;
 

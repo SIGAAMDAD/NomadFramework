@@ -19,8 +19,11 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using Nomad.Core.Events;
 using Nomad.Core.FileSystem;
+using Nomad.Core.FileSystem.Configs;
 using Nomad.Core.Logger;
+using Nomad.Core.Memory.Buffers;
 using Nomad.Events;
+using Nomad.FileSystem.Private.MemoryStream;
 using Nomad.FileSystem.Private.Services;
 using Nomad.Save.Data;
 using Nomad.Save.Events;
@@ -71,8 +74,8 @@ namespace Nomad.Save.Tests
             _cvarSystem = new CVarSystem(_eventFactory, _logger);
             _dataProvider = new SaveDataProvider(_engineService.Object, _eventFactory, _cvarSystem, _fileSystem, _logger);
 
-            _saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.NAMESPACE, EventNames.SAVE_BEGIN_EVENT);
-            _loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.NAMESPACE, EventNames.LOAD_BEGIN_EVENT);
+            _saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.SAVE_BEGIN_EVENT, EventNames.NAMESPACE);
+            _loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.LOAD_BEGIN_EVENT, EventNames.NAMESPACE);
         }
 
         [TearDown]
@@ -102,7 +105,15 @@ namespace Nomad.Save.Tests
         [Test]
         public void Constructor_NegativeIndex_ThrowsArgumentOutOfRangeException()
         {
-            Assert.Throws<ArgumentOutOfRangeException>(() => new SaveSectionReader(null, -1, null, null));
+            var config = new SaveConfig();
+            using var stream = new MemoryReadStream(new MemoryReadConfig
+            {
+                Buffer = new SharedBufferHandle(Array.Empty<byte>(), 0),
+                MaxCapacity = 8192
+            });
+            var category = new Mock<ILoggerCategory>().Object;
+
+            Assert.Throws<ArgumentOutOfRangeException>(() => new SaveSectionReader(config, -1, stream, category));
         }
 
         [Test]
@@ -426,7 +437,7 @@ namespace Nomad.Save.Tests
         }
 
         [Test]
-        public async Task SaveSectionReader_Dispose_ClearsFields()
+        public async Task SaveSectionReader_Dispose_PreventsFurtherAccess()
         {
             // Arrange
             string fileId = "dispose_test";
@@ -449,14 +460,10 @@ namespace Nomad.Save.Tests
 
             var fieldCountBeforeDispose = sectionReader?.FieldCount ?? 0;
             sectionReader?.Dispose();
-            var fieldCountAfterDispose = sectionReader?.FieldCount ?? 0;
 
-            using (Assert.EnterMultipleScope())
-            {
-                // Assert
-                Assert.That(fieldCountBeforeDispose, Is.GreaterThan(0));
-                Assert.That(fieldCountAfterDispose, Is.Zero);
-            }
+            // Assert
+            Assert.That(fieldCountBeforeDispose, Is.GreaterThan(0));
+            Assert.Throws<ObjectDisposedException>(() => _ = sectionReader!.FieldCount);
         }
 
         [Test]

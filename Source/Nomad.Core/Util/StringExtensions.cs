@@ -19,16 +19,21 @@ using Nomad.Core.Compatibility.Guards;
 namespace Nomad.Core.Util
 {
     /// <summary>
-    ///
+    /// Provides extension methods for string operations.
     /// </summary>
     public static class StringExtensions
     {
         /// <summary>
-        ///
+        /// Computes a 32-bit hash of a filename in a case-insensitive manner using the XxHash32 algorithm.
         /// </summary>
-        /// <param name="filename"></param>
-        /// <param name="seed"></param>
-        /// <returns></returns>
+        /// <remarks>
+        /// This method is useful for creating normalized hashes of filenames that are consistent regardless of case differences.
+        /// All uppercase letters are converted to lowercase before hashing. Use the optional seed parameter for domain-specific hashing.
+        /// </remarks>
+        /// <param name="filename">The filename to hash. Must not be null or empty.</param>
+        /// <param name="seed">An optional seed value for the hash function. Defaults to 0.</param>
+        /// <returns>A 32-bit hash value of the filename.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="filename"/> is null or empty.</exception>
         public static uint HashFileName(this string filename, int seed = 0)
         {
             ArgumentGuard.ThrowIfNullOrEmpty(filename);

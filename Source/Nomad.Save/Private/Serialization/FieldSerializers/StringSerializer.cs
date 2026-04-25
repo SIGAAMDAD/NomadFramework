@@ -57,7 +57,9 @@ namespace Nomad.Save.Private.Serialization.FieldSerializers {
 		/// <param name="stream"></param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public Any Deserialize( IReadStream stream )
-			=> new Any( stream.ReadString() );
+		public Any Deserialize( IReadStream stream ) {
+			string str = stream.ReadString() ?? string.Empty;
+			return new Any( str );
+		}
 	};
 };

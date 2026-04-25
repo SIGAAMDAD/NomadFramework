@@ -23,6 +23,7 @@ using Nomad.Save.Interfaces;
 using Nomad.Save.Private.Entities;
 using Nomad.Save.Private.Repositories;
 using Nomad.Save.Private.ValueObjects;
+using Nomad.Save.Exceptions;
 
 namespace Nomad.Save.Private.Services {
 	/*
@@ -46,7 +47,6 @@ namespace Nomad.Save.Private.Services {
 
 		private readonly IFileSystem _fileSystem;
 
-		private readonly ILoggerService _logger;
 		private readonly ILoggerCategory _category;
 
 		private bool _isDisposed = false;
@@ -64,14 +64,12 @@ namespace Nomad.Save.Private.Services {
 		/// <param name="fileSystem"></param>
 		/// <param name="logger"></param>
 		public SaveReaderService( SaveConfig config, SlotRepository slotRepository, IFileSystem fileSystem, ILoggerService logger ) {
-			_slotRepository = slotRepository;
-			_fileSystem = fileSystem;
+			_slotRepository = slotRepository ?? throw new ArgumentNullException( nameof( slotRepository ) );
+			_fileSystem = fileSystem ?? throw new ArgumentNullException( nameof( fileSystem ) );
 			_sections = new ConcurrentDictionary<string, SaveSectionReader>();
 
-			_config = config;
-
-			_logger = logger;
-			_category = _logger.CreateCategory( Constants.Logger.READER_SERVICE_CATEGORY_NAME, LogLevel.Info, true );
+			_config = config ?? throw new ArgumentNullException( nameof( config ) );
+			_category = logger.CreateCategory( Constants.Logger.READER_SERVICE_CATEGORY_NAME, LogLevel.Info, true );
 		}
 
 		/*
@@ -120,9 +118,12 @@ namespace Nomad.Save.Private.Services {
 				_category.PrintLine( $"\tChecksum64: {header.Checksum.Value}" );
 				_category.PrintLine( $"\tGameVersion: {header.Version.ToInt()}" );
 			}
-
+			
+			if ( header.SectionCount < 0 ) {
+				throw new SaveFileCorruptException( reader.Position, "Invalid section count" );
+			}
 			for ( int i = 0; i < header.SectionCount; i++ ) {
-				var section = new SaveSectionReader( _config, i, reader, _logger );
+				var section = new SaveSectionReader( _config, i, reader, _category );
 				_sections[section.Name] = section;
 			}
 

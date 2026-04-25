@@ -47,8 +47,7 @@ namespace Nomad.Save.Tests
             _writer = new MemoryFileWriteStream(new MemoryFileWriteConfig { FilePath = Path.GetTempFileName(), InitialCapacity = 1024 });
 
             _sectionWriter = new SaveSectionWriter(
-                in _config,
-                _logger,
+                _config,
                 _category,
                 SectionName,
                 _writer
@@ -175,7 +174,7 @@ namespace Nomad.Save.Tests
         // Dispose – writes section header and fields, clears dictionary
         // --------------------------------------------------------------------------------
         [Test]
-        public void Dispose_WritesHeaderAndFields_ClearsFields()
+        public void Dispose_WritesHeaderAndFields_ThrowsObjectDisposedException()
         {
             // Arrange
             _sectionWriter.AddField("field1", 100);
@@ -189,8 +188,8 @@ namespace Nomad.Save.Tests
 
             using (Assert.EnterMultipleScope())
             {
-                // Assert – after dispose, FieldCount should be 0
-                Assert.That(_sectionWriter.FieldCount, Is.Zero);
+                // Assert – after dispose, it should throw
+                Assert.Throws<ObjectDisposedException>(() => _ = _sectionWriter.FieldCount);
 
                 // The writer's position should have advanced (header + fields written)
                 Assert.That(_writer.Position, Is.GreaterThan(positionBefore));
@@ -284,7 +283,7 @@ namespace Nomad.Save.Tests
         public void AddField_WhenLogSerializationTreeFalse_DoesNotLog()
         {
             _config = _config with { LogSerializationTree = false };
-            _sectionWriter = new SaveSectionWriter(in _config, _logger, _category, SectionName, _writer);
+            _sectionWriter = new SaveSectionWriter(_config, _category, SectionName, _writer);
 
             _sectionWriter.AddField("logfield", 999);
             _category.DidNotReceive().PrintLine(Arg.Any<string>());

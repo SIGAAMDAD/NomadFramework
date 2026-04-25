@@ -78,13 +78,16 @@ namespace Nomad.Save.Private.Services {
 		public void FinalizeSaveData( string fileName, IMemoryFileWriteStream memoryWriter ) {
 			try {
 				memoryWriter.Dispose();
-
 				_fileSystem.ReplaceFile( memoryWriter.FilePath, fileName, null );
 			} catch {
 				throw;
 			} finally {
-				if ( _fileSystem.FileExists( memoryWriter.FilePath ) ) {
-					_fileSystem.DeleteFile( memoryWriter.FilePath );
+				try {
+					if ( _fileSystem.FileExists( memoryWriter.FilePath ) ) {
+						_fileSystem.DeleteFile( memoryWriter.FilePath );
+					}
+				} catch {
+					// Suppress cleanup errors to preserve original exception
 				}
 			}
 		}
