@@ -71,8 +71,8 @@ namespace Nomad.Core.Numerics
         private static float DequantizeSignedNormalized8(byte value)
         {
             // [0, 255] -> [0, 1] -> [-1, 1]
-            float normalized = value / byte.MaxValue;
-            return (normalized * 2.0f) - 1.0f;
+            double normalized = value / (double)byte.MaxValue;
+            return (float)((normalized * 2.0d) - 1.0d);
         }
     }
 }

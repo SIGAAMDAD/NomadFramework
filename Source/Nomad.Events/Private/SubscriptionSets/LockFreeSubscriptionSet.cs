@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Nomad.Core.Compatibility.Guards;
@@ -159,12 +160,19 @@ namespace Nomad.Events.Private.SubscriptionSets {
 #if EVENT_DEBUG
 			Logger?.PrintLine( $"SubscriptionSet.Pump: publishing event {EventData.DebugName}" );
 #endif
+			List<EventHandlerException>? failures = null;
+
 			for ( int i = 0; i < _genericSubscriptions.Count; i++ ) {
 				var callback = _genericSubscriptions[i];
-				InvokeCallback( callback, i, in args );
+				var ex = InvokeCallback( callback, i, in args );
+				if ( ex != null ) {
+					failures ??= new();
+					failures.Add( ex );
+				}
 			}
 
 			IncrementPublishCount();
+			CheckAggregateException( failures );
 		}
 
 		/*

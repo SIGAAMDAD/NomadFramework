@@ -76,8 +76,8 @@ namespace Nomad.Core.Numerics
         private static float DequantizeSignedNormalized16(ushort value)
         {
             // [0, 65536] -> [0, 1] -> [-1, 1]
-            float normalized = value / ushort.MaxValue;
-            return (normalized * 2.0f) - 1.0f;
+            double normalized = value / (double)ushort.MaxValue;
+            return (float)(normalized * 2.0f) - 1.0f;
         }
     }
 }

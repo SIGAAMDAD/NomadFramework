@@ -2,7 +2,7 @@
   
   <PropertyGroup>
     <!-- NuGet Package Information -->
-    <PackageId>NomadFramework.Nomad.OnlineServices.Steam</PackageId>
+    <PackageId>NomadFramework.OnlineServices.Steam</PackageId>
   </PropertyGroup>
 
   <!-- SPECIAL PROPS -->
@@ -24,10 +24,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Steamworks.NET">
-      <HintPath>Steamworks.NET.dll</HintPath>
-    </Reference>
     <Content Condition="'$(IsWindows)' == 'true'" Include="steam_api64.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
+    </Content>
+    <Content Condition="'$(IsWindows)' == 'true'" Include="steam_api.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
@@ -43,6 +44,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
+    <Reference Include="Steamworks.NET">
+      <HintPath>Steamworks.NET.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

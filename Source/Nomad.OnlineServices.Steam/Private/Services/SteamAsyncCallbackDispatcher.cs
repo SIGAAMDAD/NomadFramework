@@ -30,7 +30,9 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 	/// Handles asynchronous calls into the Steamworks API
 	/// </summary>
 
-	internal sealed class SteamAsyncCallbackDispatcher<TCallbackArgs, TResult> : IDisposable {
+	internal sealed class SteamAsyncCallbackDispatcher<TCallbackArgs, TResult> : IDisposable
+		where TCallbackArgs : struct
+	{
 		private readonly Callback<TCallbackArgs> _callback;
 
 		private readonly object _requestLock = new object();

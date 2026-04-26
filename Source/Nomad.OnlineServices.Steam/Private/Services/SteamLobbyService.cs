@@ -39,7 +39,6 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 	/// </summary>
 
 	internal sealed class SteamLobbyService : ILobbyService {
-		private readonly SteamLobbyLocator _locator;
 		private readonly SteamLobbyRepository _repository;
 		private readonly SteamLobbyFactory _factory;
 
@@ -83,7 +82,6 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 			_lobbyChatMsg = Callback<LobbyChatMsg_t>.Create( OnLobbyChatMsg );
 
 			_repository = new SteamLobbyRepository( cvarSystem );
-			_locator = new SteamLobbyLocator( _repository, appData, cvarSystem );
 			_factory = new SteamLobbyFactory( userData, logger, cvarSystem );
 		}
 
@@ -124,7 +122,6 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 				_current?.Dispose();
 
 				_factory?.Dispose();
-				_locator?.Dispose();
 				_repository?.Dispose();
 
 				_lobbyInvite?.Dispose();
@@ -176,5 +173,5 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 		public async Task<bool> PromoteMember( Guid player, CancellationToken ct = default ) {
 			return false;
 		}
-	}
-}
+	};
+};

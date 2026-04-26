@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Nomad.Core.Compatibility.Guards;
@@ -31,7 +32,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 	/// <summary>
 	/// Thread-safe subscription set with lock-free reads and copy-on-write updates.
 	/// </summary>
-	
+
 	internal sealed class AtomicSubscriptionSet<TArgs> : SubscriptionSetBase<TArgs>
 		where TArgs : struct
 	{
@@ -214,11 +215,19 @@ namespace Nomad.Events.Private.SubscriptionSets {
 			Logger?.PrintLine( $"AtomicSubscriptionSet.Pump: publishing event {EventData.DebugName}" );
 #endif
 			EventCallback<TArgs>[] subscriptions = Volatile.Read( ref _genericSubscriptions );
+			List<EventHandlerException>? failures = null;
+
 			for ( int i = 0; i < subscriptions.Length; i++ ) {
-				subscriptions[i].Invoke( in args );
+				var callback = subscriptions[i];
+				var ex = InvokeCallback( callback, i, in args );
+				if ( ex != null ) {
+					failures ??= new();
+					failures.Add( ex );
+				}
 			}
 
 			IncrementPublishCount();
+			CheckAggregateException( failures );
 		}
 
 		/*
@@ -238,22 +247,9 @@ namespace Nomad.Events.Private.SubscriptionSets {
 #if EVENT_DEBUG
 			Logger?.PrintLine( $"AtomicSubscriptionSet.PumpAsync: publishing event {EventData.DebugName} asynchronously..." );
 #endif
+
 			AsyncEventCallback<TArgs>[] subscriptions = Volatile.Read( ref _asyncSubscriptions );
-			ct.ThrowIfCancellationRequested();
-
-			if ( subscriptions.Length == 0 ) {
-				IncrementPublishCount();
-				return;
-			}
-
-			Task[] tasks = new Task[subscriptions.Length];
-			for ( int i = 0; i < subscriptions.Length; i++ ) {
-				ct.ThrowIfCancellationRequested();
-				tasks[i] = subscriptions[i].Invoke( args, ct );
-			}
-
-			await Task.WhenAll( tasks ).ConfigureAwait( false );
-			IncrementPublishCount();
+			await PumpAsyncSnapshot( subscriptions, subscriptions.Length, args, ct ).ConfigureAwait( false );
 		}
 
 		/*
@@ -308,7 +304,6 @@ namespace Nomad.Events.Private.SubscriptionSets {
 					return i;
 				}
 			}
-
 			return -1;
 		}
 

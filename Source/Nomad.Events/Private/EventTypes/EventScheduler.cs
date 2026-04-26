@@ -18,8 +18,20 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using Nomad.Core.Compatibility.Guards;
 
 namespace Nomad.Events.Private.EventTypes {
+	/*
+	===================================================================================
+	
+	EventScheduler
+	
+	===================================================================================
+	*/
+	/// <summary>
+	/// 
+	/// </summary>
+	
 	internal static class EventScheduler {
 		private sealed class ScheduledItem : IDisposable {
 			public ScheduledItem( Action callback, SynchronizationContext? context, int publisherThreadId, long dueTimestamp, long intervalTicks, long order ) {
@@ -65,18 +77,11 @@ namespace Nomad.Events.Private.EventTypes {
 		}
 
 		private static IDisposable ScheduleCore( Action callback, int dueMS, int intervalMS ) {
-			if ( callback == null ) {
-				throw new ArgumentNullException( nameof( callback ) );
-			}
-			if ( dueMS < 0 ) {
-				throw new ArgumentOutOfRangeException( nameof( dueMS ) );
-			}
-			if ( intervalMS < 0 ) {
-				throw new ArgumentOutOfRangeException( nameof( intervalMS ) );
-			}
+			RangeGuard.ThrowIfNegative( dueMS, nameof( dueMS ) );
+			RangeGuard.ThrowIfNegative( intervalMS, nameof( intervalMS ) );
 
 			ScheduledItem item = new(
-				callback,
+				callback ?? throw new ArgumentNullException( nameof( callback )),
 				SynchronizationContext.Current,
 				Environment.CurrentManagedThreadId,
 				Stopwatch.GetTimestamp() + ToTimestampTicks( dueMS ),
@@ -120,9 +125,7 @@ namespace Nomad.Events.Private.EventTypes {
 						continue;
 					}
 
-					if ( dueItems == null ) {
-						dueItems = new List<ScheduledItem>( 4 );
-					}
+					dueItems ??= new List<ScheduledItem>( 4 );
 					dueItems.Add( dueItem );
 				}
 

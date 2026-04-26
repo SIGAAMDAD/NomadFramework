@@ -17,7 +17,6 @@ using System;
 using System.Threading;
 using Nomad.Core.Events;
 using System.Threading.Tasks;
-using System.Timers;
 
 namespace Nomad.Events.Private.EventTypes {
 	/*

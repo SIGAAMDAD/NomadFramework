@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,13 +33,12 @@ namespace Nomad.Events.Private.SubscriptionSets {
 	/// <summary>
 	///
 	/// </summary>
-	
+
 	internal sealed class SubscriptionSet<TArgs> : SubscriptionSetBase<TArgs>
 		where TArgs : struct
 	{
 		private readonly SubscriptionCache<TArgs, EventCallback<TArgs>> _genericSubscriptions;
 		private readonly SubscriptionCache<TArgs, AsyncEventCallback<TArgs>> _asyncSubscriptions;
-		private readonly List<Task> _taskCache = new List<Task>();
 
 		/*
 		===============
@@ -113,7 +113,6 @@ namespace Nomad.Events.Private.SubscriptionSets {
 
 			lock ( _asyncSubscriptions ) {
 				_asyncSubscriptions.Add( callback );
-				_taskCache.Add( null! );
 				IncrementSubscriberCount();
 				return true;
 			}
@@ -165,7 +164,6 @@ namespace Nomad.Events.Private.SubscriptionSets {
 
 			lock ( _asyncSubscriptions ) {
 				_asyncSubscriptions.RemoveAt( index );
-				_taskCache.RemoveAt( index );
 				DecrementSubscriberCount();
 				return true;
 			}
@@ -186,25 +184,22 @@ namespace Nomad.Events.Private.SubscriptionSets {
 #if EVENT_DEBUG
 			Logger?.PrintLine( $"SubscriptionSet.Pump: publishing event {EventData.DebugName}" );
 #endif
-			
+
 			List<EventHandlerException>? failures = null;
 
 			lock ( _genericSubscriptions ) {
 				for ( int i = 0; i < _genericSubscriptions.Count; i++ ) {
 					var callback = _genericSubscriptions[i];
-					InvokeCallback( callback, i, in args );
+					var ex = InvokeCallback( callback, i, in args );
+					if ( ex != null ) {
+						failures ??= new();
+						failures.Add( ex );
+					}
 				}
 			}
 
 			IncrementPublishCount();
-
-			if ( failures is  { Count: > 0 } && ExceptionPolicy == EventExceptionPolicy.AggregateAfterDispatch ) {
-				throw new EventPublishException(
-					EventData.DebugName,
-					typeof( TArgs ),
-					failures
-				);
-			}
+			CheckAggregateException( failures );
 		}
 
 		/*
@@ -213,7 +208,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		===============
 		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
 		/// <param name="args"></param>
 		/// <param name="ct"></param>
@@ -222,57 +217,33 @@ namespace Nomad.Events.Private.SubscriptionSets {
 			ThrowIfDisposed();
 
 #if EVENT_DEBUG
-			Logger?.PrintLine( $"SubscriptionSet.PumpAsync: publishing event {EventData.DebugName} asynchronously..." );
+		    Logger?.PrintLine($"SubscriptionSet.PumpAsync: publishing event {EventData.DebugName} asynchronously...");
 #endif
-			int subscriptionCount = _asyncSubscriptions.Count;
 
-			ct.ThrowIfCancellationRequested();
+			AsyncEventCallback<TArgs>[] subscriptions;
+			int subscriptionCount;
 
-			for ( int i = 0; i < subscriptionCount; i++ ) {
-				ct.ThrowIfCancellationRequested();
-				_taskCache[i] = _asyncSubscriptions[i].Invoke( args, ct );
+			lock ( _asyncSubscriptions ) {
+				subscriptionCount = _asyncSubscriptions.Count;
+
+				if ( subscriptionCount == 0 ) {
+					IncrementPublishCount();
+					return;
+				}
+
+				subscriptions = ArrayPool<AsyncEventCallback<TArgs>>.Shared.Rent( subscriptionCount );
+
+				for ( int i = 0; i < subscriptionCount; i++ ) {
+					subscriptions[i] = _asyncSubscriptions[i];
+				}
 			}
 
 			try {
-				await Task.WhenAll( _taskCache ).ConfigureAwait( false );
-			} catch {
-				List<EventHandlerException> failures = new();
-
-				for ( int i = 0; i < subscriptionCount; i++ ) {
-					Task task = _taskCache[i];
-
-					if ( task.IsFaulted && task.Exception != null ) {
-						foreach ( Exception ex in task.Exception.InnerExceptions ) {
-							failures.Add(
-								new EventHandlerException(
-									EventData.DebugName,
-									typeof( TArgs ),
-									_asyncSubscriptions[i].Method.Name,
-									i,
-									ex
-								)
-							);
-						}
-					}
-				}
-
-				foreach ( var failure in failures ) {
-					Logger?.PrintError( failure.ToString() );
-				}
-
-				if ( ExceptionPolicy != EventExceptionPolicy.ReportAndContinue ) {
-					throw new EventPublishException(
-						EventData.DebugName,
-						typeof( TArgs ),
-						failures
-					);
-				}
+				await PumpAsyncSnapshot( subscriptions, subscriptionCount, args, ct ).ConfigureAwait( false );
 			} finally {
-				for ( int i = 0; i < subscriptionCount; i++ ) {
-					_taskCache[i] = null;
-				}
+				Array.Clear( subscriptions, 0, subscriptionCount );
+				ArrayPool<AsyncEventCallback<TArgs>>.Shared.Return( subscriptions );
 			}
-			IncrementPublishCount();
 		}
 
 		/*
