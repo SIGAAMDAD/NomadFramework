@@ -517,11 +517,11 @@ namespace Nomad.Events.PerformanceTests
             public string NameSpace { get; }
             public int Id { get; }
 
-#if DEBUG
-            public int SubscriberCount => 0;
-            public long PublishCount => 0;
-            public DateTime LastPublishTime => default;
-            public PerfArgs LastPayload => default;
+#if EVENT_DEBUG
+            public int SubscriberCount { get; } = 0;
+			public long PublishCount { get; } = 0;
+			public DateTime LastPublishTime { get; } = DateTime.MinValue;
+            public PerfArgs LastPayload { get; } = default;
 #endif
 
             public PerfGameEvent(string nameSpace, string debugName)

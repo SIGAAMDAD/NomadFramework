@@ -179,5 +179,5 @@ namespace Nomad.FileSystem.Private.FileStreams {
 			}
 			return buffer;
 		}
-	}
-}
+	};
+};

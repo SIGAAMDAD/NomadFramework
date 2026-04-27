@@ -15,6 +15,10 @@
     <SkipLocalsInit>true</SkipLocalsInit>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <DefineConstants>$(DefineConstants);EVENT_DEBUG</DefineConstants>
+  </PropertyGroup>
+
   <!-- Common package references (both frameworks) -->
   <ItemGroup>
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="3.0.1" />

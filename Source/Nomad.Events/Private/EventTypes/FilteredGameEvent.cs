@@ -35,7 +35,7 @@ namespace Nomad.Events.Private.EventTypes {
 	internal sealed class FilteredGameEvent<TArgs> : IGameEvent<TArgs>
 		where TArgs : struct
 	{
-#if DEBUG
+#if EVENT_DEBUG
 		public TArgs LastPayload => _source.LastPayload;
 		public int SubscriberCount => _source.SubscriberCount;
 		public long PublishCount => _source.PublishCount;
@@ -55,7 +55,7 @@ namespace Nomad.Events.Private.EventTypes {
 			remove => UnsubscribeAsync( value );
 		}
 
-		private readonly IGameEvent<TArgs> _source;
+		private readonly GameEvent<TArgs> _source;
 		private readonly Func<TArgs, bool> _predicate;
 		private readonly Dictionary<Delegate, Delegate> _handlerMap = new();
 
@@ -75,7 +75,7 @@ namespace Nomad.Events.Private.EventTypes {
 			ArgumentGuard.ThrowIfNull( source );
 			ArgumentGuard.ThrowIfNull( predicate );
 
-			_source = source;
+			_source = source as GameEvent<TArgs> ?? throw new InvalidCastException();
 			_predicate = predicate;
 		}
 
@@ -89,7 +89,7 @@ namespace Nomad.Events.Private.EventTypes {
 		/// </summary>
 		public void Dispose() {
 			if ( !_isDisposed ) {
-				_source?.Dispose();
+				_source.Dispose();
 			}
 			GC.SuppressFinalize( this );
 			_isDisposed = true;

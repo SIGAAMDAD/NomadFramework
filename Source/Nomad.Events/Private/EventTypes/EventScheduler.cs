@@ -56,10 +56,10 @@ namespace Nomad.Events.Private.EventTypes {
 			public void Dispose() {
 				Interlocked.Exchange( ref _isCanceled, 1 );
 			}
-		}
+		};
 
 		private static readonly object _gate = new();
-		private static readonly List<ScheduledItem> _heap = new( 32 );
+		private static readonly List<ScheduledItem> _heap = new( 64 );
 		private static readonly Timer _timer = new( OnTimerElapsed, null, Timeout.Infinite, Timeout.Infinite );
 		private static readonly WaitCallback _executeScheduledItem = ExecuteScheduledItem;
 		private static readonly SendOrPostCallback _postScheduledItem = PostScheduledItem;
@@ -269,5 +269,5 @@ namespace Nomad.Events.Private.EventTypes {
 			_heap[index] = last;
 			return root;
 		}
-	}
+	};
 };

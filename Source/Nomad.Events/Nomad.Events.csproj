@@ -17,6 +17,11 @@
     <SkipLocalsInit>true</SkipLocalsInit>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <DefineConstants>$(DefineConstants);EVENT_DEBUG</DefineConstants>
+  </PropertyGroup>
+
+
   <PropertyGroup>
     <AnalysisLevel>latest</AnalysisLevel>
     <EnforceCodeStyleInBuilds>true</EnforceCodeStyleInBuilds>

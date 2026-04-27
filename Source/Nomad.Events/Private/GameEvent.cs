@@ -57,16 +57,16 @@ namespace Nomad.Events.Private {
 		public int Id => _hashCode;
 		private readonly int _hashCode;
 
-#if DEBUG
+#if EVENT_DEBUG
 		public TArgs LastPayload => _lastPayload;
 		private TArgs _lastPayload;
 
 		public DateTime LastPublishTime => _lastPublishTime;
 		private DateTime _lastPublishTime;
-#endif
 
 		public int SubscriberCount => _subscriptions.SubscriberCount;
 		public long PublishCount => _subscriptions.PublishCount;
+#endif
 
 		private bool _isDisposed = false;
 
@@ -119,6 +119,8 @@ namespace Nomad.Events.Private {
 				_subscriptions = new SubscriptionSet<TArgs>( this, logger, EventExceptionPolicy.AggregateAfterDispatch );
 			} else if ( isSynchronous ) {
 				_subscriptions = new SubscriptionSet<TArgs>( this, logger, EventExceptionPolicy.AggregateAfterDispatch );
+			} else {
+				throw new InvalidOperationException();
 			}
 		}
 
@@ -132,7 +134,7 @@ namespace Nomad.Events.Private {
 		/// </summary>
 		public void Dispose() {
 			if ( !_isDisposed ) {
-				_subscriptions?.Dispose();
+				_subscriptions.Dispose();
 			}
 			GC.SuppressFinalize( this );
 			_isDisposed = true;
@@ -150,7 +152,7 @@ namespace Nomad.Events.Private {
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public bool Equals( IGameEvent? other ) {
-			return other != null && Id.Equals( other.Id );
+			return other != null && _hashCode == other.Id;
 		}
 
 		/*
@@ -164,7 +166,7 @@ namespace Nomad.Events.Private {
 		/// <param name="eventArgs"></param>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public void Publish( in TArgs eventArgs ) {
-#if DEBUG
+#if EVENT_DEBUG
 			_lastPayload = eventArgs;
 			_lastPublishTime = DateTime.Now;
 #endif

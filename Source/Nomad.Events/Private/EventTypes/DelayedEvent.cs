@@ -33,7 +33,7 @@ namespace Nomad.Events.Private.EventTypes {
 	internal sealed class DelayedEvent<TArgs> : IGameEvent<TArgs>
 		where TArgs : struct
 	{
-#if DEBUG
+#if EVENT_DEBUG
 		public TArgs LastPayload => _source.LastPayload;
 		public int SubscriberCount => _source.SubscriberCount;
 		public long PublishCount => _source.PublishCount;
@@ -53,7 +53,7 @@ namespace Nomad.Events.Private.EventTypes {
 			remove => UnsubscribeAsync( value );
 		}
 
-		private readonly IGameEvent<TArgs> _source;
+		private readonly GameEvent<TArgs> _source;
 		private readonly int _waitMS;
 
 		private bool _isDisposed = false;
@@ -69,7 +69,7 @@ namespace Nomad.Events.Private.EventTypes {
 		/// <param name="source"></param>
 		/// <param name="waitMS"></param>
 		public DelayedEvent( IGameEvent<TArgs> source, int waitMS ) {
-			_source = source;
+			_source = source as GameEvent<TArgs> ?? throw new InvalidCastException();
 			_waitMS = waitMS;
 		}
 
@@ -83,7 +83,7 @@ namespace Nomad.Events.Private.EventTypes {
 		/// </summary>
 		public void Dispose() {
 			if ( !_isDisposed ) {
-				_source?.Dispose();
+				_source.Dispose();
 			}
 			GC.SuppressFinalize( this );
 			_isDisposed = true;

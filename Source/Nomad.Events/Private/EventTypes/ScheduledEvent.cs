@@ -33,7 +33,7 @@ namespace Nomad.Events.Private.EventTypes {
 	internal sealed class ScheduledEvent<TArgs> : IGameEvent<TArgs>
 		where TArgs : struct
 	{
-#if DEBUG
+#if EVENT_DEBUG
 		public TArgs LastPayload => _source.LastPayload;
 		public int SubscriberCount => _source.SubscriberCount;
 		public long PublishCount => _source.PublishCount;
@@ -53,7 +53,7 @@ namespace Nomad.Events.Private.EventTypes {
 			remove => UnsubscribeAsync( value );
 		}
 
-		private readonly IGameEvent<TArgs> _source;
+		private readonly GameEvent<TArgs> _source;
 		private readonly IDisposable _scheduleHandle;
 
 		private bool _isDisposed = false;
@@ -70,7 +70,7 @@ namespace Nomad.Events.Private.EventTypes {
 		/// <param name="payload"></param>
 		/// <param name="publishIntervalMS"></param>
 		public ScheduledEvent( IGameEvent<TArgs> source, TArgs payload, int publishIntervalMS ) {
-			_source = source;
+			_source = source as GameEvent<TArgs> ?? throw new InvalidCastException();
 			_scheduleHandle = EventScheduler.ScheduleRecurring( () => {
 				if ( _isDisposed ) {
 					return;
@@ -91,7 +91,7 @@ namespace Nomad.Events.Private.EventTypes {
 		/// <param name="payloadCallback"></param>
 		/// <param name="publishIntervalMS"></param>
 		public ScheduledEvent( IGameEvent<TArgs> source, Func<TArgs> payloadCallback, int publishIntervalMS ) {
-			_source = source;
+			_source = source as GameEvent<TArgs> ?? throw new InvalidCastException();
 			_scheduleHandle = EventScheduler.ScheduleRecurring( () => {
 				if ( _isDisposed ) {
 					return;
@@ -112,7 +112,7 @@ namespace Nomad.Events.Private.EventTypes {
 			if ( !_isDisposed ) {
 				_isDisposed = true;
 				_scheduleHandle?.Dispose();
-				_source?.Dispose();
+				_source.Dispose();
 			}
 			GC.SuppressFinalize( this );
 		}

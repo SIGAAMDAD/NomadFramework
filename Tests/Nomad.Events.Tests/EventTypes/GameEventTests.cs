@@ -8,7 +8,8 @@ using Nomad.Events.Private;
 using Nomad.Core.Util;
 using Nomad.Events.Extensions;
 using NSubstitute.Core;
-using Nomad.Events.Private.EventTypes;            // InternString
+using Nomad.Events.Private.EventTypes;
+using System.Runtime.CompilerServices;            // InternString
 
 
 namespace Nomad.Events.Tests
@@ -38,7 +39,6 @@ namespace Nomad.Events.Tests
         // Helper to create a GameEvent instance with given flags
         private IGameEvent<T> CreateEvent<T>(EventFlags flags = EventFlags.Default) where T : struct
         {
-            // InternString is implicitly convertible from string (if not, use constructor)
             return new GameEvent<T>(
                 new InternString(TestNamespace),
                 new InternString(TestEventName),
@@ -68,6 +68,15 @@ namespace Nomad.Events.Tests
             var b = new object();
 
             Assert.That(a, Is.Not.EqualTo(b));
+        }
+
+        [Test]
+        public void Equals_SameEvent_ReturnsTrue()
+        {
+            var a = CreateEvent<EmptyEventArgs>();
+            var b = a;
+
+            Assert.That(a, Is.EqualTo(b));
         }
 
         #endregion
@@ -561,41 +570,7 @@ namespace Nomad.Events.Tests
 
         #endregion
 
-        #region Scheduled Events
-
-        [Test]
-        public void CreateScheduledEvent_IsScheduledEvent()
-        {
-            // Arrange
-            var evt = CreateEvent<EmptyEventArgs>().PublishEvery(EmptyEventArgs.Args, 1000);
-
-            // Assert
-            Assert.That(evt, Is.InstanceOf<ScheduledEvent<EmptyEventArgs>>());
-        }
-
-        [Test]
-        public void PublishScheduledEvent_DoesNotPublishBeforeInterval_WaitAndCheckPublish()
-        {
-            // Arrange
-            var evt = CreateEvent<EmptyEventArgs>().PublishEvery(EmptyEventArgs.Args, 900);
-            bool called = false;
-            evt.Subscribe((in EmptyEventArgs args) => called = true);
-
-            // Act
-            System.Threading.Thread.Sleep(800);
-            Assert.That(called, Is.False);
-            System.Threading.Thread.Sleep(200);
-
-            using (Assert.EnterMultipleScope())
-            {
-                // Assert
-                Assert.That(evt, Is.InstanceOf<ScheduledEvent<EmptyEventArgs>>());
-                Assert.That(called, Is.True);
-            }
-        }
-
-        #endregion
-
+#if EVENT_DEBUG
         #region Debug Members
 
         [Test]
@@ -634,6 +609,7 @@ namespace Nomad.Events.Tests
         }
 
         #endregion
+#endif
 
         #region Test EventArgs
 

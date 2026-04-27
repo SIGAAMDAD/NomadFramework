@@ -18,6 +18,7 @@ namespace Nomad.FileSystem.Tests
     [Category("Nomad.FileSystem")]
     [Category("Services")]
     [Category("Integration")]
+    [Category("Unit")]
     public class FileSystemWrapperTests
     {
         private Mock<IFileSystem> _mockFileSystem;

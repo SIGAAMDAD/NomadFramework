@@ -321,11 +321,11 @@ namespace Nomad.Events.Tests {
 			public string NameSpace => "Nomad.Input.Tests";
 			public int Id => HashCode.Combine( DebugName, typeof( TestArgs ) );
 
-#if DEBUG
-			public int SubscriberCount => 0;
-			public long PublishCount => 0;
-			public DateTime LastPublishTime => DateTime.MinValue;
-			public TestArgs LastPayload => default;
+#if EVENT_DEBUG
+			public int SubscriberCount { get; } = 0;
+			public long PublishCount { get; } = 0;
+			public DateTime LastPublishTime { get; } = DateTime.MinValue;
+			public TestArgs LastPayload { get; } = default;
 #endif
 
 			public event EventCallback<TestArgs> OnPublished {

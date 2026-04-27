@@ -1054,11 +1054,11 @@ namespace Nomad.Events.Tests
             public string NameSpace { get; }
             public int Id { get; }
 
-#if DEBUG
-            public int SubscriberCount => 0;
-            public long PublishCount => 0;
-            public DateTime LastPublishTime => default;
-            public TestArgs LastPayload => default;
+#if EVENT_DEBUG
+            public int SubscriberCount { get; } = 0;
+            public long PublishCount { get; } = 0;
+            public DateTime LastPublishTime { get; } = default;
+            public TestArgs LastPayload { get; } = default;
 #endif
 
             public TestGameEvent(string nameSpace, string debugName)

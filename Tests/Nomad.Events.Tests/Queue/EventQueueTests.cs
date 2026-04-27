@@ -21,13 +21,12 @@ namespace Nomad.Events.Tests {
             get { lock ( _lock ) return _publishedArgs.ToArray(); }
         }
 
-        public int PublishCount {
+        public long PublishCount {
             get { lock ( _lock ) return _publishedArgs.Count; }
         }
 
         public T LastPayload => throw new NotImplementedException();
         public int SubscriberCount => throw new NotImplementedException();
-        long IGameEvent.PublishCount => PublishCount;
         public DateTime LastPublishTime => throw new NotImplementedException();
 
         public event EventCallback<T>? OnPublished;

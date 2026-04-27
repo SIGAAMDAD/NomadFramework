@@ -43,7 +43,7 @@ namespace Nomad.Core.Events
         /// </summary>
         int Id { get; }
 
-#if DEBUG
+#if EVENT_DEBUG
         /// <summary>
         /// 
         /// </summary>
@@ -95,7 +95,7 @@ namespace Nomad.Core.Events
     public interface IGameEvent<TArgs> : IGameEvent
         where TArgs : struct
     {
-#if DEBUG
+#if EVENT_DEBUG
         /// <summary>
         /// 
         /// </summary>

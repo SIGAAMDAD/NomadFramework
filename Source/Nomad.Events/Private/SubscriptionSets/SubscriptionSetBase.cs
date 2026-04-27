@@ -228,7 +228,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 			try {
 				for ( int i = 0; i < subscriptionCount; i++ ) {
 					ct.ThrowIfCancellationRequested();
-
+					
 					try {
 						tasks[taskCount++] = subscriptions[i].Invoke( args, ct ) ?? Task.CompletedTask;
 					} catch ( Exception ex ) {
