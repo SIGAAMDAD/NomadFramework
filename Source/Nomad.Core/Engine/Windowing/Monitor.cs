@@ -23,20 +23,17 @@ namespace Nomad.Core.Engine.Windowing
         /// <summary>
         ///
         /// </summary>
-        public int Index => _index;
-        private readonly int _index;
+        public int Index { get; }
 
         /// <summary>
         ///
         /// </summary>
-        public int RefreshRate => _refreshRate;
-        private readonly int _refreshRate;
+        public int RefreshRate { get; }
 
         /// <summary>
         ///
         /// </summary>
-        public WindowResolution ScreenSize => _screenSize;
-        private readonly WindowResolution _screenSize;
+        public WindowResolution ScreenSize { get; }
 
         /// <summary>
         ///
@@ -46,9 +43,9 @@ namespace Nomad.Core.Engine.Windowing
         /// <param name="screenSize"></param>
         public Monitor(int index, int refreshRate, WindowResolution screenSize)
         {
-            _index = index;
-            _refreshRate = refreshRate;
-            _screenSize = screenSize;
+            Index = index;
+            RefreshRate = refreshRate;
+            ScreenSize = screenSize;
         }
     }
 }

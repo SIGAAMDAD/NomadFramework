@@ -17,42 +17,60 @@ using System.Numerics;
 using Nomad.Core.Input;
 using NUnit.Framework;
 
-namespace Nomad.Core.Tests
-{
+namespace Nomad.Core.Tests {
     [TestFixture]
-    [Category("Nomad.Core")]
-    [Category("Events.Input")]
-    [Category("Unit")]
-    [Category("UnitTests")]
-    public class GamepadAxisEventTests
-    {
+    [Category( "Nomad.Core" )]
+    [Category( "Events.Input" )]
+    [Category( "Unit" )]
+    [Category( "UnitTests" )]
+    public class GamepadAxisEventTests {
         [Test]
-        public void GamepadAxisEvent_Constructor_ExposesAssignedValues()
-        {
-            var value = new Vector2(0.25f, -0.75f);
-            var axisEvent = new GamepadAxisEventArgs(GamepadStick.Right, 123L, 7, value);
+        public void GamepadAxisEvent_Constructor_ExposesAssignedValues() {
+            // Setup
+            var value = new Vector2( 0.25f, -0.75f );
+            var axisEvent = new GamepadAxisEventArgs( GamepadStick.Right, 123L, 7, value );
 
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(axisEvent.Stick, Is.EqualTo(GamepadStick.Right));
-                Assert.That(axisEvent.TimeStamp, Is.EqualTo(123L));
-                Assert.That(axisEvent.DeviceId, Is.EqualTo(7));
-                Assert.That(axisEvent.Value, Is.EqualTo(value));
+            // Assert
+            using ( Assert.EnterMultipleScope() ) {
+                Assert.That( axisEvent.Stick, Is.EqualTo( GamepadStick.Right ) );
+                Assert.That( axisEvent.TimeStamp, Is.EqualTo( 123L ) );
+                Assert.That( axisEvent.DeviceId, Is.EqualTo( 7 ) );
+                Assert.That( axisEvent.Value, Is.EqualTo( value ) );
             }
         }
 
         [Test]
-        public void GamepadAxisEvent_Equals_UsesStickAndValueOnly()
-        {
-            var left = new GamepadAxisEventArgs(GamepadStick.Left, 100L, 1, new Vector2(1f, 0f));
-            var sameMeaning = new GamepadAxisEventArgs(GamepadStick.Left, 200L, 99, new Vector2(1f, 0f));
-            var differentValue = new GamepadAxisEventArgs(GamepadStick.Left, 100L, 1, new Vector2(0f, 1f));
+        public void GamepadAxisEvent_Equals_UsesStickAndValueOnly() {
+            // Setup
+            var left = new GamepadAxisEventArgs( GamepadStick.Left, 100L, 1, new Vector2( 1f, 0f ) );
+            var sameMeaning = new GamepadAxisEventArgs( GamepadStick.Left, 200L, 99, new Vector2( 1f, 0f ) );
+            var differentValue = new GamepadAxisEventArgs( GamepadStick.Left, 100L, 1, new Vector2( 0f, 1f ) );
 
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(left.Equals(sameMeaning), Is.True);
-                Assert.That(left.Equals(differentValue), Is.False);
+            // Assert
+            using ( Assert.EnterMultipleScope() ) {
+                Assert.That( left, Is.EqualTo( sameMeaning ) );
+                Assert.That( left, Is.Not.EqualTo( differentValue ) );
             }
+        }
+
+        [Test]
+        public void GamepadAxisEvent_NotEquals_StickDifferentValueSame() {
+            // Setup
+            var left = new GamepadAxisEventArgs( GamepadStick.Left, 100L, 1, new Vector2( 1f, 0f ) );
+            var same = new GamepadAxisEventArgs( GamepadStick.Right, 100L, 1, new Vector2( 1f, 0f ) );
+
+            // Assert
+            Assert.That( left, Is.Not.EqualTo( same ) );
+        }
+
+        [Test]
+        public void GamepadAxisEvent_NotEquals_StickSameValueDifferent() {
+            // Setup
+            var left = new GamepadAxisEventArgs( GamepadStick.Left, 100L, 1, new Vector2( 1f, 0f ) );
+            var same = new GamepadAxisEventArgs( GamepadStick.Left, 100L, 1, new Vector2( 2f, 0f ) );
+
+            // Assert
+            Assert.That( left, Is.Not.EqualTo( same ) );
         }
     }
 }

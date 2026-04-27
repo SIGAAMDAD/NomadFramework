@@ -23,8 +23,7 @@ namespace Nomad.Core.Engine.Windowing
 		/// <summary>
 		/// 
 		/// </summary>
-		public AspectRatio Ratio => _ratio;
-		private readonly AspectRatio _ratio;
+		public AspectRatio Ratio { get; }
 
 		/// <summary>
 		/// 
@@ -32,7 +31,7 @@ namespace Nomad.Core.Engine.Windowing
 		/// <param name="ratio"></param>
 		public AspectRatioValue(AspectRatio ratio)
 		{
-			_ratio = ratio;
+			Ratio = ratio;
 		}
 
 		/// <summary>
@@ -41,26 +40,26 @@ namespace Nomad.Core.Engine.Windowing
 		/// <param name="ratio"></param>
 		public AspectRatioValue(float ratio)
 		{
-			_ratio = AspectRatio.Aspect_Automatic;
+			Ratio = AspectRatio.Aspect_Automatic;
 			if (ratio == 4.0f / 3.0f)
 			{
-				_ratio = AspectRatio.Aspect_4_3;
+				Ratio = AspectRatio.Aspect_4_3;
 			}
 			else if (ratio == 16.0f / 9.0f)
 			{
-				_ratio = AspectRatio.Aspect_16_9;
+				Ratio = AspectRatio.Aspect_16_9;
 			}
 			else if (ratio == 16.0f / 10.0f)
 			{
-				_ratio = AspectRatio.Aspect_16_10;
+				Ratio = AspectRatio.Aspect_16_10;
 			}
 			else if (ratio == 21.0f / 9.0f)
 			{
-				_ratio = AspectRatio.Aspect_21_9;
+				Ratio = AspectRatio.Aspect_21_9;
 			}
 		}
 
 		public static explicit operator float(AspectRatioValue ratio)
-			=> ratio._ratio.GetRatio();
+			=> ratio.Ratio.GetRatio();
 	}
 }

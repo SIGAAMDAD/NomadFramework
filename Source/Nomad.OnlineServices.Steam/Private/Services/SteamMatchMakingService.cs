@@ -14,6 +14,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -167,8 +168,13 @@ namespace Nomad.OnlineServices.Steam.Private {
 
 			var lobbies = await SearchLobbies( info, ct );
 			
+#if NET10_0_OR_GREATER
 			Span<int> scores = stackalloc int[ lobbies.Count ];
 			scores.Clear();
+#else
+			int[] scores = ArrayPool<int>.Shared.Rent( lobbies.Count );
+			Array.Fill( scores, 0 );
+#endif
 
 			for ( int i = 0; i < lobbies.Count; i++ ) {
 				var lobby = lobbies[ i ];
@@ -186,6 +192,10 @@ namespace Nomad.OnlineServices.Steam.Private {
 					}
  				}
 			}
+
+#if !NET6_0_OR_GREATER
+			ArrayPool<int>.Shared.Return( scores );
+#endif
 
 			return null;
 		}

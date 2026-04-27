@@ -39,7 +39,7 @@ namespace Nomad.Events.Private {
 			get => _subscriptions[index];
 		}
 
-		private FixedList<TCallback>? _subscriptions;
+		private FixedList8<TCallback>? _subscriptions;
 
 		/*
 		===============
@@ -63,7 +63,7 @@ namespace Nomad.Events.Private {
 		/// </summary>
 		/// <param name="entry"></param>
 		public void Add( TCallback entry ) {
-			_subscriptions ??= new FixedList<TCallback>();
+			_subscriptions ??= new FixedList8<TCallback>();
 			_subscriptions.Add( entry );
 		}
 
@@ -77,7 +77,7 @@ namespace Nomad.Events.Private {
 		/// </summary>
 		/// <param name="index"></param>
 		public void RemoveAt( int index ) {
-			_subscriptions ??= new FixedList<TCallback>();
+			_subscriptions ??= new FixedList8<TCallback>();
 			_subscriptions.RemoveAtSwapBack( index );
 		}
 	};

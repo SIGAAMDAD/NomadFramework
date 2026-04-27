@@ -137,6 +137,18 @@ namespace Nomad.Core.Tests
         }
 
         [Test]
+        public void Equals_NotSameType_ReturnsFalse()
+        {
+            var a = new InternString(10);
+            var b = new object();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(a, Is.Not.EqualTo(b));
+            }
+        }
+
+        [Test]
         public void EqualityOperator_ReturnsTrueForSameId()
         {
             var left = new InternString(42);

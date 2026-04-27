@@ -23,7 +23,6 @@ namespace Nomad.Core.Tests
 	[Category("Nomad.Core")]
 	[Category("Collections")]
 	[Category("Unit")]
-	[Category("UnitTests")]
 	public class PackedBitSetTests
 	{
 		[Test]

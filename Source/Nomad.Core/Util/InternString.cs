@@ -75,6 +75,7 @@ namespace Nomad.Core.Util
         /// undefined behavior when the string is accessed.
         /// </para>
         /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal InternString(ulong id) => _id = id;
 
         /// <summary>
@@ -91,6 +92,7 @@ namespace Nomad.Core.Util
         /// is not already present.
         /// </para>
         /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public InternString(string? value) => _id = StringPool.Intern(value);
 
         /// <summary>
@@ -208,6 +210,7 @@ namespace Nomad.Core.Util
         /// This operator performs the same comparison as <see cref="Equals(InternString)"/>
         /// but with a more convenient syntax for direct comparisons.
         /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator ==(InternString left, InternString right) => left._id == right._id;
 
         /// <summary>
@@ -222,6 +225,7 @@ namespace Nomad.Core.Util
         /// <remarks>
         /// This operator is the logical negation of the equality operator.
         /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator !=(InternString left, InternString right) => left._id != right._id;
     }
 }

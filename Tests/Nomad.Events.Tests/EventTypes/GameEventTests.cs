@@ -61,6 +61,15 @@ namespace Nomad.Events.Tests
             }
         }
 
+        [Test]
+        public void Equals_NotSameType_ReturnsFalse()
+        {
+            var a = CreateEvent<EmptyEventArgs>();
+            var b = new object();
+
+            Assert.That(a, Is.Not.EqualTo(b));
+        }
+
         #endregion
 
         #region Subscription (Synchronous)

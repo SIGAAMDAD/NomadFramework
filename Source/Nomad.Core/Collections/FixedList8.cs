@@ -24,7 +24,7 @@ namespace Nomad.Core.Collections
 	/// 
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	public sealed class FixedList<T> : IDisposable
+	public sealed class FixedList8<T> : IDisposable
 	{
 		private const int InlineCapacity = 8;
 

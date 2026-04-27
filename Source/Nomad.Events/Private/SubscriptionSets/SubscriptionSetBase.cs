@@ -242,7 +242,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 				}
 
 				if ( taskCount > 0 ) {
-#if NET8_0_OR_GREATER
+#if NET10_0_OR_GREATER
             		Task whenAll = Task.WhenAll( tasks.AsSpan( 0, taskCount ) );
 #else
 					Task whenAll = Task.WhenAll( tasks.Take( taskCount ) );
