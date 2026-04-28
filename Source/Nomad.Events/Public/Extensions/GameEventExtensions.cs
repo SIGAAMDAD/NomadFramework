@@ -65,6 +65,7 @@ namespace Nomad.Events.Extensions
         /// <param name="callback"></param>
         /// <returns></returns>
         public static ISubscriptionHandle SubscribeUntil<TArgs>(this IGameEvent<TArgs> gameEvent, Func<TArgs, bool> predicate, EventCallback<TArgs> callback)
+            where TArgs : struct
         {
             ISubscriptionHandle handle = null;
             EventCallback<TArgs> filter = (in TArgs args) => { if (predicate(args)) { callback.Invoke(in args); handle.Dispose(); } };
