@@ -74,7 +74,7 @@ namespace Nomad.Events.Tests
 				Example:
 					ILoggerService logger = new NullLoggerService();
 			*/
-			ILoggerService logger = null!;
+			ILoggerService logger = new MockLogger();
 
 			return new GameEvent<TestPayload>(
 				new InternString(nameSpace),
