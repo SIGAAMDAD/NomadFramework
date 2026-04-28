@@ -87,7 +87,9 @@ namespace Nomad.FileSystem.Private.FileStreams {
 		/// <param name="fileMode"></param>
 		/// <param name="fileAccess"></param>
 		public FileStreamBase( string filepath, FileMode fileMode, FileAccess fileAccess ) {
-			ArgumentGuard.ThrowIfNullOrEmpty( filepath );
+			if ( string.IsNullOrEmpty( filepath ) || filepath.IsWhiteSpace() ) {
+				throw new ArgumentException( nameof( filepath ) );
+			}
 			fileStream = new FileStream( filepath, fileMode, fileAccess, FileShare.ReadWrite );
 		}
 

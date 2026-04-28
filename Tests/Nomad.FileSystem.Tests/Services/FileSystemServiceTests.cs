@@ -506,7 +506,7 @@ namespace Nomad.FileSystem.Tests
         public void OpenWrite_NullPath_ThrowsArgumentException()
         {
             var config = new FileWriteConfig { FilePath = null!, Append = false };
-            Assert.Throws<ArgumentNullException>(() => _service.OpenWrite(config));
+            Assert.Throws<ArgumentException>(() => _service.OpenWrite(config));
         }
 
         [Test]

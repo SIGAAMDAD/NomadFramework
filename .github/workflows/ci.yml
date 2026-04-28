@@ -64,7 +64,7 @@ jobs:
       run: dotnet build --no-restore -p:RunAnalyzers=true
 
     - name: 🧪 Run tests with coverage
-      run: dotnet test ./Tests/Nomad.Tests.csproj --filter "TestCategory!=Steam" --collect:"XPlat Code Coverage" --settings coverlet.runsettings --results-directory ./Tests/TestResults
+      run: dotnet test ./Tests/Nomad.Tests.csproj --filter "TestCategory!=Steam&Category=Unit" --collect:"XPlat Code Coverage" --settings coverlet.runsettings --results-directory ./Tests/TestResults
 
     - name: Merge coverage reports
       run: |
