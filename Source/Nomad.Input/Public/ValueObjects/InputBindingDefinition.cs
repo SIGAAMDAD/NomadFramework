@@ -109,7 +109,6 @@ namespace Nomad.Input.ValueObjects
 			{
 				return UNBOUND;
 			}
-
 			return $"Up: {FormatControl(binding.Up)}, Down: {FormatControl(binding.Down)}, Left: {FormatControl(binding.Left)}, Right: {FormatControl(binding.Right)}";
 		}
 

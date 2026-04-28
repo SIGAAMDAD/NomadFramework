@@ -211,9 +211,6 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		public override void Pump( in TArgs args ) {
 			ThrowIfDisposed();
 
-#if EVENT_DEBUG
-			Logger?.PrintLine( $"AtomicSubscriptionSet.Pump: publishing event {EventData.DebugName}" );
-#endif
 			EventCallback<TArgs>[] subscriptions = Volatile.Read( ref _genericSubscriptions );
 			List<EventHandlerException>? failures = null;
 
@@ -243,10 +240,6 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// <returns></returns>
 		public override async Task PumpAsync( TArgs args, CancellationToken ct ) {
 			ThrowIfDisposed();
-
-#if EVENT_DEBUG
-			Logger?.PrintLine( $"AtomicSubscriptionSet.PumpAsync: publishing event {EventData.DebugName} asynchronously..." );
-#endif
 
 			AsyncEventCallback<TArgs>[] subscriptions = Volatile.Read( ref _asyncSubscriptions );
 			await PumpAsyncSnapshot( subscriptions, subscriptions.Length, args, ct ).ConfigureAwait( false );

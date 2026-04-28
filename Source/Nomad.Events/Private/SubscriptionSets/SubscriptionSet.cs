@@ -106,12 +106,12 @@ namespace Nomad.Events.Private.SubscriptionSets {
 			ThrowIfDisposed();
 			ArgumentGuard.ThrowIfNull( callback );
 
-			if ( ContainsCallbackAsync( callback, out _ ) ) {
-				Logger?.PrintWarning( $"SubscriptionSet.AddSubscriptionAsync: subscription for callback '{callback.Method.Name}' already exists!" );
-				return false;
-			}
-
 			lock ( _asyncSubscriptions ) {
+				if ( TryFindCallback( _asyncSubscriptions, callback, out _ ) ) {
+					Logger?.PrintWarning( $"SubscriptionSet.AddSubscriptionAsync: subscription for callback '{callback.Method.Name}' already exists!" );
+					return false;
+				}
+
 				_asyncSubscriptions.Add( callback );
 				IncrementSubscriberCount();
 				return true;
@@ -131,12 +131,12 @@ namespace Nomad.Events.Private.SubscriptionSets {
 			ThrowIfDisposed();
 			ArgumentGuard.ThrowIfNull( callback );
 
-			if ( !ContainsCallback( callback, out int index ) ) {
-				Logger?.PrintError( $"SubscriptionSet.RemoveSubscription: no such existing subscription for callback '{callback.Method.Name}'" );
-				return false;
-			}
-
 			lock ( _genericSubscriptions ) {
+				if ( !TryFindCallback( _genericSubscriptions, callback, out int index ) ) {
+					Logger?.PrintError( $"SubscriptionSet.RemoveSubscription: no such existing subscription for callback '{callback.Method.Name}'" );
+					return false;
+				}
+
 				_genericSubscriptions.RemoveAt( index );
 				DecrementSubscriberCount();
 				return true;
@@ -157,12 +157,12 @@ namespace Nomad.Events.Private.SubscriptionSets {
 			ThrowIfDisposed();
 			ArgumentGuard.ThrowIfNull( callback );
 
-			if ( !ContainsCallbackAsync( callback, out int index ) ) {
-				Logger?.PrintError( $"SubscriptionSet.RemoveSubscriptionAsync: no such existing subscription for callback '{callback.Method.Name}'" );
-				return false;
-			}
-
 			lock ( _asyncSubscriptions ) {
+				if ( !TryFindCallback( _asyncSubscriptions, callback, out int index ) ) {
+					Logger?.PrintError( $"SubscriptionSet.RemoveSubscriptionAsync: no such existing subscription for callback '{callback.Method.Name}'" );
+					return false;
+				}
+
 				_asyncSubscriptions.RemoveAt( index );
 				DecrementSubscriberCount();
 				return true;
@@ -180,10 +180,6 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// <param name="args"></param>
 		public override void Pump( in TArgs args ) {
 			ThrowIfDisposed();
-
-#if EVENT_DEBUG
-			Logger?.PrintLine( $"SubscriptionSet.Pump: publishing event {EventData.DebugName}" );
-#endif
 
 			List<EventHandlerException>? failures = null;
 
@@ -216,10 +212,6 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		public override async Task PumpAsync( TArgs args, CancellationToken ct ) {
 			ThrowIfDisposed();
 
-#if EVENT_DEBUG
-		    Logger?.PrintLine($"SubscriptionSet.PumpAsync: publishing event {EventData.DebugName} asynchronously...");
-#endif
-
 			AsyncEventCallback<TArgs>[] subscriptions;
 			int subscriptionCount;
 
@@ -237,7 +229,6 @@ namespace Nomad.Events.Private.SubscriptionSets {
 					subscriptions[i] = _asyncSubscriptions[i];
 				}
 			}
-
 			try {
 				await PumpAsyncSnapshot( subscriptions, subscriptionCount, args, ct ).ConfigureAwait( false );
 			} finally {

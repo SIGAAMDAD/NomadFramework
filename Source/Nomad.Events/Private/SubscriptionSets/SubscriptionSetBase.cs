@@ -160,6 +160,11 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// <summary>
 		/// Shared callback lookup helper used by concrete implementations.
 		/// </summary>
+		/// <typeparam name="TCallback"></typeparam>
+		/// <param name="subscriptions"></param>
+		/// <param name="callback"></param>
+		/// <param name="index"></param>
+		/// <returns></returns>
 		protected static bool TryFindCallback<TCallback>(
 			SubscriptionCache<TArgs, TCallback> subscriptions,
 			TCallback callback,
@@ -188,6 +193,13 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// </remarks>
 		/// <param name="args"></param>
 		public abstract void Pump( in TArgs args );
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="args"></param>
+		/// <param name="ct"></param>
+		/// <returns></returns>
 		public abstract Task PumpAsync( TArgs args, CancellationToken ct );
 
 		public abstract bool ContainsCallback( EventCallback<TArgs> callback, out int index );
@@ -230,7 +242,8 @@ namespace Nomad.Events.Private.SubscriptionSets {
 					ct.ThrowIfCancellationRequested();
 					
 					try {
-						tasks[taskCount++] = subscriptions[i].Invoke( args, ct ) ?? Task.CompletedTask;
+						Task task = subscriptions[i].Invoke( args, ct ) ?? Task.CompletedTask;
+						tasks[taskCount++] = task;
 					} catch ( Exception ex ) {
 						failures ??= new List<EventHandlerException>();
 						failures.Add( CreateAsyncFailure( subscriptions[i], i, ex ) );

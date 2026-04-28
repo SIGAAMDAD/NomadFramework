@@ -79,8 +79,8 @@ namespace Nomad.Events.Private {
 			remove => UnsubscribeAsync( value );
 		}
 
-		internal ISubscriptionSet<TArgs> SubscriptionSet => _subscriptions;
-		private readonly ISubscriptionSet<TArgs> _subscriptions;
+		internal SubscriptionSetBase<TArgs> SubscriptionSet => _subscriptions;
+		private readonly SubscriptionSetBase<TArgs> _subscriptions;
 
 		/*
 		===============

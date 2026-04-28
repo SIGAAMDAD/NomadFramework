@@ -36,8 +36,39 @@ namespace Nomad.Events.Extensions
             where TArgs : struct
         {
             ISubscriptionHandle handle = null;
-            EventCallback<TArgs> killAfterPublish = (in TArgs args) => { callback(in args); handle?.Dispose(); };
+            EventCallback<TArgs> killAfterPublish = (in TArgs args) => { callback(in args); handle.Dispose(); };
             handle = gameEvent.Subscribe(killAfterPublish);
+            return handle;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TArgs"></typeparam>
+        /// <param name="gameEvent"></param>
+        /// <param name="predicate"></param>
+        /// <param name="callback"></param>
+        /// <returns></returns>
+        public static ISubscriptionHandle SubscribeWhere<TArgs>(this IGameEvent<TArgs> gameEvent, Func<TArgs, bool> predicate, EventCallback<TArgs> callback)
+            where TArgs : struct
+        {
+            EventCallback<TArgs> filter = (in TArgs args) => { if (predicate(args)) { callback.Invoke(in args); } };
+            return gameEvent.Subscribe(filter);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TArgs"></typeparam>
+        /// <param name="gameEvent"></param>
+        /// <param name="predicate"></param>
+        /// <param name="callback"></param>
+        /// <returns></returns>
+        public static ISubscriptionHandle SubscribeUntil<TArgs>(this IGameEvent<TArgs> gameEvent, Func<TArgs, bool> predicate, EventCallback<TArgs> callback)
+        {
+            ISubscriptionHandle handle = null;
+            EventCallback<TArgs> filter = (in TArgs args) => { if (predicate(args)) { callback.Invoke(in args); handle.Dispose(); } };
+            handle = gameEvent.Subscribe(filter);
             return handle;
         }
 

@@ -25,7 +25,7 @@ namespace Nomad.Events
     public sealed class SubscriptionHandle<TArgs> : ISubscriptionHandle
         where TArgs : struct
     {
-        private readonly ISubscriptionSet<TArgs> _set;
+        private readonly SubscriptionSetBase<TArgs> _set;
         private readonly EventCallback<TArgs> _callback;
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace Nomad.Events
         /// </summary>
         /// <param name="set"></param>
         /// <param name="callback"></param>
-        internal SubscriptionHandle(ISubscriptionSet<TArgs> set, EventCallback<TArgs> callback)
+        internal SubscriptionHandle(SubscriptionSetBase<TArgs> set, EventCallback<TArgs> callback)
         {
             _set = set;
             _callback = callback;
@@ -54,9 +54,9 @@ namespace Nomad.Events
             if (!_isDisposed)
             {
                 _set.RemoveSubscription(_callback);
+                _isDisposed = true;
             }
             GC.SuppressFinalize(this);
-            _isDisposed = true;
         }
     }
 }

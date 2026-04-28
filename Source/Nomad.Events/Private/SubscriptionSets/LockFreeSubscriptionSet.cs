@@ -157,9 +157,6 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		public override void Pump( in TArgs args ) {
 			ThrowIfDisposed();
 
-#if EVENT_DEBUG
-			Logger?.PrintLine( $"SubscriptionSet.Pump: publishing event {EventData.DebugName}" );
-#endif
 			List<EventHandlerException>? failures = null;
 
 			for ( int i = 0; i < _genericSubscriptions.Count; i++ ) {
