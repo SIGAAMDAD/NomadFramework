@@ -1,0 +1,2 @@
+dotnet test ./Tests/Nomad.Tests.csproj --filter "Category=Unit" --collect:"XPlat Code Coverage" --settings coverlet.runsettings --results-directory ./Tests/TestResults
+reportgenerator -reports:./Tests/TestResults/**/coverage.cobertura.xml -targetdir:./Tests/CoverageResults -reporttypes:html
