@@ -60,5 +60,5 @@ namespace Nomad.Input.Private.Repositories {
 
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public static ReadOnlySpan<int> GetComposite2DBindingIndices( CompiledBindingGraph graph ) => graph.Composite2DBindingIndices;
-	}
-}
+	};
+};

@@ -49,9 +49,9 @@ namespace Nomad.CVars.Global
         /// <param name="createInfo"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ICVar<T> Register<T>(in CVarCreateInfo<T> createInfo)
+        public static ICVar<T> Register<T>(CVarCreateInfo<T> createInfo)
         {
-            return Instance.Register(in createInfo);
+            return Instance.Register(createInfo);
         }
 
         /// <summary>

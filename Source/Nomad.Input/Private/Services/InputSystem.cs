@@ -16,7 +16,9 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.CVars;
+using Nomad.Core.Engine.Services;
 using Nomad.Core.Events;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Input;
@@ -30,6 +32,17 @@ using Nomad.Input.Private.ValueObjects;
 using Nomad.Input.ValueObjects;
 
 namespace Nomad.Input.Private.Services {
+	/*
+	===================================================================================
+	
+	InputSystem
+	
+	===================================================================================
+	*/
+	/// <summary>
+	/// 
+	/// </summary>
+	
 	internal sealed class InputSystem : IInputSystem {
 		public InputScheme Mode => _mode;
 		private InputScheme _mode;
@@ -46,15 +59,37 @@ namespace Nomad.Input.Private.Services {
 		private readonly CompiledBindingRepository _compiledBindings;
 		private readonly IBindResolver _bindResolver;
 		private readonly IInputRebindService _rebindService;
-		private readonly IGameEventRegistryService _eventFactory;
+		
+		private readonly IDisposable _pauseStateChanged;
+		private readonly IDisposable _keyboardEvent;
+		private readonly IDisposable _mouseButtonEvent;
+		private readonly IDisposable _mouseMotionEvent;
+		private readonly IDisposable _mousePositionChangedEvent;
+		private readonly IDisposable _gamepadButtonEvent;
+		private readonly IDisposable _gamepadAxisEvent;
 
 		private bool _processEvents = true;
 		private bool _isDisposed;
 
+		/*
+		===============
+		InputSystem
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="fileSystem"></param>
+		/// <param name="cvarSystem"></param>
+		/// <param name="logger"></param>
+		/// <param name="eventFactory"></param>
+		/// <param name="registry"></param>
 		public InputSystem( IFileSystem fileSystem, ICVarSystemService cvarSystem, ILoggerService logger, IGameEventRegistryService eventFactory, IServiceRegistry registry ) {
-			InputCVarRegistry.RegisterCVars( cvarSystem );
+			ArgumentGuard.ThrowIfNull( eventFactory, nameof( eventFactory ) );
+			ArgumentGuard.ThrowIfNull( cvarSystem, nameof( cvarSystem ) );
+			ArgumentGuard.ThrowIfNull( registry, nameof( registry ) );
 
-			_eventFactory = eventFactory ?? throw new ArgumentNullException( nameof( eventFactory ) );
+			InputCVarRegistry.RegisterCVars( cvarSystem );
 
 			_bindRepository = new BindRepository( fileSystem, cvarSystem, logger );
 			_compiledBindings = new CompiledBindingRepository();
@@ -74,13 +109,33 @@ namespace Nomad.Input.Private.Services {
 			registry.AddSingleton( _rebindService );
 			registry.AddSingleton<IInputSnapshotService>( _stateService );
 
-			eventFactory.GetEvent<bool>( Core.Constants.Events.EngineUtils.PAUSE_STATE_CHANGED, Core.Constants.Events.EngineUtils.NAMESPACE ).Subscribe( OnPauseStateChanged );
-			eventFactory.GetEvent<KeyboardEventArgs>( Core.Constants.Events.Input.KEYBOARD_EVENT, Core.Constants.Events.Input.NAMESPACE ).Subscribe( OnKeyboardEventTriggered );
-			eventFactory.GetEvent<MouseButtonEventArgs>( Core.Constants.Events.Input.MOUSE_BUTTON_EVENT, Core.Constants.Events.Input.NAMESPACE ).Subscribe( OnMouseButtonEventTriggered );
-			eventFactory.GetEvent<MouseMotionEventArgs>( Core.Constants.Events.Input.MOUSE_MOTION_EVENT, Core.Constants.Events.Input.NAMESPACE ).Subscribe( OnMouseMotionEventTriggered );
-			eventFactory.GetEvent<MousePositionChangedEventArgs>( Core.Constants.Events.Input.MOUSE_POSITION_CHANGED_EVENT, Core.Constants.Events.Input.NAMESPACE ).Subscribe( OnMousePositionChangedEventTriggered );
-			eventFactory.GetEvent<GamepadAxisEventArgs>( Core.Constants.Events.Input.GAMEPAD_AXIS_EVENT, Core.Constants.Events.Input.NAMESPACE ).Subscribe( OnGamepadAxisEventTriggered );
-			eventFactory.GetEvent<GamepadButtonEventArgs>( Core.Constants.Events.Input.GAMEPAD_BUTTON_EVENT, Core.Constants.Events.Input.NAMESPACE ).Subscribe( OnGamepadButtonEventTriggered );
+			_pauseStateChanged = eventFactory
+				.GetEvent<PauseStateChangedEventArgs>( PauseStateChangedEventArgs.Name, PauseStateChangedEventArgs.NameSpace )
+				.Subscribe( OnPauseStateChanged );
+			
+			_keyboardEvent = eventFactory
+				.GetEvent<KeyboardEventArgs>( KeyboardEventArgs.Name, KeyboardEventArgs.NameSpace )
+				.Subscribe( OnKeyboardEventTriggered );
+			
+			_mouseButtonEvent = eventFactory
+				.GetEvent<MouseButtonEventArgs>( MouseButtonEventArgs.Name, MouseButtonEventArgs.NameSpace )
+				.Subscribe( OnMouseButtonEventTriggered );
+			
+			_mouseMotionEvent = eventFactory
+				.GetEvent<MouseMotionEventArgs>( MouseMotionEventArgs.Name, MouseMotionEventArgs.NameSpace )
+				.Subscribe( OnMouseMotionEventTriggered );
+			
+			_mousePositionChangedEvent = eventFactory
+				.GetEvent<MousePositionChangedEventArgs>( MousePositionChangedEventArgs.Name, MousePositionChangedEventArgs.NameSpace )
+				.Subscribe( OnMousePositionChangedEventTriggered );
+			
+			_gamepadAxisEvent = eventFactory
+				.GetEvent<GamepadAxisEventArgs>( GamepadAxisEventArgs.Name, GamepadAxisEventArgs.NameSpace )
+				.Subscribe( OnGamepadAxisEventTriggered );
+			
+			_gamepadButtonEvent = eventFactory
+				.GetEvent<GamepadButtonEventArgs>( GamepadButtonEventArgs.Name, GamepadButtonEventArgs.NameSpace )
+				.Subscribe( OnGamepadButtonEventTriggered );
 		}
 
 		public void Dispose() {
@@ -88,13 +143,15 @@ namespace Nomad.Input.Private.Services {
 				return;
 			}
 
-			_eventFactory.GetEvent<KeyboardEventArgs>( Core.Constants.Events.Input.KEYBOARD_EVENT, Core.Constants.Events.Input.NAMESPACE ).Unsubscribe( OnKeyboardEventTriggered );
-			_eventFactory.GetEvent<MouseButtonEventArgs>( Core.Constants.Events.Input.MOUSE_BUTTON_EVENT, Core.Constants.Events.Input.NAMESPACE ).Unsubscribe( OnMouseButtonEventTriggered );
-			_eventFactory.GetEvent<MousePositionChangedEventArgs>( Core.Constants.Events.Input.MOUSE_POSITION_CHANGED_EVENT, Core.Constants.Events.Input.NAMESPACE ).Unsubscribe( OnMousePositionChangedEventTriggered );
-			_eventFactory.GetEvent<GamepadAxisEventArgs>( Core.Constants.Events.Input.GAMEPAD_AXIS_EVENT, Core.Constants.Events.Input.NAMESPACE ).Unsubscribe( OnGamepadAxisEventTriggered );
-			_eventFactory.GetEvent<GamepadButtonEventArgs>( Core.Constants.Events.Input.GAMEPAD_BUTTON_EVENT, Core.Constants.Events.Input.NAMESPACE ).Unsubscribe( OnGamepadButtonEventTriggered );
+			_pauseStateChanged.Dispose();
+			_mousePositionChangedEvent.Dispose();
+			_mouseMotionEvent.Dispose();
+			_mouseButtonEvent.Dispose();
+			_gamepadAxisEvent.Dispose();
+			_gamepadButtonEvent.Dispose();
+			_keyboardEvent.Dispose();
 
-			( _rebindService as IDisposable )?.Dispose();
+			( _rebindService as IDisposable ).Dispose();
 			_bindRepository.Dispose();
 			_stateService.Dispose();
 
@@ -102,10 +159,15 @@ namespace Nomad.Input.Private.Services {
 			GC.SuppressFinalize( this );
 		}
 
-		public IReadOnlyList<InputActionDefinition>? GetBindMapping( string mapping ) {
-			return _bindRepository.TryGetBindMapping( mapping, out var actions ) ? actions : null;
-		}
-
+		/*
+		===============
+		PushKeyboardEvent
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="keyEvent"></param>
 		public void PushKeyboardEvent( in KeyboardEventArgs keyEvent ) {
 			_stateService.SetPressed( InputDeviceSlot.Keyboard, keyEvent.KeyNum.ToControlId(), keyEvent.Pressed );
 
@@ -116,6 +178,15 @@ namespace Nomad.Input.Private.Services {
 			DispatchResolved( graph, _actionResolverService.ResolveKeyboardCompositesNonAlloc( graph, _contextMask, _mode, keyEvent.TimeStamp ) );
 		}
 
+		/*
+		===============
+		PushMouseButtonEvent
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="mouseButtonEvent"></param>
 		public void PushMouseButtonEvent( in MouseButtonEventArgs mouseButtonEvent ) {
 			_stateService.SetPressed( InputDeviceSlot.Mouse, mouseButtonEvent.Button.ToControlId(), mouseButtonEvent.Pressed );
 
@@ -125,6 +196,15 @@ namespace Nomad.Input.Private.Services {
 			DispatchResolved( graph, _actionResolverService.ResolveMatchesNonAlloc( graph, matches, mouseButtonEvent.TimeStamp ) );
 		}
 
+		/*
+		===============
+		PushMouseMotionEvent
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="mouseMotionEvent"></param>
 		public void PushMouseMotionEvent( in MouseMotionEventArgs mouseMotionEvent ) {
 			_stateService.AddMouseDelta( new Vector2( mouseMotionEvent.RelativeX, mouseMotionEvent.RelativeY ) );
 
@@ -134,6 +214,15 @@ namespace Nomad.Input.Private.Services {
 			DispatchResolved( graph, _actionResolverService.ResolveMatchesNonAlloc( graph, matches, mouseMotionEvent.TimeStamp ) );
 		}
 
+		/*
+		===============
+		PushMousePositionChangedEvent
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="mousePositionChangedEvent"></param>
 		public void PushMousePositionChangedEvent( in MousePositionChangedEventArgs mousePositionChangedEvent ) {
 			_stateService.SetMousePosition( new Vector2( mousePositionChangedEvent.PositionX, mousePositionChangedEvent.PositionY ) );
 
@@ -143,6 +232,15 @@ namespace Nomad.Input.Private.Services {
 			DispatchResolved( graph, _actionResolverService.ResolveMatchesNonAlloc( graph, matches, mousePositionChangedEvent.TimeStamp ) );
 		}
 
+		/*
+		===============
+		PushGamepadButtonEvent
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="gamepadButtonEvent"></param>
 		public void PushGamepadButtonEvent( in GamepadButtonEventArgs gamepadButtonEvent ) {
 			InputDeviceSlot deviceSlot = GetGamepadDeviceSlot( gamepadButtonEvent.DeviceId );
 			_stateService.SetPressed( deviceSlot, gamepadButtonEvent.Button.ToControlId(), gamepadButtonEvent.Pressed );
@@ -153,6 +251,15 @@ namespace Nomad.Input.Private.Services {
 			DispatchResolved( graph, _actionResolverService.ResolveMatchesNonAlloc( graph, matches, gamepadButtonEvent.TimeStamp ) );
 		}
 
+		/*
+		===============
+		PushGamepadAxisEvent
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="gamepadAxisEvent"></param>
 		public void PushGamepadAxisEvent( in GamepadAxisEventArgs gamepadAxisEvent ) {
 			InputDeviceSlot deviceSlot = GetGamepadDeviceSlot( gamepadAxisEvent.DeviceId );
 			InputControlId controlId = gamepadAxisEvent.Stick.ToControlId();
@@ -165,19 +272,45 @@ namespace Nomad.Input.Private.Services {
 			DispatchResolved( graph, _actionResolverService.ResolveMatchesNonAlloc( graph, matches, gamepadAxisEvent.TimeStamp ) );
 		}
 
-		public void Update( float delta ) {
-		}
-
+		/*
+		===============
+		DispatchResolved
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="graph"></param>
+		/// <param name="actions"></param>
 		private void DispatchResolved( CompiledBindingGraph graph, ReadOnlySpan<ResolvedAction> actions ) {
 			for ( int i = 0; i < actions.Length; i++ ) {
 				_dispatchService.Dispatch( graph, in actions[i] );
 			}
 		}
 
+		/*
+		===============
+		RecompileBindings
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
 		private void RecompileBindings() {
 			_compilerService.CompileIntoRepository( _bindRepository.GetAllBindings() );
 		}
 
+		/*
+		===============
+		GetGamepadDeviceSlot
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="deviceId"></param>
+		/// <returns></returns>
+		/// <exception cref="ArgumentOutOfRangeException"></exception>
 		private static InputDeviceSlot GetGamepadDeviceSlot( int deviceId ) {
 			return deviceId switch {
 				0 => InputDeviceSlot.Gamepad0,
@@ -188,44 +321,107 @@ namespace Nomad.Input.Private.Services {
 			};
 		}
 
+		/*
+		===============
+		OnKeyboardEventTriggered
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="args"></param>
 		private void OnKeyboardEventTriggered( in KeyboardEventArgs args ) {
 			if ( _processEvents ) {
 				PushKeyboardEvent( in args );
 			}
 		}
 
+		/*
+		===============
+		OnMouseButtonEventTriggered
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="args"></param>
 		private void OnMouseButtonEventTriggered( in MouseButtonEventArgs args ) {
 			if ( _processEvents ) {
 				PushMouseButtonEvent( in args );
 			}
 		}
 
+		/*
+		===============
+		OnMouseMotionEventTriggered
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="args"></param>
 		private void OnMouseMotionEventTriggered( in MouseMotionEventArgs args ) {
 			if ( _processEvents ) {
 				PushMouseMotionEvent( in args );
 			}
 		}
 
+		/*
+		===============
+		OnMousePositionChangedEventTriggered
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="args"></param>
 		private void OnMousePositionChangedEventTriggered( in MousePositionChangedEventArgs args ) {
 			if ( _processEvents ) {
 				PushMousePositionChangedEvent( in args );
 			}
 		}
 
+		/*
+		===============
+		OnGamepadAxisEventTriggered
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="args"></param>
 		private void OnGamepadAxisEventTriggered( in GamepadAxisEventArgs args ) {
 			if ( _processEvents ) {
 				PushGamepadAxisEvent( in args );
 			}
 		}
 
+		/*
+		===============
+		OnGamepadButtonEventTriggered
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="args"></param>
 		private void OnGamepadButtonEventTriggered( in GamepadButtonEventArgs args ) {
 			if ( _processEvents ) {
 				PushGamepadButtonEvent( in args );
 			}
 		}
 
-		private void OnPauseStateChanged( in bool args ) {
-			_processEvents = !args;
+		/*
+		===============
+		OnPauseStateChanged
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="args"></param>
+		private void OnPauseStateChanged( in PauseStateChangedEventArgs args ) {
+			_processEvents = !args.Paused;
 		}
 	}
 }

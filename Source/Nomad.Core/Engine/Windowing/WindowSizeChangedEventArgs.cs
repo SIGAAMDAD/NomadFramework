@@ -13,12 +13,18 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using Nomad.Core.Events;
+
 namespace Nomad.Core.Engine.Windowing
 {
     /// <summary>
     ///
     /// </summary>
-    public readonly struct WindowSizeChangedEventArgs
+    [Event(
+        name: "Nomad.Core.Engine.Windowing.WindowSizeChanged",
+        nameSpace: "Nomad.Core.Engine.Windowing"
+    )]
+    public readonly partial struct WindowSizeChangedEventArgs
     {
         /// <summary>
         ///

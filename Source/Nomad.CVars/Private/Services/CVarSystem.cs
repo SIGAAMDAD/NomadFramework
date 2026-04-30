@@ -42,7 +42,7 @@ namespace Nomad.CVars.Private.Services {
 
 		private readonly CVarRepository _repository;
 		private readonly IGameEventRegistryService _eventFactory;
-		private readonly ILoggerService _logger;
+		private readonly ILoggerCategory _category;
 
 		private bool _isDisposed = false;
 
@@ -52,14 +52,18 @@ namespace Nomad.CVars.Private.Services {
 		===============
 		*/
 		/// <summary>
-		///
+		/// 
 		/// </summary>
 		/// <param name="eventFactory"></param>
 		/// <param name="logger"></param>
+		/// <exception cref="ArgumentNullException"></exception>
 		public CVarSystem( IGameEventRegistryService eventFactory, ILoggerService logger ) {
-			_eventFactory = eventFactory;
-			_logger = logger;
+			ArgumentGuard.ThrowIfNull( logger, nameof( logger ) );
+			
+			_eventFactory = eventFactory ?? throw new ArgumentNullException( nameof( eventFactory ) );
 			_repository = new CVarRepository( logger, eventFactory );
+
+			_category = logger.CreateCategory( nameof( CVarSystem ), LogLevel.Info, true );
 
 			AddGroup( "Default" );
 		}
@@ -74,6 +78,7 @@ namespace Nomad.CVars.Private.Services {
 		/// </summary>
 		public void Dispose() {
 			if ( !_isDisposed ) {
+				_category.Dispose();
 				_groups.Clear();
 			}
 			GC.SuppressFinalize( this );
@@ -91,16 +96,16 @@ namespace Nomad.CVars.Private.Services {
 		/// <typeparam name="T">The internal type of the cvar's value.</typeparam>
 		/// <param name="createInfo">The cvar's creation info.</param>
 		/// <returns></returns>/
-		public ICVar<T> Register<T>( in CVarCreateInfo<T> createInfo ) {
-			var cvar = _repository.AddCVar( in createInfo, _eventFactory );
+		public ICVar<T> Register<T>( CVarCreateInfo<T> createInfo ) {
+			var cvar = _repository.AddCVar( createInfo, _eventFactory );
 			if ( !GetCVarGroup( createInfo.Group ?? "Default", out var group ) ) {
-				var newGroup = new CVarGroup( createInfo.Group, _logger );
+				var newGroup = new CVarGroup( createInfo.Group, _category );
 				_groups.TryAdd( newGroup.Name, newGroup );
 				group = newGroup;
 			}
 			group.AddCVar( cvar );
 
-			_logger.PrintLine( $"CVarSystem.Register: registered CVar '{createInfo.Name}' with default value {createInfo.DefaultValue} and flags {createInfo.Flags}." );
+			_category.PrintLine( $"CVarSystem.Register: registered CVar '{createInfo.Name}' with default value {createInfo.DefaultValue} and flags {createInfo.Flags}." );
 			return cvar;
 		}
 
@@ -113,8 +118,9 @@ namespace Nomad.CVars.Private.Services {
 		/// Removes the given CVar from the cache.
 		/// </summary>
 		/// <param name="cvar">The cvar to remove</param>
-		public void Unregister( ICVar cvar )
-			=> _repository.Unregister( cvar );
+		public void Unregister( ICVar cvar ) {
+			_repository.Unregister( cvar );
+		}
 
 		/*
 		===============
@@ -132,9 +138,9 @@ namespace Nomad.CVars.Private.Services {
 			if ( _groups.ContainsKey( groupName ) ) {
 				throw new InvalidOperationException( $"CVarGroup {groupName} added twice" );
 			}
-			_groups.TryAdd( groupName, new CVarGroup( groupName, _logger ) );
+			_groups.TryAdd( groupName, new CVarGroup( groupName, _category ) );
 
-			_logger.PrintLine( $"CVarSystem.AddGroup: Added CVar group {groupName}." );
+			_category.PrintLine( $"CVarSystem.AddGroup: Added CVar group {groupName}." );
 		}
 
 		/*
@@ -152,7 +158,7 @@ namespace Nomad.CVars.Private.Services {
 
 			// ensure we block all access
 			lock ( _groups ) {
-				ConfigFileWriter writer = new ConfigFileWriter( configFile, _logger, this, fileSystem, _groups.Values );
+				ConfigFileWriter writer = new ConfigFileWriter( configFile, _category, this, fileSystem, _groups.Values );
 			}
 		}
 
@@ -171,13 +177,13 @@ namespace Nomad.CVars.Private.Services {
 
 			// ensure we block all access
 			lock ( _repository ) {
-				_logger.PrintLine( "Loading cvar configuration..." );
-				IniLoader reader = new IniLoader( configFile, _logger, fileSystem );
+				_category.PrintLine( "Loading cvar configuration..." );
+				IniLoader reader = new IniLoader( configFile, _category, fileSystem );
 
 				foreach ( var group in _groups ) {
 					foreach ( var cvar in group.Value.CVars ) {
 						string name = $"{group.Key}:{cvar.Name}";
-						_logger.PrintLine( $"Loading CVar '{cvar.Name}'" );
+						_category.PrintLine( $"Loading CVar '{cvar.Name}'" );
 						switch ( cvar.Type ) {
 							case CVarType.Int:
 								if ( reader.LoadConfigValue( name, out int intValue ) ) {
@@ -270,7 +276,7 @@ namespace Nomad.CVars.Private.Services {
 		///
 		/// </summary>
 		public void Restart() {
-			_logger.PrintLine( "CVarSystem.Restart: resetting all cvars..." );
+			_category.PrintLine( "CVarSystem.Restart: resetting all cvars..." );
 			foreach ( var cvar in _repository.CVars ) {
 				cvar.Reset();
 			}

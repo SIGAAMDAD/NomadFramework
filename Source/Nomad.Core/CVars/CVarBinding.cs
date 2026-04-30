@@ -13,7 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Nomad.Core.Events;
+using System;
 
 namespace Nomad.Core.CVars
 {
@@ -21,31 +21,31 @@ namespace Nomad.Core.CVars
     /// 
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    [Event(
-        name: "Nomad.Core.CVars.CVarValueChangedEventArgs",
-        nameSpace: "Nomad.Core.CVars"
-    )]
-    public readonly partial struct CVarValueChangedEventArgs<T>
+    public sealed class CVarBinding<T> : IDisposable
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        public T OldValue { get; }
+        private readonly IDisposable _subscription;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public T NewValue { get; }
+        public T Value => _value;
+        private T _value;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="oldValue"></param>
-        /// <param name="newValue"></param>
-        public CVarValueChangedEventArgs(T oldValue, T newValue)
+        public event Action<T> Changed;
+
+        public CVarBinding(ICVar<T> cvar)
         {
-            OldValue = oldValue;
-            NewValue = newValue;
+            _value = cvar.Value;
+
+            _subscription = cvar.ValueChanged.Subscribe(OnValueChanged);
+        }
+
+        public void Dispose()
+        {
+            _subscription?.Dispose();
+        }
+
+        private void OnValueChanged(in CVarValueChangedEventArgs<T> args)
+        {
+            _value = args.NewValue;
+            Changed?.Invoke(_value);
         }
     }
 }

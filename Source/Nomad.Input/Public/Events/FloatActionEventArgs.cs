@@ -14,11 +14,19 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using Nomad.Core.Util;
+using Nomad.Core.Events;
 using Nomad.Input.ValueObjects;
 
 namespace Nomad.Input.Events
 {
-	public readonly struct FloatActionEventArgs
+	/// <summary>
+	/// 
+	/// </summary>
+	[Event(
+		name: nameof(FloatActionEventArgs),
+		nameSpace: "Nomad.Input.Events"
+	)]
+	public readonly partial struct FloatActionEventArgs
 	{
 		public InternString ActionId => _actionId;
 		private readonly InternString _actionId;

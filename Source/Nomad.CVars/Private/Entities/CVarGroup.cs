@@ -39,7 +39,7 @@ namespace Nomad.CVars.Private.Entities {
 		public IImmutableList<ICVar> CVars => _cvars.ToImmutableList();
 		private readonly HashSet<ICVar> _cvars = new();
 
-		private readonly ILoggerService _logger;
+		private readonly ILoggerCategory _category;
 
 		/*
 		===============
@@ -50,10 +50,10 @@ namespace Nomad.CVars.Private.Entities {
 		///
 		/// </summary>
 		/// <param name="name"></param>
-		/// <param name="logger"></param>
-		public CVarGroup( string name, ILoggerService logger ) {
+		/// <param name="category"></param>
+		public CVarGroup( string name, ILoggerCategory category ) {
 			_name = new InternString( name );
-			_logger = logger;
+			_category = category;
 		}
 
 		/*
@@ -69,7 +69,7 @@ namespace Nomad.CVars.Private.Entities {
 			ArgumentGuard.ThrowIfNull( cvar );
 
 			if ( _cvars.Contains( cvar ) ) {
-				_logger.PrintWarning( $"CVarGroup.AddCVar: CVar '{cvar.Name}' already in group '{Name}'!" );
+				_category.PrintWarning( $"CVarGroup.AddCVar: CVar '{cvar.Name}' already in group '{Name}'!" );
 				return;
 			}
 			_cvars.Add( cvar );
@@ -88,7 +88,7 @@ namespace Nomad.CVars.Private.Entities {
 			ArgumentGuard.ThrowIfNull( cvar );
 
 			if ( !_cvars.Contains( cvar ) ) {
-				_logger.PrintWarning( $"CVarGroup.RemoveCVar: CVar '{cvar.Name}' not in group '{Name}'!" );
+				_category.PrintWarning( $"CVarGroup.RemoveCVar: CVar '{cvar.Name}' not in group '{Name}'!" );
 				return;
 			}
 			_cvars.Remove( cvar );

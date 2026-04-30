@@ -48,7 +48,7 @@ namespace Nomad.CVars.Private.Serialization {
 		/// <param name="configFile"></param>
 		/// <param name="logger"></param>
 		/// <param name="fileSystem"></param>
-		public IniLoader( string configFile, ILoggerService logger, IFileSystem fileSystem ) {
+		public IniLoader( string configFile, ILoggerCategory logger, IFileSystem fileSystem ) {
 			ArgumentGuard.ThrowIfNullOrEmpty( configFile );
 			ArgumentGuard.ThrowIfNull( logger );
 
@@ -58,10 +58,8 @@ namespace Nomad.CVars.Private.Serialization {
 
 			try {
 				string resolvedPath = ResolveConfigPath( configFile, fileSystem );
-				IBufferHandle? fileBuffer = fileSystem.LoadFile( resolvedPath );
-				if ( fileBuffer == null ) {
+				IBufferHandle? fileBuffer = fileSystem.LoadFile( resolvedPath ) ??
 					throw new FileNotFoundException( $"Could not find file '{resolvedPath}'.", resolvedPath );
-				}
 
 				using ( fileBuffer )
 				using ( var fileStream = fileBuffer.AsStream( 0, fileBuffer.Length ) ) {

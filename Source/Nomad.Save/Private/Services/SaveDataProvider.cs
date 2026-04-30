@@ -20,7 +20,6 @@ using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.Events;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
-using Nomad.Save.Data;
 using Nomad.Save.Events;
 using Nomad.Save.Interfaces;
 using Nomad.Save.Exceptions;
@@ -82,13 +81,13 @@ namespace Nomad.Save.Private.Services {
 		/// <param name="fileSystem"></param>
 		/// <param name="logger"></param>
 		public SaveDataProvider( IEngineService engineService, IGameEventRegistryService eventFactory, ICVarSystemService cvarSystem, IFileSystem fileSystem, ILoggerService logger ) {
-			ArgumentGuard.ThrowIfNull( engineService );
-			ArgumentGuard.ThrowIfNull( eventFactory );
-			ArgumentGuard.ThrowIfNull( cvarSystem );
-			ArgumentGuard.ThrowIfNull( logger );
+			ArgumentGuard.ThrowIfNull( engineService, nameof( engineService ) );
+			ArgumentGuard.ThrowIfNull( eventFactory, nameof( eventFactory ) );
+			ArgumentGuard.ThrowIfNull( cvarSystem, nameof( cvarSystem ) );
+			ArgumentGuard.ThrowIfNull( logger, nameof( logger ) );
 
-			_saveBegin = eventFactory.GetEvent<SaveBeginEventArgs>( EventNames.SAVE_BEGIN_EVENT, EventNames.NAMESPACE );
-			_loadBegin = eventFactory.GetEvent<LoadBeginEventArgs>( EventNames.LOAD_BEGIN_EVENT, EventNames.NAMESPACE );
+			_saveBegin = eventFactory.GetEvent<SaveBeginEventArgs>( SaveBeginEventArgs.Name, SaveBeginEventArgs.NameSpace );
+			_loadBegin = eventFactory.GetEvent<LoadBeginEventArgs>( LoadBeginEventArgs.Name, LoadBeginEventArgs.NameSpace );
 
 			_vfs = fileSystem ?? throw new ArgumentNullException( nameof( fileSystem ) );
 			_category = logger.CreateCategory( nameof( Nomad.Save ), LogLevel.Info, true );

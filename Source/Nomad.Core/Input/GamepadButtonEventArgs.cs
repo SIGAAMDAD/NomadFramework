@@ -15,13 +15,18 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Runtime.CompilerServices;
+using Nomad.Core.Events;
 
 namespace Nomad.Core.Input
 {
     /// <summary>
     /// Represents the arguments for a gamepad button input event.
     /// </summary>
-    public readonly struct GamepadButtonEventArgs : IEquatable<GamepadButtonEventArgs>
+    [Event(
+        name: nameof(GamepadButtonEventArgs),
+        nameSpace: "Nomad.Core.Input"
+    )]
+    public readonly partial struct GamepadButtonEventArgs : IEquatable<GamepadButtonEventArgs>
     {
         /// <summary>
         /// Gets the timestamp when the gamepad button event occurred.

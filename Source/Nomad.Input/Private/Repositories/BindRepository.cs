@@ -71,8 +71,8 @@ namespace Nomad.Input.Private.Repositories {
 		/// </exception>
 		/// <exception cref="FileNotFoundException">Thrown when the configured defaults binding file cannot be found.</exception>
 		public BindRepository( IFileSystem fileSystem, ICVarSystemService cvarSystem, ILoggerService logger ) {
-			ArgumentGuard.ThrowIfNull( cvarSystem );
-			ArgumentGuard.ThrowIfNull( logger );
+			ArgumentGuard.ThrowIfNull( cvarSystem, nameof( cvarSystem ) );
+			ArgumentGuard.ThrowIfNull( logger, nameof( logger ) );
 
 			_fileSystem = fileSystem ?? throw new ArgumentNullException( nameof( fileSystem ) );
 			_loader = new BindLoader( _fileSystem, logger );

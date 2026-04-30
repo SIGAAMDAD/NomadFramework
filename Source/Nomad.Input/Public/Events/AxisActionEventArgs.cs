@@ -15,6 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System.Numerics;
 using Nomad.Core.Util;
+using Nomad.Core.Events;
 using Nomad.Input.ValueObjects;
 
 namespace Nomad.Input.Events
@@ -22,7 +23,11 @@ namespace Nomad.Input.Events
 	/// <summary>
 	/// 
 	/// </summary>
-	public readonly struct AxisActionEventArgs
+	[Event(
+		name: nameof(AxisActionEventArgs),
+		nameSpace: "Nomad.Input.Events"
+	)]
+	public readonly partial struct AxisActionEventArgs
 	{
 		public InternString ActionId => _actionId;
 		private readonly InternString _actionId;

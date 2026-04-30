@@ -54,11 +54,8 @@ namespace Nomad.CVars.Private.Repositories {
 		/// <param name="logger"></param>
 		/// <param name="eventFactory"></param>
 		public CVarRepository( ILoggerService logger, IGameEventRegistryService eventFactory ) {
-			ArgumentGuard.ThrowIfNull( logger );
-			ArgumentGuard.ThrowIfNull( eventFactory );
-
-			_logger = logger;
-			_eventFactory = eventFactory;
+			_logger = logger ?? throw new ArgumentNullException( nameof( logger ) );
+			_eventFactory = eventFactory ?? throw new ArgumentNullException( nameof( eventFactory ) );
 		}
 
 		/*
@@ -74,11 +71,11 @@ namespace Nomad.CVars.Private.Repositories {
 		/// <param name="eventFactory"></param>
 		/// <returns></returns>
 		/// <exception cref="InvalidCastException"></exception>
-		public ICVar<T> AddCVar<T>( in CVarCreateInfo<T> createInfo, IGameEventRegistryService eventFactory ) {
+		public ICVar<T> AddCVar<T>( CVarCreateInfo<T> createInfo, IGameEventRegistryService eventFactory ) {
 			ArgumentGuard.ThrowIfNullOrEmpty( createInfo.Name );
 			ArgumentGuard.ThrowIfNullOrEmpty( createInfo.Description );
 
-			InternString name = new InternString( createInfo.Name );
+			var name = new InternString( createInfo.Name );
 			if ( _cvars.TryGetValue( name, out ICVar? var ) ) {
 				if ( var is ICVar<T> value ) {
 					return value;
@@ -86,7 +83,7 @@ namespace Nomad.CVars.Private.Repositories {
 				throw new InvalidCastException( $"CVar {createInfo.Name} found in CVarSystem cache isn't a valid CVar object!" );
 			}
 
-			ICVar<T> cvar = new CVar<T>( eventFactory, in createInfo );
+			ICVar<T> cvar = new CVar<T>( eventFactory, createInfo );
 			_cvars.TryAdd( name, cvar );
 			return cvar;
 		}
@@ -119,7 +116,6 @@ namespace Nomad.CVars.Private.Repositories {
 		/// <returns></returns>
 		public bool TryFind( string name, out ICVar? cvar ) {
 			ArgumentGuard.ThrowIfNullOrEmpty( name );
-
 			return _cvars.TryGetValue( new InternString( name ), out cvar );
 		}
 

@@ -16,13 +16,18 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using Nomad.Core.Events;
 
 namespace Nomad.Core.Input
 {
     /// <summary>
     /// Represents the arguments for a gamepad axis input event.
     /// </summary>
-    public readonly struct GamepadAxisEventArgs : IEquatable<GamepadAxisEventArgs>
+    [Event(
+        name: nameof(GamepadAxisEventArgs),
+        nameSpace: "Nomad.Core.Input"
+    )]
+    public readonly partial struct GamepadAxisEventArgs : IEquatable<GamepadAxisEventArgs>
     {
         /// <summary>
         /// Gets the timestamp when the gamepad axis event occurred.

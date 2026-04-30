@@ -8,6 +8,7 @@ using Nomad.Input.Private.Services;
 using Nomad.Input.ValueObjects;
 using Nomad.Core.ServiceRegistry.Services;
 using Nomad.Core.Input.ValueObjects;
+using Nomad.Core.Engine.Services;
 
 namespace Nomad.Input.Tests {
 	[TestFixture]
@@ -91,9 +92,9 @@ namespace Nomad.Input.Tests {
 				.Subscribe( ( in ButtonActionEventArgs args ) => publishCount++ );
 
 			using var inputSystem = new InputSystem( fileSystem.Object, cvarSystem, _logger, _eventRegistry, _registry );
-			_eventRegistry.GetEvent<bool>( Core.Constants.Events.EngineUtils.PAUSE_STATE_CHANGED, Core.Constants.Events.EngineUtils.NAMESPACE )
-				.Publish( true );
-			_eventRegistry.GetEvent<KeyboardEventArgs>( Core.Constants.Events.Input.KEYBOARD_EVENT, Core.Constants.Events.Input.NAMESPACE )
+			_eventRegistry.GetEvent<PauseStateChangedEventArgs>( PauseStateChangedEventArgs.Name, PauseStateChangedEventArgs.NameSpace )
+				.Publish( new PauseStateChangedEventArgs( true ) );
+			_eventRegistry.GetEvent<KeyboardEventArgs>( KeyboardEventArgs.Name, KeyboardEventArgs.NameSpace )
 				.Publish( new KeyboardEventArgs( KeyNum.Space, 100, true ) );
 
 			Assert.That( publishCount, Is.Zero );
@@ -123,11 +124,11 @@ namespace Nomad.Input.Tests {
 				.Subscribe( ( in ButtonActionEventArgs args ) => published = args );
 
 			using var inputSystem = new InputSystem( fileSystem.Object, cvarSystem, _logger, _eventRegistry, _registry );
-			_eventRegistry.GetEvent<bool>( Core.Constants.Events.EngineUtils.PAUSE_STATE_CHANGED, Core.Constants.Events.EngineUtils.NAMESPACE )
-				.Publish( true );
-			_eventRegistry.GetEvent<bool>( Core.Constants.Events.EngineUtils.PAUSE_STATE_CHANGED, Core.Constants.Events.EngineUtils.NAMESPACE )
-				.Publish( false );
-			_eventRegistry.GetEvent<KeyboardEventArgs>( Core.Constants.Events.Input.KEYBOARD_EVENT, Core.Constants.Events.Input.NAMESPACE )
+			_eventRegistry.GetEvent<PauseStateChangedEventArgs>( PauseStateChangedEventArgs.Name, PauseStateChangedEventArgs.NameSpace )
+				.Publish( new PauseStateChangedEventArgs( true ) );
+			_eventRegistry.GetEvent<PauseStateChangedEventArgs>( PauseStateChangedEventArgs.Name, PauseStateChangedEventArgs.NameSpace )
+				.Publish( new PauseStateChangedEventArgs( false ) );
+			_eventRegistry.GetEvent<KeyboardEventArgs>( KeyboardEventArgs.Name, KeyboardEventArgs.NameSpace )
 				.Publish( new KeyboardEventArgs( KeyNum.Space, 100, true ) );
 
 			Assert.That( published.HasValue, Is.True );

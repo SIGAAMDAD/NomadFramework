@@ -24,9 +24,9 @@ using Nomad.Core.Input.ValueObjects;
 
 namespace Nomad.Input.Tests {
 	[TestFixture]
-	[Category("Nomad.Input")]
-	[Category("Rebinding")]
-	[Category("Unit")]
+	[Category( "Nomad.Input" )]
+	[Category( "Rebinding" )]
+	[Category( "Unit" )]
 	public class InputRebindServiceTests {
 		private const string DefaultsPath = "Assets/Config/Bindings/DefaultBinds.json";
 		private const string GameplayPath = "Assets/Config/Bindings/Gameplay.json";
@@ -67,17 +67,15 @@ namespace Nomad.Input.Tests {
 				}
 				"""
 			);
-			using (repository)
-			using (service)
-			{
+			using ( repository )
+			using ( service ) {
 				InputRebindRequest? started = null;
 				var request = new InputRebindRequest( "Gameplay", "player.jump", 0 );
 				service.RebindStarted += value => started = value;
 
 				bool begun = service.BeginRebind( request );
 
-				using (Assert.EnterMultipleScope())
-				{
+				using ( Assert.EnterMultipleScope() ) {
 					Assert.That( begun, Is.True );
 					Assert.That( service.IsRebinding, Is.True );
 					Assert.That( service.CurrentRequest, Is.EqualTo( request ) );
@@ -104,15 +102,13 @@ namespace Nomad.Input.Tests {
 				}
 				"""
 			);
-			using (repository)
-			using (service)
-			{
+			using ( repository )
+			using ( service ) {
 				bool unsupported = service.BeginRebind( new InputRebindRequest( "Gameplay", "player.jump", 0, InputRebindPart.Up ) );
 				bool started = service.BeginRebind( new InputRebindRequest( "Gameplay", "player.jump", 0 ) );
 				bool duplicate = service.BeginRebind( new InputRebindRequest( "Gameplay", "player.jump", 0 ) );
 
-				using (Assert.EnterMultipleScope())
-				{
+				using ( Assert.EnterMultipleScope() ) {
 					Assert.That( unsupported, Is.False );
 					Assert.That( started, Is.True );
 					Assert.That( duplicate, Is.False );
@@ -138,9 +134,8 @@ namespace Nomad.Input.Tests {
 				}
 				"""
 			);
-			using (repository)
-			using (service)
-			{
+			using ( repository )
+			using ( service ) {
 				InputRebindRequest? canceled = null;
 				var request = new InputRebindRequest( "Gameplay", "player.jump", 0 );
 				service.RebindCanceled += value => canceled = value;
@@ -148,8 +143,7 @@ namespace Nomad.Input.Tests {
 
 				bool result = service.CancelRebind();
 
-				using (Assert.EnterMultipleScope())
-				{
+				using ( Assert.EnterMultipleScope() ) {
 					Assert.That( result, Is.True );
 					Assert.That( service.IsRebinding, Is.False );
 					Assert.That( service.CurrentRequest, Is.Null );
@@ -176,9 +170,8 @@ namespace Nomad.Input.Tests {
 				}
 				"""
 			);
-			using (repository)
-			using (service)
-			{
+			using ( repository )
+			using ( service ) {
 				InputRebindResult? completed = null;
 				var request = new InputRebindRequest( "Gameplay", "player.jump", 0 );
 				var replacement = InputTestHelpers.Button( InputScheme.KeyboardAndMouse, InputDeviceSlot.Keyboard, InputControlId.Enter );
@@ -187,10 +180,9 @@ namespace Nomad.Input.Tests {
 
 				bool applied = service.ApplyBinding( request, replacement );
 
-				using (Assert.EnterMultipleScope())
-				{
+				using ( Assert.EnterMultipleScope() ) {
 					Assert.That( applied, Is.True );
-					Assert.That( repository.GetBindMappings()["Gameplay"][0].Bindings[0].Button.ControlId, Is.EqualTo( InputControlId.Enter ) );
+					Assert.That( repository.GetBindMappings()[ "Gameplay" ][ 0 ].Bindings[ 0 ].Button.ControlId, Is.EqualTo( InputControlId.Enter ) );
 					Assert.That( CompiledBindingRepository.GetButtonCandidateIndices( compiledRepository.Current, InputDeviceSlot.Keyboard, InputControlId.Enter, true ).Length, Is.EqualTo( 1 ) );
 					Assert.That( service.IsRebinding, Is.False );
 					Assert.That( completed.HasValue, Is.True );
@@ -217,18 +209,16 @@ namespace Nomad.Input.Tests {
 				}
 				"""
 			);
-			using (repository)
-			using (service)
-			{
+			using ( repository )
+			using ( service ) {
 				service.BeginRebind( new InputRebindRequest( "Gameplay", "player.jump", 0 ) );
 
-				_eventRegistry.GetEvent<KeyboardEventArgs>( Nomad.Core.Constants.Events.Input.KEYBOARD_EVENT, Nomad.Core.Constants.Events.Input.NAMESPACE )
+				_eventRegistry.GetEvent<KeyboardEventArgs>( KeyboardEventArgs.Name, KeyboardEventArgs.NameSpace )
 					.Publish( new KeyboardEventArgs( KeyNum.Enter, 100, true ) );
 
-				var rebound = repository.GetBindMappings()["Gameplay"][0].Bindings[0];
+				var rebound = repository.GetBindMappings()[ "Gameplay" ][ 0 ].Bindings[ 0 ];
 
-				using (Assert.EnterMultipleScope())
-				{
+				using ( Assert.EnterMultipleScope() ) {
 					Assert.That( rebound.Button.ControlId, Is.EqualTo( InputControlId.Enter ) );
 					Assert.That( rebound.Button.DeviceId, Is.EqualTo( InputDeviceSlot.Keyboard ) );
 					Assert.That( rebound.Button.Modifiers, Is.Empty );
@@ -258,18 +248,16 @@ namespace Nomad.Input.Tests {
 				}
 				"""
 			);
-			using (repository)
-			using (service)
-			{
+			using ( repository )
+			using ( service ) {
 				service.BeginRebind( new InputRebindRequest( "Gameplay", "Look", 0 ) );
 
-				_eventRegistry.GetEvent<MouseMotionEventArgs>( Nomad.Core.Constants.Events.Input.MOUSE_MOTION_EVENT, Nomad.Core.Constants.Events.Input.NAMESPACE )
+				_eventRegistry.GetEvent<MouseMotionEventArgs>( MouseMotionEventArgs.Name, MouseMotionEventArgs.NameSpace )
 					.Publish( new MouseMotionEventArgs( 100, 12, -4 ) );
 
-				var rebound = repository.GetBindMappings()["Gameplay"][0].Bindings[0];
+				var rebound = repository.GetBindMappings()[ "Gameplay" ][ 0 ].Bindings[ 0 ];
 
-				using (Assert.EnterMultipleScope())
-				{
+				using ( Assert.EnterMultipleScope() ) {
 					Assert.That( rebound.Delta2D.DeviceId, Is.EqualTo( InputDeviceSlot.Mouse ) );
 					Assert.That( rebound.Delta2D.ControlId, Is.EqualTo( InputControlId.Delta ) );
 				}
@@ -298,18 +286,16 @@ namespace Nomad.Input.Tests {
 				}
 				"""
 			);
-			using (repository)
-			using (service)
-			{
+			using ( repository )
+			using ( service ) {
 				service.BeginRebind( new InputRebindRequest( "Gameplay", "Aim", 0 ) );
 
-				_eventRegistry.GetEvent<GamepadAxisEventArgs>( Nomad.Core.Constants.Events.Input.GAMEPAD_AXIS_EVENT, Nomad.Core.Constants.Events.Input.NAMESPACE )
+				_eventRegistry.GetEvent<GamepadAxisEventArgs>( GamepadAxisEventArgs.Name, GamepadAxisEventArgs.NameSpace )
 					.Publish( new GamepadAxisEventArgs( GamepadStick.Right, 100, 1, new Vector2( 0.6f, 0.0f ) ) );
 
-				var rebound = repository.GetBindMappings()["Gameplay"][0].Bindings[0];
+				var rebound = repository.GetBindMappings()[ "Gameplay" ][ 0 ].Bindings[ 0 ];
 
-				using (Assert.EnterMultipleScope())
-				{
+				using ( Assert.EnterMultipleScope() ) {
 					Assert.That( rebound.Axis2D.DeviceId, Is.EqualTo( InputDeviceSlot.Gamepad1 ) );
 					Assert.That( rebound.Axis2D.ControlId, Is.EqualTo( InputControlId.RightStick ) );
 				}
@@ -351,21 +337,19 @@ namespace Nomad.Input.Tests {
 				}
 				"""
 			);
-			using (repository)
-			using (service)
-			{
+			using ( repository )
+			using ( service ) {
 				service.BeginRebind( new InputRebindRequest( "Gameplay", "Throttle", 0, InputRebindPart.Negative ) );
-				_eventRegistry.GetEvent<KeyboardEventArgs>( Nomad.Core.Constants.Events.Input.KEYBOARD_EVENT, Nomad.Core.Constants.Events.Input.NAMESPACE )
+				_eventRegistry.GetEvent<KeyboardEventArgs>( KeyboardEventArgs.Name, KeyboardEventArgs.NameSpace )
 					.Publish( new KeyboardEventArgs( KeyNum.Q, 10, true ) );
 
 				service.BeginRebind( new InputRebindRequest( "Gameplay", "Move", 0, InputRebindPart.Right ) );
-				_eventRegistry.GetEvent<KeyboardEventArgs>( Nomad.Core.Constants.Events.Input.KEYBOARD_EVENT, Nomad.Core.Constants.Events.Input.NAMESPACE )
+				_eventRegistry.GetEvent<KeyboardEventArgs>( KeyboardEventArgs.Name, KeyboardEventArgs.NameSpace )
 					.Publish( new KeyboardEventArgs( KeyNum.L, 11, true ) );
 
-				using (Assert.EnterMultipleScope())
-				{
-					Assert.That( repository.GetBindMappings()["Gameplay"][0].Bindings[0].Axis1DComposite.Negative, Is.EqualTo( InputControlId.Q ) );
-					Assert.That( repository.GetBindMappings()["Gameplay"][1].Bindings[0].Axis2DComposite.Right, Is.EqualTo( InputControlId.L ) );
+				using ( Assert.EnterMultipleScope() ) {
+					Assert.That( repository.GetBindMappings()[ "Gameplay" ][ 0 ].Bindings[ 0 ].Axis1DComposite.Negative, Is.EqualTo( InputControlId.Q ) );
+					Assert.That( repository.GetBindMappings()[ "Gameplay" ][ 1 ].Bindings[ 0 ].Axis2DComposite.Right, Is.EqualTo( InputControlId.L ) );
 				}
 			}
 		}
@@ -388,13 +372,11 @@ namespace Nomad.Input.Tests {
 				}
 				"""
 			);
-			using (repository)
-			using (service)
-			{
+			using ( repository )
+			using ( service ) {
 				var binding = InputTestHelpers.Button( InputScheme.KeyboardAndMouse, InputDeviceSlot.Keyboard, InputControlId.Enter );
 
-				using (Assert.EnterMultipleScope())
-				{
+				using ( Assert.EnterMultipleScope() ) {
 					Assert.That( service.ApplyBinding( new InputRebindRequest( "Missing", "player.jump", 0 ), binding ), Is.False );
 					Assert.That( service.ApplyBinding( new InputRebindRequest( "Gameplay", "player.jump", 1 ), binding ), Is.False );
 					Assert.That( service.ApplyBinding( new InputRebindRequest( "Gameplay", "Missing", 0 ), binding ), Is.False );
@@ -404,8 +386,8 @@ namespace Nomad.Input.Tests {
 
 		private (BindRepository Repository, InputRebindService Service, CompiledBindingRepository CompiledRepository) CreateService( string defaultsJson, string gameplayJson ) {
 			var fileSystem = new InputFileSystemFixture(
-				( DefaultsPath, defaultsJson ),
-				( GameplayPath, gameplayJson )
+				(DefaultsPath, defaultsJson),
+				(GameplayPath, gameplayJson)
 			);
 			var cvarSystem = InputTestHelpers.CreateCVarSystem( _eventRegistry, DefaultsPath );
 			var repository = new BindRepository( fileSystem.Object, cvarSystem, _logger );
@@ -415,7 +397,7 @@ namespace Nomad.Input.Tests {
 			var compiler = new BindingCompilerService( compiledRepository );
 			compiler.CompileIntoRepository( repository.GetAllBindings() );
 			var service = new InputRebindService( repository, compiler, _eventRegistry );
-			return ( repository, service, compiledRepository );
+			return (repository, service, compiledRepository);
 		}
 	}
 }

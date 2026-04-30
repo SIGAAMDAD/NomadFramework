@@ -13,24 +13,21 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using System;
-using System.Numerics;
-using Nomad.Core.Input;
-using Nomad.Input.Interfaces;
+using Nomad.Core.Events;
 
-namespace Nomad.Input.Private.Services {
-	internal sealed class MouseStateService : IMouseService {
-		public Vector2 Position => _position;
-		private Vector2 _position;
-
-		private readonly IInputSnapshotService _snapshotService;
-
-		public MouseStateService( IInputSnapshotService snapshotService ) {
-			_snapshotService = snapshotService ?? throw new ArgumentNullException( nameof( snapshotService ) );
+namespace Nomad.Core.Engine.Services
+{
+	[Event(
+		name: "Nomad.Core.Engine.Services.PauseStateChanged",
+		nameSpace: "Nomad.Core.Engine.Services"
+	)]
+	public readonly partial struct PauseStateChangedEventArgs
+	{
+		public bool Paused { get; }
+		
+		public PauseStateChangedEventArgs(bool paused)
+		{
+			Paused = paused;
 		}
-
-		public bool IsPressed( MouseButton mouseButton ) {
-			throw new NotImplementedException();
-		}
-	};
-};
+	}
+}

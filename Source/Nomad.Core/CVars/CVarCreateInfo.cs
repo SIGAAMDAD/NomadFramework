@@ -21,7 +21,7 @@ namespace Nomad.Core.CVars
     /// Creation information for a <see cref="ICVar"/>.
     /// </summary>
     /// <typeparam name="T">The internal value type of the CVar.</typeparam>
-    public record CVarCreateInfo<T>
+    public sealed record CVarCreateInfo<T>
     {
         /// <summary>
         /// The CVar's name.

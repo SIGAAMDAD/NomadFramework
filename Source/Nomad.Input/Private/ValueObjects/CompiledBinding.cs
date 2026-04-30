@@ -87,5 +87,5 @@ namespace Nomad.Input.Private.ValueObjects {
 			Axis2DComposite = axis2DComposite;
 			Delta2D = delta2D;
 		}
-	}
-}
+	};
+};

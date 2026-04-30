@@ -15,13 +15,18 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Runtime.CompilerServices;
+using Nomad.Core.Events;
 
 namespace Nomad.Core.Input
 {
     /// <summary>
     /// Represents the arguments for a mouse motion input event.
     /// </summary>
-    public readonly struct MouseMotionEventArgs : IEquatable<MouseMotionEventArgs>
+    [Event(
+        name: nameof(MouseMotionEventArgs),
+        nameSpace: "Nomad.Core.Input"
+    )]
+    public readonly partial struct MouseMotionEventArgs : IEquatable<MouseMotionEventArgs>
     {
         /// <summary>
         /// Gets the timestamp when the mouse motion event occurred.

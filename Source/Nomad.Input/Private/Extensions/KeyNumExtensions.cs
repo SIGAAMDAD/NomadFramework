@@ -44,10 +44,7 @@ namespace Nomad.Input.Private.Extensions {
 		/// <exception cref="ArgumentOutOfRangeException"></exception>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public static InputControlId ToControlId( this KeyNum keyNum ) {
-			if ( (byte)keyNum < (byte)KeyNum.Count ) {
-				return (InputControlId)((byte)keyNum + 1);
-			}
-			throw new ArgumentOutOfRangeException( nameof( keyNum ) );
+			return (byte)keyNum < (byte)KeyNum.Count ? (InputControlId)((byte)keyNum + 1) : throw new ArgumentOutOfRangeException( nameof( keyNum ) );
 		}
 	};
 };

@@ -13,6 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using Nomad.Core.Events;
 using Nomad.Save.Interfaces;
 
 namespace Nomad.Save.Events
@@ -20,13 +21,16 @@ namespace Nomad.Save.Events
     /// <summary>
     /// 
     /// </summary>
-    public readonly struct LoadBeginEventArgs
+    [Event(
+        name: nameof(LoadBeginEventArgs),
+        nameSpace: "Nomad.Save"
+    )]
+    public readonly partial struct LoadBeginEventArgs
     {
         /// <summary>
         /// 
         /// </summary>
-        public ISaveReaderService Reader => _reader;
-        private readonly ISaveReaderService _reader;
+        public ISaveReaderService Reader { get; }
 
         /// <summary>
         /// 
@@ -34,7 +38,7 @@ namespace Nomad.Save.Events
         /// <param name="reader"></param>
         public LoadBeginEventArgs(ISaveReaderService reader)
         {
-            _reader = reader;
+            Reader = reader;
         }
     }
 }

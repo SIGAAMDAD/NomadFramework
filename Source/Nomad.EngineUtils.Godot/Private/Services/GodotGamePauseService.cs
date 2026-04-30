@@ -39,7 +39,7 @@ namespace Nomad.EngineUtils.Private.Godot {
 
 		public GodotPauseService( SceneTree sceneTree, IGameEventRegistryService eventFactory ) {
 			_sceneTree = sceneTree;
-			_pauseStateChanged = eventFactory.GetEvent<bool>( Core.Constants.Events.EngineUtils.PAUSE_STATE_CHANGED, Core.Constants.Events.EngineUtils.NAMESPACE );
+			_pauseStateChanged = eventFactory.GetEvent<PauseStateChangedEventArgs>( PauseStateChangedEventArgs.Name, PauseStateChangedEventArgs.NameSpace );
 		}
 
 		/*

@@ -68,7 +68,7 @@ namespace Nomad.CVars.Tests {
 			var cvar = Mock.Of<ICVar>();
 			var fileSystem = Mock.Of<IFileSystem>();
 
-			AssertUninitialized( () => GlobalCVarSystem.Register( in createInfo ) );
+			AssertUninitialized( () => GlobalCVarSystem.Register( createInfo ) );
 			AssertUninitialized( () => GlobalCVarSystem.Unregister( cvar ) );
 			AssertUninitialized( () => GlobalCVarSystem.CVarExists( "test" ) );
 			AssertUninitialized( () => GlobalCVarSystem.CVarExists<int>( "test" ) );
@@ -95,7 +95,7 @@ namespace Nomad.CVars.Tests {
 
 			Initialize( service );
 
-			var actual = GlobalCVarSystem.Register( in createInfo );
+			var actual = GlobalCVarSystem.Register( createInfo );
 
 			Assert.That( actual, Is.SameAs( expected ) );
 			Assert.That( service.SingleCall.Method, Is.EqualTo( "Register" ) );
@@ -408,7 +408,7 @@ namespace Nomad.CVars.Tests {
 				}
 			}
 
-			public ICVar<T> Register<T>( in CVarCreateInfo<T> createInfo ) {
+			public ICVar<T> Register<T>( CVarCreateInfo<T> createInfo ) {
 				Record( "Register", typeof( T ) );
 				return (ICVar<T>)RegisterReturn!;
 			}

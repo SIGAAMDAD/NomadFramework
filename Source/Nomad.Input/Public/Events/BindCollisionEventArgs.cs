@@ -13,19 +13,25 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using Nomad.Core.Events;
+
 namespace Nomad.Input.Events
 {
     /// <summary>
     /// 
     /// </summary>
-    public readonly struct BindCollisionEventArgs
+    [Event(
+        name: nameof(BindCollisionEventArgs),
+        nameSpace: "Nomad.Input.Events"
+    )]
+    public readonly partial struct BindCollisionEventArgs
     {
         /// <summary>
         /// 
         /// </summary>
         public int OriginalBindId => _originalBindId;
         private readonly int _originalBindId;
-        
+
         /// <summary>
         /// 
         /// </summary>

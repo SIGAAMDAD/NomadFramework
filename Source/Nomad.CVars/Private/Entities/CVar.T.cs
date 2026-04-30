@@ -21,7 +21,6 @@ using Nomad.Core.Compatibility.Guards;
 using System.Collections.Generic;
 using Nomad.Core.CVars;
 using Nomad.CVars.Private.ValueObjects;
-using Nomad.Core.Exceptions;
 using Nomad.CVars.Exceptions;
 
 namespace Nomad.CVars.Private.Entities {
@@ -121,7 +120,7 @@ namespace Nomad.CVars.Private.Entities {
 		/// </summary>
 		/// <param name="eventFactory"></param>
 		/// <param name="createInfo"></param>
-		internal CVar( IGameEventRegistryService eventFactory, in CVarCreateInfo<T> createInfo ) {
+		internal CVar( IGameEventRegistryService eventFactory, CVarCreateInfo<T> createInfo ) {
 			ArgumentGuard.ThrowIfNullOrEmpty( createInfo.Name );
 			ArgumentGuard.ThrowIfNull( createInfo.Description );
 
@@ -140,7 +139,7 @@ namespace Nomad.CVars.Private.Entities {
 			_converter = new CVarConverter<T>( _metadata.Type, createInfo.DefaultValue );
 			_defaultValue = createInfo.DefaultValue;
 
-			_valueChanged = eventFactory.GetEvent<CVarValueChangedEventArgs<T>>( Constants.Events.Console.NAMESPACE, $"{createInfo.Name}:{Constants.Events.CVars.CVAR_VALUE_CHANGED_EVENT}" );
+			_valueChanged = eventFactory.GetEvent<CVarValueChangedEventArgs<T>>( $"{createInfo.Name}:{CVarValueChangedEventArgs.Name}", CVarValueChangedEventArgs.NameSpace );
 		}
 
 		/*

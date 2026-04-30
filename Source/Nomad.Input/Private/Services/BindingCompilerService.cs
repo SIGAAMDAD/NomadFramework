@@ -16,13 +16,23 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Nomad.Core.Input;
 using Nomad.Core.Util;
 using Nomad.Input.Private.Repositories;
 using Nomad.Input.Private.ValueObjects;
 using Nomad.Input.ValueObjects;
 
 namespace Nomad.Input.Private.Services {
+	/*
+	===================================================================================
+	
+	BindingCompilerService
+	
+	===================================================================================
+	*/
+	/// <summary>
+	/// 
+	/// </summary>
+	
 	internal sealed class BindingCompilerService {
 		private const int DEVICE_COUNT = (int)InputDeviceSlot.Count;
 		private const int CONTROL_COUNT = (int)InputControlId.Count;
@@ -31,14 +41,44 @@ namespace Nomad.Input.Private.Services {
 
 		private readonly CompiledBindingRepository _compiledBindings;
 
+		/*
+		===============
+		BindingCompilerService
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="compiledBindings"></param>
+		/// <exception cref="ArgumentNullException"></exception>
 		public BindingCompilerService( CompiledBindingRepository compiledBindings ) {
 			_compiledBindings = compiledBindings ?? throw new ArgumentNullException( nameof( compiledBindings ) );
 		}
 
+		/*
+		===============
+		CompileIntoRepository
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="actions"></param>
 		public void CompileIntoRepository( ImmutableArray<InputActionDefinition> actions ) {
 			_compiledBindings.Replace( Compile( actions ) );
 		}
 
+		/*
+		===============
+		Compile
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="actions"></param>
+		/// <returns></returns>
+		/// <exception cref="ArgumentOutOfRangeException"></exception>
 		public static CompiledBindingGraph Compile( ImmutableArray<InputActionDefinition> actions ) {
 			if ( actions.IsDefaultOrEmpty ) {
 				return CompiledBindingGraph.Empty;
@@ -159,15 +199,12 @@ namespace Nomad.Input.Private.Services {
 						buttonBindingIndices[buttonWriteOffsets[releasedBucket]++] = bindingIndex;
 						break;
 					}
-
 					case InputBindingKind.Axis1D:
 						axisBindingIndices[axisWriteOffsets[GetAxisBucketIndex( binding.Axis1D.DeviceId, binding.Axis1D.ControlId )]++] = bindingIndex;
 						break;
-
 					case InputBindingKind.Axis2D:
 						axisBindingIndices[axisWriteOffsets[GetAxisBucketIndex( binding.Axis2D.DeviceId, binding.Axis2D.ControlId )]++] = bindingIndex;
 						break;
-
 					case InputBindingKind.Delta2D:
 						deltaBindingIndices[deltaWriteOffsets[GetAxisBucketIndex( binding.Delta2D.DeviceId, binding.Delta2D.ControlId )]++] = bindingIndex;
 						break;
@@ -188,6 +225,16 @@ namespace Nomad.Input.Private.Services {
 			);
 		}
 
+		/*
+		===============
+		EstimateBindingCapacity
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="actions"></param>
+		/// <returns></returns>
 		private static int EstimateBindingCapacity( ImmutableArray<InputActionDefinition> actions ) {
 			int total = 0;
 			for ( int i = 0; i < actions.Length; i++ ) {
@@ -196,6 +243,18 @@ namespace Nomad.Input.Private.Services {
 			return total;
 		}
 
+		/*
+		===============
+		BuildBuckets
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="counts"></param>
+		/// <param name="writeOffsets"></param>
+		/// <param name="totalEntries"></param>
+		/// <returns></returns>
 		private static Bucket[] BuildBuckets( int[] counts, out int[] writeOffsets, out int totalEntries ) {
 			var buckets = new Bucket[counts.Length];
 			writeOffsets = new int[counts.Length];
@@ -212,6 +271,21 @@ namespace Nomad.Input.Private.Services {
 			return buckets;
 		}
 
+		/*
+		===============
+		BuildModifierMask
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="bindingDef"></param>
+		/// <param name="mask0"></param>
+		/// <param name="mask1"></param>
+		/// <param name="mask2"></param>
+		/// <param name="mask3"></param>
+		/// <param name="modifierCount"></param>
+		/// <exception cref="ArgumentOutOfRangeException"></exception>
 		private static void BuildModifierMask(
 			in InputBindingDefinition bindingDef,
 			out ulong mask0,
@@ -248,6 +322,19 @@ namespace Nomad.Input.Private.Services {
 			}
 		}
 
+		/*
+		===============
+		ComputeScoreBase
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="priority"></param>
+		/// <param name="modifierCount"></param>
+		/// <param name="exactScheme"></param>
+		/// <param name="consumesInput"></param>
+		/// <returns></returns>
 		private static int ComputeScoreBase( int priority, int modifierCount, bool exactScheme, bool consumesInput ) {
 			int score = 0;
 			score += priority * 100;
@@ -257,10 +344,33 @@ namespace Nomad.Input.Private.Services {
 			return score;
 		}
 
+		/*
+		===============
+		GetButtonBucketIndex
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="device"></param>
+		/// <param name="control"></param>
+		/// <param name="pressed"></param>
+		/// <returns></returns>
 		private static int GetButtonBucketIndex( InputDeviceSlot device, InputControlId control, bool pressed ) {
 			return ((((int)device * CONTROL_COUNT) + (int)control) << 1) | (pressed ? 1 : 0);
 		}
 
+		/*
+		===============
+		GetAxisBucketIndex
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="device"></param>
+		/// <param name="control"></param>
+		/// <returns></returns>
 		private static int GetAxisBucketIndex( InputDeviceSlot device, InputControlId control ) {
 			return ((int)device * CONTROL_COUNT) + (int)control;
 		}
@@ -291,5 +401,5 @@ namespace Nomad.Input.Private.Services {
 			}
 		}
 #endif
-	}
-}
+	};
+};

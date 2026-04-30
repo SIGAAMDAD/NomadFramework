@@ -427,5 +427,5 @@ namespace Nomad.Input.Private.Services {
 			_resolvedActionBuffers[bufferIndex] = buffer;
 			return buffer;
 		}
-	}
-}
+	};
+};

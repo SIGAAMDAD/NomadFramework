@@ -13,6 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using Nomad.Core.Events;
 using Nomad.Core.Util;
 
 namespace Nomad.Core.OnlineServices
@@ -20,7 +21,11 @@ namespace Nomad.Core.OnlineServices
     /// <summary>
     /// 
     /// </summary>
-    public readonly struct AchievementProgressChangedEventArgs
+    [Event(
+        name: nameof(AchievementProgressChangedEventArgs),
+        nameSpace: "Nomad.Core.OnlineServices"
+    )]
+    public readonly partial struct AchievementProgressChangedEventArgs
     {
         /// <summary>
         /// 

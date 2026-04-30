@@ -16,13 +16,18 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Runtime.CompilerServices;
 using Nomad.Core.Input.ValueObjects;
+using Nomad.Core.Events;
 
 namespace Nomad.Core.Input
 {
     /// <summary>
     /// Represents the arguments for a keyboard input event.
     /// </summary>
-    public readonly struct KeyboardEventArgs : IEquatable<KeyboardEventArgs>
+    [Event(
+        name: nameof(KeyboardEventArgs),
+        nameSpace: "Nomad.Core.Input"
+    )]
+    public readonly partial struct KeyboardEventArgs : IEquatable<KeyboardEventArgs>
     {
         /// <summary>
         /// Gets the timestamp when the keyboard event occurred.

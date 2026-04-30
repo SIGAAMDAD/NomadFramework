@@ -23,6 +23,17 @@ using Nomad.Input.Private.ValueObjects;
 using Nomad.Input.ValueObjects;
 
 namespace Nomad.Input.Private.Services {
+	/*
+	===================================================================================
+	
+	BindingMatcherService
+	
+	===================================================================================
+	*/
+	/// <summary>
+	/// 
+	/// </summary>
+	
 	internal sealed class BindingMatcherService {
 		private readonly CompiledBindingRepository _compiledBindings;
 		private readonly InputStateService _stateService;
@@ -191,5 +202,5 @@ namespace Nomad.Input.Private.Services {
 				_ => throw new ArgumentOutOfRangeException( nameof( deviceId ) )
 			};
 		}
-	}
-}
+	};
+};

@@ -25,6 +25,7 @@ using Nomad.Core.Util;
 using Nomad.Input.Private.Extensions;
 using Nomad.Input.ValueObjects;
 using Nomad.Core.Logger;
+using Nomad.Core.Compatibility.Guards;
 
 namespace Nomad.Input.Private.Services {
 	/*
@@ -53,7 +54,9 @@ namespace Nomad.Input.Private.Services {
 		/// <param name="fileSystem"></param>
 		/// <param name="logger"></param>
 		public BindLoader( IFileSystem fileSystem, ILoggerService logger ) {
-			_fileSystem = fileSystem;
+			ArgumentGuard.ThrowIfNull( logger, nameof( logger ) );
+
+			_fileSystem = fileSystem ?? throw new ArgumentNullException( nameof( fileSystem ) );
 			_category = logger.CreateCategory( nameof( BindLoader ), LogLevel.Info, true );
 
 			_fileSystem.AddSearchDirectory( Constants.BINDINGS_DIRECTORY );
@@ -134,7 +137,7 @@ namespace Nomad.Input.Private.Services {
 			InputValueType valueType = JsonLoader.GetRequired<InputValueType>( actionElement, "ValueType" );
 			InputScheme scheme = JsonLoader.GetRequired<InputScheme>( actionElement, "Scheme" );
 
-			if ( !JsonLoader.TryGetProperty( actionElement, "Bindings", out var bindingsElement ) && !JsonLoader.TryGetProperty( actionElement, "Binding", out bindingsElement ) ) {
+			if ( !JsonLoader.TryGetProperty( actionElement, "Bindings", out JsonElement bindingsElement ) && !JsonLoader.TryGetProperty( actionElement, "Binding", out bindingsElement ) ) {
 				throw new Exception( $"Binding action '{id}' is missing a binding payload." );
 			}
 
@@ -147,7 +150,7 @@ namespace Nomad.Input.Private.Services {
 			}
 
 			if ( bindingsElement.ValueKind == JsonValueKind.Array ) {
-				foreach ( var bindingElement in bindingsElement.EnumerateArray() ) {
+				foreach ( JsonElement bindingElement in bindingsElement.EnumerateArray() ) {
 					actions[actionIndex].Bindings.Add( ParseBindingDefinition( bindingElement, scheme ) );
 				}
 				return;
@@ -173,11 +176,11 @@ namespace Nomad.Input.Private.Services {
 		/// <returns></returns>
 		/// <exception cref="Exception"></exception>
 		private static InputBindingDefinition ParseBindingDefinition( JsonElement bindingElement, InputScheme scheme ) {
-			InputBindingKind kind = JsonLoader.TryGetProperty( bindingElement, "Kind", out var kindElement )
+			InputBindingKind kind = JsonLoader.TryGetProperty( bindingElement, "Kind", out JsonElement kindElement )
 				? JsonLoader.Read<InputBindingKind>( kindElement, "Kind" )
 				: InferBindingKind( bindingElement );
 
-			var definition = new InputBindingDefinition {
+			InputBindingDefinition definition = new InputBindingDefinition {
 				Scheme = scheme,
 				Kind = kind
 			};
@@ -224,7 +227,6 @@ namespace Nomad.Input.Private.Services {
 			if ( deviceId.Equals( Constants.MOUSE_MOTION_DEVICE_ID, StringComparison.OrdinalIgnoreCase ) ) {
 				return InputBindingKind.Delta2D;
 			}
-
 			return InputBindingKind.Button;
 		}
 
@@ -243,13 +245,12 @@ namespace Nomad.Input.Private.Services {
 			InputDeviceSlot deviceId = ParseDeviceSlot( GetRequiredString( bindingElement, "DeviceId" ) );
 			string controlName = GetRequiredString( bindingElement, "ControlId", GetOptionalString( bindingElement, "ButtonId" ) );
 
-			var modifiers = ImmutableArray.CreateBuilder<InputControlId>();
-			if ( JsonLoader.TryGetProperty( bindingElement, "Modifiers", out var modifiersElement ) ) {
+			ImmutableArray<InputControlId>.Builder modifiers = ImmutableArray.CreateBuilder<InputControlId>();
+			if ( JsonLoader.TryGetProperty( bindingElement, "Modifiers", out JsonElement modifiersElement ) ) {
 				if ( modifiersElement.ValueKind != JsonValueKind.Array ) {
 					throw new Exception( "Binding modifiers must be an array." );
 				}
-
-				foreach ( var modifierElement in modifiersElement.EnumerateArray() ) {
+				foreach ( JsonElement modifierElement in modifiersElement.EnumerateArray() ) {
 					if ( modifierElement.ValueKind != JsonValueKind.String ) {
 						throw new Exception( "Binding modifiers must be strings." );
 					}
@@ -393,19 +394,15 @@ namespace Nomad.Input.Private.Services {
 			{
 				return InputDeviceSlot.Gamepad0;
 			}
-
 			if ( deviceId.Equals( nameof( InputDeviceSlot.Gamepad1 ), StringComparison.OrdinalIgnoreCase ) ) {
 				return InputDeviceSlot.Gamepad1;
 			}
-
 			if ( deviceId.Equals( nameof( InputDeviceSlot.Gamepad2 ), StringComparison.OrdinalIgnoreCase ) ) {
 				return InputDeviceSlot.Gamepad2;
 			}
-
 			if ( deviceId.Equals( nameof( InputDeviceSlot.Gamepad3 ), StringComparison.OrdinalIgnoreCase ) ) {
 				return InputDeviceSlot.Gamepad3;
 			}
-
 			throw new Exception( $"Invalid DeviceId '{deviceId}' in bindings file." );
 		}
 
@@ -428,37 +425,37 @@ namespace Nomad.Input.Private.Services {
 		}
 
 		private static InputControlId ParseKeyboardControl( string controlName ) {
-			if ( Enum.TryParse<KeyNum>( controlName, true, out var keyNum ) ) {
+			if ( Enum.TryParse( controlName, true, out KeyNum keyNum ) ) {
 				return keyNum.ToControlId();
 			}
-			if ( Enum.TryParse<InputControlId>( controlName, true, out var controlId ) ) {
+			if ( Enum.TryParse( controlName, true, out InputControlId controlId ) ) {
 				return controlId;
 			}
 			throw new Exception( $"Invalid keyboard control '{controlName}' in bindings file." );
 		}
 
 		private static InputControlId ParseMouseButtonControl( string controlName ) {
-			if ( Enum.TryParse<MouseButton>( controlName, true, out var mouseButton ) ) {
+			if ( Enum.TryParse( controlName, true, out MouseButton mouseButton ) ) {
 				return mouseButton.ToControlId();
 			}
-			if ( Enum.TryParse<InputControlId>( controlName, true, out var controlId ) ) {
+			if ( Enum.TryParse( controlName, true, out InputControlId controlId ) ) {
 				return controlId;
 			}
 			throw new Exception( $"Invalid mouse control '{controlName}' in bindings file." );
 		}
 
 		private static InputControlId ParseGamepadButtonControl( string controlName ) {
-			if ( Enum.TryParse<GamepadButton>( controlName, true, out var gamepadButton ) ) {
+			if ( Enum.TryParse( controlName, true, out GamepadButton gamepadButton ) ) {
 				return gamepadButton.ToControlId();
 			}
-			if ( Enum.TryParse<InputControlId>( controlName, true, out var controlId ) ) {
+			if ( Enum.TryParse( controlName, true, out InputControlId controlId ) ) {
 				return controlId;
 			}
 			throw new Exception( $"Invalid gamepad control '{controlName}' in bindings file." );
 		}
 
 		private static InputControlId ParseInputControlId( string controlName ) {
-			if ( Enum.TryParse<InputControlId>( controlName, true, out var controlId ) ) {
+			if ( Enum.TryParse( controlName, true, out InputControlId controlId ) ) {
 				return controlId;
 			}
 			throw new Exception( $"Invalid control '{controlName}' in bindings file." );
@@ -468,7 +465,7 @@ namespace Nomad.Input.Private.Services {
 			if ( element.ValueKind == JsonValueKind.String ) {
 				return JsonLoader.Read<string>( element, propertyName );
 			}
-			if ( JsonLoader.TryGet<string>( element, propertyName, out string? value ) ) {
+			if ( JsonLoader.TryGet( element, propertyName, out string? value ) ) {
 				return value;
 			}
 			if ( fallback != null ) {
@@ -478,7 +475,7 @@ namespace Nomad.Input.Private.Services {
 		}
 
 		private static string? GetOptionalString( JsonElement element, string propertyName ) {
-			return JsonLoader.TryGet<string>( element, propertyName, out string? value ) ? value : null;
+			return JsonLoader.TryGet( element, propertyName, out string? value ) ? value : null;
 		}
 
 		private sealed class ActionBuilder {

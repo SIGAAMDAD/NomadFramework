@@ -49,7 +49,7 @@ public class MockCVarSystem : ICVarSystemService
 		throw new NotImplementedException();
 	}
 
-	public ICVar<T> Register<T>(in CVarCreateInfo<T> createInfo)
+	public ICVar<T> Register<T>(CVarCreateInfo<T> createInfo)
 	{
 		var cvar = new MockCVar<T>(createInfo.Name, createInfo.DefaultValue, _eventRegistry);
 		_cvars.TryAdd(createInfo.Name, cvar);
@@ -153,7 +153,7 @@ public class MockCVarSystem : ICVarSystemService
 		{
 			Name = name;
 			Value = value;
-			ValueChanged = eventFactory.GetEvent<CVarValueChangedEventArgs<T>>($"{name}:{Constants.Events.CVars.CVAR_VALUE_CHANGED_EVENT}", "CVarTestEvents");
+			ValueChanged = eventFactory.GetEvent<CVarValueChangedEventArgs<T>>($"{name}:{CVarValueChangedEventArgs.Name}", "CVarTestEvents");
 		}
 
 		public void Reset() { }

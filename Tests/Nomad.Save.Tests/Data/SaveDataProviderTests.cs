@@ -24,7 +24,6 @@ using Nomad.Core.Logger;
 using Nomad.Core.CVars;
 using Nomad.Events;
 using Nomad.FileSystem.Private.Services;
-using Nomad.Save.Data;
 using Nomad.Save.Events;
 using Nomad.Save.Private.Services;
 using Nomad.Save.Services;
@@ -40,11 +39,10 @@ namespace Nomad.Save.Tests;
 /// Tests for SaveDataProvider service
 /// </summary>
 [TestFixture]
-[Category("Nomad.Save")]
-[Category("Data")]
-[Category("Unit")]
-public class SaveDataProviderTests
-{
+[Category( "Nomad.Save" )]
+[Category( "Data" )]
+[Category( "Unit" )]
+public class SaveDataProviderTests {
     private ISaveDataProvider _dataProvider;
     private ILoggerService _logger;
     private ICVarSystemService _cvarSystem;
@@ -57,31 +55,29 @@ public class SaveDataProviderTests
     private IGameEvent<LoadBeginEventArgs> _loadBegin;
 
     [SetUp]
-    public void Setup()
-    {
-        _testDirectory = Path.Combine(Path.GetTempPath(), "NomadSaveTests", Guid.NewGuid().ToString());
-        Directory.CreateDirectory(_testDirectory);
-        _saveDirectory = Path.Combine(_testDirectory, "SaveData");
-        Directory.CreateDirectory(_saveDirectory);
+    public void Setup() {
+        _testDirectory = Path.Combine( Path.GetTempPath(), "NomadSaveTests", Guid.NewGuid().ToString() );
+        Directory.CreateDirectory( _testDirectory );
+        _saveDirectory = Path.Combine( _testDirectory, "SaveData" );
+        Directory.CreateDirectory( _saveDirectory );
 
         _logger = new MockLogger();
         var engineService = new Mock<IEngineService>();
-        engineService.Setup(e => e.GetStoragePath(StorageScope.StreamingAssets)).Returns(_testDirectory);
-        engineService.Setup(e => e.GetStoragePath(StorageScope.UserData)).Returns(_testDirectory);
-        engineService.Setup(e => e.GetStoragePath(StorageScope.Install)).Returns(_testDirectory);
+        engineService.Setup( e => e.GetStoragePath( StorageScope.StreamingAssets ) ).Returns( _testDirectory );
+        engineService.Setup( e => e.GetStoragePath( StorageScope.UserData ) ).Returns( _testDirectory );
+        engineService.Setup( e => e.GetStoragePath( StorageScope.Install ) ).Returns( _testDirectory );
 
-        _fileSystem = new FileSystemService(engineService.Object, _logger);
-        _eventFactory = new GameEventRegistry(_logger);
-        _cvarSystem = new CVarSystem(_eventFactory, _logger);
-        _dataProvider = new SaveDataProvider(engineService.Object, _eventFactory, _cvarSystem, _fileSystem, _logger);
+        _fileSystem = new FileSystemService( engineService.Object, _logger );
+        _eventFactory = new GameEventRegistry( _logger );
+        _cvarSystem = new CVarSystem( _eventFactory, _logger );
+        _dataProvider = new SaveDataProvider( engineService.Object, _eventFactory, _cvarSystem, _fileSystem, _logger );
 
-        _saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>(EventNames.SAVE_BEGIN_EVENT, EventNames.NAMESPACE);
-        _loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>(EventNames.LOAD_BEGIN_EVENT, EventNames.NAMESPACE);
+        _saveBegin = _eventFactory.GetEvent<SaveBeginEventArgs>( SaveBeginEventArgs.Name, SaveBeginEventArgs.NameSpace );
+        _loadBegin = _eventFactory.GetEvent<LoadBeginEventArgs>( LoadBeginEventArgs.Name, LoadBeginEventArgs.NameSpace );
     }
 
     [TearDown]
-    public void TearDown()
-    {
+    public void TearDown() {
         _saveBegin?.Dispose();
         _loadBegin?.Dispose();
         _dataProvider?.Dispose();
@@ -90,74 +86,65 @@ public class SaveDataProviderTests
         _fileSystem?.Dispose();
         _eventFactory?.Dispose();
 
-        try
-        {
-            if (Directory.Exists(_testDirectory))
-            {
-                Directory.Delete(_testDirectory, true);
+        try {
+            if ( Directory.Exists( _testDirectory ) ) {
+                Directory.Delete( _testDirectory, true );
             }
-        }
-        catch
-        {
+        } catch {
             // Ignore cleanup errors
         }
     }
 
     [Test]
-    public void Constructor_WithValidDependencies_CreatesInstance()
-    {
+    public void Constructor_WithValidDependencies_CreatesInstance() {
         // Assert
-        Assert.That(_dataProvider, Is.Not.Null);
+        Assert.That( _dataProvider, Is.Not.Null );
     }
 
     [Test]
-    public void ListSaveFiles_WithEmptyDirectory_ReturnsEmptyList()
-    {
+    public void ListSaveFiles_WithEmptyDirectory_ReturnsEmptyList() {
         // Act
         var files = _dataProvider.ListSaveFiles();
 
         // Assert
-        Assert.That(files, Is.Not.Null);
-        Assert.That(files, Is.Empty);
+        Assert.That( files, Is.Not.Null );
+        Assert.That( files, Is.Empty );
     }
 
     [Test]
-    public async Task ListSaveFiles_WithMultipleSaveFiles_ReturnsAllFiles()
-    {
+    public async Task ListSaveFiles_WithMultipleSaveFiles_ReturnsAllFiles() {
         // Arrange
         string file1 = "save_001";
         string file2 = "save_002";
         string file3 = "save_003";
 
         // Act
-        await _dataProvider.Save(file1, default);
-        await _dataProvider.Save(file2, default);
-        await _dataProvider.Save(file3, default);
+        await _dataProvider.Save( file1, default );
+        await _dataProvider.Save( file2, default );
+        await _dataProvider.Save( file3, default );
 
         var files = _dataProvider.ListSaveFiles();
 
         // Assert
-        Assert.That(files, Is.Not.Null);
-        Assert.That(files, Has.Count.EqualTo(3));
+        Assert.That( files, Is.Not.Null );
+        Assert.That( files, Has.Count.EqualTo( 3 ) );
     }
 
     [Test]
-    public async Task ListSaveFiles_ReturnsReadOnlyList()
-    {
+    public async Task ListSaveFiles_ReturnsReadOnlyList() {
         // Arrange
         string file1 = "save_001";
-        await _dataProvider.Save(file1, default);
+        await _dataProvider.Save( file1, default );
 
         // Act
         var files = _dataProvider.ListSaveFiles();
 
         // Assert
-        Assert.That(typeof(IReadOnlyList<SaveFileMetadata>).IsAssignableFrom(files.GetType()));
+        Assert.That( typeof( IReadOnlyList<SaveFileMetadata> ).IsAssignableFrom( files.GetType() ) );
     }
 
     [Test]
-    public async Task ListSaveFiles_IncludesFileMetadata()
-    {
+    public async Task ListSaveFiles_IncludesFileMetadata() {
         // Arrange
         string fileName = "test_save";
         var lastAccessTime = DateTime.Now;
@@ -174,169 +161,153 @@ public class SaveDataProviderTests
         );
 
         // Act
-        await _dataProvider.Save(fileName, default);
-        SaveSlot.CalculateFileName(false, fileMetadata);
+        await _dataProvider.Save( fileName, default );
+        SaveSlot.CalculateFileName( false, fileMetadata );
         var files = _dataProvider.ListSaveFiles();
 
         // Assert
-        Assert.That(files, Is.Not.Empty);
-        var metadata = files[0];
-        Assert.That(metadata, Is.EqualTo(fileMetadata));
+        Assert.That( files, Is.Not.Empty );
+        var metadata = files[ 0 ];
+        Assert.That( metadata, Is.EqualTo( fileMetadata ) );
     }
 
     [Test]
-    public async Task Save_WithValidFileId_CompletesSuccessfully()
-    {
+    public async Task Save_WithValidFileId_CompletesSuccessfully() {
         // Arrange
         string fileId = "save_001";
         bool saveInvoked = false;
 
-        _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
-        {
+        _saveBegin.Subscribe( ( in SaveBeginEventArgs args ) => {
             saveInvoked = true;
-            var section = args.Writer.AddSection("TestSection");
-            section.AddField("TestValue", 42);
-        });
+            var section = args.Writer.AddSection( "TestSection" );
+            section.AddField( "TestValue", 42 );
+        } );
 
         // Act
-        await _dataProvider.Save(fileId, default);
+        await _dataProvider.Save( fileId, default );
 
         // Assert
-        Assert.That(saveInvoked, Is.True);
+        Assert.That( saveInvoked, Is.True );
     }
 
     [Test]
-    public async Task Load_AfterSave_CanReadSavedData()
-    {
+    public async Task Load_AfterSave_CanReadSavedData() {
         // Arrange
         string fileId = "save_load_test";
 
         int savedData = 123;
         bool loadedSuccessfully = false;
 
-        _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
-        {
-            var section = args.Writer.AddSection("DataSection");
-            section.AddField("SavedInt", savedData);
-        });
+        _saveBegin.Subscribe( ( in SaveBeginEventArgs args ) => {
+            var section = args.Writer.AddSection( "DataSection" );
+            section.AddField( "SavedInt", savedData );
+        } );
 
-        _loadBegin.Subscribe((in LoadBeginEventArgs args) =>
-        {
-            var section = args.Reader.FindSection("DataSection");
-            if (section != null)
-            {
-                var value = section.GetField<int>("SavedInt");
+        _loadBegin.Subscribe( ( in LoadBeginEventArgs args ) => {
+            var section = args.Reader.FindSection( "DataSection" );
+            if ( section != null ) {
+                var value = section.GetField<int>( "SavedInt" );
                 loadedSuccessfully = value == savedData;
             }
-        });
+        } );
 
         // Act
-        await _dataProvider.Save(fileId, default);
-        await _dataProvider.Load(fileId);
+        await _dataProvider.Save( fileId, default );
+        await _dataProvider.Load( fileId );
 
         // Assert
-        Assert.That(loadedSuccessfully, Is.True);
+        Assert.That( loadedSuccessfully, Is.True );
     }
 
     [Test]
-    public void Dispose_ReleasesResources()
-    {
+    public void Dispose_ReleasesResources() {
         // Act
         _dataProvider.Dispose();
 
         // Assert - should not throw
-        Assert.Pass("Dispose completed without throwing");
+        Assert.Pass( "Dispose completed without throwing" );
     }
 
     [Test]
-    public async Task Save_MultipleTimesToSameFile_Overwrites()
-    {
+    public async Task Save_MultipleTimesToSameFile_Overwrites() {
         // Arrange
         string fileId = "overwrite_test";
         int saveCount = 0;
 
-        _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
-        {
+        _saveBegin.Subscribe( ( in SaveBeginEventArgs args ) => {
             saveCount++;
-            var section = args.Writer.AddSection("SaveCount");
-            section.AddField("Count", saveCount);
-        });
+            var section = args.Writer.AddSection( "SaveCount" );
+            section.AddField( "Count", saveCount );
+        } );
 
         // Act
-        await _dataProvider.Save(fileId, default);
-        await _dataProvider.Save(fileId, default);
+        await _dataProvider.Save( fileId, default );
+        await _dataProvider.Save( fileId, default );
 
         var saveFiles = _dataProvider.ListSaveFiles();
 
         // Assert
-        Assert.That(saveFiles, Has.Count.GreaterThan(0));
+        Assert.That( saveFiles, Has.Count.GreaterThan( 0 ) );
     }
 
     [Test]
-    public async Task Save_WithNoSubscribers_CompletesSuccessfully()
-    {
+    public async Task Save_WithNoSubscribers_CompletesSuccessfully() {
         // Arrange
         string fileId = "no_subscribers";
 
         // Act & Assert
-        await _dataProvider.Save(fileId, default);
-        Assert.Pass("Save completed without subscribers");
+        await _dataProvider.Save( fileId, default );
+        Assert.Pass( "Save completed without subscribers" );
     }
 
     [Test]
-    public async Task ListSaveFiles_AfterMultipleSaves_ReturnsAccurateMetadata()
-    {
+    public async Task ListSaveFiles_AfterMultipleSaves_ReturnsAccurateMetadata() {
         // Arrange
         string fileId1 = "save_001";
         string fileId2 = "save_002";
 
-        _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
-        {
-            var section = args.Writer.AddSection("TestSection");
-            section.AddField("TestValue", 1);
-        });
+        _saveBegin.Subscribe( ( in SaveBeginEventArgs args ) => {
+            var section = args.Writer.AddSection( "TestSection" );
+            section.AddField( "TestValue", 1 );
+        } );
 
         // Act
-        await _dataProvider.Save(fileId1, default);
-        await _dataProvider.Save(fileId2, default);
+        await _dataProvider.Save( fileId1, default );
+        await _dataProvider.Save( fileId2, default );
         var filesList = _dataProvider.ListSaveFiles();
 
         // Assert
-        Assert.That(filesList, Has.Count.GreaterThanOrEqualTo(2));
+        Assert.That( filesList, Has.Count.GreaterThanOrEqualTo( 2 ) );
     }
 
     [Test]
-    public async Task Save_AndLoad_WithMultipleSections_PreservesData()
-    {
+    public async Task Save_AndLoad_WithMultipleSections_PreservesData() {
         // Arrange
         string fileId = "multi_section";
         bool section1Found = false;
         bool section2Found = false;
 
-        _saveBegin.Subscribe((in SaveBeginEventArgs args) =>
-        {
-            var section1 = args.Writer.AddSection("Section1");
-            section1.AddField("Value1", 100);
+        _saveBegin.Subscribe( ( in SaveBeginEventArgs args ) => {
+            var section1 = args.Writer.AddSection( "Section1" );
+            section1.AddField( "Value1", 100 );
 
-            var section2 = args.Writer.AddSection("Section2");
-            section2.AddField("Value2", 200);
-        });
+            var section2 = args.Writer.AddSection( "Section2" );
+            section2.AddField( "Value2", 200 );
+        } );
 
-        _loadBegin.Subscribe((in LoadBeginEventArgs args) =>
-        {
-            section1Found = args.Reader.FindSection("Section1") != null;
-            section2Found = args.Reader.FindSection("Section2") != null;
-        });
+        _loadBegin.Subscribe( ( in LoadBeginEventArgs args ) => {
+            section1Found = args.Reader.FindSection( "Section1" ) != null;
+            section2Found = args.Reader.FindSection( "Section2" ) != null;
+        } );
 
         // Act
-        await _dataProvider.Save(fileId, default);
-        await _dataProvider.Load(fileId);
+        await _dataProvider.Save( fileId, default );
+        await _dataProvider.Load( fileId );
 
-        using (Assert.EnterMultipleScope())
-        {
+        using ( Assert.EnterMultipleScope() ) {
             // Assert
-            Assert.That(section1Found, Is.True);
-            Assert.That(section2Found, Is.True);
+            Assert.That( section1Found, Is.True );
+            Assert.That( section2Found, Is.True );
         }
     }
 }

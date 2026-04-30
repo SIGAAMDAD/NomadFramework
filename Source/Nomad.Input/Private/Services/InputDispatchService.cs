@@ -21,6 +21,17 @@ using Nomad.Input.Private.ValueObjects;
 using Nomad.Input.ValueObjects;
 
 namespace Nomad.Input.Private.Services {
+	/*
+	===================================================================================
+	
+	InputDispatchService
+	
+	===================================================================================
+	*/
+	/// <summary>
+	/// 
+	/// </summary>
+	
 	internal sealed class InputDispatchService {
 		private IGameEvent<ButtonActionEventArgs>?[] _buttonEvents = Array.Empty<IGameEvent<ButtonActionEventArgs>?>();
 		private IGameEvent<FloatActionEventArgs>?[] _floatEvents = Array.Empty<IGameEvent<FloatActionEventArgs>?>();
@@ -43,24 +54,32 @@ namespace Nomad.Input.Private.Services {
 						new ButtonActionEventArgs( actionId, action.Phase, action.ButtonValue, action.TimeStamp )
 					);
 					break;
-
 				case InputValueType.Float:
 					GetFloatEvent( slot, actionId ).Publish(
 						new FloatActionEventArgs( actionId, action.Phase, action.FloatValue, action.TimeStamp )
 					);
 					break;
-
 				case InputValueType.Vector2:
 					GetAxisEvent( slot, actionId ).Publish(
 						new AxisActionEventArgs( actionId, action.Phase, action.Vector2Value, action.TimeStamp )
 					);
 					break;
-
 				default:
 					throw new ArgumentOutOfRangeException( nameof( action ) );
 			}
 		}
-
+		
+		/*
+		===============
+		GetButtonEvent
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="slot"></param>
+		/// <param name="actionId"></param>
+		/// <returns></returns>
 		private IGameEvent<ButtonActionEventArgs> GetButtonEvent( int slot, InternString actionId ) {
 			var gameEvent = _buttonEvents[slot];
 			if ( gameEvent != null ) {
@@ -115,5 +134,5 @@ namespace Nomad.Input.Private.Services {
 			Array.Resize( ref _floatEvents, actionCount );
 			Array.Resize( ref _axisEvents, actionCount );
 		}
-	}
-}
+	};
+};

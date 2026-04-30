@@ -53,7 +53,7 @@ namespace Nomad.CVars.Private.Serialization {
 		/// <param name="cvarSystem"></param>
 		/// <param name="fileSystem"></param>
 		/// <param name="groups"></param>
-		public ConfigFileWriter( string configFile, ILoggerService logger, ICVarSystemService cvarSystem, IFileSystem fileSystem, ICollection<CVarGroup> groups ) {
+		public ConfigFileWriter( string configFile, ILoggerCategory logger, ICVarSystemService cvarSystem, IFileSystem fileSystem, ICollection<CVarGroup> groups ) {
 			ArgumentGuard.ThrowIfNullOrEmpty( configFile );
 
 			_cvarSystem = cvarSystem;

@@ -88,9 +88,9 @@ namespace Nomad.Core.CVars
         string? GetStringValue();
 
         /// <summary>
-        ///
+        /// Retrieves the CVar's boolean value. If the CVar was not created as a boolean value, an <see cref="InvalidCastException"/> will be thrown.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>returns the CVar's internal boolean value.</returns>
         bool GetBooleanValue();
 
         /// <summary>

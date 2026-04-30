@@ -62,11 +62,5 @@ namespace Nomad.Core.Input
         /// </summary>
         /// <param name="gamepadButtonEvent">The gamepad button event arguments.</param>
         void PushGamepadButtonEvent(in GamepadButtonEventArgs gamepadButtonEvent);
-
-        /// <summary>
-        /// Updates the input system with the given time delta.
-        /// </summary>
-        /// <param name="delta">The time delta since the last update.</param>
-        void Update(float delta);
     }
 }

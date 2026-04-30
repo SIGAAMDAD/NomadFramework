@@ -66,8 +66,8 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 			_logger = logger;
 			_category = _logger.CreateCategory( nameof( SteamAchievementService ), LogLevel.Info, true );
 
-			_unlocked = eventFactory.GetEvent<AchievementUnlockedEventArgs>( Constants.Events.ACHIEVEMENT_UNLOCKED, Constants.Events.NAMESPACE );
-			_progressChanged = eventFactory.GetEvent<AchievementProgressChangedEventArgs>( Constants.Events.ACHIEVEMENT_PROGRESS_CHANGED, Constants.Events.NAMESPACE );
+			_unlocked = eventFactory.GetEvent<AchievementUnlockedEventArgs>( AchievementUnlockedEventArgs.Name, AchievementUnlockedEventArgs.NameSpace );
+			_progressChanged = eventFactory.GetEvent<AchievementProgressChangedEventArgs>( AchievementProgressChangedEventArgs.Name, AchievementProgressChangedEventArgs.NameSpace );
 
 			_statsRepository.AchievementProgressChanged += OnAchievementProgressChanged;
 			_statsRepository.AchievementUnlocked += OnAchievementUnlocked;

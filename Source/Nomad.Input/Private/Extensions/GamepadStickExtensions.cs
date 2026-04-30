@@ -14,11 +14,24 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using System.Runtime.CompilerServices;
 using Nomad.Core.Input;
 using Nomad.Input.ValueObjects;
 
 namespace Nomad.Input.Private.Extensions {
 	internal static class GamepadStickExtensions {
+		/*
+		===============
+		ToControlId
+		===============
+		*/
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="stick"></param>
+		/// <returns></returns>
+		/// <exception cref="ArgumentOutOfRangeException"></exception>
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public static InputControlId ToControlId( this GamepadStick stick ) => stick switch {
 			GamepadStick.Left => InputControlId.LeftStick,
 			GamepadStick.Right => InputControlId.RightStick,
