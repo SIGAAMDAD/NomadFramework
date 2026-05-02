@@ -17,14 +17,24 @@ using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using Nomad.Core.Input;
-using Nomad.Core.Util;
 using Nomad.Input.Private.Repositories;
 using Nomad.Input.Private.ValueObjects;
 using Nomad.Input.ValueObjects;
 
 namespace Nomad.Input.Private.Services {
+	/*
+	===================================================================================
+	
+	ActionResolverService
+	
+	===================================================================================
+	*/
+	/// <summary>
+	/// 
+	/// </summary>
+	
 	internal sealed class ActionResolverService {
-		private const int ResolvedActionBufferRingSize = 8;
+		private const int RESOLVED_ACTION_BUFFER_RING_SIZE = 8;
 
 		private readonly CompiledBindingRepository _compiledBindings;
 		private readonly InputStateService _stateService;
@@ -410,7 +420,7 @@ namespace Nomad.Input.Private.Services {
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		private ResolvedAction[] GetResolvedActionBuffer( int requiredCapacity ) {
 			if ( _resolvedActionBuffers.Length == 0 ) {
-				_resolvedActionBuffers = new ResolvedAction[ResolvedActionBufferRingSize][];
+				_resolvedActionBuffers = new ResolvedAction[RESOLVED_ACTION_BUFFER_RING_SIZE][];
 				Array.Fill( _resolvedActionBuffers, Array.Empty<ResolvedAction>() );
 			}
 

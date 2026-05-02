@@ -35,8 +35,22 @@ namespace Nomad.ResourceCache
     {
         long CurrentCacheSize { get; }
 
+        [Event("Nomad.ResourceCache")]
+        [EventPayload("Id", "TId", Order = 1)]
+        [EventPayload("LoadTime", typeof(TimeSpan), Order = 2)]
+        [EventPayload("MemorySize", typeof(long), Order = 3)]
         IGameEvent<ResourceLoadedEventArgs<TId>> ResourceLoaded { get; }
+
+        [Event("Nomad.ResourceCache")]
+        [EventPayload("Id", "TId", Order = 1)]
+        [EventPayload("FreedMemory", typeof(long), Order = 2)]
+        [EventPayload("Reason", typeof(UnloadReason), Order = 3)]
         IGameEvent<ResourceUnloadedEventArgs<TId>> ResourceUnloaded { get; }
+
+        [Event("Nomad.ResourceCache")]
+        [EventPayload("Id", "TId", Order = 1)]
+        [EventPayload("Error", typeof(string), Order = 2)]
+        [EventPayload("Exception", typeof(Exception), Order = 3)]
         IGameEvent<ResourceLoadFailedEventArgs<TId>> ResourceLoadFailed { get; }
 
         /// <summary>

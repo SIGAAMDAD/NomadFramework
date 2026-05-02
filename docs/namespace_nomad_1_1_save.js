@@ -1,6 +1,5 @@
 var namespace_nomad_1_1_save =
 [
-    [ "Data", "namespace_nomad_1_1_save_1_1_data.html", "namespace_nomad_1_1_save_1_1_data" ],
     [ "Events", "namespace_nomad_1_1_save_1_1_events.html", "namespace_nomad_1_1_save_1_1_events" ],
     [ "Exceptions", "namespace_nomad_1_1_save_1_1_exceptions.html", "namespace_nomad_1_1_save_1_1_exceptions" ],
     [ "Interfaces", "namespace_nomad_1_1_save_1_1_interfaces.html", "namespace_nomad_1_1_save_1_1_interfaces" ],

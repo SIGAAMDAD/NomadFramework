@@ -109,13 +109,18 @@ $(function() {
   <div class="headertitle"><div class="title">Nomad.Core.Util.StringExtensions Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Provides extension methods for string operations.  
+ <a href="#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-static-methods" class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a1410a10dd0ad0db195d8e7c2687980de" id="r_a1410a10dd0ad0db195d8e7c2687980de"><td class="memItemLeft">static uint&#160;</td><td class="memItemRight"><a class="el" href="#a1410a10dd0ad0db195d8e7c2687980de">HashFileName</a> (this string filename, int seed=0)</td></tr>
+<tr class="memdesc:a1410a10dd0ad0db195d8e7c2687980de"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes a 32-bit hash of a filename in a case-insensitive manner using the XxHash32 algorithm.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
-<div class="textblock">
+<div class="textblock"><p>Provides extension methods for string operations. </p>
+
 <p class="definition">Definition at line <a class="el" href="_string_extensions_8cs_source.html#l00024">24</a> of file <a class="el" href="_string_extensions_8cs_source.html">StringExtensions.cs</a>.</p>
 </div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Member Function Documentation</h2>
 <a id="a1410a10dd0ad0db195d8e7c2687980de" name="a1410a10dd0ad0db195d8e7c2687980de"></a>
@@ -144,16 +149,25 @@ Static Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Computes a 32-bit hash of a filename in a case-insensitive manner using the XxHash32 algorithm. </p>
+<p>This method is useful for creating normalized hashes of filenames that are consistent regardless of case differences. All uppercase letters are converted to lowercase before hashing. Use the optional seed parameter for domain-specific hashing. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">filename</td><td></td></tr>
-    <tr><td class="paramname">seed</td><td></td></tr>
+    <tr><td class="paramname">filename</td><td>The filename to hash. Must not be null or empty.</td></tr>
+    <tr><td class="paramname">seed</td><td>An optional seed value for the hash function. Defaults to 0.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>A 32-bit hash value of the filename.</dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">ArgumentNullException</td><td>Thrown when <em>filename</em>  is null or empty.</td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="_string_extensions_8cs_source.html#l00032">32</a> of file <a class="el" href="_string_extensions_8cs_source.html">StringExtensions.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_string_extensions_8cs_source.html#l00037">37</a> of file <a class="el" href="_string_extensions_8cs_source.html">StringExtensions.cs</a>.</p>
 
 </div>
 </div>

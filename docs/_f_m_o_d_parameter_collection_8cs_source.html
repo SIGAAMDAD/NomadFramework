@@ -139,15 +139,15 @@ $(function() {
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>    <span class="keyword">internal</span> <span class="keyword">sealed</span> <span class="keyword">class </span>FMODParameterCollection : IParameterCollection {</div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>        <span class="keyword">public</span> <span class="keywordtype">int</span> ParameterCount =&gt; _parameters.Count;</div>
 <div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span> </div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>        <span class="keyword">private</span> readonly Dictionary&lt;string, <a class="code hl_enumvalue" href="namespace_f_m_o_d.html#aa71e6eb8a2ac0e0d2c3ccb99298381bca83ee8e4cce253ad1c7e7b1c78dbc6d9d">FMOD</a>.Studio.PARAMETER_ID&gt; _parameters;</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>        <span class="keyword">private</span> readonly Dictionary&lt;string, FMOD.Studio.PARAMETER_ID&gt; _parameters;</div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>        <span class="keyword">private</span> readonly FMOD.Studio.EventInstance _instance;</div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span> </div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>        <span class="keyword">public</span> FMODParameterCollection( <a class="code hl_enumvalue" href="namespace_f_m_o_d.html#aa71e6eb8a2ac0e0d2c3ccb99298381bca83ee8e4cce253ad1c7e7b1c78dbc6d9d">FMOD</a>.Studio.EventDescription owner, <a class="code hl_enumvalue" href="namespace_f_m_o_d.html#aa71e6eb8a2ac0e0d2c3ccb99298381bca83ee8e4cce253ad1c7e7b1c78dbc6d9d">FMOD</a>.Studio.EventInstance instance ) {</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>        <span class="keyword">public</span> FMODParameterCollection( FMOD.Studio.EventDescription owner, FMOD.Studio.EventInstance instance ) {</div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>            _instance = instance;</div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>            FMODValidator.ValidateCall( owner.getParameterDescriptionCount( out <span class="keywordtype">int</span> parameterCount ) );</div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>            _parameters = <span class="keyword">new</span> Dictionary&lt;string, <a class="code hl_enumvalue" href="namespace_f_m_o_d.html#aa71e6eb8a2ac0e0d2c3ccb99298381bca83ee8e4cce253ad1c7e7b1c78dbc6d9d">FMOD</a>.Studio.PARAMETER_ID&gt;( parameterCount );</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>            _parameters = <span class="keyword">new</span> Dictionary&lt;string, FMOD.Studio.PARAMETER_ID&gt;( parameterCount );</div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>            <span class="keywordflow">for</span> ( <span class="keywordtype">int</span> i = 0; i &lt; parameterCount; i++ ) {</div>
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>                FMODValidator.ValidateCall( owner.getParameterDescriptionByIndex( i, out var parameter ) );</div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>                _parameters[parameter.name] = parameter.id;</div>
@@ -185,8 +185,7 @@ $(function() {
 <div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>        }</div>
 <div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>    };</div>
 <div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>};</div>
-<div class="ttc" id="anamespace_f_m_o_d_html_aa71e6eb8a2ac0e0d2c3ccb99298381bca83ee8e4cce253ad1c7e7b1c78dbc6d9d"><div class="ttname"><a href="namespace_f_m_o_d.html#aa71e6eb8a2ac0e0d2c3ccb99298381bca83ee8e4cce253ad1c7e7b1c78dbc6d9d">FMOD.TAGTYPE.FMOD</a></div><div class="ttdeci">@ FMOD</div><div class="ttdef"><b>Definition</b> <a href="fmod_8cs_source.html#l00632">fmod.cs:632</a></div></div>
-<div class="ttc" id="anamespace_nomad_1_1_audio_1_1_fmod_1_1_private_1_1_entities_html"><div class="ttname"><a href="namespace_nomad_1_1_audio_1_1_fmod_1_1_private_1_1_entities.html">Nomad.Audio.Fmod.Private.Entities</a></div><div class="ttdef"><b>Definition</b> <a href="_f_m_o_d_channel_8cs_source.html#l00019">FMODChannel.cs:19</a></div></div>
+<div class="ttc" id="anamespace_nomad_1_1_audio_1_1_fmod_1_1_private_1_1_entities_html"><div class="ttname"><a href="namespace_nomad_1_1_audio_1_1_fmod_1_1_private_1_1_entities.html">Nomad.Audio.Fmod.Private.Entities</a></div><div class="ttdef"><b>Definition</b> <a href="_f_m_o_d_audio_group_8cs_source.html#l00019">FMODAudioGroup.cs:19</a></div></div>
 <div class="ttc" id="anamespace_nomad_1_1_audio_1_1_interfaces_html"><div class="ttname"><a href="namespace_nomad_1_1_audio_1_1_interfaces.html">Nomad.Audio.Interfaces</a></div><div class="ttdef"><b>Definition</b> <a href="_i_audio_device_8cs_source.html#l00019">IAudioDevice.cs:20</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->

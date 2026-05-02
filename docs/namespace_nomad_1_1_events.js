@@ -5,6 +5,8 @@ var namespace_nomad_1_1_events =
     [ "Private", "namespace_nomad_1_1_events_1_1_private.html", "namespace_nomad_1_1_events_1_1_private" ],
     [ "AsyncSubscriptionHandle&lt; TArgs &gt;", "class_nomad_1_1_events_1_1_async_subscription_handle-1-g.html", "class_nomad_1_1_events_1_1_async_subscription_handle-1-g" ],
     [ "EventBootstrapper", "class_nomad_1_1_events_1_1_event_bootstrapper.html", "class_nomad_1_1_events_1_1_event_bootstrapper" ],
+    [ "EventHandlerException", "class_nomad_1_1_events_1_1_event_handler_exception.html", "class_nomad_1_1_events_1_1_event_handler_exception" ],
+    [ "EventPublishException", "class_nomad_1_1_events_1_1_event_publish_exception.html", "class_nomad_1_1_events_1_1_event_publish_exception" ],
     [ "GameEventRegistry", "class_nomad_1_1_events_1_1_game_event_registry.html", "class_nomad_1_1_events_1_1_game_event_registry" ],
     [ "SubscriptionHandle&lt; TArgs &gt;", "class_nomad_1_1_events_1_1_subscription_handle-1-g.html", "class_nomad_1_1_events_1_1_subscription_handle-1-g" ],
     [ "EventPriority", "namespace_nomad_1_1_events.html#aa2e60909ba77882ac2d9453068cf9071", [

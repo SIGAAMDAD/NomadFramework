@@ -183,21 +183,23 @@ $(function() {
 <div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span><span class="comment">        ===============</span></div>
 <div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span><span class="comment">        */</span></div>
 <div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>        [MethodImpl( MethodImplOptions.AggressiveInlining )]</div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>        <span class="keyword">public</span> <span class="keyword">static</span> <span class="keywordtype">bool</span> ValidateCVarType()</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>            =&gt; typeof( T ).GetCVarType() != <a class="code hl_enumeration" href="namespace_nomad_1_1_core_1_1_c_vars.html#ab60c1115f60a31eac61b8b575b94f671">CVarType</a>.Count;</div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span> </div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>        <span class="comment">/*</span></div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span><span class="comment">        ===============</span></div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span><span class="comment">        IsValidNameCharacter</span></div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span><span class="comment">        ===============</span></div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span><span class="comment">        */</span></div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>        [MethodImpl( MethodImplOptions.AggressiveInlining )]</div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>        <span class="keyword">private</span> <span class="keyword">static</span> <span class="keywordtype">bool</span> IsValidNameCharacter( <span class="keywordtype">char</span> c )</div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>            =&gt; <span class="keywordtype">char</span>.IsLetterOrDigit( c ) || c == <span class="charliteral">&#39;.&#39;</span> || c == <span class="charliteral">&#39;_&#39;</span>;</div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>    };</div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>};</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>        <span class="keyword">public</span> <span class="keyword">static</span> <span class="keywordtype">bool</span> ValidateCVarType() {</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>            <span class="keywordflow">return</span> typeof( T ).GetCVarType() != <a class="code hl_enumeration" href="namespace_nomad_1_1_core_1_1_c_vars.html#ab60c1115f60a31eac61b8b575b94f671">CVarType</a>.Count;</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>        }</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span> </div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>        <span class="comment">/*</span></div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span><span class="comment">        ===============</span></div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span><span class="comment">        IsValidNameCharacter</span></div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span><span class="comment">        ===============</span></div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span><span class="comment">        */</span></div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>        [MethodImpl( MethodImplOptions.AggressiveInlining )]</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>        <span class="keyword">private</span> <span class="keyword">static</span> <span class="keywordtype">bool</span> IsValidNameCharacter( <span class="keywordtype">char</span> c ) {</div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>            <span class="keywordflow">return</span> <span class="keywordtype">char</span>.IsLetterOrDigit( c ) || c == <span class="charliteral">&#39;.&#39;</span> || c == <span class="charliteral">&#39;_&#39;</span>;</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>        }</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    };</div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>};</div>
 <div class="ttc" id="anamespace_nomad_1_1_c_vars_1_1_private_1_1_value_objects_html"><div class="ttname"><a href="namespace_nomad_1_1_c_vars_1_1_private_1_1_value_objects.html">Nomad.CVars.Private.ValueObjects</a></div><div class="ttdef"><b>Definition</b> <a href="_c_var_metadata_8cs_source.html#l00020">CVarMetadata.cs:20</a></div></div>
-<div class="ttc" id="anamespace_nomad_1_1_core_1_1_c_vars_html"><div class="ttname"><a href="namespace_nomad_1_1_core_1_1_c_vars.html">Nomad.Core.CVars</a></div><div class="ttdef"><b>Definition</b> <a href="_c_var_create_info_8cs_source.html#l00018">CVarCreateInfo.cs:19</a></div></div>
+<div class="ttc" id="anamespace_nomad_1_1_core_1_1_c_vars_html"><div class="ttname"><a href="namespace_nomad_1_1_core_1_1_c_vars.html">Nomad.Core.CVars</a></div><div class="ttdef"><b>Definition</b> <a href="_c_var_binding_8cs_source.html#l00018">CVarBinding.cs:19</a></div></div>
 <div class="ttc" id="anamespace_nomad_1_1_core_1_1_c_vars_html_ab60c1115f60a31eac61b8b575b94f671"><div class="ttname"><a href="namespace_nomad_1_1_core_1_1_c_vars.html#ab60c1115f60a31eac61b8b575b94f671">Nomad.Core.CVars.CVarType</a></div><div class="ttdeci">CVarType</div><div class="ttdoc">A CVar&#39;s internal type.</div><div class="ttdef"><b>Definition</b> <a href="_c_var_type_8cs_source.html#l00023">CVarType.cs:24</a></div></div>
 <div class="ttc" id="anamespace_nomad_1_1_core_1_1_input_1_1_value_objects_html_a97efc8628cbccbb601233d299d1730aeab9ece18c950afbfa6b0fdbfa4ff731d3"><div class="ttname"><a href="namespace_nomad_1_1_core_1_1_input_1_1_value_objects.html#a97efc8628cbccbb601233d299d1730aeab9ece18c950afbfa6b0fdbfa4ff731d3">Nomad.Core.Input.ValueObjects.KeyNum.T</a></div><div class="ttdeci">@ T</div><div class="ttdoc">The &#39;T&#39; key.</div><div class="ttdef"><b>Definition</b> <a href="_key_num_8cs_source.html#l00046">KeyNum.cs:46</a></div></div>
 <div class="ttc" id="anamespace_system_1_1_runtime_1_1_compiler_services_html"><div class="ttname"><a href="namespace_system_1_1_runtime_1_1_compiler_services.html">System.Runtime.CompilerServices</a></div><div class="ttdef"><b>Definition</b> <a href="_is_externa_i_init_8cs_source.html#l00017">IsExternaIInit.cs:18</a></div></div>

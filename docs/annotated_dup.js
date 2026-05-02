@@ -2,94 +2,9 @@ var annotated_dup =
 [
     [ "FMOD", "namespace_f_m_o_d.html", [
       [ "Studio", "namespace_f_m_o_d_1_1_studio.html", [
-        [ "ADVANCEDSETTINGS", "struct_f_m_o_d_1_1_studio_1_1_a_d_v_a_n_c_e_d_s_e_t_t_i_n_g_s.html", "struct_f_m_o_d_1_1_studio_1_1_a_d_v_a_n_c_e_d_s_e_t_t_i_n_g_s" ],
-        [ "Bank", "struct_f_m_o_d_1_1_studio_1_1_bank.html", "struct_f_m_o_d_1_1_studio_1_1_bank" ],
-        [ "BANK_INFO", "struct_f_m_o_d_1_1_studio_1_1_b_a_n_k___i_n_f_o.html", "struct_f_m_o_d_1_1_studio_1_1_b_a_n_k___i_n_f_o" ],
-        [ "BUFFER_INFO", "struct_f_m_o_d_1_1_studio_1_1_b_u_f_f_e_r___i_n_f_o.html", "struct_f_m_o_d_1_1_studio_1_1_b_u_f_f_e_r___i_n_f_o" ],
-        [ "BUFFER_USAGE", "struct_f_m_o_d_1_1_studio_1_1_b_u_f_f_e_r___u_s_a_g_e.html", "struct_f_m_o_d_1_1_studio_1_1_b_u_f_f_e_r___u_s_a_g_e" ],
-        [ "Bus", "struct_f_m_o_d_1_1_studio_1_1_bus.html", "struct_f_m_o_d_1_1_studio_1_1_bus" ],
-        [ "COMMAND_INFO", "struct_f_m_o_d_1_1_studio_1_1_c_o_m_m_a_n_d___i_n_f_o.html", "struct_f_m_o_d_1_1_studio_1_1_c_o_m_m_a_n_d___i_n_f_o" ],
-        [ "CommandReplay", "struct_f_m_o_d_1_1_studio_1_1_command_replay.html", "struct_f_m_o_d_1_1_studio_1_1_command_replay" ],
-        [ "CPU_USAGE", "struct_f_m_o_d_1_1_studio_1_1_c_p_u___u_s_a_g_e.html", "struct_f_m_o_d_1_1_studio_1_1_c_p_u___u_s_a_g_e" ],
-        [ "EventDescription", "struct_f_m_o_d_1_1_studio_1_1_event_description.html", "struct_f_m_o_d_1_1_studio_1_1_event_description" ],
-        [ "EventInstance", "struct_f_m_o_d_1_1_studio_1_1_event_instance.html", "struct_f_m_o_d_1_1_studio_1_1_event_instance" ],
-        [ "MEMORY_USAGE", "struct_f_m_o_d_1_1_studio_1_1_m_e_m_o_r_y___u_s_a_g_e.html", "struct_f_m_o_d_1_1_studio_1_1_m_e_m_o_r_y___u_s_a_g_e" ],
-        [ "PARAMETER_DESCRIPTION", "struct_f_m_o_d_1_1_studio_1_1_p_a_r_a_m_e_t_e_r___d_e_s_c_r_i_p_t_i_o_n.html", "struct_f_m_o_d_1_1_studio_1_1_p_a_r_a_m_e_t_e_r___d_e_s_c_r_i_p_t_i_o_n" ],
-        [ "PARAMETER_ID", "struct_f_m_o_d_1_1_studio_1_1_p_a_r_a_m_e_t_e_r___i_d.html", "struct_f_m_o_d_1_1_studio_1_1_p_a_r_a_m_e_t_e_r___i_d" ],
-        [ "PLUGIN_INSTANCE_PROPERTIES", "struct_f_m_o_d_1_1_studio_1_1_p_l_u_g_i_n___i_n_s_t_a_n_c_e___p_r_o_p_e_r_t_i_e_s.html", "struct_f_m_o_d_1_1_studio_1_1_p_l_u_g_i_n___i_n_s_t_a_n_c_e___p_r_o_p_e_r_t_i_e_s" ],
-        [ "PROGRAMMER_SOUND_PROPERTIES", "struct_f_m_o_d_1_1_studio_1_1_p_r_o_g_r_a_m_m_e_r___s_o_u_n_d___p_r_o_p_e_r_t_i_e_s.html", "struct_f_m_o_d_1_1_studio_1_1_p_r_o_g_r_a_m_m_e_r___s_o_u_n_d___p_r_o_p_e_r_t_i_e_s" ],
-        [ "SOUND_INFO", "struct_f_m_o_d_1_1_studio_1_1_s_o_u_n_d___i_n_f_o.html", "struct_f_m_o_d_1_1_studio_1_1_s_o_u_n_d___i_n_f_o" ],
-        [ "STUDIO_VERSION", "class_f_m_o_d_1_1_studio_1_1_s_t_u_d_i_o___v_e_r_s_i_o_n.html", "class_f_m_o_d_1_1_studio_1_1_s_t_u_d_i_o___v_e_r_s_i_o_n" ],
-        [ "System", "struct_f_m_o_d_1_1_studio_1_1_system.html", "struct_f_m_o_d_1_1_studio_1_1_system" ],
-        [ "TIMELINE_BEAT_PROPERTIES", "struct_f_m_o_d_1_1_studio_1_1_t_i_m_e_l_i_n_e___b_e_a_t___p_r_o_p_e_r_t_i_e_s.html", "struct_f_m_o_d_1_1_studio_1_1_t_i_m_e_l_i_n_e___b_e_a_t___p_r_o_p_e_r_t_i_e_s" ],
-        [ "TIMELINE_MARKER_PROPERTIES", "struct_f_m_o_d_1_1_studio_1_1_t_i_m_e_l_i_n_e___m_a_r_k_e_r___p_r_o_p_e_r_t_i_e_s.html", "struct_f_m_o_d_1_1_studio_1_1_t_i_m_e_l_i_n_e___m_a_r_k_e_r___p_r_o_p_e_r_t_i_e_s" ],
-        [ "TIMELINE_NESTED_BEAT_PROPERTIES", "struct_f_m_o_d_1_1_studio_1_1_t_i_m_e_l_i_n_e___n_e_s_t_e_d___b_e_a_t___p_r_o_p_e_r_t_i_e_s.html", "struct_f_m_o_d_1_1_studio_1_1_t_i_m_e_l_i_n_e___n_e_s_t_e_d___b_e_a_t___p_r_o_p_e_r_t_i_e_s" ],
-        [ "Union_IntBoolFloatString", "struct_f_m_o_d_1_1_studio_1_1_union___int_bool_float_string.html", "struct_f_m_o_d_1_1_studio_1_1_union___int_bool_float_string" ],
-        [ "USER_PROPERTY", "struct_f_m_o_d_1_1_studio_1_1_u_s_e_r___p_r_o_p_e_r_t_y.html", "struct_f_m_o_d_1_1_studio_1_1_u_s_e_r___p_r_o_p_e_r_t_y" ],
-        [ "Util", "struct_f_m_o_d_1_1_studio_1_1_util.html", "struct_f_m_o_d_1_1_studio_1_1_util" ],
-        [ "VCA", "struct_f_m_o_d_1_1_studio_1_1_v_c_a.html", "struct_f_m_o_d_1_1_studio_1_1_v_c_a" ]
+        [ "Union_IntBoolFloatString", "struct_f_m_o_d_1_1_studio_1_1_union___int_bool_float_string.html", "struct_f_m_o_d_1_1_studio_1_1_union___int_bool_float_string" ]
       ] ],
-      [ "ADVANCEDSETTINGS", "struct_f_m_o_d_1_1_a_d_v_a_n_c_e_d_s_e_t_t_i_n_g_s.html", "struct_f_m_o_d_1_1_a_d_v_a_n_c_e_d_s_e_t_t_i_n_g_s" ],
-      [ "ASYNCREADINFO", "struct_f_m_o_d_1_1_a_s_y_n_c_r_e_a_d_i_n_f_o.html", "struct_f_m_o_d_1_1_a_s_y_n_c_r_e_a_d_i_n_f_o" ],
-      [ "ATTRIBUTES_3D", "struct_f_m_o_d_1_1_a_t_t_r_i_b_u_t_e_s__3_d.html", "struct_f_m_o_d_1_1_a_t_t_r_i_b_u_t_e_s__3_d" ],
-      [ "Channel", "struct_f_m_o_d_1_1_channel.html", "struct_f_m_o_d_1_1_channel" ],
-      [ "CHANNELCONTROL_DSP_INDEX", "struct_f_m_o_d_1_1_c_h_a_n_n_e_l_c_o_n_t_r_o_l___d_s_p___i_n_d_e_x.html", "struct_f_m_o_d_1_1_c_h_a_n_n_e_l_c_o_n_t_r_o_l___d_s_p___i_n_d_e_x" ],
-      [ "ChannelGroup", "struct_f_m_o_d_1_1_channel_group.html", "struct_f_m_o_d_1_1_channel_group" ],
-      [ "COMPLEX", "struct_f_m_o_d_1_1_c_o_m_p_l_e_x.html", "struct_f_m_o_d_1_1_c_o_m_p_l_e_x" ],
-      [ "CONSTANTS", "class_f_m_o_d_1_1_c_o_n_s_t_a_n_t_s.html", "class_f_m_o_d_1_1_c_o_n_s_t_a_n_t_s" ],
-      [ "CPU_USAGE", "struct_f_m_o_d_1_1_c_p_u___u_s_a_g_e.html", "struct_f_m_o_d_1_1_c_p_u___u_s_a_g_e" ],
-      [ "CREATESOUNDEXINFO", "struct_f_m_o_d_1_1_c_r_e_a_t_e_s_o_u_n_d_e_x_i_n_f_o.html", "struct_f_m_o_d_1_1_c_r_e_a_t_e_s_o_u_n_d_e_x_i_n_f_o" ],
-      [ "Debug", "struct_f_m_o_d_1_1_debug.html", "struct_f_m_o_d_1_1_debug" ],
-      [ "DSP", "struct_f_m_o_d_1_1_d_s_p.html", "struct_f_m_o_d_1_1_d_s_p" ],
-      [ "DSP_BUFFER_ARRAY", "struct_f_m_o_d_1_1_d_s_p___b_u_f_f_e_r___a_r_r_a_y.html", "struct_f_m_o_d_1_1_d_s_p___b_u_f_f_e_r___a_r_r_a_y" ],
-      [ "DSP_DATA_PARAMETER_INFO", "struct_f_m_o_d_1_1_d_s_p___d_a_t_a___p_a_r_a_m_e_t_e_r___i_n_f_o.html", "struct_f_m_o_d_1_1_d_s_p___d_a_t_a___p_a_r_a_m_e_t_e_r___i_n_f_o" ],
-      [ "DSP_DESCRIPTION", "struct_f_m_o_d_1_1_d_s_p___d_e_s_c_r_i_p_t_i_o_n.html", "struct_f_m_o_d_1_1_d_s_p___d_e_s_c_r_i_p_t_i_o_n" ],
-      [ "DSP_LOUDNESS_METER_INFO_TYPE", "struct_f_m_o_d_1_1_d_s_p___l_o_u_d_n_e_s_s___m_e_t_e_r___i_n_f_o___t_y_p_e.html", "struct_f_m_o_d_1_1_d_s_p___l_o_u_d_n_e_s_s___m_e_t_e_r___i_n_f_o___t_y_p_e" ],
-      [ "DSP_LOUDNESS_METER_WEIGHTING_TYPE", "struct_f_m_o_d_1_1_d_s_p___l_o_u_d_n_e_s_s___m_e_t_e_r___w_e_i_g_h_t_i_n_g___t_y_p_e.html", "struct_f_m_o_d_1_1_d_s_p___l_o_u_d_n_e_s_s___m_e_t_e_r___w_e_i_g_h_t_i_n_g___t_y_p_e" ],
-      [ "DSP_METERING_INFO", "struct_f_m_o_d_1_1_d_s_p___m_e_t_e_r_i_n_g___i_n_f_o.html", "struct_f_m_o_d_1_1_d_s_p___m_e_t_e_r_i_n_g___i_n_f_o" ],
-      [ "DSP_PARAMETER_3DATTRIBUTES", "struct_f_m_o_d_1_1_d_s_p___p_a_r_a_m_e_t_e_r__3_d_a_t_t_r_i_b_u_t_e_s.html", "struct_f_m_o_d_1_1_d_s_p___p_a_r_a_m_e_t_e_r__3_d_a_t_t_r_i_b_u_t_e_s" ],
-      [ "DSP_PARAMETER_3DATTRIBUTES_MULTI", "struct_f_m_o_d_1_1_d_s_p___p_a_r_a_m_e_t_e_r__3_d_a_t_t_r_i_b_u_t_e_s___m_u_l_t_i.html", "struct_f_m_o_d_1_1_d_s_p___p_a_r_a_m_e_t_e_r__3_d_a_t_t_r_i_b_u_t_e_s___m_u_l_t_i" ],
-      [ "DSP_PARAMETER_ATTENUATION_RANGE", "struct_f_m_o_d_1_1_d_s_p___p_a_r_a_m_e_t_e_r___a_t_t_e_n_u_a_t_i_o_n___r_a_n_g_e.html", "struct_f_m_o_d_1_1_d_s_p___p_a_r_a_m_e_t_e_r___a_t_t_e_n_u_a_t_i_o_n___r_a_n_g_e" ],
-      [ "DSP_PARAMETER_DESC", "struct_f_m_o_d_1_1_d_s_p___p_a_r_a_m_e_t_e_r___d_e_s_c.html", "struct_f_m_o_d_1_1_d_s_p___p_a_r_a_m_e_t_e_r___d_e_s_c" ],
-      [ "DSP_PARAMETER_DESC_BOOL", "struct_f_m_o_d_1_1_d_s_p___p_a_r_a_m_e_t_e_r___d_e_s_c___b_o_o_l.html", "struct_f_m_o_d_1_1_d_s_p___p_a_r_a_m_e_t_e_r___d_e_s_c___b_o_o_l" ],
-      [ "DSP_PARAMETER_DESC_DATA", "struct_f_m_o_d_1_1_d_s_p___p_a_r_a_m_e_t_e_r___d_e_s_c___d_a_t_a.html", "struct_f_m_o_d_1_1_d_s_p___p_a_r_a_m_e_t_e_r___d_e_s_c___d_a_t_a" ],
-      [ "DSP_PARAMETER_DESC_FLOAT", "struct_f_m_o_d_1_1_d_s_p___p_a_r_a_m_e_t_e_r___d_e_s_c___f_l_o_a_t.html", "struct_f_m_o_d_1_1_d_s_p___p_a_r_a_m_e_t_e_r___d_e_s_c___f_l_o_a_t" ],
-      [ "DSP_PARAMETER_DESC_INT", "struct_f_m_o_d_1_1_d_s_p___p_a_r_a_m_e_t_e_r___d_e_s_c___i_n_t.html", "struct_f_m_o_d_1_1_d_s_p___p_a_r_a_m_e_t_e_r___d_e_s_c___i_n_t" ],
-      [ "DSP_PARAMETER_DESC_UNION", "struct_f_m_o_d_1_1_d_s_p___p_a_r_a_m_e_t_e_r___d_e_s_c___u_n_i_o_n.html", "struct_f_m_o_d_1_1_d_s_p___p_a_r_a_m_e_t_e_r___d_e_s_c___u_n_i_o_n" ],
-      [ "DSP_PARAMETER_DYNAMIC_RESPONSE", "struct_f_m_o_d_1_1_d_s_p___p_a_r_a_m_e_t_e_r___d_y_n_a_m_i_c___r_e_s_p_o_n_s_e.html", "struct_f_m_o_d_1_1_d_s_p___p_a_r_a_m_e_t_e_r___d_y_n_a_m_i_c___r_e_s_p_o_n_s_e" ],
-      [ "DSP_PARAMETER_FFT", "struct_f_m_o_d_1_1_d_s_p___p_a_r_a_m_e_t_e_r___f_f_t.html", "struct_f_m_o_d_1_1_d_s_p___p_a_r_a_m_e_t_e_r___f_f_t" ],
-      [ "DSP_PARAMETER_FINITE_LENGTH", "struct_f_m_o_d_1_1_d_s_p___p_a_r_a_m_e_t_e_r___f_i_n_i_t_e___l_e_n_g_t_h.html", "struct_f_m_o_d_1_1_d_s_p___p_a_r_a_m_e_t_e_r___f_i_n_i_t_e___l_e_n_g_t_h" ],
-      [ "DSP_PARAMETER_FLOAT_MAPPING", "struct_f_m_o_d_1_1_d_s_p___p_a_r_a_m_e_t_e_r___f_l_o_a_t___m_a_p_p_i_n_g.html", "struct_f_m_o_d_1_1_d_s_p___p_a_r_a_m_e_t_e_r___f_l_o_a_t___m_a_p_p_i_n_g" ],
-      [ "DSP_PARAMETER_FLOAT_MAPPING_PIECEWISE_LINEAR", "struct_f_m_o_d_1_1_d_s_p___p_a_r_a_m_e_t_e_r___f_l_o_a_t___m_a_p_p_i_n_g___p_i_e_c_e_w_i_s_e___l_i_n_e_a_r.html", "struct_f_m_o_d_1_1_d_s_p___p_a_r_a_m_e_t_e_r___f_l_o_a_t___m_a_p_p_i_n_g___p_i_e_c_e_w_i_s_e___l_i_n_e_a_r" ],
-      [ "DSP_PARAMETER_OVERALLGAIN", "struct_f_m_o_d_1_1_d_s_p___p_a_r_a_m_e_t_e_r___o_v_e_r_a_l_l_g_a_i_n.html", "struct_f_m_o_d_1_1_d_s_p___p_a_r_a_m_e_t_e_r___o_v_e_r_a_l_l_g_a_i_n" ],
-      [ "DSP_PARAMETER_SIDECHAIN", "struct_f_m_o_d_1_1_d_s_p___p_a_r_a_m_e_t_e_r___s_i_d_e_c_h_a_i_n.html", "struct_f_m_o_d_1_1_d_s_p___p_a_r_a_m_e_t_e_r___s_i_d_e_c_h_a_i_n" ],
-      [ "DSP_STATE", "struct_f_m_o_d_1_1_d_s_p___s_t_a_t_e.html", "struct_f_m_o_d_1_1_d_s_p___s_t_a_t_e" ],
-      [ "DSP_STATE_DFT_FUNCTIONS", "struct_f_m_o_d_1_1_d_s_p___s_t_a_t_e___d_f_t___f_u_n_c_t_i_o_n_s.html", "struct_f_m_o_d_1_1_d_s_p___s_t_a_t_e___d_f_t___f_u_n_c_t_i_o_n_s" ],
-      [ "DSP_STATE_FUNCTIONS", "struct_f_m_o_d_1_1_d_s_p___s_t_a_t_e___f_u_n_c_t_i_o_n_s.html", "struct_f_m_o_d_1_1_d_s_p___s_t_a_t_e___f_u_n_c_t_i_o_n_s" ],
-      [ "DSP_STATE_PAN_FUNCTIONS", "struct_f_m_o_d_1_1_d_s_p___s_t_a_t_e___p_a_n___f_u_n_c_t_i_o_n_s.html", "struct_f_m_o_d_1_1_d_s_p___s_t_a_t_e___p_a_n___f_u_n_c_t_i_o_n_s" ],
-      [ "DSPConnection", "struct_f_m_o_d_1_1_d_s_p_connection.html", "struct_f_m_o_d_1_1_d_s_p_connection" ],
-      [ "Error", "class_f_m_o_d_1_1_error.html", "class_f_m_o_d_1_1_error" ],
-      [ "ERRORCALLBACK_INFO", "struct_f_m_o_d_1_1_e_r_r_o_r_c_a_l_l_b_a_c_k___i_n_f_o.html", "struct_f_m_o_d_1_1_e_r_r_o_r_c_a_l_l_b_a_c_k___i_n_f_o" ],
-      [ "Factory", "struct_f_m_o_d_1_1_factory.html", "struct_f_m_o_d_1_1_factory" ],
-      [ "FMODNative", "class_f_m_o_d_1_1_f_m_o_d_native.html", "class_f_m_o_d_1_1_f_m_o_d_native" ],
-      [ "Geometry", "struct_f_m_o_d_1_1_geometry.html", "struct_f_m_o_d_1_1_geometry" ],
-      [ "GUID", "struct_f_m_o_d_1_1_g_u_i_d.html", "struct_f_m_o_d_1_1_g_u_i_d" ],
-      [ "IChannelControl", "interface_f_m_o_d_1_1_i_channel_control.html", "interface_f_m_o_d_1_1_i_channel_control" ],
-      [ "Memory", "struct_f_m_o_d_1_1_memory.html", "struct_f_m_o_d_1_1_memory" ],
-      [ "PLUGINLIST", "struct_f_m_o_d_1_1_p_l_u_g_i_n_l_i_s_t.html", "struct_f_m_o_d_1_1_p_l_u_g_i_n_l_i_s_t" ],
-      [ "PORT_INDEX", "struct_f_m_o_d_1_1_p_o_r_t___i_n_d_e_x.html", "struct_f_m_o_d_1_1_p_o_r_t___i_n_d_e_x" ],
-      [ "PRESET", "class_f_m_o_d_1_1_p_r_e_s_e_t.html", "class_f_m_o_d_1_1_p_r_e_s_e_t" ],
-      [ "Reverb3D", "struct_f_m_o_d_1_1_reverb3_d.html", "struct_f_m_o_d_1_1_reverb3_d" ],
-      [ "REVERB_PROPERTIES", "struct_f_m_o_d_1_1_r_e_v_e_r_b___p_r_o_p_e_r_t_i_e_s.html", "struct_f_m_o_d_1_1_r_e_v_e_r_b___p_r_o_p_e_r_t_i_e_s" ],
-      [ "Sound", "struct_f_m_o_d_1_1_sound.html", "struct_f_m_o_d_1_1_sound" ],
-      [ "SoundGroup", "struct_f_m_o_d_1_1_sound_group.html", "struct_f_m_o_d_1_1_sound_group" ],
-      [ "StringHelper", "class_f_m_o_d_1_1_string_helper.html", "class_f_m_o_d_1_1_string_helper" ],
-      [ "StringWrapper", "struct_f_m_o_d_1_1_string_wrapper.html", "struct_f_m_o_d_1_1_string_wrapper" ],
-      [ "System", "struct_f_m_o_d_1_1_system.html", "struct_f_m_o_d_1_1_system" ],
-      [ "TAG", "struct_f_m_o_d_1_1_t_a_g.html", "struct_f_m_o_d_1_1_t_a_g" ],
-      [ "Thread", "struct_f_m_o_d_1_1_thread.html", "struct_f_m_o_d_1_1_thread" ],
-      [ "VECTOR", "struct_f_m_o_d_1_1_v_e_c_t_o_r.html", "struct_f_m_o_d_1_1_v_e_c_t_o_r" ],
-      [ "VERSION", "class_f_m_o_d_1_1_v_e_r_s_i_o_n.html", "class_f_m_o_d_1_1_v_e_r_s_i_o_n" ]
+      [ "IChannelControl", "interface_f_m_o_d_1_1_i_channel_control.html", "interface_f_m_o_d_1_1_i_channel_control" ]
     ] ],
     [ "Nomad", "namespace_nomad.html", [
       [ "Audio", "namespace_nomad_1_1_audio.html", [
@@ -100,6 +15,7 @@ var annotated_dup =
         [ "Interfaces", "namespace_nomad_1_1_audio_1_1_interfaces.html", [
           [ "IAudioDevice", "interface_nomad_1_1_audio_1_1_interfaces_1_1_i_audio_device.html", "interface_nomad_1_1_audio_1_1_interfaces_1_1_i_audio_device" ],
           [ "IAudioEmitter", "interface_nomad_1_1_audio_1_1_interfaces_1_1_i_audio_emitter.html", "interface_nomad_1_1_audio_1_1_interfaces_1_1_i_audio_emitter" ],
+          [ "IAudioGroup", "interface_nomad_1_1_audio_1_1_interfaces_1_1_i_audio_group.html", "interface_nomad_1_1_audio_1_1_interfaces_1_1_i_audio_group" ],
           [ "IAudioResource", "interface_nomad_1_1_audio_1_1_interfaces_1_1_i_audio_resource.html", "interface_nomad_1_1_audio_1_1_interfaces_1_1_i_audio_resource" ],
           [ "IChannelRepository", "interface_nomad_1_1_audio_1_1_interfaces_1_1_i_channel_repository.html", "interface_nomad_1_1_audio_1_1_interfaces_1_1_i_channel_repository" ],
           [ "IEmitterFactory", "interface_nomad_1_1_audio_1_1_interfaces_1_1_i_emitter_factory.html", "interface_nomad_1_1_audio_1_1_interfaces_1_1_i_emitter_factory" ],
@@ -145,9 +61,8 @@ var annotated_dup =
           [ "IAudioSystem", "interface_nomad_1_1_core_1_1_audio_1_1_i_audio_system.html", "interface_nomad_1_1_core_1_1_audio_1_1_i_audio_system" ]
         ] ],
         [ "Collections", "namespace_nomad_1_1_core_1_1_collections.html", [
-          [ "LockFreePooledQueue&lt; T &gt;", "class_nomad_1_1_core_1_1_collections_1_1_lock_free_pooled_queue-1-g.html", "class_nomad_1_1_core_1_1_collections_1_1_lock_free_pooled_queue-1-g" ],
-          [ "LockFreeQueue&lt; T &gt;", "class_nomad_1_1_core_1_1_collections_1_1_lock_free_queue-1-g.html", "class_nomad_1_1_core_1_1_collections_1_1_lock_free_queue-1-g" ],
-          [ "LockFreeRingBuffer&lt; T &gt;", "class_nomad_1_1_core_1_1_collections_1_1_lock_free_ring_buffer-1-g.html", "class_nomad_1_1_core_1_1_collections_1_1_lock_free_ring_buffer-1-g" ]
+          [ "FixedList16&lt; T &gt;", "class_nomad_1_1_core_1_1_collections_1_1_fixed_list16-1-g.html", "class_nomad_1_1_core_1_1_collections_1_1_fixed_list16-1-g" ],
+          [ "FixedList8&lt; T &gt;", "class_nomad_1_1_core_1_1_collections_1_1_fixed_list8-1-g.html", "class_nomad_1_1_core_1_1_collections_1_1_fixed_list8-1-g" ]
         ] ],
         [ "Compatibility", "namespace_nomad_1_1_core_1_1_compatibility.html", [
           [ "Guards", "namespace_nomad_1_1_core_1_1_compatibility_1_1_guards.html", [
@@ -166,6 +81,7 @@ var annotated_dup =
           [ "TextEnteredEventArgs", "struct_nomad_1_1_core_1_1_console_1_1_text_entered_event_args.html", "struct_nomad_1_1_core_1_1_console_1_1_text_entered_event_args" ]
         ] ],
         [ "CVars", "namespace_nomad_1_1_core_1_1_c_vars.html", [
+          [ "CVarBinding&lt; T &gt;", "class_nomad_1_1_core_1_1_c_vars_1_1_c_var_binding-1-g.html", "class_nomad_1_1_core_1_1_c_vars_1_1_c_var_binding-1-g" ],
           [ "CVarTypeExtensions", "class_nomad_1_1_core_1_1_c_vars_1_1_c_var_type_extensions.html", "class_nomad_1_1_core_1_1_c_vars_1_1_c_var_type_extensions" ],
           [ "CVarValueChangedEventArgs&lt; T &gt;", "struct_nomad_1_1_core_1_1_c_vars_1_1_c_var_value_changed_event_args-1-g.html", "struct_nomad_1_1_core_1_1_c_vars_1_1_c_var_value_changed_event_args-1-g" ],
           [ "ICVar", "interface_nomad_1_1_core_1_1_c_vars_1_1_i_c_var.html", "interface_nomad_1_1_core_1_1_c_vars_1_1_i_c_var" ],
@@ -181,6 +97,7 @@ var annotated_dup =
             [ "IAsset", "interface_nomad_1_1_core_1_1_engine_1_1_assets_1_1_i_asset.html", "interface_nomad_1_1_core_1_1_engine_1_1_assets_1_1_i_asset" ],
             [ "IMaterial", "interface_nomad_1_1_core_1_1_engine_1_1_assets_1_1_i_material.html", null ],
             [ "IShaderMaterial", "interface_nomad_1_1_core_1_1_engine_1_1_assets_1_1_i_shader_material.html", "interface_nomad_1_1_core_1_1_engine_1_1_assets_1_1_i_shader_material" ],
+            [ "ISpriteFrames", "interface_nomad_1_1_core_1_1_engine_1_1_assets_1_1_i_sprite_frames.html", "interface_nomad_1_1_core_1_1_engine_1_1_assets_1_1_i_sprite_frames" ],
             [ "ITexture", "interface_nomad_1_1_core_1_1_engine_1_1_assets_1_1_i_texture.html", "interface_nomad_1_1_core_1_1_engine_1_1_assets_1_1_i_texture" ]
           ] ],
           [ "Globals", "namespace_nomad_1_1_core_1_1_engine_1_1_globals.html", [
@@ -200,12 +117,17 @@ var annotated_dup =
             [ "IConsoleObject", "interface_nomad_1_1_core_1_1_engine_1_1_services_1_1_i_console_object.html", "interface_nomad_1_1_core_1_1_engine_1_1_services_1_1_i_console_object" ],
             [ "IDisplayService", "interface_nomad_1_1_core_1_1_engine_1_1_services_1_1_i_display_service.html", "interface_nomad_1_1_core_1_1_engine_1_1_services_1_1_i_display_service" ],
             [ "IEngineService", "interface_nomad_1_1_core_1_1_engine_1_1_services_1_1_i_engine_service.html", "interface_nomad_1_1_core_1_1_engine_1_1_services_1_1_i_engine_service" ],
+            [ "IGamePauseService", "interface_nomad_1_1_core_1_1_engine_1_1_services_1_1_i_game_pause_service.html", "interface_nomad_1_1_core_1_1_engine_1_1_services_1_1_i_game_pause_service" ],
             [ "IInputAdapter", "interface_nomad_1_1_core_1_1_engine_1_1_services_1_1_i_input_adapter.html", "interface_nomad_1_1_core_1_1_engine_1_1_services_1_1_i_input_adapter" ],
             [ "ILocalizationService", "interface_nomad_1_1_core_1_1_engine_1_1_services_1_1_i_localization_service.html", "interface_nomad_1_1_core_1_1_engine_1_1_services_1_1_i_localization_service" ],
-            [ "IWindowService", "interface_nomad_1_1_core_1_1_engine_1_1_services_1_1_i_window_service.html", "interface_nomad_1_1_core_1_1_engine_1_1_services_1_1_i_window_service" ]
+            [ "ISplitScreenService", "interface_nomad_1_1_core_1_1_engine_1_1_services_1_1_i_split_screen_service.html", "interface_nomad_1_1_core_1_1_engine_1_1_services_1_1_i_split_screen_service" ],
+            [ "ITimeService", "interface_nomad_1_1_core_1_1_engine_1_1_services_1_1_i_time_service.html", "interface_nomad_1_1_core_1_1_engine_1_1_services_1_1_i_time_service" ],
+            [ "IWindowService", "interface_nomad_1_1_core_1_1_engine_1_1_services_1_1_i_window_service.html", "interface_nomad_1_1_core_1_1_engine_1_1_services_1_1_i_window_service" ],
+            [ "PauseStateChangedEventArgs", "struct_nomad_1_1_core_1_1_engine_1_1_services_1_1_pause_state_changed_event_args.html", "struct_nomad_1_1_core_1_1_engine_1_1_services_1_1_pause_state_changed_event_args" ]
           ] ],
           [ "Windowing", "namespace_nomad_1_1_core_1_1_engine_1_1_windowing.html", [
             [ "AspectRatioExtensions", "class_nomad_1_1_core_1_1_engine_1_1_windowing_1_1_aspect_ratio_extensions.html", "class_nomad_1_1_core_1_1_engine_1_1_windowing_1_1_aspect_ratio_extensions" ],
+            [ "AspectRatioValue", "struct_nomad_1_1_core_1_1_engine_1_1_windowing_1_1_aspect_ratio_value.html", "struct_nomad_1_1_core_1_1_engine_1_1_windowing_1_1_aspect_ratio_value" ],
             [ "Monitor", "struct_nomad_1_1_core_1_1_engine_1_1_windowing_1_1_monitor.html", "struct_nomad_1_1_core_1_1_engine_1_1_windowing_1_1_monitor" ],
             [ "WindowResolutionExtensions", "class_nomad_1_1_core_1_1_engine_1_1_windowing_1_1_window_resolution_extensions.html", "class_nomad_1_1_core_1_1_engine_1_1_windowing_1_1_window_resolution_extensions" ],
             [ "WindowSize", "struct_nomad_1_1_core_1_1_engine_1_1_windowing_1_1_window_size.html", "struct_nomad_1_1_core_1_1_engine_1_1_windowing_1_1_window_size" ],
@@ -214,6 +136,7 @@ var annotated_dup =
         ] ],
         [ "Events", "namespace_nomad_1_1_core_1_1_events.html", [
           [ "EmptyEventArgs", "struct_nomad_1_1_core_1_1_events_1_1_empty_event_args.html", "struct_nomad_1_1_core_1_1_events_1_1_empty_event_args" ],
+          [ "Event", "class_nomad_1_1_core_1_1_events_1_1_event.html", "class_nomad_1_1_core_1_1_events_1_1_event" ],
           [ "IEventScheduler", "interface_nomad_1_1_core_1_1_events_1_1_i_event_scheduler.html", "interface_nomad_1_1_core_1_1_events_1_1_i_event_scheduler" ],
           [ "IGameEvent", "interface_nomad_1_1_core_1_1_events_1_1_i_game_event.html", "interface_nomad_1_1_core_1_1_events_1_1_i_game_event" ],
           [ "IGameEvent&lt; TArgs &gt;", "interface_nomad_1_1_core_1_1_events_1_1_i_game_event-1-g.html", "interface_nomad_1_1_core_1_1_events_1_1_i_game_event-1-g" ],
@@ -252,7 +175,8 @@ var annotated_dup =
           [ "IInputSystem", "interface_nomad_1_1_core_1_1_input_1_1_i_input_system.html", "interface_nomad_1_1_core_1_1_input_1_1_i_input_system" ],
           [ "KeyboardEventArgs", "struct_nomad_1_1_core_1_1_input_1_1_keyboard_event_args.html", "struct_nomad_1_1_core_1_1_input_1_1_keyboard_event_args" ],
           [ "MouseButtonEventArgs", "struct_nomad_1_1_core_1_1_input_1_1_mouse_button_event_args.html", "struct_nomad_1_1_core_1_1_input_1_1_mouse_button_event_args" ],
-          [ "MouseMotionEventArgs", "struct_nomad_1_1_core_1_1_input_1_1_mouse_motion_event_args.html", "struct_nomad_1_1_core_1_1_input_1_1_mouse_motion_event_args" ]
+          [ "MouseMotionEventArgs", "struct_nomad_1_1_core_1_1_input_1_1_mouse_motion_event_args.html", "struct_nomad_1_1_core_1_1_input_1_1_mouse_motion_event_args" ],
+          [ "MousePositionChangedEventArgs", "struct_nomad_1_1_core_1_1_input_1_1_mouse_position_changed_event_args.html", "struct_nomad_1_1_core_1_1_input_1_1_mouse_position_changed_event_args" ]
         ] ],
         [ "Logger", "namespace_nomad_1_1_core_1_1_logger.html", [
           [ "ILoggerCategory", "interface_nomad_1_1_core_1_1_logger_1_1_i_logger_category.html", "interface_nomad_1_1_core_1_1_logger_1_1_i_logger_category" ],
@@ -276,6 +200,13 @@ var annotated_dup =
           [ "IObjectPool&lt; TObject &gt;", "interface_nomad_1_1_core_1_1_memory_1_1_i_object_pool-1-g.html", "interface_nomad_1_1_core_1_1_memory_1_1_i_object_pool-1-g" ],
           [ "StringPool", "class_nomad_1_1_core_1_1_memory_1_1_string_pool.html", "class_nomad_1_1_core_1_1_memory_1_1_string_pool" ]
         ] ],
+        [ "Numerics", "namespace_nomad_1_1_core_1_1_numerics.html", [
+          [ "AngleMath", "class_nomad_1_1_core_1_1_numerics_1_1_angle_math.html", "class_nomad_1_1_core_1_1_numerics_1_1_angle_math" ],
+          [ "Interpolation", "class_nomad_1_1_core_1_1_numerics_1_1_interpolation.html", "class_nomad_1_1_core_1_1_numerics_1_1_interpolation" ],
+          [ "PackedVector2U16", "struct_nomad_1_1_core_1_1_numerics_1_1_packed_vector2_u16.html", "struct_nomad_1_1_core_1_1_numerics_1_1_packed_vector2_u16" ],
+          [ "PackedVector2U32", "struct_nomad_1_1_core_1_1_numerics_1_1_packed_vector2_u32.html", "struct_nomad_1_1_core_1_1_numerics_1_1_packed_vector2_u32" ],
+          [ "ScalarMath", "class_nomad_1_1_core_1_1_numerics_1_1_scalar_math.html", "class_nomad_1_1_core_1_1_numerics_1_1_scalar_math" ]
+        ] ],
         [ "OnlineServices", "namespace_nomad_1_1_core_1_1_online_services.html", [
           [ "AchievementProgressChangedEventArgs", "struct_nomad_1_1_core_1_1_online_services_1_1_achievement_progress_changed_event_args.html", "struct_nomad_1_1_core_1_1_online_services_1_1_achievement_progress_changed_event_args" ],
           [ "AchievementUnlockedEventArgs", "struct_nomad_1_1_core_1_1_online_services_1_1_achievement_unlocked_event_args.html", "struct_nomad_1_1_core_1_1_online_services_1_1_achievement_unlocked_event_args" ],
@@ -284,8 +215,22 @@ var annotated_dup =
           [ "ICloudStorageService", "interface_nomad_1_1_core_1_1_online_services_1_1_i_cloud_storage_service.html", "interface_nomad_1_1_core_1_1_online_services_1_1_i_cloud_storage_service" ],
           [ "ILobbyService", "interface_nomad_1_1_core_1_1_online_services_1_1_i_lobby_service.html", "interface_nomad_1_1_core_1_1_online_services_1_1_i_lobby_service" ],
           [ "IMatchMakingService", "interface_nomad_1_1_core_1_1_online_services_1_1_i_match_making_service.html", "interface_nomad_1_1_core_1_1_online_services_1_1_i_match_making_service" ],
+          [ "INetworkSessionService", "interface_nomad_1_1_core_1_1_online_services_1_1_i_network_session_service.html", "interface_nomad_1_1_core_1_1_online_services_1_1_i_network_session_service" ],
           [ "IOnlinePlatformService", "interface_nomad_1_1_core_1_1_online_services_1_1_i_online_platform_service.html", "interface_nomad_1_1_core_1_1_online_services_1_1_i_online_platform_service" ],
-          [ "IStatsService", "interface_nomad_1_1_core_1_1_online_services_1_1_i_stats_service.html", "interface_nomad_1_1_core_1_1_online_services_1_1_i_stats_service" ]
+          [ "IStatsService", "interface_nomad_1_1_core_1_1_online_services_1_1_i_stats_service.html", "interface_nomad_1_1_core_1_1_online_services_1_1_i_stats_service" ],
+          [ "NetworkPeerInfo", "struct_nomad_1_1_core_1_1_online_services_1_1_network_peer_info.html", "struct_nomad_1_1_core_1_1_online_services_1_1_network_peer_info" ],
+          [ "PeerId", "struct_nomad_1_1_core_1_1_online_services_1_1_peer_id.html", "struct_nomad_1_1_core_1_1_online_services_1_1_peer_id" ]
+        ] ],
+        [ "Physics", "namespace_nomad_1_1_core_1_1_physics.html", [
+          [ "Services", "namespace_nomad_1_1_core_1_1_physics_1_1_services.html", [
+            [ "IRaycastService", "interface_nomad_1_1_core_1_1_physics_1_1_services_1_1_i_raycast_service.html", "interface_nomad_1_1_core_1_1_physics_1_1_services_1_1_i_raycast_service" ]
+          ] ],
+          [ "ValueObjects", "namespace_nomad_1_1_core_1_1_physics_1_1_value_objects.html", [
+            [ "CollisionLayerMask", "struct_nomad_1_1_core_1_1_physics_1_1_value_objects_1_1_collision_layer_mask.html", "struct_nomad_1_1_core_1_1_physics_1_1_value_objects_1_1_collision_layer_mask" ],
+            [ "PhysicsObjectHandle", "struct_nomad_1_1_core_1_1_physics_1_1_value_objects_1_1_physics_object_handle.html", "struct_nomad_1_1_core_1_1_physics_1_1_value_objects_1_1_physics_object_handle" ],
+            [ "RaycastHit", "struct_nomad_1_1_core_1_1_physics_1_1_value_objects_1_1_raycast_hit.html", "struct_nomad_1_1_core_1_1_physics_1_1_value_objects_1_1_raycast_hit" ],
+            [ "RaycastQuery", "struct_nomad_1_1_core_1_1_physics_1_1_value_objects_1_1_raycast_query.html", "struct_nomad_1_1_core_1_1_physics_1_1_value_objects_1_1_raycast_query" ]
+          ] ]
         ] ],
         [ "ResourceCache", "namespace_nomad_1_1_core_1_1_resource_cache.html", [
           [ "IResourceLoader", "interface_nomad_1_1_core_1_1_resource_cache_1_1_i_resource_loader.html", "interface_nomad_1_1_core_1_1_resource_cache_1_1_i_resource_loader" ]
@@ -298,18 +243,29 @@ var annotated_dup =
             [ "IRenderable", "interface_nomad_1_1_core_1_1_scene_1_1_components_1_1_i_renderable.html", "interface_nomad_1_1_core_1_1_scene_1_1_components_1_1_i_renderable" ]
           ] ],
           [ "GameObjects", "namespace_nomad_1_1_core_1_1_scene_1_1_game_objects.html", [
+            [ "Area2DEventArgs", "struct_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_area2_d_event_args.html", "struct_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_area2_d_event_args" ],
+            [ "Area2DShapeEventArgs", "struct_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_area2_d_shape_event_args.html", "struct_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_area2_d_shape_event_args" ],
+            [ "Body2DEventArgs", "struct_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_body2_d_event_args.html", "struct_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_body2_d_event_args" ],
+            [ "Body2DShapeEventArgs", "struct_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_body2_d_shape_event_args.html", "struct_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_body2_d_shape_event_args" ],
             [ "IAnimatedSprite", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_animated_sprite.html", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_animated_sprite" ],
+            [ "IAnimatedSprite2D", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_animated_sprite2_d.html", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_animated_sprite2_d" ],
+            [ "IArea2D", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_area2_d.html", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_area2_d" ],
             [ "ICamera2D", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_camera2_d.html", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_camera2_d" ],
             [ "ICharacter2D", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_character2_d.html", null ],
             [ "ICharacterController2D", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_character_controller2_d.html", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_character_controller2_d" ],
             [ "ICircleShape2D", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_circle_shape2_d.html", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_circle_shape2_d" ],
             [ "IColliderShape2D", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_collider_shape2_d.html", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_collider_shape2_d" ],
+            [ "ICollisionBody2D", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_collision_body2_d.html", null ],
             [ "IEntity2D", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_entity2_d.html", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_entity2_d" ],
             [ "IGameObject", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_game_object.html", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_game_object" ],
             [ "ILight2D", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_light2_d.html", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_light2_d" ],
+            [ "INavigationAgent2D", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_navigation_agent2_d.html", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_navigation_agent2_d" ],
             [ "IObject2D", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_object2_d.html", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_object2_d" ],
+            [ "IRigidBody2D", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_rigid_body2_d.html", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_rigid_body2_d" ],
             [ "ISceneObject", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_scene_object.html", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_scene_object" ],
             [ "ISceneTint2D", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_scene_tint2_d.html", null ],
+            [ "ISceneView", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_scene_view.html", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_scene_view" ],
+            [ "ISprite2D", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_sprite2_d.html", "interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_sprite2_d" ],
             [ "SceneObjectId", "struct_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_scene_object_id.html", "struct_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_scene_object_id" ]
           ] ]
         ] ],
@@ -331,14 +287,20 @@ var annotated_dup =
         ] ],
         [ "UI", "namespace_nomad_1_1_core_1_1_u_i.html", [
           [ "Alignment", "struct_nomad_1_1_core_1_1_u_i_1_1_alignment.html", "struct_nomad_1_1_core_1_1_u_i_1_1_alignment" ],
+          [ "IAspectRatioContainer", "interface_nomad_1_1_core_1_1_u_i_1_1_i_aspect_ratio_container.html", "interface_nomad_1_1_core_1_1_u_i_1_1_i_aspect_ratio_container" ],
           [ "IButton", "interface_nomad_1_1_core_1_1_u_i_1_1_i_button.html", "interface_nomad_1_1_core_1_1_u_i_1_1_i_button" ],
+          [ "IColorRect", "interface_nomad_1_1_core_1_1_u_i_1_1_i_color_rect.html", null ],
           [ "IHorizontalContainer", "interface_nomad_1_1_core_1_1_u_i_1_1_i_horizontal_container.html", "interface_nomad_1_1_core_1_1_u_i_1_1_i_horizontal_container" ],
           [ "IHorizontalSlider", "interface_nomad_1_1_core_1_1_u_i_1_1_i_horizontal_slider.html", null ],
           [ "IImageView", "interface_nomad_1_1_core_1_1_u_i_1_1_i_image_view.html", "interface_nomad_1_1_core_1_1_u_i_1_1_i_image_view" ],
           [ "IPaddingContainer", "interface_nomad_1_1_core_1_1_u_i_1_1_i_padding_container.html", "interface_nomad_1_1_core_1_1_u_i_1_1_i_padding_container" ],
           [ "IPanel", "interface_nomad_1_1_core_1_1_u_i_1_1_i_panel.html", null ],
           [ "IPresentationLayer", "interface_nomad_1_1_core_1_1_u_i_1_1_i_presentation_layer.html", "interface_nomad_1_1_core_1_1_u_i_1_1_i_presentation_layer" ],
+          [ "IProgressBar", "interface_nomad_1_1_core_1_1_u_i_1_1_i_progress_bar.html", null ],
+          [ "IScrollContainer", "interface_nomad_1_1_core_1_1_u_i_1_1_i_scroll_container.html", null ],
           [ "ISlider", "interface_nomad_1_1_core_1_1_u_i_1_1_i_slider.html", "interface_nomad_1_1_core_1_1_u_i_1_1_i_slider" ],
+          [ "ITabBar", "interface_nomad_1_1_core_1_1_u_i_1_1_i_tab_bar.html", "interface_nomad_1_1_core_1_1_u_i_1_1_i_tab_bar" ],
+          [ "ITabContainer", "interface_nomad_1_1_core_1_1_u_i_1_1_i_tab_container.html", "interface_nomad_1_1_core_1_1_u_i_1_1_i_tab_container" ],
           [ "IText", "interface_nomad_1_1_core_1_1_u_i_1_1_i_text.html", "interface_nomad_1_1_core_1_1_u_i_1_1_i_text" ],
           [ "IUIElement", "interface_nomad_1_1_core_1_1_u_i_1_1_i_u_i_element.html", "interface_nomad_1_1_core_1_1_u_i_1_1_i_u_i_element" ],
           [ "IVerticalContainer", "interface_nomad_1_1_core_1_1_u_i_1_1_i_vertical_container.html", "interface_nomad_1_1_core_1_1_u_i_1_1_i_vertical_container" ],
@@ -353,6 +315,7 @@ var annotated_dup =
           [ "Any", "struct_nomad_1_1_core_1_1_util_1_1_any.html", "struct_nomad_1_1_core_1_1_util_1_1_any" ],
           [ "IError", "interface_nomad_1_1_core_1_1_util_1_1_i_error.html", "interface_nomad_1_1_core_1_1_util_1_1_i_error" ],
           [ "InternString", "struct_nomad_1_1_core_1_1_util_1_1_intern_string.html", "struct_nomad_1_1_core_1_1_util_1_1_intern_string" ],
+          [ "JsonLoader", "class_nomad_1_1_core_1_1_util_1_1_json_loader.html", "class_nomad_1_1_core_1_1_util_1_1_json_loader" ],
           [ "PackedBitSet", "class_nomad_1_1_core_1_1_util_1_1_packed_bit_set.html", "class_nomad_1_1_core_1_1_util_1_1_packed_bit_set" ],
           [ "StringExtensions", "class_nomad_1_1_core_1_1_util_1_1_string_extensions.html", "class_nomad_1_1_core_1_1_util_1_1_string_extensions" ],
           [ "Vector2Extensions", "class_nomad_1_1_core_1_1_util_1_1_vector2_extensions.html", "class_nomad_1_1_core_1_1_util_1_1_vector2_extensions" ]
@@ -374,12 +337,8 @@ var annotated_dup =
         [ "CVarBootstrapper", "class_nomad_1_1_c_vars_1_1_c_var_bootstrapper.html", "class_nomad_1_1_c_vars_1_1_c_var_bootstrapper" ],
         [ "CVarSystemExtensions", "class_nomad_1_1_c_vars_1_1_c_var_system_extensions.html", "class_nomad_1_1_c_vars_1_1_c_var_system_extensions" ]
       ] ],
-      [ "EngineTemplates", "namespace_nomad_1_1_engine_templates.html", [
-        [ "Scene", "namespace_nomad_1_1_engine_templates_1_1_scene.html", [
-          [ "GameObjects", "namespace_nomad_1_1_engine_templates_1_1_scene_1_1_game_objects.html", [
-            [ "EngineCharacter2D", "class_nomad_1_1_engine_templates_1_1_scene_1_1_game_objects_1_1_engine_character2_d.html", null ]
-          ] ]
-        ] ]
+      [ "ECS", "namespace_nomad_1_1_e_c_s.html", [
+        [ "ECSBootstrapper", "class_nomad_1_1_e_c_s_1_1_e_c_s_bootstrapper.html", "class_nomad_1_1_e_c_s_1_1_e_c_s_bootstrapper" ]
       ] ],
       [ "EngineUtils", "namespace_nomad_1_1_engine_utils.html", [
         [ "Godot", "namespace_nomad_1_1_engine_utils_1_1_godot.html", [
@@ -388,8 +347,7 @@ var annotated_dup =
               [ "GodotEngineService", "class_nomad_1_1_engine_utils_1_1_godot_1_1_private_1_1_services_1_1_godot_engine_service.html", "class_nomad_1_1_engine_utils_1_1_godot_1_1_private_1_1_services_1_1_godot_engine_service" ]
             ] ],
             [ "ConsoleSink", "class_nomad_1_1_engine_utils_1_1_godot_1_1_private_1_1_console_sink.html", "class_nomad_1_1_engine_utils_1_1_godot_1_1_private_1_1_console_sink" ],
-            [ "GodotCommandBuilder", "class_nomad_1_1_engine_utils_1_1_godot_1_1_private_1_1_godot_command_builder.html", "class_nomad_1_1_engine_utils_1_1_godot_1_1_private_1_1_godot_command_builder" ],
-            [ "GodotInputPump", "class_nomad_1_1_engine_utils_1_1_godot_1_1_private_1_1_godot_input_pump.html", "class_nomad_1_1_engine_utils_1_1_godot_1_1_private_1_1_godot_input_pump" ]
+            [ "GodotCommandBuilder", "class_nomad_1_1_engine_utils_1_1_godot_1_1_private_1_1_godot_command_builder.html", "class_nomad_1_1_engine_utils_1_1_godot_1_1_private_1_1_godot_command_builder" ]
           ] ]
         ] ],
         [ "Private", "namespace_nomad_1_1_engine_utils_1_1_private.html", [
@@ -407,16 +365,21 @@ var annotated_dup =
             [ "SettingsService&lt; TConfig, IConfig &gt;", "class_nomad_1_1_engine_utils_1_1_settings_1_1_services_1_1_settings_service-2-g.html", "class_nomad_1_1_engine_utils_1_1_settings_1_1_services_1_1_settings_service-2-g" ]
           ] ],
           [ "Constants", "class_nomad_1_1_engine_utils_1_1_settings_1_1_constants.html", "class_nomad_1_1_engine_utils_1_1_settings_1_1_constants" ],
-          [ "DisplayCVars", "class_nomad_1_1_engine_utils_1_1_settings_1_1_display_c_vars.html", "class_nomad_1_1_engine_utils_1_1_settings_1_1_display_c_vars" ]
+          [ "DisplayCVars", "class_nomad_1_1_engine_utils_1_1_settings_1_1_display_c_vars.html", "class_nomad_1_1_engine_utils_1_1_settings_1_1_display_c_vars" ],
+          [ "MonitorDisplayNames", "class_nomad_1_1_engine_utils_1_1_settings_1_1_monitor_display_names.html", "class_nomad_1_1_engine_utils_1_1_settings_1_1_monitor_display_names" ]
         ] ],
         [ "AlignmentExtensions", "class_nomad_1_1_engine_utils_1_1_alignment_extensions.html", "class_nomad_1_1_engine_utils_1_1_alignment_extensions" ],
+        [ "AspectRatioExtensions", "class_nomad_1_1_engine_utils_1_1_aspect_ratio_extensions.html", null ],
         [ "ColorExtensions", "class_nomad_1_1_engine_utils_1_1_color_extensions.html", "class_nomad_1_1_engine_utils_1_1_color_extensions" ],
         [ "Constants", "class_nomad_1_1_engine_utils_1_1_constants.html", "class_nomad_1_1_engine_utils_1_1_constants" ],
         [ "DisplayCVars", "class_nomad_1_1_engine_utils_1_1_display_c_vars.html", "class_nomad_1_1_engine_utils_1_1_display_c_vars" ],
         [ "EngineBootstrapper", "class_nomad_1_1_engine_utils_1_1_engine_bootstrapper.html", "class_nomad_1_1_engine_utils_1_1_engine_bootstrapper" ],
+        [ "FloatExtensions", "class_nomad_1_1_engine_utils_1_1_float_extensions.html", "class_nomad_1_1_engine_utils_1_1_float_extensions" ],
         [ "GodotGameObject", "class_nomad_1_1_engine_utils_1_1_godot_game_object.html", "class_nomad_1_1_engine_utils_1_1_godot_game_object" ],
         [ "NomadBehaviour", "class_nomad_1_1_engine_utils_1_1_nomad_behaviour.html", "class_nomad_1_1_engine_utils_1_1_nomad_behaviour" ],
+        [ "TriggerEventRelay2D", "class_nomad_1_1_engine_utils_1_1_trigger_event_relay2_d.html", "class_nomad_1_1_engine_utils_1_1_trigger_event_relay2_d" ],
         [ "UnityGameObject", "class_nomad_1_1_engine_utils_1_1_unity_game_object.html", "class_nomad_1_1_engine_utils_1_1_unity_game_object" ],
+        [ "UnityTabContainerAdapter", "class_nomad_1_1_engine_utils_1_1_unity_tab_container_adapter.html", "class_nomad_1_1_engine_utils_1_1_unity_tab_container_adapter" ],
         [ "VectorExtensions", "class_nomad_1_1_engine_utils_1_1_vector_extensions.html", "class_nomad_1_1_engine_utils_1_1_vector_extensions" ]
       ] ],
       [ "Events", "namespace_nomad_1_1_events.html", [
@@ -431,6 +394,8 @@ var annotated_dup =
         ] ],
         [ "AsyncSubscriptionHandle&lt; TArgs &gt;", "class_nomad_1_1_events_1_1_async_subscription_handle-1-g.html", "class_nomad_1_1_events_1_1_async_subscription_handle-1-g" ],
         [ "EventBootstrapper", "class_nomad_1_1_events_1_1_event_bootstrapper.html", "class_nomad_1_1_events_1_1_event_bootstrapper" ],
+        [ "EventHandlerException", "class_nomad_1_1_events_1_1_event_handler_exception.html", "class_nomad_1_1_events_1_1_event_handler_exception" ],
+        [ "EventPublishException", "class_nomad_1_1_events_1_1_event_publish_exception.html", "class_nomad_1_1_events_1_1_event_publish_exception" ],
         [ "GameEventRegistry", "class_nomad_1_1_events_1_1_game_event_registry.html", "class_nomad_1_1_events_1_1_game_event_registry" ],
         [ "SubscriptionHandle&lt; TArgs &gt;", "class_nomad_1_1_events_1_1_subscription_handle-1-g.html", "class_nomad_1_1_events_1_1_subscription_handle-1-g" ]
       ] ],
@@ -461,6 +426,27 @@ var annotated_dup =
           [ "BindCollisionEventArgs", "struct_nomad_1_1_input_1_1_events_1_1_bind_collision_event_args.html", "struct_nomad_1_1_input_1_1_events_1_1_bind_collision_event_args" ],
           [ "ButtonActionEventArgs", "struct_nomad_1_1_input_1_1_events_1_1_button_action_event_args.html", "struct_nomad_1_1_input_1_1_events_1_1_button_action_event_args" ],
           [ "FloatActionEventArgs", "struct_nomad_1_1_input_1_1_events_1_1_float_action_event_args.html", "struct_nomad_1_1_input_1_1_events_1_1_float_action_event_args" ]
+        ] ],
+        [ "Extensions", "namespace_nomad_1_1_input_1_1_extensions.html", [
+          [ "InputBindingDefinitionExtensions", "class_nomad_1_1_input_1_1_extensions_1_1_input_binding_definition_extensions.html", "class_nomad_1_1_input_1_1_extensions_1_1_input_binding_definition_extensions" ]
+        ] ],
+        [ "Interfaces", "namespace_nomad_1_1_input_1_1_interfaces.html", [
+          [ "IBindResolver", "interface_nomad_1_1_input_1_1_interfaces_1_1_i_bind_resolver.html", "interface_nomad_1_1_input_1_1_interfaces_1_1_i_bind_resolver" ],
+          [ "IInputRebindService", "interface_nomad_1_1_input_1_1_interfaces_1_1_i_input_rebind_service.html", "interface_nomad_1_1_input_1_1_interfaces_1_1_i_input_rebind_service" ],
+          [ "IInputSnapshotService", "interface_nomad_1_1_input_1_1_interfaces_1_1_i_input_snapshot_service.html", "interface_nomad_1_1_input_1_1_interfaces_1_1_i_input_snapshot_service" ],
+          [ "IMouseService", "interface_nomad_1_1_input_1_1_interfaces_1_1_i_mouse_service.html", "interface_nomad_1_1_input_1_1_interfaces_1_1_i_mouse_service" ]
+        ] ],
+        [ "ValueObjects", "namespace_nomad_1_1_input_1_1_value_objects.html", [
+          [ "Axis1DBinding", "struct_nomad_1_1_input_1_1_value_objects_1_1_axis1_d_binding.html", "struct_nomad_1_1_input_1_1_value_objects_1_1_axis1_d_binding" ],
+          [ "Axis1DCompositeBinding", "struct_nomad_1_1_input_1_1_value_objects_1_1_axis1_d_composite_binding.html", "struct_nomad_1_1_input_1_1_value_objects_1_1_axis1_d_composite_binding" ],
+          [ "Axis2DBinding", "struct_nomad_1_1_input_1_1_value_objects_1_1_axis2_d_binding.html", "struct_nomad_1_1_input_1_1_value_objects_1_1_axis2_d_binding" ],
+          [ "Axis2DCompositeBinding", "struct_nomad_1_1_input_1_1_value_objects_1_1_axis2_d_composite_binding.html", "struct_nomad_1_1_input_1_1_value_objects_1_1_axis2_d_composite_binding" ],
+          [ "ButtonBinding", "struct_nomad_1_1_input_1_1_value_objects_1_1_button_binding.html", "struct_nomad_1_1_input_1_1_value_objects_1_1_button_binding" ],
+          [ "Delta2DBinding", "struct_nomad_1_1_input_1_1_value_objects_1_1_delta2_d_binding.html", "struct_nomad_1_1_input_1_1_value_objects_1_1_delta2_d_binding" ],
+          [ "InputActionDefinition", "class_nomad_1_1_input_1_1_value_objects_1_1_input_action_definition.html", "class_nomad_1_1_input_1_1_value_objects_1_1_input_action_definition" ],
+          [ "InputBindingDefinition", "class_nomad_1_1_input_1_1_value_objects_1_1_input_binding_definition.html", "class_nomad_1_1_input_1_1_value_objects_1_1_input_binding_definition" ],
+          [ "InputRebindRequest", "struct_nomad_1_1_input_1_1_value_objects_1_1_input_rebind_request.html", "struct_nomad_1_1_input_1_1_value_objects_1_1_input_rebind_request" ],
+          [ "InputRebindResult", "struct_nomad_1_1_input_1_1_value_objects_1_1_input_rebind_result.html", "struct_nomad_1_1_input_1_1_value_objects_1_1_input_rebind_result" ]
         ] ],
         [ "Constants", "class_nomad_1_1_input_1_1_constants.html", "class_nomad_1_1_input_1_1_constants" ],
         [ "InputBootstrapper", "class_nomad_1_1_input_1_1_input_bootstrapper.html", "class_nomad_1_1_input_1_1_input_bootstrapper" ]
@@ -501,14 +487,12 @@ var annotated_dup =
         [ "IResourceCacheService&lt; TResource, TId &gt;", "interface_nomad_1_1_resource_cache_1_1_i_resource_cache_service-2-g.html", "interface_nomad_1_1_resource_cache_1_1_i_resource_cache_service-2-g" ]
       ] ],
       [ "Save", "namespace_nomad_1_1_save.html", [
-        [ "Data", "namespace_nomad_1_1_save_1_1_data.html", [
-          [ "EventNames", "class_nomad_1_1_save_1_1_data_1_1_event_names.html", "class_nomad_1_1_save_1_1_data_1_1_event_names" ]
-        ] ],
         [ "Events", "namespace_nomad_1_1_save_1_1_events.html", [
           [ "LoadBeginEventArgs", "struct_nomad_1_1_save_1_1_events_1_1_load_begin_event_args.html", "struct_nomad_1_1_save_1_1_events_1_1_load_begin_event_args" ],
           [ "SaveBeginEventArgs", "struct_nomad_1_1_save_1_1_events_1_1_save_begin_event_args.html", "struct_nomad_1_1_save_1_1_events_1_1_save_begin_event_args" ]
         ] ],
         [ "Exceptions", "namespace_nomad_1_1_save_1_1_exceptions.html", [
+          [ "CreateSaveFileFailed", "class_nomad_1_1_save_1_1_exceptions_1_1_create_save_file_failed.html", "class_nomad_1_1_save_1_1_exceptions_1_1_create_save_file_failed" ],
           [ "DuplicateFieldException", "class_nomad_1_1_save_1_1_exceptions_1_1_duplicate_field_exception.html", "class_nomad_1_1_save_1_1_exceptions_1_1_duplicate_field_exception" ],
           [ "DuplicateSectionException", "class_nomad_1_1_save_1_1_exceptions_1_1_duplicate_section_exception.html", "class_nomad_1_1_save_1_1_exceptions_1_1_duplicate_section_exception" ],
           [ "FieldCorruptException", "class_nomad_1_1_save_1_1_exceptions_1_1_field_corrupt_exception.html", "class_nomad_1_1_save_1_1_exceptions_1_1_field_corrupt_exception" ],
@@ -537,7 +521,8 @@ var annotated_dup =
         [ "SaveBootstrapper", "class_nomad_1_1_save_1_1_save_bootstrapper.html", "class_nomad_1_1_save_1_1_save_bootstrapper" ]
       ] ],
       [ "SourceGenerators", "namespace_nomad_1_1_source_generators.html", [
-        [ "EngineTemplateGenerator", "class_nomad_1_1_source_generators_1_1_engine_template_generator.html", "class_nomad_1_1_source_generators_1_1_engine_template_generator" ]
+        [ "EngineTemplateGenerator", "class_nomad_1_1_source_generators_1_1_engine_template_generator.html", "class_nomad_1_1_source_generators_1_1_engine_template_generator" ],
+        [ "EventNameGenerator", "class_nomad_1_1_source_generators_1_1_event_name_generator.html", "class_nomad_1_1_source_generators_1_1_event_name_generator" ]
       ] ],
       [ "Steam", "namespace_nomad_1_1_steam.html", [
         [ "ISteamService", "interface_nomad_1_1_steam_1_1_i_steam_service.html", null ]

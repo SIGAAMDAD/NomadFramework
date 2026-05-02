@@ -14,7 +14,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using System.Collections.Generic;
 using System.Numerics;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.CVars;
@@ -421,7 +420,7 @@ namespace Nomad.Input.Private.Services {
 		/// </summary>
 		/// <param name="args"></param>
 		private void OnPauseStateChanged( in PauseStateChangedEventArgs args ) {
-			_processEvents = !args.Paused;
+			_processEvents = !args.IsPaused;
 		}
 	}
 }

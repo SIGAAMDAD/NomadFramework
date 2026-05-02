@@ -114,8 +114,6 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a03c7cb9cd5cc147f515e97388a8abbbb" id="r_a03c7cb9cd5cc147f515e97388a8abbbb"><td class="memItemLeft">IImmutableList&lt; string &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a03c7cb9cd5cc147f515e97388a8abbbb">GetAudioDrivers</a> ()</td></tr>
-<tr class="memitem:a1b0892f8487e4cc91d477ae35bd6af58" id="r_a1b0892f8487e4cc91d477ae35bd6af58"><td class="memItemLeft">IImmutableList&lt; string &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a1b0892f8487e4cc91d477ae35bd6af58">GetOutputDevices</a> ()</td></tr>
 <tr class="memitem:a87053bf7517ddbcacd317b93d5d24887" id="r_a87053bf7517ddbcacd317b93d5d24887"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a87053bf7517ddbcacd317b93d5d24887">LoadBank</a> (string assetPath)</td></tr>
 <tr class="memitem:a8589ccdfc789c44661310843e0f3610f" id="r_a8589ccdfc789c44661310843e0f3610f"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a8589ccdfc789c44661310843e0f3610f">UnloadBank</a> (string assetPath)</td></tr>
 <tr class="memitem:ad3e9582be8b228cd315df2612003581f" id="r_ad3e9582be8b228cd315df2612003581f"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#ad3e9582be8b228cd315df2612003581f">UnloadBanks</a> ()</td></tr>
@@ -124,48 +122,13 @@ Public Member Functions</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 id="header-properties" class="groupheader"><a id="properties" name="properties"></a>
 Properties</h2></td></tr>
 <tr class="memitem:a3f98602be73c034231a642f9f9d665f6" id="r_a3f98602be73c034231a642f9f9d665f6"><td class="memItemLeft">string&#160;</td><td class="memItemRight"><a class="el" href="#a3f98602be73c034231a642f9f9d665f6">AudioDriver</a><code> [get]</code></td></tr>
+<tr class="memitem:a11ea28fe6ad9e41e3fde5e21ccd70ab3" id="r_a11ea28fe6ad9e41e3fde5e21ccd70ab3"><td class="memItemLeft">IReadOnlyList&lt; string &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a11ea28fe6ad9e41e3fde5e21ccd70ab3">AudioDrivers</a><code> [get]</code></td></tr>
+<tr class="memitem:afbde71b0e3f32a66b399b4e5ec3bedaf" id="r_afbde71b0e3f32a66b399b4e5ec3bedaf"><td class="memItemLeft">IReadOnlyList&lt; string &gt;&#160;</td><td class="memItemRight"><a class="el" href="#afbde71b0e3f32a66b399b4e5ec3bedaf">OutputDevices</a><code> [get]</code></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock">
 <p class="definition">Definition at line <a class="el" href="_i_audio_device_8cs_source.html#l00024">24</a> of file <a class="el" href="_i_audio_device_8cs_source.html">IAudioDevice.cs</a>.</p>
 </div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Member Function Documentation</h2>
-<a id="a03c7cb9cd5cc147f515e97388a8abbbb" name="a03c7cb9cd5cc147f515e97388a8abbbb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a03c7cb9cd5cc147f515e97388a8abbbb">&#9670;&#160;</a></span>GetAudioDrivers()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">IImmutableList&lt; string &gt; Nomad.Audio.Interfaces.IAudioDevice.GetAudioDrivers </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<dl class="section return"><dt>Returns</dt><dd></dd></dl>
-<p>s </p>
-
-</div>
-</div>
-<a id="a1b0892f8487e4cc91d477ae35bd6af58" name="a1b0892f8487e4cc91d477ae35bd6af58"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1b0892f8487e4cc91d477ae35bd6af58">&#9670;&#160;</a></span>GetOutputDevices()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">IImmutableList&lt; string &gt; Nomad.Audio.Interfaces.IAudioDevice.GetOutputDevices </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<dl class="section return"><dt>Returns</dt><dd></dd></dl>
-
-</div>
-</div>
 <a id="a87053bf7517ddbcacd317b93d5d24887" name="a87053bf7517ddbcacd317b93d5d24887"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a87053bf7517ddbcacd317b93d5d24887">&#9670;&#160;</a></span>LoadBank()</h2>
 
@@ -274,6 +237,54 @@ Properties</h2></td></tr>
 </div><div class="memdoc">
 
 <p class="definition">Definition at line <a class="el" href="_i_audio_device_8cs_source.html#l00029">29</a> of file <a class="el" href="_i_audio_device_8cs_source.html">IAudioDevice.cs</a>.</p>
+
+</div>
+</div>
+<a id="a11ea28fe6ad9e41e3fde5e21ccd70ab3" name="a11ea28fe6ad9e41e3fde5e21ccd70ab3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a11ea28fe6ad9e41e3fde5e21ccd70ab3">&#9670;&#160;</a></span>AudioDrivers</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">IReadOnlyList&lt;string&gt; Nomad.Audio.Interfaces.IAudioDevice.AudioDrivers</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel get">get</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="_i_audio_device_8cs_source.html#l00039">39</a> of file <a class="el" href="_i_audio_device_8cs_source.html">IAudioDevice.cs</a>.</p>
+
+</div>
+</div>
+<a id="afbde71b0e3f32a66b399b4e5ec3bedaf" name="afbde71b0e3f32a66b399b4e5ec3bedaf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afbde71b0e3f32a66b399b4e5ec3bedaf">&#9670;&#160;</a></span>OutputDevices</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">IReadOnlyList&lt;string&gt; Nomad.Audio.Interfaces.IAudioDevice.OutputDevices</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel get">get</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="_i_audio_device_8cs_source.html#l00034">34</a> of file <a class="el" href="_i_audio_device_8cs_source.html">IAudioDevice.cs</a>.</p>
 
 </div>
 </div>

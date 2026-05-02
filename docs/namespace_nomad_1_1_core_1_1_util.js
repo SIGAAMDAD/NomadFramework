@@ -4,6 +4,7 @@ var namespace_nomad_1_1_core_1_1_util =
     [ "Any", "struct_nomad_1_1_core_1_1_util_1_1_any.html", "struct_nomad_1_1_core_1_1_util_1_1_any" ],
     [ "IError", "interface_nomad_1_1_core_1_1_util_1_1_i_error.html", "interface_nomad_1_1_core_1_1_util_1_1_i_error" ],
     [ "InternString", "struct_nomad_1_1_core_1_1_util_1_1_intern_string.html", "struct_nomad_1_1_core_1_1_util_1_1_intern_string" ],
+    [ "JsonLoader", "class_nomad_1_1_core_1_1_util_1_1_json_loader.html", "class_nomad_1_1_core_1_1_util_1_1_json_loader" ],
     [ "PackedBitSet", "class_nomad_1_1_core_1_1_util_1_1_packed_bit_set.html", "class_nomad_1_1_core_1_1_util_1_1_packed_bit_set" ],
     [ "StringExtensions", "class_nomad_1_1_core_1_1_util_1_1_string_extensions.html", "class_nomad_1_1_core_1_1_util_1_1_string_extensions" ],
     [ "Vector2Extensions", "class_nomad_1_1_core_1_1_util_1_1_vector2_extensions.html", "class_nomad_1_1_core_1_1_util_1_1_vector2_extensions" ],

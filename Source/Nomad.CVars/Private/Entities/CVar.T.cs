@@ -139,7 +139,7 @@ namespace Nomad.CVars.Private.Entities {
 			_converter = new CVarConverter<T>( _metadata.Type, createInfo.DefaultValue );
 			_defaultValue = createInfo.DefaultValue;
 
-			_valueChanged = eventFactory.GetEvent<CVarValueChangedEventArgs<T>>( $"{createInfo.Name}:{CVarValueChangedEventArgs.Name}", CVarValueChangedEventArgs.NameSpace );
+			_valueChanged = eventFactory.GetEvent<CVarValueChangedEventArgs<T>>( $"{createInfo.Name}:{CVarValueChangedEventArgs<T>.Name}", CVarValueChangedEventArgs<T>.NameSpace );
 		}
 
 		/*

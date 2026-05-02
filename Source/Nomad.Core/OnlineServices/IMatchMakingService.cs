@@ -29,11 +29,24 @@ namespace Nomad.Core.OnlineServices
         bool IsSearching { get; }
         MatchMakingInfo? CurrentRequest { get; }
 
-        IGameEvent<EmptyEventArgs> SearchResultsUpdated { get; }
+        /// <summary>
+        /// 
+        /// </summary>
+        [Event(nameSpace: "Nomad.Core.OnlineServices")]
+        IGameEvent<SearchResultsUpdatedEventArgs> SearchResultsUpdated { get; }
 
-        IGameEvent<Guid> MatchFound { get; }
-
-        IGameEvent<EmptyEventArgs> MatchMakingFailed { get; }
+        /// <summary>
+        /// 
+        /// </summary>
+        [Event(nameSpace: "Nomad.Core.OnlineServices")]
+        [EventPayload("LobbyId", typeof(Guid))]
+        IGameEvent<MatchFoundEventArgs> MatchFound { get; }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        [Event(nameSpace: "Nomad.Core.OnlineServices")]
+        IGameEvent<MatchMakingFailedEventArgs> MatchMakingFailed { get; }
 
         /// <summary>
         ///

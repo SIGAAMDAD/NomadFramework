@@ -13,8 +13,10 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System.Numerics;
 using Nomad.Core.Events;
 using Nomad.Core.Input;
+using Nomad.Core.Input.ValueObjects;
 
 namespace Nomad.Core.Engine.Services
 {
@@ -26,16 +28,57 @@ namespace Nomad.Core.Engine.Services
         /// <summary>
         /// 
         /// </summary>
-        IGameEvent<KeyboardEventArgs> KeyboardEvent { get; }
+        [Event("Nomad.Core.Input")]
+        [EventPayload("Stick", typeof(GamepadStick), Order = 1)]
+        [EventPayload("TimeStamp", typeof(long), Order = 2)]
+        [EventPayload("DeviceId", typeof(int), Order = 3)]
+        [EventPayload("Value", typeof(Vector2), Order = 4)]
+        IGameEvent<GamepadAxisEventArgs> GamepadAxis { get; }
 
         /// <summary>
         /// 
         /// </summary>
-        IGameEvent<GamepadAxisEventArgs> GamepadAxisEvent { get; }
+        [Event("Nomad.Core.Input")]
+        [EventPayload("Button", typeof(GamepadButton), Order = 1)]
+        [EventPayload("TimeStamp", typeof(long), Order = 2)]
+        [EventPayload("DeviceId", typeof(int), Order = 3)]
+        [EventPayload("Pressed", typeof(bool), Order = 4)]
+        IGameEvent<GamepadButtonEventArgs> GamepadButton { get; }
 
         /// <summary>
         /// 
         /// </summary>
-        IGameEvent<GamepadButtonEventArgs> GamepadButtonEvent { get; }
+        [Event("Nomad.Core.Input")]
+        [EventPayload("KeyNum", typeof(KeyNum), Order = 1)]
+        [EventPayload("TimeStamp", typeof(long), Order = 2)]
+        [EventPayload("Pressed", typeof(bool), Order = 3)]
+        IGameEvent<KeyboardEventArgs> Keyboard { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [Event("Nomad.Core.Input")]
+        [EventPayload("Button", typeof(MouseButton), Order = 1)]
+        [EventPayload("TimeStamp", typeof(long), Order = 2)]
+        [EventPayload("Pressed", typeof(bool), Order = 3)]
+        IGameEvent<MouseButtonEventArgs> MouseButton { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [Event("Nomad.Core.Input")]
+        [EventPayload("TimeStamp", typeof(long), Order = 1)]
+        [EventPayload("RelativeX", typeof(int), Order = 2)]
+        [EventPayload("RelativeY", typeof(int), Order = 3)]
+        IGameEvent<MouseMotionEventArgs> MouseMotion { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [Event("Nomad.Core.Input")]
+        [EventPayload("TimeStamp", typeof(long), Order = 1)]
+        [EventPayload("PositionX", typeof(int), Order = 2)]
+        [EventPayload("PositionY", typeof(int), Order = 3)]
+        IGameEvent<MousePositionChangedEventArgs> MousePositionChanged { get; }
     }
 }

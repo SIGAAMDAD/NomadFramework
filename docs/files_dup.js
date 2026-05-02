@@ -5,6 +5,7 @@ var files_dup =
     [ "Nomad.Console", "dir_ba93c1dd8dfb59204465837cfa50b7fe.html", "dir_ba93c1dd8dfb59204465837cfa50b7fe" ],
     [ "Nomad.Core", "dir_f90463a6b14f9027433e6f8429b326ca.html", "dir_f90463a6b14f9027433e6f8429b326ca" ],
     [ "Nomad.CVars", "dir_0fb497ac9e5ed7ce20225e4821652494.html", "dir_0fb497ac9e5ed7ce20225e4821652494" ],
+    [ "Nomad.ECS", "dir_19d5f0fac07fcf6a63c3b729e1d21d94.html", "dir_19d5f0fac07fcf6a63c3b729e1d21d94" ],
     [ "Nomad.EngineTemplates", "dir_9c76fa2e4505d0fb14c92122fa7ecdb1.html", "dir_9c76fa2e4505d0fb14c92122fa7ecdb1" ],
     [ "Nomad.EngineUtils.Godot", "dir_0be2471d40c88dc05176408b63101848.html", "dir_0be2471d40c88dc05176408b63101848" ],
     [ "Nomad.EngineUtils.Settings", "dir_6c6fc71bcdfbcf6f36756e0ae50c699b.html", "dir_6c6fc71bcdfbcf6f36756e0ae50c699b" ],

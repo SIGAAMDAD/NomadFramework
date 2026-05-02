@@ -110,20 +110,31 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
+<p>An assembly-level attribute that marks and provides metadata about a <a class="el" href="namespace_nomad.html">Nomad</a> framework module.  
+ <a href="#details">More...</a></p>
+
 <p>Inherits Attribute.</p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-properties" class="groupheader"><a id="properties" name="properties"></a>
 Properties</h2></td></tr>
 <tr class="memitem:a6d7b460d28856e1ea8d453e38ea9d03a" id="r_a6d7b460d28856e1ea8d453e38ea9d03a"><td class="memItemLeft">Guid&#160;</td><td class="memItemRight"><a class="el" href="#a6d7b460d28856e1ea8d453e38ea9d03a">BuildId</a> = Guid.NewGuid()<code> [get]</code></td></tr>
+<tr class="memdesc:a6d7b460d28856e1ea8d453e38ea9d03a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets a unique identifier for this build of the module.  <br /></td></tr>
 <tr class="memitem:a720dc9c7a55e54cd23b0834ab664d539" id="r_a720dc9c7a55e54cd23b0834ab664d539"><td class="memItemLeft">DateTime&#160;</td><td class="memItemRight"><a class="el" href="#a720dc9c7a55e54cd23b0834ab664d539">CompileTime</a> = DateTime.Now<code> [get]</code></td></tr>
+<tr class="memdesc:a720dc9c7a55e54cd23b0834ab664d539"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the date and time when the module was compiled.  <br /></td></tr>
 <tr class="memitem:a6f08679b709a56d1113a0ee5da391832" id="r_a6f08679b709a56d1113a0ee5da391832"><td class="memItemLeft">string&#160;</td><td class="memItemRight"><a class="el" href="#a6f08679b709a56d1113a0ee5da391832">Name</a><code> [get, set]</code></td></tr>
+<tr class="memdesc:a6f08679b709a56d1113a0ee5da391832"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets or sets the name of the module.  <br /></td></tr>
 <tr class="memitem:a6bb6b33930665c129a50d63a0a7c8fca" id="r_a6bb6b33930665c129a50d63a0a7c8fca"><td class="memItemLeft">int&#160;</td><td class="memItemRight"><a class="el" href="#a6bb6b33930665c129a50d63a0a7c8fca">VersionMajor</a><code> [get, set]</code></td></tr>
+<tr class="memdesc:a6bb6b33930665c129a50d63a0a7c8fca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets or sets the major version number of the module.  <br /></td></tr>
 <tr class="memitem:a7ecd62a13bd01fc12b45dc2f46f30518" id="r_a7ecd62a13bd01fc12b45dc2f46f30518"><td class="memItemLeft">int&#160;</td><td class="memItemRight"><a class="el" href="#a7ecd62a13bd01fc12b45dc2f46f30518">VersionMinor</a><code> [get, set]</code></td></tr>
+<tr class="memdesc:a7ecd62a13bd01fc12b45dc2f46f30518"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets or sets the minor version number of the module.  <br /></td></tr>
 <tr class="memitem:acdb11098605adf7b1457797cbd1e9ea3" id="r_acdb11098605adf7b1457797cbd1e9ea3"><td class="memItemLeft">int&#160;</td><td class="memItemRight"><a class="el" href="#acdb11098605adf7b1457797cbd1e9ea3">VersionPatch</a><code> [get, set]</code></td></tr>
+<tr class="memdesc:acdb11098605adf7b1457797cbd1e9ea3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets or sets the patch version number of the module.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
-<div class="textblock">
-<p class="definition">Definition at line <a class="el" href="_nomad_module_8cs_source.html#l00024">24</a> of file <a class="el" href="_nomad_module_8cs_source.html">NomadModule.cs</a>.</p>
+<div class="textblock"><p>An assembly-level attribute that marks and provides metadata about a <a class="el" href="namespace_nomad.html">Nomad</a> framework module. </p>
+<p>Apply this attribute to an assembly's AssemblyInfo to register it as a <a class="el" href="namespace_nomad.html">Nomad</a> module and document its version and build information. </p>
+
+<p class="definition">Definition at line <a class="el" href="_nomad_module_8cs_source.html#l00027">27</a> of file <a class="el" href="_nomad_module_8cs_source.html">NomadModule.cs</a>.</p>
 </div><a name="doc-property-members" id="doc-property-members"></a><h2 id="header-doc-property-members" class="groupheader">Property Documentation</h2>
 <a id="a6d7b460d28856e1ea8d453e38ea9d03a" name="a6d7b460d28856e1ea8d453e38ea9d03a"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6d7b460d28856e1ea8d453e38ea9d03a">&#9670;&#160;</a></span>BuildId</h2>
@@ -145,7 +156,9 @@ Properties</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_nomad_module_8cs_source.html#l00049">49</a> of file <a class="el" href="_nomad_module_8cs_source.html">NomadModule.cs</a>.</p>
+<p>Gets a unique identifier for this build of the module. </p>
+
+<p class="definition">Definition at line <a class="el" href="_nomad_module_8cs_source.html#l00052">52</a> of file <a class="el" href="_nomad_module_8cs_source.html">NomadModule.cs</a>.</p>
 
 </div>
 </div>
@@ -169,7 +182,9 @@ Properties</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_nomad_module_8cs_source.html#l00054">54</a> of file <a class="el" href="_nomad_module_8cs_source.html">NomadModule.cs</a>.</p>
+<p>Gets the date and time when the module was compiled. </p>
+
+<p class="definition">Definition at line <a class="el" href="_nomad_module_8cs_source.html#l00057">57</a> of file <a class="el" href="_nomad_module_8cs_source.html">NomadModule.cs</a>.</p>
 
 </div>
 </div>
@@ -193,7 +208,9 @@ Properties</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_nomad_module_8cs_source.html#l00029">29</a> of file <a class="el" href="_nomad_module_8cs_source.html">NomadModule.cs</a>.</p>
+<p>Gets or sets the name of the module. </p>
+
+<p class="definition">Definition at line <a class="el" href="_nomad_module_8cs_source.html#l00032">32</a> of file <a class="el" href="_nomad_module_8cs_source.html">NomadModule.cs</a>.</p>
 
 </div>
 </div>
@@ -217,7 +234,9 @@ Properties</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_nomad_module_8cs_source.html#l00034">34</a> of file <a class="el" href="_nomad_module_8cs_source.html">NomadModule.cs</a>.</p>
+<p>Gets or sets the major version number of the module. </p>
+
+<p class="definition">Definition at line <a class="el" href="_nomad_module_8cs_source.html#l00037">37</a> of file <a class="el" href="_nomad_module_8cs_source.html">NomadModule.cs</a>.</p>
 
 </div>
 </div>
@@ -241,7 +260,9 @@ Properties</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_nomad_module_8cs_source.html#l00039">39</a> of file <a class="el" href="_nomad_module_8cs_source.html">NomadModule.cs</a>.</p>
+<p>Gets or sets the minor version number of the module. </p>
+
+<p class="definition">Definition at line <a class="el" href="_nomad_module_8cs_source.html#l00042">42</a> of file <a class="el" href="_nomad_module_8cs_source.html">NomadModule.cs</a>.</p>
 
 </div>
 </div>
@@ -265,7 +286,9 @@ Properties</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_nomad_module_8cs_source.html#l00044">44</a> of file <a class="el" href="_nomad_module_8cs_source.html">NomadModule.cs</a>.</p>
+<p>Gets or sets the patch version number of the module. </p>
+
+<p class="definition">Definition at line <a class="el" href="_nomad_module_8cs_source.html#l00047">47</a> of file <a class="el" href="_nomad_module_8cs_source.html">NomadModule.cs</a>.</p>
 
 </div>
 </div>

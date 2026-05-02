@@ -10,9 +10,10 @@ var dir_12d1fcdc93cc7086e7ba8b293ff16a7d =
     [ "IError.cs", "_i_error_8cs.html", "_i_error_8cs" ],
     [ "InternString.cs", "_intern_string_8cs.html", "_intern_string_8cs" ],
     [ "InteropAssemblyResolver.cs", "_interop_assembly_resolver_8cs.html", null ],
+    [ "JsonLoader.cs", "_json_loader_8cs.html", "_json_loader_8cs" ],
     [ "PackedBitSet.cs", "_packed_bit_set_8cs.html", "_packed_bit_set_8cs" ],
     [ "Result.cs", "_result_8cs.html", "_result_8cs" ],
     [ "Result.T.cs", "_result_8_t_8cs.html", "_result_8_t_8cs" ],
     [ "StringExtensions.cs", "_string_extensions_8cs.html", "_string_extensions_8cs" ],
-    [ "Vector2Extensions.cs", "_vector2_extensions_8cs.html", "_vector2_extensions_8cs" ]
+    [ "Vector2Extensions.cs", "_nomad_8_core_2_util_2_vector2_extensions_8cs.html", "_nomad_8_core_2_util_2_vector2_extensions_8cs" ]
 ];

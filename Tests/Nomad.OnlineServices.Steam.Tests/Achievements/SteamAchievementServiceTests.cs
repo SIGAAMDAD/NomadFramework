@@ -127,7 +127,7 @@ namespace Nomad.OnlineServices.Steam.Tests
             _service.Unlocked.Subscribe((in AchievementUnlockedEventArgs args) =>
             {
                 eventFired = true;
-                unlockedId = args.AchievementId;
+                unlockedId = args.Id;
             });
 
             // Act
@@ -182,7 +182,7 @@ namespace Nomad.OnlineServices.Steam.Tests
             {
                 eventFired = true;
                 progress = args.Progress;
-                unlockedId = args.AchievementId;
+                unlockedId = args.Id;
             });
 
             // Act

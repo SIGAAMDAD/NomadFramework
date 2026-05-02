@@ -19,12 +19,6 @@
     <DefineConstants>$(DefineConstants);EVENT_DEBUG</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <!-- Strictly for debugging purposes, disable on release builds. -->
-    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-    <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)Generated</CompilerGeneratedFilesOutputPath>
-  </PropertyGroup>
-
   <!-- Common package references (both frameworks) -->
   <ItemGroup>
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="3.0.1" />

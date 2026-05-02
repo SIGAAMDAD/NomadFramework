@@ -11,6 +11,8 @@ STRIP_FROM_PATH        = Source/
 EXCLUDE_PATTERNS      += */obj/* */bin/* */intermediate/*
 EXAMPLE_PATH           = docs/Examples
 
+LOOKUP_CACHE_SIZE      = 1
+
 INPUT                  = Source docs/Modules.dox
 FILE_PATTERNS          = *.cs *.dox
 RECURSIVE              = YES

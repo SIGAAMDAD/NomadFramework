@@ -50,6 +50,8 @@ var _key_num_8cs =
       [ "Nomad.Core.Input.ValueObjects.KeyNum.UpArrow", "namespace_nomad_1_1_core_1_1_input_1_1_value_objects.html#a97efc8628cbccbb601233d299d1730aea0b513090f0a012194da83d5515882b13", null ],
       [ "Nomad.Core.Input.ValueObjects.KeyNum.DownArrow", "namespace_nomad_1_1_core_1_1_input_1_1_value_objects.html#a97efc8628cbccbb601233d299d1730aea0a3f89b5a028cc88370ad5a49dfab276", null ],
       [ "Nomad.Core.Input.ValueObjects.KeyNum.RightArrow", "namespace_nomad_1_1_core_1_1_input_1_1_value_objects.html#a97efc8628cbccbb601233d299d1730aea026be376ee5c529a3d0a35866d1242ad", null ],
+      [ "Nomad.Core.Input.ValueObjects.KeyNum.Escape", "namespace_nomad_1_1_core_1_1_input_1_1_value_objects.html#a97efc8628cbccbb601233d299d1730aea013ec032d3460d4be4431c6ab1f8f224", null ],
+      [ "Nomad.Core.Input.ValueObjects.KeyNum.Enter", "namespace_nomad_1_1_core_1_1_input_1_1_value_objects.html#a97efc8628cbccbb601233d299d1730aeaf1851d5600eae616ee802a31ac74701b", null ],
       [ "Nomad.Core.Input.ValueObjects.KeyNum.Count", "namespace_nomad_1_1_core_1_1_input_1_1_value_objects.html#a97efc8628cbccbb601233d299d1730aeae93f994f01c537c4e2f7d8528c3eb5e9", null ]
     ] ]
 ];

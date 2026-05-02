@@ -15,54 +15,14 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Runtime.CompilerServices;
-using Nomad.Core.Events;
 
 namespace Nomad.Core.Input
 {
     /// <summary>
     /// Represents the arguments for a gamepad button input event.
     /// </summary>
-    [Event(
-        name: nameof(GamepadButtonEventArgs),
-        nameSpace: "Nomad.Core.Input"
-    )]
     public readonly partial struct GamepadButtonEventArgs : IEquatable<GamepadButtonEventArgs>
     {
-        /// <summary>
-        /// Gets the timestamp when the gamepad button event occurred.
-        /// </summary>
-        public long TimeStamp { get; }
-
-        /// <summary>
-        /// Gets the device ID of the gamepad.
-        /// </summary>
-        public int DeviceId { get; }
-
-        /// <summary>
-        /// Gets the gamepad button that was pressed or released.
-        /// </summary>
-        public GamepadButton Button { get; }
-
-        /// <summary>
-        /// Gets a value indicating whether the button was pressed (true) or released (false).
-        /// </summary>
-        public bool Pressed { get; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="GamepadButtonEventArgs"/> struct.
-        /// </summary>
-        /// <param name="button">The gamepad button that was pressed or released.</param>
-        /// <param name="deviceId">The device ID of the gamepad.</param>
-        /// <param name="timestamp">The timestamp of the event.</param>
-        /// <param name="pressed">True if the button was pressed, false if released.</param>
-        public GamepadButtonEventArgs(GamepadButton button, int deviceId, long timestamp, bool pressed)
-        {
-            TimeStamp = timestamp;
-            DeviceId = deviceId;
-            Button = button;
-            Pressed = pressed;
-        }
-
         /// <summary>
         /// Determines whether the specified <see cref="GamepadButtonEventArgs"/> is equal to the current instance.
         /// </summary>

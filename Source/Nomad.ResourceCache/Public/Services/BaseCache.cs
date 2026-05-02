@@ -21,7 +21,6 @@ using System.Diagnostics;
 using Nomad.ResourceCache.Private.Entities;
 using Nomad.Core.Events;
 using Nomad.Core.Logger;
-using Nomad.Core;
 using Nomad.Core.Util;
 using Nomad.ResourceCache.Events;
 using Nomad.Core.ResourceCache;
@@ -114,9 +113,9 @@ namespace Nomad.ResourceCache
             _logger = logger;
             _loader = loader;
 
-            _resourceLoaded = eventFactory.GetEvent<ResourceLoadedEventArgs<TId>>(Constants.Events.ResourceCache.RESOURCE_LOADED_EVENT, Constants.Events.ResourceCache.NAMESPACE);
-            _resourceUnloaded = eventFactory.GetEvent<ResourceUnloadedEventArgs<TId>>(Constants.Events.ResourceCache.RESOURCE_UNLOADED_EVENT, Constants.Events.ResourceCache.NAMESPACE);
-            _resourceLoadFailed = eventFactory.GetEvent<ResourceLoadFailedEventArgs<TId>>(Constants.Events.ResourceCache.RESOURCE_LOAD_FAILED_EVENT, Constants.Events.ResourceCache.NAMESPACE);
+            _resourceLoaded = eventFactory.GetEvent<ResourceLoadedEventArgs<TId>>(ResourceLoadedEventArgs<TId>.Name, ResourceLoadedEventArgs<TId>.NameSpace);
+            _resourceUnloaded = eventFactory.GetEvent<ResourceUnloadedEventArgs<TId>>(ResourceUnloadedEventArgs<TId>.Name, ResourceUnloadedEventArgs<TId>.NameSpace);
+            _resourceLoadFailed = eventFactory.GetEvent<ResourceLoadFailedEventArgs<TId>>(ResourceLoadFailedEventArgs<TId>.Name, ResourceLoadFailedEventArgs<TId>.NameSpace);
             
             _cleanupThread = Task.Run(LaunchCleanupThread);
         }

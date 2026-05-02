@@ -2,6 +2,8 @@ var class_nomad_1_1_core_1_1_constants_1_1_c_vars_1_1_engine_utils_1_1_audio =
 [
     [ "FMOD", "class_nomad_1_1_core_1_1_constants_1_1_c_vars_1_1_engine_utils_1_1_audio_1_1_f_m_o_d.html", "class_nomad_1_1_core_1_1_constants_1_1_c_vars_1_1_engine_utils_1_1_audio_1_1_f_m_o_d" ],
     [ "AUDIO_DRIVER", "class_nomad_1_1_core_1_1_constants_1_1_c_vars_1_1_engine_utils_1_1_audio.html#a02e5793cad06021531ed5781a5ed497e", null ],
+    [ "AUDIO_MUSIC_BUS_GROUP_NAME", "class_nomad_1_1_core_1_1_constants_1_1_c_vars_1_1_engine_utils_1_1_audio.html#a877d15ff5fc1abf666010422a3816270", null ],
+    [ "AUDIO_SOUND_EFFECTS_BUS_GROUP_NAME", "class_nomad_1_1_core_1_1_constants_1_1_c_vars_1_1_engine_utils_1_1_audio.html#aad6f8722bd3e050b3b55e730e323f5ab", null ],
     [ "DISTANCE_FALLOFF_END", "class_nomad_1_1_core_1_1_constants_1_1_c_vars_1_1_engine_utils_1_1_audio.html#a2e0c547e64dfc7230f0d97baaa6e9568", null ],
     [ "DISTANCE_FALLOFF_START", "class_nomad_1_1_core_1_1_constants_1_1_c_vars_1_1_engine_utils_1_1_audio.html#a7800c88ca429d960e9b085a371116562", null ],
     [ "DISTANCE_WEIGHT", "class_nomad_1_1_core_1_1_constants_1_1_c_vars_1_1_engine_utils_1_1_audio.html#a691519108f41ecb1d37358f6468d4b17", null ],

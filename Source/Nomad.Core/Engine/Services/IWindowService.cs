@@ -79,17 +79,23 @@ namespace Nomad.Core.Engine.Services
         /// <summary>
         ///
         /// </summary>
+        [Event("Nomad.Core.Engine.Services", PayloadName = "WindowSizeChangedEventArgs")]
+        [EventPayload("Width", typeof(int), Order = 1)]
+        [EventPayload("Height", typeof(int), Order = 2)]
         IGameEvent<WindowSizeChangedEventArgs> SizeChanged { get; }
 
         /// <summary>
         ///
         /// </summary>
-        IGameEvent<bool> FocusChanged { get; }
+        [Event("Nomad.Core.Engine.Services", PayloadName = "WindowFocusChangedEventArgs")]
+        [EventPayload("IsFocused", typeof(bool))]
+        IGameEvent<WindowFocusChangedEventArgs> FocusChanged { get; }
 
         /// <summary>
         ///
         /// </summary>
-        IGameEvent<EmptyEventArgs> CloseRequested { get; }
+        [Event("Nomad.Core.Engine.Services", PayloadName = "WindowCloseRequestedEventArgs")]
+        IGameEvent<WindowCloseRequestedEventArgs> CloseRequested { get; }
 
         /// <summary>
         ///

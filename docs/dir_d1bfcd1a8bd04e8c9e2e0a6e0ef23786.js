@@ -1,5 +1,6 @@
 var dir_d1bfcd1a8bd04e8c9e2e0a6e0ef23786 =
 [
+    [ "CreateSaveFileFailedException.cs", "_create_save_file_failed_exception_8cs.html", "_create_save_file_failed_exception_8cs" ],
     [ "DuplicateFieldException.cs", "_duplicate_field_exception_8cs.html", "_duplicate_field_exception_8cs" ],
     [ "DuplicateSectionException.cs", "_duplicate_section_exception_8cs.html", "_duplicate_section_exception_8cs" ],
     [ "FieldCorruptException.cs", "_field_corrupt_exception_8cs.html", "_field_corrupt_exception_8cs" ],

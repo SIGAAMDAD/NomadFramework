@@ -16,6 +16,8 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Nomad.Core.Events;
+using Nomad.Save.Interfaces;
 using Nomad.Save.ValueObjects;
 
 namespace Nomad.Save.Services
@@ -30,6 +32,14 @@ namespace Nomad.Save.Services
     /// </remarks>
     public interface ISaveDataProvider : IDisposable
     {
+        [Event("Nomad.Save.Services")]
+        [EventPayload("Writer", typeof(ISaveWriterService))]
+        IGameEvent<SaveBeginEventArgs> SaveBegin { get; }
+
+        [Event("Nomad.Save.Services")]
+        [EventPayload("Reader", typeof(ISaveReaderService))]
+        IGameEvent<LoadBeginEventArgs> LoadBegin { get; }
+
         /// <summary>
         /// Writes the current game state to the provided save file given by <paramref name="filepath"/> to disk.
         /// </summary>

@@ -110,30 +110,33 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
+<p>Represents the arguments for a gamepad button input event.  
+ <a href="#details">More...</a></p>
+
 <p>Inherits IEquatable.</p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a8b19f621769be2dd4bc778fd2eab312c" id="r_a8b19f621769be2dd4bc778fd2eab312c"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a8b19f621769be2dd4bc778fd2eab312c">Equals</a> (<a class="el" href="#adbbe82f0aaf977178d2673468ebc4d9c">GamepadButtonEventArgs</a> other)</td></tr>
+<tr class="memdesc:a8b19f621769be2dd4bc778fd2eab312c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Determines whether the specified <a class="el" href="struct_nomad_1_1_core_1_1_input_1_1_gamepad_button_event_args.html" title="Represents the arguments for a gamepad button input event.">GamepadButtonEventArgs</a> is equal to the current instance.  <br /></td></tr>
 <tr class="memitem:adbbe82f0aaf977178d2673468ebc4d9c" id="r_adbbe82f0aaf977178d2673468ebc4d9c"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#adbbe82f0aaf977178d2673468ebc4d9c">GamepadButtonEventArgs</a> (<a class="el" href="namespace_nomad_1_1_core_1_1_input.html#ae89a1e217d704cd3ce93f1f6c0d2a055">GamepadButton</a> button, int deviceId, long timestamp, bool pressed)</td></tr>
+<tr class="memdesc:adbbe82f0aaf977178d2673468ebc4d9c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a new instance of the <a class="el" href="struct_nomad_1_1_core_1_1_input_1_1_gamepad_button_event_args.html" title="Represents the arguments for a gamepad button input event.">GamepadButtonEventArgs</a> struct.  <br /></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-properties" class="groupheader"><a id="properties" name="properties"></a>
 Properties</h2></td></tr>
 <tr class="memitem:a109bcb3ddb9a1e0c6ead33b28fa317a7" id="r_a109bcb3ddb9a1e0c6ead33b28fa317a7"><td class="memItemLeft"><a class="el" href="namespace_nomad_1_1_core_1_1_input.html#ae89a1e217d704cd3ce93f1f6c0d2a055">GamepadButton</a>&#160;</td><td class="memItemRight"><a class="el" href="#a109bcb3ddb9a1e0c6ead33b28fa317a7">Button</a><code> [get]</code></td></tr>
+<tr class="memdesc:a109bcb3ddb9a1e0c6ead33b28fa317a7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the gamepad button that was pressed or released.  <br /></td></tr>
 <tr class="memitem:a0d144df3e7e69e24529a1cb4a2fc5f73" id="r_a0d144df3e7e69e24529a1cb4a2fc5f73"><td class="memItemLeft">int&#160;</td><td class="memItemRight"><a class="el" href="#a0d144df3e7e69e24529a1cb4a2fc5f73">DeviceId</a><code> [get]</code></td></tr>
+<tr class="memdesc:a0d144df3e7e69e24529a1cb4a2fc5f73"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the device ID of the gamepad.  <br /></td></tr>
 <tr class="memitem:acc7798fc58b9effcd27ff23319d7082f" id="r_acc7798fc58b9effcd27ff23319d7082f"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#acc7798fc58b9effcd27ff23319d7082f">Pressed</a><code> [get]</code></td></tr>
+<tr class="memdesc:acc7798fc58b9effcd27ff23319d7082f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets a value indicating whether the button was pressed (true) or released (false).  <br /></td></tr>
 <tr class="memitem:a1071eb6c0eeba18ca41b4bc618c68ca5" id="r_a1071eb6c0eeba18ca41b4bc618c68ca5"><td class="memItemLeft">long&#160;</td><td class="memItemRight"><a class="el" href="#a1071eb6c0eeba18ca41b4bc618c68ca5">TimeStamp</a><code> [get]</code></td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 id="header-pri-attribs" class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
-Private Attributes</h2></td></tr>
-<tr class="memitem:a0a8e35b41f71e20edd307a8a81414dd3" id="r_a0a8e35b41f71e20edd307a8a81414dd3"><td class="memItemLeft">readonly <a class="el" href="namespace_nomad_1_1_core_1_1_input.html#ae89a1e217d704cd3ce93f1f6c0d2a055">GamepadButton</a>&#160;</td><td class="memItemRight"><a class="el" href="#a0a8e35b41f71e20edd307a8a81414dd3">_button</a></td></tr>
-<tr class="memitem:ac3b6f183591f8a115975d77ffc1f06b2" id="r_ac3b6f183591f8a115975d77ffc1f06b2"><td class="memItemLeft">readonly int&#160;</td><td class="memItemRight"><a class="el" href="#ac3b6f183591f8a115975d77ffc1f06b2">_deviceId</a></td></tr>
-<tr class="memitem:a9eb997c745e406c96923cc690d1a0314" id="r_a9eb997c745e406c96923cc690d1a0314"><td class="memItemLeft">readonly bool&#160;</td><td class="memItemRight"><a class="el" href="#a9eb997c745e406c96923cc690d1a0314">_pressed</a></td></tr>
-<tr class="memitem:a7e3fbc40bb55d2a53d47e934fbd4089c" id="r_a7e3fbc40bb55d2a53d47e934fbd4089c"><td class="memItemLeft">readonly long&#160;</td><td class="memItemRight"><a class="el" href="#a7e3fbc40bb55d2a53d47e934fbd4089c">_timeStamp</a></td></tr>
+<tr class="memdesc:a1071eb6c0eeba18ca41b4bc618c68ca5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the timestamp when the gamepad button event occurred.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
-<div class="textblock">
-<p class="definition">Definition at line <a class="el" href="_gamepad_button_event_args_8cs_source.html#l00024">24</a> of file <a class="el" href="_gamepad_button_event_args_8cs_source.html">GamepadButtonEventArgs.cs</a>.</p>
+<div class="textblock"><p>Represents the arguments for a gamepad button input event. </p>
+
+<p class="definition">Definition at line <a class="el" href="_gamepad_button_event_args_8cs_source.html#l00029">29</a> of file <a class="el" href="_gamepad_button_event_args_8cs_source.html">GamepadButtonEventArgs.cs</a>.</p>
 </div><a name="doc-constructors" id="doc-constructors"></a><h2 id="header-doc-constructors" class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="adbbe82f0aaf977178d2673468ebc4d9c" name="adbbe82f0aaf977178d2673468ebc4d9c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#adbbe82f0aaf977178d2673468ebc4d9c">&#9670;&#160;</a></span>GamepadButtonEventArgs()</h2>
@@ -171,17 +174,19 @@ Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Initializes a new instance of the <a class="el" href="struct_nomad_1_1_core_1_1_input_1_1_gamepad_button_event_args.html" title="Represents the arguments for a gamepad button input event.">GamepadButtonEventArgs</a> struct. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">button</td><td></td></tr>
-    <tr><td class="paramname">deviceId</td><td></td></tr>
-    <tr><td class="paramname">timestamp</td><td></td></tr>
-    <tr><td class="paramname">pressed</td><td></td></tr>
+    <tr><td class="paramname">button</td><td>The gamepad button that was pressed or released.</td></tr>
+    <tr><td class="paramname">deviceId</td><td>The device ID of the gamepad.</td></tr>
+    <tr><td class="paramname">timestamp</td><td>The timestamp of the event.</td></tr>
+    <tr><td class="paramname">pressed</td><td>True if the button was pressed, false if released.</td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_gamepad_button_event_args_8cs_source.html#l00057">57</a> of file <a class="el" href="_gamepad_button_event_args_8cs_source.html">GamepadButtonEventArgs.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_gamepad_button_event_args_8cs_source.html#l00058">58</a> of file <a class="el" href="_gamepad_button_event_args_8cs_source.html">GamepadButtonEventArgs.cs</a>.</p>
 
 </div>
 </div>
@@ -208,112 +213,17 @@ Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Determines whether the specified <a class="el" href="struct_nomad_1_1_core_1_1_input_1_1_gamepad_button_event_args.html" title="Represents the arguments for a gamepad button input event.">GamepadButtonEventArgs</a> is equal to the current instance. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">other</td><td></td></tr>
+    <tr><td class="paramname">other</td><td>The <a class="el" href="struct_nomad_1_1_core_1_1_input_1_1_gamepad_button_event_args.html" title="Represents the arguments for a gamepad button input event.">GamepadButtonEventArgs</a> to compare with the current instance.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>True if the specified object is equal to the current instance; otherwise, false.</dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="_gamepad_button_event_args_8cs_source.html#l00071">71</a> of file <a class="el" href="_gamepad_button_event_args_8cs_source.html">GamepadButtonEventArgs.cs</a>.</p>
-
-</div>
-</div>
-<a name="doc-variable-members" id="doc-variable-members"></a><h2 id="header-doc-variable-members" class="groupheader">Member Data Documentation</h2>
-<a id="a0a8e35b41f71e20edd307a8a81414dd3" name="a0a8e35b41f71e20edd307a8a81414dd3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0a8e35b41f71e20edd307a8a81414dd3">&#9670;&#160;</a></span>_button</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">readonly <a class="el" href="namespace_nomad_1_1_core_1_1_input.html#ae89a1e217d704cd3ce93f1f6c0d2a055">GamepadButton</a> Nomad.Core.Input.GamepadButtonEventArgs._button</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel private">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="_gamepad_button_event_args_8cs_source.html#l00042">42</a> of file <a class="el" href="_gamepad_button_event_args_8cs_source.html">GamepadButtonEventArgs.cs</a>.</p>
-
-</div>
-</div>
-<a id="ac3b6f183591f8a115975d77ffc1f06b2" name="ac3b6f183591f8a115975d77ffc1f06b2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac3b6f183591f8a115975d77ffc1f06b2">&#9670;&#160;</a></span>_deviceId</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">readonly int Nomad.Core.Input.GamepadButtonEventArgs._deviceId</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel private">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="_gamepad_button_event_args_8cs_source.html#l00036">36</a> of file <a class="el" href="_gamepad_button_event_args_8cs_source.html">GamepadButtonEventArgs.cs</a>.</p>
-
-</div>
-</div>
-<a id="a9eb997c745e406c96923cc690d1a0314" name="a9eb997c745e406c96923cc690d1a0314"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9eb997c745e406c96923cc690d1a0314">&#9670;&#160;</a></span>_pressed</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">readonly bool Nomad.Core.Input.GamepadButtonEventArgs._pressed</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel private">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="_gamepad_button_event_args_8cs_source.html#l00048">48</a> of file <a class="el" href="_gamepad_button_event_args_8cs_source.html">GamepadButtonEventArgs.cs</a>.</p>
-
-</div>
-</div>
-<a id="a7e3fbc40bb55d2a53d47e934fbd4089c" name="a7e3fbc40bb55d2a53d47e934fbd4089c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7e3fbc40bb55d2a53d47e934fbd4089c">&#9670;&#160;</a></span>_timeStamp</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">readonly long Nomad.Core.Input.GamepadButtonEventArgs._timeStamp</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel private">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="_gamepad_button_event_args_8cs_source.html#l00030">30</a> of file <a class="el" href="_gamepad_button_event_args_8cs_source.html">GamepadButtonEventArgs.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_gamepad_button_event_args_8cs_source.html#l00072">72</a> of file <a class="el" href="_gamepad_button_event_args_8cs_source.html">GamepadButtonEventArgs.cs</a>.</p>
 
 </div>
 </div>
@@ -338,7 +248,9 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_gamepad_button_event_args_8cs_source.html#l00041">41</a> of file <a class="el" href="_gamepad_button_event_args_8cs_source.html">GamepadButtonEventArgs.cs</a>.</p>
+<p>Gets the gamepad button that was pressed or released. </p>
+
+<p class="definition">Definition at line <a class="el" href="_gamepad_button_event_args_8cs_source.html#l00044">44</a> of file <a class="el" href="_gamepad_button_event_args_8cs_source.html">GamepadButtonEventArgs.cs</a>.</p>
 
 </div>
 </div>
@@ -362,7 +274,9 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_gamepad_button_event_args_8cs_source.html#l00035">35</a> of file <a class="el" href="_gamepad_button_event_args_8cs_source.html">GamepadButtonEventArgs.cs</a>.</p>
+<p>Gets the device ID of the gamepad. </p>
+
+<p class="definition">Definition at line <a class="el" href="_gamepad_button_event_args_8cs_source.html#l00039">39</a> of file <a class="el" href="_gamepad_button_event_args_8cs_source.html">GamepadButtonEventArgs.cs</a>.</p>
 
 </div>
 </div>
@@ -386,7 +300,9 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_gamepad_button_event_args_8cs_source.html#l00047">47</a> of file <a class="el" href="_gamepad_button_event_args_8cs_source.html">GamepadButtonEventArgs.cs</a>.</p>
+<p>Gets a value indicating whether the button was pressed (true) or released (false). </p>
+
+<p class="definition">Definition at line <a class="el" href="_gamepad_button_event_args_8cs_source.html#l00049">49</a> of file <a class="el" href="_gamepad_button_event_args_8cs_source.html">GamepadButtonEventArgs.cs</a>.</p>
 
 </div>
 </div>
@@ -410,7 +326,9 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_gamepad_button_event_args_8cs_source.html#l00029">29</a> of file <a class="el" href="_gamepad_button_event_args_8cs_source.html">GamepadButtonEventArgs.cs</a>.</p>
+<p>Gets the timestamp when the gamepad button event occurred. </p>
+
+<p class="definition">Definition at line <a class="el" href="_gamepad_button_event_args_8cs_source.html#l00034">34</a> of file <a class="el" href="_gamepad_button_event_args_8cs_source.html">GamepadButtonEventArgs.cs</a>.</p>
 
 </div>
 </div>

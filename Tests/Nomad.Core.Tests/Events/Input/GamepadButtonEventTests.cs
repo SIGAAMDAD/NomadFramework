@@ -28,7 +28,7 @@ namespace Nomad.Core.Tests
         [Test]
         public void GamepadButtonEvent_Constructor_ExposesAssignedValues()
         {
-            var buttonEvent = new GamepadButtonEventArgs(GamepadButton.A, 4, 321L, true);
+            var buttonEvent = new GamepadButtonEventArgs(GamepadButton.A, 321L, 4, true);
 
             using (Assert.EnterMultipleScope())
             {
@@ -42,9 +42,9 @@ namespace Nomad.Core.Tests
         [Test]
         public void GamepadButtonEvent_Equals_UsesButtonAndPressedOnly()
         {
-            var pressed = new GamepadButtonEventArgs(GamepadButton.B, 1, 100L, true);
-            var sameMeaning = new GamepadButtonEventArgs(GamepadButton.B, 2, 200L, true);
-            var differentState = new GamepadButtonEventArgs(GamepadButton.B, 1, 100L, false);
+            var pressed = new GamepadButtonEventArgs(GamepadButton.B, 100L, 1, true);
+            var sameMeaning = new GamepadButtonEventArgs(GamepadButton.B, 200L, 2, true);
+            var differentState = new GamepadButtonEventArgs(GamepadButton.B, 100L, 1, false);
 
             using (Assert.EnterMultipleScope())
             {
@@ -56,8 +56,8 @@ namespace Nomad.Core.Tests
         [Test]
         public void GamepadButtonEvent_NotEquals_ButtonSameValueDifferent()
         {
-            var pressed = new GamepadButtonEventArgs(GamepadButton.B, 1, 100L, true);
-            var sameMeaning = new GamepadButtonEventArgs(GamepadButton.B, 1, 200L, false);
+            var pressed = new GamepadButtonEventArgs(GamepadButton.B, 100L, 1, true);
+            var sameMeaning = new GamepadButtonEventArgs(GamepadButton.B, 200L, 1, false);
 
 			Assert.That( pressed, Is.Not.EqualTo( sameMeaning ) );
         }
@@ -65,8 +65,8 @@ namespace Nomad.Core.Tests
         [Test]
         public void GamepadButtonEvent_NotEquals_ButtonDifferentValueSame()
         {
-            var pressed = new GamepadButtonEventArgs(GamepadButton.B, 1, 100L, true);
-            var sameMeaning = new GamepadButtonEventArgs(GamepadButton.A, 1, 100L, true);
+            var pressed = new GamepadButtonEventArgs(GamepadButton.B, 100L, 1, true);
+            var sameMeaning = new GamepadButtonEventArgs(GamepadButton.A, 100L, 1, true);
 
 			Assert.That( pressed, Is.Not.EqualTo( sameMeaning ) );
         }

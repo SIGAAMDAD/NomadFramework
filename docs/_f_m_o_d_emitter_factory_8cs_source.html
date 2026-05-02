@@ -126,26 +126,27 @@ $(function() {
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span> </div>
 <div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="keyword">using </span><a class="code hl_namespace" href="namespace_nomad_1_1_audio_1_1_fmod_1_1_private_1_1_entities.html">Nomad.Audio.Fmod.Private.Entities</a>;</div>
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="keyword">using </span><a class="code hl_namespace" href="namespace_nomad_1_1_audio_1_1_fmod_1_1_private_1_1_repositories.html">Nomad.Audio.Fmod.Private.Repositories</a>;</div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="keyword">using </span><a class="code hl_namespace" href="namespace_nomad_1_1_audio_1_1_interfaces.html">Nomad.Audio.Interfaces</a>;</div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespace_nomad_1_1_audio_1_1_fmod_1_1_private_1_1_services.html">Nomad.Audio.Fmod.Private.Services</a> {</div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>    <span class="keyword">internal</span> <span class="keyword">sealed</span> <span class="keyword">class </span>FMODEmitterFactory : IEmitterFactory {</div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>        <span class="keyword">private</span> readonly FMODChannelRepository _channelRepository;</div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>        <span class="keyword">private</span> readonly FMODBusRepository _busRepository;</div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span> </div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>        <span class="keyword">public</span> FMODEmitterFactory( FMODChannelRepository channelRepository, FMODBusRepository busRepository ) {</div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>            _channelRepository = channelRepository;</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>            _busRepository = busRepository;</div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>        }</div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span> </div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>        <span class="keyword">public</span> IAudioEmitter CreateEmitter( <span class="keywordtype">string</span> category ) {</div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>            <span class="keywordflow">return</span> <span class="keyword">new</span> FMODEmitter( _channelRepository, _busRepository.GetSoundCategory( category ) );</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>        }</div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    };</div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>};</div>
-<div class="ttc" id="anamespace_nomad_1_1_audio_1_1_fmod_1_1_private_1_1_entities_html"><div class="ttname"><a href="namespace_nomad_1_1_audio_1_1_fmod_1_1_private_1_1_entities.html">Nomad.Audio.Fmod.Private.Entities</a></div><div class="ttdef"><b>Definition</b> <a href="_f_m_o_d_channel_8cs_source.html#l00019">FMODChannel.cs:19</a></div></div>
-<div class="ttc" id="anamespace_nomad_1_1_audio_1_1_fmod_1_1_private_1_1_repositories_html"><div class="ttname"><a href="namespace_nomad_1_1_audio_1_1_fmod_1_1_private_1_1_repositories.html">Nomad.Audio.Fmod.Private.Repositories</a></div><div class="ttdef"><b>Definition</b> <a href="_f_m_o_d_bank_repository_8cs_source.html#l00023">FMODBankRepository.cs:23</a></div></div>
-<div class="ttc" id="anamespace_nomad_1_1_audio_1_1_fmod_1_1_private_1_1_services_html"><div class="ttname"><a href="namespace_nomad_1_1_audio_1_1_fmod_1_1_private_1_1_services.html">Nomad.Audio.Fmod.Private.Services</a></div><div class="ttdef"><b>Definition</b> <a href="_f_m_o_d_device_8cs_source.html#l00035">FMODDevice.cs:35</a></div></div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="keyword">using </span><a class="code hl_namespace" href="namespace_nomad_1_1_audio_1_1_fmod_1_1_private_1_1_services.html">Nomad.Audio.Fmod.Private.Services</a>;</div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="keyword">using </span><a class="code hl_namespace" href="namespace_nomad_1_1_audio_1_1_interfaces.html">Nomad.Audio.Interfaces</a>;</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span> </div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespace_nomad_1_1_audio_1_1_fmod_1_1_private_1_1_services.html">Nomad.Audio.Fmod.Private.Services</a> {</div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>    <span class="keyword">internal</span> <span class="keyword">sealed</span> <span class="keyword">class </span>FMODEmitterFactory : IEmitterFactory {</div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>        <span class="keyword">private</span> readonly FMODChannelService _channelRepository;</div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>        <span class="keyword">private</span> readonly FMODBusRepository _busRepository;</div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span> </div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>        <span class="keyword">public</span> FMODEmitterFactory( FMODChannelService channelRepository, FMODBusRepository busRepository ) {</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>            _channelRepository = channelRepository;</div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>            _busRepository = busRepository;</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>        }</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span> </div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>        <span class="keyword">public</span> IAudioEmitter CreateEmitter( <span class="keywordtype">string</span> category ) {</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>            <span class="keywordflow">return</span> <span class="keyword">new</span> FMODEmitter( _channelRepository, _busRepository.GetSoundCategory( category ) );</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>        }</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>    };</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>};</div>
+<div class="ttc" id="anamespace_nomad_1_1_audio_1_1_fmod_1_1_private_1_1_entities_html"><div class="ttname"><a href="namespace_nomad_1_1_audio_1_1_fmod_1_1_private_1_1_entities.html">Nomad.Audio.Fmod.Private.Entities</a></div><div class="ttdef"><b>Definition</b> <a href="_f_m_o_d_audio_group_8cs_source.html#l00019">FMODAudioGroup.cs:19</a></div></div>
+<div class="ttc" id="anamespace_nomad_1_1_audio_1_1_fmod_1_1_private_1_1_repositories_html"><div class="ttname"><a href="namespace_nomad_1_1_audio_1_1_fmod_1_1_private_1_1_repositories.html">Nomad.Audio.Fmod.Private.Repositories</a></div><div class="ttdef"><b>Definition</b> <a href="_f_m_o_d_audio_group_repository_8cs_source.html#l00026">FMODAudioGroupRepository.cs:26</a></div></div>
+<div class="ttc" id="anamespace_nomad_1_1_audio_1_1_fmod_1_1_private_1_1_services_html"><div class="ttname"><a href="namespace_nomad_1_1_audio_1_1_fmod_1_1_private_1_1_services.html">Nomad.Audio.Fmod.Private.Services</a></div><div class="ttdef"><b>Definition</b> <a href="_f_m_o_d_channel_steal_calculator_8cs_source.html#l00028">FMODChannelStealCalculator.cs:28</a></div></div>
 <div class="ttc" id="anamespace_nomad_1_1_audio_1_1_interfaces_html"><div class="ttname"><a href="namespace_nomad_1_1_audio_1_1_interfaces.html">Nomad.Audio.Interfaces</a></div><div class="ttdef"><b>Definition</b> <a href="_i_audio_device_8cs_source.html#l00019">IAudioDevice.cs:20</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->

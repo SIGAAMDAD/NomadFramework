@@ -3,7 +3,7 @@
   <PropertyGroup>
     <!-- Build Configuration -->
     <TargetFrameworks>net10.0</TargetFrameworks>
-    <Nullable>disable</Nullable>
+    <Nullable>annotations</Nullable>
     <IsPackable>false</IsPackable>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <IsTestProject>true</IsTestProject>

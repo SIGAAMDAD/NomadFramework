@@ -15,47 +15,14 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Runtime.CompilerServices;
-using Nomad.Core.Events;
 
 namespace Nomad.Core.Input
 {
     /// <summary>
     /// Represents the arguments for a mouse position changed event.
     /// </summary>
-    [Event(
-        name: nameof(MousePositionChangedEventArgs),
-        nameSpace: "Nomad.Core.Input"
-    )]
     public readonly partial struct MousePositionChangedEventArgs : IEquatable<MousePositionChangedEventArgs>
     {
-        /// <summary>
-        /// Gets the timestamp when the mouse position changed.
-        /// </summary>
-        public long TimeStamp { get; }
-
-        /// <summary>
-        /// Gets the new X position of the mouse cursor.
-        /// </summary>
-        public int PositionX { get; }
-
-        /// <summary>
-        /// Gets the new Y position of the mouse cursor.
-        /// </summary>
-        public int PositionY { get; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MousePositionChangedEventArgs"/> struct.
-        /// </summary>
-        /// <param name="timestamp">The timestamp of the event.</param>
-        /// <param name="positionX">The new X position.</param>
-        /// <param name="positionY">The new Y position.</param>
-        public MousePositionChangedEventArgs(long timestamp, int positionX, int positionY)
-        {
-            TimeStamp = timestamp;
-            PositionX = positionX;
-            PositionY = positionY;
-        }
-
         /// <summary>
         /// Determines whether the specified <see cref="MousePositionChangedEventArgs"/> is equal to the current instance.
         /// </summary>

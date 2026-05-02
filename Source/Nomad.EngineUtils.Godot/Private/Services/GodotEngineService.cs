@@ -28,12 +28,23 @@ using Nomad.Core.Engine.Globals;
 using Nomad.EngineUtils.Godot.Private.SceneManagement;
 using Nomad.Core.Physics.Services;
 using Nomad.EngineUtils.Private.Godot;
+using Nomad.EngineUtils.Godot.Private.Console;
+using Nomad.Core.FileSystem;
+using Nomad.Core.Engine.Windowing;
 
 namespace Nomad.EngineUtils.Godot.Private.Services {
+    /*
+    ===================================================================================
+    
+    GodotEngineService
+    
+    ===================================================================================
+    */
     /// <summary>
-    ///
+    /// 
     /// </summary>
-    public sealed class GodotEngineService : IEngineService {
+    
+    internal sealed class GodotEngineService : IEngineService {
         private readonly SceneTree _sceneTree;
         private readonly Node _root;
 
@@ -48,6 +59,7 @@ namespace Nomad.EngineUtils.Godot.Private.Services {
 
         private readonly ILoggerService _logger;
         private readonly IGameEventRegistryService _eventFactory;
+        private readonly IFileSystem _fileSystem;
 
         private readonly IServiceLocator _locator;
 
@@ -74,6 +86,7 @@ namespace Nomad.EngineUtils.Godot.Private.Services {
 
             _logger = locator.GetService<ILoggerService>();
             _eventFactory = locator.GetService<IGameEventRegistryService>();
+            _fileSystem = locator.GetService<IFileSystem>();
             var cvarSystem = locator.GetService<ICVarSystemService>();
 
             _loader = new GodotLoader();
@@ -142,7 +155,7 @@ namespace Nomad.EngineUtils.Godot.Private.Services {
         /// </summary>
         /// <returns></returns>
         public IConsoleObject CreateConsoleObject() {
-            var console = new GodotConsole( _root, _logger, _eventFactory );
+            var console = new GodotConsole( _root, _logger, _eventFactory, _fileSystem );
             return console;
         }
 
@@ -232,7 +245,7 @@ namespace Nomad.EngineUtils.Godot.Private.Services {
         ///
         /// </summary>
         /// <param name="args"></param>
-        private void OnWindowCloseRequested( in EmptyEventArgs args ) {
+        private void OnWindowCloseRequested( in WindowCloseRequestedEventArgs args ) {
             Quit();
         }
     }

@@ -14,33 +14,28 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using Nomad.Core.Console;
+using Nomad.Core.Events;
+using Nomad.Console.Events;
 
 namespace Nomad.Core.Engine.Services
 {
-    /// <summary>
-    ///
-    /// </summary>
     public interface IConsoleObject : IDisposable
     {
-        /// <summary>
-        ///
-        /// </summary>
-        ICommandBuilder CommandBuilder { get; }
+        bool IsOpen { get; }
 
-        /// <summary>
-        /// Clears the console of all messages.
-        /// </summary>
-        void Clear();
+        [Event("Nomad.Console.Events")]
+        IGameEvent<ConsoleClosedEventArgs> ConsoleClosed { get; }
 
-        /// <summary>
-        /// Shows the console.
-        /// </summary>
+        [Event("Nomad.Console.Events")]
+        IGameEvent<ConsoleOpenedEventArgs> ConsoleOpened { get; }
+
         void Show();
-
-        /// <summary>
-        /// Hides the console.
-        /// </summary>
         void Hide();
+        void Toggle();
+
+        void Clear();
+        void Print(string message);
+
+        void ExecuteText(string text);
     }
 }

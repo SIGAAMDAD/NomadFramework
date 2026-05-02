@@ -178,6 +178,9 @@ namespace Nomad.Core.CVars
         /// <summary>
         /// Event that triggers whenever <see cref="Value"/> changes. Contains the new value and the previous value.
         /// </summary>
+        [Event("Nomad.Core.CVars", EventPayloadName = "CVarValueChangedEventArgs")]
+        [EventPayload("OldValue", "T", Order = 1)]
+        [EventPayload("NewValue", "T", Order = 2)]
         IGameEvent<CVarValueChangedEventArgs<T>> ValueChanged { get; }
     }
 }

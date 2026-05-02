@@ -112,9 +112,11 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-nested-classes" class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
+<tr class="memitem:FMODAudioGroup" id="r_FMODAudioGroup"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><b>FMODAudioGroup</b></td></tr>
 <tr class="memitem:FMODChannel" id="r_FMODChannel"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><b>FMODChannel</b></td></tr>
 <tr class="memitem:FMODChannelBatch" id="r_FMODChannelBatch"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><b>FMODChannelBatch</b></td></tr>
 <tr class="memitem:FMODChannelGroup" id="r_FMODChannelGroup"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><b>FMODChannelGroup</b></td></tr>
+<tr class="memitem:FMODChannelHandle" id="r_FMODChannelHandle"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><b>FMODChannelHandle</b></td></tr>
 <tr class="memitem:FMODChannelResource" id="r_FMODChannelResource"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><b>FMODChannelResource</b></td></tr>
 <tr class="memitem:FMODEmitter" id="r_FMODEmitter"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><b>FMODEmitter</b></td></tr>
 <tr class="memitem:FMODEventInstancePool" id="r_FMODEventInstancePool"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><b>FMODEventInstancePool</b></td></tr>
@@ -124,14 +126,14 @@ Classes</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:ac7025f98b7aca7d292d86acf23fbfb5b" id="r_ac7025f98b7aca7d292d86acf23fbfb5b"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#ac7025f98b7aca7d292d86acf23fbfb5b">ContainsEvent</a> (string eventId)</td></tr>
-<tr class="memitem:a49bbbeaf36a22476a153329b4f8b332f" id="r_a49bbbeaf36a22476a153329b4f8b332f"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#a49bbbeaf36a22476a153329b4f8b332f">FMODEventCollection</a> (<a class="el" href="struct_f_m_o_d_1_1_studio_1_1_event_description.html">FMOD.Studio.EventDescription</a>[] events, FMODGuidRepository guidRepository, <a class="el" href="interface_nomad_1_1_core_1_1_logger_1_1_i_logger_service.html">ILoggerService</a> logger)</td></tr>
+<tr class="memitem:a49bbbeaf36a22476a153329b4f8b332f" id="r_a49bbbeaf36a22476a153329b4f8b332f"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#a49bbbeaf36a22476a153329b4f8b332f">FMODEventCollection</a> (FMOD.Studio.EventDescription[] events, FMODGuidRepository guidRepository, <a class="el" href="interface_nomad_1_1_core_1_1_logger_1_1_i_logger_service.html">ILoggerService</a> logger)</td></tr>
 <tr class="memdesc:a49bbbeaf36a22476a153329b4f8b332f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates an FMODEventCollection.  <br /></td></tr>
 <tr class="memitem:ac73b259acf6efdef6e83850dda9dd569" id="r_ac73b259acf6efdef6e83850dda9dd569"><td class="memItemLeft">IReadOnlyList&lt; string &gt;&#160;</td><td class="memItemRight"><a class="el" href="#ac73b259acf6efdef6e83850dda9dd569">GetEventIds</a> ()</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-var-members" class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
 <tr class="memitem:a07dec19001692b7050790c1670e777d6" id="r_a07dec19001692b7050790c1670e777d6"><td class="memItemLeft">readonly List&lt; string &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a07dec19001692b7050790c1670e777d6">_eventIds</a></td></tr>
-<tr class="memitem:ad2cb9db839ce11d95a4234577087057e" id="r_ad2cb9db839ce11d95a4234577087057e"><td class="memItemLeft">readonly <a class="el" href="struct_f_m_o_d_1_1_studio_1_1_event_description.html">FMOD.Studio.EventDescription</a>[]&#160;</td><td class="memItemRight"><a class="el" href="#ad2cb9db839ce11d95a4234577087057e">_events</a></td></tr>
+<tr class="memitem:ad2cb9db839ce11d95a4234577087057e" id="r_ad2cb9db839ce11d95a4234577087057e"><td class="memItemLeft">readonly FMOD.Studio.EventDescription[]&#160;</td><td class="memItemRight"><a class="el" href="#ad2cb9db839ce11d95a4234577087057e">_events</a></td></tr>
 </table>
 <a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
 <a id="ac7025f98b7aca7d292d86acf23fbfb5b" name="ac7025f98b7aca7d292d86acf23fbfb5b"></a>
@@ -169,7 +171,7 @@ Variables</h2></td></tr>
         <tr>
           <td class="memname">Nomad.Audio.Fmod.Private.Entities.FMODEventCollection </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="struct_f_m_o_d_1_1_studio_1_1_event_description.html">FMOD.Studio.EventDescription</a>[]</td>          <td class="paramname"><span class="paramname"><em>events</em></span>, </td>
+          <td class="paramtype">FMOD.Studio.EventDescription[]</td>          <td class="paramname"><span class="paramname"><em>events</em></span>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -253,7 +255,7 @@ Variables</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">readonly <a class="el" href="struct_f_m_o_d_1_1_studio_1_1_event_description.html">FMOD.Studio.EventDescription</a> [] Nomad.Audio.Fmod.Private.Entities._events</td>
+          <td class="memname">readonly FMOD.Studio.EventDescription [] Nomad.Audio.Fmod.Private.Entities._events</td>
         </tr>
       </table>
   </td>

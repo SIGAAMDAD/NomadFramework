@@ -20,7 +20,6 @@ using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.Events;
 using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
-using Nomad.Save.Events;
 using Nomad.Save.Interfaces;
 using Nomad.Save.Exceptions;
 using Nomad.Save.Services;
@@ -62,7 +61,10 @@ namespace Nomad.Save.Private.Services {
 		private readonly ICVar<bool> _autoSaveEnabled;
 		private readonly ICVar<int> _autoSaveInterval;
 
+		public IGameEvent<SaveBeginEventArgs> SaveBegin => _saveBegin;
 		private readonly IGameEvent<SaveBeginEventArgs> _saveBegin;
+
+		public IGameEvent<LoadBeginEventArgs> LoadBegin => _loadBegin;
 		private readonly IGameEvent<LoadBeginEventArgs> _loadBegin;
 
 		private bool _isDisposed = false;

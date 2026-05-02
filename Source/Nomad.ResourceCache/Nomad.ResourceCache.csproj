@@ -18,6 +18,9 @@
 
   <ItemGroup>
 	  <ProjectReference Include="..\Nomad.Core\Nomad.Core.csproj" />
+    <ProjectReference Include="..\Nomad.SourceGenerators\Nomad.SourceGenerators.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
   </ItemGroup>
 
 </Project>

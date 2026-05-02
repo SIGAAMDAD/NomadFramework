@@ -16,7 +16,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using Nomad.Core.Events;
 using Nomad.Core.Util;
-using Nomad.Input.Events;
 using Nomad.Input.Private.ValueObjects;
 using Nomad.Input.ValueObjects;
 

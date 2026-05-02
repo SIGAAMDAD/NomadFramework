@@ -1,5 +1,4 @@
 var _memory_read_config_8cs =
 [
-    [ "Nomad.Core.FileSystem.Configs.IReadConfig", "namespace_nomad_1_1_core_1_1_file_system_1_1_configs.html#a000c0c1d5433b1743d4d1f348323ac6f", null ],
     [ "Nomad.Core.FileSystem.Configs.MemoryReadConfig", "namespace_nomad_1_1_core_1_1_file_system_1_1_configs.html#abe5822b77a0b5bcd4b24506d2b5468f6", null ]
 ];

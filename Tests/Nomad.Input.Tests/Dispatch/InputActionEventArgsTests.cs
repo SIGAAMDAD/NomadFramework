@@ -1,8 +1,22 @@
+/*
+===========================================================================
+The Nomad Framework
+Copyright (C) 2025-2026 Noah Van Til
+
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v2. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+This software is provided "as is", without warranty of any kind,
+express or implied, including but not limited to the warranties
+of merchantability, fitness for a particular purpose and noninfringement.
+===========================================================================
+*/
+
 using System.Numerics;
 using NUnit.Framework;
-using Nomad.Core.Util;
-using Nomad.Input.Events;
 using Nomad.Input.ValueObjects;
+using Nomad.Core.Util;
 
 namespace Nomad.Input.Tests {
 	[TestFixture]
@@ -44,16 +58,6 @@ namespace Nomad.Input.Tests {
 				Assert.That( args.Phase, Is.EqualTo( InputActionPhase.Canceled ) );
 				Assert.That( args.Value, Is.EqualTo( value ) );
 				Assert.That( args.TimeStamp, Is.EqualTo( 789 ) );
-			}
-		}
-
-		[Test]
-		public void BindCollisionEventArgs_ExposeOriginalAndIntrudingBindIds() {
-			var args = new BindCollisionEventArgs( 11, 42 );
-
-			using ( Assert.EnterMultipleScope() ) {
-				Assert.That( args.OriginalBindId, Is.EqualTo( 11 ) );
-				Assert.That( args.IntrudingBindId, Is.EqualTo( 42 ) );
 			}
 		}
 	}

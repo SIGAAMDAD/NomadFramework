@@ -155,7 +155,7 @@ namespace Nomad.Events.Tests.Stress
 			long afterBytes = GC.GetAllocatedBytesForCurrentThread();
 			long bytesPerEvent = (afterBytes - beforeBytes) / iterations;
 
-			Console.WriteLine($"Bytes allocated per event: {bytesPerEvent}");
+			System.Console.WriteLine($"Bytes allocated per event: {bytesPerEvent}");
 
 			// Expect near‑zero allocations after warm‑up; a small tolerance is acceptable.
 			Assert.That(bytesPerEvent, Is.LessThan(100), "Pool is not reusing objects effectively; too many allocations.");

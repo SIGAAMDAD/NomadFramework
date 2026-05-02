@@ -24,5 +24,15 @@ var namespace_nomad_1_1_audio_1_1_value_objects =
       [ "Playing", "namespace_nomad_1_1_audio_1_1_value_objects.html#a6a1a96e69608e2c17df001f50b55e506ac9dbb2b7c84159b632d71e512eba8428", null ],
       [ "Looping", "namespace_nomad_1_1_audio_1_1_value_objects.html#a6a1a96e69608e2c17df001f50b55e506aa56d66d7acdce18b9861f4c84bf8f777", null ],
       [ "Invalid", "namespace_nomad_1_1_audio_1_1_value_objects.html#a6a1a96e69608e2c17df001f50b55e506a4bbb8f967da6d1a610596d7257179c2b", null ]
-    ] ]
+    ] ],
+    [ "SpeakerMode", "namespace_nomad_1_1_audio_1_1_value_objects.html#af74e03667a0f5fda4b1293e5b4339d1d", [
+      [ "Auto", "namespace_nomad_1_1_audio_1_1_value_objects.html#af74e03667a0f5fda4b1293e5b4339d1da06b9281e396db002010bde1de57262eb", null ],
+      [ "Headphones", "namespace_nomad_1_1_audio_1_1_value_objects.html#af74e03667a0f5fda4b1293e5b4339d1dadcbedde0ce401a37130de9628240c6aa", null ],
+      [ "StereoSpeakers", "namespace_nomad_1_1_audio_1_1_value_objects.html#af74e03667a0f5fda4b1293e5b4339d1da5c8617b86ef6b71624aac8abcc8f8516", null ],
+      [ "Surround_5_1", "namespace_nomad_1_1_audio_1_1_value_objects.html#af74e03667a0f5fda4b1293e5b4339d1da0b2d1a27be4211e2d60f1a051984d4c6", null ],
+      [ "Surround_7_1", "namespace_nomad_1_1_audio_1_1_value_objects.html#af74e03667a0f5fda4b1293e5b4339d1da57efcaf218e0438633c6969f847d7305", null ],
+      [ "Atmos", "namespace_nomad_1_1_audio_1_1_value_objects.html#af74e03667a0f5fda4b1293e5b4339d1da3fb306e710af68a26e0c49a81a366112", null ],
+      [ "Count", "namespace_nomad_1_1_audio_1_1_value_objects.html#af74e03667a0f5fda4b1293e5b4339d1dae93f994f01c537c4e2f7d8528c3eb5e9", null ]
+    ] ],
+    [ "SoundCategoryCreateInfo", "namespace_nomad_1_1_audio_1_1_value_objects.html#a058be948107a246aa473a164af7cf574", null ]
 ];

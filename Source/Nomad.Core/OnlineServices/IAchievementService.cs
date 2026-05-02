@@ -16,6 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Threading.Tasks;
 using Nomad.Core.Events;
+using Nomad.Core.Util;
 
 namespace Nomad.Core.OnlineServices
 {
@@ -37,11 +38,16 @@ namespace Nomad.Core.OnlineServices
         /// <summary>
         /// Event that triggers whenever an achievement is unlocked from the internal API.
         /// </summary>
+        [Event(nameSpace: "Nomad.Core.OnlineServices", PayloadName = "AchievementUnlockedEventArgs")]
+        [EventPayload("Id", typeof(InternString))]
         IGameEvent<AchievementUnlockedEventArgs> Unlocked { get; }
 
         /// <summary>
         /// Event that triggers whenever an achievement's progress has been changed.
         /// </summary>
+        [Event(nameSpace: "Nomad.Core.OnlineServices", PayloadName = "AchievementProgressChangedEventArgs")]
+        [EventPayload("Id", typeof(InternString), Order = 1)]
+        [EventPayload("Progress", typeof(float), Order = 2)]
         IGameEvent<AchievementProgressChangedEventArgs> ProgressChanged { get; }
 
         /// <summary>

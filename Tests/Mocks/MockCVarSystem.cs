@@ -153,7 +153,7 @@ public class MockCVarSystem : ICVarSystemService
 		{
 			Name = name;
 			Value = value;
-			ValueChanged = eventFactory.GetEvent<CVarValueChangedEventArgs<T>>($"{name}:{CVarValueChangedEventArgs.Name}", "CVarTestEvents");
+			ValueChanged = eventFactory.GetEvent<CVarValueChangedEventArgs<T>>($"{name}:{CVarValueChangedEventArgs<T>.Name}", "CVarTestEvents");
 		}
 
 		public void Reset() { }

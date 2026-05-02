@@ -65,10 +65,10 @@ namespace Nomad.Logger.Private.Sinks {
 				) as IFileWriteStream;
 			} catch ( Exception e ) {
 				_writer?.Close();
-				Console.WriteLine( $"FileSink: failed to create log file {logfile.Value} - {e.Message}" );
+				global::System.Console.WriteLine( $"FileSink: failed to create log file {logfile.Value} - {e.Message}" );
 				throw;
 			}
-			Console.WriteLine( $"Sucessfully opened logfile at {DateTime.Now}." );
+			global::System.Console.WriteLine( $"Sucessfully opened logfile at {DateTime.Now}." );
 		}
 
 		/*

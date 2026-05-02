@@ -44,7 +44,7 @@ namespace Nomad.Core.Tests.Engine.Windowing
         {
             var value = new AspectRatioValue(4.0f / 3.0f);
 
-            Assert.That(AspectRatio.Aspect_4_3, Is.EqualTo(value.Ratio));
+            Assert.That(value.Ratio, Is.EqualTo(AspectRatio.Aspect_4_3));
         }
 
         [Test]
@@ -52,7 +52,7 @@ namespace Nomad.Core.Tests.Engine.Windowing
         {
             var value = new AspectRatioValue(16.0f / 9.0f);
 
-            Assert.That(AspectRatio.Aspect_16_9, Is.EqualTo(value.Ratio));
+            Assert.That(value.Ratio, Is.EqualTo(AspectRatio.Aspect_16_9));
         }
 
         [Test]
@@ -60,7 +60,7 @@ namespace Nomad.Core.Tests.Engine.Windowing
         {
             var value = new AspectRatioValue(16.0f / 10.0f);
 
-            Assert.That(AspectRatio.Aspect_16_10, Is.EqualTo(value.Ratio));
+            Assert.That(value.Ratio, Is.EqualTo(AspectRatio.Aspect_16_10));
         }
 
         [Test]
@@ -68,7 +68,7 @@ namespace Nomad.Core.Tests.Engine.Windowing
         {
             var value = new AspectRatioValue(21.0f / 9.0f);
 
-            Assert.That(AspectRatio.Aspect_21_9, Is.EqualTo(value.Ratio));
+            Assert.That(value.Ratio, Is.EqualTo(AspectRatio.Aspect_21_9));
         }
 
         [Test]
@@ -82,7 +82,7 @@ namespace Nomad.Core.Tests.Engine.Windowing
         {
             var value = new AspectRatioValue(ratio);
 
-            Assert.That(AspectRatio.Aspect_Automatic, Is.EqualTo(value.Ratio));
+            Assert.That(value.Ratio, Is.EqualTo(AspectRatio.Aspect_Automatic));
         }
 
         [Test]
@@ -90,7 +90,7 @@ namespace Nomad.Core.Tests.Engine.Windowing
         {
             var value = new AspectRatioValue(float.NaN);
 
-            Assert.That(AspectRatio.Aspect_Automatic, Is.EqualTo(value.Ratio));
+            Assert.That(value.Ratio, Is.EqualTo(AspectRatio.Aspect_Automatic));
         }
 
         [Test]
@@ -102,9 +102,11 @@ namespace Nomad.Core.Tests.Engine.Windowing
 
             var value = new AspectRatioValue(nearButDifferent);
 
-            Assert.That(exact, Is.Not.EqualTo(nearButDifferent));
-            Assert.That(AspectRatio.Aspect_Automatic, Is.EqualTo(value.Ratio));
-        }
+			using ( Assert.EnterMultipleScope() ) {
+				Assert.That( exact, Is.Not.EqualTo( nearButDifferent ) );
+				Assert.That( value.Ratio, Is.EqualTo( AspectRatio.Aspect_Automatic ) );
+			}
+		}
 
         [Test]
         public void Constructor_WithFloatNearSixteenByNineButNotExactlyEqual_StoresAutomaticRatio()
@@ -115,9 +117,11 @@ namespace Nomad.Core.Tests.Engine.Windowing
 
             var value = new AspectRatioValue(nearButDifferent);
 
-            Assert.That(exact, Is.Not.EqualTo(nearButDifferent));
-            Assert.That(AspectRatio.Aspect_Automatic, Is.EqualTo(value.Ratio));
-        }
+			using ( Assert.EnterMultipleScope() ) {
+				Assert.That( exact, Is.Not.EqualTo( nearButDifferent ) );
+				Assert.That( value.Ratio, Is.EqualTo( AspectRatio.Aspect_Automatic ) );
+			}
+		}
 
         [Test]
         public void Constructor_WithFloatNearSixteenByTenButNotExactlyEqual_StoresAutomaticRatio()
@@ -128,9 +132,11 @@ namespace Nomad.Core.Tests.Engine.Windowing
 
             var value = new AspectRatioValue(nearButDifferent);
 
-            Assert.That(exact, Is.Not.EqualTo(nearButDifferent));
-            Assert.That(AspectRatio.Aspect_Automatic, Is.EqualTo(value.Ratio));
-        }
+			using ( Assert.EnterMultipleScope() ) {
+				Assert.That( exact, Is.Not.EqualTo( nearButDifferent ) );
+				Assert.That( value.Ratio, Is.EqualTo( AspectRatio.Aspect_Automatic ) );
+			}
+		}
 
         [Test]
         public void Constructor_WithFloatNearTwentyOneByNineButNotExactlyEqual_StoresAutomaticRatio()
@@ -141,9 +147,11 @@ namespace Nomad.Core.Tests.Engine.Windowing
 
             var value = new AspectRatioValue(nearButDifferent);
 
-            Assert.That(exact, Is.Not.EqualTo(nearButDifferent));
-            Assert.That(AspectRatio.Aspect_Automatic, Is.EqualTo(value.Ratio));
-        }
+			using ( Assert.EnterMultipleScope() ) {
+				Assert.That( exact, Is.Not.EqualTo( nearButDifferent ) );
+				Assert.That( value.Ratio, Is.EqualTo( AspectRatio.Aspect_Automatic ) );
+			}
+		}
 
         [Test]
         [TestCase(AspectRatio.Aspect_Automatic)]

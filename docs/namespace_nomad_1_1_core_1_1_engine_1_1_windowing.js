@@ -1,6 +1,7 @@
 var namespace_nomad_1_1_core_1_1_engine_1_1_windowing =
 [
     [ "AspectRatioExtensions", "class_nomad_1_1_core_1_1_engine_1_1_windowing_1_1_aspect_ratio_extensions.html", "class_nomad_1_1_core_1_1_engine_1_1_windowing_1_1_aspect_ratio_extensions" ],
+    [ "AspectRatioValue", "struct_nomad_1_1_core_1_1_engine_1_1_windowing_1_1_aspect_ratio_value.html", "struct_nomad_1_1_core_1_1_engine_1_1_windowing_1_1_aspect_ratio_value" ],
     [ "Monitor", "struct_nomad_1_1_core_1_1_engine_1_1_windowing_1_1_monitor.html", "struct_nomad_1_1_core_1_1_engine_1_1_windowing_1_1_monitor" ],
     [ "WindowResolutionExtensions", "class_nomad_1_1_core_1_1_engine_1_1_windowing_1_1_window_resolution_extensions.html", "class_nomad_1_1_core_1_1_engine_1_1_windowing_1_1_window_resolution_extensions" ],
     [ "WindowSize", "struct_nomad_1_1_core_1_1_engine_1_1_windowing_1_1_window_size.html", "struct_nomad_1_1_core_1_1_engine_1_1_windowing_1_1_window_size" ],
@@ -22,7 +23,6 @@ var namespace_nomad_1_1_core_1_1_engine_1_1_windowing =
       [ "Count", "namespace_nomad_1_1_core_1_1_engine_1_1_windowing.html#ad7943dc9055ef04d21d2e1647374b9beae93f994f01c537c4e2f7d8528c3eb5e9", null ]
     ] ],
     [ "WindowResolution", "namespace_nomad_1_1_core_1_1_engine_1_1_windowing.html#af2be3c24040ffa3a6aa611f2c2976f5b", [
-      [ "Res_640x480", "namespace_nomad_1_1_core_1_1_engine_1_1_windowing.html#af2be3c24040ffa3a6aa611f2c2976f5ba56097a81c8d27bf8e9c7b29d7c1fe538", null ],
       [ "Res_800x600", "namespace_nomad_1_1_core_1_1_engine_1_1_windowing.html#af2be3c24040ffa3a6aa611f2c2976f5bab877e9010e7ebc18910e52f64886703c", null ],
       [ "Res_1024x768", "namespace_nomad_1_1_core_1_1_engine_1_1_windowing.html#af2be3c24040ffa3a6aa611f2c2976f5ba4ae58e02006eca476b411f0991f17eaa", null ],
       [ "Res_1280x720", "namespace_nomad_1_1_core_1_1_engine_1_1_windowing.html#af2be3c24040ffa3a6aa611f2c2976f5ba283fcf3dc4c56894ee411346acf8a6a2", null ],

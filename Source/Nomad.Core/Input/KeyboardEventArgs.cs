@@ -15,48 +15,14 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 using System;
 using System.Runtime.CompilerServices;
-using Nomad.Core.Input.ValueObjects;
-using Nomad.Core.Events;
 
 namespace Nomad.Core.Input
 {
     /// <summary>
     /// Represents the arguments for a keyboard input event.
     /// </summary>
-    [Event(
-        name: nameof(KeyboardEventArgs),
-        nameSpace: "Nomad.Core.Input"
-    )]
     public readonly partial struct KeyboardEventArgs : IEquatable<KeyboardEventArgs>
     {
-        /// <summary>
-        /// Gets the timestamp when the keyboard event occurred.
-        /// </summary>
-        public long TimeStamp { get; }
-
-        /// <summary>
-        /// Gets the key that was pressed or released.
-        /// </summary>
-        public KeyNum KeyNum { get; }
-
-        /// <summary>
-        /// Gets a value indicating whether the key was pressed (true) or released (false).
-        /// </summary>
-        public bool Pressed { get; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="KeyboardEventArgs"/> struct.
-        /// </summary>
-        /// <param name="keyNum">The key that was pressed or released.</param>
-        /// <param name="timeStamp">The timestamp of the event.</param>
-        /// <param name="pressed">True if the key was pressed, false if released.</param>
-        public KeyboardEventArgs(KeyNum keyNum, long timeStamp, bool pressed)
-        {
-            KeyNum = keyNum;
-            TimeStamp = timeStamp;
-            Pressed = pressed;
-        }
-
         /// <summary>
         /// Determines whether the specified <see cref="KeyboardEventArgs"/> is equal to the current instance.
         /// </summary>

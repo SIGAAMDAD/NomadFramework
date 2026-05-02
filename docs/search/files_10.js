@@ -1,20 +1,6 @@
 var searchData=
 [
-  ['rangeguard_2ecs_0',['RangeGuard.cs',['../_range_guard_8cs.html',1,'']]],
-  ['readconfig_2ecs_1',['ReadConfig.cs',['../_read_config_8cs.html',1,'']]],
-  ['recoveryservice_2ecs_2',['RecoveryService.cs',['../_recovery_service_8cs.html',1,'']]],
-  ['recursivefilesearcher_2ecs_3',['RecursiveFileSearcher.cs',['../_recursive_file_searcher_8cs.html',1,'']]],
-  ['renderanimation_2ecs_4',['RenderAnimation.cs',['../_render_animation_8cs.html',1,'']]],
-  ['renderentity_2ecs_5',['RenderEntity.cs',['../_render_entity_8cs.html',1,'']]],
-  ['rendersprite_2ecs_6',['RenderSprite.cs',['../_render_sprite_8cs.html',1,'']]],
-  ['resolvedaction_2ecs_7',['ResolvedAction.cs',['../_resolved_action_8cs.html',1,'']]],
-  ['resourceloadedeventargs_2ecs_8',['ResourceLoadedEventArgs.cs',['../_resource_loaded_event_args_8cs.html',1,'']]],
-  ['resourceloadfailedeventargs_2ecs_9',['ResourceLoadFailedEventArgs.cs',['../_resource_load_failed_event_args_8cs.html',1,'']]],
-  ['resourceloadprogresseventargs_2ecs_10',['ResourceLoadProgressEventArgs.cs',['../_resource_load_progress_event_args_8cs.html',1,'']]],
-  ['resourceloadstate_2ecs_11',['ResourceLoadState.cs',['../_resource_load_state_8cs.html',1,'']]],
-  ['resourcetypemismatchexception_2ecs_12',['ResourceTypeMismatchException.cs',['../_resource_type_mismatch_exception_8cs.html',1,'']]],
-  ['resourceunloadedeventargs_2ecs_13',['ResourceUnloadedEventArgs.cs',['../_resource_unloaded_event_args_8cs.html',1,'']]],
-  ['responsecurve_2ecs_14',['ResponseCurve.cs',['../_response_curve_8cs.html',1,'']]],
-  ['result_2ecs_15',['Result.cs',['../_result_8cs.html',1,'']]],
-  ['result_2et_2ecs_16',['Result.T.cs',['../_result_8_t_8cs.html',1,'']]]
+  ['qualitysetting_2ecs_0',['QualitySetting.cs',['../_quality_setting_8cs.html',1,'']]],
+  ['queuedevent_2ecs_1',['QueuedEvent.cs',['../_queued_event_8cs.html',1,'']]],
+  ['queuedevent_2et_2ecs_2',['QueuedEvent.T.cs',['../_queued_event_8_t_8cs.html',1,'']]]
 ];

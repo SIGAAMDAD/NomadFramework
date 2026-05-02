@@ -4,6 +4,7 @@ var namespace_nomad =
     [ "Console", "namespace_nomad_1_1_console.html", "namespace_nomad_1_1_console" ],
     [ "Core", "namespace_nomad_1_1_core.html", "namespace_nomad_1_1_core" ],
     [ "CVars", "namespace_nomad_1_1_c_vars.html", "namespace_nomad_1_1_c_vars" ],
+    [ "ECS", "namespace_nomad_1_1_e_c_s.html", "namespace_nomad_1_1_e_c_s" ],
     [ "Engine", "namespace_nomad_1_1_engine.html", "namespace_nomad_1_1_engine" ],
     [ "EngineTemplates", "namespace_nomad_1_1_engine_templates.html", "namespace_nomad_1_1_engine_templates" ],
     [ "EngineUtils", "namespace_nomad_1_1_engine_utils.html", "namespace_nomad_1_1_engine_utils" ],

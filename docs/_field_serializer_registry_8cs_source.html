@@ -179,20 +179,25 @@ $(function() {
 <div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span><span class="comment">        ===============</span></div>
 <div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span><span class="comment">        */</span></div>
 <div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>        [MethodImpl( MethodImplOptions.AggressiveInlining )]</div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>        <span class="keyword">public</span> <span class="keyword">static</span> IFieldSerializer&lt;T&gt; GetSerializer&lt;T&gt;()</div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>            =&gt; _serializers.TryGetValue( typeof( T ), out var serializer ) ? (IFieldSerializer&lt;T&gt;)serializer : throw new InvalidOperationException( $<span class="stringliteral">&quot;No serializer for {typeof( T )}&quot;</span> );</div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span> </div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>        <span class="comment">/*</span></div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span><span class="comment">        ===============</span></div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span><span class="comment">        GetSerializer</span></div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span><span class="comment">        ===============</span></div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span><span class="comment">        */</span></div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>        [MethodImpl( MethodImplOptions.AggressiveInlining )]</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>        <span class="keyword">public</span> <span class="keyword">static</span> IFieldSerializer GetSerializer( Type type )</div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>            =&gt; _serializers[type];</div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>    };</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>};</div>
-<div class="ttc" id="anamespace_nomad_1_1_core_1_1_util_html"><div class="ttname"><a href="namespace_nomad_1_1_core_1_1_util.html">Nomad.Core.Util</a></div><div class="ttdef"><b>Definition</b> <a href="_any_8cs_source.html#l00024">Any.cs:25</a></div></div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>        <span class="keyword">public</span> <span class="keyword">static</span> IFieldSerializer&lt;T&gt; GetSerializer&lt;T&gt;() {</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>            <span class="keywordflow">return</span> _serializers.TryGetValue( typeof( T ), out var serializer ) ? (IFieldSerializer&lt;T&gt;)serializer : throw new InvalidOperationException( $<span class="stringliteral">&quot;No serializer for {typeof( T )}&quot;</span> );</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>        }</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span> </div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>        <span class="comment">/*</span></div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span><span class="comment">        ===============</span></div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span><span class="comment">        GetSerializer</span></div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span><span class="comment">        ===============</span></div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span><span class="comment">        */</span></div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>        [MethodImpl( MethodImplOptions.AggressiveInlining )]</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>        <span class="keyword">public</span> <span class="keyword">static</span> IFieldSerializer GetSerializer( Type type ) {</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>            <span class="keywordflow">if</span> ( !_serializers.TryGetValue( type, out var serializer ) ) {</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>                <span class="keywordflow">throw</span> <span class="keyword">new</span> InvalidOperationException( $<span class="stringliteral">&quot;No serializer registered for type {type.Name}&quot;</span> );</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>            }</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>            <span class="keywordflow">return</span> serializer;</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>        }</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    };</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>};</div>
+<div class="ttc" id="anamespace_nomad_1_1_core_1_1_util_html"><div class="ttname"><a href="namespace_nomad_1_1_core_1_1_util.html">Nomad.Core.Util</a></div><div class="ttdef"><b>Definition</b> <a href="_any_8cs_source.html#l00025">Any.cs:26</a></div></div>
 <div class="ttc" id="anamespace_nomad_1_1_save_1_1_private_1_1_serialization_1_1_field_serializers_html"><div class="ttname"><a href="namespace_nomad_1_1_save_1_1_private_1_1_serialization_1_1_field_serializers.html">Nomad.Save.Private.Serialization.FieldSerializers</a></div><div class="ttdef"><b>Definition</b> <a href="_boolean_serializer_8cs_source.html#l00019">BooleanSerializer.cs:19</a></div></div>
 <div class="ttc" id="anamespace_system_1_1_runtime_1_1_compiler_services_html"><div class="ttname"><a href="namespace_system_1_1_runtime_1_1_compiler_services.html">System.Runtime.CompilerServices</a></div><div class="ttdef"><b>Definition</b> <a href="_is_externa_i_init_8cs_source.html#l00017">IsExternaIInit.cs:18</a></div></div>
 <div class="ttc" id="anamespace_system_html"><div class="ttname"><a href="namespace_system.html">System</a></div><div class="ttdef"><b>Definition</b> <a href="_is_externa_i_init_8cs_source.html#l00017">IsExternaIInit.cs:18</a></div></div>

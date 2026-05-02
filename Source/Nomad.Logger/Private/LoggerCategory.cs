@@ -184,7 +184,7 @@ namespace Nomad.Logger.Private {
 					await Task.Delay( 250 );
 				}
 			} catch ( Exception e ) {
-				Console.WriteLine( $"LoggerThreadAsync: exception caught - {e}" );
+				global::System.Console.WriteLine( $"LoggerThreadAsync: exception caught - {e}" );
 			}
 		}
 	};

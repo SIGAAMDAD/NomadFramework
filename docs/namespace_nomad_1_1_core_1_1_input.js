@@ -51,6 +51,8 @@ var namespace_nomad_1_1_core_1_1_input =
         [ "UpArrow", "namespace_nomad_1_1_core_1_1_input_1_1_value_objects.html#a97efc8628cbccbb601233d299d1730aea0b513090f0a012194da83d5515882b13", null ],
         [ "DownArrow", "namespace_nomad_1_1_core_1_1_input_1_1_value_objects.html#a97efc8628cbccbb601233d299d1730aea0a3f89b5a028cc88370ad5a49dfab276", null ],
         [ "RightArrow", "namespace_nomad_1_1_core_1_1_input_1_1_value_objects.html#a97efc8628cbccbb601233d299d1730aea026be376ee5c529a3d0a35866d1242ad", null ],
+        [ "Escape", "namespace_nomad_1_1_core_1_1_input_1_1_value_objects.html#a97efc8628cbccbb601233d299d1730aea013ec032d3460d4be4431c6ab1f8f224", null ],
+        [ "Enter", "namespace_nomad_1_1_core_1_1_input_1_1_value_objects.html#a97efc8628cbccbb601233d299d1730aeaf1851d5600eae616ee802a31ac74701b", null ],
         [ "Count", "namespace_nomad_1_1_core_1_1_input_1_1_value_objects.html#a97efc8628cbccbb601233d299d1730aeae93f994f01c537c4e2f7d8528c3eb5e9", null ]
       ] ]
     ] ],
@@ -60,6 +62,7 @@ var namespace_nomad_1_1_core_1_1_input =
     [ "KeyboardEventArgs", "struct_nomad_1_1_core_1_1_input_1_1_keyboard_event_args.html", "struct_nomad_1_1_core_1_1_input_1_1_keyboard_event_args" ],
     [ "MouseButtonEventArgs", "struct_nomad_1_1_core_1_1_input_1_1_mouse_button_event_args.html", "struct_nomad_1_1_core_1_1_input_1_1_mouse_button_event_args" ],
     [ "MouseMotionEventArgs", "struct_nomad_1_1_core_1_1_input_1_1_mouse_motion_event_args.html", "struct_nomad_1_1_core_1_1_input_1_1_mouse_motion_event_args" ],
+    [ "MousePositionChangedEventArgs", "struct_nomad_1_1_core_1_1_input_1_1_mouse_position_changed_event_args.html", "struct_nomad_1_1_core_1_1_input_1_1_mouse_position_changed_event_args" ],
     [ "GamepadButton", "namespace_nomad_1_1_core_1_1_input.html#ae89a1e217d704cd3ce93f1f6c0d2a055", [
       [ "Invalid", "namespace_nomad_1_1_core_1_1_input.html#ae89a1e217d704cd3ce93f1f6c0d2a055a4bbb8f967da6d1a610596d7257179c2b", null ],
       [ "A", "namespace_nomad_1_1_core_1_1_input.html#ae89a1e217d704cd3ce93f1f6c0d2a055a7fc56270e7a70fa81a5935b72eacbe29", null ],
@@ -103,7 +106,6 @@ var namespace_nomad_1_1_core_1_1_input =
       [ "WheelDown", "namespace_nomad_1_1_core_1_1_input.html#acebb6dd4c83eb32e1bc5cd5fc38f5aeca95cf2a3dc58aff6d85e53738a089d9d1", null ],
       [ "WheelUp", "namespace_nomad_1_1_core_1_1_input.html#acebb6dd4c83eb32e1bc5cd5fc38f5aeca050f568559dcada95ba3ecb63de39971", null ],
       [ "X1", "namespace_nomad_1_1_core_1_1_input.html#acebb6dd4c83eb32e1bc5cd5fc38f5aecabb7f5ae6220c9828e5ec91faf054197c", null ],
-      [ "X2", "namespace_nomad_1_1_core_1_1_input.html#acebb6dd4c83eb32e1bc5cd5fc38f5aeca54105bddbfe3f639d49cbe8f5182c958", null ],
-      [ "Count", "namespace_nomad_1_1_core_1_1_input.html#acebb6dd4c83eb32e1bc5cd5fc38f5aecae93f994f01c537c4e2f7d8528c3eb5e9", null ]
+      [ "X2", "namespace_nomad_1_1_core_1_1_input.html#acebb6dd4c83eb32e1bc5cd5fc38f5aeca54105bddbfe3f639d49cbe8f5182c958", null ]
     ] ]
 ];

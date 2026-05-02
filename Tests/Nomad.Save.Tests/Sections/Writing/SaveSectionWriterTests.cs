@@ -141,7 +141,7 @@ namespace Nomad.Save.Tests
             var ex = Assert.Throws<DuplicateFieldException>(() =>
                 _sectionWriter.AddField("dupField", 2));
 
-            Console.WriteLine(ex.Message);
+            System.Console.WriteLine(ex.Message);
             Assert.That(ex.Message, Does.Contain("dupField"));
         }
 

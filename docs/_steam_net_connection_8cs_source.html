@@ -124,57 +124,58 @@ $(function() {
 <div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="comment">===========================================================================</span></div>
 <div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="comment">*/</span></div>
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span> </div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="keyword">using </span>Steamworks;</div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span> </div>
-<div class="foldopen" id="foldopen00018" data-start="{" data-end="}">
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno"><a class="line" href="namespace_nomad_1_1_online_services_1_1_steam_1_1_private_1_1_value_objects.html">   18</a></span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespace_nomad_1_1_online_services_1_1_steam_1_1_private_1_1_value_objects.html">Nomad.OnlineServices.Steam.Private.ValueObjects</a> {</div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>    <span class="keyword">internal</span> <span class="keyword">class </span>SteamNetConnection {</div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>        <span class="keyword">public</span> SteamConnectionStatus Status =&gt; _status;</div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>        <span class="keyword">private</span> SteamConnectionStatus _status;</div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span> </div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>        <span class="keyword">public</span> HSteamNetConnection Connection =&gt; _connection;</div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>        <span class="keyword">private</span> readonly HSteamNetConnection _connection = HSteamNetConnection.Invalid;</div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span> </div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>        <span class="keyword">public</span> SteamNetConnection( HSteamNetConnection connection ) {</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>            _connection = connection;</div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>            _status = SteamConnectionStatus.Opened;</div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>        }</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span> </div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>        <span class="keyword">public</span> <span class="keywordtype">void</span> SetStatus( SteamConnectionStatus status ) {</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>            <span class="keywordflow">switch</span> ( status ) {</div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>                <span class="keywordflow">case</span> SteamConnectionStatus.Opened: {</div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>                        <span class="keywordflow">if</span> ( _status != SteamConnectionStatus.Opened ) {</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>                            <span class="keywordflow">if</span> ( SteamNetworkingSockets.AcceptConnection( _connection ) != EResult.k_EResultOK ) {</div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>                                _status = SteamConnectionStatus.Connected;</div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>                            } <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>                                Close( <span class="stringliteral">&quot;Connection accept failed.&quot;</span> );</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>                            }</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>                        } <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>                        }</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>                        <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>                    }</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>                <span class="keywordflow">case</span> SteamConnectionStatus.Closed:</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>                    <span class="keywordflow">if</span> ( _connection != HSteamNetConnection.Invalid ) {</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>                        Close( <span class="stringliteral">&quot;Client connection closed.&quot;</span> );</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>                    }</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>                    <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>            }</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>            _status = status;</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>        }</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span> </div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>        <span class="comment">/*</span></div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span><span class="comment">        ===============</span></div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span><span class="comment">        Close</span></div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span><span class="comment">        ===============</span></div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span><span class="comment">        */</span></div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>        <span class="keyword">private</span> <span class="keywordtype">void</span> Close( <span class="keywordtype">string</span> message ) {</div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>            SteamNetworkingSockets.CloseConnection( _connection, 0, message, <span class="keyword">false</span> );</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>        }</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    };</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>};</div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="keyword">using </span><a class="code hl_namespace" href="namespace_system.html">System</a>;</div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="keyword">using </span><a class="code hl_namespace" href="namespace_nomad_1_1_core_1_1_online_services.html">Nomad.Core.OnlineServices</a>;</div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="keyword">using </span>Steamworks;</div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
+<div class="foldopen" id="foldopen00020" data-start="{" data-end="}">
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno"><a class="line" href="namespace_nomad_1_1_online_services_1_1_steam_1_1_private_1_1_value_objects.html">   20</a></span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespace_nomad_1_1_online_services_1_1_steam_1_1_private_1_1_value_objects.html">Nomad.OnlineServices.Steam.Private.ValueObjects</a> {</div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>    <span class="comment">/*</span></div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="comment">    ===================================================================================</span></div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="comment">    </span></div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="comment">    SteamNetConnection</span></div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="comment">    </span></div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="comment">    ===================================================================================</span></div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="comment">    */</span></div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>    </div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>    <span class="keyword">internal</span> <span class="keyword">sealed</span> <span class="keyword">class </span>SteamNetConnection {</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>        <span class="keyword">public</span> <a class="code hl_enumeration" href="namespace_nomad_1_1_core_1_1_online_services.html#a1580644ec5bb21f37c0f73bff9d42855">NetworkConnectionState</a> Status =&gt; _status;</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>        <span class="keyword">private</span> <a class="code hl_enumeration" href="namespace_nomad_1_1_core_1_1_online_services.html#a1580644ec5bb21f37c0f73bff9d42855">NetworkConnectionState</a> _status;</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>        <span class="keyword">public</span> DateTime LastStateChangeUtc { <span class="keyword">get</span>; <span class="keyword">private</span> <span class="keyword">set</span>; } = DateTime.UtcNow;</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span> </div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>        <span class="keyword">public</span> CSteamID? RemoteSteamId =&gt; _remoteSteamId;</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>        <span class="keyword">private</span> readonly CSteamID? _remoteSteamId;</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span> </div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>        <span class="keyword">public</span> HSteamNetConnection Connection =&gt; _connection;</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>        <span class="keyword">private</span> readonly HSteamNetConnection _connection = HSteamNetConnection.Invalid;</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>        <span class="keyword">private</span> readonly SteamNetworkingIdentity _identity;</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>        </div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>        <span class="comment">/*</span></div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span><span class="comment">        ===============</span></div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span><span class="comment">        SteamNetConnection</span></div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span><span class="comment">        ===============</span></div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span><span class="comment">        */</span></div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>        <span class="keyword">public</span> SteamNetConnection( HSteamNetConnection connection, SteamNetworkingIdentity remoteIdentity ) {</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>            _connection = connection;</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>            _identity = remoteIdentity;</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span> </div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>            <span class="keywordflow">if</span> ( remoteIdentity.GetSteamID64() != 0 ) {</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>                _remoteSteamId = <span class="keyword">new</span> CSteamID( remoteIdentity.GetSteamID64() );</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>            }</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>        }</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span> </div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>        <span class="keyword">public</span> <span class="keywordtype">void</span> SetStatus( <a class="code hl_enumeration" href="namespace_nomad_1_1_core_1_1_online_services.html#a1580644ec5bb21f37c0f73bff9d42855">NetworkConnectionState</a> state ) {</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>            _status = state;</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>        }</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    };</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>};</div>
 </div>
-<div class="ttc" id="anamespace_nomad_1_1_online_services_1_1_steam_1_1_private_1_1_value_objects_html"><div class="ttname"><a href="namespace_nomad_1_1_online_services_1_1_steam_1_1_private_1_1_value_objects.html">Nomad.OnlineServices.Steam.Private.ValueObjects</a></div><div class="ttdef"><b>Definition</b> <a href="#l00018">SteamNetConnection.cs:18</a></div></div>
+<div class="ttc" id="anamespace_nomad_1_1_core_1_1_online_services_html"><div class="ttname"><a href="namespace_nomad_1_1_core_1_1_online_services.html">Nomad.Core.OnlineServices</a></div><div class="ttdef"><b>Definition</b> <a href="_achievement_info_8cs_source.html#l00016">AchievementInfo.cs:17</a></div></div>
+<div class="ttc" id="anamespace_nomad_1_1_core_1_1_online_services_html_a1580644ec5bb21f37c0f73bff9d42855"><div class="ttname"><a href="namespace_nomad_1_1_core_1_1_online_services.html#a1580644ec5bb21f37c0f73bff9d42855">Nomad.Core.OnlineServices.NetworkConnectionState</a></div><div class="ttdeci">NetworkConnectionState</div><div class="ttdef"><b>Definition</b> <a href="_network_connection_state_8cs_source.html#l00021">NetworkConnectionState.cs:22</a></div></div>
+<div class="ttc" id="anamespace_nomad_1_1_online_services_1_1_steam_1_1_private_1_1_value_objects_html"><div class="ttname"><a href="namespace_nomad_1_1_online_services_1_1_steam_1_1_private_1_1_value_objects.html">Nomad.OnlineServices.Steam.Private.ValueObjects</a></div><div class="ttdef"><b>Definition</b> <a href="#l00020">SteamNetConnection.cs:20</a></div></div>
+<div class="ttc" id="anamespace_system_html"><div class="ttname"><a href="namespace_system.html">System</a></div><div class="ttdef"><b>Definition</b> <a href="_is_externa_i_init_8cs_source.html#l00017">IsExternaIInit.cs:18</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 </div><!-- container -->

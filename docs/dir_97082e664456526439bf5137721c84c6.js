@@ -7,5 +7,6 @@ var dir_97082e664456526439bf5137721c84c6 =
     [ "Services", "dir_3fb1650e6d6dd66789de3450772a2aa8.html", "dir_3fb1650e6d6dd66789de3450772a2aa8" ],
     [ "ValueObjects", "dir_8b6bdd4150fe3da85a51db5eba77dc1f.html", "dir_8b6bdd4150fe3da85a51db5eba77dc1f" ],
     [ "FMODException.cs", "_f_m_o_d_exception_8cs.html", "_f_m_o_d_exception_8cs" ],
-    [ "FMODValidator.cs", "_f_m_o_d_validator_8cs.html", null ]
+    [ "FMODValidator.cs", "_f_m_o_d_validator_8cs.html", null ],
+    [ "Vector2Extensions.cs", "_nomad_8_audio_8_f_m_o_d_2_private_2_vector2_extensions_8cs.html", null ]
 ];

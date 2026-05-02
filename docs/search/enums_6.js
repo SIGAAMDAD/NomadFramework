@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['gamepadbutton_0',['GamepadButton',['../namespace_nomad_1_1_core_1_1_input.html#ae89a1e217d704cd3ce93f1f6c0d2a055',1,'Nomad::Core::Input']]],
-  ['gamepadstick_1',['GamepadStick',['../namespace_nomad_1_1_core_1_1_input.html#a5e5b55025b8b446db2bf18764841251d',1,'Nomad::Core::Input']]]
+  ['horizontalalignment_0',['HorizontalAlignment',['../namespace_nomad_1_1_core_1_1_u_i.html#a5c1cbad9ae7db9110a51f1be036b407c',1,'Nomad::Core::UI']]]
 ];

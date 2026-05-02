@@ -9,7 +9,7 @@ var interface_nomad_1_1_core_1_1_c_vars_1_1_i_c_var_system_service =
     [ "GetCVarsWithValueType< T >", "interface_nomad_1_1_core_1_1_c_vars_1_1_i_c_var_system_service.html#a5ce47b43fd496c905b753e5b261d321d", null ],
     [ "GroupExists", "interface_nomad_1_1_core_1_1_c_vars_1_1_i_c_var_system_service.html#a14b6dd00fe4279306439926c3bceb1e3", null ],
     [ "Load", "interface_nomad_1_1_core_1_1_c_vars_1_1_i_c_var_system_service.html#ab906a16010193a2191ee419d3b22360f", null ],
-    [ "Register< T >", "interface_nomad_1_1_core_1_1_c_vars_1_1_i_c_var_system_service.html#a97da57f84d7b8afecc102c0a13e9d995", null ],
+    [ "Register< T >", "interface_nomad_1_1_core_1_1_c_vars_1_1_i_c_var_system_service.html#ab43078acd0cef0a455d5a004b6154a9f", null ],
     [ "Restart", "interface_nomad_1_1_core_1_1_c_vars_1_1_i_c_var_system_service.html#a1d41a332715b1a9f826cb7655386a0f7", null ],
     [ "Save", "interface_nomad_1_1_core_1_1_c_vars_1_1_i_c_var_system_service.html#a44ea4ed9d4bb5124d202e66bcb46816b", null ],
     [ "TryFind", "interface_nomad_1_1_core_1_1_c_vars_1_1_i_c_var_system_service.html#a11074a1118054515a64bde35c0993d19", null ],

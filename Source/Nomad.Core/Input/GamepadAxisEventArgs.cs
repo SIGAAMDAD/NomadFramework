@@ -14,56 +14,15 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using System.Numerics;
 using System.Runtime.CompilerServices;
-using Nomad.Core.Events;
 
 namespace Nomad.Core.Input
 {
     /// <summary>
     /// Represents the arguments for a gamepad axis input event.
     /// </summary>
-    [Event(
-        name: nameof(GamepadAxisEventArgs),
-        nameSpace: "Nomad.Core.Input"
-    )]
     public readonly partial struct GamepadAxisEventArgs : IEquatable<GamepadAxisEventArgs>
     {
-        /// <summary>
-        /// Gets the timestamp when the gamepad axis event occurred.
-        /// </summary>
-        public long TimeStamp { get; }
-
-        /// <summary>
-        /// Gets the device ID of the gamepad.
-        /// </summary>
-        public int DeviceId { get; }
-
-        /// <summary>
-        /// Gets the gamepad stick that was moved.
-        /// </summary>
-        public GamepadStick Stick { get; }
-
-        /// <summary>
-        /// Gets the axis values as a 2D vector (X and Y components).
-        /// </summary>
-        public Vector2 Value { get; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="GamepadAxisEventArgs"/> struct.
-        /// </summary>
-        /// <param name="stick">The gamepad stick that was moved.</param>
-        /// <param name="timestamp">The timestamp of the event.</param>
-        /// <param name="deviceId">The device ID of the gamepad.</param>
-        /// <param name="value">The axis values as a 2D vector.</param>
-        public GamepadAxisEventArgs(GamepadStick stick, long timestamp, int deviceId, Vector2 value)
-        {
-            Stick = stick;
-            TimeStamp = timestamp;
-            DeviceId = deviceId;
-            Value = value;
-        }
-
         /// <summary>
         /// Determines whether the specified <see cref="GamepadAxisEventArgs"/> is equal to the current instance.
         /// </summary>

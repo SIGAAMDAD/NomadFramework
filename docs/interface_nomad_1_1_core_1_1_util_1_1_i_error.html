@@ -109,15 +109,22 @@ $(function() {
   <div class="headertitle"><div class="title">Nomad.Core.Util.IError Interface Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Represents an error that occurred during an operation.  
+ <a href="#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-properties" class="groupheader"><a id="properties" name="properties"></a>
 Properties</h2></td></tr>
 <tr class="memitem:a5b371ac9d63b7d06f8be59f3f5652077" id="r_a5b371ac9d63b7d06f8be59f3f5652077"><td class="memItemLeft">string&#160;</td><td class="memItemRight"><a class="el" href="#a5b371ac9d63b7d06f8be59f3f5652077">Message</a><code> [get]</code></td></tr>
+<tr class="memdesc:a5b371ac9d63b7d06f8be59f3f5652077"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets a descriptive message explaining the error.  <br /></td></tr>
 <tr class="memitem:a367891e3cb44b22f2dbe65d57e1ca8b3" id="r_a367891e3cb44b22f2dbe65d57e1ca8b3"><td class="memItemLeft"><a class="el" href="namespace_nomad_1_1_core_1_1_util.html#af41aebcc4a4a052a6e14baaeff2e2e02">ErrorType</a>&#160;</td><td class="memItemRight"><a class="el" href="#a367891e3cb44b22f2dbe65d57e1ca8b3">Type</a><code> [get]</code></td></tr>
+<tr class="memdesc:a367891e3cb44b22f2dbe65d57e1ca8b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the classification or type of the error.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
-<div class="textblock">
-<p class="definition">Definition at line <a class="el" href="_i_error_8cs_source.html#l00021">21</a> of file <a class="el" href="_i_error_8cs_source.html">IError.cs</a>.</p>
+<div class="textblock"><p>Represents an error that occurred during an operation. </p>
+<p>Implementing types should provide a descriptive message and classify the error using <a class="el" href="namespace_nomad_1_1_core_1_1_util.html#af41aebcc4a4a052a6e14baaeff2e2e02" title="Specifies the category or type of an error that occurred during operation.">ErrorType</a>. This interface is used in conjunction with <a class="el" href="namespace_nomad_1_1_core_1_1_util.html#a9dc485dc3aa0a30576877c369e4baee4" title="Represents the result of an operation that either succeeds or fails with an error.">Result</a> and Result&lt;T&gt; for error handling. </p>
+
+<p class="definition">Definition at line <a class="el" href="_i_error_8cs_source.html#l00025">25</a> of file <a class="el" href="_i_error_8cs_source.html">IError.cs</a>.</p>
 </div><a name="doc-property-members" id="doc-property-members"></a><h2 id="header-doc-property-members" class="groupheader">Property Documentation</h2>
 <a id="a5b371ac9d63b7d06f8be59f3f5652077" name="a5b371ac9d63b7d06f8be59f3f5652077"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a5b371ac9d63b7d06f8be59f3f5652077">&#9670;&#160;</a></span>Message</h2>
@@ -139,7 +146,9 @@ Properties</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_i_error_8cs_source.html#l00026">26</a> of file <a class="el" href="_i_error_8cs_source.html">IError.cs</a>.</p>
+<p>Gets a descriptive message explaining the error. </p>
+
+<p class="definition">Definition at line <a class="el" href="_i_error_8cs_source.html#l00030">30</a> of file <a class="el" href="_i_error_8cs_source.html">IError.cs</a>.</p>
 
 </div>
 </div>
@@ -163,7 +172,9 @@ Properties</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_i_error_8cs_source.html#l00031">31</a> of file <a class="el" href="_i_error_8cs_source.html">IError.cs</a>.</p>
+<p>Gets the classification or type of the error. </p>
+
+<p class="definition">Definition at line <a class="el" href="_i_error_8cs_source.html#l00035">35</a> of file <a class="el" href="_i_error_8cs_source.html">IError.cs</a>.</p>
 
 </div>
 </div>

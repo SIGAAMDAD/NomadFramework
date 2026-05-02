@@ -58,19 +58,19 @@ namespace Nomad.OnlineServices.Steam.Private {
 		public MatchMakingInfo? CurrentRequest => _activeRequest;
 		private MatchMakingInfo? _activeRequest = null;
 
-		public IGameEvent<EmptyEventArgs> SearchResultsUpdated {
+		public IGameEvent<SearchResultsUpdatedEventArgs> SearchResultsUpdated {
 			get {
 				throw new NotImplementedException();
 			}
 		}
 
-		public IGameEvent<Guid> MatchFound {
+		public IGameEvent<MatchFoundEventArgs> MatchFound {
 			get {
 				throw new NotImplementedException();
 			}
 		}
 
-		public IGameEvent<EmptyEventArgs> MatchMakingFailed {
+		public IGameEvent<MatchMakingFailedEventArgs> MatchMakingFailed {
 			get {
 				throw new NotImplementedException();
 			}

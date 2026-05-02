@@ -18,7 +18,7 @@ namespace Nomad.ResourceCache.Events
     /// <summary>
     ///
     /// </summary>
-    public readonly struct ResourceLoadProgressEventArgs<TId>
+    public readonly partial struct ResourceLoadProgressEventArgs<TId>
     {
         /// <summary>
         /// The resource's internal cache id.

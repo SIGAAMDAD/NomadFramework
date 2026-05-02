@@ -39,7 +39,7 @@ namespace Nomad.Input.Interfaces
 		/// <param name="slot"></param>
 		/// <param name="control"></param>
 		/// <returns></returns>
-		bool IsPressed( InputDeviceSlot slot, InputControlId control );
+		bool IsPressed(InputDeviceSlot slot, InputControlId control);
 
 		/// <summary>
 		/// 
@@ -47,7 +47,7 @@ namespace Nomad.Input.Interfaces
 		/// <param name="slot"></param>
 		/// <param name="control"></param>
 		/// <returns></returns>
-		float GetAxis1D( InputDeviceSlot slot, InputControlId control );
+		float GetAxis1D(InputDeviceSlot slot, InputControlId control);
 
 		/// <summary>
 		/// 
@@ -55,6 +55,6 @@ namespace Nomad.Input.Interfaces
 		/// <param name="slot"></param>
 		/// <param name="control"></param>
 		/// <returns></returns>
-		Vector2 GetAxis2D( InputDeviceSlot slot, InputControlId control );
+		Vector2 GetAxis2D(InputDeviceSlot slot, InputControlId control);
 	}
 }

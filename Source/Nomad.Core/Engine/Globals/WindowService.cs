@@ -69,12 +69,12 @@ namespace Nomad.Core.Engine.Globals
         /// <summary>
         ///
         /// </summary>
-        public static IGameEvent<bool> FocusChanged => Instance.FocusChanged;
+        public static IGameEvent<WindowFocusChangedEventArgs> FocusChanged => Instance.FocusChanged;
 
         /// <summary>
         ///
         /// </summary>
-        public static IGameEvent<EmptyEventArgs> CloseRequested => Instance.CloseRequested;
+        public static IGameEvent<WindowCloseRequestedEventArgs> CloseRequested => Instance.CloseRequested;
 
         /// <summary>
         ///

@@ -176,14 +176,14 @@ namespace Nomad.EngineUtils.Godot.Private.Services {
 		/// <summary>
 		///
 		/// </summary>
-		public IGameEvent<bool> FocusChanged => _focusChanged;
-		private readonly IGameEvent<bool> _focusChanged;
+		public IGameEvent<WindowFocusChangedEventArgs> FocusChanged => _focusChanged;
+		private readonly IGameEvent<WindowFocusChangedEventArgs> _focusChanged;
 
 		/// <summary>
 		///
 		/// </summary>
-		public IGameEvent<EmptyEventArgs> CloseRequested => _closeRequested;
-		private readonly IGameEvent<EmptyEventArgs> _closeRequested;
+		public IGameEvent<WindowCloseRequestedEventArgs> CloseRequested => _closeRequested;
+		private readonly IGameEvent<WindowCloseRequestedEventArgs> _closeRequested;
 
 		/*
 		===============
@@ -204,9 +204,18 @@ namespace Nomad.EngineUtils.Godot.Private.Services {
 			_window.CloseRequested += OnCloseRequested;
 			_window.TitleChanged += OnTitleChanged;
 
-			_sizeChanged = eventFactory.GetEvent<WindowSizeChangedEventArgs>( Core.Constants.Events.EngineUtils.WINDOW_SIZE_CHANGED, Core.Constants.Events.EngineUtils.NAMESPACE );
-			_closeRequested = eventFactory.GetEvent<EmptyEventArgs>( Core.Constants.Events.EngineUtils.CLOSE_REQUESTED, Core.Constants.Events.EngineUtils.NAMESPACE );
-			_focusChanged = eventFactory.GetEvent<bool>( Core.Constants.Events.EngineUtils.FOCUS_CHANGED, Core.Constants.Events.EngineUtils.NAMESPACE );
+			_sizeChanged = eventFactory.GetEvent<WindowSizeChangedEventArgs>(
+				WindowSizeChangedEventArgs.Name,
+				WindowSizeChangedEventArgs.NameSpace
+			);
+			_closeRequested = eventFactory.GetEvent<WindowCloseRequestedEventArgs>(
+				WindowCloseRequestedEventArgs.Name,
+				WindowCloseRequestedEventArgs.NameSpace
+			);
+			_focusChanged = eventFactory.GetEvent<WindowFocusChangedEventArgs>(
+				WindowFocusChangedEventArgs.Name,
+				WindowFocusChangedEventArgs.NameSpace
+			);
 
 			_monitors = GetScreenList();
 
@@ -382,7 +391,7 @@ namespace Nomad.EngineUtils.Godot.Private.Services {
 		/// </summary>
 		private void OnFocusEntered() {
 			_isFocused = true;
-			_focusChanged.Publish( _isFocused );
+			_focusChanged.Publish( new WindowFocusChangedEventArgs( _isFocused ) );
 		}
 
 		/*
@@ -395,7 +404,7 @@ namespace Nomad.EngineUtils.Godot.Private.Services {
 		/// </summary>
 		private void OnFocusExited() {
 			_isFocused = false;
-			_focusChanged.Publish( _isFocused );
+			_focusChanged.Publish( new WindowFocusChangedEventArgs( _isFocused ) );
 		}
 
 		/*

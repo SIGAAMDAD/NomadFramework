@@ -14,7 +14,6 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Godot;
 using Nomad.Core.Compatibility.Guards;
@@ -39,13 +38,13 @@ namespace Nomad.EngineUtils.Godot.Private {
 		/// <summary>
 		/// 
 		/// </summary>
-		public IGameEvent<KeyboardEventArgs> KeyboardEvent => _keyboardEvent;
+		public IGameEvent<KeyboardEventArgs> Keyboard => _keyboardEvent;
 		private readonly IGameEvent<KeyboardEventArgs> _keyboardEvent;
 
 		/// <summary>
 		/// 
 		/// </summary>
-		public IGameEvent<MouseButtonEventArgs> MouseButtonEvent => _mouseButtonEvent;
+		public IGameEvent<MouseButtonEventArgs> MouseButton => _mouseButtonEvent;
 		private readonly IGameEvent<MouseButtonEventArgs> _mouseButtonEvent;
 
 		public IGameEvent<MousePositionChangedEventArgs> MousePositionChanged => _mousePositionChangedEvent;
@@ -54,19 +53,19 @@ namespace Nomad.EngineUtils.Godot.Private {
 		/// <summary>
 		/// 
 		/// </summary>
-		public IGameEvent<MouseMotionEventArgs> MouseMotionEvent => _mouseMotionEvent;
+		public IGameEvent<MouseMotionEventArgs> MouseMotion => _mouseMotionEvent;
 		private readonly IGameEvent<MouseMotionEventArgs> _mouseMotionEvent;
 
 		/// <summary>
 		/// 
 		/// </summary>
-		public IGameEvent<GamepadAxisEventArgs> GamepadAxisEvent => _gamepadAxisEvent;
+		public IGameEvent<GamepadAxisEventArgs> GamepadAxis => _gamepadAxisEvent;
 		private readonly IGameEvent<GamepadAxisEventArgs> _gamepadAxisEvent;
 
 		/// <summary>
 		/// 
 		/// </summary>
-		public IGameEvent<GamepadButtonEventArgs> GamepadButtonEvent => _gamepadButtonEvent;
+		public IGameEvent<GamepadButtonEventArgs> GamepadButton => _gamepadButtonEvent;
 		private readonly IGameEvent<GamepadButtonEventArgs> _gamepadButtonEvent;
 
 		private readonly System.Numerics.Vector2[] _leftStickState = new System.Numerics.Vector2[Core.Constants.Input.MAX_COOP_PLAYERS];
@@ -85,22 +84,22 @@ namespace Nomad.EngineUtils.Godot.Private {
 			Array.Clear( _rightStickState );
 			
 			_keyboardEvent = eventFactory
-				.GetEvent<KeyboardEventArgs>( Core.Constants.Events.Input.KEYBOARD_EVENT, Core.Constants.Events.Input.NAMESPACE, EventFlags.NoLock );
+				.GetEvent<KeyboardEventArgs>( KeyboardEventArgs.Name, KeyboardEventArgs.NameSpace, EventFlags.NoLock );
 			
 			_mouseButtonEvent = eventFactory
-				.GetEvent<MouseButtonEventArgs>( Core.Constants.Events.Input.MOUSE_BUTTON_EVENT, Core.Constants.Events.Input.NAMESPACE, EventFlags.NoLock );
+				.GetEvent<MouseButtonEventArgs>( MouseButtonEventArgs.Name, MouseButtonEventArgs.NameSpace, EventFlags.NoLock );
 			
 			_mouseMotionEvent = eventFactory
-				.GetEvent<MouseMotionEventArgs>( Core.Constants.Events.Input.MOUSE_MOTION_EVENT, Core.Constants.Events.Input.NAMESPACE, EventFlags.NoLock );
+				.GetEvent<MouseMotionEventArgs>( MouseMotionEventArgs.Name, MouseMotionEventArgs.NameSpace, EventFlags.NoLock );
 			
 			_mousePositionChangedEvent = eventFactory
-				.GetEvent<MousePositionChangedEventArgs>( Core.Constants.Events.Input.MOUSE_POSITION_CHANGED_EVENT, Core.Constants.Events.Input.NAMESPACE, EventFlags.NoLock );
+				.GetEvent<MousePositionChangedEventArgs>( MousePositionChangedEventArgs.Name, MousePositionChangedEventArgs.NameSpace, EventFlags.NoLock );
 			
 			_gamepadAxisEvent = eventFactory
-				.GetEvent<GamepadAxisEventArgs>( Core.Constants.Events.Input.GAMEPAD_AXIS_EVENT, Core.Constants.Events.Input.NAMESPACE, EventFlags.NoLock );
+				.GetEvent<GamepadAxisEventArgs>( GamepadAxisEventArgs.Name, GamepadAxisEventArgs.NameSpace, EventFlags.NoLock );
 			
 			_gamepadButtonEvent = eventFactory
-				.GetEvent<GamepadButtonEventArgs>( Core.Constants.Events.Input.GAMEPAD_BUTTON_EVENT, Core.Constants.Events.Input.NAMESPACE, EventFlags.NoLock );
+				.GetEvent<GamepadButtonEventArgs>( GamepadButtonEventArgs.Name, GamepadButtonEventArgs.NameSpace, EventFlags.NoLock );
 		}
 
 		/*
@@ -153,8 +152,8 @@ namespace Nomad.EngineUtils.Godot.Private {
 					_gamepadButtonEvent.Publish(
 						new GamepadButtonEventArgs(
 							GodotJoypadButtonToNomadGamepadButton( joypadButton.ButtonIndex ),
-							joypadButton.Device,
 							now,
+							joypadButton.Device,
 							joypadButton.Pressed
 						)
 					);
@@ -246,21 +245,21 @@ namespace Nomad.EngineUtils.Godot.Private {
 		/// <exception cref="ArgumentOutOfRangeException"></exception>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		private static GamepadButton GodotJoypadButtonToNomadGamepadButton( JoyButton button ) => button switch {
-			JoyButton.A => GamepadButton.A,
-			JoyButton.B => GamepadButton.B,
-			JoyButton.X => GamepadButton.X,
-			JoyButton.Y => GamepadButton.Y,
-			JoyButton.DpadDown => GamepadButton.DPadDown,
-			JoyButton.DpadUp => GamepadButton.DPadUp,
-			JoyButton.DpadLeft => GamepadButton.DPadLeft,
-			JoyButton.DpadRight => GamepadButton.DPadRight,
-			JoyButton.LeftShoulder => GamepadButton.LeftShoulder,
-			JoyButton.RightShoulder => GamepadButton.RightShoulder,
-			JoyButton.LeftStick => GamepadButton.LeftStick,
-			JoyButton.RightStick => GamepadButton.RightStick,
-			JoyButton.Back => GamepadButton.Back,
-			JoyButton.Guide => GamepadButton.Guide,
-			JoyButton.Start => GamepadButton.Start,
+			JoyButton.A => Core.Input.GamepadButton.A,
+			JoyButton.B => Core.Input.GamepadButton.B,
+			JoyButton.X => Core.Input.GamepadButton.X,
+			JoyButton.Y => Core.Input.GamepadButton.Y,
+			JoyButton.DpadDown => Core.Input.GamepadButton.DPadDown,
+			JoyButton.DpadUp => Core.Input.GamepadButton.DPadUp,
+			JoyButton.DpadLeft => Core.Input.GamepadButton.DPadLeft,
+			JoyButton.DpadRight => Core.Input.GamepadButton.DPadRight,
+			JoyButton.LeftShoulder => Core.Input.GamepadButton.LeftShoulder,
+			JoyButton.RightShoulder => Core.Input.GamepadButton.RightShoulder,
+			JoyButton.LeftStick => Core.Input.GamepadButton.LeftStick,
+			JoyButton.RightStick => Core.Input.GamepadButton.RightStick,
+			JoyButton.Back => Core.Input.GamepadButton.Back,
+			JoyButton.Guide => Core.Input.GamepadButton.Guide,
+			JoyButton.Start => Core.Input.GamepadButton.Start,
 			_ => throw new ArgumentOutOfRangeException( nameof( button ) )
 		};
 

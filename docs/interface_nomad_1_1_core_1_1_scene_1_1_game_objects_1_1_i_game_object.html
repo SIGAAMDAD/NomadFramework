@@ -118,6 +118,7 @@ $(function() {
 Public Member Functions</h2></td></tr>
 <tr class="memitem:aa4be4792a1fde8da23ed34d849e15010" id="r_aa4be4792a1fde8da23ed34d849e15010"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#aa4be4792a1fde8da23ed34d849e15010">AddChild</a> (<a class="el" href="interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_game_object.html">IGameObject</a> child)</td></tr>
 <tr class="memitem:a9cbf94222f845080b4f9410749ba7c52" id="r_a9cbf94222f845080b4f9410749ba7c52"><td class="memItemLeft">T&#160;</td><td class="memItemRight"><a class="el" href="#a9cbf94222f845080b4f9410749ba7c52">AddComponent&lt; T &gt;</a> (Action&lt; T &gt;? initializer=null)</td></tr>
+<tr class="memitem:acfc69ce7ebaa5c5373e267069975a266" id="r_acfc69ce7ebaa5c5373e267069975a266"><td class="memItemLeft">T?&#160;</td><td class="memItemRight"><a class="el" href="#acfc69ce7ebaa5c5373e267069975a266">CastAs&lt; T &gt;</a> ()</td></tr>
 <tr class="memitem:a8794abc7b54f095ba81ca12fc5033815" id="r_a8794abc7b54f095ba81ca12fc5033815"><td class="memItemLeft">T?&#160;</td><td class="memItemRight"><a class="el" href="#a8794abc7b54f095ba81ca12fc5033815">FindChild&lt; T &gt;</a> (string childName)</td></tr>
 <tr class="memitem:ab267d621744dfea761a13aa57f6ec365" id="r_ab267d621744dfea761a13aa57f6ec365"><td class="memItemLeft">T?&#160;</td><td class="memItemRight"><a class="el" href="#ab267d621744dfea761a13aa57f6ec365">GetComponent&lt; T &gt;</a> ()</td></tr>
 <tr class="memitem:a12b806365189ac8fe1ef4194567c9cb6" id="r_a12b806365189ac8fe1ef4194567c9cb6"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a12b806365189ac8fe1ef4194567c9cb6">HasComponent&lt; T &gt;</a> ()</td></tr>
@@ -200,6 +201,41 @@ Properties</h2></td></tr>
 
 </div>
 </div>
+<a id="acfc69ce7ebaa5c5373e267069975a266" name="acfc69ce7ebaa5c5373e267069975a266"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acfc69ce7ebaa5c5373e267069975a266">&#9670;&#160;</a></span>CastAs&lt; T &gt;()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">T? Nomad.Core.Scene.GameObjects.IGameObject.CastAs&lt; T &gt; </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">T</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+<p>Implemented in <a class="el" href="class_nomad_1_1_engine_utils_1_1_godot_game_object.html#a69052b6c11a422db5e7b53c8a2e0aa1d">Nomad.EngineUtils.GodotGameObject</a>.</p>
+<div class="typeconstraint">
+<dl><dt><b>Type Constraints</b></dt><dd>
+<table border="0" cellspacing="2" cellpadding="0">
+<tr><td valign="top"><em>T</em></td><td>&#160;:</td><td valign="top"><em>class</em></td><td>&#160;</td></tr>
+<tr><td valign="top"><em>T</em></td><td>&#160;:</td><td valign="top"><em><a class="el" href="interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_game_object.html">IGameObject</a></em></td><td>&#160;</td></tr>
+</table>
+</dd>
+</dl>
+</div>
+
+</div>
+</div>
 <a id="a8794abc7b54f095ba81ca12fc5033815" name="a8794abc7b54f095ba81ca12fc5033815"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8794abc7b54f095ba81ca12fc5033815">&#9670;&#160;</a></span>FindChild&lt; T &gt;()</h2>
 
@@ -261,6 +297,7 @@ Properties</h2></td></tr>
 <div class="typeconstraint">
 <dl><dt><b>Type Constraints</b></dt><dd>
 <table border="0" cellspacing="2" cellpadding="0">
+<tr><td valign="top"><em>T</em></td><td>&#160;:</td><td valign="top"><em>class</em></td><td>&#160;</td></tr>
 <tr><td valign="top"><em>T</em></td><td>&#160;:</td><td valign="top"><em>IComponent</em></td><td>&#160;</td></tr>
 </table>
 </dd>
@@ -295,6 +332,7 @@ Properties</h2></td></tr>
 <div class="typeconstraint">
 <dl><dt><b>Type Constraints</b></dt><dd>
 <table border="0" cellspacing="2" cellpadding="0">
+<tr><td valign="top"><em>T</em></td><td>&#160;:</td><td valign="top"><em>class</em></td><td>&#160;</td></tr>
 <tr><td valign="top"><em>T</em></td><td>&#160;:</td><td valign="top"><em>IComponent</em></td><td>&#160;</td></tr>
 </table>
 </dd>
@@ -353,6 +391,7 @@ Properties</h2></td></tr>
 <div class="typeconstraint">
 <dl><dt><b>Type Constraints</b></dt><dd>
 <table border="0" cellspacing="2" cellpadding="0">
+<tr><td valign="top"><em>T</em></td><td>&#160;:</td><td valign="top"><em>class</em></td><td>&#160;</td></tr>
 <tr><td valign="top"><em>T</em></td><td>&#160;:</td><td valign="top"><em>IComponent</em></td><td>&#160;</td></tr>
 </table>
 </dd>

@@ -139,7 +139,7 @@ $(function() {
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span></div>
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno"><a class="line" href="interface_nomad_1_1_core_1_1_events_1_1_i_game_event.html#acbcbf416750c3fd38c971e20d4b1b42e">   44</a></span>        <span class="keywordtype">int</span> <a class="code hl_property" href="interface_nomad_1_1_core_1_1_events_1_1_i_game_event.html#acbcbf416750c3fd38c971e20d4b1b42e">Id</a> { <span class="keyword">get</span>; }</div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span> </div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span><span class="preprocessor">#if DEBUG</span></div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span><span class="preprocessor">#if EVENT_DEBUG</span></div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>        <span class="keywordtype">int</span> SubscriberCount { <span class="keyword">get</span>; }</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span></div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>        <span class="keywordtype">long</span> PublishCount { <span class="keyword">get</span>; }</div>
@@ -153,7 +153,7 @@ $(function() {
 <div class="line"><a id="l00095" name="l00095"></a><span class="lineno"><a class="line" href="interface_nomad_1_1_core_1_1_events_1_1_i_game_event-1-g.html">   95</a></span>    <span class="keyword">public</span> <span class="keyword">interface </span><a class="code hl_interface" href="interface_nomad_1_1_core_1_1_events_1_1_i_game_event.html">IGameEvent</a>&lt;TArgs&gt; : <a class="code hl_interface" href="interface_nomad_1_1_core_1_1_events_1_1_i_game_event.html">IGameEvent</a></div>
 <div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>        where TArgs : struct</div>
 <div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>    {</div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span><span class="preprocessor">#if DEBUG</span></div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span><span class="preprocessor">#if EVENT_DEBUG</span></div>
 <div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>        TArgs LastPayload { <span class="keyword">get</span>; }</div>
 <div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span></div>

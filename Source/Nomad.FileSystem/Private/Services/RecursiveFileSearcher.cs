@@ -256,8 +256,6 @@ namespace Nomad.FileSystem.Private.Services {
 				return null;
 			}
 
-			Console.WriteLine( $"Adding files from {searchDir}..." );
-
 			try {
 				return GetFilesAsList( searchDir, searchPattern, false );
 			} catch ( UnauthorizedAccessException ) {
@@ -528,7 +526,6 @@ namespace Nomad.FileSystem.Private.Services {
 					var files = Directory.GetFiles( dir, searchPattern, SearchOption.TopDirectoryOnly );
 					if ( files.Length > 0 ) {
 						result.AddRange( files );
-						Console.WriteLine( $"Found files {files}" );
 					}
 
 					// Traverse subdirectories

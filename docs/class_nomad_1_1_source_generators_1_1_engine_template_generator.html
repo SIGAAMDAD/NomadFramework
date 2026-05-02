@@ -126,7 +126,8 @@ Static Private Member Functions</h2></td></tr>
 <tr class="memitem:af684256b219accd3c9e84fbee3ec98b6" id="r_af684256b219accd3c9e84fbee3ec98b6"><td class="memItemLeft">static bool&#160;</td><td class="memItemRight"><a class="el" href="#af684256b219accd3c9e84fbee3ec98b6">BaseTypeHasInstanceMember</a> (INamedTypeSymbol? typeSymbol, string memberName)</td></tr>
 <tr class="memitem:ac2f39e582161f9d4d3aa46374cf53961" id="r_ac2f39e582161f9d4d3aa46374cf53961"><td class="memItemLeft">static bool&#160;</td><td class="memItemRight"><a class="el" href="#ac2f39e582161f9d4d3aa46374cf53961">BaseTypeHasMember</a> (INamedTypeSymbol? typeSymbol, string memberName)</td></tr>
 <tr class="memitem:a81389f617a8f85c2cfaeb2597b486c0f" id="r_a81389f617a8f85c2cfaeb2597b486c0f"><td class="memItemLeft">static ImmutableArray&lt; string &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a81389f617a8f85c2cfaeb2597b486c0f">BuildConstraintClauses</a> (IMethodSymbol methodSymbol)</td></tr>
-<tr class="memitem:ab12e7f66b5e27de95d70afb363211a4f" id="r_ab12e7f66b5e27de95d70afb363211a4f"><td class="memItemLeft">static ImmutableArray&lt; string &gt;&#160;</td><td class="memItemRight"><a class="el" href="#ab12e7f66b5e27de95d70afb363211a4f">BuildEventHookStatements</a> (EngineProjectKind engineProjectKind, string eventName, string fieldName, string payloadTypeName)</td></tr>
+<tr class="memitem:a7e84dc1ada7b27db2f6eeb53ddcd8404" id="r_a7e84dc1ada7b27db2f6eeb53ddcd8404"><td class="memItemLeft">static ImmutableArray&lt; string &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a7e84dc1ada7b27db2f6eeb53ddcd8404">BuildCustomHookStatements</a> (string hookExpression, string fieldName, string payloadTypeName)</td></tr>
+<tr class="memitem:afa4198e7c23d2d3cd96396e9329a16ca" id="r_afa4198e7c23d2d3cd96396e9329a16ca"><td class="memItemLeft">static ImmutableArray&lt; string &gt;&#160;</td><td class="memItemRight"><a class="el" href="#afa4198e7c23d2d3cd96396e9329a16ca">BuildEventHookStatements</a> (EngineProjectKind engineProjectKind, TemplateEventDefinition templateEvent, string fieldName, string payloadTypeName)</td></tr>
 <tr class="memitem:a02f8230741118c645e73c7161943051d" id="r_a02f8230741118c645e73c7161943051d"><td class="memItemLeft">static string&#160;</td><td class="memItemRight"><a class="el" href="#a02f8230741118c645e73c7161943051d">BuildGetterExpression</a> (IPropertySymbol interfaceProperty, string engineAccessExpression, ITypeSymbol engineMemberType, Compilation compilation, EngineProjectKind engineProjectKind, IReadOnlyDictionary&lt; string, TemplateTypeConversionDefinition &gt; templateTypeConversions)</td></tr>
 <tr class="memitem:a1ab212d12182a742f90e5695c0636469" id="r_a1ab212d12182a742f90e5695c0636469"><td class="memItemLeft">static string&#160;</td><td class="memItemRight"><a class="el" href="#a1ab212d12182a742f90e5695c0636469">BuildMethodArgument</a> (IParameterSymbol contractParameter, IParameterSymbol engineParameter, Compilation compilation, EngineProjectKind engineProjectKind, IReadOnlyDictionary&lt; string, TemplateTypeConversionDefinition &gt; templateTypeConversions)</td></tr>
 <tr class="memitem:a66a94c2ddeeda022af663ce99ed6ff51" id="r_a66a94c2ddeeda022af663ce99ed6ff51"><td class="memItemLeft">static string&#160;</td><td class="memItemRight"><a class="el" href="#a66a94c2ddeeda022af663ce99ed6ff51">BuildRegistryEventName</a> (IPropertySymbol propertySymbol)</td></tr>
@@ -234,7 +235,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01675">1675</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01677">1677</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -265,7 +266,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01593">1593</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01595">1595</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -296,7 +297,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01401">1401</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01403">1403</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -327,7 +328,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01385">1385</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01387">1387</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -354,12 +355,12 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01949">1949</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01979">1979</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
-<a id="ab12e7f66b5e27de95d70afb363211a4f" name="ab12e7f66b5e27de95d70afb363211a4f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab12e7f66b5e27de95d70afb363211a4f">&#9670;&#160;</a></span>BuildEventHookStatements()</h2>
+<a id="a7e84dc1ada7b27db2f6eeb53ddcd8404" name="a7e84dc1ada7b27db2f6eeb53ddcd8404"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7e84dc1ada7b27db2f6eeb53ddcd8404">&#9670;&#160;</a></span>BuildCustomHookStatements()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -368,14 +369,9 @@ Static Private Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">ImmutableArray&lt; string &gt; Nomad.SourceGenerators.EngineTemplateGenerator.BuildEventHookStatements </td>
+          <td class="memname">ImmutableArray&lt; string &gt; Nomad.SourceGenerators.EngineTemplateGenerator.BuildCustomHookStatements </td>
           <td>(</td>
-          <td class="paramtype">EngineProjectKind</td>          <td class="paramname"><span class="paramname"><em>engineProjectKind</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">string</td>          <td class="paramname"><span class="paramname"><em>eventName</em></span>, </td>
+          <td class="paramtype">string</td>          <td class="paramname"><span class="paramname"><em>hookExpression</em></span>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -395,7 +391,48 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01691">1691</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01754">1754</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+
+</div>
+</div>
+<a id="afa4198e7c23d2d3cd96396e9329a16ca" name="afa4198e7c23d2d3cd96396e9329a16ca"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afa4198e7c23d2d3cd96396e9329a16ca">&#9670;&#160;</a></span>BuildEventHookStatements()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">ImmutableArray&lt; string &gt; Nomad.SourceGenerators.EngineTemplateGenerator.BuildEventHookStatements </td>
+          <td>(</td>
+          <td class="paramtype">EngineProjectKind</td>          <td class="paramname"><span class="paramname"><em>engineProjectKind</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">TemplateEventDefinition</td>          <td class="paramname"><span class="paramname"><em>templateEvent</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">string</td>          <td class="paramname"><span class="paramname"><em>fieldName</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">string</td>          <td class="paramname"><span class="paramname"><em>payloadTypeName</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel static">static</span><span class="mlabel private">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01693">1693</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -446,7 +483,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01436">1436</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01438">1438</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -492,7 +529,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01321">1321</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01323">1323</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -519,7 +556,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01739">1739</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01769">1769</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -570,7 +607,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01454">1454</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01456">1456</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -616,7 +653,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01258">1258</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01260">1260</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -662,7 +699,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01515">1515</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01517">1517</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -703,7 +740,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l00793">793</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l00795">795</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -739,7 +776,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l00775">775</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l00777">777</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -897,7 +934,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01472">1472</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01474">1474</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -938,7 +975,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01089">1089</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01091">1091</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -974,7 +1011,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01038">1038</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01040">1040</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -1010,7 +1047,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l00929">929</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l00931">931</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -1093,7 +1130,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01120">1120</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01122">1122</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -1154,7 +1191,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l00830">830</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l00832">832</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -1208,7 +1245,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01633">1633</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01635">1635</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -1239,7 +1276,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01073">1073</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01075">1075</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -1297,7 +1334,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01791">1791</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01821">1821</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -1348,7 +1385,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01221">1221</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01223">1223</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -1379,7 +1416,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01366">1366</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01368">1368</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -1406,7 +1443,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01930">1930</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01960">1960</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -1433,7 +1470,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01895">1895</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01925">1925</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -1464,7 +1501,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01598">1598</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01600">1600</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -1495,7 +1532,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01840">1840</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01870">1870</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -1526,7 +1563,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01825">1825</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01855">1855</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -1557,7 +1594,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01810">1810</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01840">1840</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -1588,7 +1625,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01795">1795</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01825">1825</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -1624,7 +1661,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l00998">998</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01000">1000</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -1651,7 +1688,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01654">1654</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01656">1656</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -1682,7 +1719,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01420">1420</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01422">1422</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -1747,7 +1784,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01020">1020</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01022">1022</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -1774,7 +1811,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l02023">2023</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l02053">2053</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -1801,7 +1838,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01016">1016</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01018">1018</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -1894,7 +1931,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01855">1855</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01885">1885</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -1925,7 +1962,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l00964">964</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l00966">966</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -1956,7 +1993,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01204">1204</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01206">1206</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -1987,7 +2024,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l00981">981</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l00983">983</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -2014,7 +2051,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01876">1876</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01906">1906</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -2045,7 +2082,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01781">1781</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01811">1811</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -2076,7 +2113,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01742">1742</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01772">1772</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -2103,7 +2140,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l02008">2008</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l02038">2038</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -2130,7 +2167,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01996">1996</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l02026">2026</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -2176,7 +2213,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l00730">730</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l00732">732</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -2207,7 +2244,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01351">1351</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01353">1353</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>
@@ -2258,7 +2295,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01546">1546</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_engine_template_generator_8cs_source.html#l01548">1548</a> of file <a class="el" href="_engine_template_generator_8cs_source.html">EngineTemplateGenerator.cs</a>.</p>
 
 </div>
 </div>

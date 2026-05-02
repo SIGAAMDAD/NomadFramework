@@ -122,8 +122,11 @@ Classes</h2></td></tr>
 <tr class="memitem:ILobbyService" id="r_ILobbyService"><td class="memItemLeft">interface &#160;</td><td class="memItemRight"><a class="el" href="interface_nomad_1_1_core_1_1_online_services_1_1_i_lobby_service.html">ILobbyService</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Interface for lobby services.  <a href="interface_nomad_1_1_core_1_1_online_services_1_1_i_lobby_service.html#details">More...</a><br /></td></tr>
 <tr class="memitem:IMatchMakingService" id="r_IMatchMakingService"><td class="memItemLeft">interface &#160;</td><td class="memItemRight"><a class="el" href="interface_nomad_1_1_core_1_1_online_services_1_1_i_match_making_service.html">IMatchMakingService</a></td></tr>
+<tr class="memitem:INetworkSessionService" id="r_INetworkSessionService"><td class="memItemLeft">interface &#160;</td><td class="memItemRight"><a class="el" href="interface_nomad_1_1_core_1_1_online_services_1_1_i_network_session_service.html">INetworkSessionService</a></td></tr>
 <tr class="memitem:IOnlinePlatformService" id="r_IOnlinePlatformService"><td class="memItemLeft">interface &#160;</td><td class="memItemRight"><a class="el" href="interface_nomad_1_1_core_1_1_online_services_1_1_i_online_platform_service.html">IOnlinePlatformService</a></td></tr>
 <tr class="memitem:IStatsService" id="r_IStatsService"><td class="memItemLeft">interface &#160;</td><td class="memItemRight"><a class="el" href="interface_nomad_1_1_core_1_1_online_services_1_1_i_stats_service.html">IStatsService</a></td></tr>
+<tr class="memitem:NetworkPeerInfo" id="r_NetworkPeerInfo"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="struct_nomad_1_1_core_1_1_online_services_1_1_network_peer_info.html">NetworkPeerInfo</a></td></tr>
+<tr class="memitem:PeerId" id="r_PeerId"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="struct_nomad_1_1_core_1_1_online_services_1_1_peer_id.html">PeerId</a></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-enum-members" class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
@@ -131,6 +134,42 @@ Enumerations</h2></td></tr>
 , <a class="el" href="#a5ae792dd0189f85a7de3dab0afcc92d0a47f9082fc380ca62d531096aa1d110f1">Private</a>
 , <a class="el" href="#a5ae792dd0189f85a7de3dab0afcc92d0af98de2598c00a8e10bdce048fa0c4604">FriendsOnly</a>
 , <a class="el" href="#a5ae792dd0189f85a7de3dab0afcc92d0ae93f994f01c537c4e2f7d8528c3eb5e9">Count</a>
+ }</td></tr>
+<tr class="memitem:a1580644ec5bb21f37c0f73bff9d42855" id="r_a1580644ec5bb21f37c0f73bff9d42855"><td class="memItemLeft">enum &#160;</td><td class="memItemRight"><a class="el" href="#a1580644ec5bb21f37c0f73bff9d42855">NetworkConnectionState</a> : byte { <br />
+&#160;&#160;<a class="el" href="#a1580644ec5bb21f37c0f73bff9d42855aef70e46fd3bbc21e3e1f0b6815e750c0">Disconnected</a> = 0
+, <a class="el" href="#a1580644ec5bb21f37c0f73bff9d42855a6912cbcb863c354fd2b4f64ab654d974">StartingHost</a>
+, <a class="el" href="#a1580644ec5bb21f37c0f73bff9d42855a5bb187d3181fc4b64ea0bb2ac9149722">Hosting</a>
+, <a class="el" href="#a1580644ec5bb21f37c0f73bff9d42855ae321c53b354930ba96f0243e652df458">Connecting</a>
+, <br />
+&#160;&#160;<a class="el" href="#a1580644ec5bb21f37c0f73bff9d42855a2ec0d16e4ca169baedb9b2d50ec5c6d7">Connected</a>
+, <a class="el" href="#a1580644ec5bb21f37c0f73bff9d42855a7b7ecb39b9e110c2a31409a1672bad23">Stopping</a>
+, <a class="el" href="#a1580644ec5bb21f37c0f73bff9d42855a2b310d05c23325e2935ec87b25a60b8f">Faulted</a>
+, <a class="el" href="#a1580644ec5bb21f37c0f73bff9d42855ae93f994f01c537c4e2f7d8528c3eb5e9">Count</a>
+<br />
+ }</td></tr>
+<tr class="memitem:a7e8782189f2be5ebbdfcfd0028ae4821" id="r_a7e8782189f2be5ebbdfcfd0028ae4821"><td class="memItemLeft">enum &#160;</td><td class="memItemRight"><a class="el" href="#a7e8782189f2be5ebbdfcfd0028ae4821">NetworkSessionFailureReason</a> : byte { <br />
+&#160;&#160;<a class="el" href="#a7e8782189f2be5ebbdfcfd0028ae4821a88183b946cc5f0e8c96b2e66e1c74a7e">Unknown</a> = 0
+, <a class="el" href="#a7e8782189f2be5ebbdfcfd0028ae4821ad544eb3da2f68d24cf92a8519ed53a31">InvalidRequest</a>
+, <a class="el" href="#a7e8782189f2be5ebbdfcfd0028ae4821a3f1dab9049d5d3bcdd8b107734f40fc5">SessionAlreadyActive</a>
+, <a class="el" href="#a7e8782189f2be5ebbdfcfd0028ae4821aeab9f2762b7d1c235358f2400a18a05a">SessionFull</a>
+, <br />
+&#160;&#160;<a class="el" href="#a7e8782189f2be5ebbdfcfd0028ae4821a999a3e96785a44f4829c7e95f5497432">SessionNotFound</a>
+, <a class="el" href="#a7e8782189f2be5ebbdfcfd0028ae4821aaf98071f760be899f4fcf1d53a29ba17">ConnectionFailed</a>
+, <a class="el" href="#a7e8782189f2be5ebbdfcfd0028ae4821a5d611b5f4d4f6be340b5f36683c20170">HandshakeFailed</a>
+, <a class="el" href="#a7e8782189f2be5ebbdfcfd0028ae4821a35d569eaed8bd318227dd39e972b21f3">TransportFault</a>
+, <br />
+&#160;&#160;<a class="el" href="#a7e8782189f2be5ebbdfcfd0028ae4821a692907ed142c78a7617f1efcd0a98dba">HostRejected</a>
+, <a class="el" href="#a7e8782189f2be5ebbdfcfd0028ae4821a2d50084f04994afa70d78b604a22dd31">VersionMismatch</a>
+, <a class="el" href="#a7e8782189f2be5ebbdfcfd0028ae4821aef70e46fd3bbc21e3e1f0b6815e750c0">Disconnected</a>
+, <a class="el" href="#a7e8782189f2be5ebbdfcfd0028ae4821ac85a251cc457840f1e032f1b733e9398">Timeout</a>
+, <br />
+&#160;&#160;<a class="el" href="#a7e8782189f2be5ebbdfcfd0028ae4821ae93f994f01c537c4e2f7d8528c3eb5e9">Count</a>
+<br />
+ }</td></tr>
+<tr class="memitem:ab8cedce5e89dc1671c572f501333d4b4" id="r_ab8cedce5e89dc1671c572f501333d4b4"><td class="memItemLeft">enum &#160;</td><td class="memItemRight"><a class="el" href="#ab8cedce5e89dc1671c572f501333d4b4">NetworkSessionMode</a> : byte { <a class="el" href="#ab8cedce5e89dc1671c572f501333d4b4a8d9da4bc0e49a50e09ac9f7e56789d39">Offline</a> = 0
+, <a class="el" href="#ab8cedce5e89dc1671c572f501333d4b4ac2ca16d048ec66e04bca283eab048ec2">Host</a>
+, <a class="el" href="#ab8cedce5e89dc1671c572f501333d4b4a577d7068826de925ea2aec01dbadf5e4">Client</a>
+, <a class="el" href="#ab8cedce5e89dc1671c572f501333d4b4ae93f994f01c537c4e2f7d8528c3eb5e9">Count</a>
  }</td></tr>
 <tr class="memitem:a6df6b2c9feae03999308e95d36f99548" id="r_a6df6b2c9feae03999308e95d36f99548"><td class="memItemLeft">enum &#160;</td><td class="memItemRight"><a class="el" href="#a6df6b2c9feae03999308e95d36f99548">OnlinePlatform</a> { <br />
 &#160;&#160;<a class="el" href="#a6df6b2c9feae03999308e95d36f99548a6adf97f83acf6453d4a6a4b1070f3754">None</a> = 0
@@ -182,6 +221,85 @@ Enumerations</h2></td></tr>
 </table>
 
 <p class="definition">Definition at line <a class="el" href="_lobby_visibility_8cs_source.html#l00021">21</a> of file <a class="el" href="_lobby_visibility_8cs_source.html">LobbyVisibility.cs</a>.</p>
+
+</div>
+</div>
+<a id="a1580644ec5bb21f37c0f73bff9d42855" name="a1580644ec5bb21f37c0f73bff9d42855"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1580644ec5bb21f37c0f73bff9d42855">&#9670;&#160;</a></span>NetworkConnectionState</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="#a1580644ec5bb21f37c0f73bff9d42855">Nomad.Core.OnlineServices.NetworkConnectionState</a> : byte</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a1580644ec5bb21f37c0f73bff9d42855aef70e46fd3bbc21e3e1f0b6815e750c0" name="a1580644ec5bb21f37c0f73bff9d42855aef70e46fd3bbc21e3e1f0b6815e750c0"></a>Disconnected&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a1580644ec5bb21f37c0f73bff9d42855a6912cbcb863c354fd2b4f64ab654d974" name="a1580644ec5bb21f37c0f73bff9d42855a6912cbcb863c354fd2b4f64ab654d974"></a>StartingHost&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a1580644ec5bb21f37c0f73bff9d42855a5bb187d3181fc4b64ea0bb2ac9149722" name="a1580644ec5bb21f37c0f73bff9d42855a5bb187d3181fc4b64ea0bb2ac9149722"></a>Hosting&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a1580644ec5bb21f37c0f73bff9d42855ae321c53b354930ba96f0243e652df458" name="a1580644ec5bb21f37c0f73bff9d42855ae321c53b354930ba96f0243e652df458"></a>Connecting&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a1580644ec5bb21f37c0f73bff9d42855a2ec0d16e4ca169baedb9b2d50ec5c6d7" name="a1580644ec5bb21f37c0f73bff9d42855a2ec0d16e4ca169baedb9b2d50ec5c6d7"></a>Connected&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a1580644ec5bb21f37c0f73bff9d42855a7b7ecb39b9e110c2a31409a1672bad23" name="a1580644ec5bb21f37c0f73bff9d42855a7b7ecb39b9e110c2a31409a1672bad23"></a>Stopping&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a1580644ec5bb21f37c0f73bff9d42855a2b310d05c23325e2935ec87b25a60b8f" name="a1580644ec5bb21f37c0f73bff9d42855a2b310d05c23325e2935ec87b25a60b8f"></a>Faulted&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a1580644ec5bb21f37c0f73bff9d42855ae93f994f01c537c4e2f7d8528c3eb5e9" name="a1580644ec5bb21f37c0f73bff9d42855ae93f994f01c537c4e2f7d8528c3eb5e9"></a>Count&#160;</td><td class="fielddoc"></td></tr>
+</table>
+
+<p class="definition">Definition at line <a class="el" href="_network_connection_state_8cs_source.html#l00021">21</a> of file <a class="el" href="_network_connection_state_8cs_source.html">NetworkConnectionState.cs</a>.</p>
+
+</div>
+</div>
+<a id="a7e8782189f2be5ebbdfcfd0028ae4821" name="a7e8782189f2be5ebbdfcfd0028ae4821"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7e8782189f2be5ebbdfcfd0028ae4821">&#9670;&#160;</a></span>NetworkSessionFailureReason</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="#a7e8782189f2be5ebbdfcfd0028ae4821">Nomad.Core.OnlineServices.NetworkSessionFailureReason</a> : byte</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a7e8782189f2be5ebbdfcfd0028ae4821a88183b946cc5f0e8c96b2e66e1c74a7e" name="a7e8782189f2be5ebbdfcfd0028ae4821a88183b946cc5f0e8c96b2e66e1c74a7e"></a>Unknown&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a7e8782189f2be5ebbdfcfd0028ae4821ad544eb3da2f68d24cf92a8519ed53a31" name="a7e8782189f2be5ebbdfcfd0028ae4821ad544eb3da2f68d24cf92a8519ed53a31"></a>InvalidRequest&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a7e8782189f2be5ebbdfcfd0028ae4821a3f1dab9049d5d3bcdd8b107734f40fc5" name="a7e8782189f2be5ebbdfcfd0028ae4821a3f1dab9049d5d3bcdd8b107734f40fc5"></a>SessionAlreadyActive&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a7e8782189f2be5ebbdfcfd0028ae4821aeab9f2762b7d1c235358f2400a18a05a" name="a7e8782189f2be5ebbdfcfd0028ae4821aeab9f2762b7d1c235358f2400a18a05a"></a>SessionFull&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a7e8782189f2be5ebbdfcfd0028ae4821a999a3e96785a44f4829c7e95f5497432" name="a7e8782189f2be5ebbdfcfd0028ae4821a999a3e96785a44f4829c7e95f5497432"></a>SessionNotFound&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a7e8782189f2be5ebbdfcfd0028ae4821aaf98071f760be899f4fcf1d53a29ba17" name="a7e8782189f2be5ebbdfcfd0028ae4821aaf98071f760be899f4fcf1d53a29ba17"></a>ConnectionFailed&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a7e8782189f2be5ebbdfcfd0028ae4821a5d611b5f4d4f6be340b5f36683c20170" name="a7e8782189f2be5ebbdfcfd0028ae4821a5d611b5f4d4f6be340b5f36683c20170"></a>HandshakeFailed&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a7e8782189f2be5ebbdfcfd0028ae4821a35d569eaed8bd318227dd39e972b21f3" name="a7e8782189f2be5ebbdfcfd0028ae4821a35d569eaed8bd318227dd39e972b21f3"></a>TransportFault&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a7e8782189f2be5ebbdfcfd0028ae4821a692907ed142c78a7617f1efcd0a98dba" name="a7e8782189f2be5ebbdfcfd0028ae4821a692907ed142c78a7617f1efcd0a98dba"></a>HostRejected&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a7e8782189f2be5ebbdfcfd0028ae4821a2d50084f04994afa70d78b604a22dd31" name="a7e8782189f2be5ebbdfcfd0028ae4821a2d50084f04994afa70d78b604a22dd31"></a>VersionMismatch&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a7e8782189f2be5ebbdfcfd0028ae4821aef70e46fd3bbc21e3e1f0b6815e750c0" name="a7e8782189f2be5ebbdfcfd0028ae4821aef70e46fd3bbc21e3e1f0b6815e750c0"></a>Disconnected&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a7e8782189f2be5ebbdfcfd0028ae4821ac85a251cc457840f1e032f1b733e9398" name="a7e8782189f2be5ebbdfcfd0028ae4821ac85a251cc457840f1e032f1b733e9398"></a>Timeout&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a7e8782189f2be5ebbdfcfd0028ae4821ae93f994f01c537c4e2f7d8528c3eb5e9" name="a7e8782189f2be5ebbdfcfd0028ae4821ae93f994f01c537c4e2f7d8528c3eb5e9"></a>Count&#160;</td><td class="fielddoc"></td></tr>
+</table>
+
+<p class="definition">Definition at line <a class="el" href="_network_session_failure_reason_8cs_source.html#l00021">21</a> of file <a class="el" href="_network_session_failure_reason_8cs_source.html">NetworkSessionFailureReason.cs</a>.</p>
+
+</div>
+</div>
+<a id="ab8cedce5e89dc1671c572f501333d4b4" name="ab8cedce5e89dc1671c572f501333d4b4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab8cedce5e89dc1671c572f501333d4b4">&#9670;&#160;</a></span>NetworkSessionMode</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="#ab8cedce5e89dc1671c572f501333d4b4">Nomad.Core.OnlineServices.NetworkSessionMode</a> : byte</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ab8cedce5e89dc1671c572f501333d4b4a8d9da4bc0e49a50e09ac9f7e56789d39" name="ab8cedce5e89dc1671c572f501333d4b4a8d9da4bc0e49a50e09ac9f7e56789d39"></a>Offline&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ab8cedce5e89dc1671c572f501333d4b4ac2ca16d048ec66e04bca283eab048ec2" name="ab8cedce5e89dc1671c572f501333d4b4ac2ca16d048ec66e04bca283eab048ec2"></a>Host&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ab8cedce5e89dc1671c572f501333d4b4a577d7068826de925ea2aec01dbadf5e4" name="ab8cedce5e89dc1671c572f501333d4b4a577d7068826de925ea2aec01dbadf5e4"></a>Client&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ab8cedce5e89dc1671c572f501333d4b4ae93f994f01c537c4e2f7d8528c3eb5e9" name="ab8cedce5e89dc1671c572f501333d4b4ae93f994f01c537c4e2f7d8528c3eb5e9"></a>Count&#160;</td><td class="fielddoc"></td></tr>
+</table>
+
+<p class="definition">Definition at line <a class="el" href="_network_session_mode_8cs_source.html#l00021">21</a> of file <a class="el" href="_network_session_mode_8cs_source.html">NetworkSessionMode.cs</a>.</p>
 
 </div>
 </div>

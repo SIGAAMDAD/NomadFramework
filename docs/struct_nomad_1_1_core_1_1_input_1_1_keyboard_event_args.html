@@ -110,28 +110,31 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
+<p>Represents the arguments for a keyboard input event.  
+ <a href="#details">More...</a></p>
+
 <p>Inherits IEquatable.</p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a32a5007e306a65a346eac3c2ba66d499" id="r_a32a5007e306a65a346eac3c2ba66d499"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a32a5007e306a65a346eac3c2ba66d499">Equals</a> (<a class="el" href="#ab3d696fee0fc5a9f6af8fc270f0a6732">KeyboardEventArgs</a> other)</td></tr>
+<tr class="memdesc:a32a5007e306a65a346eac3c2ba66d499"><td class="mdescLeft">&#160;</td><td class="mdescRight">Determines whether the specified <a class="el" href="struct_nomad_1_1_core_1_1_input_1_1_keyboard_event_args.html" title="Represents the arguments for a keyboard input event.">KeyboardEventArgs</a> is equal to the current instance.  <br /></td></tr>
 <tr class="memitem:ab3d696fee0fc5a9f6af8fc270f0a6732" id="r_ab3d696fee0fc5a9f6af8fc270f0a6732"><td class="memItemLeft">&#160;</td><td class="memItemRight"><a class="el" href="#ab3d696fee0fc5a9f6af8fc270f0a6732">KeyboardEventArgs</a> (<a class="el" href="namespace_nomad_1_1_core_1_1_input_1_1_value_objects.html#a97efc8628cbccbb601233d299d1730ae">KeyNum</a> keyNum, long timeStamp, bool pressed)</td></tr>
+<tr class="memdesc:ab3d696fee0fc5a9f6af8fc270f0a6732"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a new instance of the <a class="el" href="struct_nomad_1_1_core_1_1_input_1_1_keyboard_event_args.html" title="Represents the arguments for a keyboard input event.">KeyboardEventArgs</a> struct.  <br /></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-properties" class="groupheader"><a id="properties" name="properties"></a>
 Properties</h2></td></tr>
 <tr class="memitem:abf6e63ba1e2695218b257fb45e06b07e" id="r_abf6e63ba1e2695218b257fb45e06b07e"><td class="memItemLeft"><a class="el" href="namespace_nomad_1_1_core_1_1_input_1_1_value_objects.html#a97efc8628cbccbb601233d299d1730ae">KeyNum</a>&#160;</td><td class="memItemRight"><a class="el" href="#abf6e63ba1e2695218b257fb45e06b07e">KeyNum</a><code> [get]</code></td></tr>
+<tr class="memdesc:abf6e63ba1e2695218b257fb45e06b07e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the key that was pressed or released.  <br /></td></tr>
 <tr class="memitem:a90e7bc367e8f023edd03308a3f82acbd" id="r_a90e7bc367e8f023edd03308a3f82acbd"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a90e7bc367e8f023edd03308a3f82acbd">Pressed</a><code> [get]</code></td></tr>
+<tr class="memdesc:a90e7bc367e8f023edd03308a3f82acbd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets a value indicating whether the key was pressed (true) or released (false).  <br /></td></tr>
 <tr class="memitem:a5538d9bf7e8c1dc95c5fa335c0fae2d8" id="r_a5538d9bf7e8c1dc95c5fa335c0fae2d8"><td class="memItemLeft">long&#160;</td><td class="memItemRight"><a class="el" href="#a5538d9bf7e8c1dc95c5fa335c0fae2d8">TimeStamp</a><code> [get]</code></td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 id="header-pri-attribs" class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
-Private Attributes</h2></td></tr>
-<tr class="memitem:af29903532d947494a16c60c9eb4c129e" id="r_af29903532d947494a16c60c9eb4c129e"><td class="memItemLeft">readonly <a class="el" href="namespace_nomad_1_1_core_1_1_input_1_1_value_objects.html#a97efc8628cbccbb601233d299d1730ae">KeyNum</a>&#160;</td><td class="memItemRight"><a class="el" href="#af29903532d947494a16c60c9eb4c129e">_keyNum</a></td></tr>
-<tr class="memitem:adfddd1f0659082f5a4b9bdbede506578" id="r_adfddd1f0659082f5a4b9bdbede506578"><td class="memItemLeft">readonly bool&#160;</td><td class="memItemRight"><a class="el" href="#adfddd1f0659082f5a4b9bdbede506578">_pressed</a></td></tr>
-<tr class="memitem:a47289d4f8b9c3dd9d2d0df779efc0107" id="r_a47289d4f8b9c3dd9d2d0df779efc0107"><td class="memItemLeft">readonly long&#160;</td><td class="memItemRight"><a class="el" href="#a47289d4f8b9c3dd9d2d0df779efc0107">_timeStamp</a></td></tr>
+<tr class="memdesc:a5538d9bf7e8c1dc95c5fa335c0fae2d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the timestamp when the keyboard event occurred.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
-<div class="textblock">
-<p class="definition">Definition at line <a class="el" href="_keyboard_event_args_8cs_source.html#l00025">25</a> of file <a class="el" href="_keyboard_event_args_8cs_source.html">KeyboardEventArgs.cs</a>.</p>
+<div class="textblock"><p>Represents the arguments for a keyboard input event. </p>
+
+<p class="definition">Definition at line <a class="el" href="_keyboard_event_args_8cs_source.html#l00030">30</a> of file <a class="el" href="_keyboard_event_args_8cs_source.html">KeyboardEventArgs.cs</a>.</p>
 </div><a name="doc-constructors" id="doc-constructors"></a><h2 id="header-doc-constructors" class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="ab3d696fee0fc5a9f6af8fc270f0a6732" name="ab3d696fee0fc5a9f6af8fc270f0a6732"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab3d696fee0fc5a9f6af8fc270f0a6732">&#9670;&#160;</a></span>KeyboardEventArgs()</h2>
@@ -164,16 +167,18 @@ Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Initializes a new instance of the <a class="el" href="struct_nomad_1_1_core_1_1_input_1_1_keyboard_event_args.html" title="Represents the arguments for a keyboard input event.">KeyboardEventArgs</a> struct. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">keyNum</td><td></td></tr>
-    <tr><td class="paramname">timeStamp</td><td></td></tr>
-    <tr><td class="paramname">pressed</td><td></td></tr>
+    <tr><td class="paramname">keyNum</td><td>The key that was pressed or released.</td></tr>
+    <tr><td class="paramname">timeStamp</td><td>The timestamp of the event.</td></tr>
+    <tr><td class="paramname">pressed</td><td>True if the key was pressed, false if released.</td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_keyboard_event_args_8cs_source.html#l00051">51</a> of file <a class="el" href="_keyboard_event_args_8cs_source.html">KeyboardEventArgs.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_keyboard_event_args_8cs_source.html#l00053">53</a> of file <a class="el" href="_keyboard_event_args_8cs_source.html">KeyboardEventArgs.cs</a>.</p>
 
 </div>
 </div>
@@ -200,88 +205,17 @@ Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Determines whether the specified <a class="el" href="struct_nomad_1_1_core_1_1_input_1_1_keyboard_event_args.html" title="Represents the arguments for a keyboard input event.">KeyboardEventArgs</a> is equal to the current instance. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">other</td><td></td></tr>
+    <tr><td class="paramname">other</td><td>The <a class="el" href="struct_nomad_1_1_core_1_1_input_1_1_keyboard_event_args.html" title="Represents the arguments for a keyboard input event.">KeyboardEventArgs</a> to compare with the current instance.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>True if the specified object is equal to the current instance; otherwise, false.</dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="_keyboard_event_args_8cs_source.html#l00064">64</a> of file <a class="el" href="_keyboard_event_args_8cs_source.html">KeyboardEventArgs.cs</a>.</p>
-
-</div>
-</div>
-<a name="doc-variable-members" id="doc-variable-members"></a><h2 id="header-doc-variable-members" class="groupheader">Member Data Documentation</h2>
-<a id="af29903532d947494a16c60c9eb4c129e" name="af29903532d947494a16c60c9eb4c129e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af29903532d947494a16c60c9eb4c129e">&#9670;&#160;</a></span>_keyNum</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">readonly <a class="el" href="namespace_nomad_1_1_core_1_1_input_1_1_value_objects.html#a97efc8628cbccbb601233d299d1730ae">KeyNum</a> Nomad.Core.Input.KeyboardEventArgs._keyNum</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel private">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="_keyboard_event_args_8cs_source.html#l00037">37</a> of file <a class="el" href="_keyboard_event_args_8cs_source.html">KeyboardEventArgs.cs</a>.</p>
-
-</div>
-</div>
-<a id="adfddd1f0659082f5a4b9bdbede506578" name="adfddd1f0659082f5a4b9bdbede506578"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adfddd1f0659082f5a4b9bdbede506578">&#9670;&#160;</a></span>_pressed</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">readonly bool Nomad.Core.Input.KeyboardEventArgs._pressed</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel private">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="_keyboard_event_args_8cs_source.html#l00043">43</a> of file <a class="el" href="_keyboard_event_args_8cs_source.html">KeyboardEventArgs.cs</a>.</p>
-
-</div>
-</div>
-<a id="a47289d4f8b9c3dd9d2d0df779efc0107" name="a47289d4f8b9c3dd9d2d0df779efc0107"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a47289d4f8b9c3dd9d2d0df779efc0107">&#9670;&#160;</a></span>_timeStamp</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">readonly long Nomad.Core.Input.KeyboardEventArgs._timeStamp</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel private">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="_keyboard_event_args_8cs_source.html#l00031">31</a> of file <a class="el" href="_keyboard_event_args_8cs_source.html">KeyboardEventArgs.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_keyboard_event_args_8cs_source.html#l00066">66</a> of file <a class="el" href="_keyboard_event_args_8cs_source.html">KeyboardEventArgs.cs</a>.</p>
 
 </div>
 </div>
@@ -306,7 +240,9 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_keyboard_event_args_8cs_source.html#l00036">36</a> of file <a class="el" href="_keyboard_event_args_8cs_source.html">KeyboardEventArgs.cs</a>.</p>
+<p>Gets the key that was pressed or released. </p>
+
+<p class="definition">Definition at line <a class="el" href="_keyboard_event_args_8cs_source.html#l00040">40</a> of file <a class="el" href="_keyboard_event_args_8cs_source.html">KeyboardEventArgs.cs</a>.</p>
 
 </div>
 </div>
@@ -330,7 +266,9 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_keyboard_event_args_8cs_source.html#l00042">42</a> of file <a class="el" href="_keyboard_event_args_8cs_source.html">KeyboardEventArgs.cs</a>.</p>
+<p>Gets a value indicating whether the key was pressed (true) or released (false). </p>
+
+<p class="definition">Definition at line <a class="el" href="_keyboard_event_args_8cs_source.html#l00045">45</a> of file <a class="el" href="_keyboard_event_args_8cs_source.html">KeyboardEventArgs.cs</a>.</p>
 
 </div>
 </div>
@@ -354,7 +292,9 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_keyboard_event_args_8cs_source.html#l00030">30</a> of file <a class="el" href="_keyboard_event_args_8cs_source.html">KeyboardEventArgs.cs</a>.</p>
+<p>Gets the timestamp when the keyboard event occurred. </p>
+
+<p class="definition">Definition at line <a class="el" href="_keyboard_event_args_8cs_source.html#l00035">35</a> of file <a class="el" href="_keyboard_event_args_8cs_source.html">KeyboardEventArgs.cs</a>.</p>
 
 </div>
 </div>

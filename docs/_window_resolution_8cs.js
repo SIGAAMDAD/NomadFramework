@@ -2,7 +2,6 @@ var _window_resolution_8cs =
 [
     [ "Nomad.Core.Engine.Windowing.WindowResolutionExtensions", "class_nomad_1_1_core_1_1_engine_1_1_windowing_1_1_window_resolution_extensions.html", "class_nomad_1_1_core_1_1_engine_1_1_windowing_1_1_window_resolution_extensions" ],
     [ "Nomad.Core.Engine.Windowing.WindowResolution", "namespace_nomad_1_1_core_1_1_engine_1_1_windowing.html#af2be3c24040ffa3a6aa611f2c2976f5b", [
-      [ "Nomad.Core.Engine.Windowing.WindowResolution.Res_640x480", "namespace_nomad_1_1_core_1_1_engine_1_1_windowing.html#af2be3c24040ffa3a6aa611f2c2976f5ba56097a81c8d27bf8e9c7b29d7c1fe538", null ],
       [ "Nomad.Core.Engine.Windowing.WindowResolution.Res_800x600", "namespace_nomad_1_1_core_1_1_engine_1_1_windowing.html#af2be3c24040ffa3a6aa611f2c2976f5bab877e9010e7ebc18910e52f64886703c", null ],
       [ "Nomad.Core.Engine.Windowing.WindowResolution.Res_1024x768", "namespace_nomad_1_1_core_1_1_engine_1_1_windowing.html#af2be3c24040ffa3a6aa611f2c2976f5ba4ae58e02006eca476b411f0991f17eaa", null ],
       [ "Nomad.Core.Engine.Windowing.WindowResolution.Res_1280x720", "namespace_nomad_1_1_core_1_1_engine_1_1_windowing.html#af2be3c24040ffa3a6aa611f2c2976f5ba283fcf3dc4c56894ee411346acf8a6a2", null ],

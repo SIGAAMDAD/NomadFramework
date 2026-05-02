@@ -23,7 +23,6 @@ using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.Events;
 using Nomad.FileSystem.Private.Services;
-using Nomad.Save.Events;
 using Nomad.Save.Interfaces;
 using Nomad.Save.Private.Services;
 using Nomad.Save.Services;

@@ -17,11 +17,16 @@ using Nomad.Core.Events;
 
 namespace Nomad.Core.Engine.Services
 {
+	/// <summary>
+	/// 
+	/// </summary>
 	public interface IGamePauseService
 	{
 		bool IsPaused { get; }
 
-		IGameEvent<bool> PauseStateChanged { get; }
+		[Event("Nomad.Core.Engine.Services")]
+		[EventPayload("IsPaused", typeof(bool))]
+		IGameEvent<PauseStateChangedEventArgs> PauseStateChanged { get; }
 
 		void Pause();
 		void Resume();

@@ -1,5 +1,6 @@
 var dir_a33a9815f99ba8c8fa75e5e3c24ab6ca =
 [
+    [ "CVarBinding.cs", "_c_var_binding_8cs.html", "_c_var_binding_8cs" ],
     [ "CVarCreateInfo.cs", "_c_var_create_info_8cs.html", "_c_var_create_info_8cs" ],
     [ "CVarFlags.cs", "_c_var_flags_8cs.html", "_c_var_flags_8cs" ],
     [ "CVarType.cs", "_c_var_type_8cs.html", "_c_var_type_8cs" ],

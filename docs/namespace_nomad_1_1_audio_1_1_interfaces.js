@@ -2,6 +2,7 @@ var namespace_nomad_1_1_audio_1_1_interfaces =
 [
     [ "IAudioDevice", "interface_nomad_1_1_audio_1_1_interfaces_1_1_i_audio_device.html", "interface_nomad_1_1_audio_1_1_interfaces_1_1_i_audio_device" ],
     [ "IAudioEmitter", "interface_nomad_1_1_audio_1_1_interfaces_1_1_i_audio_emitter.html", "interface_nomad_1_1_audio_1_1_interfaces_1_1_i_audio_emitter" ],
+    [ "IAudioGroup", "interface_nomad_1_1_audio_1_1_interfaces_1_1_i_audio_group.html", "interface_nomad_1_1_audio_1_1_interfaces_1_1_i_audio_group" ],
     [ "IAudioResource", "interface_nomad_1_1_audio_1_1_interfaces_1_1_i_audio_resource.html", "interface_nomad_1_1_audio_1_1_interfaces_1_1_i_audio_resource" ],
     [ "IChannelRepository", "interface_nomad_1_1_audio_1_1_interfaces_1_1_i_channel_repository.html", "interface_nomad_1_1_audio_1_1_interfaces_1_1_i_channel_repository" ],
     [ "IEmitterFactory", "interface_nomad_1_1_audio_1_1_interfaces_1_1_i_emitter_factory.html", "interface_nomad_1_1_audio_1_1_interfaces_1_1_i_emitter_factory" ],

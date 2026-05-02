@@ -14,7 +14,9 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
+using Nomad.Core.FileSystem.Streams;
 using Nomad.Core.Memory.Buffers;
 
 namespace Nomad.Core.OnlineServices
@@ -30,39 +32,38 @@ namespace Nomad.Core.OnlineServices
         bool SupportsCloudStorage { get; }
 
         /// <summary>
-        /// Writes a file to cloud storage.
-        /// </summary>
-        /// <param name="fileName">The name of the file to write.</param>
-        /// <returns></returns>
-        ValueTask WriteFile(string fileName);
-
-        /// <summary>
-        /// Reads a file from cloud storage.
-        /// </summary>
-        /// <param name="fileName">The name of the file to read.</param>
-        /// <returns>The file data as a <see cref="IBufferHandle"/>.</returns>
-        ValueTask<IBufferHandle?> ReadFile(string fileName);
-
-        /// <summary>
         /// Checks if a file exists in cloud storage.
         /// </summary>
-        /// <param name="fileName">The name of the file to check.</param>
+        /// <param name="path">The name of the file to check.</param>
+        /// <param name="ct"></param>
         /// <returns>True if the file exists, false otherwise.</returns>
-        ValueTask<bool> FileExists(string fileName);
+        Task<bool> FileExistsAsync(string path, CancellationToken ct = default);
 
         /// <summary>
-        /// Synchronizes local files with cloud storage.
+        /// 
         /// </summary>
+        /// <param name="path"></param>
+        /// <param name="ct"></param>
         /// <returns></returns>
-        ValueTask Synchronize();
+        Task<IFileReadStream> OpenReadAsync(string path, CancellationToken ct = default);
 
         /// <summary>
-        /// Resolves a conflict between local and cloud data for a given file.
+        /// 
         /// </summary>
-        /// <param name="fileName"></param>
-        /// <param name="localData"></param>
-        /// <param name="cloudData"></param>
+        /// <param name="path"></param>
+        /// <param name="data"></param>
+        /// <param name="ct"></param>
         /// <returns></returns>
-        ValueTask ResolveConflict(string fileName, IBufferHandle localData, IBufferHandle cloudData);
+        Task WriteAsync(string path, IBufferHandle data, CancellationToken ct = default);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        Task<bool> DeleteAsync(string path, CancellationToken ct = default);
+
+        Task SyncAsync(CancellationToken ct = default);
     }
 }

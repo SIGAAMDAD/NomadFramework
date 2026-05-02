@@ -116,6 +116,7 @@ $(function() {
 Public Member Functions</h2></td></tr>
 <tr class="memitem:aed1e18a2956a35837d46e0f0a1325c04" id="r_aed1e18a2956a35837d46e0f0a1325c04"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#aed1e18a2956a35837d46e0f0a1325c04">AddChild</a> (<a class="el" href="interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_game_object.html">IGameObject</a> child)</td></tr>
 <tr class="memitem:a0eabec7100df9033ab8866ba9d1f9119" id="r_a0eabec7100df9033ab8866ba9d1f9119"><td class="memItemLeft">T&#160;</td><td class="memItemRight"><a class="el" href="#a0eabec7100df9033ab8866ba9d1f9119">AddComponent&lt; T &gt;</a> (Action&lt; T &gt;? initializer=null)</td></tr>
+<tr class="memitem:a69052b6c11a422db5e7b53c8a2e0aa1d" id="r_a69052b6c11a422db5e7b53c8a2e0aa1d"><td class="memItemLeft">T?&#160;</td><td class="memItemRight"><a class="el" href="#a69052b6c11a422db5e7b53c8a2e0aa1d">CastAs&lt; T &gt;</a> ()</td></tr>
 <tr class="memitem:a2f18adc70eb9531ee95156c06c2eb510" id="r_a2f18adc70eb9531ee95156c06c2eb510"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a2f18adc70eb9531ee95156c06c2eb510">Dispose</a> ()</td></tr>
 <tr class="memitem:a319e0dfe12049c08102a8bc344aa6d4e" id="r_a319e0dfe12049c08102a8bc344aa6d4e"><td class="memItemLeft">T?&#160;</td><td class="memItemRight"><a class="el" href="#a319e0dfe12049c08102a8bc344aa6d4e">FindChild&lt; T &gt;</a> (string childName)</td></tr>
 <tr class="memitem:ab007925620835055ba2a246cbaddcd44" id="r_ab007925620835055ba2a246cbaddcd44"><td class="memItemLeft">T?&#160;</td><td class="memItemRight"><a class="el" href="#ab007925620835055ba2a246cbaddcd44">GetComponent&lt; T &gt;</a> ()</td></tr>
@@ -143,7 +144,7 @@ Static Private Member Functions</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 id="header-pri-attribs" class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
 <tr class="memitem:a16c5a141b0125d0514186f3c1ec54017" id="r_a16c5a141b0125d0514186f3c1ec54017"><td class="memItemLeft">readonly List&lt; <a class="el" href="interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_game_object.html">IGameObject</a> &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a16c5a141b0125d0514186f3c1ec54017">_children</a> = new()</td></tr>
-<tr class="memitem:a5aa484c88d2941e83d5dbee4c4b7a32b" id="r_a5aa484c88d2941e83d5dbee4c4b7a32b"><td class="memItemLeft">readonly ConcurrentDictionary&lt; Type, <a class="el" href="interface_nomad_1_1_core_1_1_e_c_s_1_1_i_component.html">IComponent</a> &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a5aa484c88d2941e83d5dbee4c4b7a32b">_components</a> = new()</td></tr>
+<tr class="memitem:a832398c8193f6a1ac4046fc3aa30c755" id="r_a832398c8193f6a1ac4046fc3aa30c755"><td class="memItemLeft">readonly ComponentCollection&#160;</td><td class="memItemRight"><a class="el" href="#a832398c8193f6a1ac4046fc3aa30c755">_components</a></td></tr>
 <tr class="memitem:aa569bf4193843f306ae97d75f3da3057" id="r_aa569bf4193843f306ae97d75f3da3057"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#aa569bf4193843f306ae97d75f3da3057">_isDisposed</a> = false</td></tr>
 <tr class="memitem:a846b73544dc6523514f93022d8706d97" id="r_a846b73544dc6523514f93022d8706d97"><td class="memItemLeft">readonly <a class="el" href="#af04065f8ea2bb68059d2abb2d2247a48">Node</a>&#160;</td><td class="memItemRight"><a class="el" href="#a846b73544dc6523514f93022d8706d97">_node</a></td></tr>
 <tr class="memitem:a06cc0e03d4847acdfeb7eb929dbfa3a2" id="r_a06cc0e03d4847acdfeb7eb929dbfa3a2"><td class="memItemLeft"><a class="el" href="interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_game_object.html">IGameObject</a>?&#160;</td><td class="memItemRight"><a class="el" href="#a06cc0e03d4847acdfeb7eb929dbfa3a2">_parent</a></td></tr>
@@ -217,7 +218,7 @@ Private Attributes</h2></td></tr>
 
 <p>Implements <a class="el" href="interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_game_object.html#aa4be4792a1fde8da23ed34d849e15010">Nomad.Core.Scene.GameObjects.IGameObject</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="_godot_game_object_8cs_source.html#l00206">206</a> of file <a class="el" href="_godot_game_object_8cs_source.html">GodotGameObject.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_godot_game_object_8cs_source.html#l00215">215</a> of file <a class="el" href="_godot_game_object_8cs_source.html">GodotGameObject.cs</a>.</p>
 
 </div>
 </div>
@@ -267,7 +268,52 @@ Private Attributes</h2></td></tr>
 </dl>
 </div>
 
-<p class="definition">Definition at line <a class="el" href="_godot_game_object_8cs_source.html#l00101">101</a> of file <a class="el" href="_godot_game_object_8cs_source.html">GodotGameObject.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_godot_game_object_8cs_source.html#l00117">117</a> of file <a class="el" href="_godot_game_object_8cs_source.html">GodotGameObject.cs</a>.</p>
+
+</div>
+</div>
+<a id="a69052b6c11a422db5e7b53c8a2e0aa1d" name="a69052b6c11a422db5e7b53c8a2e0aa1d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a69052b6c11a422db5e7b53c8a2e0aa1d">&#9670;&#160;</a></span>CastAs&lt; T &gt;()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">T? Nomad.EngineUtils.GodotGameObject.CastAs&lt; T &gt; </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">T</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+<p>Implements <a class="el" href="interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_game_object.html#acfc69ce7ebaa5c5373e267069975a266">Nomad.Core.Scene.GameObjects.IGameObject</a>.</p>
+<div class="typeconstraint">
+<dl><dt><b>Type Constraints</b></dt><dd>
+<table border="0" cellspacing="2" cellpadding="0">
+<tr><td valign="top"><em>T</em></td><td>&#160;:</td><td valign="top"><em>class</em></td><td>&#160;</td></tr>
+<tr><td valign="top"><em>T</em></td><td>&#160;:</td><td valign="top"><em><a class="el" href="interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_game_object.html">IGameObject</a></em></td><td>&#160;</td></tr>
+</table>
+</dd>
+</dl>
+</div>
+
+<p class="definition">Definition at line <a class="el" href="_godot_game_object_8cs_source.html#l00102">102</a> of file <a class="el" href="_godot_game_object_8cs_source.html">GodotGameObject.cs</a>.</p>
 
 </div>
 </div>
@@ -294,7 +340,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_godot_game_object_8cs_source.html#l00086">86</a> of file <a class="el" href="_godot_game_object_8cs_source.html">GodotGameObject.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_godot_game_object_8cs_source.html#l00087">87</a> of file <a class="el" href="_godot_game_object_8cs_source.html">GodotGameObject.cs</a>.</p>
 
 </div>
 </div>
@@ -339,7 +385,7 @@ Private Attributes</h2></td></tr>
 </dl>
 </div>
 
-<p class="definition">Definition at line <a class="el" href="_godot_game_object_8cs_source.html#l00151">151</a> of file <a class="el" href="_godot_game_object_8cs_source.html">GodotGameObject.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_godot_game_object_8cs_source.html#l00160">160</a> of file <a class="el" href="_godot_game_object_8cs_source.html">GodotGameObject.cs</a>.</p>
 
 </div>
 </div>
@@ -377,13 +423,14 @@ Private Attributes</h2></td></tr>
 <div class="typeconstraint">
 <dl><dt><b>Type Constraints</b></dt><dd>
 <table border="0" cellspacing="2" cellpadding="0">
+<tr><td valign="top"><em>T</em></td><td>&#160;:</td><td valign="top"><em>class</em></td><td>&#160;</td></tr>
 <tr><td valign="top"><em>T</em></td><td>&#160;:</td><td valign="top"><em>IComponent</em></td><td>&#160;</td></tr>
 </table>
 </dd>
 </dl>
 </div>
 
-<p class="definition">Definition at line <a class="el" href="_godot_game_object_8cs_source.html#l00119">119</a> of file <a class="el" href="_godot_game_object_8cs_source.html">GodotGameObject.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_godot_game_object_8cs_source.html#l00128">128</a> of file <a class="el" href="_godot_game_object_8cs_source.html">GodotGameObject.cs</a>.</p>
 
 </div>
 </div>
@@ -421,13 +468,14 @@ Private Attributes</h2></td></tr>
 <div class="typeconstraint">
 <dl><dt><b>Type Constraints</b></dt><dd>
 <table border="0" cellspacing="2" cellpadding="0">
+<tr><td valign="top"><em>T</em></td><td>&#160;:</td><td valign="top"><em>class</em></td><td>&#160;</td></tr>
 <tr><td valign="top"><em>T</em></td><td>&#160;:</td><td valign="top"><em>IComponent</em></td><td>&#160;</td></tr>
 </table>
 </dd>
 </dl>
 </div>
 
-<p class="definition">Definition at line <a class="el" href="_godot_game_object_8cs_source.html#l00130">130</a> of file <a class="el" href="_godot_game_object_8cs_source.html">GodotGameObject.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_godot_game_object_8cs_source.html#l00139">139</a> of file <a class="el" href="_godot_game_object_8cs_source.html">GodotGameObject.cs</a>.</p>
 
 </div>
 </div>
@@ -454,7 +502,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_godot_game_object_8cs_source.html#l00225">225</a> of file <a class="el" href="_godot_game_object_8cs_source.html">GodotGameObject.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_godot_game_object_8cs_source.html#l00248">248</a> of file <a class="el" href="_godot_game_object_8cs_source.html">GodotGameObject.cs</a>.</p>
 
 </div>
 </div>
@@ -487,7 +535,7 @@ Private Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_godot_game_object_8cs_source.html#l00266">266</a> of file <a class="el" href="_godot_game_object_8cs_source.html">GodotGameObject.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_godot_game_object_8cs_source.html#l00274">274</a> of file <a class="el" href="_godot_game_object_8cs_source.html">GodotGameObject.cs</a>.</p>
 
 </div>
 </div>
@@ -514,7 +562,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_godot_game_object_8cs_source.html#l00241">241</a> of file <a class="el" href="_godot_game_object_8cs_source.html">GodotGameObject.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_godot_game_object_8cs_source.html#l00256">256</a> of file <a class="el" href="_godot_game_object_8cs_source.html">GodotGameObject.cs</a>.</p>
 
 </div>
 </div>
@@ -547,7 +595,7 @@ Private Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_godot_game_object_8cs_source.html#l00253">253</a> of file <a class="el" href="_godot_game_object_8cs_source.html">GodotGameObject.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_godot_game_object_8cs_source.html#l00265">265</a> of file <a class="el" href="_godot_game_object_8cs_source.html">GodotGameObject.cs</a>.</p>
 
 </div>
 </div>
@@ -582,7 +630,7 @@ Private Attributes</h2></td></tr>
 
 <p>Implements <a class="el" href="interface_nomad_1_1_core_1_1_scene_1_1_game_objects_1_1_i_game_object.html#acd0869549f7aeb415333cf1090a7df06">Nomad.Core.Scene.GameObjects.IGameObject</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="_godot_game_object_8cs_source.html#l00216">216</a> of file <a class="el" href="_godot_game_object_8cs_source.html">GodotGameObject.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_godot_game_object_8cs_source.html#l00232">232</a> of file <a class="el" href="_godot_game_object_8cs_source.html">GodotGameObject.cs</a>.</p>
 
 </div>
 </div>
@@ -619,13 +667,14 @@ Private Attributes</h2></td></tr>
 <div class="typeconstraint">
 <dl><dt><b>Type Constraints</b></dt><dd>
 <table border="0" cellspacing="2" cellpadding="0">
+<tr><td valign="top"><em>T</em></td><td>&#160;:</td><td valign="top"><em>class</em></td><td>&#160;</td></tr>
 <tr><td valign="top"><em>T</em></td><td>&#160;:</td><td valign="top"><em>IComponent</em></td><td>&#160;</td></tr>
 </table>
 </dd>
 </dl>
 </div>
 
-<p class="definition">Definition at line <a class="el" href="_godot_game_object_8cs_source.html#l00140">140</a> of file <a class="el" href="_godot_game_object_8cs_source.html">GodotGameObject.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_godot_game_object_8cs_source.html#l00149">149</a> of file <a class="el" href="_godot_game_object_8cs_source.html">GodotGameObject.cs</a>.</p>
 
 </div>
 </div>
@@ -659,7 +708,7 @@ Private Attributes</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd></dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="_godot_game_object_8cs_source.html#l00193">193</a> of file <a class="el" href="_godot_game_object_8cs_source.html">GodotGameObject.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_godot_game_object_8cs_source.html#l00202">202</a> of file <a class="el" href="_godot_game_object_8cs_source.html">GodotGameObject.cs</a>.</p>
 
 </div>
 </div>
@@ -688,8 +737,8 @@ Private Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a5aa484c88d2941e83d5dbee4c4b7a32b" name="a5aa484c88d2941e83d5dbee4c4b7a32b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5aa484c88d2941e83d5dbee4c4b7a32b">&#9670;&#160;</a></span>_components</h2>
+<a id="a832398c8193f6a1ac4046fc3aa30c755" name="a832398c8193f6a1ac4046fc3aa30c755"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a832398c8193f6a1ac4046fc3aa30c755">&#9670;&#160;</a></span>_components</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -698,7 +747,7 @@ Private Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">readonly ConcurrentDictionary&lt;Type, <a class="el" href="interface_nomad_1_1_core_1_1_e_c_s_1_1_i_component.html">IComponent</a>&gt; Nomad.EngineUtils.GodotGameObject._components = new()</td>
+          <td class="memname">readonly ComponentCollection Nomad.EngineUtils.GodotGameObject._components</td>
         </tr>
       </table>
   </td>

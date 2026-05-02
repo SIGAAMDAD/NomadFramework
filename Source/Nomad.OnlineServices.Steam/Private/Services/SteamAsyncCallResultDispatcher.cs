@@ -16,6 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Nomad.Core.Logger;
 using Steamworks;
 
 namespace Nomad.OnlineServices.Steam.Private.Services {
@@ -34,7 +35,7 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 		where TCallbackArgs : struct
 	{
 		private readonly CallResult<TCallbackArgs> _callback;
-
+	
 		private readonly object _requestLock = new object();
 		private TaskCompletionSource<TCallbackArgs>? _currentTcs;
 		private Task<TResult>? _currentRequest;
@@ -51,7 +52,6 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <exception cref="InvalidOperationException"></exception>
 		public SteamAsyncCallResultDispatcher() {
 			_mainContext = SynchronizationContext.Current ?? new SynchronizationContext();
 			_callback = CallResult<TCallbackArgs>.Create( OnCallback );
@@ -131,7 +131,6 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 						_currentTcs = null;
 					}
 				} ) ) {
-					Console.WriteLine( "Waiting on callback" );
 					var result = await _currentTcs.Task.ConfigureAwait( false );
 					return callback.Invoke( result );
 				}

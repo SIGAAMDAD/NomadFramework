@@ -85,7 +85,7 @@ namespace Nomad.Input.Tests {
 			var matcher = new BindingMatcherService( repository, new InputStateService() );
 			CompiledBindingGraph graph = repository.Current;
 
-			BindingMatchSet matches = matcher.MatchGamepadButton( graph, new GamepadButtonEventArgs( GamepadButton.A, 1, 10, true ), uint.MaxValue, InputScheme.Gamepad );
+			BindingMatchSet matches = matcher.MatchGamepadButton( graph, new GamepadButtonEventArgs( GamepadButton.A, 10, 1, true ), uint.MaxValue, InputScheme.Gamepad );
 
 			Assert.That( matches.Length, Is.EqualTo( 1 ) );
 		}

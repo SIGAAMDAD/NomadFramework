@@ -22,7 +22,6 @@ using Nomad.Core.FileSystem;
 using Nomad.Core.Logger;
 using Nomad.Events;
 using Nomad.FileSystem.Private.Services;
-using Nomad.Save.Events;
 using Nomad.Save.Private.Services;
 using Nomad.Save.Services;
 using Nomad.Core.CVars;
@@ -416,7 +415,7 @@ namespace Nomad.Save.Tests {
                 section.AddField( "F3", 3 );
             } );
 
-            Console.WriteLine( "Testing save files..." );
+            System.Console.WriteLine( "Testing save files..." );
 
             _loadBegin.Subscribe( ( in LoadBeginEventArgs args ) => {
                 var section = args.Reader.FindSection( "CountTest" );

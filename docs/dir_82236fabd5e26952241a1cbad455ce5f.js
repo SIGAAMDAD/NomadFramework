@@ -11,5 +11,6 @@ var dir_82236fabd5e26952241a1cbad455ce5f =
     [ "KeyNum.cs", "_key_num_8cs.html", "_key_num_8cs" ],
     [ "MouseButton.cs", "_mouse_button_8cs.html", "_mouse_button_8cs" ],
     [ "MouseButtonEventArgs.cs", "_mouse_button_event_args_8cs.html", "_mouse_button_event_args_8cs" ],
-    [ "MouseMotionEventArgs.cs", "_mouse_motion_event_args_8cs.html", "_mouse_motion_event_args_8cs" ]
+    [ "MouseMotionEventArgs.cs", "_mouse_motion_event_args_8cs.html", "_mouse_motion_event_args_8cs" ],
+    [ "MousePositionChangedEventArgs.cs", "_mouse_position_changed_event_args_8cs.html", "_mouse_position_changed_event_args_8cs" ]
 ];

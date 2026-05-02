@@ -110,25 +110,35 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
+<p>Interface for the input system that handles various input events from different devices.  
+ <a href="#details">More...</a></p>
+
 <p>Inherits IDisposable.</p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:aacac6d5f0238ff2b2194f39417e5841d" id="r_aacac6d5f0238ff2b2194f39417e5841d"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#aacac6d5f0238ff2b2194f39417e5841d">PushGamepadAxisEvent</a> (in <a class="el" href="struct_nomad_1_1_core_1_1_input_1_1_gamepad_axis_event_args.html">GamepadAxisEventArgs</a> gamepadAxisEvent)</td></tr>
+<tr class="memdesc:aacac6d5f0238ff2b2194f39417e5841d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pushes a gamepad axis event into the input system.  <br /></td></tr>
 <tr class="memitem:ae9bf6bd58356c057fec61f58779623a9" id="r_ae9bf6bd58356c057fec61f58779623a9"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#ae9bf6bd58356c057fec61f58779623a9">PushGamepadButtonEvent</a> (in <a class="el" href="struct_nomad_1_1_core_1_1_input_1_1_gamepad_button_event_args.html">GamepadButtonEventArgs</a> gamepadButtonEvent)</td></tr>
+<tr class="memdesc:ae9bf6bd58356c057fec61f58779623a9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pushes a gamepad button event into the input system.  <br /></td></tr>
 <tr class="memitem:af2c441e001fac2843b025db666245662" id="r_af2c441e001fac2843b025db666245662"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#af2c441e001fac2843b025db666245662">PushKeyboardEvent</a> (in <a class="el" href="struct_nomad_1_1_core_1_1_input_1_1_keyboard_event_args.html">KeyboardEventArgs</a> keyEvent)</td></tr>
+<tr class="memdesc:af2c441e001fac2843b025db666245662"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pushes a keyboard event into the input system.  <br /></td></tr>
 <tr class="memitem:a99985e7b023ad618c9d8e7c138f342c7" id="r_a99985e7b023ad618c9d8e7c138f342c7"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a99985e7b023ad618c9d8e7c138f342c7">PushMouseButtonEvent</a> (in <a class="el" href="struct_nomad_1_1_core_1_1_input_1_1_mouse_button_event_args.html">MouseButtonEventArgs</a> mouseButtonEvent)</td></tr>
+<tr class="memdesc:a99985e7b023ad618c9d8e7c138f342c7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pushes a mouse button event into the input system.  <br /></td></tr>
 <tr class="memitem:af18c4f03e083506f5a404660fb23a648" id="r_af18c4f03e083506f5a404660fb23a648"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#af18c4f03e083506f5a404660fb23a648">PushMouseMotionEvent</a> (in <a class="el" href="struct_nomad_1_1_core_1_1_input_1_1_mouse_motion_event_args.html">MouseMotionEventArgs</a> mouseMotionEvent)</td></tr>
-<tr class="memitem:ac747bfc196dcaea64829e4dff6f18f04" id="r_ac747bfc196dcaea64829e4dff6f18f04"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#ac747bfc196dcaea64829e4dff6f18f04">Update</a> (float delta)</td></tr>
+<tr class="memdesc:af18c4f03e083506f5a404660fb23a648"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pushes a mouse motion event into the input system.  <br /></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-properties" class="groupheader"><a id="properties" name="properties"></a>
 Properties</h2></td></tr>
 <tr class="memitem:ac1f21fb6aef9c2c51730e5a091bfbc32" id="r_ac1f21fb6aef9c2c51730e5a091bfbc32"><td class="memItemLeft">uint&#160;</td><td class="memItemRight"><a class="el" href="#ac1f21fb6aef9c2c51730e5a091bfbc32">ContextMask</a><code> [get]</code></td></tr>
+<tr class="memdesc:ac1f21fb6aef9c2c51730e5a091bfbc32"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the context mask for filtering input events.  <br /></td></tr>
 <tr class="memitem:a8b884ccd278798e00b68a3b4e58ec159" id="r_a8b884ccd278798e00b68a3b4e58ec159"><td class="memItemLeft"><a class="el" href="namespace_nomad_1_1_core_1_1_input.html#adc8696025263873bd080bba82de2ecf0">InputScheme</a>&#160;</td><td class="memItemRight"><a class="el" href="#a8b884ccd278798e00b68a3b4e58ec159">Mode</a><code> [get]</code></td></tr>
+<tr class="memdesc:a8b884ccd278798e00b68a3b4e58ec159"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the current input scheme being used.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
-<div class="textblock">
-<p class="definition">Definition at line <a class="el" href="_i_input_system_8cs_source.html#l00023">23</a> of file <a class="el" href="_i_input_system_8cs_source.html">IInputSystem.cs</a>.</p>
+<div class="textblock"><p>Interface for the input system that handles various input events from different devices. </p>
+
+<p class="definition">Definition at line <a class="el" href="_i_input_system_8cs_source.html#l00024">24</a> of file <a class="el" href="_i_input_system_8cs_source.html">IInputSystem.cs</a>.</p>
 </div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Member Function Documentation</h2>
 <a id="aacac6d5f0238ff2b2194f39417e5841d" name="aacac6d5f0238ff2b2194f39417e5841d"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aacac6d5f0238ff2b2194f39417e5841d">&#9670;&#160;</a></span>PushGamepadAxisEvent()</h2>
@@ -144,6 +154,14 @@ Properties</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Pushes a gamepad axis event into the input system. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">gamepadAxisEvent</td><td>The gamepad axis event arguments.</td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -161,9 +179,11 @@ Properties</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Pushes a gamepad button event into the input system. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">gamepadButtonEvent</td><td></td></tr>
+    <tr><td class="paramname">gamepadButtonEvent</td><td>The gamepad button event arguments.</td></tr>
   </table>
   </dd>
 </dl>
@@ -184,9 +204,11 @@ Properties</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Pushes a keyboard event into the input system. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">keyEvent</td><td></td></tr>
+    <tr><td class="paramname">keyEvent</td><td>The keyboard event arguments.</td></tr>
   </table>
   </dd>
 </dl>
@@ -207,9 +229,11 @@ Properties</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Pushes a mouse button event into the input system. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">mouseButtonEvent</td><td></td></tr>
+    <tr><td class="paramname">mouseButtonEvent</td><td>The mouse button event arguments.</td></tr>
   </table>
   </dd>
 </dl>
@@ -230,32 +254,11 @@ Properties</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Pushes a mouse motion event into the input system. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">mouseMotionEvent</td><td></td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a id="ac747bfc196dcaea64829e4dff6f18f04" name="ac747bfc196dcaea64829e4dff6f18f04"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac747bfc196dcaea64829e4dff6f18f04">&#9670;&#160;</a></span>Update()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void Nomad.Core.Input.IInputSystem.Update </td>
-          <td>(</td>
-          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>delta</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">delta</td><td></td></tr>
+    <tr><td class="paramname">mouseMotionEvent</td><td>The mouse motion event arguments.</td></tr>
   </table>
   </dd>
 </dl>
@@ -283,7 +286,9 @@ Properties</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_i_input_system_8cs_source.html#l00033">33</a> of file <a class="el" href="_i_input_system_8cs_source.html">IInputSystem.cs</a>.</p>
+<p>Gets the context mask for filtering input events. </p>
+
+<p class="definition">Definition at line <a class="el" href="_i_input_system_8cs_source.html#l00034">34</a> of file <a class="el" href="_i_input_system_8cs_source.html">IInputSystem.cs</a>.</p>
 
 </div>
 </div>
@@ -307,7 +312,9 @@ Properties</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_i_input_system_8cs_source.html#l00028">28</a> of file <a class="el" href="_i_input_system_8cs_source.html">IInputSystem.cs</a>.</p>
+<p>Gets the current input scheme being used. </p>
+
+<p class="definition">Definition at line <a class="el" href="_i_input_system_8cs_source.html#l00029">29</a> of file <a class="el" href="_i_input_system_8cs_source.html">IInputSystem.cs</a>.</p>
 
 </div>
 </div>

@@ -117,11 +117,19 @@ Namespaces</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 id="header-nested-classes" class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:GamepadAxisEventArgs" id="r_GamepadAxisEventArgs"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="struct_nomad_1_1_core_1_1_input_1_1_gamepad_axis_event_args.html">GamepadAxisEventArgs</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents the arguments for a gamepad axis input event.  <a href="struct_nomad_1_1_core_1_1_input_1_1_gamepad_axis_event_args.html#details">More...</a><br /></td></tr>
 <tr class="memitem:GamepadButtonEventArgs" id="r_GamepadButtonEventArgs"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="struct_nomad_1_1_core_1_1_input_1_1_gamepad_button_event_args.html">GamepadButtonEventArgs</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents the arguments for a gamepad button input event.  <a href="struct_nomad_1_1_core_1_1_input_1_1_gamepad_button_event_args.html#details">More...</a><br /></td></tr>
 <tr class="memitem:IInputSystem" id="r_IInputSystem"><td class="memItemLeft">interface &#160;</td><td class="memItemRight"><a class="el" href="interface_nomad_1_1_core_1_1_input_1_1_i_input_system.html">IInputSystem</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Interface for the input system that handles various input events from different devices.  <a href="interface_nomad_1_1_core_1_1_input_1_1_i_input_system.html#details">More...</a><br /></td></tr>
 <tr class="memitem:KeyboardEventArgs" id="r_KeyboardEventArgs"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="struct_nomad_1_1_core_1_1_input_1_1_keyboard_event_args.html">KeyboardEventArgs</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents the arguments for a keyboard input event.  <a href="struct_nomad_1_1_core_1_1_input_1_1_keyboard_event_args.html#details">More...</a><br /></td></tr>
 <tr class="memitem:MouseButtonEventArgs" id="r_MouseButtonEventArgs"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="struct_nomad_1_1_core_1_1_input_1_1_mouse_button_event_args.html">MouseButtonEventArgs</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents the arguments for a mouse button input event.  <a href="struct_nomad_1_1_core_1_1_input_1_1_mouse_button_event_args.html#details">More...</a><br /></td></tr>
 <tr class="memitem:MouseMotionEventArgs" id="r_MouseMotionEventArgs"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="struct_nomad_1_1_core_1_1_input_1_1_mouse_motion_event_args.html">MouseMotionEventArgs</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents the arguments for a mouse motion input event.  <a href="struct_nomad_1_1_core_1_1_input_1_1_mouse_motion_event_args.html#details">More...</a><br /></td></tr>
+<tr class="memitem:MousePositionChangedEventArgs" id="r_MousePositionChangedEventArgs"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="struct_nomad_1_1_core_1_1_input_1_1_mouse_position_changed_event_args.html">MousePositionChangedEventArgs</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents the arguments for a mouse position changed event.  <a href="struct_nomad_1_1_core_1_1_input_1_1_mouse_position_changed_event_args.html#details">More...</a><br /></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-enum-members" class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
@@ -153,16 +161,19 @@ Enumerations</h2></td></tr>
 <tr class="memitem:a5e5b55025b8b446db2bf18764841251d" id="r_a5e5b55025b8b446db2bf18764841251d"><td class="memItemLeft">enum &#160;</td><td class="memItemRight"><a class="el" href="#a5e5b55025b8b446db2bf18764841251d">GamepadStick</a> : byte { <a class="el" href="#a5e5b55025b8b446db2bf18764841251da945d5e233cf7d6240f6b783b36a374ff">Left</a>
 , <a class="el" href="#a5e5b55025b8b446db2bf18764841251da92b09c7c48c520c3c55e497875da437c">Right</a>
  }</td></tr>
+<tr class="memdesc:a5e5b55025b8b446db2bf18764841251d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents the sticks (analog controls) on a gamepad controller.  <a href="#a5e5b55025b8b446db2bf18764841251d">More...</a><br /></td></tr>
 <tr class="memitem:a65a6b3b74279568371f9e062fe0f2922" id="r_a65a6b3b74279568371f9e062fe0f2922"><td class="memItemLeft">enum &#160;</td><td class="memItemRight"><a class="el" href="#a65a6b3b74279568371f9e062fe0f2922">InputDeviceType</a> : byte { <a class="el" href="#a65a6b3b74279568371f9e062fe0f2922a6ce4d85a628a88bbdb3ac24a8e5a9c2e">Keyboard</a>
 , <a class="el" href="#a65a6b3b74279568371f9e062fe0f2922af2a47c6809d88e175dade0ef7b16aa13">Mouse</a>
 , <a class="el" href="#a65a6b3b74279568371f9e062fe0f2922a221f6781b4faa2d321ca0d928f518d6e">Gamepad</a>
 , <a class="el" href="#a65a6b3b74279568371f9e062fe0f2922ae93f994f01c537c4e2f7d8528c3eb5e9">Count</a>
  }</td></tr>
+<tr class="memdesc:a65a6b3b74279568371f9e062fe0f2922"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defines the types of input devices supported by the input system.  <a href="#a65a6b3b74279568371f9e062fe0f2922">More...</a><br /></td></tr>
 <tr class="memitem:adc8696025263873bd080bba82de2ecf0" id="r_adc8696025263873bd080bba82de2ecf0"><td class="memItemLeft">enum &#160;</td><td class="memItemRight"><a class="el" href="#adc8696025263873bd080bba82de2ecf0">InputScheme</a> : byte { <a class="el" href="#adc8696025263873bd080bba82de2ecf0a474e2724906160c0fd20cfd69d01e922">KeyboardAndMouse</a>
 , <a class="el" href="#adc8696025263873bd080bba82de2ecf0a221f6781b4faa2d321ca0d928f518d6e">Gamepad</a>
 , <a class="el" href="#adc8696025263873bd080bba82de2ecf0af0f31c9700c6b10d8a20dc487b2ae6a8">Touch</a>
 , <a class="el" href="#adc8696025263873bd080bba82de2ecf0ae93f994f01c537c4e2f7d8528c3eb5e9">Count</a>
  }</td></tr>
+<tr class="memdesc:adc8696025263873bd080bba82de2ecf0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defines the different input schemes supported by the input system.  <a href="#adc8696025263873bd080bba82de2ecf0">More...</a><br /></td></tr>
 <tr class="memitem:acebb6dd4c83eb32e1bc5cd5fc38f5aec" id="r_acebb6dd4c83eb32e1bc5cd5fc38f5aec"><td class="memItemLeft">enum &#160;</td><td class="memItemRight"><a class="el" href="#acebb6dd4c83eb32e1bc5cd5fc38f5aec">MouseButton</a> : byte { <br />
 &#160;&#160;<a class="el" href="#acebb6dd4c83eb32e1bc5cd5fc38f5aeca6adf97f83acf6453d4a6a4b1070f3754">None</a> = 0
 , <a class="el" href="#acebb6dd4c83eb32e1bc5cd5fc38f5aeca945d5e233cf7d6240f6b783b36a374ff">Left</a> = 1 &lt;&lt; 0
@@ -173,10 +184,9 @@ Enumerations</h2></td></tr>
 , <a class="el" href="#acebb6dd4c83eb32e1bc5cd5fc38f5aeca050f568559dcada95ba3ecb63de39971">WheelUp</a> = 1 &lt;&lt; 4
 , <a class="el" href="#acebb6dd4c83eb32e1bc5cd5fc38f5aecabb7f5ae6220c9828e5ec91faf054197c">X1</a> = 1 &lt;&lt; 5
 , <a class="el" href="#acebb6dd4c83eb32e1bc5cd5fc38f5aeca54105bddbfe3f639d49cbe8f5182c958">X2</a> = 1 &lt;&lt; 6
-, <br />
-&#160;&#160;<a class="el" href="#acebb6dd4c83eb32e1bc5cd5fc38f5aecae93f994f01c537c4e2f7d8528c3eb5e9">Count</a>
 <br />
  }</td></tr>
+<tr class="memdesc:acebb6dd4c83eb32e1bc5cd5fc38f5aec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defines the mouse buttons supported by the input system.  <a href="#acebb6dd4c83eb32e1bc5cd5fc38f5aec">More...</a><br /></td></tr>
 </table>
 <a name="doc-enum-members" id="doc-enum-members"></a><h2 id="header-doc-enum-members" class="groupheader">Enumeration Type Documentation</h2>
 <a id="ae89a1e217d704cd3ce93f1f6c0d2a055" name="ae89a1e217d704cd3ce93f1f6c0d2a055"></a>
@@ -228,7 +238,8 @@ Enumerations</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><a id="ae89a1e217d704cd3ce93f1f6c0d2a055aee57d4f85b132ca155ad4f77e71b7df1" name="ae89a1e217d704cd3ce93f1f6c0d2a055aee57d4f85b132ca155ad4f77e71b7df1"></a>DPadRight&#160;</td><td class="fielddoc"><p>Game controller D-Pad right button. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ae89a1e217d704cd3ce93f1f6c0d2a055ae93f994f01c537c4e2f7d8528c3eb5e9" name="ae89a1e217d704cd3ce93f1f6c0d2a055ae93f994f01c537c4e2f7d8528c3eb5e9"></a>Count&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ae89a1e217d704cd3ce93f1f6c0d2a055ae93f994f01c537c4e2f7d8528c3eb5e9" name="ae89a1e217d704cd3ce93f1f6c0d2a055ae93f994f01c537c4e2f7d8528c3eb5e9"></a>Count&#160;</td><td class="fielddoc"><p>Sentinel value representing the total number of gamepad buttons. </p>
+</td></tr>
 </table>
 
 <p class="definition">Definition at line <a class="el" href="_gamepad_button_8cs_source.html#l00021">21</a> of file <a class="el" href="_gamepad_button_8cs_source.html">GamepadButton.cs</a>.</p>
@@ -246,9 +257,13 @@ Enumerations</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Represents the sticks (analog controls) on a gamepad controller. </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a5e5b55025b8b446db2bf18764841251da945d5e233cf7d6240f6b783b36a374ff" name="a5e5b55025b8b446db2bf18764841251da945d5e233cf7d6240f6b783b36a374ff"></a>Left&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="a5e5b55025b8b446db2bf18764841251da92b09c7c48c520c3c55e497875da437c" name="a5e5b55025b8b446db2bf18764841251da92b09c7c48c520c3c55e497875da437c"></a>Right&#160;</td><td class="fielddoc"></td></tr>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a5e5b55025b8b446db2bf18764841251da945d5e233cf7d6240f6b783b36a374ff" name="a5e5b55025b8b446db2bf18764841251da945d5e233cf7d6240f6b783b36a374ff"></a>Left&#160;</td><td class="fielddoc"><p>The left analog stick. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a5e5b55025b8b446db2bf18764841251da92b09c7c48c520c3c55e497875da437c" name="a5e5b55025b8b446db2bf18764841251da92b09c7c48c520c3c55e497875da437c"></a>Right&#160;</td><td class="fielddoc"><p>The right analog stick. </p>
+</td></tr>
 </table>
 
 <p class="definition">Definition at line <a class="el" href="_gamepad_stick_8cs_source.html#l00021">21</a> of file <a class="el" href="_gamepad_stick_8cs_source.html">GamepadStick.cs</a>.</p>
@@ -266,6 +281,8 @@ Enumerations</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Defines the types of input devices supported by the input system. </p>
 <table class="fieldtable">
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a65a6b3b74279568371f9e062fe0f2922a6ce4d85a628a88bbdb3ac24a8e5a9c2e" name="a65a6b3b74279568371f9e062fe0f2922a6ce4d85a628a88bbdb3ac24a8e5a9c2e"></a>Keyboard&#160;</td><td class="fielddoc"><p><a class="el" href="namespace_nomad_1_1_core_1_1_input.html">Input</a> coming from a keyboard, virtual or physical. </p>
 </td></tr>
@@ -273,7 +290,8 @@ Enumerations</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><a id="a65a6b3b74279568371f9e062fe0f2922a221f6781b4faa2d321ca0d928f518d6e" name="a65a6b3b74279568371f9e062fe0f2922a221f6781b4faa2d321ca0d928f518d6e"></a>Gamepad&#160;</td><td class="fielddoc"><p><a class="el" href="namespace_nomad_1_1_core_1_1_input.html">Input</a> coming from a gamepad/joystick/game controller. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="a65a6b3b74279568371f9e062fe0f2922ae93f994f01c537c4e2f7d8528c3eb5e9" name="a65a6b3b74279568371f9e062fe0f2922ae93f994f01c537c4e2f7d8528c3eb5e9"></a>Count&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a65a6b3b74279568371f9e062fe0f2922ae93f994f01c537c4e2f7d8528c3eb5e9" name="a65a6b3b74279568371f9e062fe0f2922ae93f994f01c537c4e2f7d8528c3eb5e9"></a>Count&#160;</td><td class="fielddoc"><p>Sentinel value representing the total number of input device types. </p>
+</td></tr>
 </table>
 
 <p class="definition">Definition at line <a class="el" href="_input_device_type_8cs_source.html#l00021">21</a> of file <a class="el" href="_input_device_type_8cs_source.html">InputDeviceType.cs</a>.</p>
@@ -291,14 +309,20 @@ Enumerations</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Defines the different input schemes supported by the input system. </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="adc8696025263873bd080bba82de2ecf0a474e2724906160c0fd20cfd69d01e922" name="adc8696025263873bd080bba82de2ecf0a474e2724906160c0fd20cfd69d01e922"></a>KeyboardAndMouse&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="adc8696025263873bd080bba82de2ecf0a221f6781b4faa2d321ca0d928f518d6e" name="adc8696025263873bd080bba82de2ecf0a221f6781b4faa2d321ca0d928f518d6e"></a>Gamepad&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="adc8696025263873bd080bba82de2ecf0af0f31c9700c6b10d8a20dc487b2ae6a8" name="adc8696025263873bd080bba82de2ecf0af0f31c9700c6b10d8a20dc487b2ae6a8"></a>Touch&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="adc8696025263873bd080bba82de2ecf0ae93f994f01c537c4e2f7d8528c3eb5e9" name="adc8696025263873bd080bba82de2ecf0ae93f994f01c537c4e2f7d8528c3eb5e9"></a>Count&#160;</td><td class="fielddoc"></td></tr>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="adc8696025263873bd080bba82de2ecf0a474e2724906160c0fd20cfd69d01e922" name="adc8696025263873bd080bba82de2ecf0a474e2724906160c0fd20cfd69d01e922"></a>KeyboardAndMouse&#160;</td><td class="fielddoc"><p><a class="el" href="namespace_nomad_1_1_core_1_1_input.html">Input</a> scheme using keyboard and mouse. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="adc8696025263873bd080bba82de2ecf0a221f6781b4faa2d321ca0d928f518d6e" name="adc8696025263873bd080bba82de2ecf0a221f6781b4faa2d321ca0d928f518d6e"></a>Gamepad&#160;</td><td class="fielddoc"><p><a class="el" href="namespace_nomad_1_1_core_1_1_input.html">Input</a> scheme using a gamepad controller. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="adc8696025263873bd080bba82de2ecf0af0f31c9700c6b10d8a20dc487b2ae6a8" name="adc8696025263873bd080bba82de2ecf0af0f31c9700c6b10d8a20dc487b2ae6a8"></a>Touch&#160;</td><td class="fielddoc"><p><a class="el" href="namespace_nomad_1_1_core_1_1_input.html">Input</a> scheme using touch input (for mobile devices). </p>
+</td></tr>
+<tr><td class="fieldname"><a id="adc8696025263873bd080bba82de2ecf0ae93f994f01c537c4e2f7d8528c3eb5e9" name="adc8696025263873bd080bba82de2ecf0ae93f994f01c537c4e2f7d8528c3eb5e9"></a>Count&#160;</td><td class="fielddoc"><p>Sentinel value representing the total number of input schemes. </p>
+</td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="_input_scheme_8cs_source.html#l00020">20</a> of file <a class="el" href="_input_scheme_8cs_source.html">InputScheme.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_input_scheme_8cs_source.html#l00021">21</a> of file <a class="el" href="_input_scheme_8cs_source.html">InputScheme.cs</a>.</p>
 
 </div>
 </div>
@@ -313,16 +337,25 @@ Enumerations</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Defines the mouse buttons supported by the input system. </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="acebb6dd4c83eb32e1bc5cd5fc38f5aeca6adf97f83acf6453d4a6a4b1070f3754" name="acebb6dd4c83eb32e1bc5cd5fc38f5aeca6adf97f83acf6453d4a6a4b1070f3754"></a>None&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="acebb6dd4c83eb32e1bc5cd5fc38f5aeca945d5e233cf7d6240f6b783b36a374ff" name="acebb6dd4c83eb32e1bc5cd5fc38f5aeca945d5e233cf7d6240f6b783b36a374ff"></a>Left&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="acebb6dd4c83eb32e1bc5cd5fc38f5aeca92b09c7c48c520c3c55e497875da437c" name="acebb6dd4c83eb32e1bc5cd5fc38f5aeca92b09c7c48c520c3c55e497875da437c"></a>Right&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="acebb6dd4c83eb32e1bc5cd5fc38f5aecab1ca34f82e83c52b010f86955f264e05" name="acebb6dd4c83eb32e1bc5cd5fc38f5aecab1ca34f82e83c52b010f86955f264e05"></a>Middle&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="acebb6dd4c83eb32e1bc5cd5fc38f5aeca95cf2a3dc58aff6d85e53738a089d9d1" name="acebb6dd4c83eb32e1bc5cd5fc38f5aeca95cf2a3dc58aff6d85e53738a089d9d1"></a>WheelDown&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="acebb6dd4c83eb32e1bc5cd5fc38f5aeca050f568559dcada95ba3ecb63de39971" name="acebb6dd4c83eb32e1bc5cd5fc38f5aeca050f568559dcada95ba3ecb63de39971"></a>WheelUp&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="acebb6dd4c83eb32e1bc5cd5fc38f5aecabb7f5ae6220c9828e5ec91faf054197c" name="acebb6dd4c83eb32e1bc5cd5fc38f5aecabb7f5ae6220c9828e5ec91faf054197c"></a>X1&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="acebb6dd4c83eb32e1bc5cd5fc38f5aeca54105bddbfe3f639d49cbe8f5182c958" name="acebb6dd4c83eb32e1bc5cd5fc38f5aeca54105bddbfe3f639d49cbe8f5182c958"></a>X2&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="acebb6dd4c83eb32e1bc5cd5fc38f5aecae93f994f01c537c4e2f7d8528c3eb5e9" name="acebb6dd4c83eb32e1bc5cd5fc38f5aecae93f994f01c537c4e2f7d8528c3eb5e9"></a>Count&#160;</td><td class="fielddoc"></td></tr>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="acebb6dd4c83eb32e1bc5cd5fc38f5aeca6adf97f83acf6453d4a6a4b1070f3754" name="acebb6dd4c83eb32e1bc5cd5fc38f5aeca6adf97f83acf6453d4a6a4b1070f3754"></a>None&#160;</td><td class="fielddoc"><p>No mouse button. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="acebb6dd4c83eb32e1bc5cd5fc38f5aeca945d5e233cf7d6240f6b783b36a374ff" name="acebb6dd4c83eb32e1bc5cd5fc38f5aeca945d5e233cf7d6240f6b783b36a374ff"></a>Left&#160;</td><td class="fielddoc"><p>The left mouse button. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="acebb6dd4c83eb32e1bc5cd5fc38f5aeca92b09c7c48c520c3c55e497875da437c" name="acebb6dd4c83eb32e1bc5cd5fc38f5aeca92b09c7c48c520c3c55e497875da437c"></a>Right&#160;</td><td class="fielddoc"><p>The right mouse button. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="acebb6dd4c83eb32e1bc5cd5fc38f5aecab1ca34f82e83c52b010f86955f264e05" name="acebb6dd4c83eb32e1bc5cd5fc38f5aecab1ca34f82e83c52b010f86955f264e05"></a>Middle&#160;</td><td class="fielddoc"><p>The middle mouse button (wheel click). </p>
+</td></tr>
+<tr><td class="fieldname"><a id="acebb6dd4c83eb32e1bc5cd5fc38f5aeca95cf2a3dc58aff6d85e53738a089d9d1" name="acebb6dd4c83eb32e1bc5cd5fc38f5aeca95cf2a3dc58aff6d85e53738a089d9d1"></a>WheelDown&#160;</td><td class="fielddoc"><p>Mouse wheel scroll down. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="acebb6dd4c83eb32e1bc5cd5fc38f5aeca050f568559dcada95ba3ecb63de39971" name="acebb6dd4c83eb32e1bc5cd5fc38f5aeca050f568559dcada95ba3ecb63de39971"></a>WheelUp&#160;</td><td class="fielddoc"><p>Mouse wheel scroll up. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="acebb6dd4c83eb32e1bc5cd5fc38f5aecabb7f5ae6220c9828e5ec91faf054197c" name="acebb6dd4c83eb32e1bc5cd5fc38f5aecabb7f5ae6220c9828e5ec91faf054197c"></a>X1&#160;</td><td class="fielddoc"><p>The first extra mouse button (X1). </p>
+</td></tr>
+<tr><td class="fieldname"><a id="acebb6dd4c83eb32e1bc5cd5fc38f5aeca54105bddbfe3f639d49cbe8f5182c958" name="acebb6dd4c83eb32e1bc5cd5fc38f5aeca54105bddbfe3f639d49cbe8f5182c958"></a>X2&#160;</td><td class="fielddoc"><p>The second extra mouse button (X2). </p>
+</td></tr>
 </table>
 
 <p class="definition">Definition at line <a class="el" href="_mouse_button_8cs_source.html#l00021">21</a> of file <a class="el" href="_mouse_button_8cs_source.html">MouseButton.cs</a>.</p>

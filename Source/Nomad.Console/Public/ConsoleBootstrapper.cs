@@ -13,9 +13,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
-using Nomad.Console.Interfaces;
-using Nomad.Console.Private.Services;
-using Nomad.Core;
+using Nomad.Console.Private;
 using Nomad.Core.Abstractions;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.CVars;
@@ -47,22 +45,12 @@ namespace Nomad.Console
             var eventFactory = locator.GetService<IGameEventRegistryService>();
             var logger = locator.GetService<ILoggerService>();
             var engineService = locator.GetService<IEngineService>();
-
+            var fileSystem = locator.GetService<IFileSystem>();
             var cvarSystem = locator.GetService<ICVarSystemService>();
-
-            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.CONSOLE_OPENED_EVENT, Constants.Events.Console.NAMESPACE);
-            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.CONSOLE_CLOSED_EVENT, Constants.Events.Console.NAMESPACE);
-            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.HISTORY_PREV_EVENT, Constants.Events.Console.NAMESPACE);
-            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.HISTORY_NEXT_EVENT, Constants.Events.Console.NAMESPACE);
-            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.AUTOCOMPLETE_EVENT, Constants.Events.Console.NAMESPACE);
-            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.PAGE_UP_EVENT, Constants.Events.Console.NAMESPACE);
-            eventFactory.GetEvent<EmptyEventArgs>(Constants.Events.Console.PAGE_DOWN_EVENT, Constants.Events.Console.NAMESPACE);
 
             _consoleObject = engineService.CreateConsoleObject();
 
-            var commandService = new CommandCacheService(logger, cvarSystem);
-            registry.AddSingleton<ICommandService>(commandService);
-            registry.AddSingleton<ICommandLineService>(new CommandLine(_consoleObject.CommandBuilder, engineService, commandService, logger, eventFactory));
+            registry.AddSingleton(new ConsoleHistoryBuffer(eventFactory, new ConsoleHistoryStore(fileSystem)));
         }
 
         /// <summary>

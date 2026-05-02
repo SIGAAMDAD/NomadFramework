@@ -147,6 +147,21 @@ Enumerations</h2></td></tr>
 , <a class="el" href="#a6a1a96e69608e2c17df001f50b55e506a4bbb8f967da6d1a610596d7257179c2b">Invalid</a>
  }</td></tr>
 <tr class="memdesc:a6a1a96e69608e2c17df001f50b55e506"><td class="mdescLeft">&#160;</td><td class="mdescRight">A sound channel's current state.  <a href="#a6a1a96e69608e2c17df001f50b55e506">More...</a><br /></td></tr>
+<tr class="memitem:af74e03667a0f5fda4b1293e5b4339d1d" id="r_af74e03667a0f5fda4b1293e5b4339d1d"><td class="memItemLeft">enum &#160;</td><td class="memItemRight"><a class="el" href="#af74e03667a0f5fda4b1293e5b4339d1d">SpeakerMode</a> : byte { <br />
+&#160;&#160;<a class="el" href="#af74e03667a0f5fda4b1293e5b4339d1da06b9281e396db002010bde1de57262eb">Auto</a>
+, <a class="el" href="#af74e03667a0f5fda4b1293e5b4339d1dadcbedde0ce401a37130de9628240c6aa">Headphones</a>
+, <a class="el" href="#af74e03667a0f5fda4b1293e5b4339d1da5c8617b86ef6b71624aac8abcc8f8516">StereoSpeakers</a>
+, <a class="el" href="#af74e03667a0f5fda4b1293e5b4339d1da0b2d1a27be4211e2d60f1a051984d4c6">Surround_5_1</a>
+, <br />
+&#160;&#160;<a class="el" href="#af74e03667a0f5fda4b1293e5b4339d1da57efcaf218e0438633c6969f847d7305">Surround_7_1</a>
+, <a class="el" href="#af74e03667a0f5fda4b1293e5b4339d1da3fb306e710af68a26e0c49a81a366112">Atmos</a>
+, <a class="el" href="#af74e03667a0f5fda4b1293e5b4339d1dae93f994f01c537c4e2f7d8528c3eb5e9">Count</a>
+<br />
+ }</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:a058be948107a246aa473a164af7cf574" id="r_a058be948107a246aa473a164af7cf574"><td class="memItemLeft">record&#160;</td><td class="memItemRight"><a class="el" href="#a058be948107a246aa473a164af7cf574">SoundCategoryCreateInfo</a> (string Name, int MaxSimultaneous=4, float PriorityScale=1.5f, float StealProtectionTime=0.2f, bool AllowStealingFromSameCategory=false)</td></tr>
 </table>
 <a name="doc-enum-members" id="doc-enum-members"></a><h2 id="header-doc-enum-members" class="groupheader">Enumeration Type Documentation</h2>
 <a id="a3d9693e1aff16bd18178097e99f1bd74" name="a3d9693e1aff16bd18178097e99f1bd74"></a>
@@ -221,6 +236,78 @@ Enumerations</h2></td></tr>
 </table>
 
 <p class="definition">Definition at line <a class="el" href="_channel_status_8cs_source.html#l00021">21</a> of file <a class="el" href="_channel_status_8cs_source.html">ChannelStatus.cs</a>.</p>
+
+</div>
+</div>
+<a id="af74e03667a0f5fda4b1293e5b4339d1d" name="af74e03667a0f5fda4b1293e5b4339d1d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af74e03667a0f5fda4b1293e5b4339d1d">&#9670;&#160;</a></span>SpeakerMode</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="#af74e03667a0f5fda4b1293e5b4339d1d">Nomad.Audio.ValueObjects.SpeakerMode</a> : byte</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="af74e03667a0f5fda4b1293e5b4339d1da06b9281e396db002010bde1de57262eb" name="af74e03667a0f5fda4b1293e5b4339d1da06b9281e396db002010bde1de57262eb"></a>Auto&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="af74e03667a0f5fda4b1293e5b4339d1dadcbedde0ce401a37130de9628240c6aa" name="af74e03667a0f5fda4b1293e5b4339d1dadcbedde0ce401a37130de9628240c6aa"></a>Headphones&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="af74e03667a0f5fda4b1293e5b4339d1da5c8617b86ef6b71624aac8abcc8f8516" name="af74e03667a0f5fda4b1293e5b4339d1da5c8617b86ef6b71624aac8abcc8f8516"></a>StereoSpeakers&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="af74e03667a0f5fda4b1293e5b4339d1da0b2d1a27be4211e2d60f1a051984d4c6" name="af74e03667a0f5fda4b1293e5b4339d1da0b2d1a27be4211e2d60f1a051984d4c6"></a>Surround_5_1&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="af74e03667a0f5fda4b1293e5b4339d1da57efcaf218e0438633c6969f847d7305" name="af74e03667a0f5fda4b1293e5b4339d1da57efcaf218e0438633c6969f847d7305"></a>Surround_7_1&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="af74e03667a0f5fda4b1293e5b4339d1da3fb306e710af68a26e0c49a81a366112" name="af74e03667a0f5fda4b1293e5b4339d1da3fb306e710af68a26e0c49a81a366112"></a>Atmos&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="af74e03667a0f5fda4b1293e5b4339d1dae93f994f01c537c4e2f7d8528c3eb5e9" name="af74e03667a0f5fda4b1293e5b4339d1dae93f994f01c537c4e2f7d8528c3eb5e9"></a>Count&#160;</td><td class="fielddoc"></td></tr>
+</table>
+
+<p class="definition">Definition at line <a class="el" href="_speaker_mode_8cs_source.html#l00021">21</a> of file <a class="el" href="_speaker_mode_8cs_source.html">SpeakerMode.cs</a>.</p>
+
+</div>
+</div>
+<a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
+<a id="a058be948107a246aa473a164af7cf574" name="a058be948107a246aa473a164af7cf574"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a058be948107a246aa473a164af7cf574">&#9670;&#160;</a></span>SoundCategoryCreateInfo()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">record Nomad.Audio.ValueObjects.SoundCategoryCreateInfo </td>
+          <td>(</td>
+          <td class="paramtype">string</td>          <td class="paramname"><span class="paramname"><em>Name</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>MaxSimultaneous</em></span><span class="paramdefsep"> = </span><span class="paramdefval">4</span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>PriorityScale</em></span><span class="paramdefsep"> = </span><span class="paramdefval">1.5f</span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>StealProtectionTime</em></span><span class="paramdefsep"> = </span><span class="paramdefval">0.2f</span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>AllowStealingFromSameCategory</em></span><span class="paramdefsep"> = </span><span class="paramdefval">false</span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">name</td><td></td></tr>
+    <tr><td class="paramname">maxSimultaneous</td><td></td></tr>
+    <tr><td class="paramname">priorityScale</td><td></td></tr>
+    <tr><td class="paramname">stealProtectionTime</td><td></td></tr>
+    <tr><td class="paramname">allowStealingFromSameCategory</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

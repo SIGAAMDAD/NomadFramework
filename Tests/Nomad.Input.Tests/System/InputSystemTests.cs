@@ -1,9 +1,23 @@
+/*
+===========================================================================
+The Nomad Framework
+Copyright (C) 2025-2026 Noah Van Til
+
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v2. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+This software is provided "as is", without warranty of any kind,
+express or implied, including but not limited to the warranties
+of merchantability, fitness for a particular purpose and noninfringement.
+===========================================================================
+*/
+
 using System.Reflection;
 using System.Numerics;
 using NUnit.Framework;
 using Nomad.Core.Input;
 using Nomad.Events;
-using Nomad.Input.Events;
 using Nomad.Input.Private.Services;
 using Nomad.Input.ValueObjects;
 using Nomad.Core.ServiceRegistry.Services;
@@ -258,7 +272,7 @@ namespace Nomad.Input.Tests {
 
 			using var inputSystem = new InputSystem( fileSystem.Object, cvarSystem, _logger, _eventRegistry, _registry );
 			SetMode( inputSystem, InputScheme.Gamepad );
-			inputSystem.PushGamepadButtonEvent( new GamepadButtonEventArgs( GamepadButton.A, 1, 400, true ) );
+			inputSystem.PushGamepadButtonEvent( new GamepadButtonEventArgs( GamepadButton.A, 400, 1, true ) );
 
 			using ( Assert.EnterMultipleScope() ) {
 				Assert.That( published.HasValue, Is.True );

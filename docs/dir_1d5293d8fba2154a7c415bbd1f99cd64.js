@@ -2,6 +2,7 @@ var dir_1d5293d8fba2154a7c415bbd1f99cd64 =
 [
     [ "IAudioDevice.cs", "_i_audio_device_8cs.html", "_i_audio_device_8cs" ],
     [ "IAudioEmitter.cs", "_i_audio_emitter_8cs.html", "_i_audio_emitter_8cs" ],
+    [ "IAudioGroup.cs", "_i_audio_group_8cs.html", "_i_audio_group_8cs" ],
     [ "IAudioResource.cs", "_i_audio_resource_8cs.html", "_i_audio_resource_8cs" ],
     [ "IChannelRepository.cs", "_i_channel_repository_8cs.html", "_i_channel_repository_8cs" ],
     [ "IEmitterFactory.cs", "_i_emitter_factory_8cs.html", "_i_emitter_factory_8cs" ],

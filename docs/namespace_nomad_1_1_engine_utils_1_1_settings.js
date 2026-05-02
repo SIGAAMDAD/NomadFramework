@@ -9,5 +9,6 @@ var namespace_nomad_1_1_engine_utils_1_1_settings =
       [ "set", "namespace_nomad_1_1_engine_utils_1_1_settings_1_1_value_objects.html#ab0156870e4b2ec442c464317bb79e9c2", null ]
     ] ],
     [ "Constants", "class_nomad_1_1_engine_utils_1_1_settings_1_1_constants.html", "class_nomad_1_1_engine_utils_1_1_settings_1_1_constants" ],
-    [ "DisplayCVars", "class_nomad_1_1_engine_utils_1_1_settings_1_1_display_c_vars.html", "class_nomad_1_1_engine_utils_1_1_settings_1_1_display_c_vars" ]
+    [ "DisplayCVars", "class_nomad_1_1_engine_utils_1_1_settings_1_1_display_c_vars.html", "class_nomad_1_1_engine_utils_1_1_settings_1_1_display_c_vars" ],
+    [ "MonitorDisplayNames", "class_nomad_1_1_engine_utils_1_1_settings_1_1_monitor_display_names.html", "class_nomad_1_1_engine_utils_1_1_settings_1_1_monitor_display_names" ]
 ];
