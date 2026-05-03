@@ -1,0 +1,8 @@
+<Project>
+  <Import Project="Build/Targets/Nomad.Testing.targets" />
+  <Import Project="Build/Targets/Nomad.SourceGeneration.targets" />
+  <Import Project="Build/Targets/Nomad.EngineAdapters.targets" />
+  <Import Project="Build/Targets/Nomad.Packaging.targets" />
+  <Import Project="Build/Targets/Nomad.Validation.targets"
+          Condition="'$(NomadEnableLayoutValidation)' == 'true'" />
+</Project>

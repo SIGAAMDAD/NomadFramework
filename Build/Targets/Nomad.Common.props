@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <NomadRepoRoot Condition="'$(NomadRepoRoot)' == ''">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\'))</NomadRepoRoot>
+    <NomadRepoRoot Condition="'$(NomadRepoRoot)' == ''">$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)..\..'))</NomadRepoRoot>
 
     <Nullable Condition="'$(Nullable)' == ''">annotations</Nullable>
     <EnableDynamicLoading Condition="'$(EnableDynamicLoading)' == ''">true</EnableDynamicLoading>
@@ -17,8 +17,6 @@
     <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
-  <!-- Default production module target frameworks.
-       Individual projects can override this in their own csproj. -->
   <PropertyGroup Condition="'$(TargetFramework)' == '' And '$(TargetFrameworks)' == ''">
     <TargetFrameworks>net10.0;net8.0;netstandard2.1</TargetFrameworks>
   </PropertyGroup>
@@ -39,7 +37,6 @@
     <NoWarn>$(NoWarn);CS8632;CS8600;CS8601;CS8602;CS8603;CS8604;CS8618;CS8625</NoWarn>
   </PropertyGroup>
 
-  <!-- Platform constants. Append; do not overwrite DefineConstants. -->
   <PropertyGroup>
     <NomadIsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">true</NomadIsWindows>
     <NomadIsLinux Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">true</NomadIsLinux>

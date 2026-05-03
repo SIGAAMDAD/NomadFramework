@@ -8,4 +8,5 @@
   <Project Path="Source/Nomad.Save/Nomad.Save.csproj" />
   <Project Path="Source/Nomad.Input/Nomad.Input.csproj" />
   <Project Path="Source/Nomad.OnlineServices.Steam/Nomad.OnlineServices.Steam.csproj" />
+  <Project Path="Source/Nomad.SourceGenerators/Nomad.SourceGenerators.csproj" />
 </Solution>

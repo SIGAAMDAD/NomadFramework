@@ -1,7 +1,11 @@
 <Project>
   <PropertyGroup>
     <NomadUseSourceGenerators Condition="'$(NomadUseSourceGenerators)' == ''">false</NomadUseSourceGenerators>
-    <NomadSourceGeneratorsProject Condition="'$(NomadSourceGeneratorsProject)' == ''">$(NomadRepoRoot)Source/Nomad.SourceGenerators/Nomad.SourceGenerators.csproj</NomadSourceGeneratorsProject>
+    <NomadSourceGeneratorsProject Condition="'$(NomadSourceGeneratorsProject)' == ''">$(NomadRepoRoot)Source\Nomad.SourceGenerators\Nomad.SourceGenerators.csproj</NomadSourceGeneratorsProject>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <NomadSourceGeneratorsProject>$([MSBuild]::NormalizePath('$(NomadSourceGeneratorsProject)'))</NomadSourceGeneratorsProject>
   </PropertyGroup>
 
   <ItemGroup Condition="
@@ -10,6 +14,18 @@
       And Exists('$(NomadSourceGeneratorsProject)')">
     <ProjectReference Include="$(NomadSourceGeneratorsProject)"
                       OutputItemType="Analyzer"
-                      ReferenceOutputAssembly="false" />
+                      ReferenceOutputAssembly="false"
+                      PrivateAssets="all" />
   </ItemGroup>
+
+  <Target Name="ValidateNomadSourceGeneratorReference"
+          BeforeTargets="CoreCompile"
+          Condition="'$(NomadUseSourceGenerators)' == 'true'
+                     And '$(MSBuildProjectName)' != 'Nomad.SourceGenerators'">
+    <Error Condition="!Exists('$(NomadSourceGeneratorsProject)')"
+           Text="$(MSBuildProjectName): Nomad source generator project was enabled but not found at '$(NomadSourceGeneratorsProject)'." />
+
+    <Message Importance="high"
+             Text="$(MSBuildProjectName): using Nomad source generators from '$(NomadSourceGeneratorsProject)'." />
+  </Target>
 </Project>
