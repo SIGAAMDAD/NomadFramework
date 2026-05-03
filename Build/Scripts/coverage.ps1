@@ -8,7 +8,7 @@ Assert-NomadPathExists $Script:CoverageSettingsPath "Coverage settings"
 $filter = if ( $env:NOMAD_COVERAGE_TEST_FILTER ) {
 	$env:NOMAD_COVERAGE_TEST_FILTER
 } else {
-	"Category=Unit&Category!=Steam"
+	"""Category=Unit&Category!=Steam"""
 }
 
 if ( Test-Path $Script:TestResultsDirectory ) {
