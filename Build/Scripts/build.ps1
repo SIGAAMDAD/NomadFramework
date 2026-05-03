@@ -8,7 +8,7 @@ Invoke-NomadCommand $Script:DotNet @(
 	"build",
 	$Script:SolutionPath,
 	"--configuration",
-	$Script:Configuration,
+	"$Script:Configuration",
 	"--no-restore",
 	"-p:RunAnalyzers=true",
 	"-p:ContinuousIntegrationBuild=true"
