@@ -15,24 +15,24 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Core.OnlineServices
 {
-	/// <summary>
-	/// 
-	/// </summary>
-	public enum NetworkSessionFailureReason : byte
-	{
-		Unknown = 0,
-		InvalidRequest,
-		SessionAlreadyActive,
-		SessionFull,
-		SessionNotFound,
-		ConnectionFailed,
-		HandshakeFailed,
-		TransportFault,
-		HostRejected,
-		VersionMismatch,
-		Disconnected,
-		Timeout,
+    /// <summary>
+    /// 
+    /// </summary>
+    public enum NetworkSessionFailureReason : byte
+    {
+        Unknown = 0,
+        InvalidRequest,
+        SessionAlreadyActive,
+        SessionFull,
+        SessionNotFound,
+        ConnectionFailed,
+        HandshakeFailed,
+        TransportFault,
+        HostRejected,
+        VersionMismatch,
+        Disconnected,
+        Timeout,
 
-		Count
-	}
+        Count
+    }
 }

@@ -32,7 +32,7 @@ namespace Nomad.Input.Private.Services {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal sealed class BindResolver : IBindResolver {
 		private readonly BindRepository _repository;
 		private readonly Action _bindingsChanged;

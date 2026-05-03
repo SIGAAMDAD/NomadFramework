@@ -541,7 +541,7 @@ namespace Nomad.SourceGenerators.EngineTemplates
                 if (model.EventImplementations.Length > 0)
                 {
                     builder.AppendLine();
-//                    AppendEventDisposal(builder, model, "            ");
+                    //                    AppendEventDisposal(builder, model, "            ");
                 }
 
                 builder.AppendLine("        }");

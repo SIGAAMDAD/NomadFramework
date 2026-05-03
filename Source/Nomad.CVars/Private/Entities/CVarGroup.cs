@@ -74,7 +74,7 @@ namespace Nomad.CVars.Private.Entities {
 			}
 			_cvars.Add( cvar );
 		}
-		
+
 		/*
 		===============
 		RemoveCVar

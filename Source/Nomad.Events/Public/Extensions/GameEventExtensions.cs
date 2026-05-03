@@ -113,7 +113,7 @@ namespace Nomad.Events.Extensions
         {
             return new ScheduledEvent<TArgs>(source, payloadCallback, publishIntervalMS);
         }
-        
+
         /// <summary>
         /// 
         /// </summary>

@@ -33,8 +33,7 @@ namespace Nomad.Events.Private.EventTypes {
 	/// </summary>
 
 	internal sealed class FilteredGameEvent<TArgs> : IGameEvent<TArgs>
-		where TArgs : struct
-	{
+		where TArgs : struct {
 #if EVENT_DEBUG
 		public TArgs LastPayload => _source.LastPayload;
 		public int SubscriberCount => _source.SubscriberCount;

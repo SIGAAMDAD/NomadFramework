@@ -17,9 +17,9 @@ using System.Runtime.CompilerServices;
 using Nomad.Core.Util.Attributes;
 
 [assembly: NomadModule(
-	Name = "Nomad.Events",
-	VersionMajor = 0,
-	VersionMinor = 1,
-	VersionPatch = 0
+    Name = "Nomad.Events",
+    VersionMajor = 0,
+    VersionMinor = 1,
+    VersionPatch = 0
 )]
 [assembly: InternalsVisibleTo("Nomad.Tests")]

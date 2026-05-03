@@ -15,39 +15,39 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Core.UI
 {
-	/// <summary>
-	/// 
-	/// </summary>
-	public enum AspectLayoutMode
-	{
-		/// <summary>
-		/// 
-		/// </summary>
-		None,
+    /// <summary>
+    /// 
+    /// </summary>
+    public enum AspectLayoutMode
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        None,
 
-		/// <summary>
-		/// 
-		/// </summary>
-		WidthControlsHeight,
+        /// <summary>
+        /// 
+        /// </summary>
+        WidthControlsHeight,
 
-		/// <summary>
-		/// 
-		/// </summary>
-		HeightControlsWidth,
+        /// <summary>
+        /// 
+        /// </summary>
+        HeightControlsWidth,
 
-		/// <summary>
-		/// 
-		/// </summary>
-		Fit,
+        /// <summary>
+        /// 
+        /// </summary>
+        Fit,
 
-		/// <summary>
-		/// 
-		/// </summary>
-		Cover,
+        /// <summary>
+        /// 
+        /// </summary>
+        Cover,
 
-		/// <summary>
-		/// 
-		/// </summary>
-		Count
-	}
+        /// <summary>
+        /// 
+        /// </summary>
+        Count
+    }
 }

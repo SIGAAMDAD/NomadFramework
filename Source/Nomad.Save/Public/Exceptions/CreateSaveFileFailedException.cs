@@ -17,11 +17,11 @@ using Nomad.Core.Exceptions;
 
 namespace Nomad.Save.Exceptions
 {
-	public sealed class CreateSaveFileFailed : NomadException
-	{
-		public CreateSaveFileFailed(string filePath)
-			: base($"Creating save file with file path '{filePath}'")
-		{
-		}
-	}
+    public sealed class CreateSaveFileFailed : NomadException
+    {
+        public CreateSaveFileFailed(string filePath)
+            : base($"Creating save file with file path '{filePath}'")
+        {
+        }
+    }
 }

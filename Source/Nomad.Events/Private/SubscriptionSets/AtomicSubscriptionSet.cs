@@ -34,8 +34,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 	/// </summary>
 
 	internal sealed class AtomicSubscriptionSet<TArgs> : SubscriptionSetBase<TArgs>
-		where TArgs : struct
-	{
+		where TArgs : struct {
 		private static readonly EventCallback<TArgs>[] _emptySubscriptions = Array.Empty<EventCallback<TArgs>>();
 		private static readonly AsyncEventCallback<TArgs>[] _emptyAsyncSubscriptions = Array.Empty<AsyncEventCallback<TArgs>>();
 
@@ -54,8 +53,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// <param name="logger"></param>
 		/// <param name="exceptionPolicy"></param>
 		public AtomicSubscriptionSet( IGameEvent<TArgs> eventData, ILoggerService logger, EventExceptionPolicy exceptionPolicy )
-			: base( eventData, logger, exceptionPolicy )
-		{
+			: base( eventData, logger, exceptionPolicy ) {
 			_genericSubscriptions = _emptySubscriptions;
 			_asyncSubscriptions = _emptyAsyncSubscriptions;
 		}

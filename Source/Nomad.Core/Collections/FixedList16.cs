@@ -20,29 +20,29 @@ using System.Runtime.CompilerServices;
 
 namespace Nomad.Core.Collections
 {
-	/// <summary>
-	/// 
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	public sealed class FixedList16<T> : IDisposable
-	{
-		private const int InlineCapacity = 16;
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public sealed class FixedList16<T> : IDisposable
+    {
+        private const int InlineCapacity = 16;
 
-		private int _count;
-		private T[]? _heap;
+        private int _count;
+        private T[]? _heap;
 #if NET8_0_OR_GREATER
-		[InlineArray(InlineCapacity)]
-		private struct InlineBuffer
-		{
-			private T _element0;
-		}
-		private InlineBuffer _inline;
+        [InlineArray(InlineCapacity)]
+        private struct InlineBuffer
+        {
+            private T _element0;
+        }
+        private InlineBuffer _inline;
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private ref T InlineAt(int index)
-		{
-			return ref _inline[index];
-		}
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private ref T InlineAt(int index)
+        {
+            return ref _inline[index];
+        }
 #else
 		private T _0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15;
 
@@ -72,186 +72,186 @@ namespace Nomad.Core.Collections
 		}
 #endif
 
-		/// <summary>
-		/// 
-		/// </summary>
-		public int Count => _count;
+        /// <summary>
+        /// 
+        /// </summary>
+        public int Count => _count;
 
-		/// <summary>
-		/// 
-		/// </summary>
-		public int Capacity => _heap?.Length ?? InlineCapacity;
+        /// <summary>
+        /// 
+        /// </summary>
+        public int Capacity => _heap?.Length ?? InlineCapacity;
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="index"></param>
-		/// <returns></returns>
-		/// <exception cref="ArgumentOutOfRangeException"></exception>
-		public ref T this[int index]
-		{
-			get
-			{
-				if ((uint)index >= (uint)_count)
-				{
-					throw new ArgumentOutOfRangeException(nameof(index));
-				}
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public ref T this[int index]
+        {
+            get
+            {
+                if ((uint)index >= (uint)_count)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(index));
+                }
 
-				if (_heap is null)
-				{
-					return ref InlineAt(index);
-				}
+                if (_heap is null)
+                {
+                    return ref InlineAt(index);
+                }
 
-				return ref _heap[index];
-			}
-		}
+                return ref _heap[index];
+            }
+        }
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="item"></param>
-		public void Add(T item)
-		{
-			if (_heap is null)
-			{
-				if (_count < InlineCapacity)
-				{
-					InlineAt(_count++) = item;
-					return;
-				}
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="item"></param>
+        public void Add(T item)
+        {
+            if (_heap is null)
+            {
+                if (_count < InlineCapacity)
+                {
+                    InlineAt(_count++) = item;
+                    return;
+                }
 
-				MoveInlineToHeap(InlineCapacity * 3);
-			}
-			else if (_count == _heap.Length)
-			{
-				GrowHeap(_count + 1);
-			}
+                MoveInlineToHeap(InlineCapacity * 3);
+            }
+            else if (_count == _heap.Length)
+            {
+                GrowHeap(_count + 1);
+            }
 
-			_heap![_count++] = item;
-		}
+            _heap![_count++] = item;
+        }
 
-		/// <summary>
-		/// 
-		/// </summary>
-		public void Clear()
-		{
-			if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
-			{
-				if (_heap is null)
-				{
-					for (int i = 0; i < _count; i++)
-					{
-						InlineAt(i) = default!;
-					}
-				}
-				else
-				{
-					Array.Clear(_heap, 0, _count);
-				}
-			}
+        /// <summary>
+        /// 
+        /// </summary>
+        public void Clear()
+        {
+            if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
+            {
+                if (_heap is null)
+                {
+                    for (int i = 0; i < _count; i++)
+                    {
+                        InlineAt(i) = default!;
+                    }
+                }
+                else
+                {
+                    Array.Clear(_heap, 0, _count);
+                }
+            }
 
-			_count = 0;
-		}
+            _count = 0;
+        }
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="item"></param>
-		/// <param name="comparer"></param>
-		/// <returns></returns>
-		public bool RemoveSwapBack(T item, IEqualityComparer<T>? comparer = null)
-		{
-			comparer ??= EqualityComparer<T>.Default;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="comparer"></param>
+        /// <returns></returns>
+        public bool RemoveSwapBack(T item, IEqualityComparer<T>? comparer = null)
+        {
+            comparer ??= EqualityComparer<T>.Default;
 
-			for (int i = 0; i < _count; i++)
-			{
-				if (comparer.Equals(this[i], item))
-				{
-					RemoveAtSwapBack(i);
-					return true;
-				}
-			}
+            for (int i = 0; i < _count; i++)
+            {
+                if (comparer.Equals(this[i], item))
+                {
+                    RemoveAtSwapBack(i);
+                    return true;
+                }
+            }
 
-			return false;
-		}
+            return false;
+        }
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="index"></param>
-		/// <exception cref="ArgumentOutOfRangeException"></exception>
-		public void RemoveAtSwapBack(int index)
-		{
-			if ((uint)index >= (uint)_count)
-			{
-				throw new ArgumentOutOfRangeException(nameof(index));
-			}
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="index"></param>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public void RemoveAtSwapBack(int index)
+        {
+            if ((uint)index >= (uint)_count)
+            {
+                throw new ArgumentOutOfRangeException(nameof(index));
+            }
 
-			int last = _count - 1;
+            int last = _count - 1;
 
-			if (index != last)
-			{
-				this[index] = this[last];
-			}
+            if (index != last)
+            {
+                this[index] = this[last];
+            }
 
-			if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
-			{
-				this[last] = default!;
-			}
+            if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
+            {
+                this[last] = default!;
+            }
 
-			_count--;
-		}
+            _count--;
+        }
 
-		/// <summary>
-		/// 
-		/// </summary>
-		public void Dispose()
-		{
-			if (_heap is not null)
-			{
-				ArrayPool<T>.Shared.Return(
-					_heap,
-					RuntimeHelpers.IsReferenceOrContainsReferences<T>());
+        /// <summary>
+        /// 
+        /// </summary>
+        public void Dispose()
+        {
+            if (_heap is not null)
+            {
+                ArrayPool<T>.Shared.Return(
+                    _heap,
+                    RuntimeHelpers.IsReferenceOrContainsReferences<T>());
 
-				_heap = null;
-			}
+                _heap = null;
+            }
 
-			_count = 0;
-		}
+            _count = 0;
+        }
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="newCapacity"></param>
-		private void MoveInlineToHeap(int newCapacity)
-		{
-			T[] arr = ArrayPool<T>.Shared.Rent(newCapacity);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="newCapacity"></param>
+        private void MoveInlineToHeap(int newCapacity)
+        {
+            T[] arr = ArrayPool<T>.Shared.Rent(newCapacity);
 
-			for (int i = 0; i < _count; i++)
-			{
-				arr[i] = InlineAt(i);
-			}
+            for (int i = 0; i < _count; i++)
+            {
+                arr[i] = InlineAt(i);
+            }
 
-			_heap = arr;
-		}
+            _heap = arr;
+        }
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="requiredCapacity"></param>
-		private void GrowHeap(int requiredCapacity)
-		{
-			T[] old = _heap!;
-			int newCapacity = Math.Max(requiredCapacity, old.Length * 2);
-			T[] arr = ArrayPool<T>.Shared.Rent(newCapacity);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="requiredCapacity"></param>
+        private void GrowHeap(int requiredCapacity)
+        {
+            T[] old = _heap!;
+            int newCapacity = Math.Max(requiredCapacity, old.Length * 2);
+            T[] arr = ArrayPool<T>.Shared.Rent(newCapacity);
 
-			Array.Copy(old, 0, arr, 0, _count);
+            Array.Copy(old, 0, arr, 0, _count);
 
-			ArrayPool<T>.Shared.Return(
-				old,
-				RuntimeHelpers.IsReferenceOrContainsReferences<T>());
+            ArrayPool<T>.Shared.Return(
+                old,
+                RuntimeHelpers.IsReferenceOrContainsReferences<T>());
 
-			_heap = arr;
-		}
-	}
+            _heap = arr;
+        }
+    }
 }

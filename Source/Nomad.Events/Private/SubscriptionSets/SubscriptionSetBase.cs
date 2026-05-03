@@ -37,8 +37,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 	/// Handles common lifecycle, counters, event metadata, and callback lookup helpers.
 	/// </summary>
 	internal abstract class SubscriptionSetBase<TArgs> : ISubscriptionSet<TArgs>
-		where TArgs : struct
-	{
+		where TArgs : struct {
 		public int SubscriberCount => _subscriberCount;
 		private int _subscriberCount = 0;
 
@@ -240,7 +239,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 			try {
 				for ( int i = 0; i < subscriptionCount; i++ ) {
 					ct.ThrowIfCancellationRequested();
-					
+
 					try {
 						Task task = subscriptions[i].Invoke( args, ct ) ?? Task.CompletedTask;
 						tasks[taskCount++] = task;
@@ -256,7 +255,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 
 				if ( taskCount > 0 ) {
 #if NET10_0_OR_GREATER
-            		Task whenAll = Task.WhenAll( tasks.AsSpan( 0, taskCount ) );
+					Task whenAll = Task.WhenAll( tasks.AsSpan( 0, taskCount ) );
 #else
 					Task whenAll = Task.WhenAll( tasks.Take( taskCount ) );
 #endif

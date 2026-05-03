@@ -20,27 +20,27 @@ using Nomad.Input.ValueObjects;
 
 namespace Nomad.Input.Interfaces
 {
-	public interface IInputDispatchService
-	{
-		[Event("Nomad.Input")]
-		[EventPayload("ActionId", typeof(InternString), Order = 1)]
-		[EventPayload("Phase", typeof(InputActionPhase), Order = 2)]
-		[EventPayload("Value", typeof(bool), Order = 3)]
-		[EventPayload("TimeStamp", typeof(long), Order = 4)]
-		IGameEvent<ButtonActionEventArgs> ButtonAction { get; }
+    public interface IInputDispatchService
+    {
+        [Event("Nomad.Input")]
+        [EventPayload("ActionId", typeof(InternString), Order = 1)]
+        [EventPayload("Phase", typeof(InputActionPhase), Order = 2)]
+        [EventPayload("Value", typeof(bool), Order = 3)]
+        [EventPayload("TimeStamp", typeof(long), Order = 4)]
+        IGameEvent<ButtonActionEventArgs> ButtonAction { get; }
 
-		[Event("Nomad.Input")]
-		[EventPayload("ActionId", typeof(InternString), Order = 1)]
-		[EventPayload("Phase", typeof(InputActionPhase), Order = 2)]
-		[EventPayload("Value", typeof(float), Order = 3)]
-		[EventPayload("TimeStamp", typeof(long), Order = 4)]
-		IGameEvent<FloatActionEventArgs> FloatAction { get; }
+        [Event("Nomad.Input")]
+        [EventPayload("ActionId", typeof(InternString), Order = 1)]
+        [EventPayload("Phase", typeof(InputActionPhase), Order = 2)]
+        [EventPayload("Value", typeof(float), Order = 3)]
+        [EventPayload("TimeStamp", typeof(long), Order = 4)]
+        IGameEvent<FloatActionEventArgs> FloatAction { get; }
 
-		[Event("Nomad.Input")]
-		[EventPayload("ActionId", typeof(InternString), Order = 1)]
-		[EventPayload("Phase", typeof(InputActionPhase), Order = 2)]
-		[EventPayload("Value", typeof(Vector2), Order = 3)]
-		[EventPayload("TimeStamp", typeof(long), Order = 4)]
-		IGameEvent<AxisActionEventArgs> AxisAction { get; }
-	}
+        [Event("Nomad.Input")]
+        [EventPayload("ActionId", typeof(InternString), Order = 1)]
+        [EventPayload("Phase", typeof(InputActionPhase), Order = 2)]
+        [EventPayload("Value", typeof(Vector2), Order = 3)]
+        [EventPayload("TimeStamp", typeof(long), Order = 4)]
+        IGameEvent<AxisActionEventArgs> AxisAction { get; }
+    }
 }

@@ -34,7 +34,7 @@ namespace Nomad.Core.Util
         /// <param name="from">The starting vector.</param>
         /// <param name="to">The ending vector.</param>
         /// <returns>The Euclidean distance between the two vectors.</returns>
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float DistanceTo(this Vector2 from, Vector2 to)
         {
             return (float)Math.Sqrt((from.X - to.X) * (from.X - to.X) + (from.Y - to.Y) * (from.Y - to.Y));

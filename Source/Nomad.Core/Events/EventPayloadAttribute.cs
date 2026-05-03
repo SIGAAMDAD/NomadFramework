@@ -17,24 +17,24 @@ using System;
 
 namespace Nomad.Core.Events
 {
-	[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true, Inherited = false)]
-	public sealed class EventPayloadAttribute : Attribute
-	{
-		public string Name { get; }
-		public Type? Type { get; }
-		public string? TypeName { get; init; }
-		public int Order { get; init; }
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true, Inherited = false)]
+    public sealed class EventPayloadAttribute : Attribute
+    {
+        public string Name { get; }
+        public Type? Type { get; }
+        public string? TypeName { get; init; }
+        public int Order { get; init; }
 
-		public EventPayloadAttribute(string name, Type type)
-		{
-			Name = name;
-			Type = type;
-		}
-		
-		public EventPayloadAttribute(string name, string typeName)
-		{
-			Name = name;
-			TypeName = typeName;
-		}
-	}
+        public EventPayloadAttribute(string name, Type type)
+        {
+            Name = name;
+            Type = type;
+        }
+
+        public EventPayloadAttribute(string name, string typeName)
+        {
+            Name = name;
+            TypeName = typeName;
+        }
+    }
 }

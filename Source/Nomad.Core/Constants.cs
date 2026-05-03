@@ -165,7 +165,7 @@ namespace Nomad.Core
                     ///
                     /// </summary>
                     public const string DISTANCE_WEIGHT = "audio.DistanceWeight";
-                    
+
                     /// <summary>
                     ///
                     /// </summary>

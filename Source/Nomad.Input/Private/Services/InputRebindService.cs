@@ -35,7 +35,7 @@ namespace Nomad.Input.Private.Services {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal sealed class InputRebindService : IInputRebindService, IDisposable {
 		private const float AXIS_CAPTURE_THRESHOLD = 0.5f;
 		private const float AXIS_CAPTURE_THRESHOLD_SQUARED = AXIS_CAPTURE_THRESHOLD * AXIS_CAPTURE_THRESHOLD;

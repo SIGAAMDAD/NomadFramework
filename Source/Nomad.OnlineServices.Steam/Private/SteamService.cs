@@ -70,7 +70,7 @@ namespace Nomad.OnlineServices.Steam.Private {
 
 		public ILobbyService LobbyService {
 			get {
-				_lobbyService ??= new SteamLobbyService(_userData, _appData, _logger, _cvarSystem, _eventFactory );
+				_lobbyService ??= new SteamLobbyService( _userData, _appData, _logger, _cvarSystem, _eventFactory );
 				return _lobbyService;
 			}
 		}

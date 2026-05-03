@@ -167,9 +167,9 @@ namespace Nomad.OnlineServices.Steam.Private {
 			ct.ThrowIfCancellationRequested();
 
 			var lobbies = await SearchLobbies( info, ct );
-			
+
 #if NET10_0_OR_GREATER
-			Span<int> scores = stackalloc int[ lobbies.Count ];
+			Span<int> scores = stackalloc int[lobbies.Count];
 			scores.Clear();
 #else
 			int[] scores = ArrayPool<int>.Shared.Rent( lobbies.Count );
@@ -177,20 +177,20 @@ namespace Nomad.OnlineServices.Steam.Private {
 #endif
 
 			for ( int i = 0; i < lobbies.Count; i++ ) {
-				var lobby = lobbies[ i ];
+				var lobby = lobbies[i];
 
 				foreach ( var gameMode in info.GameModes ) {
 					if ( lobby.GameMode.Equals( gameMode, StringComparison.InvariantCulture ) ) {
-						scores[ i ] += 5;
+						scores[i] += 5;
 						break;
 					}
 				}
 				foreach ( var map in info.Maps ) {
 					if ( lobby.Map.Equals( map, StringComparison.InvariantCulture ) ) {
-						scores[ i ] += 5;
+						scores[i] += 5;
 						break;
 					}
- 				}
+				}
 			}
 
 #if !NET6_0_OR_GREATER

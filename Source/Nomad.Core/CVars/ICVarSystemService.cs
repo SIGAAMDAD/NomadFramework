@@ -30,7 +30,7 @@ namespace Nomad.Core.CVars
         /// <param name="createInfo"></param>
         /// <returns></returns>
         ICVar<T> Register<T>(CVarCreateInfo<T> createInfo);
-        
+
         /// <summary>
         ///
         /// </summary>

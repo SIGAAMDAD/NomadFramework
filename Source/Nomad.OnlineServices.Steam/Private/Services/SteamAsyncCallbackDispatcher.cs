@@ -31,8 +31,7 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 	/// </summary>
 
 	internal sealed class SteamAsyncCallbackDispatcher<TCallbackArgs, TResult> : IDisposable
-		where TCallbackArgs : struct
-	{
+		where TCallbackArgs : struct {
 		private readonly Callback<TCallbackArgs> _callback;
 
 		private readonly object _requestLock = new object();

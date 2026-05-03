@@ -84,36 +84,44 @@ namespace Nomad.Core.Numerics
         public static double LerpRadians(double fromRadians, double toRadians, double t) => fromRadians + DeltaRadians(fromRadians, toRadians) * ScalarMath.Clamp01(t);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float MoveTowardsDegrees(float current, float target, float maxDelta) {
+        public static float MoveTowardsDegrees(float current, float target, float maxDelta)
+        {
             float delta = DeltaDegrees(current, target);
-            if (MathF.Abs(delta) <= maxDelta) {
+            if (MathF.Abs(delta) <= maxDelta)
+            {
                 return target;
             }
             return current + ScalarMath.SignNonZero(delta) * maxDelta;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double MoveTowardsDegrees(double current, double target, double maxDelta) {
+        public static double MoveTowardsDegrees(double current, double target, double maxDelta)
+        {
             double delta = DeltaDegrees(current, target);
-            if (Math.Abs(delta) <= maxDelta) {
+            if (Math.Abs(delta) <= maxDelta)
+            {
                 return target;
             }
             return current + ScalarMath.SignNonZero(delta) * maxDelta;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float MoveTowardsRadians(float current, float target, float maxDelta) {
+        public static float MoveTowardsRadians(float current, float target, float maxDelta)
+        {
             float delta = DeltaRadians(current, target);
-            if (MathF.Abs(delta) <= maxDelta) {
+            if (MathF.Abs(delta) <= maxDelta)
+            {
                 return target;
             }
             return current + ScalarMath.SignNonZero(delta) * maxDelta;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double MoveTowardsRadians(double current, double target, double maxDelta) {
+        public static double MoveTowardsRadians(double current, double target, double maxDelta)
+        {
             double delta = DeltaRadians(current, target);
-            if (Math.Abs(delta) <= maxDelta) {
+            if (Math.Abs(delta) <= maxDelta)
+            {
                 return target;
             }
             return current + ScalarMath.SignNonZero(delta) * maxDelta;

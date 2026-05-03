@@ -15,18 +15,18 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Core.OnlineServices
 {
-	/// <summary>
-	/// 
-	/// </summary>
-	public readonly struct CloudStorageQuota
-	{
-		public int TotalBytes { get; }
-		public int AvailableBytes { get; }
+    /// <summary>
+    /// 
+    /// </summary>
+    public readonly struct CloudStorageQuota
+    {
+        public int TotalBytes { get; }
+        public int AvailableBytes { get; }
 
-		public CloudStorageQuota(int totalBytes, int availableBytes)
-		{
-			TotalBytes = totalBytes;
-			AvailableBytes = availableBytes;
-		}
-	}
+        public CloudStorageQuota(int totalBytes, int availableBytes)
+        {
+            TotalBytes = totalBytes;
+            AvailableBytes = availableBytes;
+        }
+    }
 }

@@ -33,7 +33,7 @@ namespace Nomad.Core.Engine.Windowing
         /// 
         /// </summary>
         Res_1024x768,
-        
+
         /// <summary>
         /// 
         /// </summary>

@@ -42,15 +42,15 @@ namespace Nomad.Core.Scene.GameObjects
         /// </summary>
         bool IsPlaying { get; }
 
-		/// <summary>
+        /// <summary>
         /// Fired when the current animation finishes.
         /// </summary>
         IGameEvent<EmptyEventArgs> AnimationFinished { get; }
 
-		/// <summary>
-		/// Fired when the current animation loops.
-		/// </summary>
-		IGameEvent<EmptyEventArgs> AnimationLooped { get; }
+        /// <summary>
+        /// Fired when the current animation loops.
+        /// </summary>
+        IGameEvent<EmptyEventArgs> AnimationLooped { get; }
 
         /// <summary>
         /// Starts playback of the current animation.

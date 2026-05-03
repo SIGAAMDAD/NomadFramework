@@ -15,10 +15,10 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Core.UI
 {
-	/// <summary>
-	/// 
-	/// </summary>
-	public interface IProgressBar : IUIElement, ISlider
-	{
-	}
+    /// <summary>
+    /// 
+    /// </summary>
+    public interface IProgressBar : IUIElement, ISlider
+    {
+    }
 }

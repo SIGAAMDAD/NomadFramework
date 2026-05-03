@@ -32,7 +32,7 @@ namespace Nomad.Input.Private.Services {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal sealed class BindingCompilerService {
 		private const int DEVICE_COUNT = (int)InputDeviceSlot.Count;
 		private const int CONTROL_COUNT = (int)InputControlId.Count;
@@ -145,13 +145,13 @@ namespace Nomad.Input.Private.Services {
 
 					switch ( binding.Kind ) {
 						case InputBindingKind.Button: {
-							int pressedBucket = GetButtonBucketIndex( binding.Button.DeviceId, binding.Button.ControlId, true );
-							int releasedBucket = GetButtonBucketIndex( binding.Button.DeviceId, binding.Button.ControlId, false );
+								int pressedBucket = GetButtonBucketIndex( binding.Button.DeviceId, binding.Button.ControlId, true );
+								int releasedBucket = GetButtonBucketIndex( binding.Button.DeviceId, binding.Button.ControlId, false );
 
-							buttonCounts[pressedBucket]++;
-							buttonCounts[releasedBucket]++;
-							break;
-						}
+								buttonCounts[pressedBucket]++;
+								buttonCounts[releasedBucket]++;
+								break;
+							}
 
 						case InputBindingKind.Axis1D:
 							axisCounts[GetAxisBucketIndex( binding.Axis1D.DeviceId, binding.Axis1D.ControlId )]++;
@@ -192,13 +192,13 @@ namespace Nomad.Input.Private.Services {
 
 				switch ( binding.Kind ) {
 					case InputBindingKind.Button: {
-						int pressedBucket = GetButtonBucketIndex( binding.Button.DeviceId, binding.Button.ControlId, true );
-						int releasedBucket = GetButtonBucketIndex( binding.Button.DeviceId, binding.Button.ControlId, false );
+							int pressedBucket = GetButtonBucketIndex( binding.Button.DeviceId, binding.Button.ControlId, true );
+							int releasedBucket = GetButtonBucketIndex( binding.Button.DeviceId, binding.Button.ControlId, false );
 
-						buttonBindingIndices[buttonWriteOffsets[pressedBucket]++] = bindingIndex;
-						buttonBindingIndices[buttonWriteOffsets[releasedBucket]++] = bindingIndex;
-						break;
-					}
+							buttonBindingIndices[buttonWriteOffsets[pressedBucket]++] = bindingIndex;
+							buttonBindingIndices[buttonWriteOffsets[releasedBucket]++] = bindingIndex;
+							break;
+						}
 					case InputBindingKind.Axis1D:
 						axisBindingIndices[axisWriteOffsets[GetAxisBucketIndex( binding.Axis1D.DeviceId, binding.Axis1D.ControlId )]++] = bindingIndex;
 						break;

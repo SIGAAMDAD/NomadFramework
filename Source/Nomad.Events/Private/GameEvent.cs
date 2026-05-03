@@ -37,8 +37,7 @@ namespace Nomad.Events.Private {
 	/// </summary>
 
 	internal sealed class GameEvent<TArgs> : IGameEvent<TArgs>
-		where TArgs : struct
-	{
+		where TArgs : struct {
 		/// <summary>
 		/// The name of the event.
 		/// </summary>

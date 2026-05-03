@@ -17,40 +17,40 @@ using Nomad.Core.Input;
 
 namespace Nomad.Input
 {
-	/// <summary>
-	/// Contains constant values used throughout the Nomad Input system.
-	/// </summary>
-	public static class Constants
-	{
-		/// <summary>
-		/// Constants related to input system events.
-		/// </summary>
-		public static class Events
-		{
-			/// <summary>
-			/// The namespace prefix for all input-related events.
-			/// </summary>
-			public const string NAMESPACE = "Nomad.Input";
+    /// <summary>
+    /// Contains constant values used throughout the Nomad Input system.
+    /// </summary>
+    public static class Constants
+    {
+        /// <summary>
+        /// Constants related to input system events.
+        /// </summary>
+        public static class Events
+        {
+            /// <summary>
+            /// The namespace prefix for all input-related events.
+            /// </summary>
+            public const string NAMESPACE = "Nomad.Input";
 
-			/// <summary>
-			/// Event name for axis action events (2D vector inputs like joysticks).
-			/// </summary>
-			public const string AXIS_ACTION = NAMESPACE + ".AxisAction";
+            /// <summary>
+            /// Event name for axis action events (2D vector inputs like joysticks).
+            /// </summary>
+            public const string AXIS_ACTION = NAMESPACE + ".AxisAction";
 
-			/// <summary>
-			/// Event name for float action events (1D scalar inputs).
-			/// </summary>
-			public const string FLOAT_ACTION = NAMESPACE + ".FloatAction";
+            /// <summary>
+            /// Event name for float action events (1D scalar inputs).
+            /// </summary>
+            public const string FLOAT_ACTION = NAMESPACE + ".FloatAction";
 
-			/// <summary>
-			/// Event name for button action events (discrete button presses).
-			/// </summary>
-			public const string BUTTON_ACTION = NAMESPACE + ".ButtonAction";
+            /// <summary>
+            /// Event name for button action events (discrete button presses).
+            /// </summary>
+            public const string BUTTON_ACTION = NAMESPACE + ".ButtonAction";
 
-			/// <summary>
-			/// Event name for whenever a rebinding process results in a bind collision.
-			/// </summary>
-			public const string BIND_COLLISION = NAMESPACE + ".BindCollision";
-		}
-	}
+            /// <summary>
+            /// Event name for whenever a rebinding process results in a bind collision.
+            /// </summary>
+            public const string BIND_COLLISION = NAMESPACE + ".BindCollision";
+        }
+    }
 }

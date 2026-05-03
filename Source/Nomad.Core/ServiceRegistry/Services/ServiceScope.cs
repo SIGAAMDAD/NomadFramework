@@ -141,7 +141,7 @@ namespace Nomad.Core.ServiceRegistry.Services
                 yield return s;
             }
         }
-        
+
         /// <summary>
         /// 
         /// </summary>

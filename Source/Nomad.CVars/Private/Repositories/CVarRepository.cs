@@ -35,7 +35,7 @@ namespace Nomad.CVars.Private.Repositories {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal sealed class CVarRepository {
 		public ICollection<ICVar> CVars => _cvars.Values;
 		private readonly ConcurrentDictionary<InternString, ICVar> _cvars = new();
@@ -208,7 +208,7 @@ namespace Nomad.CVars.Private.Repositories {
 				_logger.PrintError( $"CVarSystem.GetCVar: no cvar found for name '{name}'!" );
 				return null;
 			}
-			return cvar.Type == typeof(T).GetCVarType() ? cvar as ICVar<T> : throw new CVarTypeMismatchException( typeof( T ), cvar.Type.GetSystemType() );
+			return cvar.Type == typeof( T ).GetCVarType() ? cvar as ICVar<T> : throw new CVarTypeMismatchException( typeof( T ), cvar.Type.GetSystemType() );
 		}
 
 		/*

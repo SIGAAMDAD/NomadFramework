@@ -31,7 +31,7 @@ namespace Nomad.Events.Private.EventTypes {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal static class EventScheduler {
 		private sealed class ScheduledItem : IDisposable {
 			public ScheduledItem( Action callback, SynchronizationContext? context, int publisherThreadId, long dueTimestamp, long intervalTicks, long order ) {
@@ -81,7 +81,7 @@ namespace Nomad.Events.Private.EventTypes {
 			RangeGuard.ThrowIfNegative( intervalMS, nameof( intervalMS ) );
 
 			ScheduledItem item = new(
-				callback ?? throw new ArgumentNullException( nameof( callback )),
+				callback ?? throw new ArgumentNullException( nameof( callback ) ),
 				SynchronizationContext.Current,
 				Environment.CurrentManagedThreadId,
 				Stopwatch.GetTimestamp() + ToTimestampTicks( dueMS ),
@@ -204,7 +204,7 @@ namespace Nomad.Events.Private.EventTypes {
 		private static long ToTimestampTicks( int milliseconds ) {
 			return milliseconds <= 0
 				? 0
-				: ( (long)milliseconds * Stopwatch.Frequency + 999L ) / 1000L;
+				: ((long)milliseconds * Stopwatch.Frequency + 999L) / 1000L;
 		}
 
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
@@ -212,7 +212,7 @@ namespace Nomad.Events.Private.EventTypes {
 			long remainingTicks = dueTimestamp - Stopwatch.GetTimestamp();
 			int dueMS = remainingTicks <= 0
 				? 0
-				: (int)( ( remainingTicks * 1000L + Stopwatch.Frequency - 1L ) / Stopwatch.Frequency );
+				: (int)((remainingTicks * 1000L + Stopwatch.Frequency - 1L) / Stopwatch.Frequency);
 			_timer.Change( dueMS, Timeout.Infinite );
 		}
 
@@ -227,7 +227,7 @@ namespace Nomad.Events.Private.EventTypes {
 			int index = _heap.Count - 1;
 
 			while ( index > 0 ) {
-				int parentIndex = ( index - 1 ) >> 1;
+				int parentIndex = (index - 1) >> 1;
 				if ( Compare( item, _heap[parentIndex] ) >= 0 ) {
 					break;
 				}
@@ -252,7 +252,7 @@ namespace Nomad.Events.Private.EventTypes {
 			int index = 0;
 			int half = _heap.Count >> 1;
 			while ( index < half ) {
-				int leftIndex = ( index << 1 ) + 1;
+				int leftIndex = (index << 1) + 1;
 				int rightIndex = leftIndex + 1;
 				int bestChildIndex = rightIndex < _heap.Count && Compare( _heap[rightIndex], _heap[leftIndex] ) < 0
 					? rightIndex

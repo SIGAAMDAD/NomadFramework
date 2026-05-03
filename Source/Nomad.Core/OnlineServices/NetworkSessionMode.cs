@@ -15,15 +15,15 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Core.OnlineServices
 {
-	/// <summary>
-	/// 
-	/// </summary>
-	public enum NetworkSessionMode : byte
-	{
-		Offline = 0,
-		Host,
-		Client,
+    /// <summary>
+    /// 
+    /// </summary>
+    public enum NetworkSessionMode : byte
+    {
+        Offline = 0,
+        Host,
+        Client,
 
-		Count
-	}
+        Count
+    }
 }

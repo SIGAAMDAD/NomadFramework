@@ -18,36 +18,38 @@ using System.Numerics;
 
 namespace Nomad.Core.Physics.ValueObjects
 {
-	public readonly struct RaycastQuery
-	{
-		public Vector2 Origin { get; }
-		public Vector2 Direction { get; } // normalized by constructor
-		public float MaxDistance { get; }
-		public CollisionLayerMask LayerMask { get; }
-		public RaycastFlags Flags { get; }
+    public readonly struct RaycastQuery
+    {
+        public Vector2 Origin { get; }
+        public Vector2 Direction { get; } // normalized by constructor
+        public float MaxDistance { get; }
+        public CollisionLayerMask LayerMask { get; }
+        public RaycastFlags Flags { get; }
 
-		public RaycastQuery(
-			Vector2 origin,
-			Vector2 direction,
-			float maxDistance,
-			CollisionLayerMask layerMask,
-			RaycastFlags flags = RaycastFlags.None)
-		{
-			float directionLengthSquared = direction.LengthSquared();
-			if (directionLengthSquared <= 0.0f) {
-				throw new ArgumentException("Direction must be non-zero.", nameof(direction));
-			}
-			if (maxDistance <= 0.0f && !float.IsPositiveInfinity(maxDistance)) {
-				throw new ArgumentOutOfRangeException(nameof(maxDistance));
-			}
+        public RaycastQuery(
+            Vector2 origin,
+            Vector2 direction,
+            float maxDistance,
+            CollisionLayerMask layerMask,
+            RaycastFlags flags = RaycastFlags.None)
+        {
+            float directionLengthSquared = direction.LengthSquared();
+            if (directionLengthSquared <= 0.0f)
+            {
+                throw new ArgumentException("Direction must be non-zero.", nameof(direction));
+            }
+            if (maxDistance <= 0.0f && !float.IsPositiveInfinity(maxDistance))
+            {
+                throw new ArgumentOutOfRangeException(nameof(maxDistance));
+            }
 
-			Origin = origin;
-			Direction = Vector2.Normalize(direction);
-			MaxDistance = maxDistance;
-			LayerMask = layerMask;
-			Flags = flags;
-		}
+            Origin = origin;
+            Direction = Vector2.Normalize(direction);
+            MaxDistance = maxDistance;
+            LayerMask = layerMask;
+            Flags = flags;
+        }
 
-		public Vector2 GetEndPoint() => Origin + (Direction * MaxDistance);
-	}
+        public Vector2 GetEndPoint() => Origin + (Direction * MaxDistance);
+    }
 }

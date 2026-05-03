@@ -17,25 +17,25 @@ using System;
 
 namespace Nomad.Core.OnlineServices
 {
-	/// <summary>
-	/// 
-	/// </summary>
-	public readonly struct PeerId : IEquatable<PeerId>
-	{
-		public Guid Id { get; }
+    /// <summary>
+    /// 
+    /// </summary>
+    public readonly struct PeerId : IEquatable<PeerId>
+    {
+        public Guid Id { get; }
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="id"></param>
-		public PeerId(Guid id)
-		{
-			Id = id;
-		}
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        public PeerId(Guid id)
+        {
+            Id = id;
+        }
 
-		public bool Equals(PeerId other)
-		{
-			return Id == other.Id;
-		}
-	}
+        public bool Equals(PeerId other)
+        {
+            return Id == other.Id;
+        }
+    }
 }

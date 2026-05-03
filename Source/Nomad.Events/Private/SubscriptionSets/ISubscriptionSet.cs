@@ -31,8 +31,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 	/// </summary>
 
 	internal interface ISubscriptionSet<TArgs> : IDisposable
-		where TArgs : struct
-	{
+		where TArgs : struct {
 		/// <summary>
 		/// 
 		/// </summary>

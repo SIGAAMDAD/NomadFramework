@@ -20,46 +20,46 @@ using Nomad.Input.ValueObjects;
 
 namespace Nomad.Input.Interfaces
 {
-	/// <summary>
-	/// 
-	/// </summary>
-	public interface IBindResolver
-	{
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="mappingName"></param>
-		/// <returns></returns>
-		IReadOnlyList<InputActionDefinition> GetBindMapping(string mappingName);
+    /// <summary>
+    /// 
+    /// </summary>
+    public interface IBindResolver
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mappingName"></param>
+        /// <returns></returns>
+        IReadOnlyList<InputActionDefinition> GetBindMapping(string mappingName);
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="scheme"></param>
-		/// <returns></returns>
-		IReadOnlyList<string> GetMappingsForScheme(InputScheme scheme);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="scheme"></param>
+        /// <returns></returns>
+        IReadOnlyList<string> GetMappingsForScheme(InputScheme scheme);
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="scheme"></param>
-		/// <returns></returns>
-		string? GetActiveMapping(InputScheme scheme);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="scheme"></param>
+        /// <returns></returns>
+        string? GetActiveMapping(InputScheme scheme);
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="scheme"></param>
-		/// <param name="mappingName"></param>
-		/// <returns></returns>
-		bool LoadMapping(InputScheme scheme, string mappingName);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="scheme"></param>
+        /// <param name="mappingName"></param>
+        /// <returns></returns>
+        bool LoadMapping(InputScheme scheme, string mappingName);
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="mappingName"></param>
-		/// <param name="actionId"></param>
-		/// <param name="bindings"></param>
-		void SetActionBindings( string mappingName, string actionId, ImmutableArray<InputBindingDefinition> bindings );
-	}
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mappingName"></param>
+        /// <param name="actionId"></param>
+        /// <param name="bindings"></param>
+        void SetActionBindings(string mappingName, string actionId, ImmutableArray<InputBindingDefinition> bindings);
+    }
 }

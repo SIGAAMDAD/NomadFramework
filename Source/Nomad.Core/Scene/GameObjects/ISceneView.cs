@@ -17,24 +17,24 @@ using System.Numerics;
 
 namespace Nomad.Core.Scene.GameObjects
 {
-	/// <summary>
-	/// 
-	/// </summary>
-	public interface ISceneView : ISceneObject
-	{
-		/// <summary>
-		/// 
-		/// </summary>
-		Vector2 Size { get; set; }
+    /// <summary>
+    /// 
+    /// </summary>
+    public interface ISceneView : ISceneObject
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        Vector2 Size { get; set; }
 
-		/// <summary>
-		/// 
-		/// </summary>
-		bool IsActive { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        bool IsActive { get; set; }
 
-		/// <summary>
-		/// 
-		/// </summary>
-		ICamera2D Camera { get; set; }
-	}
+        /// <summary>
+        /// 
+        /// </summary>
+        ICamera2D Camera { get; set; }
+    }
 }

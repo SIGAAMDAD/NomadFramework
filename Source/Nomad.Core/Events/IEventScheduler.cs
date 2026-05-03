@@ -17,32 +17,32 @@ using System;
 
 namespace Nomad.Core.Events
 {
-	/// <summary>
-	/// 
-	/// </summary>
-	public interface IEventScheduler : IDisposable
-	{
-		/// <summary>
-		/// Schedules a one-time publication after a delay.
-		/// </summary>
-		/// <typeparam name="TArgs"></typeparam>
-		/// <param name="gameEvent"></param>
-		/// <param name="payload"></param>
-		/// <param name="dueTime"></param>
-		/// <returns></returns>
-		IGameEvent Schedule<TArgs>(IGameEvent<TArgs> gameEvent, TArgs payload, TimeSpan dueTime)
-			where TArgs : struct;
-		
-		/// <summary>
-		/// Schedules a periodic publication after a delay.
-		/// </summary>
-		/// <typeparam name="TArgs"></typeparam>
-		/// <param name="gameEvent"></param>
-		/// <param name="payload"></param>
-		/// <param name="dueTime"></param>
-		/// <param name="period"></param>
-		/// <returns></returns>
-		IGameEvent SchedulePeriodic<TArgs>(IGameEvent<TArgs> gameEvent, TArgs payload, TimeSpan dueTime, TimeSpan period)
-			where TArgs : struct;
-	}
+    /// <summary>
+    /// 
+    /// </summary>
+    public interface IEventScheduler : IDisposable
+    {
+        /// <summary>
+        /// Schedules a one-time publication after a delay.
+        /// </summary>
+        /// <typeparam name="TArgs"></typeparam>
+        /// <param name="gameEvent"></param>
+        /// <param name="payload"></param>
+        /// <param name="dueTime"></param>
+        /// <returns></returns>
+        IGameEvent Schedule<TArgs>(IGameEvent<TArgs> gameEvent, TArgs payload, TimeSpan dueTime)
+            where TArgs : struct;
+
+        /// <summary>
+        /// Schedules a periodic publication after a delay.
+        /// </summary>
+        /// <typeparam name="TArgs"></typeparam>
+        /// <param name="gameEvent"></param>
+        /// <param name="payload"></param>
+        /// <param name="dueTime"></param>
+        /// <param name="period"></param>
+        /// <returns></returns>
+        IGameEvent SchedulePeriodic<TArgs>(IGameEvent<TArgs> gameEvent, TArgs payload, TimeSpan dueTime, TimeSpan period)
+            where TArgs : struct;
+    }
 }

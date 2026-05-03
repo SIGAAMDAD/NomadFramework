@@ -15,29 +15,29 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Input.ValueObjects
 {
-	/// <summary>
-	/// Defines the types of values that input actions can produce.
-	/// </summary>
-	public enum InputValueType : byte
-	{
-		/// <summary>
-		/// A discrete button press/release value.
-		/// </summary>
-		Button,
+    /// <summary>
+    /// Defines the types of values that input actions can produce.
+    /// </summary>
+    public enum InputValueType : byte
+    {
+        /// <summary>
+        /// A discrete button press/release value.
+        /// </summary>
+        Button,
 
-		/// <summary>
-		/// A single floating-point value (1D axis).
-		/// </summary>
-		Float,
+        /// <summary>
+        /// A single floating-point value (1D axis).
+        /// </summary>
+        Float,
 
-		/// <summary>
-		/// A 2D vector value (2D axis like joystick).
-		/// </summary>
-		Vector2,
+        /// <summary>
+        /// A 2D vector value (2D axis like joystick).
+        /// </summary>
+        Vector2,
 
-		/// <summary>
-		/// Sentinel value representing the total number of input value types.
-		/// </summary>
-		Count
-	}
+        /// <summary>
+        /// Sentinel value representing the total number of input value types.
+        /// </summary>
+        Count
+    }
 }

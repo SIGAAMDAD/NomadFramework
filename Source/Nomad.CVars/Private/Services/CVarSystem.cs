@@ -59,7 +59,7 @@ namespace Nomad.CVars.Private.Services {
 		/// <exception cref="ArgumentNullException"></exception>
 		public CVarSystem( IGameEventRegistryService eventFactory, ILoggerService logger ) {
 			ArgumentGuard.ThrowIfNull( logger, nameof( logger ) );
-			
+
 			_eventFactory = eventFactory ?? throw new ArgumentNullException( nameof( eventFactory ) );
 			_repository = new CVarRepository( logger, eventFactory );
 

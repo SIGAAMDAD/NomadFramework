@@ -26,7 +26,7 @@ namespace Nomad.Input.Private.ValueObjects {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal sealed class CompiledBindingGraph {
 		public static readonly CompiledBindingGraph Empty = new(
 			Array.Empty<CompiledBinding>(),

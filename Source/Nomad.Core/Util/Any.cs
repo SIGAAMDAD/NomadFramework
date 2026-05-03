@@ -560,15 +560,15 @@ namespace Nomad.Core.Util
         {
             return obj is Any any && any == this;
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-		public override int GetHashCode()
-		{
-			return base.GetHashCode();
-		}
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
 
         /// <summary>
         /// Gets the .NET <see cref="Type"/> corresponding to the specified <see cref="AnyType"/>.

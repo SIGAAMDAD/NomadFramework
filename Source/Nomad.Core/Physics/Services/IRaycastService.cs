@@ -17,11 +17,11 @@ using Nomad.Core.Physics.ValueObjects;
 
 namespace Nomad.Core.Physics.Services
 {
-	/// <summary>
-	/// 
-	/// </summary>
-	public interface IRaycastService
-	{
-		bool TryRaycast(in RaycastQuery query, out RaycastHit hit);
-	}
+    /// <summary>
+    /// 
+    /// </summary>
+    public interface IRaycastService
+    {
+        bool TryRaycast(in RaycastQuery query, out RaycastHit hit);
+    }
 }

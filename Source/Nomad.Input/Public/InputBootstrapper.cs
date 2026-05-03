@@ -30,34 +30,34 @@ namespace Nomad.Input
     /// </summary>
     public sealed class InputBootstrapper : IBootstrapper
     {
-		private IInputSystem? _inputSystem;
+        private IInputSystem? _inputSystem;
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="registry"></param>
-		/// <param name="locator"></param>
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="registry"></param>
+        /// <param name="locator"></param>
         public void Initialize(IServiceRegistry registry, IServiceLocator locator)
-		{
-			ArgumentGuard.ThrowIfNull(registry);
-			ArgumentGuard.ThrowIfNull(locator);
+        {
+            ArgumentGuard.ThrowIfNull(registry);
+            ArgumentGuard.ThrowIfNull(locator);
 
-			_inputSystem = new InputSystem(
-				locator.GetService<IFileSystem>(),
-				locator.GetService<ICVarSystemService>(),
-				locator.GetService<ILoggerService>(),
-				locator.GetService<IGameEventRegistryService>(),
-				registry
-			);
-			registry.AddSingleton(_inputSystem);
-		}
+            _inputSystem = new InputSystem(
+                locator.GetService<IFileSystem>(),
+                locator.GetService<ICVarSystemService>(),
+                locator.GetService<ILoggerService>(),
+                locator.GetService<IGameEventRegistryService>(),
+                registry
+            );
+            registry.AddSingleton(_inputSystem);
+        }
 
-		/// <summary>
-		/// 
-		/// </summary>
+        /// <summary>
+        /// 
+        /// </summary>
         public void Shutdown()
-		{
-			_inputSystem?.Dispose();
-		}
+        {
+            _inputSystem?.Dispose();
+        }
     }
 }

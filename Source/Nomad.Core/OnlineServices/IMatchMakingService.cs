@@ -41,7 +41,7 @@ namespace Nomad.Core.OnlineServices
         [Event(nameSpace: "Nomad.Core.OnlineServices")]
         [EventPayload("LobbyId", typeof(Guid))]
         IGameEvent<MatchFoundEventArgs> MatchFound { get; }
-        
+
         /// <summary>
         /// 
         /// </summary>

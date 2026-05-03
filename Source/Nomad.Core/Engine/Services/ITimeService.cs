@@ -15,13 +15,13 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Core.Engine.Services
 {
-	/// <summary>
-	/// 
-	/// </summary>
-	public interface ITimeService
-	{
-		float TimeScale { get; }
+    /// <summary>
+    /// 
+    /// </summary>
+    public interface ITimeService
+    {
+        float TimeScale { get; }
 
-		void SetTimeScale(float timeScale);
-	}
+        void SetTimeScale(float timeScale);
+    }
 }

@@ -144,8 +144,7 @@ namespace Nomad.Events {
 		/// <param name="flags"></param>
 		/// <returns></returns>
 		public IGameEvent<TArgs> GetEvent<TArgs>( string name, string nameSpace, EventFlags flags = EventFlags.Default )
-			where TArgs : struct
-		{
+			where TArgs : struct {
 			var internedName = new InternString( name );
 			var internedNameSpace = new InternString( nameSpace );
 			var key = new EventKey(
@@ -177,8 +176,7 @@ namespace Nomad.Events {
 		/// <param name="gameEvent">When this method returns, contains the event if found; otherwise <c>null</c>.</param>
 		/// <returns><c>true</c> if the event exists; otherwise <c>false</c>.</returns>
 		public bool TryGetEvent<TArgs>( string name, string nameSpace, out IGameEvent<TArgs>? gameEvent )
-			where TArgs : struct
-		{
+			where TArgs : struct {
 			var key = new EventKey(
 				name: new InternString( name ),
 				nameSpace: new InternString( nameSpace ),
@@ -207,8 +205,7 @@ namespace Nomad.Events {
 		/// <param name="nameSpace"></param>
 		/// <returns></returns>
 		public bool TryRemoveEvent<TArgs>( string name, string nameSpace )
-			where TArgs : struct
-		{
+			where TArgs : struct {
 			var key = new EventKey(
 				name: new InternString( name ),
 				nameSpace: new InternString( nameSpace ),

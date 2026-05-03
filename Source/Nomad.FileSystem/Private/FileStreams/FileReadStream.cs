@@ -65,8 +65,7 @@ namespace Nomad.FileSystem.Private.FileStreams {
 		/// </summary>
 		/// <param name="config">The path to the file to read from.</param>
 		public FileReadStream( FileReadConfig config )
-			: base( config.FilePath!, FileMode.Open, FileAccess.Read )
-		{
+			: base( config.FilePath!, FileMode.Open, FileAccess.Read ) {
 			ArgumentGuard.ThrowIfNull( fileStream );
 			_format = config.Format;
 			switch ( _format ) {

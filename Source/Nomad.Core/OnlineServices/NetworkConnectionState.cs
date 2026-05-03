@@ -15,19 +15,19 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Core.OnlineServices
 {
-	/// <summary>
-	/// 
-	/// </summary>
-	public enum NetworkConnectionState : byte
-	{
-		Disconnected = 0,
-		StartingHost,
-		Hosting,
-		Connecting,
-		Connected,
-		Stopping,
-		Faulted,
+    /// <summary>
+    /// 
+    /// </summary>
+    public enum NetworkConnectionState : byte
+    {
+        Disconnected = 0,
+        StartingHost,
+        Hosting,
+        Connecting,
+        Connected,
+        Stopping,
+        Faulted,
 
-		Count
-	}
+        Count
+    }
 }

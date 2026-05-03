@@ -41,7 +41,7 @@ namespace Nomad.Input.Private.Services {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal sealed class InputSystem : IInputSystem {
 		public InputScheme Mode => _mode;
 		private InputScheme _mode;
@@ -58,7 +58,7 @@ namespace Nomad.Input.Private.Services {
 		private readonly CompiledBindingRepository _compiledBindings;
 		private readonly IBindResolver _bindResolver;
 		private readonly IInputRebindService _rebindService;
-		
+
 		private readonly IDisposable _pauseStateChanged;
 		private readonly IDisposable _keyboardEvent;
 		private readonly IDisposable _mouseButtonEvent;
@@ -111,27 +111,27 @@ namespace Nomad.Input.Private.Services {
 			_pauseStateChanged = eventFactory
 				.GetEvent<PauseStateChangedEventArgs>( PauseStateChangedEventArgs.Name, PauseStateChangedEventArgs.NameSpace )
 				.Subscribe( OnPauseStateChanged );
-			
+
 			_keyboardEvent = eventFactory
 				.GetEvent<KeyboardEventArgs>( KeyboardEventArgs.Name, KeyboardEventArgs.NameSpace )
 				.Subscribe( OnKeyboardEventTriggered );
-			
+
 			_mouseButtonEvent = eventFactory
 				.GetEvent<MouseButtonEventArgs>( MouseButtonEventArgs.Name, MouseButtonEventArgs.NameSpace )
 				.Subscribe( OnMouseButtonEventTriggered );
-			
+
 			_mouseMotionEvent = eventFactory
 				.GetEvent<MouseMotionEventArgs>( MouseMotionEventArgs.Name, MouseMotionEventArgs.NameSpace )
 				.Subscribe( OnMouseMotionEventTriggered );
-			
+
 			_mousePositionChangedEvent = eventFactory
 				.GetEvent<MousePositionChangedEventArgs>( MousePositionChangedEventArgs.Name, MousePositionChangedEventArgs.NameSpace )
 				.Subscribe( OnMousePositionChangedEventTriggered );
-			
+
 			_gamepadAxisEvent = eventFactory
 				.GetEvent<GamepadAxisEventArgs>( GamepadAxisEventArgs.Name, GamepadAxisEventArgs.NameSpace )
 				.Subscribe( OnGamepadAxisEventTriggered );
-			
+
 			_gamepadButtonEvent = eventFactory
 				.GetEvent<GamepadButtonEventArgs>( GamepadButtonEventArgs.Name, GamepadButtonEventArgs.NameSpace )
 				.Subscribe( OnGamepadButtonEventTriggered );
@@ -150,7 +150,7 @@ namespace Nomad.Input.Private.Services {
 			_gamepadButtonEvent.Dispose();
 			_keyboardEvent.Dispose();
 
-			( _rebindService as IDisposable ).Dispose();
+			(_rebindService as IDisposable).Dispose();
 			_bindRepository.Dispose();
 			_stateService.Dispose();
 

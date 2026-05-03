@@ -18,55 +18,55 @@ using Nomad.Input.ValueObjects;
 
 namespace Nomad.Input.Interfaces
 {
-	/// <summary>
-	/// 
-	/// </summary>
-	public interface IInputRebindService
-	{
-		/// <summary>
-		/// 
-		/// </summary>
-		bool IsRebinding { get; }
+    /// <summary>
+    /// 
+    /// </summary>
+    public interface IInputRebindService
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        bool IsRebinding { get; }
 
-		/// <summary>
-		/// 
-		/// </summary>
-		InputRebindRequest? CurrentRequest { get; }
+        /// <summary>
+        /// 
+        /// </summary>
+        InputRebindRequest? CurrentRequest { get; }
 
-		/// <summary>
-		/// 
-		/// </summary>
-		event Action<InputRebindRequest>? RebindStarted;
+        /// <summary>
+        /// 
+        /// </summary>
+        event Action<InputRebindRequest>? RebindStarted;
 
-		/// <summary>
-		/// 
-		/// </summary>
-		event Action<InputRebindRequest>? RebindCanceled;
+        /// <summary>
+        /// 
+        /// </summary>
+        event Action<InputRebindRequest>? RebindCanceled;
 
-		/// <summary>
-		/// 
-		/// </summary>
-		event Action<InputRebindResult>? RebindCompleted;
+        /// <summary>
+        /// 
+        /// </summary>
+        event Action<InputRebindResult>? RebindCompleted;
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="request"></param>
-		/// <returns></returns>
-		bool BeginRebind(in InputRebindRequest request);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        bool BeginRebind(in InputRebindRequest request);
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns></returns>
-		bool CancelRebind();
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        bool CancelRebind();
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="request"></param>
-		/// <param name="binding"></param>
-		/// <returns></returns>
-		bool ApplyBinding(in InputRebindRequest request, in InputBindingDefinition binding);
-	}
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="binding"></param>
+        /// <returns></returns>
+        bool ApplyBinding(in InputRebindRequest request, in InputBindingDefinition binding);
+    }
 }

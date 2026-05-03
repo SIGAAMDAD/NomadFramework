@@ -36,8 +36,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 	/// DO NOT MULTITHREAD THIS, YOU WILL GET RACE CONDITIONS!!!
 	/// </remarks>
 	internal sealed class LockFreeSubscriptionSet<TArgs> : SubscriptionSetBase<TArgs>
-		where TArgs : struct
-	{
+		where TArgs : struct {
 		private readonly SubscriptionCache<TArgs, EventCallback<TArgs>> _genericSubscriptions;
 
 		/*
@@ -52,8 +51,7 @@ namespace Nomad.Events.Private.SubscriptionSets {
 		/// <param name="logger"></param>
 		/// <param name="exceptionPolicy"></param>
 		public LockFreeSubscriptionSet( IGameEvent<TArgs> eventData, ILoggerService logger, EventExceptionPolicy exceptionPolicy )
-			: base( eventData, logger, exceptionPolicy )
-		{
+			: base( eventData, logger, exceptionPolicy ) {
 			_genericSubscriptions = new SubscriptionCache<TArgs, EventCallback<TArgs>>();
 		}
 

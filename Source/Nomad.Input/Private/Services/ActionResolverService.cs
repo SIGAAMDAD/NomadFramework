@@ -32,7 +32,7 @@ namespace Nomad.Input.Private.Services {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal sealed class ActionResolverService {
 		private const int RESOLVED_ACTION_BUFFER_RING_SIZE = 8;
 
@@ -258,53 +258,53 @@ namespace Nomad.Input.Private.Services {
 		private bool TryEvaluateBinding( in CompiledBinding binding, out InputValueType valueType, out bool buttonValue, out float floatValue, out Vector2 vector2Value, out float magnitude ) {
 			switch ( binding.Kind ) {
 				case InputBindingKind.Button: {
-					bool pressed = _stateService.IsPressed( binding.Button.DeviceId, binding.Button.ControlId );
-					valueType = InputValueType.Button;
-					buttonValue = pressed;
-					floatValue = 0.0f;
-					vector2Value = default;
-					magnitude = pressed ? 1.0f : 0.0f;
-					return true;
-				}
+						bool pressed = _stateService.IsPressed( binding.Button.DeviceId, binding.Button.ControlId );
+						valueType = InputValueType.Button;
+						buttonValue = pressed;
+						floatValue = 0.0f;
+						vector2Value = default;
+						magnitude = pressed ? 1.0f : 0.0f;
+						return true;
+					}
 
 				case InputBindingKind.Axis1D: {
-					float value = ApplyAxis1DProcessors(
-						_stateService.GetAxis1D( binding.Axis1D.DeviceId, binding.Axis1D.ControlId ),
-						in binding.Axis1D
-					);
+						float value = ApplyAxis1DProcessors(
+							_stateService.GetAxis1D( binding.Axis1D.DeviceId, binding.Axis1D.ControlId ),
+							in binding.Axis1D
+						);
 
-					valueType = InputValueType.Float;
-					buttonValue = false;
-					floatValue = value;
-					vector2Value = default;
-					magnitude = MathF.Abs( value );
-					return true;
-				}
+						valueType = InputValueType.Float;
+						buttonValue = false;
+						floatValue = value;
+						vector2Value = default;
+						magnitude = MathF.Abs( value );
+						return true;
+					}
 
 				case InputBindingKind.Axis2D: {
-					Vector2 value = ApplyAxis2DProcessors(
-						_stateService.GetAxis2D( binding.Axis2D.DeviceId, binding.Axis2D.ControlId ),
-						in binding.Axis2D
-					);
+						Vector2 value = ApplyAxis2DProcessors(
+							_stateService.GetAxis2D( binding.Axis2D.DeviceId, binding.Axis2D.ControlId ),
+							in binding.Axis2D
+						);
 
-					valueType = InputValueType.Vector2;
-					buttonValue = false;
-					floatValue = 0.0f;
-					vector2Value = value;
-					magnitude = value.LengthSquared();
-					return true;
-				}
+						valueType = InputValueType.Vector2;
+						buttonValue = false;
+						floatValue = 0.0f;
+						vector2Value = value;
+						magnitude = value.LengthSquared();
+						return true;
+					}
 
 				case InputBindingKind.Delta2D: {
-					Vector2 value = ApplyDelta2DProcessors( _stateService.MouseDelta, in binding.Delta2D );
+						Vector2 value = ApplyDelta2DProcessors( _stateService.MouseDelta, in binding.Delta2D );
 
-					valueType = InputValueType.Vector2;
-					buttonValue = false;
-					floatValue = 0.0f;
-					vector2Value = value;
-					magnitude = value.LengthSquared();
-					return true;
-				}
+						valueType = InputValueType.Vector2;
+						buttonValue = false;
+						floatValue = 0.0f;
+						vector2Value = value;
+						magnitude = value.LengthSquared();
+						return true;
+					}
 
 				default:
 					valueType = default;

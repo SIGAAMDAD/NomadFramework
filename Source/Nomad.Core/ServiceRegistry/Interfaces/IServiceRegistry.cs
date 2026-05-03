@@ -19,7 +19,7 @@ using Nomad.Core.ServiceRegistry.Services;
 
 namespace Nomad.Core.ServiceRegistry.Interfaces
 {
-    
+
     /// <summary>
     /// 
     /// </summary>
@@ -44,7 +44,7 @@ namespace Nomad.Core.ServiceRegistry.Interfaces
         /// <returns></returns>
         IServiceRegistry AddSingleton<TService>(TService instance)
             where TService : class;
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -74,7 +74,7 @@ namespace Nomad.Core.ServiceRegistry.Interfaces
         IServiceScope AddScoped<TService, TImplementation>()
             where TService : class
             where TImplementation : class, TService;
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -82,7 +82,7 @@ namespace Nomad.Core.ServiceRegistry.Interfaces
         /// <returns></returns>
         bool IsRegistered<TService>()
             where TService : class;
-        
+
         /// <summary>
         /// 
         /// </summary>

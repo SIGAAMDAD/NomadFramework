@@ -32,10 +32,9 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 	/// </summary>
 
 	internal sealed class SteamAsyncCallResultDispatcher<TCallbackArgs, TResult> : IDisposable
-		where TCallbackArgs : struct
-	{
+		where TCallbackArgs : struct {
 		private readonly CallResult<TCallbackArgs> _callback;
-	
+
 		private readonly object _requestLock = new object();
 		private TaskCompletionSource<TCallbackArgs>? _currentTcs;
 		private Task<TResult>? _currentRequest;

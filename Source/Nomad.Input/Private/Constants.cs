@@ -21,9 +21,9 @@ namespace Nomad.Input.Private {
 			public const string DEFAULTS_PATH = NAMESPACE + ".DefaultsPath";
 			public const string KEYBOARD_MOUSE_MAPPING = NAMESPACE + ".KeyboardMouseMapping";
 			public const string GAMEPAD_MAPPING = NAMESPACE + ".GamepadMapping";
-		
+
 			public const string INPUT_DELAY_MS = NAMESPACE + ".InputDelayMS";
-			
+
 			public const string MOUSE_SENSITIVITY = NAMESPACE + ".MouseSensitivity";
 			public const string MOUSE_INVERT_X = NAMESPACE + ".MouseInvertX";
 			public const string MOUSE_INVERT_Y = NAMESPACE + ".MouseInvertY";

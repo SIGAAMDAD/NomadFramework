@@ -15,18 +15,18 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Input.ValueObjects
 {
-	/// <summary>
-	/// 
-	/// </summary>
-	public readonly struct InputRebindResult
-	{
-		public InputRebindRequest Request { get; }
-		public InputBindingDefinition Binding { get; }
+    /// <summary>
+    /// 
+    /// </summary>
+    public readonly struct InputRebindResult
+    {
+        public InputRebindRequest Request { get; }
+        public InputBindingDefinition Binding { get; }
 
-		public InputRebindResult(in InputRebindRequest request, in InputBindingDefinition binding)
-		{
-			Request = request;
-			Binding = binding;
-		}
-	}
+        public InputRebindResult(in InputRebindRequest request, in InputBindingDefinition binding)
+        {
+            Request = request;
+            Binding = binding;
+        }
+    }
 }

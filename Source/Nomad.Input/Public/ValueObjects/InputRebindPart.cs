@@ -15,17 +15,17 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Input.ValueObjects
 {
-	/// <summary>
-	/// 
-	/// </summary>
-	public enum InputRebindPart : byte
-	{
-		Whole,
-		Negative,
-		Positive,
-		Up,
-		Down,
-		Left,
-		Right
-	}
+    /// <summary>
+    /// 
+    /// </summary>
+    public enum InputRebindPart : byte
+    {
+        Whole,
+        Negative,
+        Positive,
+        Up,
+        Down,
+        Left,
+        Right
+    }
 }

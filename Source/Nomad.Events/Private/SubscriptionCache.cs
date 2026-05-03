@@ -30,8 +30,7 @@ namespace Nomad.Events.Private {
 	/// </summary>
 
 	internal sealed class SubscriptionCache<TArgs, TCallback> : IDisposable
-		where TArgs : struct
-	{
+		where TArgs : struct {
 		public int Count => _subscriptions != null ? _subscriptions.Count : 0;
 
 		public TCallback this[int index] {

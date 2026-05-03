@@ -33,7 +33,7 @@ namespace Nomad.Input.Private.Services {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal sealed class BindingMatcherService {
 		private readonly CompiledBindingRepository _compiledBindings;
 		private readonly InputStateService _stateService;

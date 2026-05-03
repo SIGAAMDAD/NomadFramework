@@ -36,7 +36,7 @@ namespace Nomad.Core.ServiceRegistry.Interfaces
         /// <returns></returns>
         TService GetService<TService>()
             where TService : class;
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -45,7 +45,7 @@ namespace Nomad.Core.ServiceRegistry.Interfaces
         /// <returns></returns>
         bool TryGetService<TService>([NotNullWhen(true)] out TService? service)
             where TService : class;
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -53,7 +53,7 @@ namespace Nomad.Core.ServiceRegistry.Interfaces
         /// <returns></returns>
         IEnumerable<TService> GetServices<TService>()
             where TService : class;
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -63,7 +63,7 @@ namespace Nomad.Core.ServiceRegistry.Interfaces
         TService CreateInstance<TService, TImplementation>()
             where TService : class
             where TImplementation : class, TService;
-        
+
         /// <summary>
         /// 
         /// </summary>

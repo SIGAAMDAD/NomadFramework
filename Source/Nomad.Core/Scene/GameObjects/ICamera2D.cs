@@ -17,19 +17,19 @@ using System.Numerics;
 
 namespace Nomad.Core.Scene.GameObjects
 {
-	/// <summary>
-	/// Represents an in-game viewpoint.
-	/// </summary>
-	public interface ICamera2D : IEntity2D
-	{
-		/// <summary>
-		/// 
-		/// </summary>
-		Vector2 Zoom { get; set; }
+    /// <summary>
+    /// Represents an in-game viewpoint.
+    /// </summary>
+    public interface ICamera2D : IEntity2D
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        Vector2 Zoom { get; set; }
 
-		/// <summary>
-		/// 
-		/// </summary>
-		IGameObject FollowTarget { get; set; }
-	}
+        /// <summary>
+        /// 
+        /// </summary>
+        IGameObject FollowTarget { get; set; }
+    }
 }

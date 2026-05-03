@@ -18,15 +18,15 @@ using System.Collections.Generic;
 
 namespace Nomad.Core.OnlineServices
 {
-	public sealed record NetworkSessionInfo
-	{
-		public Guid SessionId { get; init; }
-		public NetworkSessionMode Mode { get; init; }
-		public NetworkConnectionState State { get; init; }
-		public int MaxPlayers { get; init; }
-		public int MinPlayers { get; init; }
-		public PeerId LocalPeerId { get; init; }
-		public PeerId HostPeerId { get; init; }
-		public IReadOnlyList<NetworkPeerInfo> Peers { get; init; } = Array.Empty<NetworkPeerInfo>();
-	}
+    public sealed record NetworkSessionInfo
+    {
+        public Guid SessionId { get; init; }
+        public NetworkSessionMode Mode { get; init; }
+        public NetworkConnectionState State { get; init; }
+        public int MaxPlayers { get; init; }
+        public int MinPlayers { get; init; }
+        public PeerId LocalPeerId { get; init; }
+        public PeerId HostPeerId { get; init; }
+        public IReadOnlyList<NetworkPeerInfo> Peers { get; init; } = Array.Empty<NetworkPeerInfo>();
+    }
 }

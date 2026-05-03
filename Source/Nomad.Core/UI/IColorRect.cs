@@ -15,7 +15,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Core.UI
 {
-	public interface IColorRect : IUIElement
-	{
-	}
+    public interface IColorRect : IUIElement
+    {
+    }
 }

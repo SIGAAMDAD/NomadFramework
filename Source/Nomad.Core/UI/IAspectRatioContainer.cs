@@ -17,14 +17,14 @@ using Nomad.Core.Engine.Windowing;
 
 namespace Nomad.Core.UI
 {
-	/// <summary>
-	/// 
-	/// </summary>
-	public interface IAspectRatioContainer : IUIElement
-	{
-		/// <summary>
-		/// 
-		/// </summary>
-		AspectRatioValue Ratio { get; set; }
-	}
+    /// <summary>
+    /// 
+    /// </summary>
+    public interface IAspectRatioContainer : IUIElement
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        AspectRatioValue Ratio { get; set; }
+    }
 }

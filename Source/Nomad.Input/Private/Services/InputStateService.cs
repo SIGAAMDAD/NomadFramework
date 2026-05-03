@@ -31,7 +31,7 @@ namespace Nomad.Input.Private.Services {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal unsafe sealed class InputStateService : IInputSnapshotService, IDisposable {
 		private const int DEVICE_SLOT_COUNT = (int)InputDeviceSlot.Count;
 		private const int CONTROL_COUNT = (int)InputControlId.Count;
@@ -132,7 +132,7 @@ namespace Nomad.Input.Private.Services {
 			ulong* words = GetPressedWords( slot );
 			return (words[controlIndex >> 6] & (1UL << (controlIndex & 63))) != 0UL;
 		}
-		
+
 		/*
 		===============
 		SetPressed

@@ -94,7 +94,7 @@ namespace Nomad.Input.Private.Services {
 
 				switch ( bindingsElement.ValueKind ) {
 					case JsonValueKind.Array:
-						foreach ( var actionElement in bindingsElement.EnumerateArray() ) { 
+						foreach ( var actionElement in bindingsElement.EnumerateArray() ) {
 							ParseActionDefinition( actionElement, actionIndices, actions );
 						}
 						break;
@@ -287,7 +287,7 @@ namespace Nomad.Input.Private.Services {
 				responseCurve: JsonLoader.GetOptional<ResponseCurve>( bindingElement, "ResponseCurve", ResponseCurve.Linear )
 			);
 		}
-		
+
 		/*
 		===============
 		ParseAxis1DCompositeBinding
@@ -384,14 +384,12 @@ namespace Nomad.Input.Private.Services {
 
 			if ( deviceId.Equals( Constants.MOUSE_BUTTON_DEVICE_ID, StringComparison.OrdinalIgnoreCase )
 				|| deviceId.Equals( Constants.MOUSE_MOTION_DEVICE_ID, StringComparison.OrdinalIgnoreCase )
-				|| deviceId.Equals( "Mouse", StringComparison.OrdinalIgnoreCase ) )
-			{
+				|| deviceId.Equals( "Mouse", StringComparison.OrdinalIgnoreCase ) ) {
 				return InputDeviceSlot.Mouse;
 			}
 
 			if ( deviceId.Equals( Constants.GAMEPAD_DEVICE_ID, StringComparison.OrdinalIgnoreCase )
-				|| deviceId.Equals( nameof( InputDeviceSlot.Gamepad0 ), StringComparison.OrdinalIgnoreCase ) )
-			{
+				|| deviceId.Equals( nameof( InputDeviceSlot.Gamepad0 ), StringComparison.OrdinalIgnoreCase ) ) {
 				return InputDeviceSlot.Gamepad0;
 			}
 			if ( deviceId.Equals( nameof( InputDeviceSlot.Gamepad1 ), StringComparison.OrdinalIgnoreCase ) ) {

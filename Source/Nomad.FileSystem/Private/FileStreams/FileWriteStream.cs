@@ -65,8 +65,7 @@ namespace Nomad.FileSystem.Private.FileStreams {
 		/// </summary>
 		/// <param name="config"></param>
 		public FileWriteStream( FileWriteConfig config )
-			: base( config.FilePath, config.Append ? FileMode.Append : FileMode.Create, FileAccess.Write )
-		{
+			: base( config.FilePath, config.Append ? FileMode.Append : FileMode.Create, FileAccess.Write ) {
 			ArgumentGuard.ThrowIfNull( fileStream );
 			_format = config.Format;
 			switch ( _format ) {

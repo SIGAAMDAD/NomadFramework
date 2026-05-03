@@ -18,43 +18,43 @@ using Nomad.Input.ValueObjects;
 
 namespace Nomad.Input.Interfaces
 {
-	/// <summary>
-	/// 
-	/// </summary>
-	public interface IInputSnapshotService
-	{
-		/// <summary>
-		/// 
-		/// </summary>
-		Vector2 MouseDelta { get; }
+    /// <summary>
+    /// 
+    /// </summary>
+    public interface IInputSnapshotService
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        Vector2 MouseDelta { get; }
 
-		/// <summary>
-		/// 
-		/// </summary>
-		Vector2 MousePosition { get; }
+        /// <summary>
+        /// 
+        /// </summary>
+        Vector2 MousePosition { get; }
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="slot"></param>
-		/// <param name="control"></param>
-		/// <returns></returns>
-		bool IsPressed(InputDeviceSlot slot, InputControlId control);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="slot"></param>
+        /// <param name="control"></param>
+        /// <returns></returns>
+        bool IsPressed(InputDeviceSlot slot, InputControlId control);
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="slot"></param>
-		/// <param name="control"></param>
-		/// <returns></returns>
-		float GetAxis1D(InputDeviceSlot slot, InputControlId control);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="slot"></param>
+        /// <param name="control"></param>
+        /// <returns></returns>
+        float GetAxis1D(InputDeviceSlot slot, InputControlId control);
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="slot"></param>
-		/// <param name="control"></param>
-		/// <returns></returns>
-		Vector2 GetAxis2D(InputDeviceSlot slot, InputControlId control);
-	}
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="slot"></param>
+        /// <param name="control"></param>
+        /// <returns></returns>
+        Vector2 GetAxis2D(InputDeviceSlot slot, InputControlId control);
+    }
 }

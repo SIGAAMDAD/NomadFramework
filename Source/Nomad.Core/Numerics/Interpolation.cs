@@ -18,35 +18,41 @@ using System.Runtime.CompilerServices;
 
 namespace Nomad.Core.Numerics
 {
-	/// <summary>
+    /// <summary>
     /// Interpolation, easing, and curve helpers.
     /// </summary>
     public static class Interpolation
-	{
+    {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float InverseLerp(float a, float b, float value) {
-            if (ScalarMath.NearlyEqual(a, b)) {
+        public static float InverseLerp(float a, float b, float value)
+        {
+            if (ScalarMath.NearlyEqual(a, b))
+            {
                 return 0.0f;
             }
             return (value - a) / (b - a);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double InverseLerp(double a, double b, double value) {
-            if (ScalarMath.NearlyEqual(a, b)) {
+        public static double InverseLerp(double a, double b, double value)
+        {
+            if (ScalarMath.NearlyEqual(a, b))
+            {
                 return 0.0d;
             }
             return (value - a) / (b - a);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float Remap(float inMin, float inMax, float outMin, float outMax, float value) {
+        public static float Remap(float inMin, float inMax, float outMin, float outMax, float value)
+        {
             float t = InverseLerp(inMin, inMax, value);
             return LerpUnclamped(outMin, outMax, t);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double Remap(double inMin, double inMax, double outMin, double outMax, double value) {
+        public static double Remap(double inMin, double inMax, double outMin, double outMax, double value)
+        {
             double t = InverseLerp(inMin, inMax, value);
             return LerpUnclamped(outMin, outMax, t);
         }
@@ -64,13 +70,15 @@ namespace Nomad.Core.Numerics
         public static double LerpUnclamped(double a, double b, double t) => a + (b - a) * t;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double Damp(double current, double target, double smoothing, double deltaTime) {
+        public static double Damp(double current, double target, double smoothing, double deltaTime)
+        {
             double t = 1.0d - Math.Exp(-smoothing * deltaTime);
             return LerpUnclamped(current, target, t);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float CubicBezier(float p0, float p1, float p2, float p3, float t) {
+        public static float CubicBezier(float p0, float p1, float p2, float p3, float t)
+        {
             float u = 1.0f - t;
             float tt = t * t;
             float uu = u * u;
@@ -81,7 +89,8 @@ namespace Nomad.Core.Numerics
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double CubicBezier(double p0, double p1, double p2, double p3, double t) {
+        public static double CubicBezier(double p0, double p1, double p2, double p3, double t)
+        {
             double u = 1.0d - t;
             double tt = t * t;
             double uu = u * u;
@@ -92,7 +101,8 @@ namespace Nomad.Core.Numerics
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float Hermite(float p0, float m0, float p1, float m1, float t) {
+        public static float Hermite(float p0, float m0, float p1, float m1, float t)
+        {
             float tt = t * t;
             float ttt = tt * t;
 
@@ -103,7 +113,8 @@ namespace Nomad.Core.Numerics
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double Hermite(double p0, double m0, double p1, double m1, double t) {
+        public static double Hermite(double p0, double m0, double p1, double m1, double t)
+        {
             double tt = t * t;
             double ttt = tt * t;
 
@@ -114,7 +125,8 @@ namespace Nomad.Core.Numerics
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float CatmullRom(float p0, float p1, float p2, float p3, float t) {
+        public static float CatmullRom(float p0, float p1, float p2, float p3, float t)
+        {
             float tt = t * t;
             float ttt = tt * t;
             return 0.5f * (
@@ -125,7 +137,8 @@ namespace Nomad.Core.Numerics
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double CatmullRom(double p0, double p1, double p2, double p3, double t) {
+        public static double CatmullRom(double p0, double p1, double p2, double p3, double t)
+        {
             double tt = t * t;
             double ttt = tt * t;
             return 0.5d * (

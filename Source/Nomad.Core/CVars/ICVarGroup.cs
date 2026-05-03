@@ -17,31 +17,31 @@ using System.Collections.Immutable;
 
 namespace Nomad.Core.CVars
 {
-	/// <summary>
-	/// 
-	/// </summary>
-	public interface ICVarGroup
-	{
-		/// <summary>
-		/// The group's unique name.
-		/// </summary>
-		string Name { get; }
+    /// <summary>
+    /// 
+    /// </summary>
+    public interface ICVarGroup
+    {
+        /// <summary>
+        /// The group's unique name.
+        /// </summary>
+        string Name { get; }
 
-		/// <summary>
-		/// 
-		/// </summary>
-		IImmutableList<ICVar> CVars { get; }
+        /// <summary>
+        /// 
+        /// </summary>
+        IImmutableList<ICVar> CVars { get; }
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="cvar"></param>
-		void AddCVar(ICVar cvar);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cvar"></param>
+        void AddCVar(ICVar cvar);
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="cvar"></param>
-		void RemoveCVar(ICVar cvar);
-	}
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cvar"></param>
+        void RemoveCVar(ICVar cvar);
+    }
 }

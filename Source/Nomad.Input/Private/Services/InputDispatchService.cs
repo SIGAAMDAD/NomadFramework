@@ -30,7 +30,7 @@ namespace Nomad.Input.Private.Services {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal sealed class InputDispatchService {
 		private IGameEvent<ButtonActionEventArgs>?[] _buttonEvents = Array.Empty<IGameEvent<ButtonActionEventArgs>?>();
 		private IGameEvent<FloatActionEventArgs>?[] _floatEvents = Array.Empty<IGameEvent<FloatActionEventArgs>?>();
@@ -67,7 +67,7 @@ namespace Nomad.Input.Private.Services {
 					throw new ArgumentOutOfRangeException( nameof( action ) );
 			}
 		}
-		
+
 		/*
 		===============
 		GetButtonEvent

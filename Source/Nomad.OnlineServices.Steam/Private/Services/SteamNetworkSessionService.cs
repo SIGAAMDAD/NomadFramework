@@ -62,7 +62,7 @@ namespace Nomad.OnlineServices.Steam.Private.Services {
 				throw new NotImplementedException();
 			}
 		}
-		
+
 		private readonly ILobbyService _lobbyService;
 
 		public SteamNetworkSessionService( ILobbyService lobbyService ) {

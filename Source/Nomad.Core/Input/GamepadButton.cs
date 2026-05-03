@@ -54,7 +54,7 @@ namespace Nomad.Core.Input
         /// - button.
         /// </summary>
         Back,
-        
+
         /// <summary>
         /// Game controller SDL guide button. Corresponds to the Sony PS, Xbox Home button.
         /// </summary>
@@ -77,7 +77,7 @@ namespace Nomad.Core.Input
         /// button.
         /// </summary>
         RightStick,
-        
+
         /// <summary>
         /// Game controller SDL left shoulder button. Corresponds to the Sony L1, Xbox LB
         /// button.

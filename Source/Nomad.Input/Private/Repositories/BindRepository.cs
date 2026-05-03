@@ -37,7 +37,7 @@ namespace Nomad.Input.Private.Repositories {
 	===================================================================================
 	*/
 	/// <summary>
-		/// Loads binding databases from disk and exposes the merged action definitions used by the input pipeline.
+	/// Loads binding databases from disk and exposes the merged action definitions used by the input pipeline.
 	/// </summary>
 	internal sealed class BindRepository : IDisposable {
 		private readonly IFileSystem _fileSystem;
@@ -260,11 +260,11 @@ namespace Nomad.Input.Private.Repositories {
 
 			var builder = mapping.Actions.ToBuilder();
 			for ( int i = 0; i < builder.Count; i++ ) {
-				if ( builder[ i ].Id.Equals( actionId, StringComparison.Ordinal ) ) {
-					builder[ i ] = new InputActionDefinition(
-						builder[ i ].Name,
-						builder[ i ].Id,
-						builder[ i ].ValueType,
+				if ( builder[i].Id.Equals( actionId, StringComparison.Ordinal ) ) {
+					builder[i] = new InputActionDefinition(
+						builder[i].Name,
+						builder[i].Id,
+						builder[i].ValueType,
 						bindings.Clone()
 					);
 
@@ -280,11 +280,11 @@ namespace Nomad.Input.Private.Repositories {
 			}
 
 			for ( int i = 0; i < mergedMapping.Length; i++ ) {
-				if ( !mergedMapping[ i ].Id.Equals( actionId, StringComparison.Ordinal ) ) {
+				if ( !mergedMapping[i].Id.Equals( actionId, StringComparison.Ordinal ) ) {
 					continue;
 				}
 
-				builder.Add( new InputActionDefinition( mergedMapping[ i ].Name, mergedMapping[ i ].Id, mergedMapping[ i ].ValueType, bindings.Clone() ) );
+				builder.Add( new InputActionDefinition( mergedMapping[i].Name, mergedMapping[i].Id, mergedMapping[i].ValueType, bindings.Clone() ) );
 				_loadedMappings = _loadedMappings.SetItem( mappingName, new LoadedBindMapping( mappingName, builder.ToImmutable() ) );
 				ValidateActiveMappings();
 				RebuildCaches();
@@ -440,22 +440,22 @@ namespace Nomad.Input.Private.Repositories {
 
 			var overriddenSchemes = ImmutableHashSet.CreateBuilder<InputScheme>();
 			for ( int i = 0; i < right.Length; i++ ) {
-				overriddenSchemes.Add( right[ i ].Scheme );
+				overriddenSchemes.Add( right[i].Scheme );
 			}
 
 			var builder = ImmutableArray.CreateBuilder<InputBindingDefinition>( left.Length + right.Length );
 
 			for ( int i = 0; i < left.Length; i++ ) {
-				if ( overriddenSchemes.Contains( left[ i ].Scheme ) ) {
+				if ( overriddenSchemes.Contains( left[i].Scheme ) ) {
 					continue;
 				}
-				builder.Add( left[ i ] );
+				builder.Add( left[i] );
 			}
 			for ( int i = 0; i < right.Length; i++ ) {
-				if ( ContainsBinding( builder, right[ i ] ) ) {
+				if ( ContainsBinding( builder, right[i] ) ) {
 					continue;
 				}
-				builder.Add( right[ i ] );
+				builder.Add( right[i] );
 			}
 
 			return builder.ToImmutable();
@@ -495,7 +495,7 @@ namespace Nomad.Input.Private.Repositories {
 				return;
 			}
 
-			activeMappings[ scheme ] = mappingName;
+			activeMappings[scheme] = mappingName;
 		}
 
 		/*
@@ -580,7 +580,7 @@ namespace Nomad.Input.Private.Repositories {
 		/// <returns></returns>
 		private static bool ContainsBinding( ImmutableArray<InputBindingDefinition>.Builder bindings, in InputBindingDefinition candidate ) {
 			for ( int i = 0; i < bindings.Count; i++ ) {
-				if ( bindings[ i ].ContentEquals( candidate ) ) {
+				if ( bindings[i].ContentEquals( candidate ) ) {
 					return true;
 				}
 			}
@@ -614,8 +614,8 @@ namespace Nomad.Input.Private.Repositories {
 			private static ImmutableHashSet<InputScheme> GetSchemes( ImmutableArray<InputActionDefinition> actions ) {
 				var builder = ImmutableHashSet.CreateBuilder<InputScheme>();
 				for ( int i = 0; i < actions.Length; i++ ) {
-					for ( int j = 0; j < actions[ i ].Bindings.Length; j++ ) {
-						builder.Add( actions[ i ].Bindings[ j ].Scheme );
+					for ( int j = 0; j < actions[i].Bindings.Length; j++ ) {
+						builder.Add( actions[i].Bindings[j].Scheme );
 					}
 				}
 				return builder.ToImmutable();

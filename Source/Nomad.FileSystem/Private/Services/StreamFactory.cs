@@ -35,7 +35,7 @@ namespace Nomad.FileSystem.Private.Services {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal sealed class StreamFactory : IDisposable {
 		private readonly RecursiveFileSearcher _searchHelper;
 

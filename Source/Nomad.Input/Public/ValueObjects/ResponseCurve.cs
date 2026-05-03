@@ -15,15 +15,15 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Input.ValueObjects
 {
-	/// <summary>
-	/// 
-	/// </summary>
-	public enum ResponseCurve : byte
-	{
-		Linear,
-		Squared,
-		Cubic,
+    /// <summary>
+    /// 
+    /// </summary>
+    public enum ResponseCurve : byte
+    {
+        Linear,
+        Squared,
+        Cubic,
 
-		Count
-	}
+        Count
+    }
 }

@@ -18,24 +18,24 @@ using Nomad.Core.Scene.GameObjects;
 
 namespace Nomad.Core.UI
 {
-	/// <summary>
-	/// 
-	/// </summary>
-	public interface IPresentationLayer : IGameObject
-	{
-		/// <summary>
+    /// <summary>
+    /// 
+    /// </summary>
+    public interface IPresentationLayer : IGameObject
+    {
+        /// <summary>
         /// Whether the ui component is visible or not.
         /// </summary>
         bool Visible { get; set; }
 
-		/// <summary>
-		/// 
-		/// </summary>
-		int RenderOrder { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        int RenderOrder { get; set; }
 
-		/// <summary>
+        /// <summary>
         ///
         /// </summary>
         IGameEvent<bool> DisplayStateChanged { get; }
-	}
+    }
 }

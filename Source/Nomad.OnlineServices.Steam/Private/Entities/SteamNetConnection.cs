@@ -28,7 +28,7 @@ namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal sealed class SteamNetConnection {
 		public NetworkConnectionState Status => _status;
 		private NetworkConnectionState _status;
@@ -42,7 +42,7 @@ namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
 		private readonly HSteamNetConnection _connection = HSteamNetConnection.Invalid;
 
 		private readonly SteamNetworkingIdentity _identity;
-		
+
 		/*
 		===============
 		SteamNetConnection

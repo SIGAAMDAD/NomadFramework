@@ -118,7 +118,7 @@ namespace Nomad.Save.Private.Services {
 				_category.PrintLine( $"\tChecksum64: {header.Checksum.Value}" );
 				_category.PrintLine( $"\tGameVersion: {header.Version.ToInt()}" );
 			}
-			
+
 			if ( header.SectionCount < 0 ) {
 				throw new SaveFileCorruptException( reader.Position, "Invalid section count" );
 			}
