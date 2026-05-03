@@ -2,11 +2,15 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
 $Script:ScriptsDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
-$Script:RepositoryRoot = Resolve-Path (Join-Path $Script:ScriptsDirectory "../..")
+$Script:RepositoryRoot = Resolve-Path ( Join-Path $Script:ScriptsDirectory "../.." )
 
 Set-Location $Script:RepositoryRoot
 
-$Script:DotNet = if ( $env:DOTNET_EXE ) { $env:DOTNET_EXE } else { "dotnet" }
+$Script:DotNet = if ( $env:DOTNET_EXE ) {
+	$env:DOTNET_EXE
+} else {
+	"dotnet"
+}
 
 $Script:SolutionPath = if ( $env:NOMAD_SOLUTION ) {
 	$env:NOMAD_SOLUTION
@@ -23,31 +27,25 @@ $Script:TestProjectPath = if ( $env:NOMAD_TEST_PROJECT ) {
 $Script:Configuration = if ( $env:NOMAD_CONFIGURATION ) {
 	$env:NOMAD_CONFIGURATION
 } else {
-	"Release"
+	"Debug"
 }
 
-$Script:CoverageSettingsPath = if ( $env:NOMAD_COVERAGE_SETTINGS ) {
-	$env:NOMAD_COVERAGE_SETTINGS
+$Script:RestoreLockedMode = if ( $env:NOMAD_RESTORE_LOCKED_MODE ) {
+	$env:NOMAD_RESTORE_LOCKED_MODE
 } else {
-	"coverlet.runsettings"
+	"false"
 }
 
-$Script:TestResultsDirectory = if ( $env:NOMAD_TEST_RESULTS_DIR ) {
-	$env:NOMAD_TEST_RESULTS_DIR
+$Script:RestoreTools = if ( $env:NOMAD_RESTORE_TOOLS ) {
+	$env:NOMAD_RESTORE_TOOLS
 } else {
-	"Tests/TestResults"
+	"true"
 }
 
-$Script:CoverageResultsDirectory = if ( $env:NOMAD_COVERAGE_RESULTS_DIR ) {
-	$env:NOMAD_COVERAGE_RESULTS_DIR
+$Script:RestoreTests = if ( $env:NOMAD_RESTORE_TESTS ) {
+	$env:NOMAD_RESTORE_TESTS
 } else {
-	"Tests/CoverageResults"
-}
-
-$Script:NuGetOutputDirectory = if ( $env:NOMAD_NUGET_OUTPUT_DIR ) {
-	$env:NOMAD_NUGET_OUTPUT_DIR
-} else {
-	"NuGet"
+	"true"
 }
 
 function Write-NomadSection {
@@ -92,14 +90,81 @@ function Assert-NomadPathExists {
 	}
 }
 
-function Get-NomadSourceProjects {
-	Get-ChildItem -Path "Source" -Recurse -Filter "*.csproj" |
+function Get-NomadToolProjects {
+	if ( -not ( Test-Path "Tools" ) ) {
+		return @()
+	}
+
+	return Get-ChildItem -Path "Tools" -Recurse -Filter "*.csproj" |
 		Where-Object { $_.FullName -notmatch "[\\/](bin|obj)[\\/]" } |
 		Sort-Object FullName
 }
 
-function Get-NomadTestProjects {
-	Get-ChildItem -Path "Tests" -Recurse -Filter "*.csproj" |
-		Where-Object { $_.FullName -notmatch "[\\/](bin|obj)[\\/]" } |
-		Sort-Object FullName
+function Get-NomadRestoreArguments {
+	param(
+		[Parameter( Mandatory = $true )]
+		[string] $ProjectOrSolution
+	)
+
+	$arguments = @(
+		"restore",
+		$ProjectOrSolution,
+		"-p:Configuration=$Script:Configuration"
+	)
+
+	if ( $Script:RestoreLockedMode -eq "true" ) {
+		$arguments += "--locked-mode"
+	}
+
+	return $arguments
 }
+
+Write-NomadSection "Restore configuration"
+
+Write-Host "RepositoryRoot:     $Script:RepositoryRoot"
+Write-Host "SolutionPath:       $Script:SolutionPath"
+Write-Host "TestProjectPath:    $Script:TestProjectPath"
+Write-Host "Configuration:      $Script:Configuration"
+Write-Host "RestoreTests:       $Script:RestoreTests"
+Write-Host "RestoreTools:       $Script:RestoreTools"
+Write-Host "RestoreLockedMode:  $Script:RestoreLockedMode"
+
+Write-NomadSection "Validate restore inputs"
+
+Assert-NomadPathExists -Path $Script:SolutionPath -Description "Solution"
+
+if ( $Script:RestoreTests -eq "true" ) {
+	Assert-NomadPathExists -Path $Script:TestProjectPath -Description "Test project"
+}
+
+Write-NomadSection "Restore solution"
+
+Invoke-NomadCommand `
+	-File $Script:DotNet `
+	-Arguments ( Get-NomadRestoreArguments -ProjectOrSolution $Script:SolutionPath )
+
+if ( $Script:RestoreTests -eq "true" ) {
+	Write-NomadSection "Restore test project"
+
+	Invoke-NomadCommand `
+		-File $Script:DotNet `
+		-Arguments ( Get-NomadRestoreArguments -ProjectOrSolution $Script:TestProjectPath )
+}
+
+if ( $Script:RestoreTools -eq "true" ) {
+	$toolProjects = @( Get-NomadToolProjects )
+
+	if ( $toolProjects.Count -gt 0 ) {
+		Write-NomadSection "Restore tools"
+
+		foreach ( $toolProject in $toolProjects ) {
+			$relativePath = Resolve-Path -Path $toolProject.FullName -Relative
+
+			Invoke-NomadCommand `
+				-File $Script:DotNet `
+				-Arguments ( Get-NomadRestoreArguments -ProjectOrSolution $relativePath )
+		}
+	}
+}
+
+Write-NomadSection "Restore complete"
