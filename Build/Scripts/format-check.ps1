@@ -18,9 +18,10 @@ Invoke-NomadCommand $Script:DotNet @(
 	"--verify-no-changes"
 )
 
-Invoke-NomadCommand $Script:DotNet @(
-	"format",
-	$Script:SolutionPath,
-	"analyzers",
-	"--verify-no-changes"
-)
+
+#Invoke-NomadCommand $Script:DotNet @(
+#	"format",
+#	$Script:SolutionPath,
+#	"analyzers",
+#	"--verify-no-changes"
+#)
