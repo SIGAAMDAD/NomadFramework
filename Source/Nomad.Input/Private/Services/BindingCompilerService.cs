@@ -393,11 +393,11 @@ namespace Nomad.Input.Private.Services {
 		private static class ListLayoutAccessor<T> {
 			[System.Runtime.InteropServices.StructLayout( System.Runtime.InteropServices.LayoutKind.Sequential )]
 			private sealed class ListLayout {
-				public T[] _items = null!;
+				public T[] Items = null!;
 			}
 
 			public static T[] GetItems( List<T> list ) {
-				return System.Runtime.CompilerServices.Unsafe.As<ListLayout>( list )._items;
+				return System.Runtime.CompilerServices.Unsafe.As<ListLayout>( list ).Items;
 			}
 		}
 #endif

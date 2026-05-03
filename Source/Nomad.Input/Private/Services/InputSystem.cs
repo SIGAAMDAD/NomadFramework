@@ -44,10 +44,10 @@ namespace Nomad.Input.Private.Services {
 
 	internal sealed class InputSystem : IInputSystem {
 		public InputScheme Mode => _mode;
-		private InputScheme _mode;
+		private readonly InputScheme _mode;
 
 		public uint ContextMask => _contextMask;
-		private uint _contextMask = 0xFFFFFFFF;
+		private readonly uint _contextMask = 0xFFFFFFFF;
 
 		private readonly BindRepository _bindRepository;
 		private readonly BindingMatcherService _matcherService;

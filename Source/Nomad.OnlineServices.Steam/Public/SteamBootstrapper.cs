@@ -24,11 +24,10 @@ using Nomad.Core.ServiceRegistry.Interfaces;
 using Nomad.OnlineServices.Steam.Private;
 using System.Reflection;
 using Nomad.Core.Util.Attributes;
-
+using Steamworks;
 
 #if NET5_0_OR_GREATER
 using Nomad.Core.Util;
-using Steamworks;
 #endif
 
 namespace Nomad.OnlineServices.Steam

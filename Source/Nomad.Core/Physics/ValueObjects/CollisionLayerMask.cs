@@ -36,24 +36,30 @@ namespace Nomad.Core.Physics.ValueObjects
         public static CollisionLayerMask FromLayer(int layer)
         {
             if ((uint)layer >= 32u)
+            {
                 throw new ArgumentOutOfRangeException(nameof(layer));
-
+            }
             return new CollisionLayerMask(1u << layer);
         }
 
         public bool Contains(int layer)
         {
             if ((uint)layer >= 32u)
+            {
                 return false;
-
+            }
             return ((Value >> layer) & 1u) != 0u;
         }
 
         public static CollisionLayerMask operator |(CollisionLayerMask left, CollisionLayerMask right)
-            => new(left.Value | right.Value);
+        {
+            return new(left.Value | right.Value);
+        }
 
         public static CollisionLayerMask operator &(CollisionLayerMask left, CollisionLayerMask right)
-            => new(left.Value & right.Value);
+        {
+            return new(left.Value & right.Value);
+        }
 
         public bool Equals(CollisionLayerMask other) => Value == other.Value;
         public override bool Equals(object? obj) => obj is CollisionLayerMask other && Equals(other);

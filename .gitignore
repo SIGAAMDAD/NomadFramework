@@ -1,5 +1,9 @@
 *.vs
 *.csproj.lscache
+*.import
+*.pyc
+Cpp/
+.godot/
 **/bin/
 **/obj/
 
