@@ -6,9 +6,6 @@
 *.cs.uid
 *.cs.doxy_temp
 NuGet/
-Build/
-
-Tools/
 
 # Unity specific ignores
 UnityIntegration/
@@ -23,9 +20,7 @@ UnityIntegration/UserSettings
 
 *.tar.gz
 
-nuget_api_key.txt
-framework_api_key.txt
-codecov_api_key.txt
+Secrets/
 
 *.svg
 *.log

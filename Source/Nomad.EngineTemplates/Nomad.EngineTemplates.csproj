@@ -1,26 +1,21 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!-- Performance -->
-    <TieredCompilation>true</TieredCompilation>
-    <Deterministic>true</Deterministic>
-    <UseSharedCompilation>true</UseSharedCompilation>
-    <Optimize>true</Optimize>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-
-    <!-- NuGet Package Information -->
     <PackageId>NomadFramework.EngineTemplates</PackageId>
+    <Version>0.1.0-alpha1</Version>
+    <Description>Reusable engine integration template types for NomadFramework.</Description>
+
+    <NomadValidateAsModule>true</NomadValidateAsModule>
+    <NomadUseSourceGenerators>true</NomadUseSourceGenerators>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
-    <!-- We're making wrapper classes, so its gonna be rather chunky, minimize the damage as much as possible. -->
     <PublishAOT>true</PublishAOT>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\Nomad.Core\Nomad.Core.csproj" />
-	  <ProjectReference Include="..\Nomad.Events\Nomad.Events.csproj" />
-    <ProjectReference Include="..\Nomad.SourceGenerators\Nomad.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\Nomad.Events\Nomad.Events.csproj" />
   </ItemGroup>
 
 </Project>

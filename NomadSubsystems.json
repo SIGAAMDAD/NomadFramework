@@ -66,16 +66,6 @@
       "DefaultEnabled": false
     },
     {
-      "Name": "Nomad.Events",
-      "Define": "NOMAD_ENABLE_EVENTS",
-      "Description": "Subsystem Events",
-      "DependsOn": [
-        "Nomad.Core"
-      ],
-      "UnityCompatible": true,
-      "DefaultEnabled": false
-    },
-    {
       "Name": "Nomad.Logger",
       "Define": "NOMAD_ENABLE_LOGGER",
       "Description": "Subsystem Logger",
@@ -94,17 +84,6 @@
         "Nomad.Events",
         "Nomad.Logger",
         "Nomad.CVars"
-      ],
-      "UnityCompatible": false,
-      "DefaultEnabled": false
-    },
-    {
-      "Name": "Nomad.GodotServer.Rendering",
-      "Define": "NOMAD_ENABLE_GODOTSERVER_RENDERING",
-      "Description": "Subsystem GodotServer Rendering",
-      "DependsOn": [
-        "Nomad.Core",
-        "Nomad.Events"
       ],
       "UnityCompatible": false,
       "DefaultEnabled": false
@@ -175,7 +154,7 @@
         "Nomad.Events",
         "Nomad.CVars"
       ],
-      "UnityCompatible": true,
+      "UnityCompatible": false,
       "DefaultEnabled": false
     }
   ]

@@ -1,0 +1,1 @@
+dotnet run -f net10.0 --project Tools/Nomad.ReleaseNotesGenerator -- --repo-root . --output Artifacts/ReleaseNotes.md

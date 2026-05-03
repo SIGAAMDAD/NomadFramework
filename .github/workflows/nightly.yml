@@ -1,0 +1,156 @@
+name: Nightly
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: read
+
+concurrency:
+  group: nightly-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  DOTNET_NOLOGO: true
+  NOMAD_CONFIGURATION: Release
+
+jobs:
+  compatibility:
+    name: Compatibility ${{ matrix.os }} / .NET ${{ matrix.dotnet-version }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+        dotnet-version: [ '8.0.x', '10.0.x', '11.0.x' ]
+
+    continue-on-error: ${{ matrix.dotnet-version == '11.0.x' }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ matrix.dotnet-version }}
+        cache: true
+        cache-dependency-path: |
+          **/*.csproj
+          **/*.props
+          **/*.targets
+
+    - name: Restore
+      shell: pwsh
+      run: ./Build/Scripts/restore.ps1
+
+    - name: Build
+      shell: pwsh
+      run: ./Build/Scripts/build.ps1
+
+    - name: Unit tests
+      if: matrix.dotnet-version == '10.0.x'
+      shell: pwsh
+      run: ./Build/Scripts/test-unit.ps1
+
+    - name: Integration tests
+      if: matrix.dotnet-version == '10.0.x'
+      shell: pwsh
+      run: ./Build/Scripts/test-integration.ps1
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: nightly-test-results-${{ matrix.os }}-${{ matrix.dotnet-version }}
+        path: Tests/TestResults
+        if-no-files-found: ignore
+
+  repo-reports:
+    name: Generate Repo Reports
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+        cache: true
+        cache-dependency-path: |
+          **/*.csproj
+          **/*.props
+          **/*.targets
+
+    - name: Restore
+      shell: pwsh
+      run: ./Build/Scripts/restore.ps1
+
+    - name: Validate repo
+      shell: pwsh
+      run: ./Build/Scripts/validate-repo.ps1
+
+    - name: Generate dependency graph
+      shell: pwsh
+      run: ./Build/Scripts/generate-dependency-graph.ps1
+
+    - name: Generate compatibility matrix
+      shell: pwsh
+      run: ./Build/Scripts/generate-compatibility-matrix.ps1
+
+    - name: Generate public API
+      shell: pwsh
+      run: ./Build/Scripts/generate-public-api.ps1
+
+    - name: Upload repo reports
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: nightly-repo-reports
+        path: Artifacts
+        if-no-files-found: ignore
+
+  dependency-audit:
+    name: Dependency Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+        cache: true
+        cache-dependency-path: |
+          **/*.csproj
+          **/*.props
+          **/*.targets
+
+    - name: Restore
+      shell: pwsh
+      run: ./Build/Scripts/restore.ps1
+
+    - name: Check vulnerable packages
+      shell: pwsh
+      run: dotnet list package --vulnerable --include-transitive
+
+    - name: Check outdated packages
+      shell: pwsh
+      run: dotnet list package --outdated
+      continue-on-error: true

@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="Source/Nomad.Console/Nomad.Console.csproj" />
   <Project Path="Source/Nomad.Core/Nomad.Core.csproj" />
   <Project Path="Source/Nomad.CVars/Nomad.CVars.csproj" />
   <Project Path="Source/Nomad.Events/Nomad.Events.csproj" />

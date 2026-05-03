@@ -1,20 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!-- NuGet Package Information -->
     <PackageId>NomadFramework.Input</PackageId>
     <Version>0.1.0-alpha1</Version>
-  </PropertyGroup>
-  
-  <!-- SPECIAL PROPS -->
+    <Description>Engine-agnostic input binding and input action module for NomadFramework.</Description>
 
-  <PropertyGroup>
-    <!-- Performance -->
-    <TieredCompilation>true</TieredCompilation>
-    <Deterministic>true</Deterministic>
-    <UseSharedCompilation>true</UseSharedCompilation>
-    <Optimize>true</Optimize>
-    <SkipLocalsInit>true</SkipLocalsInit>
+    <NomadValidateAsModule>true</NomadValidateAsModule>
+    <NomadUseSourceGenerators>true</NomadUseSourceGenerators>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,9 +14,6 @@
     <ProjectReference Include="..\Nomad.Events\Nomad.Events.csproj" />
     <ProjectReference Include="..\Nomad.Logger\Nomad.Logger.csproj" />
     <ProjectReference Include="..\Nomad.CVars\Nomad.CVars.csproj" />
-    <ProjectReference Include="..\Nomad.SourceGenerators\Nomad.SourceGenerators.csproj"
-                      OutputItemType="Analyzer"
-                      ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <ItemGroup>

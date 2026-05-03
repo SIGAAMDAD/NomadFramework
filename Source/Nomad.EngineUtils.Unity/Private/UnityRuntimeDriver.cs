@@ -28,7 +28,7 @@ namespace Nomad.EngineUtils.Private {
     /// Hidden Unity object used to observe runtime window-size changes.
     /// </summary>
 
-    public sealed class UnityRuntimeDriver : MonoBehaviour {
+    internal sealed class UnityRuntimeDriver : MonoBehaviour {
         /// <summary>
         ///
         /// </summary>

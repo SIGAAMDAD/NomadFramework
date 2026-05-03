@@ -1,26 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!-- NuGet Package Information -->
-    <PackageId>NomadFramework.Nomad.ResourceCache</PackageId>
-  </PropertyGroup>
+    <PackageId>NomadFramework.ResourceCache</PackageId>
+    <Version>0.1.0-alpha1</Version>
+    <Description>Unified resource cache and asset access module for NomadFramework.</Description>
 
-  <!-- SPECIAL PROPS -->
-
-  <PropertyGroup>
-    <!-- Performance -->
-    <TieredCompilation>true</TieredCompilation>
-    <Deterministic>true</Deterministic>
-    <UseSharedCompilation>true</UseSharedCompilation>
-    <Optimize>true</Optimize>
-    <SkipLocalsInit>true</SkipLocalsInit>
+    <NomadValidateAsModule>true</NomadValidateAsModule>
+    <NomadUseSourceGenerators>true</NomadUseSourceGenerators>
   </PropertyGroup>
 
   <ItemGroup>
-	  <ProjectReference Include="..\Nomad.Core\Nomad.Core.csproj" />
-    <ProjectReference Include="..\Nomad.SourceGenerators\Nomad.SourceGenerators.csproj"
-                      OutputItemType="Analyzer"
-                      ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\Nomad.Core\Nomad.Core.csproj" />
   </ItemGroup>
 
 </Project>

@@ -32,7 +32,7 @@ namespace Nomad.Logger.Private.Sinks {
 	///
 	/// </summary>
 
-	public sealed class FileSink : SinkBase {
+	internal sealed class FileSink : SinkBase {
 		private readonly IFileWriteStream? _writer = null;
 
 		/*

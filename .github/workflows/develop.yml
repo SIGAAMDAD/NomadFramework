@@ -1,0 +1,203 @@
+name: Develop
+
+on:
+  push:
+    branches: [ develop ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: develop-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  DOTNET_NOLOGO: true
+  NOMAD_CONFIGURATION: Release
+
+jobs:
+  hygiene:
+    name: Hygiene
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+        cache: true
+        cache-dependency-path: |
+          **/*.csproj
+          **/*.props
+          **/*.targets
+
+    - name: Restore
+      shell: pwsh
+      run: ./Build/Scripts/restore.ps1
+
+    - name: Validate repo hygiene
+      shell: pwsh
+      run: ./Build/Scripts/validate-repo.ps1
+
+    - name: Format check
+      shell: pwsh
+      run: ./Build/Scripts/format-check.ps1
+
+    - name: Generate dependency graph
+      shell: pwshwinget 
+      run: ./Build/Scripts/generate-dependency-graph.ps1
+
+    - name: Generate compatibility matrix
+      shell: pwsh
+      run: ./Build/Scripts/generate-compatibility-matrix.ps1
+
+    - name: Generate public API
+      shell: pwsh
+      run: ./Build/Scripts/generate-public-api.ps1
+
+    - name: Upload repo reports
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: develop-repo-reports
+        path: Artifacts
+        if-no-files-found: ignore
+
+  build:
+    name: Build ${{ matrix.os }}
+    needs: hygiene
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+        cache: true
+        cache-dependency-path: |
+          **/*.csproj
+          **/*.props
+          **/*.targets
+
+    - name: Restore
+      shell: pwsh
+      run: ./Build/Scripts/restore.ps1
+
+    - name: Build
+      shell: pwsh
+      run: ./Build/Scripts/build.ps1
+
+  coverage:
+    name: Tests and Coverage
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+        cache: true
+        cache-dependency-path: |
+          **/*.csproj
+          **/*.props
+          **/*.targets
+
+    - name: Restore
+      shell: pwsh
+      run: ./Build/Scripts/restore.ps1
+
+    - name: Build
+      shell: pwsh
+      run: ./Build/Scripts/build.ps1
+
+    - name: Coverage
+      shell: pwsh
+      run: ./Build/Scripts/coverage.ps1
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        files: ./Tests/CoverageResults/Cobertura.xml
+        flags: unittests
+        name: codecov-develop
+        fail_ci_if_error: true
+        verbose: true
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: develop-test-results
+        path: Tests/TestResults
+        if-no-files-found: ignore
+
+    - name: Upload coverage report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: develop-coverage-report
+        path: Tests/CoverageResults
+        if-no-files-found: ignore
+
+  pack:
+    name: Package Dry Run
+    needs: coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+        cache: true
+        cache-dependency-path: |
+          **/*.csproj
+          **/*.props
+          **/*.targets
+
+    - name: Restore
+      shell: pwsh
+      run: ./Build/Scripts/restore.ps1
+
+    - name: Build
+      shell: pwsh
+      run: ./Build/Scripts/build.ps1
+
+    - name: Pack
+      shell: pwsh
+      run: ./Build/Scripts/pack.ps1
+
+    - name: Upload NuGet packages
+      uses: actions/upload-artifact@v4
+      with:
+        name: develop-nuget-packages
+        path: NuGet
+        if-no-files-found: error

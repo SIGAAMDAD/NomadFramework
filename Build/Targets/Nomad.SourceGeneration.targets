@@ -1,0 +1,15 @@
+<Project>
+  <PropertyGroup>
+    <NomadUseSourceGenerators Condition="'$(NomadUseSourceGenerators)' == ''">false</NomadUseSourceGenerators>
+    <NomadSourceGeneratorsProject Condition="'$(NomadSourceGeneratorsProject)' == ''">$(NomadRepoRoot)Source/Nomad.SourceGenerators/Nomad.SourceGenerators.csproj</NomadSourceGeneratorsProject>
+  </PropertyGroup>
+
+  <ItemGroup Condition="
+      '$(NomadUseSourceGenerators)' == 'true'
+      And '$(MSBuildProjectName)' != 'Nomad.SourceGenerators'
+      And Exists('$(NomadSourceGeneratorsProject)')">
+    <ProjectReference Include="$(NomadSourceGeneratorsProject)"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+</Project>

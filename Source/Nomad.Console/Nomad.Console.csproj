@@ -1,16 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup><!-- NuGet Package Information -->
-    <PackageId>NomadFramework.Console</PackageId>
-  </PropertyGroup>
 
-  <!-- SPECIAL PROPS -->
   <PropertyGroup>
-    <!-- Performance -->
-    <TieredCompilation>true</TieredCompilation>
-    <Deterministic>true</Deterministic>
-    <UseSharedCompilation>true</UseSharedCompilation>
-    <Optimize>true</Optimize>
-    <SkipLocalsInit>true</SkipLocalsInit>
+    <PackageId>NomadFramework.Console</PackageId>
+    <Version>0.1.0-alpha1</Version>
+    <Description>Runtime command console, command line, and command history module for NomadFramework.</Description>
+
+    <NomadValidateAsModule>true</NomadValidateAsModule>
+    <NomadUseSourceGenerators>true</NomadUseSourceGenerators>
+
     <NoWarn>$(NoWarn);CA1308</NoWarn>
   </PropertyGroup>
 
@@ -19,9 +16,6 @@
     <ProjectReference Include="..\Nomad.Logger\Nomad.Logger.csproj" />
     <ProjectReference Include="..\Nomad.CVars\Nomad.CVars.csproj" />
     <ProjectReference Include="..\Nomad.Events\Nomad.Events.csproj" />
-    <ProjectReference Include="..\Nomad.SourceGenerators\Nomad.SourceGenerators.csproj"
-                      OutputItemType="Analyzer"
-                      ReferenceOutputAssembly="false" />
   </ItemGroup>
 
 </Project>

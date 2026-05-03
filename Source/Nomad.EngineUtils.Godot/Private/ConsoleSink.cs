@@ -28,7 +28,7 @@ namespace Nomad.EngineUtils.Godot.Private {
 	///
 	/// </summary>
 
-	public sealed class ConsoleSink : SinkBase {
+	internal sealed class ConsoleSink : SinkBase {
 		/*
 		===============
 		Print

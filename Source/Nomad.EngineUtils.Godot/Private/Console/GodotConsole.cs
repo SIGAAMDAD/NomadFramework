@@ -17,7 +17,6 @@ using System;
 using Godot;
 using Nomad.Console;
 using Nomad.Console.Events;
-using Nomad.Console.Private;
 using Nomad.Core.Engine.Services;
 using Nomad.Core.Events;
 using Nomad.Core.FileSystem;

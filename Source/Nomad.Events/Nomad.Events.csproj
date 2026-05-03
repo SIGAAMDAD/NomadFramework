@@ -1,39 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <!-- NuGet Package Information -->
     <PackageId>NomadFramework.Events</PackageId>
     <Version>0.1.0-alpha1</Version>
-  </PropertyGroup>
-  
-  <!-- SPECIAL PROPS -->
-  <PropertyGroup>
-    <IsTrimmable Condition="'$(TargetFramework)' == 'net10.0' Or '$(TargetFramework)' == 'net8.0'">true</IsTrimmable>
-    
-    <!-- Performance -->
-    <TieredCompilation>true</TieredCompilation>
-    <Deterministic>true</Deterministic>
-    <UseSharedCompilation>true</UseSharedCompilation>
-    <Optimize>true</Optimize>
-    <SkipLocalsInit>true</SkipLocalsInit>
+    <Description>High-performance synchronous and asynchronous event dispatching for NomadFramework.</Description>
+
+    <NomadValidateAsModule>true</NomadValidateAsModule>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <DefineConstants>$(DefineConstants);EVENT_DEBUG</DefineConstants>
   </PropertyGroup>
 
-
-  <PropertyGroup>
-    <AnalysisLevel>latest</AnalysisLevel>
-    <EnforceCodeStyleInBuilds>true</EnforceCodeStyleInBuilds>
-  </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.103">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="System.Collections.Immutable" Version="10.0.5" />
-
     <ProjectReference Include="..\Nomad.Core\Nomad.Core.csproj" />
   </ItemGroup>
 

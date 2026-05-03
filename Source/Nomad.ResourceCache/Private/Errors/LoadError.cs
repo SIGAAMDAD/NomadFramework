@@ -16,7 +16,7 @@ of merchantability, fitness for a particular purpose and noninfringement.
 using Nomad.Core.Util;
 
 namespace Nomad.ResourceCache.Private.Errors {
-	public sealed record LoadError(
+	internal sealed record LoadError(
 		string Message,
 		ErrorType Type = ErrorType.Infrastructure
 	) : IError {

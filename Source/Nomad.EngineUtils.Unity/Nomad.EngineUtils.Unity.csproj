@@ -3,104 +3,21 @@
   <Import Project="unity.props" Condition="'$(UnityBuild)' == 'true'" />
 
   <PropertyGroup>
-    <!-- Build Configuration -->
     <TargetFrameworks>netstandard2.1</TargetFrameworks>
-    <LangVersion>9.0</LangVersion>
-    <EnableDynamicLoading>true</EnableDynamicLoading>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Nullable>enable</Nullable>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <EnforceCodeStyleInBuilds>true</EnforceCodeStyleInBuilds>
-    <EnableUnsafeBinaryFormatterSerialization>false</EnableUnsafeBinaryFormatterSerialization>
-    <BuildInParallel>true</BuildInParallel>
 
-    <!-- NuGet Package Information -->
+    <NomadEngineAdapter>true</NomadEngineAdapter>
+    <NomadEngine>Unity</NomadEngine>
+    <NomadValidateAsModule>true</NomadValidateAsModule>
+
     <PackageId>NomadFramework.EngineUtils.Unity</PackageId>
     <Version>0.1.0-alpha1</Version>
-
-    <!-- Performance -->
-    <TieredCompilation>true</TieredCompilation>
-    <Deterministic>true</Deterministic>
-    <UseSharedCompilation>true</UseSharedCompilation>
-    <Optimize>true</Optimize>
-    <SkipLocalsInit>true</SkipLocalsInit>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <UnityVersion Condition="'$(UnityVersion)' == ''">6000.3.6f1</UnityVersion>
-
-    <!-- 1) explicit override wins -->
-    <UnityInstallPath Condition="'$(UnityInstallPath)' == '' and '$(UNITY_HOME)' != ''">$(UNITY_HOME)</UnityInstallPath>
-
-    <!-- 2) default Hub locations as fallback only -->
-    <UnityInstallPath Condition="'$(UnityInstallPath)' == '' and Exists('C:\Program Files\Unity\Hub\Editor\$(UnityVersion)')">C:\Program Files\Unity\Hub\Editor\$(UnityVersion)</UnityInstallPath>
-    <UnityInstallPath Condition="'$(UnityInstallPath)' == '' and Exists('/Applications/Unity/Hub/Editor/$(UnityVersion)')">/Applications/Unity/Hub/Editor/$(UnityVersion)</UnityInstallPath>
-  </PropertyGroup>
-
-  <!-- Windows layout -->
-  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
-    <UnityManagedPath>$(UnityInstallPath)\Editor\Data\Managed</UnityManagedPath>
-    <UnityEnginePath>$(UnityManagedPath)\UnityEngine</UnityEnginePath>
-  </PropertyGroup>
-
-  <!-- macOS layout -->
-  <PropertyGroup Condition="'$(OS)' != 'Windows_NT'">
-    <UnityManagedPath>$(UnityInstallPath)/Unity.app/Contents/Managed</UnityManagedPath>
-    <UnityEnginePath>$(UnityManagedPath)/UnityEngine</UnityEnginePath>
-  </PropertyGroup>
-
-  <Target Name="ValidateUnityPaths" BeforeTargets="ResolveReferences">
-    <Error Condition="'$(UnityInstallPath)' == ''"
-           Text="Unity install path not found. Set UnityInstallPath or UNITY_HOME." />
-    <Error Condition="!Exists('$(UnityEnginePath)\UnityEngine.CoreModule.dll') and !Exists('$(UnityEnginePath)/UnityEngine.CoreModule.dll')"
-           Text="UnityEngine.CoreModule.dll not found under $(UnityEnginePath)." />
-  </Target>
-
-  <PropertyGroup>
-    <!-- Strictly for debugging purposes, disable on release builds. -->
-    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-    <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)Generated</CompilerGeneratedFilesOutputPath>
+    <Description>Unity engine adapter module for NomadFramework.</Description>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Nomad.CVars\Nomad.CVars.csproj" />
     <ProjectReference Include="..\Nomad.Core\Nomad.Core.csproj" />
-	  <ProjectReference Include="..\Nomad.Events\Nomad.Events.csproj" />
-    <!--
-    <ProjectReference Include="..\Nomad.SourceGenerators\Nomad.SourceGenerators.csproj"
-                      OutputItemType="Analyzer"
-                      ReferenceOutputAssembly="false" />
-    -->
-  </ItemGroup>
-
-  <ItemGroup>
-    <!--
-    <Compile Include="..\Nomad.EngineTemplates\**\*.cs"
-             Exclude="..\Nomad.EngineTemplates\bin\**\*.cs;..\Nomad.EngineTemplates\obj\**\*.cs"
-             LinkBase="Nomad.EngineTemplates" />
-    -->
-  </ItemGroup>
-
-  <!-- Unity-specific references (only for netstandard2.1) -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath Condition="Exists('$(UnityEnginePath)\UnityEngine.CoreModule.dll')">$(UnityEnginePath)\UnityEngine.CoreModule.dll</HintPath>
-      <HintPath Condition="!Exists('$(UnityEnginePath)\UnityEngine.CoreModule.dll')">$(UnityEnginePath)\UnityEngine.CoreModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.InputModule">
-      <HintPath Condition="Exists('$(UnityEnginePath)\UnityEngine.InputModule.dll')">$(UnityEnginePath)\UnityEngine.InputModule.dll</HintPath>
-      <HintPath Condition="!Exists('$(UnityEnginePath)\UnityEngine.InputModule.dll')">$(UnityEnginePath)\UnityEngine.InputModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.AnimationModule">
-      <HintPath Condition="Exists('$(UnityEnginePath)\UnityEngine.AnimationModule.dll')">$(UnityEnginePath)\UnityEngine.AnimationModule.dll</HintPath>
-      <HintPath Condition="!Exists('$(UnityEnginePath)\UnityEngine.AnimationModule.dll')">$(UnityEnginePath)\UnityEngine.AnimationModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Unity.InputSystem">
-      <HintPath>Unity.InputSystem.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\Nomad.Events\Nomad.Events.csproj" />
   </ItemGroup>
 
 </Project>

@@ -18,7 +18,7 @@ namespace Nomad.ResourceCache.Private.Events {
 	/// 
 	/// </summary>
 	/// <typeparam name="TId"></typeparam>
-	public readonly struct EntryEvictedEventArgs<TId> {
+	internal readonly struct EntryEvictedEventArgs<TId> {
 		/// <summary>
 		/// 
 		/// </summary>

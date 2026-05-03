@@ -33,7 +33,7 @@ namespace Nomad.Events {
 	/// Handles event registration and lookup.
 	/// </summary>
 
-	public sealed class GameEventRegistry : IGameEventRegistryService {
+	internal sealed class GameEventRegistry : IGameEventRegistryService {
 		private readonly ConcurrentDictionary<EventKey, IGameEvent> _eventCache = new ConcurrentDictionary<EventKey, IGameEvent>();
 		private readonly ConcurrentDictionary<InternString, ISubscriptionGroup> _groupCache = new ConcurrentDictionary<InternString, ISubscriptionGroup>();
 

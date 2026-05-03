@@ -30,7 +30,7 @@ namespace Nomad.FileSystem.Private {
 	/// Base implementation of a data stream.
 	/// </summary>
 
-	public abstract class BaseStream : IDataStream {
+	internal abstract class BaseStream : IDataStream {
 		/// <summary>
 		/// Gets the length of the stream in bytes.
 		/// </summary>

@@ -1,18 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <!-- NuGet Package Information -->
-    <PackageId>NomadFramework.Nomad.Audio</PackageId>
-    <Version>0.1.0-alpha1</Version>
-  </PropertyGroup>
 
-  <!-- SPECIAL PROPS -->
   <PropertyGroup>
-    <!-- Performance -->
-    <TieredCompilation>true</TieredCompilation>
-    <Deterministic>true</Deterministic>
-    <UseSharedCompilation>true</UseSharedCompilation>
-    <Optimize>true</Optimize>
-    <SkipLocalsInit>true</SkipLocalsInit>
+    <PackageId>NomadFramework.Audio</PackageId>
+    <Version>0.1.0-alpha1</Version>
+    <Description>Engine-agnostic audio abstraction module for NomadFramework.</Description>
+
+    <NomadValidateAsModule>true</NomadValidateAsModule>
   </PropertyGroup>
 
   <ItemGroup>

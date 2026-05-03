@@ -30,7 +30,7 @@ namespace Nomad.Save.Private.ValueObjects {
 	/// 
 	/// </summary>
 
-	public readonly struct Checksum {
+	internal readonly struct Checksum {
 		/// <summary>
 		/// 
 		/// </summary>
