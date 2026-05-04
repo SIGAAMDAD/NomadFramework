@@ -72,6 +72,13 @@ jobs:
     - name: Generate public API
       shell: pwsh
       run: ./Build/Scripts/generate-public-api.ps1
+    
+    - name: Generate architecture docs
+      shell: pwsh
+      run: ./Build/Scripts/generate-architecture-docs.ps1
+    
+    - name: Verify generated architecture docs are up to date
+      run: git diff --exit-code Documentation/Architecture/Generated
 
     - name: Pack
       shell: pwsh

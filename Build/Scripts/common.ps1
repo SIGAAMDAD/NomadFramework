@@ -23,7 +23,7 @@ $Script:TestProjectPath = if ( $env:NOMAD_TEST_PROJECT ) {
 $Script:Configuration = if ( $env:NOMAD_CONFIGURATION ) {
 	$env:NOMAD_CONFIGURATION
 } else {
-	"Release"
+	"Debug"
 }
 
 $Script:CoverageSettingsPath = if ( $env:NOMAD_COVERAGE_SETTINGS ) {

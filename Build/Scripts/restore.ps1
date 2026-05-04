@@ -15,7 +15,7 @@ $Script:DotNet = if ( $env:DOTNET_EXE ) {
 $Script:Configuration = if ( $env:NOMAD_CONFIGURATION ) {
 	$env:NOMAD_CONFIGURATION
 } else {
-	"Release"
+	"Debug"
 }
 
 $Script:SourceDirectory = if ( $env:NOMAD_SOURCE_DIR ) {
@@ -97,7 +97,7 @@ function Restore-NomadSourceProjects {
 				"restore",
 				$project.FullName,
 				"--nologo",
-				"-p:Configuration=$Script:Configuration"
+				"-p:Configuration=Debug"
 			)
 	}
 }
@@ -105,7 +105,7 @@ function Restore-NomadSourceProjects {
 Write-NomadSection "NomadFramework Restore"
 Write-Host "Repository Root: $Script:RepositoryRoot"
 Write-Host "Source Directory: $Script:SourceDirectory"
-Write-Host "Configuration: $Script:Configuration"
+Write-Host "Configuration: Debug"
 Write-Host "DotNet CLI: $Script:DotNet"
 
 Restore-NomadSourceProjects

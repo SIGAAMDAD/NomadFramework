@@ -35,7 +35,7 @@ namespace Nomad.Save.Tests
 	[Category("Nomad.Save")]
 	[Category("Bootstrap")]
 	[Category("Integration")]
-	[Category("UnitTests")]
+	[Category("Unit")]
 	public class SaveBootstrapperTests
 	{
 		private SaveBootstrapper _bootstrapper;

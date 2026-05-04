@@ -1,0 +1,1 @@
+dotnet run -f net10.0 --project Tools/Nomad.ArchitectureDocs -- --repo-root . --strict

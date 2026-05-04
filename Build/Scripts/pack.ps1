@@ -14,7 +14,7 @@ Invoke-NomadCommand $Script:DotNet @(
 	"pack",
 	$Script:SolutionPath,
 	"--configuration",
-	$Script:Configuration,
+	"Debug",
 	"--no-build",
 	"--output",
 	$Script:NuGetOutputDirectory,

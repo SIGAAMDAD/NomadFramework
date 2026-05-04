@@ -43,7 +43,7 @@ for (int i = 0; i < args.Length; i++) {
 	}
 }
 
-outDir = outDir == "" ? Path.Combine(repo, "ApiSurface") : outDir;
+outDir = outDir == "" ? Path.Combine(repo, "Artifacts/ApiSurface") : outDir;
 Directory.CreateDirectory(outDir);
 
 int changed = 0;

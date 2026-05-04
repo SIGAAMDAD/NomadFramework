@@ -23,3 +23,4 @@ using Nomad.Core.Util.Attributes;
     VersionPatch = 0
 )]
 [assembly: InternalsVisibleTo("Nomad.Tests")]
+[assembly: InternalsVisibleTo( "Nomad.Events.Tests" )]

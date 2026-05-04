@@ -26,7 +26,7 @@ Invoke-NomadCommand $Script:DotNet @(
 	"test",
 	$Script:TestProjectPath,
 	"--configuration",
-	"$Script:Configuration",
+	"Debug",
 	"--filter",
 	$filter,
 	"--collect:XPlat Code Coverage",
