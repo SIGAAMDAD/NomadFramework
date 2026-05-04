@@ -23,4 +23,4 @@ using System.Runtime.CompilerServices;
     VersionPatch = 0
 )]
 [assembly: InternalsVisibleTo("Nomad.Tests")]
-[assembly: InternalsVisibleTo( "Nomad.Save.Tests" )]
+[assembly: InternalsVisibleTo("Nomad.Save.Tests")]

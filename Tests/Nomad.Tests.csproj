@@ -8,6 +8,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
+  
   <ItemGroup>
     <PackageReference Include="Benchly" Version="0.7.0" />
     <PackageReference Include="coverlet.collector" Version="8.0.0">
@@ -24,6 +25,7 @@
     </PackageReference>
     <PackageReference Include="NUnit3TestAdapter" Version="5.0.0" />
   </ItemGroup>
+
   <PropertyGroup>
     <DefineConstants>$(DefineConstants);EVENT_DEBUG</DefineConstants>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
@@ -36,6 +38,7 @@
     <ProjectReference Include="..\Source\Nomad.Input\Nomad.Input.csproj" />
     <ProjectReference Include="..\Source\Nomad.OnlineServices.Steam\Nomad.OnlineServices.Steam.csproj" />
   </ItemGroup>
+
   <ItemGroup>
     <Content Include="steam_appid.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
