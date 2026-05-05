@@ -42,11 +42,11 @@ namespace Nomad.OnlineServices.Steam.Private.ValueObjects {
 		public bool Achieved => _achieved;
 		private bool _achieved = false;
 
-		public string Id => _name!;
+		public string Id => _name;
 		private readonly InternString _name;
 
 		public bool HasProgress => _progress != null;
-		public string StatId => _progress != null ? _progress.StatId! : string.Empty;
+		public string StatId => _progress != null ? _progress.StatId : string.Empty;
 		public float Progress => _progress != null ? _progress.Progress : 0.0f;
 		public float MinProgress => _progress != null ? _progress.MinProgress : 0.0f;
 		public float MaxProgress => _progress != null ? _progress.MaxProgress : 0.0f;

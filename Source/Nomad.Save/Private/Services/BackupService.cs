@@ -56,10 +56,9 @@ namespace Nomad.Save.Private.Services {
 		/// </summary>
 		/// <param name="config"></param>
 		/// <param name="fileSystem"></param>
-		/// <exception cref="CVarMissing"></exception>
 		public BackupService( SaveConfig config, IFileSystem fileSystem ) {
-			_config = config;
-			_fileSystem = fileSystem;
+			_config = config ?? throw new ArgumentNullException( nameof( config ) );
+			_fileSystem = fileSystem ?? throw new ArgumentNullException( nameof( fileSystem ) );
 		}
 
 		/*
@@ -71,7 +70,9 @@ namespace Nomad.Save.Private.Services {
 		/// 
 		/// </summary>
 		public void Dispose() {
-			// DISPOSAL GOES HERE
+			if ( _isDisposed ) {
+				return;
+			}
 			GC.SuppressFinalize( this );
 			_isDisposed = true;
 		}

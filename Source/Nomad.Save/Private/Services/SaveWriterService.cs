@@ -78,7 +78,7 @@ namespace Nomad.Save.Private.Services {
 			_fileSystem = fileSystem ?? throw new ArgumentNullException( nameof( fileSystem ) );
 
 			_config = config ?? throw new ArgumentNullException( nameof( config ) );
-			_category = logger.CreateCategory( Constants.Logger.WRITER_SERVICE_CATEGORY_NAME, LogLevel.Info, true );
+			_category = logger.CreateCategory( nameof( SaveWriterService ), LogLevel.Info, true );
 
 			_atomicWriter = atomicWriter ?? throw new ArgumentNullException( nameof( atomicWriter ) );
 		}
@@ -116,8 +116,7 @@ namespace Nomad.Save.Private.Services {
 
 			_writer = _fileSystem.OpenWrite( new MemoryFileWriteConfig { FilePath = AtomicWriterService.GetAtomicPathName() } ) as IMemoryFileWriteStream ?? throw new CreateSaveFileFailed( filepath );
 
-			_category.PrintLine( $"Writing save data to {filepath}..." );
-
+			_category.PrintLine( $"Writing save data to {name} at {filepath}..." );
 			{
 				var header = new SaveHeader( name, gameVersion, _sections.Count, Checksum.Empty );
 				header.Serialize( _writer );

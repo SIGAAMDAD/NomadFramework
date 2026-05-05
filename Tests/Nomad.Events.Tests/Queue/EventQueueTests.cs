@@ -7,44 +7,6 @@ using Nomad.Events.Private;
 using Nomad.Core.Events; // Contains EventQueue
 
 namespace Nomad.Events.Tests {
-    // Mock implementation of IGameEvent<T> that records when Publish is called.
-    public class MockGameEvent<T> : IGameEvent<T> where T : struct {
-        private readonly object _lock = new object();
-        private readonly List<T> _publishedArgs = new List<T>();
-
-        public string DebugName { get; set; }
-        public string NameSpace { get; set; }
-        public int Id { get; set; }
-
-        // For non‑threaded tests that need the actual list
-        public IReadOnlyList<T> PublishedArgs {
-            get { lock ( _lock ) return _publishedArgs.ToArray(); }
-        }
-
-        public long PublishCount {
-            get { lock ( _lock ) return _publishedArgs.Count; }
-        }
-
-        public T LastPayload => throw new NotImplementedException();
-        public int SubscriberCount => throw new NotImplementedException();
-        public DateTime LastPublishTime => throw new NotImplementedException();
-
-        public event EventCallback<T>? OnPublished;
-        public event AsyncEventCallback<T>? OnPublishedAsync;
-
-        public void Publish( in T args ) {
-            lock ( _lock ) {
-                _publishedArgs.Add( args );
-            }
-        }
-
-        public void Dispose() => GC.SuppressFinalize( this );
-        public ISubscriptionHandle Subscribe( EventCallback<T> callback ) => throw new NotImplementedException();
-        public ISubscriptionHandle SubscribeAsync( AsyncEventCallback<T> callback ) => throw new NotImplementedException();
-        public void Unsubscribe( EventCallback<T> callback ) => throw new NotImplementedException();
-        public void UnsubscribeAsync( AsyncEventCallback<T> callback ) => throw new NotImplementedException();
-        public Task PublishAsync( T args, CancellationToken ct = default ) => throw new NotImplementedException();
-    }
 
     // Test structs for event arguments
     public struct TestArgs {
@@ -369,48 +331,8 @@ namespace Nomad.Events.Tests {
             Assert.That( _queue.Count, Is.EqualTo( 2 ) );
         }
 
-        // Helper to create an event that invokes an action when published.
-        private static CallbackGameEvent<T> CreateTrackingEvent<T>( string name, Action<T> onPublish ) where T : struct {
-            var mock = new MockGameEvent<T> { DebugName = name };
-            // We need to override Publish to call the action.
-            // Since we can't easily override, we can modify MockGameEvent to accept a callback.
-            // Let's enhance MockGameEvent to allow a callback.
-            return new CallbackGameEvent<T>( onPublish );
-        }
-
-        // A more flexible mock that executes a callback on publish.
-        private class CallbackGameEvent<T> : IGameEvent<T> where T : struct {
-            private readonly Action<T> _callback;
-
-            public event EventCallback<T>? OnPublished;
-            public event AsyncEventCallback<T>? OnPublishedAsync;
-
-            public CallbackGameEvent( Action<T> callback ) {
-                _callback = callback;
-            }
-
-            public string DebugName { get; set; }
-            public string NameSpace { get; set; }
-            public int Id { get; set; }
-
-            public T LastPayload => throw new NotImplementedException();
-
-            public int SubscriberCount => throw new NotImplementedException();
-
-            public long PublishCount => throw new NotImplementedException();
-
-            public DateTime LastPublishTime => throw new NotImplementedException();
-
-            public void Publish( in T args ) {
-                _callback( args );
-            }
-
-            public void Dispose() { }
-            public ISubscriptionHandle Subscribe( EventCallback<T> callback ) => throw new NotImplementedException();
-            public ISubscriptionHandle SubscribeAsync( AsyncEventCallback<T> callback ) => throw new NotImplementedException();
-            public void Unsubscribe( EventCallback<T> callback ) => throw new NotImplementedException();
-            public void UnsubscribeAsync( AsyncEventCallback<T> callback ) => throw new NotImplementedException();
-            public Task PublishAsync( T args, CancellationToken ct = default ) => throw new NotImplementedException();
+        private static MockGameEvent<T> CreateTrackingEvent<T>( string name, Action<T> onPublish ) where T : struct {
+            return new MockGameEvent<T>( onPublish ) { DebugName = name };
         }
     }
 }

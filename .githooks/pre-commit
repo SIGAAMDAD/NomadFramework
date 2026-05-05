@@ -14,7 +14,8 @@ if [ -d "Tests" ]; then
   cd ..
 
   cd Tests
-  dotnet test --configuration Release --verbosity minimal 
+  git add *
+  dotnet test --configuration Release --verbosity minimal
  
   if [ $? -ne 0 ]; then 
     echo "❌ Tests failed!" 

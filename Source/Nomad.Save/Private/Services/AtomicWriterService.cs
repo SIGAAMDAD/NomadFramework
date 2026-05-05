@@ -62,8 +62,9 @@ namespace Nomad.Save.Private.Services {
 		/// </summary>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public static string GetAtomicPathName()
-			=> Path.Combine( Path.GetTempPath(), Guid.NewGuid().ToString() + ".tmp" );
+		public static string GetAtomicPathName() {
+			return Path.Combine( Path.GetTempPath(), Guid.NewGuid().ToString() + ".tmp" );
+		}
 
 		/*
 		===============

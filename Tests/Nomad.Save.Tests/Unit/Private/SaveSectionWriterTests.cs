@@ -14,10 +14,8 @@ using Nomad.Core.Memory.Buffers; // For Any, AnyType
 
 namespace Nomad.Save.Tests
 {
-    [Category("Save")]
     [TestFixture]
     [Category("Nomad.Save")]
-    [Category("Sections.Writing")]
     [Category("Unit")]
     public class SaveSectionWriterTests
     {

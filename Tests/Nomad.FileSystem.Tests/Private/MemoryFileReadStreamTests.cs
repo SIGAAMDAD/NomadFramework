@@ -36,6 +36,7 @@ namespace Nomad.FileSystem.Tests
     public class MemoryFileReadStreamTests
     {
         private FileSystemService _service;
+        private FileSystemServiceTestFixture _fixture;
         private string _tempDir;
         private string _filePath;
         private byte[] _testData;
@@ -43,32 +44,19 @@ namespace Nomad.FileSystem.Tests
         [SetUp]
         public void SetUp()
         {
-            var engineMock = new Mock<IEngineService>();
-            var loggerMock = new Mock<ILoggerService>();
-            var categoryMock = new Mock<ILoggerCategory>();
-
-            _tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-            Directory.CreateDirectory(_tempDir);
-
-            engineMock.Setup(e => e.GetStoragePath(StorageScope.StreamingAssets)).Returns(_tempDir);
-            engineMock.Setup(e => e.GetStoragePath(StorageScope.UserData)).Returns(_tempDir);
-            engineMock.Setup(e => e.GetStoragePath(StorageScope.Install)).Returns(_tempDir);
-            loggerMock.Setup(l => l.CreateCategory(It.IsAny<string>(), It.IsAny<LogLevel>(), It.IsAny<bool>()))
-                      .Returns(categoryMock.Object);
-
-            _service = new FileSystemService(engineMock.Object, loggerMock.Object);
+            _fixture = new FileSystemServiceTestFixture();
+            _service = _fixture.Service;
+            _tempDir = _fixture.TempDir;
 
             _testData = new byte[] { 10, 20, 30, 40, 50 };
-            _filePath = Path.Combine(_tempDir, "memread.bin");
+            _filePath = _fixture.GetPath("memread.bin");
             File.WriteAllBytes(_filePath, _testData);
         }
 
         [TearDown]
         public void TearDown()
         {
-            _service.Dispose();
-            if (Directory.Exists(_tempDir))
-                Directory.Delete(_tempDir, true);
+            _fixture.Dispose();
         }
 
         private IReadStream OpenMemoryFileReadStream()

@@ -15,13 +15,13 @@ namespace Nomad.Events.Tests
 	public sealed class LockFreeSubscriptionSetTests
 	{
 		private MockLogger _logger = null!;
-		private TestGameEvent _eventData = null!;
+		private TestGameEventMetadata<TestArgs> _eventData = null!;
 
 		[SetUp]
 		public void SetUp()
 		{
 			_logger = new MockLogger();
-			_eventData = new TestGameEvent("Nomad.Tests", "LockFreeSubscriptionSetTests");
+			_eventData = new TestGameEventMetadata<TestArgs>("Nomad.Tests", "LockFreeSubscriptionSetTests");
 		}
 
 		[TearDown]
@@ -625,95 +625,6 @@ namespace Nomad.Events.Tests
 		private readonly struct TestArgs
 		{
 			public int Value { get; init; }
-		}
-
-		private sealed class TestGameEvent : IGameEvent<TestArgs>
-		{
-			public string DebugName { get; }
-			public string NameSpace { get; }
-			public int Id { get; }
-
-#if EVENT_DEBUG
-			public int SubscriberCount { get; } = 0;
-			public long PublishCount { get; } = 0;
-			public DateTime LastPublishTime { get; } = default;
-			public TestArgs LastPayload { get; } = default;
-#endif
-
-			public TestGameEvent(string nameSpace, string debugName)
-			{
-				NameSpace = nameSpace;
-				DebugName = debugName;
-				Id = HashCode.Combine(nameSpace, debugName);
-			}
-
-			public event EventCallback<TestArgs> OnPublished
-			{
-				add { }
-				remove { }
-			}
-
-			public event AsyncEventCallback<TestArgs> OnPublishedAsync
-			{
-				add { }
-				remove { }
-			}
-
-			public void Publish(in TestArgs eventArgs)
-			{
-				throw new NotSupportedException("Test metadata stub only.");
-			}
-
-			public Task PublishAsync(TestArgs eventArgs, CancellationToken ct = default)
-			{
-				throw new NotSupportedException("Test metadata stub only.");
-			}
-
-			public ISubscriptionHandle Subscribe(EventCallback<TestArgs> callback)
-			{
-				throw new NotSupportedException("Test metadata stub only.");
-			}
-
-			public ISubscriptionHandle SubscribeAsync(AsyncEventCallback<TestArgs> asyncCallback)
-			{
-				throw new NotSupportedException("Test metadata stub only.");
-			}
-
-			public void Unsubscribe(EventCallback<TestArgs> callback)
-			{
-				throw new NotSupportedException("Test metadata stub only.");
-			}
-
-			public void UnsubscribeAsync(AsyncEventCallback<TestArgs> asyncCallback)
-			{
-				throw new NotSupportedException("Test metadata stub only.");
-			}
-
-#if NET7_0_OR_GREATER
-			public void operator +=(EventCallback<TestArgs> other)
-			{
-				throw new NotSupportedException("Test metadata stub only.");
-			}
-
-			public void operator +=(AsyncEventCallback<TestArgs> other)
-			{
-				throw new NotSupportedException("Test metadata stub only.");
-			}
-
-			public void operator -=(EventCallback<TestArgs> other)
-			{
-				throw new NotSupportedException("Test metadata stub only.");
-			}
-
-			public void operator -=(AsyncEventCallback<TestArgs> other)
-			{
-				throw new NotSupportedException("Test metadata stub only.");
-			}
-#endif
-
-			public void Dispose()
-			{
-			}
 		}
 	}
 }

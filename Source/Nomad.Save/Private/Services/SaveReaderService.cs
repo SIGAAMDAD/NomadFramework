@@ -69,7 +69,7 @@ namespace Nomad.Save.Private.Services {
 			_sections = new ConcurrentDictionary<string, SaveSectionReader>();
 
 			_config = config ?? throw new ArgumentNullException( nameof( config ) );
-			_category = logger.CreateCategory( Constants.Logger.READER_SERVICE_CATEGORY_NAME, LogLevel.Info, true );
+			_category = logger.CreateCategory( nameof( SaveReaderService ), LogLevel.Info, true );
 		}
 
 		/*

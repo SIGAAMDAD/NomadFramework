@@ -13,14 +13,17 @@ of merchantability, fitness for a particular purpose and noninfringement.
 ===========================================================================
 */
 
+using System;
+using System.Runtime.CompilerServices;
 using Nomad.Core.FileSystem.Streams;
+using Nomad.Core.Compatibility.Guards;
 
 namespace Nomad.Save.ValueObjects
 {
     /// <summary>
     /// 
     /// </summary>
-    public readonly struct SaveFileVersion
+    public readonly struct SaveFileVersion : IEquatable<SaveFileVersion>
     {
         /// <summary>
         /// 
@@ -56,6 +59,7 @@ namespace Nomad.Save.ValueObjects
         /// <param name="stream">The stream to write to.</param>
         internal void Serialize(IWriteStream stream)
         {
+            ArgumentGuard.ThrowIfNull(stream, nameof(stream));
             stream.WriteUInt32(Major);
             stream.WriteUInt32(Minor);
             stream.WriteUInt64(Patch);
@@ -68,11 +72,23 @@ namespace Nomad.Save.ValueObjects
         /// <returns></returns>
         internal static SaveFileVersion Deserialize(IReadStream stream)
         {
+            ArgumentGuard.ThrowIfNull(stream, nameof(stream));
             return new SaveFileVersion(
                 stream.ReadUInt32(),
                 stream.ReadUInt32(),
                 stream.ReadUInt64()
             );
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Equals(SaveFileVersion other)
+        {
+            return Major == other.Major && Minor == other.Minor && Patch == other.Patch;
         }
     }
 }
