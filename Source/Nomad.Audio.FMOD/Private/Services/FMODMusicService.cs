@@ -39,7 +39,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		private FMODEventResource _musicHandle;
 		private FMODChannelResource _musicInstance;
 
-		private FMODChannelResource _queuedTheme;
+		private readonly FMODChannelResource _queuedTheme;
 
 		private readonly IResourceCacheService<IAudioResource, string> _eventRepository;
 		private readonly Queue<FMODChannel> _loopingTracks = new Queue<FMODChannel>();
@@ -85,7 +85,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="fade"></param>
 		public void StopTheme( bool fade = false ) {
