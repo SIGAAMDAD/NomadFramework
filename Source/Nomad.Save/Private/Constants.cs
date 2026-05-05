@@ -42,14 +42,8 @@ namespace Nomad.Save.Private {
 			public const string SIMULATE_CORRUPTION = NAMESPACE + ".SimulateCorruption";
 			public const string SIMULATE_SLOW_DISK_MS = NAMESPACE + ".SimulateSlowDiskMS";
 		};
-		internal static class Logger {
-			private const string NAMESPACE = nameof( Nomad.Save );
 
-			public const string WRITER_SERVICE_CATEGORY_NAME = NAMESPACE + ".WriterService";
-			public const string READER_SERVICE_CATEGORY_NAME = NAMESPACE + ".ReaderService";
-		};
-
-		public const uint API_VERSION_MAJOR = 1;
+		public const uint API_VERSION_MAJOR = 0;
 		public const uint API_VERSION_MINOR = 1;
 		public const uint API_VERSION_PATCH = 0;
 

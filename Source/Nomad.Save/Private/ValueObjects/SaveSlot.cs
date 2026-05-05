@@ -19,7 +19,7 @@ using Nomad.Save.ValueObjects;
 
 namespace Nomad.Save.Private.ValueObjects {
 	/// <summary>
-	/// 
+	///
 	/// </summary>
 	/// <param name="FileName"></param>
 	/// <param name="Metadata"></param>
@@ -28,7 +28,7 @@ namespace Nomad.Save.Private.ValueObjects {
 		SaveFileMetadata Metadata
 	) {
 		public static string CalculateFileName( bool autoSave, SaveFileMetadata metadata ) {
-			var sb = new StringBuilder( 256 );
+			StringBuilder sb = new StringBuilder( 256 );
 
 			sb.AppendFormat( "{0}_{1}_{2}{3}{4}{5}{6}{7}.ngd",
 				autoSave ? "AutoSave" : "Data",

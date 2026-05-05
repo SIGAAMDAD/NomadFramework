@@ -14,86 +14,78 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
-using Nomad.Core.FileSystem.Streams;
-using Nomad.Save.ValueObjects;
 
 namespace Nomad.Save.Private.ValueObjects {
+	/*
+	===================================================================================
+
+	BackupData
+
+	===================================================================================
+	*/
 	/// <summary>
-	/// 
+	/// Describes a save backup file known to the save system.
 	/// </summary>
-	internal readonly struct BackupData {
-		/// <summary>
-		/// The API version we used when creating the backup.
-		/// </summary>
-		public readonly SaveFileVersion Version { get; }
 
-		/// <summary>
-		/// The Id of the save file we're backing up.
-		/// </summary>
-		public readonly ulong Guid { get; }
+	internal readonly struct BackupData : IEquatable<BackupData> {
+		public static readonly BackupData Empty = new BackupData(
+			sourcePath: string.Empty,
+			backupPath: string.Empty,
+			saveName: string.Empty,
+			createdUtc: default,
+			sizeBytes: 0,
+			order: 0
+		);
 
-		/// <summary>
-		/// When the backup was created.
-		/// </summary>
-		public readonly DateTime CreatedAt { get; }
+		public string SourcePath { get; }
+		public string BackupPath { get; }
+		public string SaveName { get; }
+		public DateTime CreatedUtc { get; }
+		public long SizeBytes { get; }
+		public int Order { get; }
 
-		/// <summary>
-		/// The backup's index in the chain.
-		/// </summary>
-		public readonly int Number { get; }
+		public bool IsValid => !string.IsNullOrWhiteSpace( BackupPath ) && !string.IsNullOrWhiteSpace( SaveName );
 
-		/*
-		===============
-		BackupData
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="version"></param>
-		/// <param name="guid"></param>
-		/// <param name="createdAt"></param>
-		/// <param name="number"></param>
-		public BackupData( SaveFileVersion version, ulong guid, DateTime createdAt, int number ) {
-			Version = version;
-			Guid = guid;
-			CreatedAt = createdAt;
-			Number = number;
+		public BackupData(
+			string sourcePath,
+			string backupPath,
+			string saveName,
+			DateTime createdUtc,
+			long sizeBytes,
+			int order
+		) {
+			SourcePath = sourcePath ?? string.Empty;
+			BackupPath = backupPath ?? string.Empty;
+			SaveName = saveName ?? string.Empty;
+			CreatedUtc = createdUtc;
+			SizeBytes = sizeBytes;
+			Order = order;
 		}
 
-		/*
-		===============
-		Serialize
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="stream"></param>
-		public void Serialize( IWriteStream stream ) {
-			Version.Serialize( stream );
-			stream.WriteUInt64( Guid );
-			stream.WriteInt64( CreatedAt.ToFileTimeUtc() );
-			stream.WriteInt32( Number );
+		public bool Equals( BackupData other ) {
+			return BackupPath.Equals( other.BackupPath, StringComparison.OrdinalIgnoreCase )
+				&& SaveName.Equals( other.SaveName, StringComparison.Ordinal )
+				&& CreatedUtc.Equals( other.CreatedUtc )
+				&& Order == other.Order;
 		}
 
-		/*
-		===============
-		Deserialize
-		===============
-		*/
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="stream"></param>
-		/// <returns></returns>
-		public static BackupData Deserialize( IReadStream stream ) {
-			return new BackupData(
-				SaveFileVersion.Deserialize( stream ),
-				stream.ReadUInt64(),
-				DateTime.FromFileTimeUtc( stream.ReadInt64() ),
-				stream.ReadInt32()
+		public override bool Equals( object? obj ) {
+			return obj is BackupData other && Equals( other );
+		}
+
+		public override int GetHashCode() {
+			return HashCode.Combine(
+				BackupPath.ToUpperInvariant(),
+				SaveName,
+				CreatedUtc,
+				Order
 			);
 		}
+
+		public static bool operator ==( BackupData left, BackupData right )
+			=> left.Equals( right );
+
+		public static bool operator !=( BackupData left, BackupData right )
+			=> !left.Equals( right );
 	};
 };

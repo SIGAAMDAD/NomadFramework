@@ -158,7 +158,8 @@ namespace Nomad.Save.Tests
 				.Returns((IWriteStream?)null);
 
 			using var slotRepository = new SlotRepository(fileSystem.Object, fixture.Logger, fixture.Config);
-			var atomicWriter = new AtomicWriterService(fixture.EngineService.Object, fileSystem.Object);
+			var backupService = new BackupService(fixture.Config, fileSystem.Object);
+			var atomicWriter = new AtomicWriterService(fixture.EngineService.Object, fileSystem.Object, backupService);
 			using var writer = new SaveWriterService(fixture.Config, atomicWriter, slotRepository, fileSystem.Object, fixture.Logger);
 			ISaveWriterService writerService = writer;
 
@@ -170,7 +171,7 @@ namespace Nomad.Save.Tests
 
 		/*
 		===============
-		AddSection_BeforeBeginSave_ThrowsArgumentNullException
+		AddSection_BeforeBeginSave_ThrowsInvalidOperationException
 		===============
 		*/
 		/// <summary>
@@ -180,13 +181,13 @@ namespace Nomad.Save.Tests
 		[Test]
 		[Category("Unit")]
 		[Category("ErrorHandling")]
-		public void AddSection_BeforeBeginSave_ThrowsArgumentNullException()
+		public void AddSection_BeforeBeginSave_ThrowsInvalidOperationException()
 		{
 			using var fixture = new SaveWriterServiceFixture();
 
 			Assert.That(
 				() => fixture.Writer.AddSection("Player"),
-				Throws.TypeOf<ArgumentNullException>()
+				Throws.TypeOf<InvalidOperationException>()
 			);
 		}
 
@@ -269,7 +270,7 @@ namespace Nomad.Save.Tests
 
 		/*
 		===============
-		EndSave_BeforeBeginSave_ThrowsArgumentNullException
+		EndSave_BeforeBeginSave_ThrowsInvalidOperationException
 		===============
 		*/
 		/// <summary>
@@ -279,14 +280,14 @@ namespace Nomad.Save.Tests
 		[Test]
 		[Category("Unit")]
 		[Category("ErrorHandling")]
-		public void EndSave_BeforeBeginSave_ThrowsArgumentNullException()
+		public void EndSave_BeforeBeginSave_ThrowsInvalidOperationException()
 		{
 			using var fixture = new SaveWriterServiceFixture();
 			ISaveWriterService writer = fixture.Writer;
 
 			Assert.That(
 				() => writer.EndSave("not-started", new GameVersion(1, 0, 0)),
-				Throws.TypeOf<ArgumentNullException>()
+				Throws.TypeOf<InvalidOperationException>()
 			);
 		}
 
@@ -559,6 +560,7 @@ namespace Nomad.Save.Tests
 			public SlotRepository SlotRepository { get; }
 			public AtomicWriterService AtomicWriter { get; }
 			public SaveWriterService Writer { get; }
+			public BackupService Backup { get; }
 			public string RootDirectory { get; }
 			public string SaveDirectory { get; }
 			public string BackupDirectory { get; }
@@ -586,7 +588,9 @@ namespace Nomad.Save.Tests
 				FileSystem = new FileSystemService(EngineService.Object, Logger);
 				Config = CreateConfig(debugLogging, logSerializationTree);
 				SlotRepository = new SlotRepository(FileSystem, Logger, Config);
-				AtomicWriter = new AtomicWriterService(EngineService.Object, FileSystem);
+				Backup = new BackupService(Config, FileSystem);
+
+				AtomicWriter = new AtomicWriterService(EngineService.Object, FileSystem, Backup);
 				Writer = new SaveWriterService(Config, AtomicWriter, SlotRepository, FileSystem, Logger);
 			}
 

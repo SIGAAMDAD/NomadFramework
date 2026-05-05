@@ -5,7 +5,6 @@
     <Version>0.1.0-alpha1</Version>
     <Description>Steamworks.NET online services adapter for NomadFramework.</Description>
 
-    <NomadValidateAsModule>true</NomadValidateAsModule>
     <NomadUseSourceGenerators>true</NomadUseSourceGenerators>
   </PropertyGroup>
 

@@ -58,7 +58,7 @@ namespace Nomad.Save.Private.Entities {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="config"></param>
 		/// <param name="index"></param>
@@ -71,7 +71,7 @@ namespace Nomad.Save.Private.Entities {
 			_fields = new Dictionary<string, SaveField>();
 			_category = category ?? throw new ArgumentNullException( nameof( category ) );
 
-			var header = SectionHeader.Load( index, reader );
+			SectionHeader header = SectionHeader.Load( index, reader );
 
 			if ( config.LogSerializationTree ) {
 				_category.PrintLine( $"\t[Section] (NAME) {header.Name}" );
@@ -82,7 +82,7 @@ namespace Nomad.Save.Private.Entities {
 
 			_fields.EnsureCapacity( fieldCount );
 			for ( int i = 0; i < fieldCount; i++ ) {
-				var field = SaveField.Read( Name, i, reader );
+				SaveField field = SaveField.Read( Name, i, reader );
 
 				if ( config.LogSerializationTree ) {
 					_category.PrintLine( $"\t\t[Field] (NAME) {field.Name}, (TYPE) {field.Type}, (VALUE) {field.Value}" );
@@ -101,7 +101,7 @@ namespace Nomad.Save.Private.Entities {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		public void Dispose() {
 			if ( !_isDisposed ) {
@@ -117,14 +117,15 @@ namespace Nomad.Save.Private.Entities {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <param name="fieldName"></param>
 		/// <returns></returns>
 		/// <exception cref="InvalidCastException"></exception>
 		public T GetField<T>( string fieldName )
-			where T : unmanaged {
+			where T : unmanaged
+		{
 			StateGuard.ThrowIfDisposed( _isDisposed, this );
 			ArgumentGuard.ThrowIfNullOrEmpty( fieldName );
 
@@ -144,7 +145,7 @@ namespace Nomad.Save.Private.Entities {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="fieldName"></param>
 		/// <returns></returns>

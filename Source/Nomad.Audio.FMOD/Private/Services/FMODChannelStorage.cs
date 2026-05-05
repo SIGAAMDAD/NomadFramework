@@ -19,15 +19,15 @@ using System.Runtime.InteropServices;
 namespace Nomad.Audio.Fmod.Private.Services {
 	/*
 	===================================================================================
-	
+
 	FMODChannelStorage
-	
+
 	===================================================================================
 	*/
 	/// <summary>
-	/// 
+	///
 	/// </summary>
-	
+
 	internal unsafe sealed class FMODChannelStorage : IDisposable {
 		private byte* _base;
 		private readonly nuint _bytes;
@@ -85,7 +85,11 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			totalBytes += PadBytes( sizeof( int ) * capacity, alignment ); // SlotPrevInCategory
 
 			_bytes = (nuint)totalBytes;
+#if NET6_0_OR_GREATER
 			_base = (byte*)NativeMemory.AlignedAlloc( _bytes, Core.Constants.WORDSIZE );
+#else
+			_base = (byte*)Marshal.AllocHGlobal( (int)_bytes );
+#endif
 			SlotToDense = (int*)_base;
 			DenseToSlot = (int*)((byte*)SlotToDense + PadBytes( sizeof( int ) * capacity, alignment ));
 			FreeSlots = (int*)((byte*)DenseToSlot + PadBytes( sizeof( int ) * capacity, alignment ));
@@ -112,13 +116,17 @@ namespace Nomad.Audio.Fmod.Private.Services {
 
 		public void Dispose() {
 			if ( _base != null ) {
+#if NET6_0_OR_GREATER
 				NativeMemory.Free( _base );
+#else
+				Marshal.FreeHGlobal( (nint)_base );
+#endif
 				_base = null;
 			}
 		}
 
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="size"></param>
 		/// <param name="alignment"></param>

@@ -5,7 +5,6 @@
     <Version>0.1.0-alpha1</Version>
     <Description>Deterministic save serialization, versioning, metadata, and state restoration for NomadFramework.</Description>
 
-    <NomadValidateAsModule>true</NomadValidateAsModule>
     <NomadUseSourceGenerators>true</NomadUseSourceGenerators>
   </PropertyGroup>
 

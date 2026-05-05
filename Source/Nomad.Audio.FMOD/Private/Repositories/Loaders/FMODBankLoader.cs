@@ -71,7 +71,6 @@ namespace Nomad.Audio.Fmod.Private.Repositories.Loaders {
 				throw new InvalidCastException();
 			}
 			try {
-				Console.WriteLine( $"Attempting to load bank file '{path}'..." );
 				FMODValidator.ValidateCall( _fmodSystem.StudioSystem.loadBankFile( path, FMOD.Studio.LOAD_BANK_FLAGS.NORMAL, out var bank ) );
 				FMODValidator.ValidateCall( bank.getID( out var guid ) );
 				_category.PrintLine( $"FMODBankLoader.LoadBank: loaded bank '{path}'" );
@@ -107,7 +106,6 @@ namespace Nomad.Audio.Fmod.Private.Repositories.Loaders {
 			try {
 				ct.ThrowIfCancellationRequested();
 
-				Console.WriteLine( $"Attempting to load bank file '{path}'..." );
 				FMODValidator.ValidateCall( _fmodSystem.StudioSystem.loadBankFile( path, FMOD.Studio.LOAD_BANK_FLAGS.NONBLOCKING, out var bank ) );
 				FMODValidator.ValidateCall( bank.getID( out var guid ) );
 				_category.PrintLine( $"FMODBankLoader.LoadBankAsync: loaded bank '{path}'" );

@@ -14,7 +14,9 @@ of merchantability, fitness for a particular purpose and noninfringement.
 */
 
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using Nomad.Core.Compatibility.Guards;
 using Nomad.Core.FileSystem;
@@ -63,7 +65,7 @@ namespace Nomad.Save.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="config"></param>
 		/// <param name="atomicWriter"></param>
@@ -72,15 +74,18 @@ namespace Nomad.Save.Private.Services {
 		/// <param name="logger"></param>
 		/// <exception cref="ArgumentNullException"></exception>
 		public SaveWriterService( SaveConfig config, AtomicWriterService atomicWriter, SlotRepository slotRepository, IFileSystem fileSystem, ILoggerService logger ) {
-			ArgumentGuard.ThrowIfNull( logger );
+			ArgumentGuard.ThrowIfNull( logger, nameof( logger ) );
+			ArgumentGuard.ThrowIfNull( fileSystem, nameof( fileSystem ) );
+			ArgumentGuard.ThrowIfNull( slotRepository, nameof( slotRepository ) );
+			ArgumentGuard.ThrowIfNull( config, nameof( config ) );
+			ArgumentGuard.ThrowIfNull( atomicWriter, nameof( atomicWriter ) );
 
-			_slotRepository = slotRepository ?? throw new ArgumentNullException( nameof( slotRepository ) );
-			_fileSystem = fileSystem ?? throw new ArgumentNullException( nameof( fileSystem ) );
+			_slotRepository = slotRepository;
+			_fileSystem = fileSystem;
+			_config = config;
+			_atomicWriter = atomicWriter;
 
-			_config = config ?? throw new ArgumentNullException( nameof( config ) );
 			_category = logger.CreateCategory( nameof( SaveWriterService ), LogLevel.Info, true );
-
-			_atomicWriter = atomicWriter ?? throw new ArgumentNullException( nameof( atomicWriter ) );
 		}
 
 		/*
@@ -89,7 +94,7 @@ namespace Nomad.Save.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		public void Dispose() {
 			if ( !_isDisposed ) {
@@ -107,18 +112,19 @@ namespace Nomad.Save.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="name"></param>
 		/// <param name="gameVersion"></param>
 		void ISaveWriterService.BeginSave( string name, GameVersion gameVersion ) {
-			var filepath = _slotRepository.AddSaveFile( name, false );
+			string filepath = _slotRepository.AddSaveFile( name, false );
 
-			_writer = _fileSystem.OpenWrite( new MemoryFileWriteConfig { FilePath = AtomicWriterService.GetAtomicPathName() } ) as IMemoryFileWriteStream ?? throw new CreateSaveFileFailed( filepath );
+			_writer = _fileSystem.OpenWrite( new MemoryFileWriteConfig { FilePath = AtomicWriterService.GetAtomicPathName() } )
+				as IMemoryFileWriteStream ?? throw new CreateSaveFileFailed( filepath );
 
 			_category.PrintLine( $"Writing save data to {name} at {filepath}..." );
 			{
-				var header = new SaveHeader( name, gameVersion, _sections.Count, Checksum.Empty );
+				SaveHeader header = new SaveHeader( name, gameVersion, _sections.Count, Checksum.Empty );
 				header.Serialize( _writer );
 			}
 		}
@@ -129,16 +135,18 @@ namespace Nomad.Save.Private.Services {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="name"></param>
 		/// <param name="gameVersion"></param>
 		void ISaveWriterService.EndSave( string name, GameVersion gameVersion ) {
-			ArgumentGuard.ThrowIfNull( _writer );
+			if ( _writer == null ) {
+				throw new InvalidOperationException( "EndSave called before a save operation was started." );
+			}
 
-			var sections = _sections.Values.ToList();
+			List<SaveSectionWriter> sections = _sections.Values.ToList();
 			int sectionCount = sections.Count;
-			foreach ( var section in sections ) {
+			foreach ( SaveSectionWriter section in sections ) {
 				section.Dispose();
 			}
 			_sections.Clear();
@@ -146,10 +154,10 @@ namespace Nomad.Save.Private.Services {
 			if ( _writer.Buffer == null ) {
 				throw new InvalidOperationException( "EndSave operation called on a null write buffer!" );
 			}
-			var checksum = Checksum.Compute( _writer.Buffer.Span );
+			Checksum checksum = Checksum.Compute( _writer.Buffer.Span );
 
 			_writer.Seek( 0, System.IO.SeekOrigin.Begin );
-			var header = new SaveHeader( name, gameVersion, sectionCount, checksum );
+			SaveHeader header = new SaveHeader( name, gameVersion, sectionCount, checksum );
 			header.Serialize( _writer );
 
 			_writer.Seek( 0, System.IO.SeekOrigin.End );
@@ -164,7 +172,7 @@ namespace Nomad.Save.Private.Services {
 			}
 
 			// clear the memory buffer
-			var filepath = _slotRepository.AddSaveFile( name, false );
+			string filepath = _slotRepository.AddSaveFile( name, false );
 			_atomicWriter.FinalizeSaveData( filepath, _writer );
 		}
 
@@ -180,12 +188,13 @@ namespace Nomad.Save.Private.Services {
 		/// <returns>The new write-dedicated section.</returns>
 		/// <exception cref="DuplicateSectionException">Thrown if <paramref name="sectionId"/> already exists in the section cache.</exception>
 		public ISaveSectionWriter AddSection( string sectionId ) {
-			ArgumentGuard.ThrowIfNull( _writer );
-
+			if ( _writer == null ) {
+				throw new InvalidOperationException( "AddSection called before a save operation was started." );
+			}
 			if ( _sections.ContainsKey( sectionId ) ) {
 				throw new DuplicateSectionException( sectionId );
 			}
-			var writer = new SaveSectionWriter( _config, _category, sectionId, _writer );
+			SaveSectionWriter writer = new SaveSectionWriter( _config, _category, sectionId, _writer );
 			_sections[sectionId] = writer;
 
 			if ( _config.LogSerializationTree ) {

@@ -21,23 +21,23 @@ using System.Runtime.CompilerServices;
 namespace Nomad.Save.Private.ValueObjects {
 	/*
 	===================================================================================
-	
+
 	Checksum
-	
+
 	===================================================================================
 	*/
 	/// <summary>
-	/// 
+	///
 	/// </summary>
 
 	internal readonly struct Checksum {
 		/// <summary>
-		/// 
+		///
 		/// </summary>
-		public static readonly Checksum Empty = new Checksum( 0 );
+		public static readonly Checksum Empty = default;
 
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		public readonly ulong Value { get; }
 
@@ -47,7 +47,7 @@ namespace Nomad.Save.Private.ValueObjects {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="value"></param>
 		public Checksum( ulong value ) {
@@ -60,12 +60,12 @@ namespace Nomad.Save.Private.ValueObjects {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="buffer"></param>
 		/// <returns></returns>
 		public static Checksum Compute( ReadOnlySpan<byte> buffer ) {
-			var checksum64 = new Crc64();
+			Crc64 checksum64 = new Crc64();
 			checksum64.Append( buffer );
 			return new Checksum( checksum64.GetCurrentHashAsUInt64() );
 		}
@@ -76,13 +76,14 @@ namespace Nomad.Save.Private.ValueObjects {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="obj"></param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public override bool Equals( [NotNullWhen( true )] object? obj )
-			=> obj is Checksum checksum && checksum.Value == Value;
+		public override bool Equals( [NotNullWhen( true )] object? obj ) {
+			return obj is Checksum checksum && checksum.Value == Value;
+		}
 
 		/*
 		===============
@@ -90,12 +91,13 @@ namespace Nomad.Save.Private.ValueObjects {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public override int GetHashCode()
-			=> base.GetHashCode();
+		public override int GetHashCode() {
+			return base.GetHashCode();
+		}
 
 		/*
 		===============
@@ -103,15 +105,15 @@ namespace Nomad.Save.Private.ValueObjects {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="a"></param>
 		/// <param name="b"></param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public static bool operator ==( Checksum a, Checksum b )
-			=> a.Value == b.Value;
-
+		public static bool operator ==( Checksum a, Checksum b ) {
+			return a.Value == b.Value;
+		}
 
 		/*
 		===============
@@ -119,13 +121,14 @@ namespace Nomad.Save.Private.ValueObjects {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="a"></param>
 		/// <param name="b"></param>
 		/// <returns></returns>
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
-		public static bool operator !=( Checksum a, Checksum b )
-			=> a.Value != b.Value;
+		public static bool operator !=( Checksum a, Checksum b ) {
+			return a.Value != b.Value;
+		}
 	};
 };

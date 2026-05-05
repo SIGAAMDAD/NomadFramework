@@ -81,10 +81,10 @@ namespace Nomad.OnlineServices.Steam.Private {
 		/*
 		===============
 		SteamMatchMakingService
-		=============== 
+		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="repository"></param>
 		/// <param name="cvarSystem"></param>
@@ -97,7 +97,7 @@ namespace Nomad.OnlineServices.Steam.Private {
 			_lastRange = ServerRange.Count;
 			_repository = repository ?? throw new ArgumentNullException( nameof( repository ) );
 
-			var lobbyUpdateInterval = cvarSystem.GetCVarOrThrow<int>( Constants.CVars.LOBBY_UDDATE_INTERVAL );
+			ICVar<int> lobbyUpdateInterval = cvarSystem.GetCVarOrThrow<int>( Constants.CVars.LOBBY_UDDATE_INTERVAL );
 			_lobbyUpdateInterval = lobbyUpdateInterval.Value;
 		}
 
@@ -107,7 +107,7 @@ namespace Nomad.OnlineServices.Steam.Private {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		public void Dispose() {
 			if ( !_isDisposed ) {
@@ -123,7 +123,7 @@ namespace Nomad.OnlineServices.Steam.Private {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="info"></param>
 		/// <param name="ct"></param>
@@ -143,7 +143,7 @@ namespace Nomad.OnlineServices.Steam.Private {
 			}
 
 			var steamLobbies = _repository.Lobbies;
-			var lobbies = new List<LobbyInfo>( steamLobbies.Count );
+			List<LobbyInfo> lobbies = new List<LobbyInfo>( steamLobbies.Count );
 			foreach ( var lobby in steamLobbies ) {
 				lobbies.Add( lobby.Info );
 			}
@@ -158,7 +158,7 @@ namespace Nomad.OnlineServices.Steam.Private {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="info"></param>
 		/// <param name="ct"></param>
@@ -216,7 +216,7 @@ namespace Nomad.OnlineServices.Steam.Private {
 		===============
 		*/
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="range"></param>
 		/// <param name="ct"></param>
