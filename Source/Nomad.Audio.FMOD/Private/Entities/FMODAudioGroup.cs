@@ -27,7 +27,7 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal sealed class FMODAudioGroup : IAudioGroup {
 		public string Name => _name;
 		private readonly string _name;
@@ -35,7 +35,7 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 		public float Volume {
 			get => _volume;
 			set {
-				_volume = Math.Clamp( MathF.Pow( 10.0f, ( ( value * 100.0f ) - 80.0f ) / 20.0f ), 0.0f, 1.0f );
+				_volume = Math.Clamp( MathF.Pow( 10.0f, ((value * 100.0f) - 80.0f) / 20.0f ), 0.0f, 1.0f );
 				_bus.setVolume( _volume );
 			}
 		}
@@ -62,7 +62,7 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 		/// </summary>
 		/// <param name="bus"></param>
 		/// <param name="name"></param>
-		public FMODAudioGroup( FMOD.Studio.Bus bus, string name ) {			
+		public FMODAudioGroup( FMOD.Studio.Bus bus, string name ) {
 			_bus = bus;
 			_name = name;
 

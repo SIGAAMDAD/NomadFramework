@@ -34,8 +34,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 
 	internal sealed class FMODEventRepository : BaseCache<IAudioResource, string> {
 		public FMODEventRepository( ILoggerService logger, IGameEventRegistryService eventFactory, FMODDevice fmodSystem )
-			: base( logger, eventFactory, new FMODEventLoader( fmodSystem, fmodSystem.GuidRepository, logger.CreateCategory( nameof( FMODEventLoader ), LogLevel.Info, true ) ) ) 
-		{
+			: base( logger, eventFactory, new FMODEventLoader( fmodSystem, fmodSystem.GuidRepository, logger.CreateCategory( nameof( FMODEventLoader ), LogLevel.Info, true ) ) ) {
 		}
 	};
 };

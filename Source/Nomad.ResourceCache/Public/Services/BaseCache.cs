@@ -116,7 +116,7 @@ namespace Nomad.ResourceCache
             _resourceLoaded = eventFactory.GetEvent<ResourceLoadedEventArgs<TId>>(ResourceLoadedEventArgs<TId>.Name, ResourceLoadedEventArgs<TId>.NameSpace);
             _resourceUnloaded = eventFactory.GetEvent<ResourceUnloadedEventArgs<TId>>(ResourceUnloadedEventArgs<TId>.Name, ResourceUnloadedEventArgs<TId>.NameSpace);
             _resourceLoadFailed = eventFactory.GetEvent<ResourceLoadFailedEventArgs<TId>>(ResourceLoadFailedEventArgs<TId>.Name, ResourceLoadFailedEventArgs<TId>.NameSpace);
-            
+
             _cleanupThread = Task.Run(LaunchCleanupThread);
         }
 

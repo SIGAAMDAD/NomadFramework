@@ -20,8 +20,7 @@ namespace Nomad.Audio.Fmod {
 		public readonly string Error;
 
 		public FMODException( string errorString )
-			: base( errorString )
-		{
+			: base( errorString ) {
 			Error = errorString;
 		}
 	}

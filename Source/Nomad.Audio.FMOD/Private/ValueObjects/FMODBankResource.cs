@@ -84,23 +84,23 @@ namespace Nomad.Audio.Fmod.Private.ValueObjects {
 		/// 
 		/// </summary>
 		/// <returns></returns>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public override int GetHashCode()
 			=> base.GetHashCode();
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public override bool Equals( [NotNullWhen( true )] object? obj )
 			=> obj is FMODBankResource resource && resource._instance.handle == _instance.handle;
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public static implicit operator FMOD.Studio.Bank( FMODBankResource bank )
 			=> bank._instance;
-		
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public static bool operator ==( FMODBankResource a, FMODBankResource b )
 			=> a._instance.handle == b._instance.handle;
-		
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
 		public static bool operator !=( FMODBankResource a, FMODBankResource b )
 			=> a._instance.handle != b._instance.handle;
 	};

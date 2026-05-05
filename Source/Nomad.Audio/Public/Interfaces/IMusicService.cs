@@ -30,7 +30,7 @@ namespace Nomad.Audio.Interfaces
         /// </summary>
         /// <param name="id"></param>
         void PlayTheme(string id);
-        
+
         /// <summary>
         /// 
         /// </summary>

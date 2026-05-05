@@ -30,7 +30,7 @@ namespace Nomad.Audio.Fmod.Private.Entities {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal sealed class FMODEmitter : IAudioEmitter {
 		public Vector2 Position {
 			get => _position;

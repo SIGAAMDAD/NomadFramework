@@ -26,7 +26,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal sealed class FMODCallbackDispatcher : IDisposable {
 		public event Action<FMOD.System> DeviceListChanged;
 		public event Action<FMOD.System> DeviceLost;

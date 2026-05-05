@@ -103,7 +103,7 @@ namespace Nomad.Save.Private.Services {
 			_autoSaveInterval = cvarSystem.GetCVarOrThrow<int>( Constants.CVars.AUTO_SAVE_INTERVAL );
 			_autoSaveInterval.ValueChanged.Subscribe( OnAutoSaveIntervalChanged );
 
-			_backupService = new BackupService(_config, fileSystem);
+			_backupService = new BackupService( _config, fileSystem );
 			_atomicWriter = new AtomicWriterService( engineService, fileSystem, _backupService );
 
 			_slotRepository = new SlotRepository( fileSystem, logger, _config );

@@ -27,7 +27,7 @@ namespace Nomad.Audio.Fmod {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal static class FMODValidator {
 		private static ILoggerService? _logger;
 
@@ -40,7 +40,7 @@ namespace Nomad.Audio.Fmod {
 		/// 
 		/// </summary>
 		/// <param name="logger"></param>
-		public static void Initialize(ILoggerService logger) {
+		public static void Initialize( ILoggerService logger ) {
 			_logger = logger;
 		}
 

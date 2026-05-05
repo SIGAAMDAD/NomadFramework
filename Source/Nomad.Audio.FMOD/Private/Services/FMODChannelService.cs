@@ -40,7 +40,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal unsafe sealed class FMODChannelService : IChannelRepository {
 		private const int INVALID_INDEX = -1;
 		private const byte FLAG_ESSENTIAL = 1 << 0;
@@ -149,12 +149,12 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			_denseToSlot = new int[_capacity];
 			_freeSlots = new int[_capacity];
 			_slotGeneration = new uint[_capacity];
-//			_arena.SlotNextInCategory = new int[_capacity];
-//			_arena.SlotPrevInCategory = new int[_capacity];
+			//			_arena.SlotNextInCategory = new int[_capacity];
+			//			_arena.SlotPrevInCategory = new int[_capacity];
 
 			Array.Fill( _slotToDense, INVALID_INDEX );
-//			Array.Fill( _arena.SlotNextInCategory, INVALID_INDEX );
-//			Array.Fill( _arena.SlotPrevInCategory, INVALID_INDEX );
+			//			Array.Fill( _arena.SlotNextInCategory, INVALID_INDEX );
+			//			Array.Fill( _arena.SlotPrevInCategory, INVALID_INDEX );
 
 			for ( int i = 0; i < _capacity; i++ ) {
 				_freeSlots[i] = _capacity - 1 - i;
@@ -178,7 +178,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			_arena.Attenuation = new float[_capacity];
 			*/
 
-			_arena = new FMODChannelStorage(_capacity);
+			_arena = new FMODChannelStorage( _capacity );
 			new Span<int>( _arena.SlotNextInCategory, _arena.Capacity ).Fill( INVALID_INDEX );
 			new Span<int>( _arena.SlotPrevInCategory, _arena.Capacity ).Fill( INVALID_INDEX );
 

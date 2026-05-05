@@ -32,8 +32,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 
 	internal sealed class FMODGuidRepository : IGuidRepository<FMOD.GUID, FMOD.GUID> {
 		private sealed class GUIDCache<TGuid, TId>
-			where TId : notnull
-		{
+			where TId : notnull {
 			private readonly Dictionary<TGuid, TId> _guids = new Dictionary<TGuid, TId>();
 			private readonly Dictionary<TId, TGuid> _reverseLookup = new Dictionary<TId, TGuid>();
 

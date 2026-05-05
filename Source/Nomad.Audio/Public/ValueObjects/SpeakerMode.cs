@@ -15,22 +15,22 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Audio.ValueObjects
 {
-	/// <summary>
-	/// 
-	/// </summary>
-	public enum SpeakerMode : byte
-	{
-		Auto,
+    /// <summary>
+    /// 
+    /// </summary>
+    public enum SpeakerMode : byte
+    {
+        Auto,
 
-		Headphones,
+        Headphones,
 
-		StereoSpeakers,
+        StereoSpeakers,
 
-		Surround_5_1,
-		Surround_7_1,
+        Surround_5_1,
+        Surround_7_1,
 
-		Atmos,
+        Atmos,
 
-		Count
-	}
+        Count
+    }
 }

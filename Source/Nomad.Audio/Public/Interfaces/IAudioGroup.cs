@@ -15,24 +15,24 @@ of merchantability, fitness for a particular purpose and noninfringement.
 
 namespace Nomad.Audio.Interfaces
 {
-	/// <summary>
-	/// 
-	/// </summary>
-	public interface IAudioGroup
-	{
-		/// <summary>
-		/// 
-		/// </summary>
-		string Name { get; }
+    /// <summary>
+    /// 
+    /// </summary>
+    public interface IAudioGroup
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        string Name { get; }
 
-		/// <summary>
-		/// 
-		/// </summary>
-		bool Muted { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        bool Muted { get; set; }
 
-		/// <summary>
-		/// 
-		/// </summary>
-		float Volume { get; set; }
-	}
+        /// <summary>
+        /// 
+        /// </summary>
+        float Volume { get; set; }
+    }
 }

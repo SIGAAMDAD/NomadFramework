@@ -41,7 +41,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 				numchannels = channels,
 				format = FMOD.SOUND_FORMAT.PCM16,
 				defaultfrequency = sampleRate,
-				length = (uint)(sampleRate * channels * sizeof(short))
+				length = (uint)(sampleRate * channels * sizeof( short ))
 			};
 
 			FMODValidator.ValidateCall( system.createSound(

@@ -34,7 +34,7 @@ namespace Nomad.Audio.Fmod.Private.Repositories {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal sealed class FMODAudioGroupRepository : IDisposable {
 		private readonly ConcurrentDictionary<string, IAudioGroup> _groups = new();
 		private readonly FMOD.Studio.System _system;

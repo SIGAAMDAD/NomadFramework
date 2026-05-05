@@ -18,8 +18,7 @@ using Nomad.Core.Exceptions;
 namespace Nomad.Audio.Fmod.Private.Exceptions {
 	internal sealed class TooManyListenersException : NomadException {
 		public TooManyListenersException()
-			: base( "Too many registered listeners!" )
-		{
+			: base( "Too many registered listeners!" ) {
 		}
 	};
 };

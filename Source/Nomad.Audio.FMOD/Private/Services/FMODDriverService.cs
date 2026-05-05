@@ -33,7 +33,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 	/// <summary>
 	/// 
 	/// </summary>
-	
+
 	internal sealed class FMODDriverService : IDisposable {
 		private readonly FMODDriverRepository _repository;
 		private readonly FMODOutputDeviceRepository _outputDeviceRepository;
@@ -72,7 +72,7 @@ namespace Nomad.Audio.Fmod.Private.Services {
 			FMODOutputDeviceRepository outputDeviceRepository
 		) {
 			ArgumentGuard.ThrowIfNull( cvarSystem );
-			
+
 			_category = category ?? throw new ArgumentNullException( nameof( category ) );
 			_system = system;
 			_callbackDispatcher = callbackDispatcher ?? throw new ArgumentNullException( nameof( callbackDispatcher ) );

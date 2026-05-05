@@ -124,8 +124,7 @@ namespace Nomad.Save.Private.Entities {
 		/// <returns></returns>
 		/// <exception cref="InvalidCastException"></exception>
 		public T GetField<T>( string fieldName )
-			where T : unmanaged
-		{
+			where T : unmanaged {
 			StateGuard.ThrowIfDisposed( _isDisposed, this );
 			ArgumentGuard.ThrowIfNullOrEmpty( fieldName );
 
